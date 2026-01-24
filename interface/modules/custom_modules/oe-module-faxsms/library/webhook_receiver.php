@@ -37,6 +37,13 @@ $rawInput = file_get_contents('php://input');
 /**
  * Validation helper functions for webhook input
  */
+
+/**
+ * Validate and sanitize fax ID
+ *
+ * @param string $faxId
+ * @return string
+ */
 function validateFaxId(string $faxId): string
 {
     // Remove any characters that aren't alphanumeric, hyphens, or underscores
@@ -45,6 +52,12 @@ function validateFaxId(string $faxId): string
     return substr($sanitized ?? '', 0, 255);
 }
 
+/**
+ * Validate fax status against allowed values
+ *
+ * @param string $status
+ * @return string
+ */
 function validateFaxStatus(string $status): string
 {
     $allowedStatuses = [
@@ -56,6 +69,12 @@ function validateFaxStatus(string $status): string
     return in_array($status, $allowedStatuses, true) ? $status : 'unknown';
 }
 
+/**
+ * Validate and sanitize phone number
+ *
+ * @param string $phone
+ * @return string
+ */
 function validatePhoneNumber(string $phone): string
 {
     // Remove all characters except digits and + for international format
@@ -64,6 +83,14 @@ function validatePhoneNumber(string $phone): string
     return substr($sanitized ?? '', 0, 20);
 }
 
+/**
+ * Validate integer value within bounds
+ *
+ * @param mixed $value
+ * @param int   $min
+ * @param int   $max
+ * @return int
+ */
 function validateInteger(mixed $value, int $min, int $max): int
 {
     $intValue = filter_var($value, FILTER_VALIDATE_INT);
@@ -73,6 +100,12 @@ function validateInteger(mixed $value, int $min, int $max): int
     return max($min, min($max, $intValue));
 }
 
+/**
+ * Validate fax direction
+ *
+ * @param string $direction
+ * @return string
+ */
 function validateDirection(string $direction): string
 {
     $allowedDirections = ['inbound', 'outbound', 'outbound-api', 'outbound-call'];
@@ -80,6 +113,13 @@ function validateDirection(string $direction): string
     return in_array($direction, $allowedDirections, true) ? $direction : 'inbound';
 }
 
+/**
+ * Validate and sanitize string input
+ *
+ * @param string $input
+ * @param int    $maxLength
+ * @return string
+ */
 function validateString(string $input, int $maxLength): string
 {
     // Remove control characters but preserve newlines for error messages
@@ -87,6 +127,12 @@ function validateString(string $input, int $maxLength): string
     return substr($sanitized ?? '', 0, $maxLength);
 }
 
+/**
+ * Validate and sanitize site ID
+ *
+ * @param string $siteId
+ * @return string
+ */
 function validateSiteId(string $siteId): string
 {
     // Sanitize to prevent path traversal and injection attacks
@@ -94,6 +140,12 @@ function validateSiteId(string $siteId): string
     return !empty($sanitized) ? $sanitized : 'default';
 }
 
+/**
+ * Validate SignalWire URL for SSRF protection
+ *
+ * @param string $url
+ * @return bool
+ */
 function isValidSignalWireUrl(string $url): bool
 {
     // Parse and validate URL structure
@@ -126,12 +178,125 @@ function isValidSignalWireUrl(string $url): bool
     return false;
 }
 
+/**
+ * Download fax media from SignalWire and store using FaxDocumentService
+ *
+ * @param string $faxSid
+ * @param string $mediaUrl
+ * @param string $fromNumber
+ * @param string $siteId
+ * @param int    $patientId Patient ID if already assigned
+ * @return void
+ */
+function downloadAndStoreFaxMedia(
+    string $faxSid,
+    string $mediaUrl,
+    string $fromNumber,
+    string $siteId,
+    int $patientId = 0
+): void
+{
+    try {
+        // Validate mediaUrl to prevent SSRF attacks
+        if (!isValidSignalWireUrl($mediaUrl)) {
+            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
+            return;
+        }
+
+        // Get SignalWire credentials
+        $vendor = '_signalwire';
+        $credentials = QueryUtils::querySingleRow(
+            "SELECT credentials FROM module_faxsms_credentials WHERE vendor = ? AND auth_user = 0",
+            [$vendor]
+        );
+
+        if (empty($credentials)) {
+            return;
+        }
+
+        $crypto = new CryptoGen();
+        $decrypted = $crypto->decryptStandard($credentials['credentials']);
+        $creds = json_decode($decrypted, true);
+
+        $projectId = $creds['project_id'] ?? '';
+        $apiToken = $creds['api_token'] ?? '';
+
+        if (empty($projectId) || empty($apiToken)) {
+            return;
+        }
+
+        // Download the fax media with authentication using oeHttp
+        // SignalWire files.signalwire.com requires Bearer token, not Basic auth
+        try {
+            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
+
+            // Set up headers based on URL type
+            if (str_contains($mediaUrl, 'files.signalwire.com')) {
+                // Use Bearer token authentication for SignalWire file downloads
+                $httpRequest->usingHeaders([
+                    'Authorization' => 'Bearer ' . $apiToken
+                ]);
+            } else {
+                // Use Basic authentication for API endpoints
+                $httpRequest->setOptions([
+                    'auth' => [$projectId, $apiToken]
+                ]);
+            }
+
+            $response = $httpRequest->get($mediaUrl);
+            $httpCode = $response->status();
+            $mediaContent = $response->body();
+            $contentTypeHeader = $response->header('Content-Type');
+            $contentType = !empty($contentTypeHeader) ? $contentTypeHeader : 'application/pdf';
+
+            if ($httpCode !== 200 || empty($mediaContent)) {
+                return;
+            }
+        } catch (\Exception $e) {
+            error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
+            return;
+        }
+
+        // Try to find patient by phone number if not assigned
+        if ($patientId === 0) {
+            $faxService = new FaxDocumentService($siteId);
+            $patientId = $faxService->findPatientByPhone($fromNumber);
+        }
+
+        // Store fax using FaxDocumentService
+        $faxService ??= new FaxDocumentService($siteId);
+        $result = $faxService->storeFaxDocument(
+            $faxSid,
+            $mediaContent,
+            $fromNumber,
+            $patientId,
+            $contentType
+        );
+
+        // Update queue with storage info
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE oe_faxsms_queue
+             SET patient_id = ?, document_id = ?, media_path = ?
+             WHERE job_id = ? AND site_id = ?",
+            [
+                $result['patient_id'],
+                $result['document_id'],
+                $result['media_path'],
+                $faxSid,
+                $siteId
+            ]
+        );
+    } catch (\Exception $e) {
+        error_log("SignalWire Webhook: Error downloading/storing fax media: " . $e->getMessage());
+    }
+}
+
 // Get site ID from query parameter and validate
 $siteId = validateSiteId($_SESSION['site_id'] ?? $_GET['site'] ?? 'default');
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-if (str_contains((string) $contentType, 'application/json') && !empty($rawInput)) {
+if (str_contains((string)$contentType, 'application/json') && !empty($rawInput)) {
     $jsonData = json_decode($rawInput, true);
     if (json_last_error() === JSON_ERROR_NONE) {
         // Check if this is a SWML execute callback with fax data in vars
@@ -159,8 +324,7 @@ if (str_contains((string) $contentType, 'application/json') && !empty($rawInput)
                 echo '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
                 exit();
             }
-        }
-        // If JSON contains traditional fax data, map it to $_POST for processing
+        } // If JSON contains traditional fax data, map it to $_POST for processing
         elseif (isset($jsonData['FaxSid']) || isset($jsonData['Sid'])) {
             $_POST = $jsonData;
         }
@@ -259,116 +423,4 @@ try {
     error_log("Error processing SignalWire webhook: " . $e->getMessage());
     http_response_code(500);
     exit('Internal server error');
-}
-
-/**
- * Download fax media from SignalWire and store using FaxDocumentService
- *
- * @param string $faxSid
- * @param string $mediaUrl
- * @param string $fromNumber
- * @param string $siteId
- * @param int $patientId Patient ID if already assigned
- * @return void
- */
-function downloadAndStoreFaxMedia(
-    string $faxSid,
-    string $mediaUrl,
-    string $fromNumber,
-    string $siteId,
-    int $patientId = 0
-): void {
-    try {
-        // Validate mediaUrl to prevent SSRF attacks
-        if (!isValidSignalWireUrl($mediaUrl)) {
-            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
-            return;
-        }
-
-        // Get SignalWire credentials
-        $vendor = '_signalwire';
-        $credentials = QueryUtils::querySingleRow(
-            "SELECT credentials FROM module_faxsms_credentials WHERE vendor = ? AND auth_user = 0",
-            [$vendor]
-        );
-
-        if (empty($credentials)) {
-            return;
-        }
-
-        $crypto = new CryptoGen();
-        $decrypted = $crypto->decryptStandard($credentials['credentials']);
-        $creds = json_decode($decrypted, true);
-
-        $projectId = $creds['project_id'] ?? '';
-        $apiToken = $creds['api_token'] ?? '';
-
-        if (empty($projectId) || empty($apiToken)) {
-            return;
-        }
-
-        // Download the fax media with authentication using oeHttp
-        // SignalWire files.signalwire.com requires Bearer token, not Basic auth
-        try {
-            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
-
-            // Set up headers based on URL type
-            if (str_contains($mediaUrl, 'files.signalwire.com')) {
-                // Use Bearer token authentication for SignalWire file downloads
-                $httpRequest->usingHeaders([
-                    'Authorization' => 'Bearer ' . $apiToken
-                ]);
-            } else {
-                // Use Basic authentication for API endpoints
-                $httpRequest->setOptions([
-                    'auth' => [$projectId, $apiToken]
-                ]);
-            }
-
-            $response = $httpRequest->get($mediaUrl);
-            $httpCode = $response->status();
-            $mediaContent = $response->body();
-            $contentTypeHeader = $response->header('Content-Type');
-            $contentType = !empty($contentTypeHeader) ? $contentTypeHeader : 'application/pdf';
-
-            if ($httpCode !== 200 || empty($mediaContent)) {
-                return;
-            }
-        } catch (\Exception $e) {
-            error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
-            return;
-        }
-
-        // Try to find patient by phone number if not assigned
-        if ($patientId === 0) {
-            $faxService = new FaxDocumentService($siteId);
-            $patientId = $faxService->findPatientByPhone($fromNumber);
-        }
-
-        // Store fax using FaxDocumentService
-        $faxService ??= new FaxDocumentService($siteId);
-        $result = $faxService->storeFaxDocument(
-            $faxSid,
-            $mediaContent,
-            $fromNumber,
-            $patientId,
-            $contentType
-        );
-
-        // Update queue with storage info
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE oe_faxsms_queue
-             SET patient_id = ?, document_id = ?, media_path = ?
-             WHERE job_id = ? AND site_id = ?",
-            [
-                $result['patient_id'],
-                $result['document_id'],
-                $result['media_path'],
-                $faxSid,
-                $siteId
-            ]
-        );
-    } catch (\Exception $e) {
-        error_log("SignalWire Webhook: Error downloading/storing fax media: " . $e->getMessage());
-    }
 }

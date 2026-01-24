@@ -29,7 +29,7 @@ class BootstrapService
      */
     public static function getVendorGlobal(string $globalName): ?string
     {
-        $result = sqlQueryNoLog(
+        $result = sqlQuery(
             "SELECT gl_value FROM `globals` WHERE `gl_name` = ?",
             [$globalName]
         );
