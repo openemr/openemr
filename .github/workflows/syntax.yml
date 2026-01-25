@@ -23,19 +23,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        # PRs: only oldest supported PHP (fast feedback)
+        # Push to master/rel-*: all supported versions
+        php: ${{ github.event_name == 'pull_request' && fromJson('["8.2"]') || fromJson('["8.2", "8.3", "8.4", "8.5", "8.6"]') }}
     name: PHP ${{ matrix.php }}
     steps:
-      - uses: actions/checkout@v6
+    - uses: actions/checkout@v6
 
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
+    - name: Install PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
 
-      - name: Report PHP Version
-        run: php -v
+    - name: Report PHP Version
+      run: php -v
 
-      - name: Check PHP Syntax
-        shell: bash
-        run: git ls-files -z '*.inc' '*.php' | xargs -0 php -l >/dev/null
+    - name: Enable Problem Matcher
+      run: echo "::add-matcher::${{ github.workspace }}/.github/problem-matchers/php-syntax.json"
+
+    - name: Check PHP Syntax
+      shell: bash
+      run: |
+        # Run php -l in parallel across all CPU cores
+        # Suppress stdout (success messages) but keep stderr (parse errors)
+        # Parse errors will be annotated via the problem matcher
+        git ls-files -z '*.inc' '*.php' | xargs -0 -P "$(nproc)" -n 100 php -l > /dev/null
