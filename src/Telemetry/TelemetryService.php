@@ -4,7 +4,7 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
- * @copyright      Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,10 +20,10 @@ use OpenEMR\Services\VersionService;
 /**
  * Provides telemetry reporting functionality.
  *
- * @package OpenEMR\Telemetry
- * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR\Telemetry
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
 {
@@ -32,9 +32,9 @@ class TelemetryService
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository $repository
+     * @param ?TelemetryRepository     $repository
      * @param ?VersionServiceInterface $versionService
-     * @param ?LoggerInterface $logger
+     * @param ?LoggerInterface         $logger
      */
     public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
     {
@@ -130,7 +130,6 @@ class TelemetryService
         $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
             error_log("Site UUID not found.");
-            return false;
         }
 
         // server geo data
@@ -147,6 +146,8 @@ class TelemetryService
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
+        $populationData = $this->repository->fetchSitePopulationData();
+        $moduleCounts = $this->repository->fetchActiveModuleCounts();
 
         $settings = [
             'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
@@ -168,6 +169,8 @@ class TelemetryService
         $payload_data = [
             'usageRecords' => $usageRecords,
             'localeData' => $localeData,
+            'populationData' => $populationData,
+            'moduleCounts' => $moduleCounts,
         ];
 
         $payload = json_encode($payload_data);
@@ -180,7 +183,7 @@ class TelemetryService
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode((string) $response, true);
+            $responseData = json_decode((string)$response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {
@@ -190,6 +193,7 @@ class TelemetryService
             error_log("HTTP error: " . $httpStatus);
         }
 
+        error_log("Telemetry sent: " . $httpStatus);
         return $httpStatus;
     }
 
@@ -249,7 +253,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

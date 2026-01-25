@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -66,5 +66,69 @@ class TelemetryRepository
     {
         $sql = "TRUNCATE track_events";
         $this->sqlStatementThrowException($sql, [], noLog: true);
+    }
+
+    /**
+     * Create by Claude.ai integrated by sjpadgett
+     * Fetches site population data including total patients, portal patients, and active users.
+     *
+     * @return array
+     */
+    public function fetchSitePopulationData(): array
+    {
+        $population = [];
+
+        // Total patients
+        $sql = "SELECT COUNT(*) AS total_patients FROM patient_data";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $population['total_patients'] = $result[0]['total_patients'] ?? 0;
+
+        // Total portal patients (where allow_patient_portal is enabled)
+        $sql = "SELECT COUNT(*) AS total_portal_patients FROM patient_data WHERE allow_patient_portal = 'YES'";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $population['total_portal_patients'] = $result[0]['total_portal_patients'] ?? 0;
+
+        // Total active users
+        $sql = "SELECT COUNT(*) AS total_users FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $population['total_users'] = $result[0]['total_users'] ?? 0;
+
+        // Active users grouped by abook_type
+        $sql = "SELECT abook_type, COUNT(*) AS user_count 
+            FROM users 
+            WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL 
+            GROUP BY abook_type";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $population['users_by_type'] = $result;
+
+        return $population;
+    }
+
+    /**
+     * Create by Claude.ai integrated by sjpadgett
+     * Fetches data about enabled modules.
+     *
+     * @return array
+     */
+    public function fetchActiveModuleCounts(): array
+    {
+        $modulesData = [];
+
+        // Total enabled modules
+        $sql = "SELECT COUNT(*) AS total_enabled_modules FROM modules WHERE mod_active = 1";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $modulesData['total_enabled_modules'] = $result[0]['total_enabled_modules'] ?? 0;
+
+        // Count of enabled custom modules (type = 0)
+        $sql = "SELECT COUNT(*) AS custom_modules FROM modules WHERE mod_active = 1 AND type = 0";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $modulesData['custom_modules'] = $result[0]['custom_modules'] ?? 0;
+
+        // Count of enabled Laminas modules (type = 1)
+        $sql = "SELECT COUNT(*) AS laminas_modules FROM modules WHERE mod_active = 1 AND type = 1";
+        $result = $this->fetchRecords($sql, [], noLog: true);
+        $modulesData['laminas_modules'] = $result[0]['laminas_modules'] ?? 0;
+
+        return $modulesData;
     }
 }
