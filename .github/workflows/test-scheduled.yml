@@ -45,6 +45,7 @@ jobs:
         ci/parse_docker_dir.sh "${dirs[@]}" |
           jq -rc 'map({
             docker_dir: .output.docker_dir,
+            php: .output.php,
             display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
             save_composer_cache: .output.save_composer_cache,
             save_node_cache: .output.save_node_cache
@@ -63,7 +64,8 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for ALL configurations in scheduled runs
-      enable_coverage: ${{ inputs.enable_coverage == '' && true || inputs.enable_coverage }}
+      # Enable coverage for all configurations except PHP 8.6+
+      # (xdebug/pcov don't support PHP 8.6 yet)
+      enable_coverage: ${{ (inputs.enable_coverage == '' || inputs.enable_coverage) && !startsWith(matrix.config.php, '8.6') }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}
