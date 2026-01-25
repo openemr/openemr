@@ -268,7 +268,7 @@ abstract class AppDispatch
                 4 => fn(): EmailClient => new EmailClient(),
             ],
             'voice' => [
-                6 => fn(): VoiceClient => new VoiceClient(),
+                9 => fn(): VoiceClient => new VoiceClient(),
             ],
         ];
 
@@ -464,7 +464,8 @@ abstract class AppDispatch
             '3' => '_etherfax',
             '4' => '_email',
             '5' => '_clickatell',
-            '6' => '_voice',
+            '6' => '_signalwire',
+            '9' => '_voice',
             default => null,
         };
     }
