@@ -3,6 +3,9 @@
 > Unified communications for OpenEMR — enabling Fax, SMS, Email, and optional Voice (RingCentral) features. Compatible with OpenEMR **7.0.4+**.
 
 ---
+## **EtherFax Send / Test Warning**
+> When sending a fax to a number within the *same etherFax account* (common for testing/loopback), EtherFax may reuse the **same JobId** for the outbound (Sent) job and the inbound (Received) record.
+> Since OpenEMR enforces **unique (account + job_id)** and does not allow duplicates, the inbound “Received” update can overwrite the existing Sent queue entry — meaning you may not see a full Sent-history for that test fax once it is received.
 
 ## 📘 Overview
 This module extends OpenEMR’s communication capabilities, providing clinicians and staff with a single interface to send and receive **Faxes**, **SMS**, **Emails**, and make **Voice** calls. It supports multiple vendors, allows **per-user service permissions**, and integrates tightly with OpenEMR’s patient and document management systems.
