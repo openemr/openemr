@@ -318,7 +318,7 @@ jQuery.autocomplete = function(input, options) {
 	function requestData(q) {
 		if (!options.matchCase) q = q.toLowerCase();
 		var data = options.cacheLength ? loadFromCache(q) : null;
-		// recieve the cached data
+		// receive the cached data
 		if (data) {
 			receiveData(q, data);
 		// if an AJAX url has been supplied, try loading the data now

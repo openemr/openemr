@@ -1364,7 +1364,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $ares['result_text'] = $result_text;
             $ares['date'] = rhl7DateTime($a[14] ?? '');
             //$ares['facility'] = rhl7Text($a[15]);
-            // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
+            // Ensoftek: Units may have multiple segments(as seen in MU2 samples), parse and take just first segment.
             $tmp = explode($d2, ($a[6] ?? ''));
             $ares['units'] = rhl7Text($tmp[0]);
             $ares['range'] = rhl7Text($a[7] ?? '');

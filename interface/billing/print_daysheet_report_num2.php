@@ -110,7 +110,7 @@ $the_first_time = 1;
 $itero = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
-// checking to see if there is any information in the array if not display a message (located after this if statment)
+// checking to see if there is any information in the array if not display a message (located after this if statement)
     $anypats = count($ret);
 
 
@@ -125,11 +125,11 @@ if ($ret = getBillsBetweendayReport($code_type)) {
           $catch_user[] = $iter['user'];
     }
 
-//This statment uniques the array removing duplicates
+//This statement uniques the array removing duplicates
     $user_list = array_unique($catch_user);
 // reorder the list starting with array element zero
     $final_list = array_values($user_list);
-// sort array in assending order
+// sort array in ascending order
     sort($final_list);
 
     $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
@@ -139,7 +139,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
     }
 
     foreach ($all4 as $iter) {
-        // Case statment to tally information by user
+        // Case statement to tally information by user
         switch ($iter['user']) {
             case $final_list[0]:
                 $us0_user = $iter['user'];
@@ -478,7 +478,7 @@ if ($anypats == 0) {
     ?><font size = 5 ><?php echo xlt('No Data to Process')?></font><?php
 }
 
-// TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
+// TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
 
 if ($us0_fee != 0 || $us0_inspay != 0 || $us0_insadj != 0 || $us0_patadj != 0 || $us0_patpay != 0) {
     $user_info['user'][$k] = $us0_user;
