@@ -591,7 +591,7 @@ function edih_277_html($filename, $bht03 = '')
         }
     } else {
         $html_str .= "Error with file name or file parsing <br />" . PHP_EOL;
-        csv_edihist_log("edih_277_html: error in retreiving file object");
+        csv_edihist_log("edih_277_html: error in retrieving file object");
         return $html_str;
     }
 

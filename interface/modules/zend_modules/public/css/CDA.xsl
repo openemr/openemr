@@ -1726,7 +1726,7 @@
          </xsl:otherwise>
       </xsl:choose>
    </xsl:template>
-   <!-- paticipant facility and date -->
+   <!-- participant facility and date -->
    <xsl:template name="facilityAndDates">
       <table class="header_table">
          <tbody>

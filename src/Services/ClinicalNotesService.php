@@ -97,6 +97,7 @@ class ClinicalNotesService extends BaseService
                         ,`code`
                         ,codetext
                         ,`description`
+                        ,`pid` AS notes_pid
                         ,external_id
                         ,clinical_notes_type
                         ,note_related_to
@@ -109,21 +110,24 @@ class ClinicalNotesService extends BaseService
              ) notes
             JOIN (
                 SELECT
-                    id AS form_id,
-                    encounter
+                    id
+                    ,form_id
+                    ,encounter
                     ,pid AS form_pid
                     ,`date` AS date_created
                 FROM
                     forms
-            ) forms ON forms.form_id = notes.form_id
+                WHERE formdir = 'clinical_notes'
+            ) forms ON forms.form_id = notes.form_id AND forms.form_pid = notes.notes_pid
             LEFT JOIN (
                 select
                     encounter AS eid
                     ,uuid AS euuid
                     ,`date` AS encounter_date
+                    ,`pid` AS encounter_pid
                 FROM
                     form_encounter
-            ) encounters ON encounters.eid = forms.encounter
+            ) encounters ON encounters.eid = forms.encounter AND forms.form_pid = encounters.encounter_pid
             LEFT JOIN
             (
                 SELECT

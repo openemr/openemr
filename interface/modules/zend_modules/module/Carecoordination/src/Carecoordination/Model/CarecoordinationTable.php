@@ -126,7 +126,7 @@ class CarecoordinationTable extends AbstractTableGateway
     }
 
     /*
-     * List the documents uploaded by the user alogn with the matched data
+     * List the documents uploaded by the user along with the matched data
      *
      * @param    cat_title   Text    Category Name
      * @return   records     Array   List of CCDA imported to the system, pending approval

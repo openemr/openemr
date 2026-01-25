@@ -1502,6 +1502,13 @@ paths:
           required: true
           schema:
             type: string
+        -
+          name: eid
+          in: query
+          description: 'The Encounter ID (optional) the document is assigned to'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/standard'

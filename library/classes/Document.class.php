@@ -70,7 +70,7 @@ class Document extends ORDataObject
 
     /*
     *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
-    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
+    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatibility we ONLY use this for patient
     *  documents.
     *   @public int
     */
@@ -146,7 +146,7 @@ class Document extends ORDataObject
     public $pages;
 
     /*
-    *   Foreign key identifier of who initially persisited the document,
+    *   Foreign key identifier of who initially persisted the document,
     *   potentially ownership could be changed but that would be up to an external non-document object process
     *   @public int
     */
@@ -795,7 +795,7 @@ class Document extends ORDataObject
     }
     /*
     *   Overridden function to stor current object state in the db.
-    *   current overide is to allow for a just in time foreign id, often this is needed
+    *   current override is to allow for a just in time foreign id, often this is needed
     *   when the object is never directly exposed and is handled as part of a larger
     *   object hierarchy.
     *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
@@ -899,7 +899,8 @@ class Document extends ORDataObject
         $tmpfile = null,
         $date_expires = null,
         $foreign_reference_id = null,
-        $foreign_reference_table = null
+        $foreign_reference_table = null,
+        $eid = "",
     ) {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
@@ -935,7 +936,7 @@ class Document extends ORDataObject
             $has_thumbnail = false;
         }
 
-        $encounter_id = '';
+        $encounter_id = $eid;
         $this->storagemethod = $GLOBALS['document_storage_method'];
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
@@ -1055,7 +1056,7 @@ class Document extends ORDataObject
                     $storedThumbnailData = $thumbnail_data;
                 }
                 if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
-                    // this should never happend with current uuid mechanism
+                    // this should never happen with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
                 if (
@@ -1086,6 +1087,7 @@ class Document extends ORDataObject
         $this->type  = $this->type_array['file_url'];
         $this->owner = $owner ?: $session->get('authUserID');
         $this->date_expires = $date_expires;
+        $this->encounter_id = $encounter_id;
         $this->set_foreign_id($patient_id);
         $this->persist();
         $this->populate();

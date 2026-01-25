@@ -2198,7 +2198,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 8,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
 ];
 $ignoreErrors[] = [
@@ -7059,21 +7059,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:inTransaction\\(\\) instead of sqlBeginTrans\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:inTransaction\\(\\) instead of sqlCommitTrans\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:inTransaction\\(\\) instead of sqlRollbackTrans\\(\\)\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
 ];
 $ignoreErrors[] = [

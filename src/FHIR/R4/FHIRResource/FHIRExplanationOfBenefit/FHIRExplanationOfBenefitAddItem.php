@@ -82,7 +82,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     public $detailSequence = [];
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
     public $subDetailSequence = [];
@@ -236,7 +236,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
     public function getSubDetailSequence()
@@ -245,7 +245,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $subDetailSequence
      * @return $this
      */

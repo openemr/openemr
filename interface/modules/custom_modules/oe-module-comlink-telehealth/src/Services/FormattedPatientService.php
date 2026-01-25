@@ -12,7 +12,7 @@ class FormattedPatientService
     public function getPatientForPid($pid)
     {
         // TODO: @adunsulag since patient service hits the db to grab the schema... do we want to put this in our
-        // Boostrap DI system to make sure we only have a single instance of it?
+        // Bootstrap DI system to make sure we only have a single instance of it?
         $patientService = new PatientService();
         $patientResult = $patientService->getAll(['pid' => $pid])->getData();
         if (empty($patientResult)) {

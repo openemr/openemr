@@ -38,7 +38,7 @@
 //Instructions:  Change these 4 values.  The run as a normal php script
 //Remember - there is no turning back
 
-//To run script, comment out the return line, fill out the databae credentials, and run.  Uncomment out the return statement when complete.
+//To run script, comment out the return line, fill out the database credentials, and run.  Uncomment out the return statement when complete.
 return 0;
 $host = 'localhost';
 $user = 'root';
@@ -261,7 +261,7 @@ function deIdInsuranceDataTable($con, $pid): void
 }
 
 
-//This function replaces the facility name with unqiue names so users can
+//This function replaces the facility name with unique names so users can
 //see how different facilities have their data and permissions abstracted depending on
 //which facility the user has access too.
 function deIdFacilityTable($con): void
@@ -341,7 +341,7 @@ function deIdUsersTable($con): void
         //$string = '';
     }
 
-    echo "successfuly altered user table \n ";
+    echo "successfully altered user table \n ";
 }
 
 //Clears most forms.  User must verify that this function handles all text fields that might hold personal identifying information
@@ -360,7 +360,7 @@ function deIdForms($con): void
     removeColumn($con, "onotes", "body", "Internal Office notes posted here");
     removeColumn($con, "pnotes", "body", "DATETIME (FROMUSER to USER) Note about Patient posted here");
 
-    echo "successfuly altered user forms table \n ";
+    echo "successfully altered user forms table \n ";
 }
 
 // truncates log tables to remove all hidden information

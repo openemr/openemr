@@ -87,7 +87,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
                     $dt_str .= ($rej) ? " &nbsp;" . text($rej) : "";
                     $dt_str .= ($trc) ? "&nbsp; <a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?gtbl=file&trace=" . attr_url($trc) . "&ftype=" . attr_url($ft) . "&rsptype=" . attr_url($typ) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'><em>trace</em></a>&nbsp;" : "";
                 } elseif ($ft == 'f277') {
-                    $dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accpt</em> " . text($csvfile['Accept']) : "";
+                    $dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accept</em> " . text($csvfile['Accept']) : "";
                     $dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> " . text($csvfile['Reject']) : "";
                 } elseif ($ft == 'f835') {
                     $dt_str .= (isset($csvfile['Denied'])) ? " &nbsp;<em>Denied</em> " . text($csvfile['Denied']) : "";
@@ -436,7 +436,7 @@ function edih_claim_history($encounter)
  * Render one of our csv record files as an html table
  *
  * This function determines the actual csv file from the file_type and the
- * csv_type.  Tthe date field of each row is checked against the optional
+ * csv_type.  The date field of each row is checked against the optional
  * lookback period or date parameters.
  *
  * @uses csv_file_type()
@@ -491,7 +491,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     $dtcol = (strpos($csv_type, "aim")) ? $params['claimdate'] : $params['filedate'];
     $tp_lbl = (strpos($csv_type, "aim")) ? 'Claims' : 'Files';
     //
-    // given dates shold be in CCYY-MM-DD or CCYY/MM/DD format
+    // given dates should be in CCYY-MM-DD or CCYY/MM/DD format
     // edih_view.php is supposed to use CCYY-MM-DD
     $dts = $dt4 = $dte = '';
     if (preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $datestart)) {

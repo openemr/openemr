@@ -121,10 +121,10 @@ class C_InsuranceNumbers extends Controller
         parent::populate_object($this->insurance_numbers[0]);
 
         $this->insurance_numbers[0]->persist();
-        //insurance numbers need to be repopulated so that insurance_company_name recieves a value
+        //insurance numbers need to be repopulated so that insurance_company_name receives a value
         $this->insurance_numbers[0]->populate();
 
-        //echo "action processeed";
+        //echo "action processed";
         $_POST['process'] = "";
 
         if (!is_numeric($_POST['id'])) {//Z&H

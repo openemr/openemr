@@ -53,6 +53,7 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set XDEBUG_MODE for xdebug coverage (ignored if using pcov)
         dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
@@ -108,15 +109,16 @@ ccda_build() (
 )
 
 configure_coverage() {
-    _exec sh -c '
-      XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh
-      mkdir -p ./coverage
-      curl -sSLO https://phar.phpunit.de/phpcov-11.0.0.phar
-    '
-}
-
-phpcov() {
-    _exec php -d memory_limit=8G phpcov-11.0.0.phar "$@"
+    # Check which coverage driver is available (pcov is faster)
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if _exec php -r 'exit(function_exists("pcov\\start") ? 0 : 1);'; then
+        echo "Coverage driver: pcov"
+    elif _exec php -r 'exit(function_exists("xdebug_start_code_coverage") ? 0 : 1);'; then
+        echo "Coverage driver: xdebug (already installed)"
+    else
+        echo "Coverage driver: xdebug (installing)"
+        _exec sh -c 'XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh'
+    fi
 }
 
 install_configure() {
@@ -349,15 +351,8 @@ build_test() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
             --coverage-clover "coverage.${testsuite}.clover.xml"
-            --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )
     fi
     phpunit "${args[@]}" "$@"
-}
-
-merge_coverage() {
-    phpcov merge coverage --clover coverage.clover.xml \
-                          --html htmlcov coverage \
-                          --text /dev/stdout
 }

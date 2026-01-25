@@ -29,6 +29,7 @@ class EtherFaxClient
 
     /**
      * OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient class.
+     *
      * @param $account
      * @param $user
      * @param $password
@@ -46,6 +47,7 @@ class EtherFaxClient
 
     /**
      * Sets the credentials to use when connecting to the etherFAX web service.
+     *
      * @param $account
      * @param $user
      * @param $password
@@ -125,14 +127,14 @@ class EtherFaxClient
         }
 
         try {
-            $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+            $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
             $client = new \GuzzleHttp\Client([
-            "defaults" => [
-                "allow_redirects" => true,
-                "exceptions" => false
-            ],
-            'verify' => $httpVerifySsl,
-            //'proxy' => "localhost:8888", // use a proxy for debugging.
+                "defaults" => [
+                    "allow_redirects" => true,
+                    "exceptions" => false
+                ],
+                'verify' => $httpVerifySsl,
+                //'proxy' => "localhost:8888", // use a proxy for debugging.
             ]);
             // request it
             $response = $client->request('GET', $uri, [
@@ -143,6 +145,7 @@ class EtherFaxClient
                 ],
             ]);
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            $this->httpCode = 0;
             return $e->getMessage();
         }
         $this->httpCode = $response->getStatusCode();
@@ -155,7 +158,7 @@ class EtherFaxClient
      */
     public function isOK(): bool
     {
-        return $this->httpCode == EtherFaxClient::HTTP_OK;
+        return ($this->httpCode >= 200 && $this->httpCode < 300);
     }
 
     /**
@@ -170,7 +173,7 @@ class EtherFaxClient
      * @return FaxStatus
      * @throws \Exception
      */
-    public function sendFax($number, $file, $pages, $localId = null, $callerId = null, $tag = null, $isDocument = null, $fileName = null): FaxStatus
+    public function etherFaxSend($number, $file, $pages, $localId = null, $callerId = null, $tag = null, $isDocument = null, $fileName = null): FaxStatus
     {
         // create fax status
         $status = new FaxStatus();
@@ -185,7 +188,7 @@ class EtherFaxClient
             // is content of document
             $data = $file;
         }
-        $faxImage = base64_encode((string) $data);
+        $faxImage = base64_encode((string)$data);
 
         //use server timezone
         if (empty($tz)) {
@@ -228,7 +231,7 @@ class EtherFaxClient
             // This will have an error 'Message' in response.
             $status->set(json_decode($response));
         }
-        $status->set(['FaxImage'=>$faxImage]);
+        $status->set(['FaxImage' => $faxImage]);
 
         return $status;
     }
@@ -290,6 +293,7 @@ class EtherFaxClient
 
     /**
      * Gets the number of pending faxes waiting for delivery.
+     *
      * @return int
      */
     public function getPendingFaxCount(): int
@@ -399,13 +403,8 @@ class EtherFaxClient
      */
     public function setFaxReceived($id): bool
     {
-        // set fax as received
-        $response = $this->clientHttpGet('/inbox?a=received&id=' . $id);
-        if ($response && $this->isOK()) {
-            return true;
-        }
-
-        return false;
+        $this->clientHttpGet('/inbox', ['a' => 'received', 'id' => $id]);
+        return $this->isOK();
     }
 
     /**
