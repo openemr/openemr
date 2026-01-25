@@ -54,3 +54,9 @@ RUN usermod -u 1000 www-data
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini
+
+# Copy xdebug installation script for CI coverage support
+# Script is placed at /usr/share/nginx/html/xdebug.sh so CI can call ../xdebug.sh
+# from the OpenEMR directory at /usr/share/nginx/html/openemr
+COPY xdebug.sh /usr/share/nginx/html/xdebug.sh
+RUN chmod +x /usr/share/nginx/html/xdebug.sh
