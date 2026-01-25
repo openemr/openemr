@@ -624,7 +624,7 @@ class Claim
       * In most cases, the ISA08 and GS03 are the same. However
       *
       * In some clearing houses ISA08 and GS03 are different
-      * Therefore if the x12_gs03 segement is explicitly specified we use that value,
+      * Therefore if the x12_gs03 segment is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
         if (!empty($this->x12_partner['x12_gs03'])) {

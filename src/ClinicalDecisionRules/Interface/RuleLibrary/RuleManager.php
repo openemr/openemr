@@ -432,7 +432,7 @@ class RuleManager
             );
 
             if (is_null($criteria)) {
-                // unrecognized critera
+                // unrecognized criteria
                 continue;
             }
 

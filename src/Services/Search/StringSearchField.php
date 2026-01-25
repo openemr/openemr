@@ -23,7 +23,7 @@ class StringSearchField extends BasicSearchField
             $modifier = SearchModifier::PREFIX;
         }
         parent::__construct($field, SearchFieldType::STRING, $field, $values, $modifier);
-        // backwards compatability to let the isAnd parameter be overridden by the basic search
+        // backwards compatibility to let the isAnd parameter be overridden by the basic search
         // prior to this check $isAnd would default to true and break UNION search values
         if ($isAnd === true || $isAnd === false) {
             $this->setIsAnd($isAnd);

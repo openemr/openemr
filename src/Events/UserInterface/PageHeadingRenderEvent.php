@@ -2,7 +2,7 @@
 
 /**
  * PageHeadingRenderEvent class is fired from the OemrUI class prior to rendering the page-level action buttons, allowing
- * event listeners to render action buttons into the list with limited UI flexability.
+ * event listeners to render action buttons into the list with limited UI flexibility.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

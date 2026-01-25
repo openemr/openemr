@@ -77,7 +77,7 @@ abstract class RuleCriteriaFactory
 
         $builder = $this->getBuilderFor($criteriaType);
         if (is_null($builder)) {
-            // if no builder, then its an unrecognized critiera
+            // if no builder, then its an unrecognized criteria
             return null;
         }
 
@@ -105,7 +105,7 @@ abstract class RuleCriteriaFactory
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor($criteriaType);
         if (is_null($builder)) {
-            // if no builder, then its an unrecognized critiera
+            // if no builder, then its an unrecognized criteria
             return null;
         }
 

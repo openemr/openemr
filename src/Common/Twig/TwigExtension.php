@@ -209,8 +209,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             // I don't like how the OemrUi class is being used, it uses event listeners to control parts of the
-            // UI and those events can be added again and again everytime the class is instantiated so it assumes
-            // its a singleton, so we'll treat it as a singleton here, but its annoying.
+            // UI and those events can be added again and again every time the class is instantiated so it assumes
+            // it's a singleton, so we'll treat it as a singleton here, but it's annoying.
             new TwigFunction('oemrUiContainerClass', function (array $oemr_settings) {
                 $oemrUi = $this->getOemrUiInstance($oemr_settings);
                 $heading =  $oemrUi->oeContainer();
