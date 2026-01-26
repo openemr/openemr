@@ -95,7 +95,7 @@ class TelemetryRepository
 
         // Active users grouped by abook_type
         $sql = <<<'SQL'
-        SELECT abook_type, COUNT(*) AS user_count 
+        SELECT abook_type, COUNT(*) AS user_count
             FROM users WHERE active = 1
                 AND username IS NOT NULL
                 AND fname IS NOT NULL
