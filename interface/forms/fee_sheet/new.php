@@ -56,13 +56,6 @@ $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pri
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {

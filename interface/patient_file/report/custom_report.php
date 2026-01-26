@@ -137,43 +137,6 @@ function patientFilePostToGet($arin)
     return $getstring;
 }
 
-function report_basename($pid)
-{
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(['.', ',', ' '], '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
-
-    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
-}
-
-function zip_content($source, $destination, $content = '', $create = true)
-{
-    if (!extension_loaded('zip')) {
-        return false;
-    }
-
-    $zip = new ZipArchive();
-    if ($create) {
-        if (!$zip->open($destination, ZipArchive::CREATE)) {
-            return false;
-        }
-    } else {
-        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
-            return false;
-        }
-    }
-
-    if (is_file($source) === true) {
-        $zip->addFromString(basename((string) $source), file_get_contents($source));
-    } elseif (!empty($content)) {
-        $zip->addFromString(basename((string) $source), $content);
-    }
-
-    return $zip->close();
-}
-
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>

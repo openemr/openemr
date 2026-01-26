@@ -52,11 +52,6 @@ function hl7Zip($s)
     return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
 }
 
-function hl7Date($s)
-{
-    return preg_replace('/[^\d]/', '', (string) $s);
-}
-
 function hl7Time($s)
 {
     if (empty($s)) {
