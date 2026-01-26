@@ -7,6 +7,9 @@
  * files in the codebase. They have been consolidated here to reduce code
  * duplication and ensure consistent behavior.
  *
+ * No new code should be authored into this file; use it only for consolidating
+ * and refactoring existing functions.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
