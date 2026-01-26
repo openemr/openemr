@@ -77,7 +77,7 @@ if (!$GLOBALS['ptkr_date_range']) {
         $from_date = date('Y-m-d', strtotime('previous saturday'));
     }
 } else {
-    //shouldnt be able to get here...
+    //shouldn't be able to get here...
     $from_date = date('Y-m-d');
 }
 

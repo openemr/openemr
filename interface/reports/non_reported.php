@@ -168,7 +168,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         "|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
         "|||$now||" .
         "ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility
-        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowlegement
+        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowledgement
         "$D";
 
         // EVN

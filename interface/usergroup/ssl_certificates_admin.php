@@ -208,7 +208,7 @@ function create_and_download_certificates(): void
         $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
-    /* Create the Certficate Authority (CA) */
+    /* Create the Certificate Authority (CA) */
     $arr = create_csr(
         "OpenEMR CA for " . $commonName,
         $emailAddress,

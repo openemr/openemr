@@ -117,7 +117,7 @@ if (!empty($_POST['load'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-  // query for entering new definitions it picks the cons_id because is existant.
+  // query for entering new definitions; uses cons_id because the constant already exists.
     if (!empty($_POST['cons_id'])) {
         foreach ($_POST['cons_id'] as $key => $value) {
             $value = trim((string) $value);
@@ -131,7 +131,7 @@ if (!empty($_POST['load'])) {
             $sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES (?,?,?)";
             sqlStatement($sql, [$key, $_POST['lang_id'], $value]);
 
-            // insert each entry into the log table - to allow persistant customizations
+            // insert each entry into the log table - to allow persistent customizations
             $sql = "SELECT lang_description, lang_code FROM lang_languages WHERE lang_id=? LIMIT 1";
             $res = sqlStatement($sql, [$_POST['lang_id']]);
             $row_l = sqlFetchArray($res);
@@ -158,7 +158,7 @@ if (!empty($_POST['load'])) {
                 $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
                 sqlStatement($sql, [$value, $key]);
 
-                // insert each entry into the log table - to allow persistant customizations
+                // insert each entry into the log table - to allow persistent customizations
                 $sql = "SELECT ll.lang_description, ll.lang_code, lc.constant_name ";
                 $sql .= "FROM lang_definitions AS ld, lang_languages AS ll, lang_constants AS lc ";
                 $sql .= "WHERE ld.def_id=? ";

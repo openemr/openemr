@@ -92,7 +92,7 @@ if ($_POST['form_complete'] ?? null) {
     }
 
     // Save that form as a row in rule_patient_data table
-    //  and then close the window/modul.
+    //  and then close the window/module.
 
     // Collect and trim variables
     if (isset($_POST['form_entryID'])) {

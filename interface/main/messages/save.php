@@ -150,7 +150,7 @@ if ($_REQUEST['MedEx'] == "start") {
         }
         //then redirect user to preferences with a success message!
     } else {
-        echo xlt("Sorry you are not privileged enough. Enrollment is limited to Adminstrator accounts.");
+        echo xlt("Sorry you are not privileged enough. Enrollment is limited to Administrator accounts.");
     }
     exit;
 }

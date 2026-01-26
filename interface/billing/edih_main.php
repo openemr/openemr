@@ -23,7 +23,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 define('SITE_IN', 1);
 
 // define constants
-// since enounter digits are sequential, digit length should rarely change
+// since encounter digits are sequential, digit length should rarely change
 // however for a startup they may, or a "mask" value of 1000 or 10000
 // would be a good idea if there are problems with deciphering the pid-encounter
 // same idea for pid value, but since encounter is unique and always last, it is essential
@@ -99,7 +99,7 @@ if (!is_dir($edih_tmp_dir)) {
     }
 }
 
-// avoid unitialized variable error
+// avoid uninitialized variable error
 $html_str = '';
 // debug
 if (count($_GET)) {
