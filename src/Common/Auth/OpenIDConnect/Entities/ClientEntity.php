@@ -32,7 +32,7 @@ class ClientEntity implements ClientEntityInterface
     protected $jwksUri;
 
     /**
-     * Confidential apps or apps with a 'launch' scope must be manually authorized by an adminstrator before their
+     * Confidential apps or apps with a 'launch' scope must be manually authorized by an administrator before their
      * client can be used.
      * @var bool
      */

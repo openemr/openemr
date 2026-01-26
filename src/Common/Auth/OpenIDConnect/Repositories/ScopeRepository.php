@@ -211,7 +211,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
         $scopesSupportedList = $this->getServerScopeList()->getAllSupportedScopesList();
 
-        // for backwards compatability we are going to fire for all three scope types, FHIR being first
+        // for backwards compatibility we are going to fire for all three scope types, FHIR being first
         $scopeEvents = [
             RestApiScopeEvent::API_TYPE_FHIR,
             RestApiScopeEvent::API_TYPE_STANDARD

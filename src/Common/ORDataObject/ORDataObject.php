@@ -160,7 +160,7 @@ class ORDataObject
 
     /**
      * Helper function that loads enumerations from the data as an array, this is also efficient
-     * because it uses psuedo-class variables so that it doesnt have to do database work for each instance
+     * because it uses pseudo-class variables so that it doesn't have to do database work for each instance
      *
      * @param string  $field_name name of the enumeration in this objects table
      * @param boolean $blank      optional value to include a empty element at position 0, default is true

@@ -6,7 +6,7 @@
  * modules being dropped into the filesystem without having to go through a composer install / dumping of the autoloader.
  *
  * The class loader will check to make sure a namespace has not already been registered in case the module is installed
- * via composer and is already in the namespace heirarchy.  Note this means each module needs to have its own DISTINCT
+ * via composer and is already in the namespace hierarchy.  Note this means each module needs to have its own DISTINCT
  * namespace and should not share a namespace as the very first module that registers with the namespace is the one
  * made available to OpenEMR.
  *

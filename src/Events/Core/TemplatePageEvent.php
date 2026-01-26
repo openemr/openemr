@@ -31,7 +31,7 @@ class TemplatePageEvent extends Event
     private $context;
 
     /**
-     * Array of twig varibles passed to the twig template
+     * Array of twig variables passed to the twig template
      *
      * @var array
      */

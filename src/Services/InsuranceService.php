@@ -551,7 +551,7 @@ class InsuranceService extends BaseService
                 }
             }
 
-            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
             $this->update($srcInsurance);
 

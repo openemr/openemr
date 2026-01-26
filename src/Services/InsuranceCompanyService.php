@@ -159,7 +159,7 @@ class InsuranceCompanyService extends BaseService
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
-        // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
+        // foreign id could be ambiguous here... but since the sequence is globally unique @see \generate_id() we can
         // join here safely...
         $sql .= " LEFT JOIN (
                         SELECT id AS work_id,foreign_id,country_code, area_code, prefix, number

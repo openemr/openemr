@@ -714,7 +714,7 @@ MSG;
     /**
      * Edit the disclosure record that is stored in the audit log.
      *
-     * @param $dates - The date when the disclosures are sent to the thrid party.
+     * @param $dates - The date when the disclosures are sent to the third party.
      * @param $event - The type of the disclosure.
      *               param $comment - The
      *               recipient and the description

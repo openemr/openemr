@@ -10,7 +10,7 @@ use OpenEMR\Common\Database\QueryPagination;
  * Data contained within a processing result includes:
  * - isValid: indicates if the data provided to the service was valid
  * - validatiomMessages: validation errors, if any, which occurred during processing
- * - internalErrors: system related errors, if any, which occured during processing
+ * - internalErrors: system related errors, if any, which occurred during processing
  * - data: the return value of the operation/process (array)
  *
  * @package   OpenEMR

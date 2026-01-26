@@ -434,7 +434,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         if (!empty($race)) {
             $record = $this->getCachedListOption('race', $race);
-            if ($race === 'declne_to_specfy') { // TODO: we should rename this mispelled value in the database
+            if ($race === 'declne_to_specfy') { // TODO: we should rename this misspelled value in the database
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
@@ -891,7 +891,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      *
      * @param array $openEmrRecord OpenEMR patient record
      * @return ProcessingResult

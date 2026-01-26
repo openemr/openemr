@@ -180,7 +180,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
     }
 
     /**
-     * Sets the context array that will be saved to the database for new acess tokens.
+     * Sets the context array that will be saved to the database for new access tokens.
      * @param array $context The array of context variables.  If this is not an array the context is set to null;
      */
     public function setContextForNewTokens(array $context)

@@ -60,7 +60,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
             $jwks = file_get_contents($keyLocation . "jwk-public-valid.json");
             $output->writeln("JSON Web Key Set (Public Key)");
             $output->writeln("WARNING - THIS IS FOR TESTING PURPOSES ONLY!");
-            $output->writeln("DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITED TO THE SOURCE CODE\n");
+            $output->writeln("DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITTED TO THE SOURCE CODE\n");
             $output->writeln($jwks . "\n");
             return Command::SUCCESS;
         }

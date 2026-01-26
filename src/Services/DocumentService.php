@@ -125,7 +125,7 @@ class DocumentService extends BaseService
     {
         // Ensure filetype is allowed
         if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
-            error_log("OpenEMR API Error: Attempt to upload unsecure patient document was declined");
+            error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }
 

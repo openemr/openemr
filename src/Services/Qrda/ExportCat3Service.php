@@ -527,7 +527,7 @@ XML;
         }
 
         // note we aren't saving data to the database and so we are foregoing the hash return here.
-        // Cypress runs a query on all IndividualResults conected to the measure_id && correlation_id which we are
+        // Cypress runs a query on all IndividualResults connected to the measure_id && correlation_id which we are
         // going to skip over and just return an array of all of the results from our aggregation
         // which ends up being our individual results list per measure.
         return $final_results;
@@ -574,7 +574,7 @@ XML;
         /**
          * def aggregate_population_results_from_individual_results(individual_results, patient, save, ir_list)
          * individual_results.each_pair do |population_set_key, individual_result|
-         * # store the population_set within the indivdual result
+         * # store the population_set within the individual result
          * individual_result['population_set_key'] = population_set_key
          * # update the patient_id to match the cqm_patient id, not the qdm_patient id
          * individual_result['patient_id'] = patient.id.to_s
