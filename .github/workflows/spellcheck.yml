@@ -1,0 +1,35 @@
+name: Spell Check
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+jobs:
+  spellcheck:
+    name: Check Spelling
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: .github/requirements-spellcheck.txt
+
+    - name: Install codespell
+      run: pip install -r .github/requirements-spellcheck.txt
+
+    - name: Setup problem matcher
+      uses: codespell-project/codespell-problem-matcher@v1
+
+    - name: Run codespell
+      run: codespell
