@@ -69,8 +69,8 @@ class TelemetryRepository
     }
 
     /**
-     * Create by Claude.ai integrated by sjpadgett
      * Fetches site population data including total patients, portal patients, and active users.
+     * Create by Claude.ai integrated by sjpadgett
      *
      * @return array
      */
@@ -105,8 +105,8 @@ class TelemetryRepository
     }
 
     /**
-     * Create by Claude.ai integrated by sjpadgett
      * Fetches data about enabled modules.
+     *  Create by Claude.ai integrated by sjpadgett
      *
      * @return array
      */

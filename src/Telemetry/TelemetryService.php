@@ -22,7 +22,7 @@ use OpenEMR\Services\VersionService;
  *
  * @package   OpenEMR\Telemetry
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
