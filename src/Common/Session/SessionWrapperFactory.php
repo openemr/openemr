@@ -36,10 +36,10 @@ class SessionWrapperFactory
     private function findSessionWrapper(array $initData = []): SessionWrapperInterface
     {
         $app = SessionUtil::getAppCookie();
-        if ($app !== SessionUtil::PORTAL_SESSION_ID) {
-            $session = new PHPSessionWrapper();
-        } else if (SessionUtil::isPredisSession()) {
+        if (SessionUtil::isPredisSession()) {
             SessionUtil::portalPredisSessionStart();
+            $session = new PHPSessionWrapper();
+        } else if ($app !== SessionUtil::PORTAL_SESSION_ID) {
             $session = new PHPSessionWrapper();
         } else {
             $session = new SymfonySessionWrapper(SessionUtil::portalSessionStart());
