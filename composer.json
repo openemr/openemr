@@ -260,6 +260,7 @@
             "composer normalize --dry-run"
         ],
         "code-quality": [
+            "@codespell",
             "@conventional-commits:check",
             "@php-syntax-check",
             "@phpcbf",
@@ -268,6 +269,7 @@
             "@rector-check",
             "@require-checker"
         ],
+        "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
