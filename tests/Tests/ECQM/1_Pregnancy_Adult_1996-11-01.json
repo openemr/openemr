@@ -58,27 +58,33 @@
   },
   "reported_measure_hqmf_ids": [],
   "_type": "CQM::BundlePatient",
-  "addresses": [{
-    "_id": {
-      "$oid": "61424f91636239030d2f770c"
-    },
-    "street": ["202 Burlington Rd."],
-    "use": "HP",
-    "city": "Bedford",
-    "state": "MA",
-    "zip": "01730",
-    "country": "US"
-  }
+  "addresses": [
+    {
+      "_id": {
+        "$oid": "61424f91636239030d2f770c"
+      },
+      "street": [
+        "202 Burlington Rd."
+      ],
+      "use": "HP",
+      "city": "Bedford",
+      "state": "MA",
+      "zip": "01730",
+      "country": "US"
+    }
   ],
-  "telecoms": [{
-    "_id": {
-      "$oid": "61424f91636239030d2f770d"
-    },
-    "use": "HP",
-    "value": "555-555-2003"
-  }
+  "telecoms": [
+    {
+      "_id": {
+        "$oid": "61424f91636239030d2f770d"
+      },
+      "use": "HP",
+      "value": "555-555-2003"
+    }
   ],
-  "givenNames": ["1"],
+  "givenNames": [
+    "1"
+  ],
   "familyName": "Pregnancy Adult",
   "bundleId": "61424df6636239030d2e39eb",
   "correlation_id": {
@@ -98,343 +104,370 @@
     "birthDatetime": {
       "$date": "1996-11-01T01:00:00.000Z"
     },
-    "dataElements": [{
-      "_id": {
-        "$oid": "61424f90636239030d2f7704"
-      },
-      "dataElementCodes": [{
-        "code": "169565003",
-        "system": "2.16.840.1.113883.6.96",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }, {
-        "code": "Z34.00",
-        "system": "2.16.840.1.113883.6.90",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::Diagnosis",
-      "qdmTitle": "Diagnosis",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
-      "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
-      "qdmCategory": "condition",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "prevalencePeriod": {
-        "low": {
-          "$date": "2018-10-04T08:00:00.000Z"
+    "dataElements": [
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7704"
         },
-        "high": {
-          "$date": "2019-07-06T08:45:00.000Z"
+        "dataElementCodes": [
+          {
+            "code": "169565003",
+            "system": "2.16.840.1.113883.6.96",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          },
+          {
+            "code": "Z34.00",
+            "system": "2.16.840.1.113883.6.90",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::Diagnosis",
+        "qdmTitle": "Diagnosis",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+        "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+        "qdmCategory": "condition",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "prevalencePeriod": {
+          "low": {
+            "$date": "2018-10-04T08:00:00.000Z"
+          },
+          "high": {
+            "$date": "2019-07-06T08:45:00.000Z"
+          },
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
         },
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
+        "anatomicalLocationSite": null,
+        "severity": null
       },
-      "anatomicalLocationSite": null,
-      "severity": null
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f7705"
-      },
-      "dataElementCodes": [{
-        "code": "194828000",
-        "system": "2.16.840.1.113883.6.96",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }, {
-        "code": "I20.9",
-        "system": "2.16.840.1.113883.6.90",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::Diagnosis",
-      "qdmTitle": "Diagnosis",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
-      "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
-      "qdmCategory": "condition",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "prevalencePeriod": {
-        "low": {
-          "$date": "2018-11-05T08:00:00.000Z"
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7705"
         },
-        "high": null,
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
-      },
-      "anatomicalLocationSite": null,
-      "severity": null
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f7706"
-      },
-      "dataElementCodes": [{
-        "code": "186639003",
-        "system": "2.16.840.1.113883.6.96",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }, {
-        "code": "B18.1",
-        "system": "2.16.840.1.113883.6.90",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::Diagnosis",
-      "qdmTitle": "Diagnosis",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
-      "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
-      "qdmCategory": "condition",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "prevalencePeriod": {
-        "low": {
-          "$date": "2018-11-05T08:00:00.000Z"
+        "dataElementCodes": [
+          {
+            "code": "194828000",
+            "system": "2.16.840.1.113883.6.96",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          },
+          {
+            "code": "I20.9",
+            "system": "2.16.840.1.113883.6.90",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::Diagnosis",
+        "qdmTitle": "Diagnosis",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+        "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+        "qdmCategory": "condition",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "prevalencePeriod": {
+          "low": {
+            "$date": "2018-11-05T08:00:00.000Z"
+          },
+          "high": null,
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
         },
-        "high": null,
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
+        "anatomicalLocationSite": null,
+        "severity": null
       },
-      "anatomicalLocationSite": null,
-      "severity": null
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f7707"
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7706"
+        },
+        "dataElementCodes": [
+          {
+            "code": "186639003",
+            "system": "2.16.840.1.113883.6.96",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          },
+          {
+            "code": "B18.1",
+            "system": "2.16.840.1.113883.6.90",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::Diagnosis",
+        "qdmTitle": "Diagnosis",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+        "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+        "qdmCategory": "condition",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "prevalencePeriod": {
+          "low": {
+            "$date": "2018-11-05T08:00:00.000Z"
+          },
+          "high": null,
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
+        },
+        "anatomicalLocationSite": null,
+        "severity": null
       },
-      "dataElementCodes": [{
-        "code": "200146002",
-        "system": "2.16.840.1.113883.6.96",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::Diagnosis",
-      "qdmTitle": "Diagnosis",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
-      "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
-      "qdmCategory": "condition",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "prevalencePeriod": {
-        "low": {
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7707"
+        },
+        "dataElementCodes": [
+          {
+            "code": "200146002",
+            "system": "2.16.840.1.113883.6.96",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::Diagnosis",
+        "qdmTitle": "Diagnosis",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+        "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+        "qdmCategory": "condition",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "prevalencePeriod": {
+          "low": {
+            "$date": "2019-07-06T08:00:00.000Z"
+          },
+          "high": {
+            "$date": "2019-07-06T08:45:00.000Z"
+          },
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
+        },
+        "anatomicalLocationSite": null,
+        "severity": null
+      },
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7708"
+        },
+        "dataElementCodes": [
+          {
+            "code": "99204",
+            "system": "2.16.840.1.113883.6.12",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::EncounterPerformed",
+        "facilityLocations": [],
+        "qdmTitle": "Encounter, Performed",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.5",
+        "qdmCategory": "encounter",
+        "qdmStatus": "performed",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "relevantPeriod": {
+          "low": {
+            "$date": "2019-01-05T08:00:00.000Z"
+          },
+          "high": {
+            "$date": "2019-01-05T08:30:00.000Z"
+          },
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
+        },
+        "admissionSource": null,
+        "dischargeDisposition": null,
+        "diagnoses": null,
+        "lengthOfStay": {
+          "value": 0,
+          "unit": "d",
+          "_type": "QDM::Quantity"
+        }
+      },
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f7709"
+        },
+        "dataElementCodes": [
+          {
+            "code": "1",
+            "system": "2.16.840.1.113883.3.221.5",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::PatientCharacteristicPayer",
+        "qdmTitle": "Patient Characteristic Payer",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.58",
+        "qdmCategory": "patient_characteristic",
+        "qdmStatus": "payer",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "relevantPeriod": {
+          "low": {
+            "$date": "1996-11-01T01:00:00.000Z"
+          },
+          "high": null,
+          "lowClosed": true,
+          "highClosed": true,
+          "_type": "QDM::Interval"
+        }
+      },
+      {
+        "_id": {
+          "$oid": "61424f90636239030d2f770a"
+        },
+        "dataElementCodes": [
+          {
+            "code": "59515",
+            "system": "2.16.840.1.113883.6.12",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          },
+          {
+            "code": "177141003",
+            "system": "2.16.840.1.113883.6.96",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          },
+          {
+            "code": "10D00Z1",
+            "system": "2.16.840.1.113883.6.4",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::ProcedurePerformed",
+        "qdmTitle": "Procedure, Performed",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.67",
+        "qdmCategory": "procedure",
+        "qdmStatus": "performed",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "authorDatetime": null,
+        "relevantDatetime": {
           "$date": "2019-07-06T08:00:00.000Z"
         },
-        "high": {
-          "$date": "2019-07-06T08:45:00.000Z"
+        "result": null,
+        "method": null,
+        "status": null,
+        "anatomicalLocationSite": null,
+        "incisionDatetime": null,
+        "components": [],
+        "reason": null,
+        "rank": 1
+      },
+      {
+        "_id": {
+          "$oid": "61424f91636239030d2f770f"
         },
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
-      },
-      "anatomicalLocationSite": null,
-      "severity": null
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f7708"
-      },
-      "dataElementCodes": [{
-        "code": "99204",
-        "system": "2.16.840.1.113883.6.12",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::EncounterPerformed",
-      "facilityLocations": [],
-      "qdmTitle": "Encounter, Performed",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.5",
-      "qdmCategory": "encounter",
-      "qdmStatus": "performed",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "relevantPeriod": {
-        "low": {
-          "$date": "2019-01-05T08:00:00.000Z"
-        },
-        "high": {
-          "$date": "2019-01-05T08:30:00.000Z"
-        },
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
-      },
-      "admissionSource": null,
-      "dischargeDisposition": null,
-      "diagnoses": null,
-      "lengthOfStay": {
-        "value": 0,
-        "unit": "d",
-        "_type": "QDM::Quantity"
-      }
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f7709"
-      },
-      "dataElementCodes": [{
-        "code": "1",
-        "system": "2.16.840.1.113883.3.221.5",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::PatientCharacteristicPayer",
-      "qdmTitle": "Patient Characteristic Payer",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.58",
-      "qdmCategory": "patient_characteristic",
-      "qdmStatus": "payer",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "relevantPeriod": {
-        "low": {
+        "dataElementCodes": [
+          {
+            "code": "21112-8",
+            "system": "2.16.840.1.113883.6.1",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::PatientCharacteristicBirthdate",
+        "qdmTitle": "Patient Characteristic Birthdate",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.54",
+        "qdmCategory": "patient_characteristic",
+        "qdmStatus": "birthdate",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": [],
+        "birthDatetime": {
           "$date": "1996-11-01T01:00:00.000Z"
+        }
+      },
+      {
+        "_id": {
+          "$oid": "61424f91636239030d2f7710"
         },
-        "high": null,
-        "lowClosed": true,
-        "highClosed": true,
-        "_type": "QDM::Interval"
-      }
-    }, {
-      "_id": {
-        "$oid": "61424f90636239030d2f770a"
+        "dataElementCodes": [
+          {
+            "code": "F",
+            "system": "2.16.840.1.113883.5.1",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::PatientCharacteristicSex",
+        "qdmTitle": "Patient Characteristic Sex",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.55",
+        "qdmCategory": "patient_characteristic",
+        "qdmStatus": "gender",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": []
       },
-      "dataElementCodes": [{
-        "code": "59515",
-        "system": "2.16.840.1.113883.6.12",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }, {
-        "code": "177141003",
-        "system": "2.16.840.1.113883.6.96",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }, {
-        "code": "10D00Z1",
-        "system": "2.16.840.1.113883.6.4",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::ProcedurePerformed",
-      "qdmTitle": "Procedure, Performed",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.67",
-      "qdmCategory": "procedure",
-      "qdmStatus": "performed",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "authorDatetime": null,
-      "relevantDatetime": {
-        "$date": "2019-07-06T08:00:00.000Z"
+      {
+        "_id": {
+          "$oid": "61424f91636239030d2f7711"
+        },
+        "dataElementCodes": [
+          {
+            "code": "2106-3",
+            "system": "2.16.840.1.113883.6.238",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::PatientCharacteristicRace",
+        "qdmTitle": "Patient Characteristic Race",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.59",
+        "qdmCategory": "patient_characteristic",
+        "qdmStatus": "race",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": []
       },
-      "result": null,
-      "method": null,
-      "status": null,
-      "anatomicalLocationSite": null,
-      "incisionDatetime": null,
-      "components": [],
-      "reason": null,
-      "rank": 1
-    }, {
-      "_id": {
-        "$oid": "61424f91636239030d2f770f"
-      },
-      "dataElementCodes": [{
-        "code": "21112-8",
-        "system": "2.16.840.1.113883.6.1",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
+      {
+        "_id": {
+          "$oid": "61424f91636239030d2f7712"
+        },
+        "dataElementCodes": [
+          {
+            "code": "2186-5",
+            "system": "2.16.840.1.113883.6.238",
+            "display": null,
+            "version": null,
+            "_type": "QDM::Code"
+          }
+        ],
+        "_type": "QDM::PatientCharacteristicEthnicity",
+        "qdmTitle": "Patient Characteristic Ethnicity",
+        "hqmfOid": "2.16.840.1.113883.10.20.28.4.56",
+        "qdmCategory": "patient_characteristic",
+        "qdmStatus": "ethnicity",
+        "qdmVersion": "5.5",
+        "dataElementAttributes": []
       }
-      ],
-      "_type": "QDM::PatientCharacteristicBirthdate",
-      "qdmTitle": "Patient Characteristic Birthdate",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.54",
-      "qdmCategory": "patient_characteristic",
-      "qdmStatus": "birthdate",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": [],
-      "birthDatetime": {
-        "$date": "1996-11-01T01:00:00.000Z"
-      }
-    }, {
-      "_id": {
-        "$oid": "61424f91636239030d2f7710"
-      },
-      "dataElementCodes": [{
-        "code": "F",
-        "system": "2.16.840.1.113883.5.1",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::PatientCharacteristicSex",
-      "qdmTitle": "Patient Characteristic Sex",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.55",
-      "qdmCategory": "patient_characteristic",
-      "qdmStatus": "gender",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": []
-    }, {
-      "_id": {
-        "$oid": "61424f91636239030d2f7711"
-      },
-      "dataElementCodes": [{
-        "code": "2106-3",
-        "system": "2.16.840.1.113883.6.238",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::PatientCharacteristicRace",
-      "qdmTitle": "Patient Characteristic Race",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.59",
-      "qdmCategory": "patient_characteristic",
-      "qdmStatus": "race",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": []
-    }, {
-      "_id": {
-        "$oid": "61424f91636239030d2f7712"
-      },
-      "dataElementCodes": [{
-        "code": "2186-5",
-        "system": "2.16.840.1.113883.6.238",
-        "display": null,
-        "version": null,
-        "_type": "QDM::Code"
-      }
-      ],
-      "_type": "QDM::PatientCharacteristicEthnicity",
-      "qdmTitle": "Patient Characteristic Ethnicity",
-      "hqmfOid": "2.16.840.1.113883.10.20.28.4.56",
-      "qdmCategory": "patient_characteristic",
-      "qdmStatus": "ethnicity",
-      "qdmVersion": "5.5",
-      "dataElementAttributes": []
-    }
     ]
   }
 }

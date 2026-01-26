@@ -2,7 +2,6 @@
 *
 *   Solar Theme for OpenEMR
 *   @author Tyler Wrenn
-*   Powered and Colored by Bootswatch
 *
 */
 
@@ -34,8 +33,9 @@ $secondary-color: $gray-100;
 $input-color: $gray-300;
 $modal-content-bg: $body-bg;
 
-/* All variables are imported by bootswatch */
-@import "../../../public/assets/bootswatch/dist/solar/variables";
+// Primary color for Solar theme (cyan/teal from Bootswatch Solar)
+$primary: #b58900;
+
 @import "../default-variables";
 
 // Login form bg change
@@ -57,9 +57,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
 
 @import "../core";
-
-/* Required bootswatch import */
-@import "../../../public/assets/bootswatch/dist/solar/bootswatch";
 
 @import "../theme-defaults";
 

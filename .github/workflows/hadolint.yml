@@ -7,16 +7,16 @@ on:
     - rel-*
     paths:
     - '**/Dockerfile*'
-    - '.hadolint.yaml'
-    - '.github/workflows/hadolint.yml'
+    - .hadolint.yaml
+    - .github/workflows/hadolint.yml
   pull_request:
     branches:
     - master
     - rel-*
     paths:
     - '**/Dockerfile*'
-    - '.hadolint.yaml'
-    - '.github/workflows/hadolint.yml'
+    - .hadolint.yaml
+    - .github/workflows/hadolint.yml
 
 permissions:
   contents: read

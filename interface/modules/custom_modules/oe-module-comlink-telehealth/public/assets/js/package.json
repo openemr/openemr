@@ -4,11 +4,11 @@
   "description": "Comlink Telehealth Javascript Library",
   "main": "telehealth.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-    ,"clean": "rm -rf ./dist/*"
-    ,"build": "./node_modules/webpack/bin/webpack.js"
-    ,"build-dev": "./node_modules/webpack/bin/webpack.js --config webpack-dev.config.js"
-    ,"watch:build": "./node_modules/webpack/bin/webpack.js --watch --config webpack-dev.config.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf ./dist/*",
+    "build": "./node_modules/webpack/bin/webpack.js",
+    "build-dev": "./node_modules/webpack/bin/webpack.js --config webpack-dev.config.js",
+    "watch:build": "./node_modules/webpack/bin/webpack.js --watch --config webpack-dev.config.js"
   },
   "keywords": [
     "telehealth",

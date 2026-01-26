@@ -121,7 +121,7 @@ trait PatientAddTrait
         // The form submission happens in the parent window, so we need to wait for that
         // Switch back to default content first (the dialog closes)
         $this->client->switchTo()->defaultContent();
-        
+
         // Wait for potential alert (only appears on errors like duplicate pubpid)
         // If no alert appears within 2 seconds, continue (successful creation)
         try {
@@ -133,11 +133,11 @@ trait PatientAddTrait
             // No alert is expected for successful patient creation
             // This is normal and we can continue
         }
-        
+
         // Wait for form submission to complete - the form submits and redirects to demographics page
         // Give a moment for the callback to execute and form to submit
         sleep(2);
-        
+
         // Wait for the patient iframe to be ready (it will reload after form submission)
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);

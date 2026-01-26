@@ -79,7 +79,6 @@
     "backbone": "1.6.1",
     "bootstrap": "5.3.3",
     "@popperjs/core": "^2.11.8",
-    "bootswatch": "5.3.3",
     "chart.js": "4.5.0",
     "chartjs-adapter-date-fns": "3.0.0",
     "checklist-model": "1.0.0",
