@@ -94,7 +94,7 @@ class TelemetryRepository
         $population['total_users'] = $result[0]['total_users'] ?? 0;
 
         // Active users grouped by abook_type
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         SELECT abook_type, COUNT(*) AS user_count 
             FROM users WHERE active = 1
                 AND username IS NOT NULL
