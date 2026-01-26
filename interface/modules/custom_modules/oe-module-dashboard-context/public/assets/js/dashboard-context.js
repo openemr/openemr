@@ -166,7 +166,13 @@
                         self.config.widgets = widgets;
                         self.applyWidgetVisibility();
                         self.showNotification('Settings saved', 'success', '', '', true);
-                        $('#contextSettingsModal').modal('hide');
+                        const modalEl = document.getElementById('contextSettingsModal');
+                        if (modalEl) {
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) {
+                                modal.hide();
+                            }
+                        }
                     } else {
                         self.showNotification('Failed to save settings', 'error', '', '', true);
                     }
@@ -203,7 +209,11 @@
 
         openSettingsModal: function () {
             this.updateSettingsModal();
-            $('#contextSettingsModal').modal('show');
+            const modalEl = document.getElementById('contextSettingsModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
         },
 
         updateSettingsModal: function () {

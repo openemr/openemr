@@ -1619,7 +1619,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            'btnLink' => "javascript:(function(){const el=document.getElementById('patient_portal');if(el){const collapse=new bootstrap.Collapse(el);collapse.toggle();}})();",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

@@ -133,7 +133,7 @@ limitations under the License.
         <xsl:call-template name="openemr-css"/>
         <xsl:call-template name="openemr-js"/>
       </head>
-      <body data-spy="scroll" data-target="#navbar-cda">
+      <body data-bs-spy="scroll" data-bs-target="#navbar-cda">
 
         <div class="cda-render toc col-md-3" role="complementary">
 

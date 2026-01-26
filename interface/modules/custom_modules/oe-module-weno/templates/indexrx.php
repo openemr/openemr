@@ -160,14 +160,28 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             // Event handler for double-click on the trigger button
             $('#trigger-debug').dblclick(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                const modalEl = document.getElementById('debugModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
             });
             $('#triggerButton').click(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                const modalEl = document.getElementById('debugModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
             });
             $('#downloadLink').click(function () {
-                $('#debugModal').modal('hide');
+                const modalEl = document.getElementById('debugModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
             });
         });
     </script>
