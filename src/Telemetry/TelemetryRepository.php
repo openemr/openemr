@@ -98,8 +98,8 @@ class TelemetryRepository
         SELECT abook_type, COUNT(*) AS user_count 
             FROM users WHERE active = 1
                 AND username IS NOT NULL
-                AND fname IS NOT NULL 
-            GROUP BY abook_type 
+                AND fname IS NOT NULL
+            GROUP BY abook_type
         SQL;
         $result = $this->fetchRecords($sql, [], noLog: true);
         $population['users_by_type'] = $result;
