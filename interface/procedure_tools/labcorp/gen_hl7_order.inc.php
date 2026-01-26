@@ -35,38 +35,12 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 
-function hl7Text($s)
-{
-    // See http://www.interfaceware.com/hl7_escape_protocol.html:
-    $s = str_replace('\\', '\\E\\', $s);
-    $s = str_replace('^', '\\S\\', $s);
-    $s = str_replace('|', '\\F\\', $s);
-    $s = str_replace('~', '\\R\\', $s);
-    $s = str_replace('&', '\\T\\', $s);
-    $s = str_replace("\r", '\\X0d\\', $s);
-    return $s;
-}
-
-function hl7Zip($s)
-{
-    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
-}
-
 function hl7Time($s)
 {
     if (empty($s)) {
         return '';
     }
     return date('YmdHi', strtotime((string) $s));
-}
-
-function hl7Sex($s)
-{
-    $s = strtoupper(substr((string) $s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') {
-        $s = 'U';
-    }
-    return $s;
 }
 
 function hl7Phone($s)

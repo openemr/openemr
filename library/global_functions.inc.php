@@ -375,3 +375,103 @@ function zip_content($source, $destination, $content = '', $create = true)
 
     return $zip->close();
 }
+
+// ============================================================================
+// Simple String Utility Functions
+// ============================================================================
+
+/**
+ * Replace spaces with carets for HL7 formatting.
+ *
+ * @param string $a The input string
+ * @return string The string with spaces replaced by carets
+ */
+function tr($a)
+{
+    return (str_replace(' ', '^', $a));
+}
+
+/**
+ * Properly capitalize a name handling hyphens and apostrophes.
+ *
+ * @param string $string The name to capitalize
+ * @return string The properly capitalized name
+ */
+function ucname($string): string
+{
+    $string = ucwords(strtolower((string) $string));
+    foreach (['-', '\''] as $delimiter) {
+        if (str_contains($string, $delimiter)) {
+            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
+        }
+    }
+    return $string;
+}
+
+/**
+ * Given an issue type as a string, compute its index.
+ *
+ * @param string $tstr The issue type string
+ * @return int The index of the issue type
+ * @global array $ISSUE_TYPES The array of issue types
+ */
+function issueTypeIndex($tstr)
+{
+    global $ISSUE_TYPES;
+    $i = 0;
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $tstr) {
+            break;
+        }
+        ++$i;
+    }
+    return $i;
+}
+
+// ============================================================================
+// HL7 Order Generation Helper Functions
+// ============================================================================
+
+/**
+ * Escape special characters for HL7 text fields.
+ *
+ * @param string $s The input string
+ * @return string The escaped string
+ * @see http://www.interfaceware.com/hl7_escape_protocol.html
+ */
+function hl7Text($s)
+{
+    $s = str_replace('\\', '\\E\\', $s);
+    $s = str_replace('^', '\\S\\', $s);
+    $s = str_replace('|', '\\F\\', $s);
+    $s = str_replace('~', '\\R\\', $s);
+    $s = str_replace('&', '\\T\\', $s);
+    $s = str_replace("\r", '\\X0d\\', $s);
+    return $s;
+}
+
+/**
+ * Format a ZIP code for HL7, removing spaces and dashes.
+ *
+ * @param string $s The input ZIP code
+ * @return string The formatted ZIP code
+ */
+function hl7Zip($s)
+{
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
+}
+
+/**
+ * Convert sex/gender to HL7 format (M, F, or U).
+ *
+ * @param string $s The input sex value
+ * @return string M, F, or U
+ */
+function hl7Sex($s)
+{
+    $s = strtoupper(substr((string) $s, 0, 1));
+    if ($s !== 'M' && $s !== 'F') {
+        $s = 'U';
+    }
+    return $s;
+}

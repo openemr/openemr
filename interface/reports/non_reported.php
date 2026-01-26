@@ -70,12 +70,6 @@ function mapCodeType($incode)
 $from_date = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $to_date = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
-//
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
-
   $sqlBindArray = [];
   $query =
   "select " .

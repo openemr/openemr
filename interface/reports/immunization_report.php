@@ -44,11 +44,6 @@ if (!empty($_POST)) {
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
-
 function format_cvx_code($cvx_code)
 {
 

@@ -676,18 +676,6 @@ function match_provider($arr)
     return false;
 }
 
-function ucname($string)
-{
-    $string = ucwords(strtolower((string) $string));
-
-    foreach (['-', '\''] as $delimiter) {
-        if (str_contains($string, $delimiter)) {
-            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
-        }
-    }
-    return $string;
-}
-
 /**
  * Create a patient using whatever patient_data attributes are provided.
  */

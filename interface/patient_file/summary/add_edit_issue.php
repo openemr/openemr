@@ -95,20 +95,6 @@ function rbinput($name, $value, $desc, $colname)
     return vsprintf($str, $_p);
 }
 
-// Given an issue type as a string, compute its index.
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-        ++$i;
-    }
-    return $i;
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////

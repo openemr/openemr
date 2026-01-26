@@ -116,19 +116,6 @@ function get_lab_name($id): string
     return $gbl_lab;
 }
 
-if (!function_exists('ucname')) {
-    function ucname($string): string
-    {
-        $string = ucwords(strtolower((string) $string));
-        foreach (['-', '\''] as $delimiter) {
-            if (str_contains($string, $delimiter)) {
-                $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
-            }
-        }
-        return $string;
-    }
-}
-
 function cbvalue($cbname): string
 {
     return $_POST[$cbname] ? '1' : '0';

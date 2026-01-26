@@ -1281,23 +1281,5 @@ function row_delete($table, $where): void
     }
 }
 
-// Given an issue type as a string, compute its index.
-// Not sure of the value of this sub given transition to array $PMSFH
-// Can I use it to find out which PMSFH item we are looking for?  YES
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-
-        ++$i;
-    }
-
-    return $i;
-}
-
 exit;
 ?>
