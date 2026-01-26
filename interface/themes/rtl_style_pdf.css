@@ -1282,7 +1282,7 @@ div.notab-right {
     Author     : Amiel Elboim, Matrix
 */
 
-/* General RTL calsses */
+/* General RTL classes */
 
 tr,
 td,
@@ -1655,7 +1655,7 @@ div.tab table td {
   margin: 0 0 10px;
 }
 
-/* Calander */
+/* Calendar */
 #bottomLeft {
 
   float: right !important;

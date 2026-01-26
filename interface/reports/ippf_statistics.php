@@ -849,8 +849,8 @@ function process_visit($row): void
       $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
       while ($drow = sqlFetchArray($dres)) {
         $a = explode('|', $drow['field_value']);
-        foreach ($a as $methid) {
-        if (empty($methid)) continue;
+        foreach ($a as $method) {
+        if (empty($method)) continue;
         $crow = sqlQuery("SELECT title FROM list_options WHERE " .
           "list_id = 'contrameth' AND option_id = '$methid'");
         $key = $crow['title'];

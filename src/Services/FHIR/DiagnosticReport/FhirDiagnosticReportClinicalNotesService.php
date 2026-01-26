@@ -139,7 +139,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         }
         if (!empty($responsibleParty)) {
             $report->addPerformer($responsibleParty);
-            // we don't separate interpreter from responsibile party in clinical notes so they'll be the same
+            // we don't separate interpreter from responsible party in clinical notes so they'll be the same
             $report->addResultsInterpreter($responsibleParty);
         }
 

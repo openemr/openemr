@@ -1,4 +1,3 @@
-
 #
 # This is for building a local OpenEMR development and testing environment.
 # (Recommend not running it from your git repo and instead mirroring your
@@ -74,12 +73,12 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -104,12 +103,12 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -134,12 +133,12 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -165,27 +164,27 @@ services:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      EMPTY: "yes"
+      EMPTY: yes
       MYSQL_HOST: mariadb
       MYSQL_ROOT_PASS: root
-      DEVELOPER_TOOLS: "yes"
-      INSANE_DEV_MODE: "yes"
+      DEVELOPER_TOOLS: yes
+      INSANE_DEV_MODE: yes
       XDEBUG_ON: 1
       XDEBUG_PROFILER_ON: 1
       # setting xdebug client host for cases where xdebug.discover_client_host fails
       XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
-      GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
-      SELENIUM_USE_GRID: "true"
+      GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: 103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121
+      SELENIUM_USE_GRID: 'true'
       SELENIUM_HOST: selenium
-      SELENIUM_FORCE_HEADLESS: "false"
-      SELENIUM_BASE_URL: "http://openemr-8-4"  # NOTE THIS NEEDS TO BE MODIFIED WHEN SERVICE NAME CHANGES!
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9085'
+      SELENIUM_FORCE_HEADLESS: 'false'
+      SELENIUM_BASE_URL: http://openemr-8-4    # NOTE THIS NEEDS TO BE MODIFIED WHEN SERVICE NAME CHANGES!
+      OPENEMR_SETTING_site_addr_oath: https://localhost:9085
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -199,8 +198,8 @@ services:
       OPENEMR_SETTING_couchdb_pass: password
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
-      OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
-      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
+      OPENEMR_SETTING_gbl_ldap_host: ldap://openldap:389
+      OPENEMR_SETTING_gbl_ldap_dn: cn={login},dc=example,dc=org
       OPENEMR_SETTING_EMAIL_METHOD: SMTP
       OPENEMR_SETTING_SMTP_HOST: mailpit
       OPENEMR_SETTING_SMTP_PORT: 1025
@@ -208,8 +207,8 @@ services:
       OPENEMR_SETTING_SMTP_PASS: openemr
       OPENEMR_SETTING_SMTP_SECURE: ''
       OPENEMR_SETTING_SMTP_Auth: 'TRUE'
-      OPENEMR_SETTING_practice_return_email_path: 'noreply@openemr.local'
-      OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'
+      OPENEMR_SETTING_practice_return_email_path: noreply@openemr.local
+      OPENEMR_SETTING_Patient_Reminder_Sender_Name: OpenEMR Reminders
     healthcheck:
       test:
       - CMD
@@ -234,12 +233,12 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -264,13 +263,13 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -295,13 +294,13 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -326,13 +325,13 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -357,13 +356,13 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -388,13 +387,13 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
-      DEBUG_COLORS: "true"
+      DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
     healthcheck:
       test:
       - CMD
@@ -413,7 +412,7 @@ services:
   mariadb:
     restart: always
     image: mariadb:11.8
-    command: ['mariadbd','--character-set-server=utf8mb4']
+    command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
     environment:
@@ -433,7 +432,7 @@ services:
   mariadb-ssl:
     restart: always
     image: mariadb:11.8
-    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
@@ -455,7 +454,7 @@ services:
   mariadb-old:
     restart: always
     image: mariadb:11.4
-    command: ['mariadbd','--character-set-server=utf8mb4']
+    command: [mariadbd, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
@@ -473,7 +472,7 @@ services:
   mariadb-very-old:
     restart: always
     image: mariadb:10.11
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
@@ -491,7 +490,7 @@ services:
   mariadb-very-very-old:
     restart: always
     image: mariadb:10.6
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
@@ -509,23 +508,50 @@ services:
   mysql:
     restart: always
     image: mysql:8.4
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: [mysqld, --character-set-server=utf8mb4]
     ports:
     - 8220:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - mysql -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mysql-old:
     restart: always
     image: mysql:8.0
-    command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
+    command: [mysqld, --character-set-server=utf8mb4, --default-authentication-plugin=mysql_native_password]
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - mysql -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mysql-old-old:
     restart: always
     image: mysql:5.7
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - mysql -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   phpmyadmin:
     restart: always
     image: phpmyadmin
@@ -714,7 +740,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:4.39.0
+    image: selenium/standalone-chromium:4.40.0
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
@@ -727,7 +753,7 @@ services:
     volumes:
     - /dev/shm:/dev/shm
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      test: [CMD, curl, -f, http://localhost:4444/wd/hub/status]
       start_period: 30s
       interval: 30s
       timeout: 5s
@@ -746,7 +772,7 @@ services:
     volumes:
     - mailpitvolume:/data
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025/api/v1/messages"]
+      test: [CMD, wget, --quiet, --tries=1, --spider, http://localhost:8025/api/v1/messages]
       start_period: 10s
       interval: 30s
       timeout: 5s

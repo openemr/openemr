@@ -210,7 +210,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     public $insurance = [];
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public $supportingInfo = [];
@@ -703,7 +703,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public function getSupportingInfo()
@@ -712,7 +712,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInfo
      * @return $this
      */

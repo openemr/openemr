@@ -217,7 +217,7 @@ if (!empty($_POST['form_save'])) {
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                 } else {
                     $Codetype = '';
                     $Code = '';
@@ -305,7 +305,7 @@ if (!empty($_POST['form_save'])) {
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
+                        $Modifier = $RowSearch['modifier'] ?? '';
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(

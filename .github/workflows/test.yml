@@ -361,12 +361,6 @@ jobs:
         . ci/ciLibrary.source
         dockers_env_start
 
-    - name: Wait for MySQL to initialize
-      if: ${{ steps.parse.outputs.database == 'mysql' }}
-      run: |
-        echo "Waiting 60 seconds for MySQL to initialize..."
-        sleep 60
-
     - name: Install and configure
       run: |
         . ci/ciLibrary.source

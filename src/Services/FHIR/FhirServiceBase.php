@@ -177,7 +177,7 @@ abstract class FhirServiceBase implements
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      * @return ProcessingResult The OpenEMR processing result.
      */
     abstract protected function insertOpenEMRRecord($openEmrRecord);
@@ -241,7 +241,7 @@ abstract class FhirServiceBase implements
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
         $provenanceRequest = false;
-        //Checking for provenance reqest
+        //Checking for provenance request
         if (isset($fhirSearchParameters['_revinclude'])) {
             if ($fhirSearchParameters['_revinclude'] == 'Provenance:target') {
                 $provenanceRequest = true;
@@ -305,7 +305,7 @@ abstract class FhirServiceBase implements
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters and the search configuration.  We would make this
-     * abstract but to preserve backwards compatability with existing installations we leave it as is.  Services that
+     * abstract but to preserve backwards compatibility with existing installations we leave it as is.  Services that
      * wish to leverage the search query config can implement this method.
      * @param array $openEMRSearchParameters OpenEMR search fields
      * @param SearchQueryConfig $searchConfig The search configuration (sort order, pagination, etc)

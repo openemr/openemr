@@ -1502,6 +1502,13 @@ paths:
           required: true
           schema:
             type: string
+        -
+          name: eid
+          in: query
+          description: 'The Encounter ID (optional) the document is assigned to'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -9314,7 +9321,7 @@ components:
         zip: '12245'
         country: USA
     api_insurance_request:
-      description: "Schema for the insurance request.  Note the following additional validation checks on the request.\nIf the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields\nmust match the patient's first and last name or a patient's previous first and last name.\n\nIf the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's\nsocial security number.\n\nIf the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.\n\nIf the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.\n\nAn insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient."
+      description: "Schema for the insurance request.  Note the following additional validation checks on the request.\nIf the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields\nmust match the patient's first and last name or a patient's previous first and last name.\n\nIf the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's\nsocial security number.\n\nIf the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.\n\nIf the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.\n\nAn insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient."
       required:
         - provider
         - policy_number
@@ -9807,7 +9814,7 @@ components:
           description: 'The authorization for the referral'
           type: string
         visits:
-          description: 'The number of vists for the referral'
+          description: 'The number of visits for the referral'
           type: string
         validFrom:
           description: 'The date the referral is valid from'

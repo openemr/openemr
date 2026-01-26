@@ -79,7 +79,7 @@ class ControllerReview extends BaseController
             }
         }
         $rule->setFeedback(Common::post('feedback'));
-        // note some browser implementations appear to screw up on html maxlength attribute due to line breaks and other wierd characters
+        // note some browser implementations appear to screw up on html maxlength attribute due to line breaks and other weird characters
         // so we need to check the length here, but note that the client side may see a different length in certain edge cases.
         if (mb_strlen((string) $rule->getFeedback()) > 2048) {
             (new SystemLogger())->errorLogCaller("Rule length exceeded, client side should have caught this", ['ruleId' => $ruleId]);

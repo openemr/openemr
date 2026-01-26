@@ -101,7 +101,7 @@ function update_issues($pid, $encounter, $diags): void
             if ($diags->create_problem) { // TODO: per entry create
             // If the create flag is set, then create an entry for this diagnosis.
                 sqlStatement($sqlCreateProblem, [$target_date,$target_date,$pid,$diagnosis_key,$diags->description]);
-                $newProblem = sqlStatement($sqlFindProblem, $lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatbility with 4.1.0 and earlier insert ID bug.
+                $newProblem = sqlStatement($sqlFindProblem, $lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatibility with 4.1.0 and earlier insert ID bug.
                 if (sqlNumRows($newProblem) > 0) {
                     $list_id = $newProblem->fields['id'];
                     if ($list_id > 0) {

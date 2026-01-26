@@ -86,7 +86,7 @@
  *   portal     Patient Portal
  *
  * Section "menus" (Menus):
- *   modle      Module
+ *   module     Module
  *
  * Section "groups" (Groups):
  *   gadd       View/Add/Update groups

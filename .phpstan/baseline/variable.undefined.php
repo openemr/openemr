@@ -1012,11 +1012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$QueryPart might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$Table might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
@@ -11818,7 +11813,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$_GLOBALS might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [

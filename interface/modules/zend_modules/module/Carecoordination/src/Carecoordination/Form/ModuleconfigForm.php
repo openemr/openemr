@@ -44,7 +44,7 @@ class ModuleconfigForm extends Form
             ]);
 
         /*
-        * Automatic Tranfer settings
+        * Automatic Transfer settings
         */
         $this->add([
             'type' => \Laminas\Form\Element\Checkbox::class,

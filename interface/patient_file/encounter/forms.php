@@ -62,7 +62,7 @@ if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write
 }
 
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-// instantiate the locator at the beginning so our file caching can be re-used.
+// instantiate the locator at the beginning so our file caching can be reused.
 $formLocator = new FormLocator();
 ?>
 <!DOCTYPE html>
@@ -525,7 +525,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 </head>
 <body>
 <nav>
-    <?php //DYNAMIC FORM RETREIVAL
+    <?php //DYNAMIC FORM RETRIEVAL
     require_once("$srcdir/registry.inc.php");
 
     $reg = getFormsByCategory();

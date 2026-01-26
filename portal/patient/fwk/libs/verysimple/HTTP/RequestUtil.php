@@ -336,7 +336,7 @@ class RequestUtil
 
     /**
      * Returns a form upload as a FileUpload object.
-     * This function throws an exeption on fail
+     * This function throws an exception on fail
      * with details, so it is recommended to use try/catch when calling this function
      *
      * @param string $fieldname

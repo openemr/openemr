@@ -73,6 +73,12 @@ repos:
     - --autofix
     - --indent=2
 
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.4.1
+  hooks:
+  - id: codespell
+    # Configuration in .codespellrc
+
 - repo: local
   hooks:
   - id: php-syntax-check

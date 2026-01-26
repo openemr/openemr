@@ -12,6 +12,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * Reads $_POST and trims the value. New code should NOT use this function.
+ */
+function trimPost(string $key): string
+{
+    return \trim($_POST[$key] ?? '');
+}
+
 // ============================================================================
 // XML Export Functions (used by ippf_export.php, export_xml.php)
 // ============================================================================

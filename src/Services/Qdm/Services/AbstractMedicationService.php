@@ -74,7 +74,7 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                 'lowClosed' => $start_date ? true : false,
                 'highClosed' => $this->validDateOrNull($end_date) ? true : false
             ]),
-            'route' => null // In sample files, route was null, probably doesn't mater for eCQM
+            'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);
 
         if ($record['dosage']) {

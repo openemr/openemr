@@ -204,7 +204,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             $r['patientid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
             "|" . // 4. (B) Alternate PID
             $r['patientname'] . "|" . // 5.R. Name
-            "|" . // 6. Mather Maiden Name
+            "|" . // 6. Mother's Maiden Name
             $r['DOB'] . "|" . // 7. Date, time of birth
             $r['sex'] . "|" . // 8. Sex
             "|" . // 9.B Patient Alias
@@ -219,9 +219,9 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             "|" . // 18. patient Account Number
             "|" . // 19.B SSN Number
             "|" . // 20.B Driver license number
-            "|" . // 21. Mathers Identifier
+            "|" . // 21. Mother's Identifier
             format_ethnicity($r['ethnicity']) . "|" . // 22. Ethnic Group
-            "|" . // 23. Birth Plase
+            "|" . // 23. Birthplace
             "|" . // 24. Multiple birth indicator
             "|" . // 25. Birth order
             "|" . // 26. Citizenship

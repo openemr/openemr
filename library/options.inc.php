@@ -4295,9 +4295,9 @@ function get_layout_form_value($frow, $prefix = 'form_')
     }
 
     // Better to die than to silently truncate data!
-    if ($maxlength && $maxlength != 0 && mb_strlen(trim($value)) > $maxlength && !$frow['list_id']) {
+    if ($maxlength && $maxlength != 0 && mb_strlen(trim((string) $value)) > $maxlength && !$frow['list_id']) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
-        ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
+        ":<br />&nbsp;<br />" . htmlspecialchars((string) $value, ENT_NOQUOTES));
     }
 
     if (is_string($value)) {
@@ -4575,7 +4575,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         } else {
             echo "<td><a class='" . attr($class_string) . "' href='" . $buttonLink . "'";
             if (!$session->get('patient_portal_onsite_two') !== null) {
-                // prevent an error from occuring when calling the function from the patient portal
+                // prevent an error from occurring when calling the function from the patient portal
                 echo " onclick='top.restoreSession()'";
             }
         }
@@ -4629,7 +4629,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     echo "<div id='" . attr($label) . "_ps_expand' " . $styling . ">";
 }
 
-//billing_facility fuction will give the dropdown list which contain billing faciliies.
+//billing_facility function will give the dropdown list which contain billing facilities.
 function billing_facility($name, $select): void
 {
     global $facilityService;

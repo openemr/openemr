@@ -5809,7 +5809,7 @@ return [
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
         $controller = new DocumentRestController();
         $controller->setSession($request->getSession());
-        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document']);
+        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
 
         return $return;
     },
@@ -5833,6 +5833,15 @@ return [
      *          in="query",
      *          description="The category of the documents.",
      *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="query",
+     *          description="The Encounter ID (optional) the document is assigned to",
+     *          required=false,
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -6102,7 +6111,7 @@ return [
      *
      * If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
      *
-     * If the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.
+     * If the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.
      *
      * An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.
      *  @OA\Schema(
@@ -6567,7 +6576,7 @@ return [
      *      ),
      *      @OA\Property(
      *          property="visits",
-     *          description="The number of vists for the referral",
+     *          description="The number of visits for the referral",
      *          type="string"
      *      ),
      *      @OA\Property(

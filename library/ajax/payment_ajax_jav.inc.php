@@ -171,7 +171,7 @@ $(function () {
  });
 //==============================================================================================================================================
 //Following functions are needed for other tasks related to ajax.
-//Html retured from the ajax above, contains list of either insurance,patient or encounter.
+//Html returned from the ajax above, contains list of either insurance,patient or encounter.
 //On click or 'enter key' press over any one item the listing vanishes and the clicked one gets listed in the parent page's text box.
 //List of functions starts
 //===========================================================

@@ -144,7 +144,7 @@ class PaymentProcessing
             $auditData = $cryptoGen->decryptStandard($row['audit_data']);
             $auditData = json_decode($auditData, true);
 
-            // Collect the error message if not succcess
+            // Collect the error message if not success
             if ($row['success'] != 1) {
                 if (!empty($auditData['get']['cancel']) && $auditData['get']['cancel'] == 'cancel') {
                     $row['error_message'] = xl("Cancelled");

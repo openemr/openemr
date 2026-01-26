@@ -190,7 +190,7 @@ export class InsurancePolicyModel {
     }
     getDataForSave() {
         let data = Object.assign({}, this);
-        // wierd way of how the server saves the data.
+        // weird way of how the server saves the data.
         if (data.accept_assignment == 'YES') {
             data.accept_assignment = "TRUE";
         } else {

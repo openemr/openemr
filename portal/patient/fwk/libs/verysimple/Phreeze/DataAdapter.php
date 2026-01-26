@@ -45,7 +45,7 @@ class DataAdapter implements IObservable
     static $RETRY_ON_COMMUNICATION_ERROR = false;
 
     /**
-     * Contructor initializes the object
+     * Constructor initializes the object
      *
      * @access public
      * @param ConnectionSetting $csetting
@@ -316,7 +316,7 @@ class DataAdapter implements IObservable
     }
 
     /**
-     * Start a DB transaction, disabling auto-commit if necessar)
+     * Start a DB transaction, disabling auto-commit if necessary)
      *
      * @access public
      */
@@ -387,7 +387,7 @@ class DataAdapter implements IObservable
      * Returns an array of all table names in the current database
      *
      * @param
-     *          bool true to ommit tables that are empty (default = false)
+     *          bool true to omit tables that are empty (default = false)
      * @return array
      */
     public function GetTableNames($ommitEmptyTables = false)
@@ -439,7 +439,7 @@ class DataAdapter implements IObservable
     }
 
     /**
-     * Moves the database curser forward and returns the current row as an associative array
+     * Moves the database cursor forward and returns the current row as an associative array
      * the resultset passed in must have been created by the same database driver that
      * was connected when Select was called
      *

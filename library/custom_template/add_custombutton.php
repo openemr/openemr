@@ -38,7 +38,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
     $end = $st + $count;
     for ($cnt = $sta; $cnt <= $end; $cnt++) {
         if ($_POST['hidid' . $cnt]) {
-            if (trim(formData('inshort' . $cnt)) == '' && trim(formdata('designation' . $cnt)) == '') {
+            if (trimPost('inshort' . $cnt) == '' && trimPost('designation' . $cnt) == '') {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", [$_POST['hidid' . $cnt]]);
                 sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['hidid' . $cnt], $_SESSION['authUserID']]);
             } else {
@@ -46,7 +46,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
                 sqlStatement($sql, [$_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt], $_POST['hidid' . $cnt]]);
             }
         } else {
-            if (trim(formData('inshort' . $cnt)) != '' || trim(formdata('designation' . $cnt)) != '') {
+            if (trimPost('inshort' . $cnt) != '' || trimPost('designation' . $cnt) != '') {
                 $rowID = sqlQuery("SELECT MAX(cl_list_item_id)+1 as maxID FROM customlists WHERE cl_list_type=6");
                 $itemID = $rowID['maxID'] ?: 1;
                 $sql = "INSERT INTO customlists (cl_list_item_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order) VALUES(?,?,?,?,?)";

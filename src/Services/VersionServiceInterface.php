@@ -20,7 +20,7 @@ interface VersionServiceInterface extends BaseServiceInterface
     public function fetch(): array;
 
     /**
-     * Return the compounded major, minor, patch and tag verions as a string
+     * Return the compounded major, minor, patch and tag versions as a string
      *
      * @var $includeTag bool Include the tag
      * @var $includeRealpatch bool Include the realpatch

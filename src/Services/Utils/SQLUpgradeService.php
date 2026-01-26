@@ -1483,7 +1483,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $this->flush_echo();
 
         // we need to grab all of the uuid mappings for care team and join them with patient_data
-        $commited = false;
+        $committed = false;
         try {
             QueryUtils::startTransaction();
             $fromClause = "FROM patient_data pd
@@ -1509,7 +1509,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             $this->createCareTeamRecordsList($records);
             $this->cleanupCareTeamUUIDMappingsForPatientHistory();
             QueryUtils::commitTransaction();
-            $commited = true;
+            $committed = true;
         } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
@@ -1519,7 +1519,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             }
         } // we let errors percolate up
         finally {
-            if (!$commited) {
+            if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
         }
