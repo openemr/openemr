@@ -542,3 +542,38 @@ function hl7SSN($s, bool $withDashes = true)
     }
     return '';
 }
+
+/**
+ * Convert a relationship string to its word form for HL7.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @return string The normalized relationship word, or the original value if unrecognized
+ */
+function hl7RelationWord(string $s): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => 'self',
+        'spouse' => 'spouse',
+        'child' => 'child',
+        'other' => 'other',
+        default => $s,
+    };
+}
+
+/**
+ * Convert a relationship string to an HL7 Table 0063 relationship code.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @param bool $childAsOther Whether to treat 'child' as 'other' (code 8) instead of code 3
+ * @return string The HL7 relationship code, or the original value if unrecognized
+ */
+function hl7RelationCode(string $s, bool $childAsOther = false): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => '1',
+        'spouse' => '2',
+        'child' => $childAsOther ? '8' : '3',
+        'other' => '8',
+        default => $s,
+    };
+}

@@ -34,24 +34,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 
-// hl7Time, hl7Phone, hl7SSN are defined in library/global_functions.inc.php
-
-function hl7Relation($s)
-{
-    $tmp = strtolower((string) $s);
-    if ($tmp == 'self' || $tmp == '') {
-        return 'self';
-    } elseif ($tmp == 'spouse') {
-        return 'spouse';
-    } elseif ($tmp == 'child') {
-        return 'child';
-    } elseif ($tmp == 'other') {
-        return 'other';
-    }
-
-  // Should not get here so this will probably get noticed if we do.
-    return $s;
-}
+// hl7Time, hl7Phone, hl7SSN, hl7RelationWord, hl7RelationCode are defined in library/global_functions.inc.php
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
@@ -241,7 +224,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
         $d1 . hl7Text($payer['data']['subscriber_lname']) .   // Insured last name
         $d2 . hl7Text($payer['data']['subscriber_fname']) . // Insured first name
         $d2 . hl7Text($payer['data']['subscriber_mname']) . // Insured middle name
-        $d1 . hl7Relation($payer['data']['subscriber_relationship']) .
+        $d1 . hl7RelationWord((string) $payer['data']['subscriber_relationship']) .
         $d1 . hl7Date($payer['data']['subscriber_DOB']) .     // Insured DOB
         $d1 . hl7Date($payer['data']['subscriber_street']) .  // Insured Street Address
         $d2 .
