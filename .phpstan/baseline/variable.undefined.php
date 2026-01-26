@@ -757,17 +757,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batchPhoneList.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$check_date might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ssql might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -11813,7 +11803,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$_GLOBALS might not be defined\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
@@ -16982,17 +16972,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$check_date might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ssql might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
