@@ -116,12 +116,29 @@ trait PatientAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
 
-        // ensure the patient summary screen is shown
-        $alert = $this->client->getWebDriver()->wait(10)->until(
-            WebDriverExpectedCondition::alertIsPresent()
-        );
-        $alert->accept();
+        // After clicking confirm, the dialog closes and form submits via srcConfirmSave() callback
+        // Note: Successful patient creation does not show an alert (only errors do)
+        // The form submission happens in the parent window, so we need to wait for that
+        // Switch back to default content first (the dialog closes)
         $this->client->switchTo()->defaultContent();
+        
+        // Wait for potential alert (only appears on errors like duplicate pubpid)
+        // If no alert appears within 2 seconds, continue (successful creation)
+        try {
+            $alert = $this->client->getWebDriver()->wait(2)->until(
+                WebDriverExpectedCondition::alertIsPresent()
+            );
+            $alert->accept();
+        } catch (TimeoutException $e) {
+            // No alert is expected for successful patient creation
+            // This is normal and we can continue
+        }
+        
+        // Wait for form submission to complete - the form submits and redirects to demographics page
+        // Give a moment for the callback to execute and form to submit
+        sleep(2);
+        
+        // Wait for the patient iframe to be ready (it will reload after form submission)
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
         // below line will timeout if did not go to the patient summary screen for the new patient

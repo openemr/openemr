@@ -100,7 +100,7 @@ updates:
         update-types: ["version-update:semver-major"]
       # Specific packages to keep stable
       - dependency-name: "bootstrap"
-        versions: ["5.x", "6.x"] # Stay on Bootstrap 4 for compatibility
+        versions: ["5.x", "6.x"] # Stay on Bootstrap 5.x for compatibility
       - dependency-name: "angular"
         versions: [">1.8.x"] # Legacy AngularJS, don't update
 

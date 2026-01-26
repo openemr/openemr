@@ -184,7 +184,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         function doConfirm(Message) {
             placeModal(Message);
             return new Promise(function(resolve, reject) {
-                $('#confirmDialog').modal('show');
+                const modalEl = document.getElementById('confirmDialog');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
                 $('#confirmDialog .btn-continue').click(function() {
                     $(this).off();
                     resolve("btn-continue");

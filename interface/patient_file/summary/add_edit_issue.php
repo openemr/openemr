@@ -1048,7 +1048,7 @@ function getCodeText($code)
     }
 
     $(function() {
-        // Include bs3 / bs4 classes here.  Keep html tags functional.
+        // Include bs3 / bs4 / bs5 classes here.  Keep html tags functional.
         $('table').addClass('table table-sm');
         $('.select2').select2({theme: 'bootstrap5'});
         $('#expanded_options').on('shown.bs.collapse hidden.bs.collapse', toggleBtnExpOpts);

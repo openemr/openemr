@@ -856,7 +856,12 @@ if (!empty($_REQUEST['go'])) { ?>
         });
         $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
-                $(".collapse").collapse('hide');
+                document.querySelectorAll('.collapse').forEach(function(el) {
+                    const collapse = bootstrap.Collapse.getInstance(el);
+                    if (collapse) {
+                        collapse.hide();
+                    }
+                });
             });
         });
         $(function () {

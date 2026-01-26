@@ -146,7 +146,11 @@ const ContextAdmin = {
             $(this).closest('.widget-item').toggleClass('active', $(this).is(':checked'));
         });
 
-        $('#contextModal').modal('show');
+        const modalEl = document.getElementById('contextModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     saveContext: function() {
@@ -179,7 +183,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#contextModal').modal('hide');
+                    const modalEl = document.getElementById('contextModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadAdminConfig();
                     self.showAlert(isEdit ? 'Context updated' : 'Context created', 'success');
                 } else {
@@ -292,7 +302,11 @@ const ContextAdmin = {
         $('#assignUserName').text(user.name);
         $('#assignContext').val(user.active_context);
         $('#assignLock').prop('checked', false);
-        $('#assignModal').modal('show');
+        const modalEl = document.getElementById('assignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     assignContext: function() {
@@ -312,7 +326,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#assignModal').modal('hide');
+                    const modalEl = document.getElementById('assignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert('Context assigned', 'success');
                 }
@@ -327,7 +347,11 @@ const ContextAdmin = {
             return;
         }
         $('#bulkSelectedCount').text(selected.length);
-        $('#bulkAssignModal').modal('show');
+        const modalEl = document.getElementById('bulkAssignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     bulkAssign: function() {
@@ -349,7 +373,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#bulkAssignModal').modal('hide');
+                    const modalEl = document.getElementById('bulkAssignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert(response.success_count + ' of ' + response.total_count + ' users updated', 'success');
                 }

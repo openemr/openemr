@@ -853,7 +853,7 @@ function setSaveAndClose() {
   f.form_has_charges.value = '0';
   f.bn_save_close.value = <?php echo xlj('Save and Close'); ?>;
  }
- f.bn_save_close.innerHTML = f.bn_save_close.value; // Required for Bootstrap 4
+ f.bn_save_close.innerHTML = f.bn_save_close.value; // Required for Bootstrap 5
 }
 
 // Open the add-event dialog.

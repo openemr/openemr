@@ -654,7 +654,11 @@ if (
                 // Show spinner for search operations only
                 if (buttonName === 'form_search' ||
                     clickedButton.attr('id') === 'btn-inv-search') {
-                    $('#searchSpinnerModal').modal('show');
+                    const modalEl = document.getElementById('searchSpinnerModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                        modal.show();
+                    }
                 }
             });
         });

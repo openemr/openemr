@@ -521,12 +521,20 @@ if (!empty($row['lab_id'])) {
                     $(this).find('tbody tr input,tbody tr select').filter(function () {
                         return $(this).val();
                     }).length > 0) {
-                    $(this).collapse('show');
+                    const collapseEl = this;
+                    if (collapseEl) {
+                        const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                        collapse.show();
+                    }
                 }
             });
             // If editing an existing order, close the order options panel real estate matters!
             if ($("input[name='id']").val() > 0) {
-                $('#orderOptions').collapse();
+                const orderOptionsEl = document.getElementById('orderOptions');
+                if (orderOptionsEl) {
+                    const collapse = bootstrap.Collapse.getOrCreateInstance(orderOptionsEl);
+                    collapse.hide();
+                }
             }
         });
 
@@ -1060,7 +1068,11 @@ if (!empty($row['lab_id'])) {
             $(document).on('click', '.specimen-code-btn', function (e) {
                 e.preventDefault();
                 const id = this.getAttribute('data-toggle-specimen');
-                $('#' + id).collapse('toggle');
+                const collapseEl = document.getElementById(id);
+                if (collapseEl) {
+                    const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                    collapse.toggle();
+                }
             });
             // Add specimen row
             $(document).on('click', '.add-specimen-row', function (e) {
@@ -1081,7 +1093,11 @@ if (!empty($row['lab_id'])) {
             });
 
             <?php if ($row['date_transmitted'] ?? '') { ?>
-            $("#summary").collapse("toggle");
+            const summaryEl = document.getElementById('summary');
+            if (summaryEl) {
+                const collapse = bootstrap.Collapse.getOrCreateInstance(summaryEl);
+                collapse.toggle();
+            }
             <?php } ?>
         });
 

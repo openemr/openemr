@@ -51,7 +51,7 @@ $code_type = $_GET['type'];
 <input type="textbox" id="text" name="text" size="15" />
 
 <input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>' />
-<!-- TODO: Use BS4 classes here !-->
+<!-- TODO: Use BS5 classes here !-->
 <div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
