@@ -39,7 +39,7 @@ function custom_labworks_Add($field)
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
-// Translate sex.
+ // Translate sex.
 function Sex($field)
 {
     $sex = strtoupper(substr(trim((string) $field), 0, 1));

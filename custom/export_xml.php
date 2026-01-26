@@ -34,7 +34,7 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
-// Translate sex.
+ // Translate sex.
 function Sex($field)
 {
     $sex = strtoupper(substr(trim((string) $field), 0, 1));
