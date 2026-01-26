@@ -275,6 +275,15 @@ function hl7Date($s)
     return preg_replace('/[^\d]/', '', (string) $s);
 }
 
+/**
+ * @param string
+ * @return string
+ */
+function hl7Priority($s)
+{
+    return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
+}
+
 // ============================================================================
 // Cron/Notification Functions
 // ============================================================================

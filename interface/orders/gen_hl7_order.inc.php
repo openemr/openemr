@@ -65,11 +65,6 @@ function hl7SSN($s)
     return '';
 }
 
-function hl7Priority($s)
-{
-    return strtoupper(substr((string) $s, 0, 1)) == 'H' ? 'S' : 'R';
-}
-
 function hl7Relation($s)
 {
     $tmp = strtolower((string) $s);
