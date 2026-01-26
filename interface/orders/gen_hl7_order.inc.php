@@ -34,36 +34,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 
-function hl7Time($s)
-{
-    if (empty($s)) {
-        return '';
-    }
-
-    return date('YmdHis', strtotime((string) $s));
-}
-
-function hl7Phone($s)
-{
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2];
-    }
-
-    return '';
-}
-
-function hl7SSN($s)
-{
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    return '';
-}
+// hl7Time, hl7Phone, hl7SSN are defined in library/global_functions.inc.php
 
 function hl7Relation($s)
 {

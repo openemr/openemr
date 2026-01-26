@@ -487,3 +487,58 @@ function hl7Sex($s)
     }
     return $s;
 }
+
+/**
+ * Convert a datetime string to HL7 timestamp format.
+ *
+ * @param string $s The datetime string
+ * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
+ * @return string The formatted timestamp, or empty string if input is empty
+ */
+function hl7Time($s, bool $withSeconds = true)
+{
+    if (empty($s)) {
+        return '';
+    }
+    $format = $withSeconds ? 'YmdHis' : 'YmdHi';
+    return date($format, strtotime((string) $s));
+}
+
+/**
+ * Format a phone number for HL7.
+ *
+ * @param string $s The phone number string
+ * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
+ * @return string The formatted phone number, or empty string if invalid
+ */
+function hl7Phone($s, bool $formatted = true)
+{
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? $tmp[1] . '-' . $tmp[2]
+            : $tmp[1] . $tmp[2];
+    }
+    return '';
+}
+
+/**
+ * Format an SSN for HL7.
+ *
+ * @param string $s The SSN string
+ * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
+ * @return string The formatted SSN, or empty string if invalid
+ */
+function hl7SSN($s, bool $withDashes = true)
+{
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $withDashes
+            ? $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    return '';
+}
