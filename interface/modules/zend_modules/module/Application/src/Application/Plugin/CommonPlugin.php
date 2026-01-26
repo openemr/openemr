@@ -53,10 +53,10 @@ class CommonPlugin extends AbstractPlugin
     }
 
     /**
-     * Keyword color hightlight (primary keyword and secondary)
+     * Keyword color highlight (primary keyword and secondary)
      * ? - The question mark used for omit the error.
      * Error occur in second word of the search keyword,
-     * if maches any of the letter in the html element
+     * if matches any of the letter in the html element
      */
     public function hightlight($str, $keywords = '')
     {
