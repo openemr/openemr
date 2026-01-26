@@ -1,6 +1,369 @@
 <?php
 
-declare(strict_types=1);
+/**
+ * Global functions shared across multiple files in OpenEMR.
+ *
+ * This file contains functions that were previously duplicated across multiple
+ * files in the codebase. They have been consolidated here to reduce code
+ * duplication and ensure consistent behavior.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// This file is intentionally empty for now; see PHPStan rule
-// ForbiddenGlobalNamespaceRule
+// ============================================================================
+// XML Export Functions (used by ippf_export.php, export_xml.php)
+// ============================================================================
+
+/**
+ * Open an XML tag with proper indentation.
+ *
+ * @param string $tag The tag name to open
+ * @return void
+ * @global string $out The output buffer
+ * @global int $indent The current indentation level
+ */
+function OpenTag($tag): void
+{
+    global $out, $indent;
+    for ($i = 0; $i < $indent; ++$i) {
+        $out .= "\t";
+    }
+
+    ++$indent;
+    $out .= "<$tag>\n";
+}
+
+/**
+ * Close an XML tag with proper indentation.
+ *
+ * @param string $tag The tag name to close
+ * @return void
+ * @global string $out The output buffer
+ * @global int $indent The current indentation level
+ */
+function CloseTag($tag): void
+{
+    global $out, $indent;
+    --$indent;
+    for ($i = 0; $i < $indent; ++$i) {
+        $out .= "\t";
+    }
+
+    $out .= "</$tag>\n";
+}
+
+// ============================================================================
+// String/Number Utility Functions
+// ============================================================================
+
+/**
+ * Remove all non-digits from a string.
+ *
+ * @param mixed $field The input to process
+ * @return string The string with only digits remaining
+ */
+function Digits($field)
+{
+    return preg_replace("/\D/", "", (string) $field);
+}
+
+/**
+ * Put dashes, colons, etc. back into a timestamp based on a format string.
+ * The format uses '.' as a placeholder for each character from the input.
+ *
+ * @param string $fmt The format string (e.g., '....-..-..' for dates)
+ * @param string $str The input string to decorate
+ * @return string The decorated string
+ */
+function decorateString($fmt, $str)
+{
+    $res = '';
+    while ($fmt) {
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
+        if ($fc == '.') {
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
+        } else {
+            $res .= $fc;
+        }
+    }
+
+    return $res;
+}
+
+/**
+ * Extract description from a string, removing any prefix before colon.
+ *
+ * @param string $desc The description string
+ * @return string The cleaned description
+ */
+function display_desc($desc)
+{
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
+        $desc = $matches[1];
+    }
+
+    return $desc;
+}
+
+/**
+ * Format a money amount with decimals but no other decoration.
+ *
+ * @param float $value The value to format
+ * @param int $extradecimals Extra decimal places beyond currency standard
+ * @return string The formatted number
+ */
+function formatMoneyNumber($value, $extradecimals = 0)
+{
+    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
+}
+
+/**
+ * Parse note content to extract items within {| and |} markers.
+ *
+ * @param string $note The note content
+ * @return string JSON-encoded array of matches
+ */
+function parse_note($note)
+{
+    $result = preg_match_all("/\{\|([^\]]*)\|\}/", (string) $note, $matches);
+    return json_encode($matches[1]);
+}
+
+// ============================================================================
+// User/Patient Lookup Functions
+// ============================================================================
+
+/**
+ * Look up a user's full name by ID.
+ *
+ * @param int|string $thisField The user ID
+ * @return string The user's name in "Last, First Middle" format
+ */
+function User_Id_Look($thisField)
+{
+    if (!$thisField) {
+        return '';
+    }
+
+    $ret = '';
+    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
+    $rrow = sqlFetchArray($rlist);
+    if ($rrow) {
+        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
+    }
+
+    return $ret;
+}
+
+// ============================================================================
+// Report Display Functions
+// ============================================================================
+
+/**
+ * Print an encounter header row for patient ledger reports.
+ *
+ * @param string $dt The encounter date
+ * @param string $rsn The reason for visit
+ * @param int|string $dr The provider ID
+ * @return void
+ * @global string $bgcolor The current background color
+ * @global int $orow The row counter
+ */
+function PrintEncHeader($dt, $rsn, $dr): void
+{
+    global $bgcolor, $orow;
+    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
+    echo "<tr class='bg-white'>";
+    if (strlen((string) $rsn) > 50) {
+        $rsn = substr((string) $rsn, 0, 50) . '...';
+    }
+
+    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
+    echo "</tr>\n";
+    $orow++;
+}
+
+/**
+ * Start an HTML table row for statistics reports.
+ *
+ * @param string $att HTML attributes for the row
+ * @return void
+ * @global int $cellcount Cell counter
+ * @global int $form_output Output format (3 = CSV)
+ */
+function genStartRow($att): void
+{
+    global $cellcount, $form_output;
+    if ($form_output != 3) {
+        echo " <tr $att>\n";
+    }
+
+    $cellcount = 0;
+}
+
+/**
+ * End an HTML table row for statistics reports.
+ *
+ * @return void
+ * @global int $form_output Output format (3 = CSV)
+ */
+function genEndRow(): void
+{
+    global $form_output;
+    if ($form_output == 3) {
+        echo "\n";
+    } else {
+        echo " </tr>\n";
+    }
+}
+
+// ============================================================================
+// Age Calculation Functions
+// ============================================================================
+
+/**
+ * Compute age in years given a DOB and "as of" date.
+ *
+ * @param string $dob Date of birth (YYYY-MM-DD format)
+ * @param string $asof The date to calculate age as of (defaults to today)
+ * @return int The age in years
+ */
+function getAge($dob, $asof = '')
+{
+    if (empty($asof)) {
+        $asof = date('Y-m-d');
+    }
+
+    $a1 = explode('-', substr((string) $dob, 0, 10));
+    $a2 = explode('-', substr((string) $asof, 0, 10));
+    $age = $a2[0] - $a1[0];
+    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
+        --$age;
+    }
+
+    return $age;
+}
+
+// ============================================================================
+// HL7 Helper Functions
+// ============================================================================
+
+/**
+ * Convert a date string to HL7 format (digits only).
+ *
+ * @param string $s The date string
+ * @return string The date with only digits
+ */
+function hl7Date($s)
+{
+    return preg_replace('/[^\d]/', '', (string) $s);
+}
+
+// ============================================================================
+// Cron/Notification Functions
+// ============================================================================
+
+/**
+ * Get patient data for phone alert notifications.
+ *
+ * @param string $type The notification type ('Phone')
+ * @param int $trigger_hours Hours before appointment to trigger
+ * @return array Array of patient appointment data
+ */
+function cron_getPhoneAlertpatientData($type, $trigger_hours)
+{
+    $ssql = '';
+    $check_date = '';
+
+    // Added by Yijin 1/12/10 to handle phone reminders.
+    // Patient needs to have hipaa Voice flag set to yes and a home phone
+    if ($type == 'Phone') {
+        $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>'' and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
+
+        $check_date = date("Y-m-d", mktime(date("H") + $trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
+    }
+
+    $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,pd.phone_home,pd.hipaa_voice,";
+    $ssql .= " and (ope.pc_eventDate=?)";
+
+    $query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
+            ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
+            ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime,ope.pc_facility
+        from
+            openemr_postcalendar_events as ope ,patient_data as pd
+        where
+            ope.pc_pid=pd.pid $ssql
+        order by
+            ope.pc_eventDate,ope.pc_endDate,pd.pid";
+
+    $db_patient = (sqlStatement($query, [$check_date]));
+    $patient_array = [];
+    $cnt = 0;
+    while ($prow = sqlFetchArray($db_patient)) {
+        $patient_array[$cnt] = $prow;
+        $cnt++;
+    }
+
+    return $patient_array;
+}
+
+// ============================================================================
+// File/Report Functions
+// ============================================================================
+
+/**
+ * Generate a base filename for patient reports.
+ *
+ * @param int $pid The patient ID
+ * @return array Contains 'base' filename, 'fname', and 'lname'
+ */
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(['.', ',', ' '], '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
+}
+
+/**
+ * Create a ZIP file with content.
+ *
+ * @param string $source The source file path or filename for the entry
+ * @param string $destination The destination ZIP file path
+ * @param string $content Optional content to add instead of reading from source
+ * @param bool $create Whether to create new (true) or overwrite existing (false)
+ * @return bool True on success, false on failure
+ */
+function zip_content($source, $destination, $content = '', $create = true)
+{
+    if (!extension_loaded('zip')) {
+        return false;
+    }
+
+    $zip = new ZipArchive();
+    if ($create) {
+        if (!$zip->open($destination, ZipArchive::CREATE)) {
+            return false;
+        }
+    } else {
+        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
+            return false;
+        }
+    }
+
+    if (is_file($source) === true) {
+        $zip->addFromString(basename((string) $source), file_get_contents($source));
+    } elseif (!empty($content)) {
+        $zip->addFromString(basename((string) $source), $content);
+    }
+
+    return $zip->close();
+}

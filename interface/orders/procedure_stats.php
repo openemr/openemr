@@ -86,46 +86,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $arr_titles[$fid] = [];
 }
 
-// Compute age in years given a DOB and "as of" date.
-//
-function getAge($dob, $asof = '')
-{
-    if (empty($asof)) {
-        $asof = date('Y-m-d');
-    }
-
-    $a1 = explode('-', substr((string) $dob, 0, 10));
-    $a2 = explode('-', substr((string) $asof, 0, 10));
-    $age = $a2[0] - $a1[0];
-    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
-        --$age;
-    }
-
-  // echo "<!-- $dob $asof $age -->\n"; // debugging
-    return $age;
-}
-
 $cellcount = 0;
-
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
 
 function getListTitle($list, $option)
 {

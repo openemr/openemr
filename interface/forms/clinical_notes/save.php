@@ -136,8 +136,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}

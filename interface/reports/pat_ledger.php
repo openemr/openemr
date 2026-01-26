@@ -83,22 +83,6 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     return($all);
 }
 
-function User_Id_Look($thisField)
-{
-    if (!$thisField) {
-        return '';
-    }
-
-    $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
-    $rrow = sqlFetchArray($rlist);
-    if ($rrow) {
-        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
-    }
-
-    return $ret;
-}
-
 function List_Look($thisData, $thisList)
 {
     if ($thisList == 'occurrence') {
@@ -147,20 +131,7 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr): void
-{
-    global $bgcolor, $orow;
-    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr class='bg-white'>";
-    if (strlen((string) $rsn) > 50) {
-        $rsn = substr((string) $rsn, 0, 50) . '...';
-    }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
-    echo "</tr>\n";
-    $orow++;
-}
 function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;

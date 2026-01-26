@@ -126,25 +126,6 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $sum_balance += (float)$balance * 1;
 }
 
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
 function calcTaxes($row, $amount)

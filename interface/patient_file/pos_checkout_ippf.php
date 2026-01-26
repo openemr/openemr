@@ -107,13 +107,6 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
 // Get a list item's title, translated if appropriate.
 //
 function getListTitle($list, $option)

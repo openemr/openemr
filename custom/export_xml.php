@@ -34,35 +34,7 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
-function OpenTag($tag): void
-{
-    global $out, $indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    ++$indent;
-    $out .= "<$tag>\n";
-}
-
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
-}
-
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", (string) $field);
-}
-
- // Translate sex.
+// Translate sex.
 function Sex($field)
 {
     $sex = strtoupper(substr(trim((string) $field), 0, 1));
