@@ -495,7 +495,7 @@ function hl7Sex($s)
  * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
  * @return string The formatted timestamp, or empty string if input is empty
  */
-function hl7Time($s, bool $withSeconds = true)
+function hl7Time($s, bool $withSeconds)
 {
     if (empty($s)) {
         return '';
@@ -511,7 +511,7 @@ function hl7Time($s, bool $withSeconds = true)
  * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
  * @return string The formatted phone number, or empty string if invalid
  */
-function hl7Phone($s, bool $formatted = true)
+function hl7Phone($s, bool $formatted)
 {
     if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $formatted
@@ -533,7 +533,7 @@ function hl7Phone($s, bool $formatted = true)
  * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
  * @return string The formatted SSN, or empty string if invalid
  */
-function hl7SSN($s, bool $withDashes = true)
+function hl7SSN($s, bool $withDashes)
 {
     if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $withDashes
@@ -567,7 +567,7 @@ function hl7RelationWord(string $s): string
  * @param bool $childAsOther Whether to treat 'child' as 'other' (code 8) instead of code 3
  * @return string The HL7 relationship code, or the original value if unrecognized
  */
-function hl7RelationCode(string $s, bool $childAsOther = false): string
+function hl7RelationCode(string $s, bool $childAsOther): string
 {
     return match (strtolower($s)) {
         '', 'self' => '1',

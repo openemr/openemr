@@ -388,7 +388,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
                 $d1 . hl7Text($payer['data']['subscriber_lname']) .   // Insured last name
                 $d2 . hl7Text($payer['data']['subscriber_fname']) . // Insured first name
                 $d2 . hl7Text($payer['data']['subscriber_mname']) . // Insured middle name
-                $d1 . hl7RelationCode((string) $payer['data']['subscriber_relationship']) .        //JC this may need to be edited JP this is okay!
+                $d1 . hl7RelationCode((string) $payer['data']['subscriber_relationship'], childAsOther: false) .        //JC this may need to be edited JP this is okay!
                 $d1 . hl7Date($payer['data']['subscriber_DOB']) .     // Insured DOB
                 $d1 . hl7Text($payer['data']['subscriber_street']) .  // Insured Street Address
                 $d2 .
@@ -462,7 +462,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
                     $d1 . hl7Date($guarantor['data']['subscriber_DOB']) .     // Insured DOB
                     $d1 . hl7Sex($guarantor['data']['subscriber_sex']) .   // Sex: M, F or U
                     $d1 .
-                    $d1 . hl7RelationCode((string) $guarantor['data']['subscriber_relationship']) .        //JC this may need to be edited JP this is okay!
+                    $d1 . hl7RelationCode((string) $guarantor['data']['subscriber_relationship'], childAsOther: false) .        //JC this may need to be edited JP this is okay!
 
                     $d1 . hl7Date($guarantor['data']['subscriber_ss']) .     // Insured ssn
                     $d0;
@@ -475,7 +475,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
         $P[24] = hl7Text($guarantor['data']['subscriber_state']);
         $P[25] = hl7Zip($guarantor['data']['subscriber_postal_code']);
         // $P[26] = // employer;
-        $P[27] = hl7RelationCode((string) $guarantor['data']['subscriber_relationship']);
+        $P[27] = hl7RelationCode((string) $guarantor['data']['subscriber_relationship'], childAsOther: false);
         $P[56] = hl7Phone($guarantor['data']['subscriber_phone'], formatted: false);
     }
 

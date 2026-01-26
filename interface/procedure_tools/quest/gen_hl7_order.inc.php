@@ -164,11 +164,11 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
     $d2 . hl7Text($porow['state']) .
     $d2 . hl7Zip($porow['postal_code']) .
     $d1 .
-    $d1 . hl7Phone($porow['phone_home']) .
-    $d1 . hl7Phone($porow['phone_biz']) .
+    $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+    $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
     $d1 . $d1 . $d1 .
     $d1 . $porow['encounter'] .
-    $d1 . hl7SSN($porow['ss']) .
+    $d1 . hl7SSN($porow['ss'], withDashes: true) .
     $d1 . $d1 . $d1 .
     $d0;
 
@@ -220,7 +220,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Text($payer_address->get_state()) .  // State
                 $d2 . hl7Zip($payer_address->get_zip()) .     // Zip Code
                 $d1 .
-                $d1 . hl7Phone($payer_object->get_phone()) .    // Phone Number
+                $d1 . hl7Phone($payer_object->get_phone(), formatted: true) .    // Phone Number
                 $d1 . hl7Text($payer['data']['group_number']) . // Insurance Company Group Number
                 str_repeat($d1, 7) .                            // IN1 9-15 all empty
                 $d1 . hl7Text($payer['data']['subscriber_lname']) .   // Insured last name
@@ -271,13 +271,13 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
             $d2 . hl7Text($porow['city']) .
             $d2 . hl7Text($porow['state']) .
             $d2 . hl7Zip($porow['postal_code']) .
-            $d1 . hl7Phone($porow['phone_home']) .
-            $d1 . hl7Phone($porow['phone_biz']) .
+            $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+            $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
             $d1 . hl7Date($porow['DOB']) .   // DOB
             $d1 . hl7Sex($porow['sex']) .   // Sex: M, F or U
             $d1 .
             $d1 . '1' .                   // Relationship
-            $d1 . hl7SSN($porow['ss']) .
+            $d1 . hl7SSN($porow['ss'], withDashes: true) .
             $d0;
     }
   // Common Order.
@@ -305,7 +305,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
         $d2 . hl7Text($pcrow['procedure_name']) .
         $d1 . hl7Priority($porow['order_priority']) . // S=Stat, R=Routine
         $d1 .
-        $d1 . hl7Time($porow['date_collected']) .     // Observation Date/Time
+        $d1 . hl7Time($porow['date_collected'], withSeconds: true) .     // Observation Date/Time
         str_repeat($d1, 8) .                  // OBR 8-15 not used
         $d1 . hl7Text($porow['docnpi']) .             // Physician ID
         $d2 . hl7Text($porow['doclname']) .         // Last Name
