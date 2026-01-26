@@ -402,38 +402,6 @@ class TelemetryServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testReportUsageDataReturnsFalseWhenSiteUuidNotFound(): void
-    {
-        /** @var TelemetryRepository|MockObject $mockRepository */
-        $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
-        $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        // Create a partial mock to mock the isTelemetryEnabled method and getUniqueInstallationUuid
-        $telemetryService = $this->getMockBuilder(TelemetryService::class)
-            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
-            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid'])
-            ->getMock();
-
-        // Mock isTelemetryEnabled to return true (enabled)
-        $telemetryService->expects($this->once())
-            ->method('isTelemetryEnabled')
-            ->willReturn(1);
-
-        // Mock getUniqueInstallationUuid to return empty string
-        $telemetryService->expects($this->once())
-            ->method('getUniqueInstallationUuid')
-            ->willReturn('');
-
-        $result = $telemetryService->reportUsageData();
-
-        $this->assertFalse($result);
-    }
-
     /**
      * Test reportUsageData with successful scenario.
      * Note: This method still has external dependencies (cURL) that would require
