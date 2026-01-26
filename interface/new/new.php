@@ -119,7 +119,7 @@ $(function () {
 <?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Title'); ?>:</span>
+   <span class='fw-bold'><?php echo xlt('Title'); ?>:</span>
   </td>
   <td>
    <select name='title'>
@@ -142,7 +142,7 @@ $(function () {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('First Name'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('First Name'); ?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='fname' value='<?php echo attr($form_fname); ?>' />
@@ -151,7 +151,7 @@ $(function () {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Middle Name'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Middle Name'); ?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='mname' value='<?php echo attr($form_mname); ?>' />
@@ -160,7 +160,7 @@ $(function () {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Last Name'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Last Name'); ?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='lname' value='<?php echo attr($form_lname); ?>' />
@@ -169,7 +169,7 @@ $(function () {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Sex'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Sex'); ?>: </span>
   </td>
   <td>
    <select name='sex'>
@@ -193,7 +193,7 @@ while ($orow = sqlFetchArray($ores)) {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Referral Source'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Referral Source'); ?>: </span>
   </td>
   <td>
    <select name='refsource'>
@@ -217,7 +217,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Birth Date'); ?>:</span>
+   <span class='fw-bold'><?php echo xlt('Birth Date'); ?>:</span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='DOB' id='DOB'
@@ -227,7 +227,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr<?php echo $regstyle ?>>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Registration Date'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Registration Date'); ?>: </span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='regdate' id='regdate'
@@ -237,7 +237,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Patient Number'); ?>: </span>
+   <span class='fw-bold'><?php echo xlt('Patient Number'); ?>: </span>
   </td>
   <td>
    <input type='entry' size='5' name='pubpid' value='<?php echo attr($form_pubpid); ?>' />

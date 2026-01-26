@@ -19,7 +19,7 @@
 - **PHP:** 8.2+ required
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
-- **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
+- **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 5.3
 - **Build:** Gulp 4, SASS
 - **Database:** MySQL via ADODB wrapper
 - **Testing:** PHPUnit 11, Jest 29

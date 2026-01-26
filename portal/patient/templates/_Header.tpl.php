@@ -52,12 +52,12 @@ $v_js_includes = $globalsBag->get('v_js_includes');
         <div class="navbar navbar-light bg-light sticky-top">
             <div class="container">
                       <a class="navbar-brand" href="./"><?php echo xlt('Home'); ?></a>
-                        <a class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse"><span class="navbar-toggler-icon"></span></a>
+                        <a class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"><span class="navbar-toggler-icon"></span></a>
                         <div class="container">
                         <div class="collapse navbar-collapse">
-                            <ul class="nav float-right navbar-nav">
+                            <ul class="nav float-end navbar-nav">
                                 <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-lock"></i> <?php echo xlt('Login'); ?> <i class="caret"></i></a>
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown"><i class="icon-lock"></i> <?php echo xlt('Login'); ?> <i class="caret"></i></a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="./loginform"><?php echo xlt('Login'); ?></a></li>
                                     <li class="dropdown-divider"></li>

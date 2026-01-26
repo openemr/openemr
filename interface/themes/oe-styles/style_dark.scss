@@ -33,7 +33,7 @@ $body-color: $gray-900;
 
 $btn-link-disabled-color: $gray-400;
 $close-color: $black;
-$close-text-shadow: 0 1 0 $black;
+// BS5: $close-text-shadow removed - was: 0 1 0 $black
 $secondary-color: $gray-900;
 $login-text-color: #000;
 
@@ -91,7 +91,7 @@ lhc-item-question-text {
   color: $white;
 }
 
-.select2-container--bootstrap4 .select2-selection--multiple .select2-search__field {
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-search__field {
   color: #000 !important;
 }
 
@@ -107,7 +107,7 @@ input.list-group-item {
 .appMenu li:hover,
 .appMenu > span:hover {
   background-color: #cbd8e7 !important;
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 .menuEntries li .menuLabel:hover {

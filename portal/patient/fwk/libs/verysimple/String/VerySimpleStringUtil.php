@@ -352,10 +352,10 @@ class VerySimpleStringUtil
                 $result .= $char;
             } elseif ($ascii < 192) {
                 // non-utf8 character or not a start byte
-                $result .= ($encodeControlCharacters) ? htmlentities($char) : '';
+                $result .= ($encodeControlCharacters) ? htmlspecialchars($char, ENT_QUOTES, 'UTF-8') : '';
             } elseif ($ascii < 224) {
                 // two-byte character
-                $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
+                $encoded = htmlspecialchars(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
 
                 // @hack if htmlentities didn't encode it, then we need to do a charset conversion
                 if ($encoded != '' && !str_starts_with($encoded, '&')) {

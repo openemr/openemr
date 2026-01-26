@@ -100,7 +100,7 @@ class MultipledbController extends BaseController
         $db = [];
         if ($_REQUEST['db']) {
             foreach ($_REQUEST['db'] as $key => $value) {
-                $db[$key] = htmlentities((string) $value, ENT_QUOTES | ENT_IGNORE, "UTF-8");
+                $db[$key] = attr((string) $value);
             }
 
             $this->getMultipledbTable()->storeMultipledb($id, $db);

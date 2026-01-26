@@ -233,7 +233,7 @@ class C_Document extends Controller
                 if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
                     $fname = $value;
                     if (empty($fname)) {
-                        $fname = htmlentities("<empty>");
+                        $fname = attr("<empty>");
                     }
                     $error = xl("Error number") . ": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {

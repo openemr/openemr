@@ -605,7 +605,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
             // load divs
             placeHtml("stats.php", "stats_div", true).then(() => {
-                $('[data-toggle="collapse"]').on('click', function (e) {
+                $('[data-bs-toggle="collapse"]').on('click', function (e) {
                     updateUserVisibilitySetting(e);
                 });
             });
@@ -881,7 +881,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
          * @var e element The Button that was clicked to collapse/expand the card
          */
         async function updateUserVisibilitySetting(e) {
-            const targetID = e.target.getAttribute("data-target");
+            const targetID = e.target.getAttribute("data-bs-target");
             const target = document.querySelector(targetID);
             const targetStr = targetID.substring(1);
             // test ensure at least an element we want.
@@ -1619,7 +1619,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            'btnLink' => "javascript:(function(){const el=document.getElementById('patient_portal');if(el){const collapse=new bootstrap.Collapse(el);collapse.toggle();}})();",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

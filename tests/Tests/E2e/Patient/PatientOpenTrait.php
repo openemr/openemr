@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Patient;
 
+use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -65,8 +66,18 @@ trait PatientOpenTrait
         $searchForm = $this->crawler->filterXPath(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_FORM_PATIENTOPEN_TRAIT)->form();
         $searchForm['anySearchBox'] = $lastname;
         $this->client->waitFor(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_CLICK_PATIENTOPEN_TRAIT);
+
+        // Wait for Knockout.js to be initialized and bindings to be applied
+        // The search_globals button uses Knockout.js data-bind="event: {mousedown: viewPtFinder...}"
+        $this->client->wait(10)->until(function ($driver) {
+            return $driver->executeScript("return typeof ko !== 'undefined' && ko.dataFor(document.getElementById('search_globals')) !== undefined;");
+        });
+
+        // Trigger mousedown event via JavaScript (which Knockout.js is listening for)
+        // This is more reliable than click() since the button is bound to mousedown event
         $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_CLICK_PATIENTOPEN_TRAIT)->click();
+        $buttonElement = $this->client->findElement(WebDriverBy::xpath(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_CLICK_PATIENTOPEN_TRAIT));
+        $this->client->executeScript("arguments[0].dispatchEvent(new MouseEvent('mousedown', {bubbles: true, cancelable: true}));", [$buttonElement]);
 
         // click on the name in the patient list
         $this->client->waitFor(XpathsConstants::PATIENT_FINDER_IFRAME);

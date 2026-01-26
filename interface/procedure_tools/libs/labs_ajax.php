@@ -54,7 +54,7 @@ if ($action === 'code_detail') {
     }
     if ($none) {
         echo "<h4 style='margin-bottom:0'>" . xlt("Details Not Available") . "</h4>\n";
-        echo "<div class='pr-5'>\n";
+        echo "<div class='pe-5'>\n";
         echo xlt("Contact your Lab representative.") . "\n";
         echo xlt("Additional information may be available");
         echo "</div>\n";

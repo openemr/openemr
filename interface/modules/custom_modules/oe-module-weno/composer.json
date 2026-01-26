@@ -10,11 +10,9 @@
       "email": "kkappiah@medsov.com"
     }
   ],
-  "require": {
-  },
+  "require": {},
   "conflict": {
     "openemr/openemr": ">=7.0.1"
   },
-  "config": {
-  }
+  "config": {}
 }

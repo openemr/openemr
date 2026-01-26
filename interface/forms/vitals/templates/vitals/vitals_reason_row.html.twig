@@ -12,7 +12,7 @@
                     </p>
                 </div>
                 <div class="row">
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label>{{ "Reason Code"|xlt }}</label>
                         {% if vitalDetails is not null and vitalDetails.get_reason_code() is not empty %}
                         <input class="code-selector-popup form-control" placeholder="{{ "Select a reason code"|xla }}
@@ -30,7 +30,7 @@
                             <input type="hidden" name="reasonCodeText[{{ input|attr }}]" class="code-selector-text" value="" />
                         {% endif %}
                     </div>
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label>{{ "Reason Status"|xlt }}</label>
                         <select name="reasonCodeStatus[{{ input|attr }}]" class="form-control">
                             {% for codeDesc in reasonCodeStatii %}

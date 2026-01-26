@@ -62,20 +62,20 @@ function hs_clip(?string $s, int $len = 80): string
 function hs_badge_class(?string $val): string
 {
     if ($val === null || $val === '') {
-        return 'badge-secondary';
+        return 'bg-secondary';
     }
-    // Same “positive” set your form’s JS uses
+    // Same "positive" set your form's JS uses
     static $positive = [
         'yes', 'at_risk', 'positive', 'often', 'sometimes', 'yes_med', 'yes_nonmed',
         'already_off', 'very_hard', 'hard', 'somewhat_hard'
     ];
     if (in_array($val, $positive, true)) {
-        return 'badge-danger';
+        return 'bg-danger';
     }
     if (in_array($val, ['no', 'none', 'negative'], true)) {
-        return 'badge-success';
+        return 'bg-success';
     }
-    return 'badge-warning';
+    return 'bg-warning text-dark';
 }
 
 $authorized = AclMain::aclCheckCore('patients', 'med');
@@ -148,12 +148,12 @@ foreach ($map as $col => $listId) {
 $hungerScore  = (int)($info['hunger_score'] ?? 0);
 $foodRiskId   = $info['food_insecurity'] ?? '';
 $foodRiskText = $foodRiskId !== '' ? hs_lo_title('sdoh_food_insecurity_risk', $foodRiskId) : '';
-$foodBadge    = ($hungerScore >= 1 || $foodRiskId === 'at_risk') ? 'badge-danger' : ($foodRiskId ? 'badge-success' : 'badge-secondary');
+$foodBadge    = ($hungerScore >= 1 || $foodRiskId === 'at_risk') ? 'bg-danger' : ($foodRiskId ? 'bg-success' : 'bg-secondary');
 
 // Disability summary
 $disabId    = $info['disability_status'] ?? '';
 $disabText  = $disabId !== '' ? hs_lo_title('disability_status', $disabId) : '';
-$disabBadge = $disabId ? 'badge-info' : 'badge-secondary';
+$disabBadge = $disabId ? 'bg-info text-dark' : 'bg-secondary';
 
 // Score: prefer stored instrument_score, else computed positives
 $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['instrument_score'] : $positiveCount);
@@ -186,7 +186,7 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
         <?php else : ?>
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="font-weight-bold"><?php echo xlt("SDOH (USCDI v3)"); ?></span>
+                    <span class="fw-bold"><?php echo xlt("SDOH (USCDI v3)"); ?></span>
                     <span class="btn-group btn-group-sm">
                     <?php
                     $newUrl  = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1]);
@@ -220,10 +220,10 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
 
                         <!-- Quick status badges -->
                         <div class="mb-2">
-                        <span class="badge badge-primary mr-1">
+                        <span class="badge bg-primary me-1">
                             <?php echo xlt("Total Positives"); ?>: <?php echo text($totalScore); ?>
                         </span>
-                            <span class="badge <?php echo attr($foodBadge); ?> mr-1">
+                            <span class="badge <?php echo attr($foodBadge); ?> me-1">
                             <?php echo xlt("Hunger VS"); ?>:
                             <?php echo text($foodRiskText !== '' ? $foodRiskText : ($hungerScore >= 1 ? xlt('At risk') : xlt('No risk'))); ?>
                         </span>
@@ -277,11 +277,11 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
 
                         <?php if ($goals_text || $interventions_text) : ?>
                             <div class="row small">
-                                <div class="form-group col-md-12 mb-2">
+                                <div class="mb-3 col-md-12 mb-2">
                                     <label><?php echo xlt("Patient Goals (SDOH)"); ?></label>
                                     <textarea class="form-control" rows="5" readonly><?php echo text($goals_text); ?></textarea>
                                 </div>
-                                <div class="form-group col-md-12 mb-2">
+                                <div class="mb-3 col-md-12 mb-2">
                                     <label><?php echo xlt("Interventions / Referrals"); ?></label>
                                     <textarea class="form-control" rows="5" readonly><?php echo text($interventions_text); ?></textarea>
                                 </div>

@@ -10,10 +10,15 @@
       "role": "Developer"
     }
   ],
-  "keywords": ["openemr", "openemr-module"],
+  "keywords": [
+    "openemr",
+    "openemr-module"
+  ],
   "minimum-stability": "stable",
   "autoload": {
-    "psr-4": {"OpenEMR\\Modules\\EhiExporter\\": "src/"}
+    "psr-4": {
+      "OpenEMR\\Modules\\EhiExporter\\": "src/"
+    }
   },
   "require": {
     "openemr/oe-module-installer-plugin": "^0.1.0",

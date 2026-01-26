@@ -95,11 +95,11 @@ try {
             // this means there is an error with the template, in which case we can't display it nicely
             echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
             echo "<h1>Fatal Error:</h1>\n";
-            echo '<h3>' . htmlentities($ex->getMessage()) . "</h3>\n";
+            echo '<h3>' . text($ex->getMessage()) . "</h3>\n";
             echo "<h4>Original Stack Trace:</h4>\n";
-            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . htmlentities($ex->getTraceAsString()) . '</textarea>';
+            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . text($ex->getTraceAsString()) . '</textarea>';
             echo "<h4>In addition to the above error, the default error template could not be displayed:</h4>\n";
-            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . htmlentities($ex2->getMessage()) . "\n\n" . htmlentities($ex2->getTraceAsString()) . '</textarea>';
+            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . text($ex2->getMessage()) . "\n\n" . text($ex2->getTraceAsString()) . '</textarea>';
         }
     }
 }

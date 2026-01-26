@@ -212,13 +212,13 @@ if (!empty($_POST['bn_upload'])) {
                     </tbody>
                 </table>
             </div>
-            <p class='font-weight-bold text-center'>
+            <p class='fw-bold text-center'>
                 <?php echo xlt('Be patient, some files can take several minutes to process!'); ?>
             </p>
 
             <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
             <p class='text'>
-            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <span class="fw-bold">RXCUI codes</span> may be downloaded from
             <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
             www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
             Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".

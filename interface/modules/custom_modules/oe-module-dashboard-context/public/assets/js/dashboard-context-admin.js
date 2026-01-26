@@ -27,7 +27,7 @@ const ContextAdmin = {
     bindEvents: function() {
         const self = this;
 
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             const target = $(e.target).attr('href');
             if (target === '#users') self.loadUsers();
             else if (target === '#roles') self.loadRoleDefaults();
@@ -94,7 +94,7 @@ const ContextAdmin = {
                         <div class="card-body">
                             <h6 class="card-title">
                                 ${this.escapeHtml(ctx.context_name)}
-                                <span class="badge ${badgeClass} float-right">${badgeText}</span>
+                                <span class="badge ${badgeClass} float-end">${badgeText}</span>
                             </h6>
                             <p class="card-text small text-muted">${this.escapeHtml(ctx.description || '')}</p>
                             <p class="card-text small"><strong>Key:</strong> ${this.escapeHtml(ctx.context_key)}</p>
@@ -146,7 +146,11 @@ const ContextAdmin = {
             $(this).closest('.widget-item').toggleClass('active', $(this).is(':checked'));
         });
 
-        $('#contextModal').modal('show');
+        const modalEl = document.getElementById('contextModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     saveContext: function() {
@@ -179,7 +183,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#contextModal').modal('hide');
+                    const modalEl = document.getElementById('contextModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadAdminConfig();
                     self.showAlert(isEdit ? 'Context updated' : 'Context created', 'success');
                 } else {
@@ -292,7 +302,11 @@ const ContextAdmin = {
         $('#assignUserName').text(user.name);
         $('#assignContext').val(user.active_context);
         $('#assignLock').prop('checked', false);
-        $('#assignModal').modal('show');
+        const modalEl = document.getElementById('assignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     assignContext: function() {
@@ -312,7 +326,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#assignModal').modal('hide');
+                    const modalEl = document.getElementById('assignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert('Context assigned', 'success');
                 }
@@ -327,7 +347,11 @@ const ContextAdmin = {
             return;
         }
         $('#bulkSelectedCount').text(selected.length);
-        $('#bulkAssignModal').modal('show');
+        const modalEl = document.getElementById('bulkAssignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     bulkAssign: function() {
@@ -349,7 +373,13 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#bulkAssignModal').modal('hide');
+                    const modalEl = document.getElementById('bulkAssignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert(response.success_count + ' of ' + response.total_count + ' users updated', 'success');
                 }
@@ -493,7 +523,7 @@ const ContextAdmin = {
                 <tr>
                     <td>${this.escapeHtml(log.created_at)}</td>
                     <td>${this.escapeHtml(log.user_fname + ' ' + log.user_lname)}</td>
-                    <td><span class="badge badge-secondary">${this.escapeHtml(log.action)}</span></td>
+                    <td><span class="badge bg-secondary">${this.escapeHtml(log.action)}</span></td>
                     <td>${this.escapeHtml(log.old_context || '-')}</td>
                     <td>${this.escapeHtml(log.new_context || '-')}</td>
                     <td>${this.escapeHtml(log.performer_username || '-')}</td>
@@ -559,7 +589,7 @@ const ContextAdmin = {
     showAlert: function(message, type) {
         const $alert = $(`
             <div class="alert alert-${type} alert-dismissible fade show" style="position:fixed;top:10px;right:10px;z-index:9999;">
-                ${jsText(message)}<button type="button" class="close" data-dismiss="alert">&times;</button>
+                ${jsText(message)}<button type="button" class="close" data-bs-dismiss="alert">&times;</button>
             </div>
         `);
         $('body').append($alert);

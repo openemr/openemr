@@ -35,6 +35,6 @@ services:
       DISPLAY_CONTAINER_NAME: selenium
   openemr:
     environment:
-      SELENIUM_USE_GRID: "true"
+      SELENIUM_USE_GRID: 'true'
       SELENIUM_HOST: selenium
-      SELENIUM_FORCE_HEADLESS: "false"
+      SELENIUM_FORCE_HEADLESS: 'false'

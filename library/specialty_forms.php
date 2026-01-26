@@ -92,44 +92,44 @@ echo "<script>var form=" . js_escape($form) . "</script>";
                 <div class="col">
                     <p class="small text-center"><?php echo xlt("Patient previous names history. Ensure to add the date the name was last used if known."); ?></p>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_prefix" id="previous_name_prefix" class="form-control" />
                             <label class="form-label" for="previous_name_prefix"><?php echo xlt("Title"); ?></label>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_first" id="previous_name_first" class="form-control" />
                             <label class="form-label" for="previous_name_first"><?php echo xlt("First name"); ?></label>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_middle" id="previous_name_middle" class="form-control" />
                             <label class="form-label" for="previous_name_middle"><?php echo xlt("Middle name"); ?></label>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_last" id="previous_name_last" class="form-control" />
                             <label class="form-label" for="previous_name_last"><?php echo xlt("Last name"); ?></label>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_suffix" id="previous_name_suffix" class="form-control" />
                             <label class="form-label" for="previous_name_suffix"><?php echo xlt("Suffix"); ?></label>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" name="previous_name_enddate" id="previous_name_enddate" class="form-control datepicker" />
                             <label class="form-label" for="previous_name_enddate"><?php echo xlt("End Date"); ?></label>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 text-center">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <button type='submit' class='btn btn-primary' name='form_save' id='form_save' value="save"><?php echo xlt('Save'); ?></button>
                         <button type='button' class='btn btn-secondary' name='form_cancel' id='form_cancel'><?php echo xlt('Cancel'); ?></button>
                     </div>
