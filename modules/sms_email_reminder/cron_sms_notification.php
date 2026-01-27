@@ -56,12 +56,15 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 // create sms object
 include_once("sms_clickatell.php");
 include_once("sms_tmb4.php");
-if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
-    $mysms = new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
-} elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
-    $mysms = new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
-} else {
-    throw new UnexpectedValueException('No SMS gateway configured');
+switch ($db_email_msg['sms_gateway_type']) {
+    case 'CLICKATELL':
+        $mysms = new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+        break;
+    case 'TMB4':
+        $mysms = new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+        break;
+    default:
+        throw new UnexpectedValueException('No SMS gateway configured');
 }
 
 
