@@ -81,10 +81,8 @@ $recorder = new Recorder();
 // Display a row of data for an encounter.
 //
 $var_index = 0;
-function echoPaymentRow($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
+function echoPaymentRow(int $var_index, $encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
-    global $var_index;
-    $var_index++;
     $balance = $charges - $ptpaid - $inspaid;
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ?: '';
@@ -1319,6 +1317,7 @@ function make_insurance() {
                                 //
                                 if (!$gottoday) {
                                     echoPaymentRow(
+                                        var_index: $var_index,
                                         encounterId: '0',
                                         iname: "form_upay[0]",
                                         date: date("Y-m-d"),
@@ -1331,6 +1330,7 @@ function make_insurance() {
 
                                 $gottoday = false;
                                 foreach ($encs as $value) {
+                                    $var_index++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
                                     if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
@@ -1382,6 +1382,7 @@ function make_insurance() {
                                     }
 
                                     echoPaymentRow(
+                                        var_index: $var_index,
                                         encounterId: $enc,
                                         iname: "form_upay[$enc]",
                                         date: $dispdate,
