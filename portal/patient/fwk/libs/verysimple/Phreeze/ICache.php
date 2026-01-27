@@ -14,7 +14,7 @@
 interface ICache
 {
     /**
-     * Retreives a value from the cache
+     * Retrieves a value from the cache
      *
      * @access public
      * @param string $key

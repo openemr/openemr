@@ -237,7 +237,7 @@ function DOBandEncounter($pc_eid): void
             # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
             if (isset($GLOBALS['temporary-eid-for-manage-tracker']) || !empty($_GET['eid'])) {
                 // Note that the temporary-eid-for-manage-tracker is used to capture the eid for new appointments and when separate a recurring
-                // appointment. It is set in the InsertEvent() function. Note that in the case of spearating a recurrent appointment, the get eid
+                // appointment. It is set in the InsertEvent() function. Note that in the case of separating a recurrent appointment, the get eid
                 // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                 // temporary-eid-for-manage-tracker global instead.
                 $temp_eid = $GLOBALS['temporary-eid-for-manage-tracker'] ?? $_GET['eid'];
@@ -387,7 +387,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
             if (in_array($my_repeat_type, [5, 7, 8, 9])) { //Added conditions for 7th, 8th, 9th.
                 $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
             } else {
-                // Last occurence of this weekday on the month
+                // Last occurrence of this weekday on the month
                 $my_repeat_on_num = 5; // Might need adjustment for new options.
             }
             // Maybe not needed, but for consistency with postcalendar:
@@ -470,7 +470,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
             // ===== Only current event of repeating series =====
             if ($_POST['recurr_affect'] == 'current') {
-                // update all existing event records to exlude the current date
+                // update all existing event records to exclude the current date
                 foreach ($providers_current as $provider) {
                     // update the provider's original event
                     // get the original event's repeat specs
@@ -1497,7 +1497,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
     // multi providers
     // =======================================
     if ($GLOBALS['select_multi_providers']) {
-        //  there are two posible situations: edit and new record
+        //  there are two possible situations: edit and new record
         $providers_array = [];
         // this is executed only on edit ($eid)
         if ($eid) {
@@ -1865,7 +1865,7 @@ function are_days_checked(){
 * this enable to add new rules for this form in the pageValidation list.
 * */
 var collectvalidation = <?php echo $collectthis; ?>;
-function validateform(event,valu){
+function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
     collectvalidation.form_hour = {
         numericality: {
@@ -1965,7 +1965,7 @@ function validateform(event,valu){
     var submit = submitme(1, event, <?php echo js_escape($form_id); ?>, collectvalidation);
     if(!submit)return $('#form_save').attr('disabled', false);
 
-    $('#form_action').val(valu);
+    $('#form_action').val(value);
 
     <?php if ($repeats) : ?>
     // existing repeating events need additional prompt

@@ -299,10 +299,10 @@ class PatientService extends BaseService
 
             $originalData = [];
             if ($dataBeforeUpdate->hasData()) {
-                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+                $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
             }
             // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
-            // we need the uuid to be the same binary fomrat as the other event firing.
+            // we need the uuid to be the same binary format as the other event firing.
             if (!empty($originalData['uuid'])) {
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
@@ -357,7 +357,7 @@ class PatientService extends BaseService
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
-            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            // for backwards compatibility, we will make sure we do exact matches on the keys using string comparisons if no object is used
             foreach ($search as $field => $key) {
                 if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
@@ -786,7 +786,7 @@ class PatientService extends BaseService
                 $months_since_birthday = 12 - $dobmonth + $monthnow;
                 $days_since_dobday = $daynow - $dobday;
             }
-        } else // if patient has had birthday this calandar year
+        } else // if patient has had birthday this calendar year
         {
             $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {

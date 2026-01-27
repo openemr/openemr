@@ -349,7 +349,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             <?php
                         } // end header for batch option
                         ?>
-                        <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
+                        <!-- removed by jcw -- check/submit sequence too tedious.  This is a quick fix -->
                         <!--   <input type='checkbox' name='form_all' value='1' <?php if (!empty($_POST['form_all'])) {
                             echo " checked";
                                                                                 } ?>><?php echo xlt('Include Completed') ?>&nbsp;-->
@@ -410,7 +410,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     "po.date_ordered, po.procedure_order_id, " .
                     "pc.procedure_order_seq, pr.procedure_report_id";
 
-                // removed by jcw -- check/submit sequece too tedious.  This is a quick fix
+                // removed by jcw -- check/submit sequence too tedious.  This is a quick fix
                 //$where = empty($_POST['form_all']) ?
                 //  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
                 //  "1 = 1";

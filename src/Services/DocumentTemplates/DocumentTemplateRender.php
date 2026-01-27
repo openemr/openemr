@@ -127,7 +127,7 @@ class DocumentTemplateRender
         // do the substitutions (ie. magic)
         $edata = $this->doSubs($edata, $formData);
         if (!$isLegacy) {
-            // ony inserts when a new template is fetched.
+            // only inserts when a new template is fetched.
             $edata .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
         }
         if ($this->html_flag) { // return raw minified html template
@@ -509,7 +509,7 @@ class DocumentTemplateRender
                     /* use global setting */
                     $currentdate = oeFormatShortDate(date('Y-m-d'), true);
                 } elseif (
-                    /* there's an overiding format */
+                    /* there's an overriding format */
                     preg_match('/YYYY-MM-DD/i', $matched, $matches)
                 ) {
                     /* nothing to do here as this is the default format */

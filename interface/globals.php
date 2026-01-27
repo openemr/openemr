@@ -591,7 +591,7 @@ if (!empty($glrow)) {
         // the $css_header_value is set above
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
-        // Check file existance
+        // Check file existence
         if (file_exists($webserver_root . '/public/themes/' . $new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS['css_header'] = $web_root . '/public/themes/' . attr($new_theme) . '?v=' . $v_js_includes;
@@ -609,7 +609,7 @@ if (!empty($glrow)) {
         // the $css_header_value is set above
         $new_theme = 'rtl_' . $portal_temp_css_theme_name;
 
-        // Check file existance
+        // Check file existence
         if (file_exists($webserver_root . '/public/themes/' . $new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS['portal_css_header'] = $web_root . '/public/themes/' . attr($new_theme) . '?v=' . $v_js_includes;

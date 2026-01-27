@@ -65,7 +65,7 @@ abstract class C_AbstractClickmap extends Controller
     abstract public function createModel($form_id = "");
 
     /**
-     * @brief Override this abstract function with your implememtation of getImage
+     * @brief Override this abstract function with your implementation of getImage
      *
      * @return The path to the image backing this form relative to the webroot.
      */
@@ -79,7 +79,7 @@ abstract class C_AbstractClickmap extends Controller
     abstract function getOptionsLabel();
 
     /**
-     * @brief Override this abstract functon to return a hash of the optionlist (key=>value pairs).
+     * @brief Override this abstract function to return a hash of the optionlist (key=>value pairs).
      *
      * @return A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
      */

@@ -148,7 +148,7 @@ class sms
         /* Connect to the TM4B server */
         $out = @fsockopen($host, $port, $errno, $errstr);
 
-        /* Make sure that the connection succeded */
+        /* Make sure that the connection succeeded */
         if ($out) {
             /* Send the request */
             fwrite($out, $http_header);

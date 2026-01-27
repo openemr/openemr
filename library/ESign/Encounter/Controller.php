@@ -119,7 +119,7 @@ class Encounter_Controller extends Abstract_Controller
                 $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {
-                $message = xlt("An error occured signing the form");
+                $message = xlt("An error occurred signing the form");
             }
         } else {
             $message = (isset($gMessage) && !empty($gMessage)) ? $gMessage : xlt("The password you entered is invalid");

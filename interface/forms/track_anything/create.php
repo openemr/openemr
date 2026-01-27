@@ -229,7 +229,7 @@ if ($the_item) {
 
 
     if ($deactivate) {
-    // deactive the item/track
+    // deactivate the item/track
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET active = '0' ";
         $updatespell .= "WHERE track_anything_type_id = ? ";

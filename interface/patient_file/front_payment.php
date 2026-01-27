@@ -114,25 +114,6 @@ function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $due
     echo " </tr>\n";
 }
 
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
 function calcTaxes($row, $amount)
@@ -246,7 +227,7 @@ if (!empty($_POST['form_save'])) {
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                 } else {
                     $Codetype = '';
                     $Code = '';
@@ -334,7 +315,7 @@ if (!empty($_POST['form_save'])) {
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
+                        $Modifier = $RowSearch['modifier'] ?? '';
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(

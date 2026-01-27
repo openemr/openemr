@@ -25,7 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
-//This section handles payment related javascript functios.Add, Search and Edit screen uses these functions.
+//This section handles payment related javascript functions.Add, Search and Edit screen uses these functions.
 //===============================================================================
 ?>
 <script>
@@ -186,7 +186,7 @@
         }
     }
 
-    function CheckUnappliedAmount() {//The value retured from here decides whether Payments can be posted/modified or not.
+    function CheckUnappliedAmount() {//The value returned from here decides whether Payments can be posted/modified or not.
         let UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
         if (UnappliedAmount < 0) {
             return 1;
@@ -222,7 +222,7 @@
         }
     }
 
-    function OpenEOBEntry() {//Used before allocating the recieved amount.
+    function OpenEOBEntry() {//Used before allocating the received amount.
         if (FormValidations())//FormValidations contains the form checks
         {
             top.restoreSession();
@@ -497,7 +497,7 @@
     }
     /*
     * Just to ensure our in screen calculations are up to date from value fetches.
-    *  Start from AdjAmount otherwise ajustments will reset for 0 balance auto's.
+    *  Start from AdjAmount otherwise adjustments will reset for 0 balance auto's.
     *
     * return awaited promise.
     * */

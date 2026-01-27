@@ -137,25 +137,6 @@ function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $due
     $sum_balance += (float)$balance * 1;
 }
 
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
 function calcTaxes($row, $amount)
@@ -655,7 +636,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     let msg = <?php $amsg = xl('Payment successfully sent for review and posting to your account.') . "\n" .
                         xl("You will be notified when the payment transaction is confirmed.") . "\n" .
                         xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
-                        echo json_encode($amsg); // backward compatable 5.0.1
+                        echo json_encode($amsg); // backward compatible 5.0.1
                     ?>;
                     alert(msg);
                     window.location.reload(false);
@@ -711,7 +692,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
         function getAuth() {
             let authnum = document.getElementById("check_number").value;
-            authnum = prompt(<?php echo xlj('Please enter card comfirmation authorization'); ?>, authnum);
+            authnum = prompt(<?php echo xlj('Please enter card confirmation authorization'); ?>, authnum);
             if (authnum != null) {
                 document.getElementById("check_number").value = authnum;
             }

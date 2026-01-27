@@ -65,9 +65,9 @@ class UtilsService
             $fhirUrl .= "/";
         }
         $url = $fhirUrl . $resourceType . '/' . $uuid;
-        $cannonical = new FHIRCanonical();
-        $cannonical->setValue($url);
-        return $cannonical;
+        $canonical = new FHIRCanonical();
+        $canonical->setValue($url);
+        return $canonical;
     }
 
     public static function parseCanonicalUrl(?string $url)

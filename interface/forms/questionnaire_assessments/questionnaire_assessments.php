@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -32,6 +33,7 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getString('srcdir') . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");

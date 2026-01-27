@@ -28,9 +28,9 @@ services:
     volumes:
     - ../../:/var/www/localhost/htdocs/openemr
     environment:
-      EMPTY: "yes"
-      FORCE_NO_BUILD_MODE: "yes"
-      OPENEMR_ENABLE_CI_PHP: "1"
+      EMPTY: yes
+      FORCE_NO_BUILD_MODE: yes
+      OPENEMR_ENABLE_CI_PHP: '1'
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_host: couchdb
       OPENEMR_SETTING_couchdb_pass: password
@@ -43,10 +43,11 @@ services:
       MYSQL_PASS: openemr
       # Coverage settings - controlled by ENABLE_COVERAGE variable
       # Set ENABLE_COVERAGE=true in run.sh to enable coverage collection
-      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
-      INFERNO_TEST: "${INFERNO_TEST:-false}"
-      XDEBUG_ON: "${XDEBUG_ON:-0}"
-      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
+      PCOV_ON: ${ENABLE_COVERAGE:-false}
+      INFERNO_TEST: ${INFERNO_TEST:-false}
+      XDEBUG_ON: ${XDEBUG_ON:-0}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
     depends_on:
       couchdb:
         condition: service_started
@@ -61,13 +62,13 @@ services:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: inferno
     environment:
-      INFERNO_DISABLE_TLS_TEST: "true"
+      INFERNO_DISABLE_TLS_TEST: 'true'
   worker:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: worker
     environment:
-      INFERNO_DISABLE_TLS_TEST: "true"
+      INFERNO_DISABLE_TLS_TEST: 'true'
   nginx:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml

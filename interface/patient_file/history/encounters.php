@@ -942,7 +942,7 @@ $(function () {
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
-    // height is overflowed. Poporver will eiter close when mouse leaves view
+    // height is overflowed. Popover will either close when mouse leaves view
     // or user clicks anywhere in view.
     $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
         let elements = $('[aria-describedby^="popover"]');

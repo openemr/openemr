@@ -28,20 +28,20 @@ class SLEOB
     {
         $invnumber = $out['our_claim_id'];
         $atmp = preg_split('/[ -]/', (string) $invnumber);
-        $acount = count($atmp);
+        $partCount = count($atmp);
 
         $pid = 0;
         $encounter = 0;
-        if ($acount == 2) {
+        if ($partCount == 2) {
             $pid = $atmp[0];
             $encounter = $atmp[1];
-        } elseif ($acount == 3) {
+        } elseif ($partCount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
                 "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
 
             $encounter = $brow['encounter'];
-        } elseif ($acount == 1) {
+        } elseif ($partCount == 1) {
             $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
                 "lname LIKE ? AND " .
                 "fname LIKE ? " .

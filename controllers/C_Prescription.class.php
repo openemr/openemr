@@ -227,7 +227,7 @@ class C_Prescription extends Controller
             $this->assign("INTERACTION", $interaction);
         }
 
-        // flag to indicate the CAMOS form is regsitered and active
+        // flag to indicate the CAMOS form is registered and active
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
         $vars = $this->getTemplateVars();
@@ -459,7 +459,7 @@ class C_Prescription extends Controller
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    // Now it is configureable. Change value in
+    // Now it is configurable. Change value in
     //     Administration->Globals->Rx
         if ($GLOBALS['rx_enable_DEA']) {
             if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {

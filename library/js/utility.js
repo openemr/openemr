@@ -534,7 +534,7 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let intent = node.dataset.intent;
                 let clientId = node.dataset.clientId;
                 if (!intent || !clientId) {
-                    console.error("mising intent parameter or client-id parameter");
+                    console.error("missing intent parameter or client-id parameter");
                     return;
                 }
 
@@ -557,7 +557,7 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let node = evt.target;
                 let dsi = node.dataset.dsiServiceId || "";
                 if (typeof dsi != "string" || dsi == "") {
-                    console.error("mising data-dsi-service-id parameter for .smart-launch-dsi-info");
+                    console.error("missing data-dsi-service-id parameter for .smart-launch-dsi-info");
                     return;
                 }
 

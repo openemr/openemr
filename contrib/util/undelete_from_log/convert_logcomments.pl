@@ -15,7 +15,7 @@
 #
 #
 
-# Converts openemr log ouput containing deleted records and
+# Converts openemr log output containing deleted records and
 # produces the necessary "insert into <table> values ... on duplicate key
 # update... "
 
@@ -32,7 +32,7 @@
 # Use like this:
 # This procedure will restore all records deleted on a given date/time) that are in the log table
 #
-# First, you must look into the admin/logs screen and determine the date that the delete occured on.
+# First, you must look into the admin/logs screen and determine the date that the delete occurred on.
 #
 # Adjust the time accordingly
 #

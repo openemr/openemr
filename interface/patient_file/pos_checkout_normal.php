@@ -552,7 +552,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />";
     }
 
-    // Pring receipt header for Provider
+    // Print receipt header for Provider
     function printProviderHeader($pvdrow): void
     {
         echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .

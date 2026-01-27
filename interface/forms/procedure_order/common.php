@@ -872,7 +872,7 @@ if (!empty($row['lab_id'])) {
             let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
-            // wierdly all of our mapped ids use array indexes as part of the id.
+            // weirdly all of our mapped ids use array indexes as part of the id.
             let remapIds = function (node) {
                 node.id = remapArrayIndex(node.id);
             };
@@ -912,13 +912,13 @@ if (!empty($row['lab_id'])) {
             nullableFunction('.itemTransport', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 getDetails(event, boundLineCount);
             });
             nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 selectProcedureCode(boundLineCount);
             });
             nullableFunction('.search-current-diagnoses', 'click', function (event) {
@@ -934,7 +934,7 @@ if (!empty($row['lab_id'])) {
             });
 
             nullableFunction('.sel-proc-type', 'click', function (event) {
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 sel_proc_type(boundLineCount);
             });
             nullableFunction('.sel-proc-type', 'focus', function (event) {

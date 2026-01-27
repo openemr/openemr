@@ -1,0 +1,118 @@
+# OpenEMR Ignore Words for Codespell
+# Format: one word per line (case-insensitive)
+
+# Medical abbreviations and terminology
+abd
+aci
+ane
+ans
+ehr
+hsa
+inactivate
+inactivated
+inh
+mor
+oint
+pres
+promis
+socio
+
+# HL7/FHIR/EDI codes and terms
+denex
+denom
+inforce
+numer
+requestor
+
+# Variable names, SQL aliases, and legacy code identifiers
+alog
+bu
+callbck
+calle
+datea
+ded
+dirct
+dorp
+dum
+exten
+fo
+formend
+grp
+inout
+inpt
+insid
+interpretter
+keypair
+marge
+mis
+mot
+nd
+nome
+oce
+ot
+parm
+parms
+provid
+provids
+ptd
+referers
+releas
+strat
+tabl
+te
+tha
+tring
+tye
+usin
+vist
+
+# Test framework functions (Jest, PHPUnit)
+assertin
+
+# Proper names (citations, authors, sample data)
+captian
+cartledge
+hart
+kake
+nast
+regester
+skelton
+
+# Third-party library terms
+afterall
+atleast
+childs
+continus
+couldn
+criterias
+crossreference
+datas
+delink
+foto
+informations
+optin
+pass-thru
+splited
+thirdparty
+thur
+uptodate
+useable
+wasn
+wheight
+
+# Cancelled is valid British English spelling
+cancelled
+
+# Code identifiers - variable/function/CSS names that would be breaking changes
+# These require separate PRs with proper testing (see SPELLCHECK_BATCHES.md)
+cant
+collapsable
+detatch
+durationm
+ect
+esy
+hightlight
+occurance
+seperator
+uncomplete
+vlaue

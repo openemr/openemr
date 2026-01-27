@@ -540,7 +540,7 @@ function getCodeText($code)
 
     // Called when the Active checkbox is clicked.  For consistency we
     // use the existence of an end date to indicate inactivity, even
-    // though the simple verion of the form does not show an end date.
+    // though the simple version of the form does not show an end date.
     function activeClicked(cb) {
         var f = document.forms[0];
         if (cb.checked) {

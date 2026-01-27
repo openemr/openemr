@@ -6,11 +6,12 @@ services:
     volumes:
     - ../:/var/www/localhost/htdocs/openemr
     environment:
-      EMPTY: "yes"
-      FORCE_NO_BUILD_MODE: "yes"
-      OPENEMR_ENABLE_CI_PHP: "1"
-      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
-      SELENIUM_BASE_URL: "http://openemr"
+      EMPTY: yes
+      FORCE_NO_BUILD_MODE: yes
+      OPENEMR_ENABLE_CI_PHP: '1'
+      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
+      PCOV_ON: ${ENABLE_COVERAGE:-false}
+      SELENIUM_BASE_URL: http://openemr
     healthcheck:
       test:
       - CMD

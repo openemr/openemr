@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,14 +28,11 @@ use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\ExpectationFailedException;
 
 trait UserAddTrait
 {
     use BaseTrait;
     use LoginTrait;
-
-    private int $userAddAttemptCounter = 1;
 
     #[Depends('testLoginAuthorized')]
     #[Test]
@@ -140,9 +139,13 @@ trait UserAddTrait
 
     private function populateUserFormReliably($username): void
     {
-        // Simple but effective approach - wait for page to be ready
+        // Wait for password field and Create User button to be ready
         $this->client->waitFor('//input[@name="stiltskin"]');
-        $this->client->wait(1000000); // 1 second for all JS to initialize
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
 
         $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
@@ -151,38 +154,14 @@ trait UserAddTrait
         $newUser['fname'] = UserTestData::FIRSTNAME;
         $newUser['lname'] = UserTestData::LASTNAME;
         $newUser['adminPass'] = LoginTestData::password;
+        $newUser['stiltskin'] = UserTestData::PASSWORD;
 
-        // Retry logic for password field
-        $this->setPasswordWithRetry($newUser);
+        // Wait until the password field has the expected value
+        $this->client->wait(10)->until(function ($driver) {
+            $field = $driver->findElement(WebDriverBy::name('stiltskin'));
+            return $field->getAttribute('value') === UserTestData::PASSWORD;
+        });
 
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
-    }
-
-    private function setPasswordWithRetry($newUser): void
-    {
-        for ($attempt = 1; $attempt <= 3; $attempt++) {
-            // Set password
-            $newUser['stiltskin'] = UserTestData::PASSWORD;
-            $this->client->wait(300000); // 0.3 seconds
-
-            // Verify it worked
-            try {
-                $passwordField = $this->client->findElement(WebDriverBy::name('stiltskin'));
-                $value = $passwordField->getAttribute('value');
-
-                if ($value === UserTestData::PASSWORD) {
-                    return; // Success!
-                }
-            } catch (Exception) {
-                // Field not found or other error
-            }
-
-            if ($attempt === 3) {
-                throw new Exception("Failed to populate password field after 3 attempts");
-            }
-
-            // Wait before retry
-            $this->client->wait(500000); // 0.5 seconds
-        }
     }
 }

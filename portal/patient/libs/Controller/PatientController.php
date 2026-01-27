@@ -411,7 +411,7 @@ class PatientController extends AppBasePortalController
             $audit['pending_action'] = "completed";
             $audit['action_taken'] = "accept";
             $audit['status'] = "closed";
-            $audit['narrative'] = "Changes reviewed and commited to demographics.";
+            $audit['narrative'] = "Changes reviewed and committed to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
             $audit['action_user'] = $session->get('authUserID', "0");

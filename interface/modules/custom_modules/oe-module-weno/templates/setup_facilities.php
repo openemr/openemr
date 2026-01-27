@@ -34,7 +34,7 @@ if ($_POST) {
     }
 
     $posted = json_encode($_POST);
-    $wenoLog->insertWenoLog("Module setup modified.", "Facilty Locations save.", $posted);
+    $wenoLog->insertWenoLog("Module setup modified.", "Facility Locations save.", $posted);
 }
 
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility");

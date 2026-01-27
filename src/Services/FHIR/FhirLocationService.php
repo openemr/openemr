@@ -229,8 +229,8 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        // even though its not a patient compartment issue we still don't want certain location data such as clinician home addresses
-        // being returned... or other patient locations...  Wierd that its not in the patient compartment
+        // even though it's not a patient compartment issue we still don't want certain location data such as clinician home addresses
+        // being returned... or other patient locations...  Weird that it's not in the patient compartment
         if (!empty($this->patientUuid)) {
             // if there is no uuid search field this becomes
             //      (table_uuid = ? and type = 'patient') OR (type = 'facility')

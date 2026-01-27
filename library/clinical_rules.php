@@ -494,7 +494,7 @@ LIMIT 1)";
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $batchSize     number of patients to batch (default is 100; plan to optimize this default setting in the future)
  * @param  integer      $report_id     id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
@@ -653,7 +653,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * Process clinic rules for the group_calculation provider method.  This will process clinical rules for each of the
  * billing facilities in the entire organization.  Rules are applied to the entire facility where patients are connected
  * to the billing facility either through encounters or their primary care provider.  Rules are then applied to each
- * individual provider who is connected to the billing facility.  This satisifies regulatory requirements where rule
+ * individual provider who is connected to the billing facility.  This satisfies regulatory requirements where rule
  * calculations must be able to group results for one or more provider NPIs to a group tax id number (TIN).  One example
  * of this is in the United States where providers can reassign their medicaid/medicare reimbursements to another TIN and
  * need to report on calculations at both the group and provider group level.
@@ -665,7 +665,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -788,7 +788,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -874,7 +874,7 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
 
 /**
  * Runs the AMC or CQM calculations for a given rule.
- * @param $rowRule The rule we are going to run calculcations against
+ * @param $rowRule The rule we are going to run calculations against
  * @param $patientData The list of patient pids we are going to calculate our rules on
  * @param $dateArray The start and end date of the rule for AMC calculation purposes
  * @param $dateTarget The end date of the rule for CQM purposes
@@ -926,7 +926,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -1072,7 +1072,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in a different category
                 -- that might succeed
 
-                -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
+                -- Mixing optional and required filters makes no sense, but is tolerated. If one filter is required, any optional filters have no relevance
 
                 -- Same ideas have been applied to analysis of targets
                 */
@@ -1156,7 +1156,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         } else {
                             if (($mode != "report") && ($dateCounter == 3)) {
                                 // Did not pass any of the target dates, so place the past_due actions into the reminder
-                                //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                //  return array when running in one of the reminders mode (either reminders-due mode
                                 //  or reminders-all mode).
                                 $actionArray = resolve_action_sql($rowRule['id'], '1');
                                 foreach ($actionArray as $action) {
@@ -1289,7 +1289,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             } else {
                                 if (($mode != "report") && ($dateCounter == 3)) {
                                     // Did not pass any of the target dates, so place the past_due actions into the reminder
-                                    //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                    //  return array when running in one of the reminders mode (either reminders-due mode
                                     //  or reminders-all mode).
                                     $actionArray = resolve_action_sql($rowRule['id'], $i);
                                     foreach ($actionArray as $action) {
@@ -1346,7 +1346,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  *
  * @param  integer       $provider      id of a selected provider. If blank, then will test entire clinic.
  * @param  integer       $patient_id    pid of patient. If blank then will check all patients.
- * @param  string        $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string        $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer       $start         applicable patient to start at (when batching process)
  * @param  integer       $batchSize     number of patients to batch (when batching process)
  * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
@@ -1602,7 +1602,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true
     (So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
 
-    If rule has no inclusion or exclusion filters, return true (if no filters, rule is applicabile to all patients)
+    If rule has no inclusion or exclusion filters, return true (if no filters, rule is applicable to all patients)
     */
 
     // Set date to current if not set
@@ -1620,7 +1620,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If there are no inclusion filters, $anySuccess will be empty string at start of exclusion analysis
     If required inclusions exist, and if any fail, test_filter() will return false on the first failure, before getting to exclusion analysis
     If all required inclusions succeed, $anySuccess will be true at start of exclusion analysis
-    If there no requried inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there no required inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
     If there are inclusion filters and all are optional and none succeed, $anySuccess will be false at end of inclusion analysis and test_filter() will return false without processing exclusions
     */
     $anySuccess = '';
@@ -1717,7 +1717,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Database Filter. Many purposes including lifestyle
     $filter = resolve_filter_sql($rule, 'filt_database');
 
-    // HR: split out conditions to faciliate logging
+    // HR: split out conditions to facilitate logging
     if ((!empty($filter))) {
         if ($anySuccess === '') {
             $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
@@ -1759,7 +1759,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         }
     }
 
-    // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
+    // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inclusion) ----
     // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter))) {
@@ -2475,7 +2475,7 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
             if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateFocus, $dateTarget)) {
                 // Record the match
-                // HR: I don't see what $cond_loop is addig here. $isMatch will be either 'continue' or true. If was either 'continue' or true, and this target succeeded
+                // HR: I don't see what $cond_loop is adding here. $isMatch will be either 'continue' or true. If was either 'continue' or true, and this target succeeded
                 // (regardless of whether required or optional), set $isMatch to true. if required target fails, database_check() returns false immediately
                 ///if ($cond_loop > 0) { // For multiple condition check
                 //     $isMatch = $isMatch && 1;
@@ -2620,7 +2620,7 @@ function lists_check($patient_id, $filter, $dateTarget)
 
     /*
     HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately.
-    Otherwise return true if all requried filters are found, or if no requried filters, then if any of the optional filters are found in the patient
+    Otherwise return true if all required filters are found, or if no required filters, then if any of the optional filters are found in the patient
     If some found, and all are optional, and none pass, return 'continue'
     Logic works if list_check is called for either inclusion or exclusion filters
     Among a set of inclusion filters, or a set of exclusion filters, having a mix of both required and optional filters doesn't make a lot of sense.
@@ -2648,7 +2648,7 @@ function lists_check($patient_id, $filter, $dateTarget)
 }
 
 /**
- * Function to check for existance of data in database for a patient
+ * Function to check for existence of data in database for a patient
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $table            selected mysql table
@@ -2858,7 +2858,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
 }
 
 /**
- * Function to check for existance of data for a patient in the rule_patient_data table
+ * Function to check for existence of data for a patient in the rule_patient_data table
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $category         label in category column
@@ -2884,7 +2884,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
     // Get the interval sql query string
     /*
        For filters, $intervalType and $intervalValue are empty strings
-       For targets, they are defiend (something like 1 year)
+       For targets, they are defined (something like 1 year)
        if $intervalType and $intervalValue are empty strings, sql_interval_string returns something like
         [date field] <= $dateTarget
        If $intervalType and $intervalValue are valued, sql_interval_string returns something like
@@ -2906,7 +2906,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 }
 
 /**
- * Function to check for existance of data for a patient in lifestyle section
+ * Function to check for existence of data for a patient in lifestyle section
  *
  * @param  string  $patient_id  pid of selected patient.
  * @param  string  $lifestyle   selected label of mysql column of patient history
@@ -3177,7 +3177,7 @@ function collect_database_label($label, $table)
 
     if ($table == 'PROCEDURE-EXCEPTION') {
         // return cell to get procedure collection
-        // special case since reuqires joing of multiple
+        // special case since requires joining of multiple
         // tables to get this value
         if ($label == "pid") {
             $returnedLabel = "procedure_order.patient_id";

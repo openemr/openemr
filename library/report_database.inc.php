@@ -230,7 +230,7 @@ function getStatusReportDatabase($report_id)
   // Collect the pertinent rows of data
     $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", [$report_id]);
 
-  // If empty, then just return Pending, since stil haven't likely created the entries yet
+  // If empty, then just return Pending, since still haven't likely created the entries yet
     if (sqlNumRows($res) < 1) {
         return "PENDING";
     }
