@@ -55,16 +55,10 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 // create sms object
 include_once("sms_clickatell.php");
 include_once("sms_tmb4.php");
-switch ($db_email_msg['sms_gateway_type']) {
-    case 'CLICKATELL':
-        $mysms = new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
-        break;
-    case 'TMB4':
-        $mysms = new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
-        break;
-    default:
-        throw new UnexpectedValueException('No SMS gateway configured');
-}
+$mysms = match ($db_email_msg['sms_gateway_type']) {
+    'CLICKATELL' => new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY),
+    'TMB4' => new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY),
+};
 
 
 $db_patient = cron_getAlertpatientData();
