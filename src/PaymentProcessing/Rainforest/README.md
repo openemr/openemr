@@ -1,12 +1,13 @@
 # Rainforest Payments
 
 This integrates [Rainforest](https://www.rainforestpay.com) as a payment provider for OpenEMR's payment infrastructure, allowing clients to pay their bills online.
+Rainforest is not used as part of insurance claims.
 
 ## Requirements
 
-* OpenEMR XXX
+* OpenEMR 8.0.0 or higher
 * PHP 8.2+
-* Merchant account through Rainforest
+* Merchant account from Rainforest
 
 ## Installation
 
