@@ -97,7 +97,6 @@ $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
 function echoLine(int $var_index, $encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
-    global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ?: '';
@@ -125,14 +124,6 @@ function echoLine(int $var_index, $encounterId, $iname, $date, $charges, $ptpaid
         . "/>";
     echo "</td>\n";
     echo " </tr>\n";
-
-    $sum_charges += (float)$charges * 1;
-    $sum_ptpaid += (float)$ptpaid * -1;
-    $sum_inspaid += (float)$inspaid * -1;
-    $sum_duept += (float)$duept * 1;
-    $sum_patcopay += (float)$patcopay * 1;
-    $sum_copay += (float)$copay * 1;
-    $sum_balance += (float)$balance * 1;
 }
 
 // Compute taxes from a tax rate string and a possibly taxable amount.
@@ -997,6 +988,18 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     code: $value['code'],
                     codeType: $value['code_type'],
                 );
+                $sum_charges += (float)$value['charges'];
+                $sum_ptpaid += (float)$dpayment_pat;
+                $sum_inspaid += (float)($dpayment + $dadjustment);
+                $sum_duept += (float)$duept;
+                $sum_patcopay += (float)$patcopay;
+                $sum_copay += (float)$inscopay;
+                // see balance calc. in echoLine
+                $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                if ($duept != 0) {
+                    $balance = 0;
+                }
+                $sum_balance += $balance;
             }
 
             // Continue with display of the data entry form.
