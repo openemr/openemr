@@ -95,7 +95,7 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
+function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     global $var_index;
@@ -113,8 +113,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
     echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
     echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
-        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
+    echo "  <td class='detail' align='center'>";
+    echo "    <input class='form-control amount_field'"
+        . 'data-encounter-id="' . attr($encounterId) . '"'
+        . 'data-code="' . attr($code) . '"'
+        . 'data-code-type="' . attr($codeType) . '"'
+        . "name='" . attr($iname) . "'"
+        . "id='paying_" . attr($var_index) . "'"
+        . "value=''"
+        . "onchange='coloring();calctotal()'"
+        . "autocomplete='off' "
+        . "onkeyup='calctotal()'"
+        . "/>";
+    echo "</td>\n";
     echo " </tr>\n";
 
     $sum_charges += (float)$charges * 1;
@@ -858,7 +869,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             while ($brow = sqlFetchArray($bres)) {
                 $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
-                    $encs[$key] = ['encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
+                    $encs[$key] = [
+                        'encounter' => $brow['encounter'],
+                        'date' => $brow['encdate'],
+                        'last_level_closed' => $brow['last_level_closed'],
+                        'charges' => 0,
+                        'payments' => 0,
+                        'reason' => $brow['reason'],
+                        'code_type' => $brow['code_type'],
+                        'code' => $brow['code'],
                     ];
                 }
 
@@ -964,7 +983,20 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
-                echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
+                echoLine(
+                    encounterId: $enc,
+                    iname: "form_upay[$enc]",
+                    date: $dispdate,
+                    charges: $value['charges'],
+                    ptpaid: $dpayment_pat,
+                    inspaid: ($dpayment + $dadjustment),
+                    duept: $duept,
+                    encounter: ($enc . ': ' . $reason),
+                    copay: $inscopay,
+                    patcopay: $patcopay,
+                    code: $value['code'],
+                    codeType: $value['code_type'],
+                );
             }
 
             // Continue with display of the data entry form.
@@ -1031,7 +1063,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
-                    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                    echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
                 }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
@@ -1060,7 +1092,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') != 'Stripe' && $globalsBag->get('payment_gateway') != 'Sphere' && $globalsBag->get('payment_gateway') != 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1129,7 +1161,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
                                 <div class="form-group">
@@ -1226,6 +1258,16 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
+            echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
+        echo '<script type="text/javascript">';
+        echo $twig->render('payments/rainforest.js', ['endpoint' => 'portal_payment.rainforest.php']);
+        echo '</script>';
     }
     ?>
 

@@ -3369,7 +3369,8 @@ $GLOBALS_METADATA = [
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
                 'Sphere' => xl('Gateway for Sphere Payments'),
-                'Stripe' => xl('Gateway for Stripe Manual Payments')
+                'Stripe' => xl('Gateway for Stripe Manual Payments'),
+                'Rainforest' => xl('Gateway for Rainforest payments'),
             ],
             'InHouse',
             xl('Enable a Payment Gateway Service for processing credit card transactions')
@@ -3401,6 +3402,31 @@ $GLOBALS_METADATA = [
             'encrypted',
             '',
             xl('Mainly Authorize.Net uses two keys')
+        ],
+
+        'rainforest_api_key' => [
+            xl('Rainforest API Key'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
+        ],
+        'rainforest_merchant_id' => [
+            xl('Rainforest Merchant ID'),
+            'text',
+            '',
+            xl('Used when payment_gateawy is Rainforest.'),
+        ],
+        'rainforest_platform_id' => [
+            xl('Rainforest Platform ID'),
+            'text',
+            '',
+            xl('Used when payment_gateawy is Rainforest.'),
+        ],
+        'rainforest_webhook_secret' => [
+            xl('Rainforest Webhook Secret'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
         ],
 
         'sphere_clinicfront_trxcustid' => [
