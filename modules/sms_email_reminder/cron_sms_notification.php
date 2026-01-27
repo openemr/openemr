@@ -41,7 +41,6 @@ $check_date = date("Y-m-d", mktime(date("h") + $SMS_NOTIFICATION_HOUR, 0, 0, dat
 // it's content - to do latter
 $db_email_msg = cron_getNotificationData($TYPE);
 
-// object for sms
 // get notification settings
 $vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
