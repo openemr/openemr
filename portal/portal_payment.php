@@ -95,11 +95,9 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
+function echoLine(int $var_index, $encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
-    global $var_index;
-    $var_index++;
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ?: '';
@@ -934,6 +932,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             ksort($encs, SORT_NUMERIC);
 
             foreach ($encs as $value) {
+                $var_index++;
                 $enc = $value['encounter'];
                 $reason = $value['reason'];
                 $dispdate = $value['date'];
@@ -984,6 +983,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 echoLine(
+                    var_index: $var_index,
                     encounterId: $enc,
                     iname: "form_upay[$enc]",
                     date: $dispdate,
