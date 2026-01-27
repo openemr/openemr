@@ -116,27 +116,6 @@ function get_lab_name($id): string
     return $gbl_lab;
 }
 
-function cbvalue($cbname): string
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
-}
-
 function QuotedOrNull($fld)
 {
     if (empty($fld)) {

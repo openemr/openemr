@@ -82,19 +82,6 @@ function QuotedOrNull($fld)
     return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
 }
 
-function rbinput($name, $value, $desc, $colname)
-{
-    global $irow;
-    $_p = [
-        attr($name),
-        attr($value),
-        ($irow[$colname] == $value) ? " checked" : "",
-        text($desc)
-    ];
-    $str = '<input type="radio" name="%s" value="%s" %s>%s';
-    return vsprintf($str, $_p);
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////

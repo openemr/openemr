@@ -567,3 +567,52 @@ function hl7RelationCode(string $s, bool $childAsOther): string
         default => $s,
     };
 }
+
+function rbvalue($rbname): string
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
+    return "$tmp";
+}
+
+function cbvalue($cbname): string
+{
+    return $_POST[$cbname] ? '1' : '0';
+}
+
+function rbinput($name, $value, $desc, $colname): string
+{
+    global $row;
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />" . text($desc);
+    return $ret;
+}
+
+function rbcell($name, $value, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
+}
+
+function cbinput($name, $colname): string
+{
+    global $row;
+    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />";
+    return $ret;
+}
+
+function cbcell($name, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
+}
