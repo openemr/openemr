@@ -187,9 +187,8 @@ if (!function_exists('my_print_r')) {
 // Function:    cron_SendSMS
 // Purpose: send sms
 ////////////////////////////////////////////////////////////////////
-function cron_SendSMS($to, $subject, $vBody, $from)
+function cron_SendSMS($mysms, $to, $subject, $vBody, $from)
 {
-    global $mysms;
     $cnt = "";
     $cnt .= "\nDate Time :" . date("d M, Y  h:i:s");
     $cnt .= "\nTo : " . $to;

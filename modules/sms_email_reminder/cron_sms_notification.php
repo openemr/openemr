@@ -42,7 +42,6 @@ $check_date = date("Y-m-d", mktime(date("h") + $SMS_NOTIFICATION_HOUR, 0, 0, dat
 $db_email_msg = cron_getNotificationData($TYPE);
 
 // object for sms
-global $mysms;
 // get notification settings
 $vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
@@ -113,6 +112,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         // send sms to patinet - if not in test mode
         if ($bTestRun == 0) {
             cron_SendSMS(
+                $mysms,
                 $prow['phone_cell'],
                 $db_email_msg['email_subject'],
                 $db_email_msg['message'],
