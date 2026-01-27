@@ -3177,7 +3177,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function echoLine may not be defined in the global namespace\\.$#',
+    'message' => '#^Function echoPaymentRow may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
