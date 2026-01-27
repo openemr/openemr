@@ -1,0 +1,18 @@
+[sqruff]
+dialect = mysql
+
+# Disable layout rules that conflict with standard MySQL style
+# LT01: Spacing - wants `varchar (255)` instead of `varchar(255)`
+# LT02: Indent - flags indented column definitions in CREATE TABLE
+# LT05: Long lines - 80 char limit too restrictive for DDL
+# LT06: Function spacing - similar to LT01
+# LT12: End of file newline - some files may not have trailing newline
+exclude_rules = LT01, LT02, LT05, LT06, LT12
+
+# Increase line length if we re-enable LT05 later
+[layout.long_lines]
+max_line_length = 200
+
+# Enforce uppercase SQL keywords (SELECT, FROM, WHERE, etc.)
+[sqruff:rules:capitalisation.keywords]
+capitalisation_policy = upper
