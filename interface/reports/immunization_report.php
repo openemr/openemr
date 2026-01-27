@@ -59,9 +59,9 @@ function format_phone($phone)
 
     $phone = preg_replace("/[^0-9]/", "", (string) $phone);
     return match (strlen((string) $phone)) {
-        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
-        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
-        default => tr("000 0000000"),
+        7 => preg_replace("/([0-9]{3})([0-9]{4})/", "000^$1$2", (string) $phone),
+        10 => preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1^$2$3", (string) $phone),
+        default => "000^0000000",
     };
 }
 

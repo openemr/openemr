@@ -255,7 +255,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     }
 
   // Ensoftek: Jul-2015: No need to tr the content
-  //$content = tr($content);
+  //$content = strtr($content, ' ', '^');
 
   // send the header here
     header('Content-type: text/plain');

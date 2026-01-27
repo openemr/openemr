@@ -392,16 +392,6 @@ function zip_content($source, $destination, $content = '', $create = true)
 // Simple String Utility Functions
 // ============================================================================
 
-/**
- * Replace spaces with carets for HL7 formatting.
- *
- * @param string $a The input string
- * @return string The string with spaces replaced by carets
- */
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
 
 /**
  * Properly capitalize a name handling hyphens and apostrophes.
