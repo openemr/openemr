@@ -13,7 +13,7 @@
 // Created by:  Avasiloaei Dorin
 // Modified by: Larry Lart
 ////////////////////////////////////////////////////////////////////
-class sms_tmb4
+class sms_tmb4 implements sms_interface
 {
     function __construct(public $username, public $password)
     {

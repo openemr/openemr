@@ -35,7 +35,7 @@
  * @package sms_api
  */
 
-class sms_clickatell
+class sms_clickatell implements sms_interface
 {
     /**
     * Clickatell API-ID

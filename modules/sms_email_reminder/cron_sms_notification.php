@@ -53,6 +53,7 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 //echo "\nDEBUG :: user=".$vectNotificationSettings['SMS_gateway_username']."\n";
 
 // create sms object
+include_once("sms_interface.php");
 include_once("sms_clickatell.php");
 include_once("sms_tmb4.php");
 $mysms = match ($db_email_msg['sms_gateway_type']) {
