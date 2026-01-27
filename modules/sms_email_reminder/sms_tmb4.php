@@ -13,7 +13,7 @@
 // Created by:  Avasiloaei Dorin
 // Modified by: Larry Lart
 ////////////////////////////////////////////////////////////////////
-class sms
+class sms_tmb4
 {
     function __construct(public $username, public $password)
     {

@@ -43,12 +43,6 @@ $db_email_msg = cron_getNotificationData($TYPE);
 
 // object for sms
 global $mysms;
-if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
-    include_once("sms_clickatell.php");
-} elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
-    include_once("sms_tmb4.php");
-}
-
 // get notification settings
 $vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
@@ -60,7 +54,14 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 //echo "\nDEBUG :: user=".$vectNotificationSettings['SMS_gateway_username']."\n";
 
 // create sms object
-$mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+include_once("sms_clickatell.php");
+include_once("sms_tmb4.php");
+if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
+    $mysms = new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+} elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
+    $mysms = new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+}
+
 
 $db_patient = cron_getAlertpatientData();
 echo "\n<br />Total " . text(count($db_patient)) . " Records Found";

@@ -35,7 +35,7 @@
  * @package sms_api
  */
 
-class sms
+class sms_clickatell
 {
     /**
     * Clickatell API-ID
