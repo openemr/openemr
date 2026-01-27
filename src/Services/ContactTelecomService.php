@@ -406,8 +406,7 @@ class ContactTelecomService extends BaseService
         switch ($system) {
             case 'phone':
             case 'mobile':
-                // Basic phone validation (digits, spaces, dashes, parentheses, plus sign)
-                if (!preg_match('/^[\d\s\-\(\)\+\.]+$/', $value)) {
+                if (!ValidationUtils::isValidPhoneNumber($value, 'US', strict: false)) {
                     $errors['value'] = "Invalid phone number format";
                 }
                 break;

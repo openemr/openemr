@@ -18,6 +18,7 @@ use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
@@ -1196,11 +1197,7 @@ class Claim
             $ptphone = $this->patient_data['phone_cell'];
         }
 
-        if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
-            return $tmp[1] . $tmp[2] . $tmp[3];
-        }
-
-        return '';
+        return PhoneNumberService::toNationalDigits((string) $ptphone) ?? '';
     }
 
     public function patientDOB()

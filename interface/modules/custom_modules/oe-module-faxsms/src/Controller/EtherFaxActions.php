@@ -320,22 +320,6 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $number
-     * @return string
-     */
-    public function formatPhone($number): string
-    {
-        $n = preg_replace('/[^0-9]/', '', (string)$number);
-        if (stripos((string)$n, '1') === 0) {
-            $n = '+' . $n;
-        } elseif (!empty($n)) {
-            $n = '+1' . $n;
-        }
-
-        return $this->validatePhone($n) ? $n : '';
-    }
-
-    /**
      * @param $n
      * @return bool
      */

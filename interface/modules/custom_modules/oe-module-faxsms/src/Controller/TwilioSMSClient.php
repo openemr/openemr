@@ -109,18 +109,6 @@ class TwilioSMSClient extends AppDispatch
     }
 
     /**
-     * @return string
-     */
-
-    public function formatPhone($number): string
-    {
-        // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', (string) $number);
-        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
-        return $n;
-    }
-
-    /**
      * @param array $acl
      * @return int
      */
