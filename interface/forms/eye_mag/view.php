@@ -31,11 +31,6 @@ $display     = $_REQUEST['display'] ?? null;
 $pid         = $_REQUEST['pid'] ?? '';
 $refresh     = $_REQUEST['refresh'] ?? null;
 
-if (!empty($_REQUEST['url'])) {
-    header('Location: ' . $_REQUEST['url']);
-    exit;
-}
-
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
 $result = sqlStatement($query, [$_SESSION['authUserID']]);
