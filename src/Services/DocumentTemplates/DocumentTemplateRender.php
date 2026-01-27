@@ -23,6 +23,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 use RuntimeException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
@@ -50,6 +51,7 @@ class DocumentTemplateRender
     private readonly mixed $encounter;
     public $version;
     private readonly DocumentTemplateService $templateService;
+    private readonly SystemLogger $logger;
 
     public function __construct(private $pid, $user, $encounter = null)
     {
@@ -57,6 +59,7 @@ class DocumentTemplateRender
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
+        $this->logger = new SystemLogger();
     }
 
     /**
@@ -113,7 +116,7 @@ class DocumentTemplateRender
             !is_dir($purifyTempDir)
         ) {
             if (!mkdir($purifyTempDir, 0700, true)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempDir]);
+                $this->logger->error("Could not create directory ", [$purifyTempDir]);
             }
         }
         $config->set('Cache.SerializerPath', $purifyTempDir);
@@ -360,20 +363,14 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{Zip}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->ptrow['postal_code'], xl('Postal Code')));
             } elseif ($this->keySearch($s, '{PatientPhone}')) {
-                $ptphone = $this->ptrow['phone_contact'];
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_home'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_cell'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_biz'];
-                }
-                if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
-                    $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-                }
-                $s = $this->keyReplace($s, $this->dataFixup($ptphone, xl('Phone')));
+                $ptphone = (string) (
+                    $this->ptrow['phone_contact']
+                    ?: $this->ptrow['phone_home']
+                    ?: $this->ptrow['phone_cell']
+                    ?: $this->ptrow['phone_biz']
+                    ?: ''
+                );
+                $s = $this->keyReplace($s, $this->dataFixup(PhoneNumberService::tryFormatPhone($ptphone), xl('Phone')));
             } elseif ($this->keySearch($s, '{PatientDOB}')) {
                 $s = $this->keyReplace($s, $this->dataFixup(oeFormatShortDate($this->ptrow['DOB']), xl('Birth Date')));
             } elseif ($this->keySearch($s, '{PatientSex}')) {

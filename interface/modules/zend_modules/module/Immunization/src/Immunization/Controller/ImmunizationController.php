@@ -19,6 +19,7 @@ use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\PhoneNumberService;
 
 class ImmunizationController extends AbstractActionController
 {
@@ -380,8 +381,8 @@ class ImmunizationController extends AbstractActionController
                             $race . "|" . // 10. Race // Ram change
                             $r['address'] . "^L" . "|" . // 11. Address. Default to address type  Mailing Address(M)
                             "|" . // 12. county code
-                            "^PRN^PH^^^" . $this->format_phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-                            "^WPN^PH^^^" . $this->format_phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
+                            "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+                            "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
                             $r['language'] . "|" . // 15. Primary language
                             $r['status'] . "|" . // 16. Marital status
                             "|" . // 17. Religion
@@ -457,8 +458,8 @@ class ImmunizationController extends AbstractActionController
                                 $guardianname . "^^^^^L|" .  // 2. Legal Name of next of kin
                                 $guardian_relationship_code . "^" . $r['guardianrelationship'] . "^HL70063|" . // 3. Relationship of next of kin with patient
                                 $r['guardian_address'] . "|" . // 4. Address of next of kin
-                                "^PRN^PH^^^" . $this->format_phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
-                                "^WPN^PH^^^" . $this->format_phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
+                                "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
+                                "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
                                 "|" . //7. Contact Role
                                 "|" . //8. Start Date
                                 "|" . //9. End Date
@@ -780,21 +781,6 @@ class ImmunizationController extends AbstractActionController
         }
 
         return $cvx_code;
-    }
-
-    /**
-     *
-     * @param   $phone      String          phone number
-     * @return              String          formatted phone
-     */
-    public function format_phone($phone)
-    {
-        $phone = preg_replace("/[^0-9]/", "", (string) $phone);
-        return match (strlen((string) $phone)) {
-            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
-            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
-            default => $this->tr("000 0000000"),
-        };
     }
 
     /*

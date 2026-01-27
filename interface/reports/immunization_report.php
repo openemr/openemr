@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PhoneNumberService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (
@@ -59,16 +60,6 @@ function format_cvx_code($cvx_code)
     return $cvx_code;
 }
 
-function format_phone($phone)
-{
-
-    $phone = preg_replace("/[^0-9]/", "", (string) $phone);
-    return match (strlen((string) $phone)) {
-        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
-        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
-        default => tr("000 0000000"),
-    };
-}
 
 function format_ethnicity($ethnicity)
 {
@@ -211,8 +202,8 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             "2106-3^" . $r['race'] . "^HL70005" . "|" . // 10. Race // Ram change
             $r['address'] . "^^M" . "|" . // 11. Address. Default to address type  Mailing Address(M)
             "|" . // 12. county code
-            "^PRN^^^^" . format_phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-            "^WPN^^^^" . format_phone($r['phone_biz']) . "|" . // 14. Phone Work.
+            "^PRN^^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+            "^WPN^^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "|" . // 14. Phone Work.
             "|" . // 15. Primary language
             $r['status'] . "|" . // 16. Marital status
             "|" . // 17. Religion

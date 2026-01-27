@@ -3867,11 +3867,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/immunization_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function format_phone may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/immunization_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function tr may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/immunization_report.php',
@@ -6008,11 +6003,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function fetchProcedureId may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formatPhone may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];

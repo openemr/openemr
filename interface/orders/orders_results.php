@@ -19,6 +19,7 @@ require_once("$srcdir/lab.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PhoneNumberService;
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -735,7 +736,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                                     "<tr><td>" . text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['organization']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['street']) . " " . text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
-                                    "<tr><td>" . text(formatPhone($facility_array['phone'])) . "</td></tr>";
+                                    "<tr><td>" . text(PhoneNumberService::tryFormatPhone($facility_array['phone'] ?? '')) . "</td></tr>";
                             }
                         }
                     }

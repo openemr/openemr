@@ -456,24 +456,6 @@ class SignalWireClient extends AppDispatch
     }
 
     /**
-     * Format phone number to E.164
-     *
-     * @param string $number
-     * @return string
-     */
-    public function formatPhone(string $number): string
-    {
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos((string) $n, '1') === 0) {
-            $n = '+' . $n;
-        } elseif (!empty($n)) {
-            $n = '+1' . $n;
-        }
-
-        return $this->validatePhone($n) ? $n : '';
-    }
-
-    /**
      * Validate phone number format
      *
      * @param string $n
@@ -1027,16 +1009,5 @@ class SignalWireClient extends AppDispatch
         }
 
         return $filepath;
-    }
-
-    /**
-     * Format phone number for saving
-     *
-     * @param string $number
-     * @return string
-     */
-    public function formatPhoneForSave($number): string
-    {
-        return preg_replace('/[^0-9+]/', '', $number);
     }
 }
