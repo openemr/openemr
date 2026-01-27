@@ -60,6 +60,8 @@ if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
     $mysms = new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
 } elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
     $mysms = new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+} else {
+    throw new UnexpectedValueException('No SMS gateway configured');
 }
 
 
