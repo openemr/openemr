@@ -1524,8 +1524,6 @@ function make_insurance() {
                                     <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                                 </fieldset>
                             </form>
-                        <?php } elseif ($globalsBag->getString('payment_gateway') === 'Rainforest') { ?>
-                            <div id="payment-form"><!-- will be filled in by rainforest.js --></div>
                         <?php }
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
@@ -1843,16 +1841,6 @@ function make_insurance() {
         <?php
         if ($GLOBALS['payment_gateway'] == 'Sphere') {
             echo (new SpherePayment('clinic', $pid))->renderSphereJs();
-        }
-        if ($globalsBag->get('payment_gateway') === 'Rainforest') {
-            if ($globalsBag->getBoolean('gateway_mode_production')) {
-                echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
-            } else {
-                echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
-            }
-            echo '<script type="text/javascript">';
-            echo $twig->render('payments/rainforest.js', ['endpoint' => 'front_payment.rainforest.php']);
-            echo '</script>';
         }
         ?>
 
