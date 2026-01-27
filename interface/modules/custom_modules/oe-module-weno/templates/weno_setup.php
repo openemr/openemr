@@ -128,7 +128,7 @@ $vendors = $boot->getVendorGlobals();
 
                 if (isPersistEvent) {
                     const successMsg = <?php echo xlj('Auto Saved!'); ?>;
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                     isPersistEvent = false;
                     event.preventDefault();
                 }
@@ -162,23 +162,23 @@ $vendors = $boot->getVendorGlobals();
 
             if (isValidKey === 998 || isValidKey === 999) {
                 const warnMsg = "<?php echo xlt('Internet Connection Problem. Are you connected?'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === false) {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php echo xlt('The Encryption key did not pass validation. Clicking Reset button will reset your account encryption key.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === 900) {
                 $('#form_reset_key').addClass('d-none');
                 const warnMsg = "<?php echo xlt('Primary Admin Username and or Primary Admin Password is invalid. Try to reenter or correct in your Weno Dashboard.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else {
                 if (saveAction) {
                     const successMsg = "<?php echo xlt('Admin Settings Successfully Validated and Saved!'); ?>";
-                    syncAlertMsg(successMsg, 3000, 'success', 'lg');
+                    asyncAlertMsg(successMsg, 3000, 'success', 'lg');
                 }
                 if (saveActionPersist) {
                     const successMsg = "<?php echo xlt('Auto Saved!'); ?>";
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                 }
                 $('#form_reset_key').addClass('d-none');
             }
