@@ -27,6 +27,16 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
+      with:
+        # Full history needed for git-restore-mtime
+        fetch-depth: 0
+    - name: Restore file timestamps
+      # PHPStan's container cache uses file mtimes for validation.
+      # Git doesn't preserve mtimes, so we restore them from commit history
+      # to enable effective caching across CI runs.
+      run: |
+        pip install --quiet git-restore-mtime
+        git restore-mtime --skip-missing --quiet
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -57,7 +67,7 @@ jobs:
       uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: "phpstan-result-cache-${{ github.run_id }}"
+        key: phpstan-result-cache-${{ github.run_id }}
         restore-keys: |
           phpstan-result-cache-
     - name: PHPStan Diagnose
