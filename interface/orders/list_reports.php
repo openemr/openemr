@@ -69,21 +69,6 @@ function getListItem($listid, $value)
     return $tmp;
 }
 
-/**
- * Adapt text to be suitable as the contents of a table cell.
- *
- * @param  string $s Input text.
- * @return string  Output text.
- */
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
 $errmsg = '';
 
 // Send selected unsent orders if requested. This does not support downloading

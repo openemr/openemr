@@ -42,16 +42,6 @@ function getListItem($listid, $value)
     return $tmp;
 }
 
-function myCellText($s)
-{
-    $s = trim($s ?? '');
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
 // Either way, returns the corresponding key which is a small integer.

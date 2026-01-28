@@ -616,3 +616,19 @@ function cbcell($name, $desc, $colname): string
 {
     return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
+
+/**
+ * Adapt text to be suitable as the contents of a table cell.
+ *
+ * @param  string $s Input text.
+ * @return string  Output text.
+ */
+function myCellText($s)
+{
+    $s = trim($s ?? '');
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
+}

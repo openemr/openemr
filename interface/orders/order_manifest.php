@@ -44,15 +44,6 @@ function getListItem($listid, $value)
     return $tmp;
 }
 
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
 function generate_order_summary($orderid): void
 {
 
