@@ -122,7 +122,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             <?php if ((int)$isValidKey > 997) { ?>
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
                     window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
@@ -130,10 +130,10 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             $(function () {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php
-                    echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
-                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
+                    echo xlt('Decryption failed! The Encryption key is incorrect') . "\n" .
+                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "\n" .
                         xlt('Afterwards you may continue and no other action is required by you.'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg');
             });
             <?php } else { ?>
             $(function () {

@@ -344,7 +344,7 @@
             return false;
         } else if (!ValidateDateGreaterThanNow(document.getElementById('check_date').value, '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Date Cannot be greater than Today') ?>;
-            syncAlertMsg('<h4 class="bg-light text-danger">'+message+'</h4>', 1500, 'warning', 'lg');
+            asyncAlertMsg(message, 1500, 'warning', 'lg');
             document.getElementById('check_date').focus();
             return false;
         }

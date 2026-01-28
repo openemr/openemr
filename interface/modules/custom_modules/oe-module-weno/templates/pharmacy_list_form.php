@@ -570,8 +570,8 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
             },
             // Error handling
             error: function (error) {
-                let msg = jsText(xl('Something went wrong. Try again!')) + ' ' + jsAttr(error);
-                syncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
+                let msg = xl('Something went wrong. Try again!') + ' ' + error;
+                asyncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
             }
         });
     }

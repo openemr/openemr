@@ -59,7 +59,7 @@ while ($row = sqlFetchArray($list)) {
         persistChange.forEach(persist => {
             persist.addEventListener('change', () => {
                 top.restoreSession();
-                syncAlertMsg(successMsg, 1000, 'success')
+                asyncAlertMsg(successMsg, 1000, 'success')
                 .then(() => {
                     isPersistEvent = true;
                     $("#save_weno_id").click();
