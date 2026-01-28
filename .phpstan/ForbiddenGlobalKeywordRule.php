@@ -37,11 +37,6 @@ class ForbiddenGlobalKeywordRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        // Skip tests
-        if (str_contains($scope->getFile(), DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR)) {
-            return [];
-        }
-
         $varNames = [];
         foreach ($node->vars as $var) {
             if ($var instanceof Node\Expr\Variable && is_string($var->name)) {
