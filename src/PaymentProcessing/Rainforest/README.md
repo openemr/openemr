@@ -79,3 +79,8 @@ All relative to the `OpenEMR\PaymentProcessing\Rainforest` namespace.
 Other classes in this namespace are data structures for API interaction.
 
 `Apis\...`: Classes used to power HTTP APIs that are used by OpenEMR UIs
+
+`Webhooks\...`: Classes relating to webhook validation and processing.
+
+> [!NOTE]
+> Rainforest uses Svix for their webhooks; as such, the validation logic could potentially be made more general and compatible with other services.
