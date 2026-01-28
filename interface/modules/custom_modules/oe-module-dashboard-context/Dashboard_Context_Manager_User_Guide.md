@@ -136,6 +136,54 @@ If you want to restore a context to its original configuration:
 
 ---
 
+## Widget Ordering
+
+Widgets on the patient dashboard can be reordered per context, so different care workflows can prioritize different information at the top of the screen.
+
+### How Widget Ordering Works
+
+- **Context-level order**: An administrator sets the default widget display order for each context
+- **User-level override**: Individual users can save their own preferred order for any context
+- **Precedence**: User override > Context default > System default (alphabetical by widget ID)
+
+When a user switches contexts, the dashboard widgets are rearranged to match the configured order for that context. Widgets not included in the order list remain in their original position at the end.
+
+### For Users
+
+Widget ordering is configured through the admin interface. As a regular user, you benefit from the ordering set by your administrator. If user-level overrides are enabled, your personal order preference is saved automatically when you reorder widgets.
+
+### For Administrators
+
+See [Configuring Widget Order (Admin)](#configuring-widget-order-admin) below.
+
+---
+
+## Widget Label Renaming
+
+Widget labels (the heading text shown on each dashboard card and in the settings dialog) can be customized per context. This allows organizations to use terminology that matches their clinical workflows.
+
+### How Label Renaming Works
+
+- Labels are set per context, not per user
+- A custom label replaces the default label everywhere: in the widget card header and in the settings dialog checkbox list
+- Removing a custom label restores the default label
+- Labels are included in context export/import
+
+### Examples
+
+| Default Label | Custom Label (Example) | Context |
+|---------------|----------------------|---------|
+| Allergies | Known Allergies & Reactions | Emergency |
+| Medical Problems | Active Problem List | Primary Care |
+| Vitals | Current Vital Signs | Inpatient |
+| Patient Notes/Messages | Clinical Notes | Behavioral Health |
+
+### For Administrators
+
+See [Configuring Widget Labels (Admin)](#configuring-widget-labels-admin) below.
+
+---
+
 ## Creating Custom Contexts
 
 Need a context for a specific workflow? Create your own!
@@ -173,6 +221,8 @@ Need a context for a specific workflow? Create your own!
 |---------|-------|
 | Active context selection | Per user |
 | Widget visibility settings | Per user, per context |
+| Widget display order | Per context (admin default), per user (personal override) |
+| Custom widget labels | Per context (admin-configured) |
 | Custom context definitions | Per user (unless admin makes global) |
 
 ---
@@ -210,10 +260,59 @@ Need a context for a specific workflow? Create your own!
 #### Facility Defaults
 - Set default contexts per facility location
 
+#### Configuring Widget Order (Admin)
+
+Administrators can set the default widget display order for each context using drag-and-drop in the context editor.
+
+**To set widget order:**
+
+1. Go to **Admin > System > Dashboard Contexts**
+2. Click **Edit** on an existing context, or click **Create New Context**
+3. In the context dialog, each widget row has a **drag handle** (grip icon) on the left
+4. **Drag widgets up or down** to set the desired display order
+5. Click **Save** -- the widget order is saved alongside the widget visibility configuration
+
+**Notes:**
+
+- The order applies to all users assigned to that context (unless they have a personal override)
+- Widgets hidden in the context (unchecked) are still included in the order list -- they simply won't appear on the dashboard
+- If no order is configured, widgets appear in their default system order
+- Widget order is included when exporting/importing context configurations
+
+#### Configuring Widget Labels (Admin)
+
+Administrators can rename widget labels per context to match organizational terminology.
+
+**To rename a widget label:**
+
+1. Go to **Admin > System > Dashboard Contexts**
+2. Click **Edit** on a context
+3. In the context dialog, each widget row has a **Custom Label** text field on the right
+4. Type the desired label in the text field (leave blank to keep the default label)
+5. Click **Save**
+
+**To remove a custom label:**
+
+1. Edit the context
+2. Clear the custom label text field for the widget
+3. Click **Save** -- the default label is restored
+
+**Where custom labels appear:**
+
+- Widget card headers on the patient dashboard
+- Widget toggle checkboxes in the user settings dialog
+- The admin context editor (next to the default label)
+
+**Notes:**
+
+- Custom labels are per-context, not per-user -- all users on the same context see the same labels
+- Labels are included when exporting/importing context configurations
+- Labels do not affect any underlying data or functionality, only the display text
+
 #### Statistics & Audit
 - View context usage statistics
 - Review audit log of context changes
-- Export/import context configurations
+- Export/import context configurations (now includes widget order and labels)
 
 ---
 
@@ -297,7 +396,7 @@ A: Critical alerts and clinical decision support reminders should be configured 
 
 ## Version Information
 
-- **Module Version**: 1.0.0
+- **Module Version**: 1.1.0
 - **Minimum OpenEMR Version**: 7.0.0
 - **PHP Requirement**: 8.1+
 
