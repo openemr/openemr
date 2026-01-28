@@ -2,12 +2,12 @@
 
 /**
  * Webhook receiver for Rainforest data
- * @link https://docs.rainforestpay.com/docs/payin-webhooks
  *
- * @package   OpenEMR
- * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author    Eric Stern <erics@opencoreemr.com>
  * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
+ * @link      https://docs.rainforestpay.com/docs/payin-webhooks
+ * @package   OpenEMR
  */
 
 chdir(__DIR__ . '/../../../');
