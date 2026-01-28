@@ -33,8 +33,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 
-// hl7Time, hl7Phone, hl7SSN, hl7RelationWord, hl7RelationCode are defined in library/global_functions.inc.php
-
 /**
  * Get array of insurance payers for the specified patient as of the specified
  * date. If no date is passed then the current date is used.
