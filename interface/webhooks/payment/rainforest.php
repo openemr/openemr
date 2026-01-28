@@ -36,7 +36,6 @@ if ($mid === '') {
 }
 
 $crypto = new CryptoGen();
-$sec = $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'));
 $whv = new Verifier($crypto->decryptStandard($gb->getString('rainforest_webhook_secret')));
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
