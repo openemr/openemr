@@ -37,21 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\AuthHash constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\AuthHash constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/account/index_reset.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\AuthHash constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class GenericRouter constructor invoked with 0 parameters, 3 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
@@ -62,11 +47,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\AuthHash constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Cqm\\\\CqmClient constructor invoked with 0 parameters, 2\\-4 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/test.php',
@@ -75,11 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Services\\\\FHIR\\\\FhirDocRefService constructor invoked with 1 parameter, 0 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\AuthHash constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Events\\\\Patient\\\\Summary\\\\PortalCredentialsTemplateDataFilterEvent constructor invoked with 2 parameters, 0 required\\.$#',

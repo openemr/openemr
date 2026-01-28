@@ -161,7 +161,7 @@ if ($password_update === 2) {
     }
 } else {
     if (AuthHash::passwordVerify($_POST['pass'], $auth[COL_POR_PWD])) {
-        $authHashPortal = new AuthHash('auth');
+        $authHashPortal = new AuthHash();
         if ($authHashPortal->passwordNeedsRehash($auth[COL_POR_PWD])) {
             // If so, create a new hash, and replace the old one (this will ensure always using most modern hashing)
             $reHash = $authHashPortal->passwordHash($_POST['pass']);
@@ -227,7 +227,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         $code_new = $_POST['pass_new'];
         $code_new_confirm = $_POST['pass_new_confirm'];
         if (!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
-            $new_hash = (new AuthHash('auth'))->passwordHash($code_new);
+            $new_hash = (new AuthHash())->passwordHash($code_new);
             if (empty($new_hash)) {
                 // Something is seriously wrong
                 error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');

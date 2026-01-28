@@ -88,7 +88,7 @@ if (isset($_POST['submit'])) {
         $bind = [];
         $updateFields = [];
         if (!empty($password_new)) {
-            $new_hash = (new AuthHash('auth'))->passwordHash($password_new);
+            $new_hash = (new AuthHash())->passwordHash($password_new);
             unset($password_new);
             if (empty($new_hash)) {
                 // Something is seriously wrong

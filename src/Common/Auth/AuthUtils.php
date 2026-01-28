@@ -81,8 +81,8 @@ class AuthUtils
             $this->otherAuth = true;
         }
 
-        // Set up AuthHash instance (note it uses auth mode)
-        $this->authHashAuth = new AuthHash('auth');
+        // Set up AuthHash instance for password hashing
+        $this->authHashAuth = new AuthHash();
 
         // Ensure timing attack stuff is in place. This will be to prevent a bad actor from guessing
         //  usernames and knowing they got a hit since the hash verification will then take time
