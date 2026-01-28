@@ -1308,23 +1308,23 @@ function make_insurance() {
                                 //
                                 if (!$gottoday) {
 ?>
-<tr id="tr_0">
+<tr id="tr_1">
     <td><?=date("Y-m-d")?></td>
-    <td class="text-center" id="<?=attr($dispdate)?>"><?=text($enc)?></td>
-    <td class="text-center" id="td_charges_0"></td>
-    <td class="text-center" id="td_inspaid_0"></td>
-    <td class="text-center" id="td_ptpaid_0"></td>
-    <td class="text-center" id="td_patient_copay_0"></td>
-    <td class="text-center" id="td_copay_0"></td>
-    <td class="text-center" id="balance_0"></td>
-    <td class="text-center" id="duept_0"></td>
+    <td class="text-center" id="<?=date("Y-m-d")?>"><?=text($enc)?></td>
+    <td class="text-center" id="td_charges_1"></td>
+    <td class="text-center" id="td_inspaid_1"></td>
+    <td class="text-center" id="td_ptpaid_1"></td>
+    <td class="text-center" id="td_patient_copay_1"></td>
+    <td class="text-center" id="td_copay_1"></td>
+    <td class="text-center" id="balance_1"></td>
+    <td class="text-center" id="duept_1"></td>
     <td class="text-right">
         <input
             class="form-control amount_field"
             data-encounter-id=""
             data-code=""
             data-code-type=""
-            name="form_upay[0]"
+            name="form_upay[1]"
             id="paying_<?=$idx?>"
             value=""
             onchange="coloring();calctotal()"
@@ -1347,7 +1347,7 @@ function make_insurance() {
                                 }
 
                                 $gottoday = false;
-                                $idx = 0;
+                                $idx = $gottoday ? 0 : 1; // Just to make diffs w/ old code easier, this should not matter
                                 foreach ($encs as $value) {
                                     $idx++;
                                     $var_index++;
