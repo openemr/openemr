@@ -53,7 +53,7 @@ readonly class Rainforest
         // TODO: This should leverage Guzzle's abilities to make parallel
         // requests.
         $sessionPayload = [
-            'ttl' => 86400,
+            'ttl' => 3600,
             'statements' => [
                 [
                     'permissions' => ['group#payment_component'],
