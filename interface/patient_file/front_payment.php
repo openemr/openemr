@@ -1307,11 +1307,10 @@ function make_insurance() {
         />
     </td>
 </tr>
-<?php
-                                }
+                                <?php }
 
                                 $gottoday = false;
-                                $idx = $gottoday ? 0 : 1; // Just to make diffs w/ old code easier, this should not matter
+                                $idx = 1; // Starts at 1 to reduce testing scope w/ previous impl; should *not* matter in practice
                                 foreach ($encs as $value) {
                                     $idx++;
                                     $enc = $value['encounter'];
