@@ -14,6 +14,8 @@
 
 -- Drop tables in correct order (respecting potential foreign key relationships)
 DROP TABLE IF EXISTS `dashboard_context_audit_log`;
+DROP TABLE IF EXISTS `dashboard_widget_labels`;
+DROP TABLE IF EXISTS `dashboard_widget_order`;
 DROP TABLE IF EXISTS `dashboard_context_role_defaults`;
 DROP TABLE IF EXISTS `dashboard_context_assignments`;
 DROP TABLE IF EXISTS `dashboard_context_definitions`;

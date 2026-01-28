@@ -120,6 +120,37 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
 ) ENGINE=InnoDB COMMENT='Audit log for context changes';
 #EndIf
 
+#IfNotTable dashboard_widget_order
+-- Widget display order per context (and optionally per user)
+CREATE TABLE IF NOT EXISTS `dashboard_widget_order` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `context_key` VARCHAR(50) NOT NULL,
+    `user_id` INT(11) DEFAULT NULL COMMENT 'NULL for context-level defaults, user ID for personal overrides',
+    `widget_order` TEXT NOT NULL COMMENT 'JSON array of widget IDs in display order',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_context_user` (`context_key`, `user_id`),
+    KEY `idx_context_key` (`context_key`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB COMMENT='Widget display order per context';
+#EndIf
+
+#IfNotTable dashboard_widget_labels
+-- Custom widget labels per context
+CREATE TABLE IF NOT EXISTS `dashboard_widget_labels` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `context_key` VARCHAR(50) NOT NULL,
+    `widget_id` VARCHAR(100) NOT NULL,
+    `custom_label` VARCHAR(255) NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_context_widget` (`context_key`, `widget_id`),
+    KEY `idx_context_key` (`context_key`)
+) ENGINE=InnoDB COMMENT='Custom widget labels per context';
+#EndIf
+
 -- ============================================================================
 -- UNINSTALL SECTION
 -- ============================================================================
@@ -128,6 +159,7 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
 -- WARNING: This will permanently delete all dashboard context data!
 
 -- DROP TABLE IF EXISTS `dashboard_context_audit_log`;
+-- DROP TABLE IF EXISTS `dashboard_widget_labels`;
 -- DROP TABLE IF EXISTS `dashboard_widget_order`;
 -- DROP TABLE IF EXISTS `dashboard_context_facility_defaults`;
 -- DROP TABLE IF EXISTS `dashboard_context_role_defaults`;

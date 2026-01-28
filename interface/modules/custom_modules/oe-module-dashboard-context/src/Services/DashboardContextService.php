@@ -246,6 +246,10 @@ class DashboardContextService
     private string $contextTableName = 'dashboard_context_definitions';
     // Table for admin assignments
     private string $assignmentTableName = 'dashboard_context_assignments';
+    // Table for widget display order per context
+    private string $widgetOrderTable = 'dashboard_widget_order';
+    // Table for custom widget labels per context
+    private string $widgetLabelsTable = 'dashboard_widget_labels';
 
     /**
      * Get the current active context for a user
@@ -527,5 +531,147 @@ class DashboardContextService
     public function getWidgetToCardMap(): array
     {
         return self::WIDGET_TO_HIDDEN_CARD_MAP;
+    }
+
+    /**
+     * Get widget display order for a context.
+     *
+     * Precedence: user override > context default > MANAGEABLE_WIDGETS key order
+     */
+    public function getWidgetOrder(int $userId, ?string $context = null): array
+    {
+        if ($context === null) {
+            $context = $this->getActiveContext($userId);
+        }
+
+        // Check for user-specific override
+        $result = QueryUtils::querySingleRow(
+            "SELECT widget_order FROM {$this->widgetOrderTable} WHERE context_key = ? AND user_id = ?",
+            [$context, $userId]
+        );
+
+        if (!empty($result['widget_order'])) {
+            $order = json_decode((string) $result['widget_order'], true);
+            if (is_array($order)) {
+                return $order;
+            }
+        }
+
+        // Check for context-level default (user_id IS NULL)
+        $result = QueryUtils::querySingleRow(
+            "SELECT widget_order FROM {$this->widgetOrderTable} WHERE context_key = ? AND user_id IS NULL",
+            [$context]
+        );
+
+        if (!empty($result['widget_order'])) {
+            $order = json_decode((string) $result['widget_order'], true);
+            if (is_array($order)) {
+                return $order;
+            }
+        }
+
+        // Fall back to MANAGEABLE_WIDGETS key order
+        return array_keys(self::MANAGEABLE_WIDGETS);
+    }
+
+    /**
+     * Save widget display order for a context
+     */
+    public function saveWidgetOrder(string $context, array $order, ?int $userId = null): bool
+    {
+        $jsonOrder = json_encode(array_values($order));
+
+        if ($userId !== null) {
+            $existing = QueryUtils::querySingleRow(
+                "SELECT id FROM {$this->widgetOrderTable} WHERE context_key = ? AND user_id = ?",
+                [$context, $userId]
+            );
+        } else {
+            $existing = QueryUtils::querySingleRow(
+                "SELECT id FROM {$this->widgetOrderTable} WHERE context_key = ? AND user_id IS NULL",
+                [$context]
+            );
+        }
+
+        if ($existing) {
+            return QueryUtils::sqlStatementThrowException(
+                "UPDATE {$this->widgetOrderTable} SET widget_order = ?, updated_at = NOW() WHERE id = ?",
+                [$jsonOrder, $existing['id']]
+            ) !== false;
+        }
+
+        return QueryUtils::sqlStatementThrowException(
+            "INSERT INTO {$this->widgetOrderTable} (context_key, user_id, widget_order, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
+            [$context, $userId, $jsonOrder]
+        ) !== false;
+    }
+
+    /**
+     * Get custom widget labels for a context
+     *
+     * @return array [widget_id => custom_label]
+     */
+    public function getWidgetLabels(string $context): array
+    {
+        $sql = "SELECT widget_id, custom_label FROM {$this->widgetLabelsTable} WHERE context_key = ?";
+        $result = QueryUtils::sqlStatementThrowException($sql, [$context]);
+        $labels = [];
+
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
+            $labels[$row['widget_id']] = $row['custom_label'];
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Save or update a custom widget label for a context
+     */
+    public function saveWidgetLabel(string $context, string $widgetId, string $label): bool
+    {
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id FROM {$this->widgetLabelsTable} WHERE context_key = ? AND widget_id = ?",
+            [$context, $widgetId]
+        );
+
+        if ($existing) {
+            return QueryUtils::sqlStatementThrowException(
+                "UPDATE {$this->widgetLabelsTable} SET custom_label = ?, updated_at = NOW() WHERE id = ?",
+                [$label, $existing['id']]
+            ) !== false;
+        }
+
+        return QueryUtils::sqlStatementThrowException(
+            "INSERT INTO {$this->widgetLabelsTable} (context_key, widget_id, custom_label, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
+            [$context, $widgetId, $label]
+        ) !== false;
+    }
+
+    /**
+     * Delete a custom widget label for a context
+     */
+    public function deleteWidgetLabel(string $context, string $widgetId): bool
+    {
+        return QueryUtils::sqlStatementThrowException(
+            "DELETE FROM {$this->widgetLabelsTable} WHERE context_key = ? AND widget_id = ?",
+            [$context, $widgetId]
+        ) !== false;
+    }
+
+    /**
+     * Get all manageable widgets with context-specific label overrides applied
+     */
+    public function getManageableWidgetsWithLabels(string $context): array
+    {
+        $widgets = $this->getManageableWidgets();
+        $labels = $this->getWidgetLabels($context);
+
+        foreach ($labels as $widgetId => $customLabel) {
+            if (isset($widgets[$widgetId])) {
+                $widgets[$widgetId] = $customLabel;
+            }
+        }
+
+        return $widgets;
     }
 }

@@ -20,7 +20,9 @@
             widgets: {},
             manageableWidgets: {},
             customContexts: [],
-            canSwitch: true
+            canSwitch: true,
+            widgetOrder: [],
+            widgetLabels: {}
         },
 
         init: function (options) {
@@ -99,14 +101,15 @@
                 url: this.config.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'get_context_widgets',
-                    context: context,
+                    action: 'get_full_config',
                     csrf_token_form: this.config.csrfToken
                 },
                 dataType: 'json',
                 success: function (response) {
                     if (response.success) {
-                        self.config.widgets = response.widgets;
+                        self.config.widgets = response.current_widgets || {};
+                        self.config.widgetOrder = response.widget_order || [];
+                        self.config.widgetLabels = response.widget_labels || {};
                         self.applyWidgetVisibility();
                         self.updateSettingsModal();
                     }
@@ -137,7 +140,34 @@
                 }
             }
 
+            this.applyWidgetOrder();
             $(document).trigger('dashboardContextChanged', [this.config.currentContext, widgets]);
+        },
+
+        applyWidgetOrder: function () {
+            const order = this.config.widgetOrder;
+            if (!order || !order.length) return;
+
+            let $parentContainer = null;
+            const cardMap = {};
+
+            for (let i = 0; i < order.length; i++) {
+                const $card = $('#' + order[i]).closest('.card');
+                if ($card.length) {
+                    if (!$parentContainer) {
+                        $parentContainer = $card.parent();
+                    }
+                    cardMap[order[i]] = $card;
+                }
+            }
+
+            if (!$parentContainer || !$parentContainer.length) return;
+
+            for (let i = 0; i < order.length; i++) {
+                if (cardMap[order[i]]) {
+                    $parentContainer.append(cardMap[order[i]]);
+                }
+            }
         },
 
         saveCurrentSettings: function () {
@@ -214,10 +244,11 @@
 
             const widgets = this.config.manageableWidgets;
             const currentSettings = this.config.widgets;
+            const customLabels = this.config.widgetLabels || {};
 
             for (const widgetId in widgets) {
                 if (Object.prototype.hasOwnProperty.call(widgets, widgetId)) {
-                    const label = widgets[widgetId];
+                    const label = customLabels[widgetId] || widgets[widgetId];
                     const isVisible = currentSettings[widgetId] !== false;
 
                     const $item = $(`

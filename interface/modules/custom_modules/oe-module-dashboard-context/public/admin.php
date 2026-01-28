@@ -72,6 +72,16 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
         border-color: var(--success, #28a745);
       }
 
+      .widget-item.drag-over {
+        border-color: var(--primary, #007bff);
+        border-style: dashed;
+        background: rgba(0, 123, 255, 0.05);
+      }
+
+      .widget-item[draggable="true"] {
+        cursor: default;
+      }
+
       .stats-card {
         text-align: center;
         padding: 1.5rem;
@@ -286,7 +296,9 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                     contexts: [],
                     widgets: {},
                     userTypes: {},
-                    facilities: []
+                    facilities: [],
+                    widgetOrders: {},
+                    widgetLabels: {}
                 },
 
                 // Translation strings
@@ -331,7 +343,10 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                     contextsImported: <?php echo xlj('contexts imported'); ?>,
                     invalidJson: <?php echo xlj('Invalid JSON file'); ?>,
                     locked: <?php echo xlj('Locked'); ?>,
-                    customSettings: <?php echo xlj('Has custom settings'); ?>
+                    customSettings: <?php echo xlj('Has custom settings'); ?>,
+                    widgetOrder: <?php echo xlj('Widget Order'); ?>,
+                    customLabel: <?php echo xlj('Custom Label'); ?>,
+                    dragToReorder: <?php echo xlj('Drag to reorder'); ?>
                 },
 
                 init: function () {
@@ -402,6 +417,8 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                 self.config.widgets = response.widgets;
                                 self.config.userTypes = response.user_types;
                                 self.config.facilities = response.facilities;
+                                self.config.widgetOrders = response.widget_orders || {};
+                                self.config.widgetLabels = response.widget_labels || {};
                                 self.renderContexts();
                                 self.populateFilters();
                             }
@@ -466,22 +483,56 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                         ? (typeof contextData.widget_config === 'string' ? JSON.parse(contextData.widget_config) : contextData.widget_config)
                         : {};
 
+                    // Get existing order and labels for this context
+                    const contextKey = isEdit ? contextData.context_key : '';
+                    const existingOrder = (contextKey && self.config.widgetOrders[contextKey]) ? self.config.widgetOrders[contextKey] : [];
+                    const existingLabels = (contextKey && self.config.widgetLabels[contextKey]) ? self.config.widgetLabels[contextKey] : {};
+
+                    // Build ordered widget entries
+                    var widgetEntries = [];
                     $.each(this.config.widgets, function (widgetId, widgetLabel) {
+                        widgetEntries.push([widgetId, widgetLabel]);
+                    });
+                    if (existingOrder.length > 0) {
+                        widgetEntries.sort(function (a, b) {
+                            var idxA = existingOrder.indexOf(a[0]);
+                            var idxB = existingOrder.indexOf(b[0]);
+                            var posA = idxA >= 0 ? idxA : 9999;
+                            var posB = idxB >= 0 ? idxB : 9999;
+                            return posA - posB;
+                        });
+                    }
+
+                    widgetEntries.forEach(function (entry) {
+                        var widgetId = entry[0];
+                        var widgetLabel = entry[1];
                         const isActive = widgetConfig[widgetId] !== false;
+                        const customLabel = existingLabels[widgetId] || '';
                         $widgetGrid.append(
-                            $('<div>', {class: 'widget-item ' + (isActive ? 'active' : '')}).append(
-                                $('<div>', {class: 'form-check mb-0'}).append(
+                            $('<div>', {class: 'widget-item ' + (isActive ? 'active' : ''), 'data-widget-id': widgetId, draggable: true}).append(
+                                $('<div>', {class: 'd-flex align-items-center'}).append(
+                                    $('<i>', {class: 'fa fa-grip-vertical text-muted mr-2', style: 'cursor:grab;', title: self.xl.dragToReorder}),
+                                    $('<div>', {class: 'form-check mb-0 flex-grow-1'}).append(
+                                        $('<input>', {
+                                            type: 'checkbox',
+                                            class: 'form-check-input widget-toggle',
+                                            id: 'widget-' + widgetId,
+                                            'data-widget': widgetId,
+                                            checked: isActive
+                                        }),
+                                        $('<label>', {
+                                            class: 'form-check-label',
+                                            for: 'widget-' + widgetId
+                                        }).text(widgetLabel)
+                                    ),
                                     $('<input>', {
-                                        type: 'checkbox',
-                                        class: 'form-check-input widget-toggle',
-                                        id: 'widget-' + widgetId,
+                                        type: 'text',
+                                        class: 'form-control form-control-sm widget-label-input ml-2',
                                         'data-widget': widgetId,
-                                        checked: isActive
-                                    }),
-                                    $('<label>', {
-                                        class: 'form-check-label',
-                                        for: 'widget-' + widgetId
-                                    }).text(widgetLabel)
+                                        placeholder: self.xl.customLabel,
+                                        value: customLabel,
+                                        style: 'max-width:150px;font-size:0.8rem;'
+                                    })
                                 )
                             )
                         );
@@ -550,6 +601,9 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                         $(this).closest('.widget-item').toggleClass('active', $(this).is(':checked'));
                     });
 
+                    // Initialize drag-and-drop reordering
+                    self.initDragReorder($widgetGrid);
+
                     $('.dialog-close').on('click', function () {
                         $('#contextDialog').remove();
                     });
@@ -570,6 +624,21 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                     const widgetConfig = {};
                     $('.widget-toggle').each(function () {
                         widgetConfig[$(this).data('widget')] = $(this).is(':checked');
+                    });
+
+                    // Collect widget order from DOM
+                    const widgetOrder = [];
+                    $('#widgetConfigGrid .widget-item').each(function () {
+                        widgetOrder.push($(this).data('widget-id'));
+                    });
+
+                    // Collect custom labels
+                    const widgetLabels = {};
+                    $('.widget-label-input').each(function () {
+                        const val = $(this).val().trim();
+                        if (val) {
+                            widgetLabels[$(this).data('widget')] = val;
+                        }
                     });
 
                     const data = {
@@ -595,12 +664,121 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                         dataType: 'json',
                         success: function (response) {
                             if (response.success) {
+                                // Determine context key for saving order/labels
+                                var ctxKey = isEdit ? ($('#contextKey').val() || '') : (response.context_key || $('#contextKey').val() || '');
+                                // Save widget order
+                                if (ctxKey && widgetOrder.length > 0) {
+                                    self.saveWidgetOrder(ctxKey, widgetOrder);
+                                }
+                                // Save widget labels
+                                if (ctxKey) {
+                                    self.saveWidgetLabels(ctxKey, widgetLabels);
+                                }
+
                                 $('#contextDialog').remove();
                                 self.loadAdminConfig();
                                 self.showAlert(isEdit ? self.xl.contextUpdated : self.xl.contextCreated, 'success');
                             } else {
                                 self.showAlert(response.error || self.xl.errorSaving, 'danger');
                             }
+                        }
+                    });
+                },
+
+                initDragReorder: function ($container) {
+                    var draggedEl = null;
+
+                    $container.on('dragstart', '.widget-item', function (e) {
+                        draggedEl = this;
+                        $(this).css('opacity', '0.4');
+                        e.originalEvent.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    $container.on('dragend', '.widget-item', function () {
+                        $(this).css('opacity', '');
+                        $container.find('.widget-item').removeClass('drag-over');
+                    });
+
+                    $container.on('dragover', '.widget-item', function (e) {
+                        e.preventDefault();
+                        e.originalEvent.dataTransfer.dropEffect = 'move';
+                        $(this).addClass('drag-over');
+                    });
+
+                    $container.on('dragleave', '.widget-item', function () {
+                        $(this).removeClass('drag-over');
+                    });
+
+                    $container.on('drop', '.widget-item', function (e) {
+                        e.preventDefault();
+                        $(this).removeClass('drag-over');
+                        if (draggedEl !== this) {
+                            var $dragged = $(draggedEl);
+                            var $target = $(this);
+                            var targetRect = this.getBoundingClientRect();
+                            var midY = targetRect.top + targetRect.height / 2;
+                            if (e.originalEvent.clientY < midY) {
+                                $dragged.insertBefore($target);
+                            } else {
+                                $dragged.insertAfter($target);
+                            }
+                        }
+                    });
+                },
+
+                saveWidgetOrder: function (contextKey, order) {
+                    top.restoreSession();
+                    $.ajax({
+                        url: this.config.ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'save_widget_order',
+                            context_key: contextKey,
+                            widget_order: JSON.stringify(order),
+                            csrf_token_form: this.config.csrfToken
+                        },
+                        dataType: 'json'
+                    });
+                },
+
+                saveWidgetLabels: function (contextKey, labels) {
+                    var self = this;
+                    var existingLabels = this.config.widgetLabels[contextKey] || {};
+
+                    // Save new/updated labels
+                    $.each(labels, function (widgetId, label) {
+                        if (existingLabels[widgetId] !== label) {
+                            top.restoreSession();
+                            $.ajax({
+                                url: self.config.ajaxUrl,
+                                type: 'POST',
+                                data: {
+                                    action: 'save_widget_label',
+                                    context_key: contextKey,
+                                    widget_id: widgetId,
+                                    label: label,
+                                    csrf_token_form: self.config.csrfToken
+                                },
+                                dataType: 'json'
+                            });
+                        }
+                    });
+
+                    // Delete removed labels
+                    $.each(existingLabels, function (widgetId) {
+                        if (!labels[widgetId]) {
+                            top.restoreSession();
+                            $.ajax({
+                                url: self.config.ajaxUrl,
+                                type: 'POST',
+                                data: {
+                                    action: 'delete_widget_label',
+                                    context_key: contextKey,
+                                    widget_id: widgetId,
+                                    csrf_token_form: self.config.csrfToken
+                                },
+                                dataType: 'json'
+                            });
                         }
                     });
                 },

@@ -79,6 +79,11 @@ class AdminController
                 'get_facilities' => $this->getFacilities(),
                 'get_admin_config' => $this->getAdminConfig(),
                 'get_audit_log' => $this->getAuditLog(),
+                'get_widget_order' => $this->getWidgetOrder(),
+                'save_widget_order' => $this->saveWidgetOrder(),
+                'get_widget_labels' => $this->getWidgetLabels(),
+                'save_widget_label' => $this->saveWidgetLabel(),
+                'delete_widget_label' => $this->deleteWidgetLabel(),
                 default => $this->sendError('Invalid action'),
             };
         } catch (\Exception $e) {
@@ -320,6 +325,15 @@ class AdminController
             $facilities[] = $row;
         }
 
+        // Include widget_order and widget_labels per context
+        $widgetOrders = [];
+        $widgetLabels = [];
+        foreach ($contexts as $ctx) {
+            $key = $ctx['context_key'];
+            $widgetOrders[$key] = $this->adminService->getWidgetOrderForContext($key);
+            $widgetLabels[$key] = $this->adminService->getWidgetLabelsForContext($key);
+        }
+
         $this->sendSuccess([
             'contexts' => $contexts,
             'user_types' => $userTypes,
@@ -327,7 +341,77 @@ class AdminController
             'usage_stats' => $usageStats,
             'widgets' => $widgets,
             'facilities' => $facilities,
+            'widget_orders' => $widgetOrders,
+            'widget_labels' => $widgetLabels,
         ]);
+    }
+
+    private function getWidgetOrder(): void
+    {
+        $contextKey = $_POST['context_key'] ?? '';
+        if (empty($contextKey)) {
+            $this->sendError('Context key is required');
+            return;
+        }
+
+        $order = $this->adminService->getWidgetOrderForContext($contextKey);
+        $this->sendSuccess(['widget_order' => $order]);
+    }
+
+    private function saveWidgetOrder(): void
+    {
+        $contextKey = $_POST['context_key'] ?? '';
+        $orderJson = $_POST['widget_order'] ?? '[]';
+        $order = json_decode((string) $orderJson, true);
+
+        if (empty($contextKey) || !is_array($order)) {
+            $this->sendError('Context key and widget order are required');
+            return;
+        }
+
+        $success = $this->adminService->saveWidgetOrderForContext($contextKey, $order);
+        $this->sendSuccess([], $success);
+    }
+
+    private function getWidgetLabels(): void
+    {
+        $contextKey = $_POST['context_key'] ?? '';
+        if (empty($contextKey)) {
+            $this->sendError('Context key is required');
+            return;
+        }
+
+        $labels = $this->adminService->getWidgetLabelsForContext($contextKey);
+        $this->sendSuccess(['widget_labels' => $labels]);
+    }
+
+    private function saveWidgetLabel(): void
+    {
+        $contextKey = $_POST['context_key'] ?? '';
+        $widgetId = $_POST['widget_id'] ?? '';
+        $label = $_POST['label'] ?? '';
+
+        if (empty($contextKey) || empty($widgetId) || empty($label)) {
+            $this->sendError('Context key, widget ID, and label are required');
+            return;
+        }
+
+        $success = $this->adminService->saveWidgetLabelForContext($contextKey, $widgetId, $label);
+        $this->sendSuccess([], $success);
+    }
+
+    private function deleteWidgetLabel(): void
+    {
+        $contextKey = $_POST['context_key'] ?? '';
+        $widgetId = $_POST['widget_id'] ?? '';
+
+        if (empty($contextKey) || empty($widgetId)) {
+            $this->sendError('Context key and widget ID are required');
+            return;
+        }
+
+        $success = $this->adminService->deleteWidgetLabelForContext($contextKey, $widgetId);
+        $this->sendSuccess([], $success);
     }
 
     private function getAuditLog(): void

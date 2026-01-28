@@ -26,6 +26,8 @@ class DashboardContextAdminService
     private string $roleDefaultsTable = 'dashboard_context_role_defaults';
     private string $facilityDefaultsTable = 'dashboard_context_facility_defaults';
     private string $auditLogTable = 'dashboard_context_audit_log';
+    private string $widgetOrderTable = 'dashboard_widget_order';
+    private string $widgetLabelsTable = 'dashboard_widget_labels';
 
     /**
      * Get all context definitions (system + custom)
@@ -555,19 +557,90 @@ class DashboardContextAdminService
     }
 
     /**
+     * Get widget order for a context (admin-level, context defaults only)
+     *
+     * @return array Ordered array of widget IDs, or empty array if none set
+     */
+    public function getWidgetOrderForContext(string $context): array
+    {
+        $result = QueryUtils::querySingleRow(
+            "SELECT widget_order FROM {$this->widgetOrderTable} WHERE context_key = ? AND user_id IS NULL",
+            [$context]
+        );
+
+        if (!empty($result['widget_order'])) {
+            $order = json_decode((string) $result['widget_order'], true);
+            if (is_array($order)) {
+                return $order;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Save widget order for a context (admin-level, context defaults)
+     */
+    public function saveWidgetOrderForContext(string $context, array $order): bool
+    {
+        $contextService = new DashboardContextService();
+        return $contextService->saveWidgetOrder($context, $order, null);
+    }
+
+    /**
+     * Get custom widget labels for a context
+     *
+     * @return array [widget_id => custom_label]
+     */
+    public function getWidgetLabelsForContext(string $context): array
+    {
+        $contextService = new DashboardContextService();
+        return $contextService->getWidgetLabels($context);
+    }
+
+    /**
+     * Save a custom widget label for a context
+     */
+    public function saveWidgetLabelForContext(string $context, string $widgetId, string $label): bool
+    {
+        $contextService = new DashboardContextService();
+        return $contextService->saveWidgetLabel($context, $widgetId, $label);
+    }
+
+    /**
+     * Delete a custom widget label for a context
+     */
+    public function deleteWidgetLabelForContext(string $context, string $widgetId): bool
+    {
+        $contextService = new DashboardContextService();
+        return $contextService->deleteWidgetLabel($context, $widgetId);
+    }
+
+    /**
      * Export context configuration
      */
     public function exportContextConfig(?int $contextId = null): array
     {
+        $contexts = [];
+
         if ($contextId !== null) {
             $context = QueryUtils::querySingleRow(
                 "SELECT * FROM {$this->contextTable} WHERE id = ?",
                 [$contextId]
             );
-            return $context ? [$context] : [];
+            $contexts = $context ? [$context] : [];
+        } else {
+            $contexts = $this->getAllContexts(false);
         }
 
-        return $this->getAllContexts(false);
+        // Include widget_order and widget_labels for each context
+        foreach ($contexts as &$ctx) {
+            $contextKey = $ctx['context_key'];
+            $ctx['widget_order'] = $this->getWidgetOrderForContext($contextKey);
+            $ctx['widget_labels'] = $this->getWidgetLabelsForContext($contextKey);
+        }
+
+        return $contexts;
     }
 
     /**
@@ -589,6 +662,19 @@ class DashboardContextAdminService
 
             if ($contextId) {
                 $results['success'][] = $ctx['context_name'];
+                $contextKey = $ctx['context_key'] ?? null;
+
+                // Import widget order if present
+                if (!empty($ctx['widget_order']) && is_array($ctx['widget_order']) && $contextKey) {
+                    $this->saveWidgetOrderForContext($contextKey, $ctx['widget_order']);
+                }
+
+                // Import widget labels if present
+                if (!empty($ctx['widget_labels']) && is_array($ctx['widget_labels']) && $contextKey) {
+                    foreach ($ctx['widget_labels'] as $widgetId => $label) {
+                        $this->saveWidgetLabelForContext($contextKey, $widgetId, $label);
+                    }
+                }
             } else {
                 $results['failed'][] = $ctx['context_name'];
             }

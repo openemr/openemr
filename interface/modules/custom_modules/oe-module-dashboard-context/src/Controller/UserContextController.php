@@ -58,6 +58,9 @@ class UserContextController
                 'create_custom_context' => $this->createCustomContext(),
                 'delete_custom_context' => $this->deleteCustomContext(),
                 'get_full_config' => $this->getFullConfig(),
+                'get_widget_order' => $this->getWidgetOrder(),
+                'save_widget_order' => $this->saveWidgetOrder(),
+                'get_widget_labels' => $this->getWidgetLabels(),
                 default => $this->sendError('Invalid action'),
             };
         } catch (\Exception $e) {
@@ -195,6 +198,8 @@ class UserContextController
         $currentWidgets = $this->contextService->getContextWidgets($this->userId);
         $customContexts = $this->contextService->getUserCustomContexts($this->userId);
         $isLocked = $this->contextService->isUserContextLocked($this->userId);
+        $widgetOrder = $this->contextService->getWidgetOrder($this->userId, $activeContext);
+        $widgetLabels = $this->contextService->getWidgetLabels($activeContext);
 
         $this->sendSuccess([
             'active_context' => $activeContext,
@@ -203,7 +208,38 @@ class UserContextController
             'current_widgets' => $currentWidgets,
             'custom_contexts' => $customContexts,
             'is_locked' => $isLocked,
+            'widget_order' => $widgetOrder,
+            'widget_labels' => $widgetLabels,
         ]);
+    }
+
+    private function getWidgetOrder(): void
+    {
+        $context = $_POST['context'] ?? null;
+        $order = $this->contextService->getWidgetOrder($this->userId, $context);
+        $this->sendSuccess(['widget_order' => $order]);
+    }
+
+    private function saveWidgetOrder(): void
+    {
+        $context = $_POST['context'] ?? '';
+        $orderJson = $_POST['widget_order'] ?? '[]';
+        $order = json_decode((string) $orderJson, true);
+
+        if (empty($context) || !is_array($order)) {
+            $this->sendError('Invalid context or order data');
+            return;
+        }
+
+        $success = $this->contextService->saveWidgetOrder($context, $order, $this->userId);
+        $this->sendSuccess([], $success);
+    }
+
+    private function getWidgetLabels(): void
+    {
+        $context = $_POST['context'] ?? $this->contextService->getActiveContext($this->userId);
+        $labels = $this->contextService->getWidgetLabels($context);
+        $this->sendSuccess(['widget_labels' => $labels]);
     }
 
     private function sendSuccess(array $data = [], bool $success = true): void

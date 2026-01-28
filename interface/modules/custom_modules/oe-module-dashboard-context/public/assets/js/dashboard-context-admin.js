@@ -15,7 +15,9 @@ const ContextAdmin = {
         contexts: [],
         widgets: {},
         userTypes: {},
-        facilities: []
+        facilities: [],
+        widgetOrders: {},
+        widgetLabels: {}
     },
 
     init: function(options) {
@@ -72,6 +74,8 @@ const ContextAdmin = {
                     self.config.widgets = response.widgets;
                     self.config.userTypes = response.user_types;
                     self.config.facilities = response.facilities;
+                    self.config.widgetOrders = response.widget_orders || {};
+                    self.config.widgetLabels = response.widget_labels || {};
                     self.renderContexts();
                     self.populateFilters();
                 }
@@ -130,23 +134,91 @@ const ContextAdmin = {
             ? (typeof contextData.widget_config === 'string' ? JSON.parse(contextData.widget_config) : contextData.widget_config)
             : {};
 
-        for (const [widgetId, widgetLabel] of Object.entries(this.config.widgets)) {
+        // Get existing order and labels for this context
+        const contextKey = isEdit ? contextData.context_key : '';
+        const existingOrder = (contextKey && this.config.widgetOrders[contextKey]) ? this.config.widgetOrders[contextKey] : [];
+        const existingLabels = (contextKey && this.config.widgetLabels[contextKey]) ? this.config.widgetLabels[contextKey] : {};
+
+        // Build ordered widget list
+        const widgetEntries = Object.entries(this.config.widgets);
+        if (existingOrder.length > 0) {
+            widgetEntries.sort(function(a, b) {
+                const idxA = existingOrder.indexOf(a[0]);
+                const idxB = existingOrder.indexOf(b[0]);
+                const posA = idxA >= 0 ? idxA : 9999;
+                const posB = idxB >= 0 ? idxB : 9999;
+                return posA - posB;
+            });
+        }
+
+        for (const [widgetId, widgetLabel] of widgetEntries) {
             const isActive = widgetConfig[widgetId] !== false;
+            const customLabel = existingLabels[widgetId] || '';
             $grid.append(`
-                <div class="widget-item ${isActive ? 'active' : ''}">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input widget-toggle" id="widget-${widgetId}" data-widget="${widgetId}" ${isActive ? 'checked' : ''}>
-                        <label class="form-check-label" for="widget-${widgetId}">${this.escapeHtml(widgetLabel)}</label>
+                <div class="widget-item ${isActive ? 'active' : ''}" data-widget-id="${widgetId}" draggable="true">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-grip-vertical text-muted mr-2" style="cursor:grab;" title="Drag to reorder"></i>
+                        <div class="form-check mb-0 flex-grow-1">
+                            <input type="checkbox" class="form-check-input widget-toggle" id="widget-${widgetId}" data-widget="${widgetId}" ${isActive ? 'checked' : ''}>
+                            <label class="form-check-label" for="widget-${widgetId}">${this.escapeHtml(widgetLabel)}</label>
+                        </div>
+                        <input type="text" class="form-control form-control-sm widget-label-input ml-2" data-widget="${widgetId}" placeholder="Custom label" value="${this.escapeHtml(customLabel)}" style="max-width:150px;font-size:0.8rem;">
                     </div>
                 </div>
             `);
         }
 
+        // Widget toggle active class
         $('.widget-toggle').on('change', function() {
             $(this).closest('.widget-item').toggleClass('active', $(this).is(':checked'));
         });
 
+        // Drag-and-drop reordering
+        this.initDragReorder($grid);
+
         $('#contextModal').modal('show');
+    },
+
+    initDragReorder: function($container) {
+        let draggedEl = null;
+
+        $container.on('dragstart', '.widget-item', function(e) {
+            draggedEl = this;
+            $(this).css('opacity', '0.4');
+            e.originalEvent.dataTransfer.effectAllowed = 'move';
+        });
+
+        $container.on('dragend', '.widget-item', function() {
+            $(this).css('opacity', '');
+            $container.find('.widget-item').removeClass('drag-over');
+        });
+
+        $container.on('dragover', '.widget-item', function(e) {
+            e.preventDefault();
+            e.originalEvent.dataTransfer.dropEffect = 'move';
+            $(this).addClass('drag-over');
+        });
+
+        $container.on('dragleave', '.widget-item', function() {
+            $(this).removeClass('drag-over');
+        });
+
+        $container.on('drop', '.widget-item', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+            if (draggedEl !== this) {
+                const $dragged = $(draggedEl);
+                const $target = $(this);
+                // Insert before or after based on position
+                const targetRect = this.getBoundingClientRect();
+                const midY = targetRect.top + targetRect.height / 2;
+                if (e.originalEvent.clientY < midY) {
+                    $dragged.insertBefore($target);
+                } else {
+                    $dragged.insertAfter($target);
+                }
+            }
+        });
     },
 
     saveContext: function() {
@@ -157,6 +229,21 @@ const ContextAdmin = {
         const widgetConfig = {};
         $('.widget-toggle').each(function() {
             widgetConfig[$(this).data('widget')] = $(this).is(':checked');
+        });
+
+        // Collect widget order from DOM
+        const widgetOrder = [];
+        $('#widgetConfigGrid .widget-item').each(function() {
+            widgetOrder.push($(this).data('widget-id'));
+        });
+
+        // Collect custom labels
+        const widgetLabels = {};
+        $('.widget-label-input').each(function() {
+            const val = $(this).val().trim();
+            if (val) {
+                widgetLabels[$(this).data('widget')] = val;
+            }
         });
 
         const data = {
@@ -179,6 +266,17 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
+                    // Determine context key for saving order/labels
+                    const ctxKey = isEdit ? ($('#contextKey').val() || '') : (response.context_key || $('#contextKey').val() || '');
+                    // Save widget order
+                    if (ctxKey && widgetOrder.length > 0) {
+                        self.saveWidgetOrder(ctxKey, widgetOrder);
+                    }
+                    // Save widget labels
+                    if (ctxKey) {
+                        self.saveWidgetLabels(ctxKey, widgetLabels);
+                    }
+
                     $('#contextModal').modal('hide');
                     self.loadAdminConfig();
                     self.showAlert(isEdit ? 'Context updated' : 'Context created', 'success');
@@ -187,6 +285,63 @@ const ContextAdmin = {
                 }
             }
         });
+    },
+
+    saveWidgetOrder: function(contextKey, order) {
+        top.restoreSession();
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'save_widget_order',
+                context_key: contextKey,
+                widget_order: JSON.stringify(order),
+                csrf_token_form: this.config.csrfToken
+            },
+            dataType: 'json'
+        });
+    },
+
+    saveWidgetLabels: function(contextKey, labels) {
+        const self = this;
+        const existingLabels = this.config.widgetLabels[contextKey] || {};
+
+        // Save new/updated labels
+        for (const [widgetId, label] of Object.entries(labels)) {
+            if (existingLabels[widgetId] !== label) {
+                top.restoreSession();
+                $.ajax({
+                    url: self.config.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'save_widget_label',
+                        context_key: contextKey,
+                        widget_id: widgetId,
+                        label: label,
+                        csrf_token_form: self.config.csrfToken
+                    },
+                    dataType: 'json'
+                });
+            }
+        }
+
+        // Delete removed labels
+        for (const widgetId of Object.keys(existingLabels)) {
+            if (!labels[widgetId]) {
+                top.restoreSession();
+                $.ajax({
+                    url: self.config.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'delete_widget_label',
+                        context_key: contextKey,
+                        widget_id: widgetId,
+                        csrf_token_form: self.config.csrfToken
+                    },
+                    dataType: 'json'
+                });
+            }
+        }
     },
 
     editContext: function(contextId) {
