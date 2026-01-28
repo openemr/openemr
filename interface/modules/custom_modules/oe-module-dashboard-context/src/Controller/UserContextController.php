@@ -101,7 +101,14 @@ class UserContextController
     {
         $context = $_POST['context'] ?? null;
         $widgets = $this->contextService->getContextWidgets($this->userId, $context);
-        $this->sendSuccess(['widgets' => $widgets]);
+        $effectiveContext = $context ?? $this->contextService->getActiveContext($this->userId);
+        $widgetOrder = $this->contextService->getWidgetOrder($this->userId, $effectiveContext);
+        $widgetLabels = $this->contextService->getWidgetLabels($effectiveContext);
+        $this->sendSuccess([
+            'widgets' => $widgets,
+            'widget_order' => $widgetOrder,
+            'widget_labels' => $widgetLabels,
+        ]);
     }
 
     private function saveContextWidgets(): void

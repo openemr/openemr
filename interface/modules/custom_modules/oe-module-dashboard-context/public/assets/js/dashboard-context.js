@@ -101,13 +101,14 @@
                 url: this.config.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'get_full_config',
+                    action: 'get_context_widgets',
+                    context: context,
                     csrf_token_form: this.config.csrfToken
                 },
                 dataType: 'json',
                 success: function (response) {
                     if (response.success) {
-                        self.config.widgets = response.current_widgets || {};
+                        self.config.widgets = response.widgets;
                         self.config.widgetOrder = response.widget_order || [];
                         self.config.widgetLabels = response.widget_labels || {};
                         self.applyWidgetVisibility();

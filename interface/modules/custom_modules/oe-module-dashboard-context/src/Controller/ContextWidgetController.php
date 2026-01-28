@@ -294,7 +294,8 @@ class ContextWidgetController
                         url: this.config.ajaxUrl,
                         type: 'POST',
                         data: {
-                            action: 'get_full_config',
+                            action: 'get_context_widgets',
+                            context: context,
                             csrf_token_form: this.config.csrfToken
                         },
                         dataType: 'json',
@@ -302,10 +303,9 @@ class ContextWidgetController
                             if (response.success) {
                                 // Merge received widgets with manageableWidgets
                                 const fullWidgets = {};
-                                const widgets = response.current_widgets || {};
                                 for (const widgetId in self.config.manageableWidgets) {
                                     if (self.config.manageableWidgets.hasOwnProperty(widgetId)) {
-                                        fullWidgets[widgetId] = widgets[widgetId] === true;
+                                        fullWidgets[widgetId] = response.widgets[widgetId] === true;
                                     }
                                 }
                                 self.config.widgets = fullWidgets;
@@ -1081,18 +1081,19 @@ class ContextWidgetController
                             url: this.config.ajaxUrl,
                             type: 'POST',
                             data: {
-                                action: 'get_full_config',
+                                action: 'get_context_widgets',
+                                context: context,
                                 csrf_token_form: this.config.csrfToken
                             },
                             dataType: 'json',
                             success: function (response) {
                                 if (response.success) {
                                     // Merge received widgets with manageableWidgets to ensure all are covered
+                                    // Any widget not in response.widgets defaults to false (hidden)
                                     const fullWidgets = {};
-                                    const widgets = response.current_widgets || {};
                                     for (const widgetId in self.config.manageableWidgets) {
                                         if (self.config.manageableWidgets.hasOwnProperty(widgetId)) {
-                                            fullWidgets[widgetId] = widgets[widgetId] === true;
+                                            fullWidgets[widgetId] = response.widgets[widgetId] === true;
                                         }
                                     }
                                     self.config.widgets = fullWidgets;
