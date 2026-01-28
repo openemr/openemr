@@ -949,7 +949,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
                 // Update running totals before rendering the table row
                 $sum_charges += (float)$value['charges'];
-                $sum_ptpaid += (float)$dpayment_pat;
+                $sum_ptpaid += -1 * (float)$dpayment_pat;
                 $sum_inspaid += (float)($dpayment + $dadjustment);
                 $sum_duept += (float)$duept;
                 $sum_patcopay += (float)$patcopay;
