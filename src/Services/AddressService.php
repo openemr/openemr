@@ -139,14 +139,15 @@ class AddressService extends BaseService
 
     /**
      * Get an address by its foreign ID.
-     *
-     * @return array<string, mixed>|null
      */
-    public function getOneByForeignId(int $foreignId): ?array
+    public function getOneByForeignId(int $foreignId): ?AddressData
     {
         $sql = "SELECT * FROM addresses WHERE foreign_id=? LIMIT 1";
         /** @var array<string, mixed>|false $result */
         $result = QueryUtils::querySingleRow($sql, [$foreignId]);
-        return $result ?: null;
+        if ($result === false) {
+            return null;
+        }
+        return AddressData::fromArray($result);
     }
 }
