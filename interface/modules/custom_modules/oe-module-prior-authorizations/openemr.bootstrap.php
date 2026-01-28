@@ -12,14 +12,22 @@
  */
 
 
+use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
+use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\ModulesClassLoader;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+/**
+ * @var ModulesClassLoader $classLoader
+ */
+$classLoader->registerNamespaceIfNotExists('Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 function oe_module_priorauth_add_menu_item(MenuEvent $event)
 {
