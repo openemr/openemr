@@ -12,10 +12,13 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-$pid = $_SESSION['pid'] ?? null;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$pid = $session->get('pid');
 function isValid($date, $format = 'Y-m-d'): bool
 {
     $dt = DateTime::createFromFormat($format, $date);
@@ -23,7 +26,7 @@ function isValid($date, $format = 'Y-m-d'): bool
 }
 
 if (!empty($_POST['token'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["token"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["token"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -97,7 +100,7 @@ const TABLE_TD = "</td><td>";
                 <h3><?php echo xlt('Enter new authorization'); ?></h3>
             </div>
             <form id="theform" method="post" action="index.php" onsubmit="top.restoreSession()">
-                <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+                <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
                 <input type="hidden" id="id" name="id" value="">
                 <div class="form-row">
                     <div class="col">
@@ -181,7 +184,7 @@ const TABLE_TD = "</td><td>";
         }
 
         function removeEntry(id) {
-            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             ;
             dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
                 buttons: [
