@@ -50,14 +50,15 @@ class ForbiddenGlobalKeywordRule implements Rule
 
         $varList = implode(', ', $varNames);
         $message = sprintf(
-            'Use of the "global" keyword is forbidden (%s). Use dependency injection or OEGlobalsBag::getInstance() instead.',
+            'Use of the "global" keyword is forbidden (%s). Use dependency injection instead.',
             $varList
         );
 
         return [
             RuleErrorBuilder::message($message)
                 ->identifier('openemr.forbiddenGlobalKeyword')
-                ->tip('See src/Core/OEGlobalsBag.php for accessing global configuration values.')
+                ->tip('If you need to modify a variable out of function scope, it can be passed by reference.')
+                ->addTip('See https://phpstan.org/blog/enhancements-in-handling-parameters-passed-by-reference for tips on further refining type safety when doing so.')
                 ->build()
         ];
     }
