@@ -44,6 +44,35 @@ class PatientService extends BaseService
     private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
+     * Columns allowed for sorting in patient search API.
+     * This whitelist prevents SQL injection via the _sort parameter.
+     */
+    private const ALLOWED_SORT_COLUMNS = [
+        'id',
+        'pid',
+        'pubpid',
+        'title',
+        'fname',
+        'lname',
+        'mname',
+        'DOB',
+        'sex',
+        'street',
+        'city',
+        'state',
+        'postal_code',
+        'country_code',
+        'phone_home',
+        'phone_cell',
+        'phone_biz',
+        'email',
+        'status',
+        'date',
+        'regdate',
+        'last_updated',
+    ];
+
+    /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
      * can return an empty response.
@@ -442,7 +471,10 @@ class PatientService extends BaseService
 
         if (!empty($config)) {
             $pagination = $config->getPagination();
-            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig(
+                $config,
+                self::ALLOWED_SORT_COLUMNS
+            );
             $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
         } else {
             $orderBy = "";
