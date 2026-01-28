@@ -1281,11 +1281,10 @@ function make_insurance() {
                                 // If no billing was entered yet for today, then generate a line for
                                 // entering today's co-pay.
                                 //
-                                if (!$gottoday) {
-?>
+                                if (!$gottoday) { ?>
 <tr id="tr_1">
     <td><?=date("Y-m-d")?></td>
-    <td class="text-center" id="<?=date("Y-m-d")?>"><?=text($enc)?></td>
+    <td class="text-center" id="<?=date("Y-m-d")?>"></td>
     <td class="text-center" id="td_charges_1"></td>
     <td class="text-center" id="td_inspaid_1"></td>
     <td class="text-center" id="td_ptpaid_1"></td>
@@ -1300,7 +1299,7 @@ function make_insurance() {
             data-code=""
             data-code-type=""
             name="form_upay[1]"
-            id="paying_<?=$idx?>"
+            id="paying_1"
             value=""
             onchange="coloring();calctotal()"
             autocomplete="off"
