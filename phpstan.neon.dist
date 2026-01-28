@@ -2,10 +2,14 @@ includes:
   - .phpstan/phpstan.github.neon
 
 parameters:
+  # Pin to minimum supported PHP version (from composer.json) for consistent
+  # results and to catch issues affecting all supported versions.
+  # Must match php-version in .github/workflows/phpstan.yml
+  phpVersion: 80200
   bootstrapFiles:
   - .phpstan/phpstan_panther_alias.php
   - .phpstan/phpstan_include_paths.php
-  level: 1
+  level: 10
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
   paths:

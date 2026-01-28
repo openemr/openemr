@@ -13,17 +13,29 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+# Temporarily disabled for experimentation
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+#   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   phpstan:
-    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false  # Let all jobs complete for comparison
       matrix:
-        # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
+        # Use minimum supported PHP version (from composer.json) to catch
+        # issues affecting all supported versions.
+        # Must match phpVersion in phpstan.neon.dist for consistent results.
+        php-version: ['8.2']
+        # Test architectures to investigate baseline discrepancies
+        # - ubuntu-24.04: x64 Linux
+        # - ubuntu-24.04-arm: ARM Linux (Ampere Altra server chips)
+        # - macos-14: Apple Silicon M1 (matches local Mac dev environment)
+        runner: [ubuntu-24.04, ubuntu-24.04-arm, macos-14]
+        # Test with and without parallelism to check if it affects results
+        parallel: [true, false]
+    name: PHP ${{ matrix.php-version }} (${{ matrix.runner == 'macos-14' && 'macOS M1' || (matrix.runner == 'ubuntu-24.04-arm' && 'Linux ARM' || 'Linux x64') }}, ${{ matrix.parallel && 'parallel' || 'single-threaded' }})
+    runs-on: ${{ matrix.runner }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
@@ -32,6 +44,26 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
         coverage: none
+    - name: Dump PHP Configuration
+      run: |
+        mkdir -p .phpstan
+        php -i > .phpstan/php-config.txt
+        php -m > .phpstan/php-modules.txt
+        if command -v ldd &> /dev/null; then
+          ldd --version 2>&1 | head -1 > .phpstan/glibc-version.txt
+        else
+          echo "N/A (macOS)" > .phpstan/glibc-version.txt
+        fi
+        uname -a > .phpstan/arch.txt
+    - name: Upload PHP Configuration
+      uses: actions/upload-artifact@v6
+      with:
+        name: php-config-${{ matrix.php-version }}-${{ matrix.runner }}-parallel-${{ matrix.parallel }}
+        path: |
+          .phpstan/php-config.txt
+          .phpstan/php-modules.txt
+          .phpstan/glibc-version.txt
+          .phpstan/arch.txt
     - name: Get composer cache directory
       id: composer-cache
       run: |
@@ -43,10 +75,10 @@ jobs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ matrix.runner }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
+          ${{ matrix.runner }}-composer-${{ matrix.php-version }}-
+          ${{ matrix.runner }}-composer-
     - name: Composer Install
       run: |
         composer install --prefer-dist --no-progress
@@ -57,14 +89,34 @@ jobs:
       uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: "phpstan-result-cache-${{ github.run_id }}"
+        key: phpstan-result-cache-${{ matrix.runner }}-parallel-${{ matrix.parallel }}-${{ github.run_id }}
         restore-keys: |
-          phpstan-result-cache-
+          phpstan-result-cache-${{ matrix.runner }}-parallel-${{ matrix.parallel }}-
+    - name: Configure Single-Threaded Mode
+      if: matrix.parallel == false
+      run: |
+        cat > phpstan-single-thread.neon << 'EOF'
+        includes:
+            - phpstan.neon.dist
+        parameters:
+            parallel:
+                maximumNumberOfProcesses: 1
+        EOF
     - name: PHPStan Diagnose
-      run: vendor/bin/phpstan --memory-limit=8G diagnose
+      run: |
+        if [ "${{ matrix.parallel }}" = "false" ]; then
+          vendor/bin/phpstan --memory-limit=8G diagnose -c phpstan-single-thread.neon
+        else
+          vendor/bin/phpstan --memory-limit=8G diagnose
+        fi
     - name: PHPStan Analyze
       id: phpstan-analyze
-      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+      run: |
+        if [ "${{ matrix.parallel }}" = "false" ]; then
+          vendor/bin/phpstan --memory-limit=8G analyze --error-format=github -c phpstan-single-thread.neon
+        else
+          vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+        fi
       continue-on-error: true
     # Generate baseline only if analyze step failed
     - name: PHPStan Baseline
@@ -77,7 +129,7 @@ jobs:
       if: steps.phpstan-analyze.outcome == 'failure'
       uses: actions/upload-artifact@v6
       with:
-        name: phpstan-baseline-php${{ matrix.php-version }}
+        name: phpstan-baseline-php${{ matrix.php-version }}-${{ matrix.runner }}-parallel-${{ matrix.parallel }}
         path: .phpstan/baseline/*.php
       continue-on-error: true
     - name: Check PHPStan Results

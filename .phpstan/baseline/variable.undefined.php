@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 8334 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$web_root might not be defined\\.$#',
@@ -483,32 +485,52 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$options_acl_sections might not be defined\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$options_aco_sections might not be defined\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$options_aro_sections might not be defined\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$options_axo_sections might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$options_selected_aco might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$options_selected_aro might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$options_selected_axo might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$selected_aco_array might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$selected_aro_array might not be defined\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$selected_axo_array might not be defined\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
@@ -757,7 +779,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batchPhoneList.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$check_date might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$ssql might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -998,6 +1030,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$CountIndexBelow might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$QueryPart might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
@@ -11803,7 +11840,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$_GLOBALS might not be defined\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
@@ -16972,7 +17009,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$check_date might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$ssql might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
