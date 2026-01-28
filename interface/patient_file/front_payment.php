@@ -78,31 +78,6 @@ $recorder = new Recorder();
     <?php } ?>
 <?php
 
-// Display a row of data for an encounter.
-//
-$var_index = 0;
-function echoPaymentRow(int $var_index, $encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
-{
-    $balance = $charges - $ptpaid - $inspaid;
-    $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td class='text-right'>";
-    echo "    <input type='text' class='form-control amount_field' "
-        . 'data-encounter-id="' . attr($encounterId) . '"'
-        . 'data-code="' . attr($code) . '"'
-        . 'data-code-type="' . attr($codeType) . '"'
-        . "name='" . attr($iname) . "'"
-        . "id='paying_" . attr($var_index) . "' "
-        . "value=''"
-        . "onchange='coloring();calctotal()'"
-        . "autocomplete='off' "
-        . "onkeyup='calctotal()'"
-        . "/>";
-    echo "</td>\n";
-    echo " </tr>\n";
-}
-
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
 function calcTaxes($row, $amount)
@@ -1334,23 +1309,12 @@ function make_insurance() {
     </td>
 </tr>
 <?php
-                                    // echoPaymentRow(
-                                    //     var_index: $var_index,
-                                    //     encounterId: '0',
-                                    //     iname: "form_upay[0]",
-                                    //     date: date("Y-m-d"),
-                                    //     charges: 0,
-                                    //     ptpaid: 0,
-                                    //     inspaid: 0,
-                                    //     duept: 0,
-                                    // );//No encounter yet defined.
                                 }
 
                                 $gottoday = false;
                                 $idx = $gottoday ? 0 : 1; // Just to make diffs w/ old code easier, this should not matter
                                 foreach ($encs as $value) {
                                     $idx++;
-                                    $var_index++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
                                     if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
