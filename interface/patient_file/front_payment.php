@@ -1298,7 +1298,7 @@ function make_insurance() {
             data-encounter-id=""
             data-code=""
             data-code-type=""
-            name="form_upay[1]"
+            name="form_upay[0]"
             id="paying_1"
             value=""
             onchange="coloring();calctotal()"
