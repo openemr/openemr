@@ -6,10 +6,11 @@
  * This rule prevents use of the `global` keyword in favor of dependency injection
  * or OEGlobalsBag::getInstance() for accessing global configuration.
  *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @copyright Copyright (c) 2025 OpenEMR
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link      https://www.open-emr.org
+ * @package   OpenEMR
  */
 
 namespace OpenEMR\PHPStan\Rules;
