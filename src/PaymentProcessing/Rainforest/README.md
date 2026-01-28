@@ -82,5 +82,19 @@ Other classes in this namespace are data structures for API interaction.
 
 `Webhooks\...`: Classes relating to webhook validation and processing.
 
+- `Dispatcher`: Matches inbound webhooks to the processor classes that are able to handle them, based on the event type
+- `ProcessorInterface`: Defines an interface for classes that process webhooks
+- `Verifier`: Looks at raw HTTP requests and authenticates their signatures
+- `Webhook`: A data structure representing a parsed, verified webhook body
+
 > [!NOTE]
 > Rainforest uses Svix for their webhooks; as such, the validation logic could potentially be made more general and compatible with other services.
+
+Other classses in the directory are generally implementations of `ProcessorInterface`.
+
+### Related code
+
+- `interface/webhooks/rainforest/webhook.php`: Endpoint to receive and handle the webhooks
+
+There are also touch points in `portal/patient_portal.php` and `interface/patient_file/front_payment.php`, which tie this in to the main payments UI.
+The `.rainforest.php` files next to them are appreciably the same, but cannot be unified (at this time) due to subtle differences in how auth and session handling works.
