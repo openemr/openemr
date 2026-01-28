@@ -329,7 +329,8 @@ class PatientController extends AppBasePortalController
             $patient = $this->Phreezer->Get('Patient', $pk);
 
             // Ensure user can only update their own profile
-            $sessionPid = $_SESSION['pid'] ?? null;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sessionPid = $session->get('pid');
             if (!$sessionPid || $patient->Pid != $sessionPid) {
                 throw new Exception('Unauthorized: You can only update your own profile');
             }
