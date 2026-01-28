@@ -768,13 +768,13 @@ var page = {
                     $('#templatecontent').html(templateHtml);
                     if (templateHtml.includes('Error') && (autoRender + auditRender) > 0) {
                         autoRender = auditRender = 0;
-                        asyncAlertMsg("Onetime document is no longer available!\n" + templateHtml, 5000, 'warning')
+                        asyncAlertMsg(xl("Onetime document is no longer available!") + "\n" + templateHtml, 5000, 'warning')
                         .then(r => {
                             $("#Help").click();
                         });
                         return false;
                     } else if (templateHtml.includes('Error')) {
-                        asyncAlertMsg("Sorry! " + templateHtml + "\nTry to uncheck Activity table Show All.", 5000, 'danger')
+                        asyncAlertMsg(xl("Sorry!") + " " + templateHtml + "\n" + xl("Try to uncheck Activity table Show All."), 5000, 'danger')
                         .then(r => {
                             $("#Help").click();
                         });

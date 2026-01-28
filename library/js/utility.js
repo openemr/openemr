@@ -480,6 +480,24 @@ if (typeof asyncAlertMsg !== "function") {
     }
 }
 
+/*
+* Wrapper for asyncAlertMsg - use with await to block execution
+* when called from within an async function or async IIFE.
+*
+* Examples:
+*   // Inside async function:
+*   await syncAlertMsg('Wait for this!', 5000);
+*
+*   // As IIFE:
+*   (async () => {
+*       await syncAlertMsg('Wait for this!', 5000);
+*       console.log('Now continues...');
+*   })();
+*/
+async function syncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
+    return asyncAlertMsg(message, timer, type, size);
+}
+
 /* Handy function to set values in globals user_settings table */
 async function persistUserOption(option, value) {
     return $.ajax({
