@@ -59,29 +59,24 @@ readonly class AddressRecord implements \Stringable
      */
     public function toString(): string
     {
-        $parts = [];
+        $lines = [];
 
         if ($this->street !== '') {
-            $parts[] = $this->street;
-            $parts[] = "\n";
-        }
-        if ($this->city !== '') {
-            $parts[] = $this->city;
-            $parts[] = ", ";
-        }
-        if ($this->state !== '') {
-            $parts[] = $this->state;
-            $parts[] = " ";
-        }
-        if ($this->postalCode !== '') {
-            $parts[] = $this->postalCode;
-            $parts[] = " ";
-        }
-        if ($this->countryCode !== '') {
-            $parts[] = $this->countryCode;
+            $lines[] = $this->street;
         }
 
-        return implode('', $parts);
+        $addressLine = implode(' ', array_filter([
+            $this->city !== '' ? $this->city . ',' : '',
+            $this->state,
+            $this->postalCode,
+            $this->countryCode,
+        ]));
+
+        if ($addressLine !== '') {
+            $lines[] = $addressLine;
+        }
+
+        return implode("\n", $lines);
     }
 
     public function __toString(): string
