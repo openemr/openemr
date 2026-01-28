@@ -14,7 +14,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
 
     const patientId = document.getElementById('hidden_patient_code').value
     const amountField = document.getElementById('form_paytotal')
-    // This assumes USD for the forseeable future.
+    // This assumes USD for the foreseeable future.
     const dollars = amountField.value
     const currency = 'USD'
     let data = {

@@ -11,7 +11,7 @@ Rainforest is not used as part of insurance claims.
 
 ## Installation
 
-Rainforest integreation, like other payment providers, is currently in OpenEMR core.
+Rainforest integration, like other payment providers, is currently in OpenEMR core.
 This is a limitation of the current payments systems - converting it to a module (along with other providers) is a future goal that will be a significant undertaking.
 
 ## Configuration
@@ -90,7 +90,7 @@ Other classes in this namespace are data structures for API interaction.
 > [!NOTE]
 > Rainforest uses Svix for their webhooks; as such, the validation logic could potentially be made more general and compatible with other services.
 
-Other classses in the directory are generally implementations of `ProcessorInterface`.
+Other classes in the directory are generally implementations of `ProcessorInterface`.
 
 ### Related code
 
