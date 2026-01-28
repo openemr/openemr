@@ -18,7 +18,7 @@ namespace OpenEMR\Services\Address;
  * This DTO represents address data as stored in patient/user records, which
  * uses different field names than the addresses table (street vs line1, etc.).
  */
-readonly class AddressRecord
+readonly class AddressRecord implements \Stringable
 {
     public function __construct(
         public string $street = '',
