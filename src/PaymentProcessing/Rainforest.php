@@ -108,7 +108,7 @@ readonly class Rainforest
      * RainforestPay APIs. This is not part of the constructor so that a mock
      * client can be passed in during testing.
      */
-    public static function makeClient(bool $liveMode): ClientInterface
+    private static function makeClient(bool $liveMode): ClientInterface
     {
         return new Client([
             'base_uri' => $liveMode ? self::PRODUCTION_HOST : self::SANDBOX_HOST,
