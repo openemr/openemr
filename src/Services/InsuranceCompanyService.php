@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\{
     AddressService,
     PhoneNumberService,
@@ -382,7 +383,7 @@ class InsuranceCompanyService extends BaseService
         );
 
         if (($data["city"] ?? '') !== '' && ($data["state"] ?? '') !== '') {
-            $this->addressService->insert($data, $freshId);
+            $this->addressService->insert(AddressData::fromArray($data), $freshId);
         }
 
         if (($data["phone"] ?? '') !== '') {
@@ -424,7 +425,7 @@ class InsuranceCompanyService extends BaseService
             return false;
         }
 
-        $addressesResults = $this->addressService->update($data, $iid);
+        $addressesResults = $this->addressService->update(AddressData::fromArray($data), $iid);
 
         if (!$addressesResults) {
             return false;
