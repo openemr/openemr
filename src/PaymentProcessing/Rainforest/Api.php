@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\PaymentProcessing;
+namespace OpenEMR\PaymentProcessing\Rainforest;
 
 use GuzzleHttp\{Client, ClientInterface};
 use Money\Money;
@@ -20,7 +20,10 @@ use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
 use SensitiveParameter;
 
-readonly class Rainforest
+/**
+ * Wrapper to interact with the Rainforest API
+ */
+readonly class Api
 {
     private const SANDBOX_HOST = 'https://api.sandbox.rainforestpay.com';
     private const PRODUCTION_HOST = 'https://api.rainforestpay.com';
@@ -40,8 +43,9 @@ readonly class Rainforest
      * @link https://docs.rainforestpay.com/docs/process-payins-via-component
      *
      * TODO: tie this to a specific payment rather than yolo generating a uuid
+     * (this isn't a problem in practice with how the components work)
      *
-     * @param Rainforest\EncounterData[] $encounters
+     * @param EncounterData[] $encounters
      *
      * @return array{
      *   payin_config_id: string,
@@ -74,7 +78,7 @@ readonly class Rainforest
             'idempotency_key' => Uuid::uuid4()->toString(),
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
-            'metadata' => new Rainforest\Metadata(
+            'metadata' => new Metadata(
                 patientId: $patientId,
                 encounters: $encounters,
             ),
@@ -121,9 +125,9 @@ readonly class Rainforest
     }
 
     /**
-     * Non-preferred but easy-to-use path
+     * Non-preferred but easy-to-use path.
      */
-    public static function makeFromGlobals(OEGlobalsBag $bag): Rainforest
+    public static function makeFromGlobals(OEGlobalsBag $bag): Api
     {
         $crypto = new CryptoGen();
         $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
@@ -133,7 +137,7 @@ readonly class Rainforest
         $prod = $bag->getBoolean('gateway_mode_production');
 
         $client = self::makeClient($prod);
-        return new Rainforest(
+        return new Api(
             client: $client,
             apiKey: $apiKey,
             merchantId: $mid,

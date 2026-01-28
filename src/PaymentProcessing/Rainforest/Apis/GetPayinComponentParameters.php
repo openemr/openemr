@@ -89,7 +89,7 @@ class GetPayinComponentParameters
             amount: $parser->parse($row['value'], $usd),
         ), $postBody['encounters']);
 
-        $rf = Rainforest::makeFromGlobals($bag);
+        $rf = Rainforest\Api::makeFromGlobals($bag);
         return $rf->getPaymentComponentParameters(
             amount: $money,
             patientId: $postBody['patientId'],
