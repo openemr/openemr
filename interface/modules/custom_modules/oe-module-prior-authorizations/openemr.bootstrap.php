@@ -7,6 +7,7 @@
  *
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright AI Generated content is in the public domain, JetBrains Junie AI is used.
  * All Rights Reserved
  *
  */
@@ -24,10 +25,12 @@ use OpenEMR\Core\ModulesClassLoader;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+// AI Generated: registering namespace
 /**
  * @var ModulesClassLoader $classLoader
  */
 $classLoader->registerNamespaceIfNotExists('Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
+// End of AI Generated
 
 function oe_module_priorauth_add_menu_item(MenuEvent $event)
 {
