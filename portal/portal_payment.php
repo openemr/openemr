@@ -887,7 +887,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             ksort($encs, SORT_NUMERIC);
 
-            // Don't use $encs key as index, it's an identifer not a sequential
+            // Don't use $encs key as index, it's an identifier not a sequential
             // value
             $idx = 0;
             $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
