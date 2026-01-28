@@ -12,7 +12,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */

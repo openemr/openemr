@@ -16,40 +16,110 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\HttpSessionFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionWrapperFactory
 {
     use SingletonTrait;
 
-    private ?SessionWrapperInterface $sessionWrapper = null;
+    private ?SessionInterface $portalSession = null;
+    private ?SessionInterface $coreSession = null;
 
-    public function getWrapper(array $initData = []): SessionWrapperInterface
+    private ?SessionInterface $activeSession = null;
+
+    public function isSessionActive(): bool
     {
-        if (!$this->sessionWrapper) {
-            $this->sessionWrapper = $this->findSessionWrapper($initData);
-        }
-
-        return $this->sessionWrapper;
+        return $this->portalSession !== null || $this->coreSession !== null;
     }
 
-    private function findSessionWrapper(array $initData = []): SessionWrapperInterface
+    public function getActiveSession(): SessionInterface
     {
+        // TODO this is just for testing, see how to approach it differently
+//        if ($this->isSessionActive()) {
+//            return $this->activeSession;
+//        }
+//        TODO Let's hope that we do not need this
         $app = SessionUtil::getAppCookie();
-        if (SessionUtil::isPredisSession()) {
-            SessionUtil::portalPredisSessionStart();
-            $session = new PHPSessionWrapper();
-        } else if ($app !== SessionUtil::PORTAL_SESSION_ID) {
-            $session = new PHPSessionWrapper();
-        } else {
-            $session = new SymfonySessionWrapper(SessionUtil::portalSessionStart());
+        if ($app === SessionUtil::PORTAL_SESSION_ID) {
+            return $this->getPortalSession();
         }
-
-        foreach ($initData as $name => $value) {
-            $session->set($name, $value);
-        }
-
-        return $session;
+        return $this->getCoreSession();
     }
 
+    public function getPortalSession(bool $reset = false): SessionInterface
+    {
+        if (!$this->portalSession || $reset) {
+            $this->portalSession = $this->createPortalSession();
+        }
+
+        return $this->portalSession;
+    }
+
+    public function destroyPortalSession(): void
+    {
+        if ($this->portalSession !== null) {
+            $this->portalSession->invalidate();
+            if (session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::PORTAL_SESSION_ID) {
+                session_write_close();
+            }
+            $this->portalSession = null;
+        }
+    }
+
+    public function destroyCoreSession(): void
+    {
+        if ($this->coreSession !== null) {
+            $this->coreSession->invalidate();
+            if (session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::CORE_SESSION_ID) {
+                session_write_close();
+            }
+            $this->coreSession = null;
+        }
+    }
+
+    public function getCoreSession(bool $reset = false): SessionInterface
+    {
+        if (!$this->coreSession || $reset) {
+            $this->coreSession = $this->createCoreSession();
+        }
+
+        return $this->coreSession;
+    }
+
+    private function createPortalSession(): SessionInterface
+    {
+        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
+        $request = HttpRestRequest::createFromGlobals();
+        if (!$request->hasSession()) {
+            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $sessionFactory->setUseExistingSessionBridge(true);
+            }
+            $this->activeSession = $sessionFactory->createSession();
+        } else {
+            $this->activeSession = $request->getSession();
+        }
+        return $this->activeSession;
+    }
+
+    private function createCoreSession(): SessionInterface
+    {
+        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
+        $request = HttpRestRequest::createFromGlobals();
+        if (!$request->hasSession()) {
+            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $sessionFactory->setUseExistingSessionBridge(true);
+            }
+            $this->activeSession = $sessionFactory->createSession();
+        } else {
+            $this->activeSession = $request->getSession();
+        }
+
+        return $this->activeSession;
+    }
 }

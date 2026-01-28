@@ -18,20 +18,21 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-$is_portal = ($session->isSymfonySession() && $session->has('patient_portal_onsite_two') && $session->get('authUser') === 'portal-user') ? 1 : $_GET['isPortal'];
+$is_portal = ($session->has('patient_portal_onsite_two') && $session->get('authUser') === 'portal-user') ? 1 : $_GET['isPortal'];
 
 if (empty($is_portal)) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
 } else {
-    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         $pid = $session->get('pid');
     } else {
         //landing page definition -- where to go if something goes wrong
         $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id', null));
         //
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit;
     }

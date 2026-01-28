@@ -57,7 +57,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             'assets_dir' => $this->globals->get('assets_static_relative'),
             'srcdir' => $this->globals->get('srcdir'),
@@ -78,7 +78,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getFunctions(): array
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             new TwigFunction(
                 'setupHeader',
@@ -181,7 +181,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject, $session->getSymfonySession())));
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject, $session)));
                 }
             ),
             new TwigFunction(
