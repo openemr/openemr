@@ -420,7 +420,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
 
     if (!$resetPass) {
-        $newHash = (new AuthHash('auth'))->passwordHash($clear_pass);
+        $newHash = (new AuthHash())->passwordHash($clear_pass);
         if (empty($newHash)) {
             // Serious issue if this is case, so exit.
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical hashing error for email " . $newpd['email'] . " and pid: " . $pid);
