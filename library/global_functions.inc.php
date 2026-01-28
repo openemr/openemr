@@ -7,6 +7,9 @@
  * files in the codebase. They have been consolidated here to reduce code
  * duplication and ensure consistent behavior.
  *
+ * No new code should be authored into this file; use it only for consolidating
+ * and refactoring existing functions.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -272,6 +275,15 @@ function hl7Date($s)
     return preg_replace('/[^\d]/', '', (string) $s);
 }
 
+/**
+ * @param string
+ * @return string
+ */
+function hl7Priority($s)
+{
+    return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
+}
+
 // ============================================================================
 // Cron/Notification Functions
 // ============================================================================
@@ -374,4 +386,233 @@ function zip_content($source, $destination, $content = '', $create = true)
     }
 
     return $zip->close();
+}
+
+// ============================================================================
+// Simple String Utility Functions
+// ============================================================================
+
+
+/**
+ * Properly capitalize a name handling hyphens and apostrophes.
+ *
+ * @param string $string The name to capitalize
+ * @return string The properly capitalized name
+ */
+function ucname($string): string
+{
+    $string = ucwords(strtolower((string) $string));
+    foreach (['-', '\''] as $delimiter) {
+        if (str_contains($string, $delimiter)) {
+            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
+        }
+    }
+    return $string;
+}
+
+/**
+ * Given an issue type as a string, compute its index.
+ *
+ * @param string $tstr The issue type string
+ * @return int The index of the issue type
+ * @global array $ISSUE_TYPES The array of issue types
+ */
+function issueTypeIndex($tstr)
+{
+    global $ISSUE_TYPES;
+    $i = 0;
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $tstr) {
+            break;
+        }
+        ++$i;
+    }
+    return $i;
+}
+
+// ============================================================================
+// HL7 Order Generation Helper Functions
+// ============================================================================
+
+/**
+ * Escape special characters for HL7 text fields.
+ *
+ * @param string $s The input string
+ * @return string The escaped string
+ * @see http://www.interfaceware.com/hl7_escape_protocol.html
+ */
+function hl7Text($s)
+{
+    $s = str_replace('\\', '\\E\\', $s);
+    $s = str_replace('^', '\\S\\', $s);
+    $s = str_replace('|', '\\F\\', $s);
+    $s = str_replace('~', '\\R\\', $s);
+    $s = str_replace('&', '\\T\\', $s);
+    $s = str_replace("\r", '\\X0d\\', $s);
+    return $s;
+}
+
+/**
+ * Format a ZIP code for HL7, removing spaces and dashes.
+ *
+ * @param string $s The input ZIP code
+ * @return string The formatted ZIP code
+ */
+function hl7Zip($s)
+{
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
+}
+
+/**
+ * Convert sex/gender to HL7 format (M, F, or U).
+ *
+ * @param string $s The input sex value
+ * @return string M, F, or U
+ */
+function hl7Sex($s)
+{
+    $s = strtoupper(substr((string) $s, 0, 1));
+    if ($s !== 'M' && $s !== 'F') {
+        $s = 'U';
+    }
+    return $s;
+}
+
+/**
+ * Convert a datetime string to HL7 timestamp format.
+ *
+ * @param string $s The datetime string
+ * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
+ * @return string The formatted timestamp, or empty string if input is empty
+ */
+function hl7Time($s, bool $withSeconds)
+{
+    if (empty($s)) {
+        return '';
+    }
+    $format = $withSeconds ? 'YmdHis' : 'YmdHi';
+    return date($format, strtotime((string) $s));
+}
+
+/**
+ * Format a phone number for HL7.
+ *
+ * @param string $s The phone number string
+ * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
+ * @return string The formatted phone number, or empty string if invalid
+ */
+function hl7Phone($s, bool $formatted)
+{
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? $tmp[1] . '-' . $tmp[2]
+            : $tmp[1] . $tmp[2];
+    }
+    return '';
+}
+
+/**
+ * Format an SSN for HL7.
+ *
+ * @param string $s The SSN string
+ * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
+ * @return string The formatted SSN, or empty string if invalid
+ */
+function hl7SSN($s, bool $withDashes)
+{
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $withDashes
+            ? $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    return '';
+}
+
+/**
+ * Convert a relationship string to its word form for HL7.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @return string The normalized relationship word, or the original value if unrecognized
+ */
+function hl7RelationWord(string $s): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => 'self',
+        'spouse' => 'spouse',
+        'child' => 'child',
+        'other' => 'other',
+        default => $s,
+    };
+}
+
+/**
+ * Convert a relationship string to an HL7 Table 0063 relationship code.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @param bool $childAsOther Whether to treat 'child' as 'other' (code 8) instead of code 3
+ * @return string The HL7 relationship code, or the original value if unrecognized
+ */
+function hl7RelationCode(string $s, bool $childAsOther): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => '1',
+        'spouse' => '2',
+        'child' => $childAsOther ? '8' : '3',
+        'other' => '8',
+        default => $s,
+    };
+}
+
+function rbvalue($rbname): string
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
+    return "$tmp";
+}
+
+function cbvalue($cbname): string
+{
+    return $_POST[$cbname] ? '1' : '0';
+}
+
+function rbinput($name, $value, $desc, $colname): string
+{
+    global $row;
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />" . text($desc);
+    return $ret;
+}
+
+function rbcell($name, $value, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
+}
+
+function cbinput($name, $colname): string
+{
+    global $row;
+    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />";
+    return $ret;
+}
+
+function cbcell($name, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
