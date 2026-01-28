@@ -19,6 +19,7 @@ use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
+use OpenEMR\Services\PhoneNumberService;
 
 class FaxDocumentService
 {
@@ -73,7 +74,7 @@ class FaxDocumentService
                 $categoryResult = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = 'FAX'");
                 $categoryId = $categoryResult['id'] ?? 1;
 
-                $formattedFrom = $this->formatPhoneDisplay($fromNumber);
+                $formattedFrom = PhoneNumberService::tryFormatPhone($fromNumber);
                 $owner = $_SESSION['authUserID'];
 
                 // Create and save document using OpenEMR's standard method
@@ -302,27 +303,6 @@ class FaxDocumentService
         }
     }
 
-
-    /**
-     * Format phone number for display
-     *
-     * @param string $phone
-     * @return string
-     */
-    private function formatPhoneDisplay(string $phone): string
-    {
-        $cleaned = preg_replace('/[^0-9]/', '', $phone);
-
-        if (strlen((string) $cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr((string) $cleaned, 1);
-        }
-
-        if (strlen((string) $cleaned) === 10) {
-            return sprintf("(%s) %s-%s", substr((string) $cleaned, 0, 3), substr((string) $cleaned, 3, 3), substr((string) $cleaned, 6));
-        }
-
-        return $phone;
-    }
 
     /**
      * Attempt to auto-match fax to patient by phone number

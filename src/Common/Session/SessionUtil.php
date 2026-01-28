@@ -317,7 +317,7 @@ class SessionUtil
             self::APP_COOKIE_NAME,
             $appType,
             [
-                'expires' => time() + 3600,
+                'expires' => time() + 31536000, // 1 year
                 'path' => '/',
                 // This permits the app cookie to work in non-https dev environments. It's not a sensitive value.
                 'secure' => false,
