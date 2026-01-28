@@ -30,10 +30,8 @@ class AddressService extends BaseService
 
     /**
      * Validate address data against length constraints.
-     *
-     * @param AddressData|array<string, mixed> $address
      */
-    public function validate(AddressData|array $address): ValidationResult
+    public function validate(AddressData $address): ValidationResult
     {
         $validator = new Validator();
 
@@ -45,36 +43,24 @@ class AddressService extends BaseService
         $validator->optional('plus_four')->lengthBetween(2, 4);
         $validator->optional('country')->lengthBetween(2, 255);
 
-        $data = $address instanceof AddressData ? $address->toArray() : $address;
-        return $validator->validate($data);
+        return $validator->validate($address->toArray());
     }
 
     /**
      * Format an address record as a multi-line string.
-     *
-     * @param AddressRecord|array<string, mixed> $addressRecord
      */
-    public function getAddressFromRecordAsString(AddressRecord|array $addressRecord): string
+    public function getAddressFromRecordAsString(AddressRecord $addressRecord): string
     {
-        if (is_array($addressRecord)) {
-            $addressRecord = AddressRecord::fromArray($addressRecord);
-        }
-
         return $addressRecord->toString();
     }
 
     /**
      * Insert a new address record.
      *
-     * @param AddressData|array<string, mixed> $data
      * @return int|false The new address ID, or false on failure
      */
-    public function insert(AddressData|array $data, int $foreignId): int|false
+    public function insert(AddressData $data, int $foreignId): int|false
     {
-        if (is_array($data)) {
-            $data = AddressData::fromArray($data);
-        }
-
         /** @var int $freshId */
         $freshId = $this->getFreshId("id", "addresses");
 
@@ -114,15 +100,10 @@ class AddressService extends BaseService
     /**
      * Update an existing address record.
      *
-     * @param AddressData|array<string, mixed> $data
      * @return int|string|null The address ID, or null if not found
      */
-    public function update(AddressData|array $data, int $foreignId): int|string|null
+    public function update(AddressData $data, int $foreignId): int|string|null
     {
-        if (is_array($data)) {
-            $data = AddressData::fromArray($data);
-        }
-
         $addressesSql  = " UPDATE addresses SET";
         $addressesSql .= "     line1=?,";
         $addressesSql .= "     line2=?,";
