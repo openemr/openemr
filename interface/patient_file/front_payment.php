@@ -1363,8 +1363,9 @@ function make_insurance() {
                                         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                                     }
 
-                                    $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
-                                    if ($duept != 0) {
+                                    if ($duept == 0) {
+                                        $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                                    } else {
                                         $balance = 0;
                                     }
 
