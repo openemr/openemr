@@ -87,15 +87,6 @@ function echoPaymentRow(int $var_index, $encounterId, $iname, $date, $charges, $
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ?: '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
-    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
-    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
-    echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
-    echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='text-right'>";
     echo "    <input type='text' class='form-control amount_field' "
         . 'data-encounter-id="' . attr($encounterId) . '"'
@@ -1316,20 +1307,49 @@ function make_insurance() {
                                 // entering today's co-pay.
                                 //
                                 if (!$gottoday) {
-                                    echoPaymentRow(
-                                        var_index: $var_index,
-                                        encounterId: '0',
-                                        iname: "form_upay[0]",
-                                        date: date("Y-m-d"),
-                                        charges: 0,
-                                        ptpaid: 0,
-                                        inspaid: 0,
-                                        duept: 0,
-                                    );//No encounter yet defined.
+?>
+<tr id="tr_0">
+    <td><?=date("Y-m-d")?></td>
+    <td class="text-center" id="<?=attr($dispdate)?>"><?=text($enc)?></td>
+    <td class="text-center" id="td_charges_0"></td>
+    <td class="text-center" id="td_inspaid_0"></td>
+    <td class="text-center" id="td_ptpaid_0"></td>
+    <td class="text-center" id="td_patient_copay_0"></td>
+    <td class="text-center" id="td_copay_0"></td>
+    <td class="text-center" id="balance_0"></td>
+    <td class="text-center" id="duept_0"></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id=""
+            data-code=""
+            data-code-type=""
+            name="form_upay[0]"
+            id="paying_<?=$idx?>"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+<?php
+                                    // echoPaymentRow(
+                                    //     var_index: $var_index,
+                                    //     encounterId: '0',
+                                    //     iname: "form_upay[0]",
+                                    //     date: date("Y-m-d"),
+                                    //     charges: 0,
+                                    //     ptpaid: 0,
+                                    //     inspaid: 0,
+                                    //     duept: 0,
+                                    // );//No encounter yet defined.
                                 }
 
                                 $gottoday = false;
+                                $idx = 0;
                                 foreach ($encs as $value) {
+                                    $idx++;
                                     $var_index++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
@@ -1381,22 +1401,39 @@ function make_insurance() {
                                         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                                     }
 
-                                    echoPaymentRow(
-                                        var_index: $var_index,
-                                        encounterId: $enc,
-                                        iname: "form_upay[$enc]",
-                                        date: $dispdate,
-                                        charges: $value['charges'],
-                                        ptpaid: $dpayment_pat,
-                                        inspaid: ($dpayment + $dadjustment),
-                                        duept: $duept,
-                                        encounter: $enc,
-                                        copay: $inscopay,
-                                        patcopay: $patcopay,
-                                        code: $value['code'],
-                                        codeType: $value['code_type'],
-                                    );
-                                }
+                                    $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                                    if ($duept != 0) {
+                                        $balance = 0;
+                                    }
+
+                                    ?>
+<tr id="tr_<?=$idx?>">
+    <td><?=text(oeFormatShortDate($dispdate))?></td>
+    <td class="text-center" id="<?=attr($dispdate)?>"><?=text($enc)?></td>
+    <td class="text-center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="text-center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="text-center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="text-center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="text-center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="text-center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="text-center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id="<?=$enc?>"
+            data-code="<?=attr($value['code'])?>"
+            data-code-type="<?=attr($value['code_type'])?>"
+            name="form_upay[<?=$enc?>]"
+            id="paying_<?=$idx?>"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                                    <?php
+                                } // end foreach($encs)
                                 // Continue with display of the data entry form.
                                 ?>
 
