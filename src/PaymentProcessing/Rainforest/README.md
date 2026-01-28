@@ -12,7 +12,7 @@ Rainforest is not used as part of insurance claims.
 ## Installation
 
 Rainforest integreation, like other payment providers, is currently in OpenEMR core.
-This is likely to change in the future; expect to see it converted into a module soon.
+This is a limitation of the current payments systems - converting it to a module (along with other providers) is a future goal that will be a significant undertaking.
 
 ## Configuration
 
@@ -66,3 +66,16 @@ Be sure to save changes for each section as you make them!
 ## Usage
 
 Rainforest payments work the same as other payment providers within OpenEMR.
+
+With the above settings, patients will be able to make payments on their bills through the patient portal.
+Providers can also collect payments from patients using the "front payments" system.
+
+## Code Structure
+
+All relative to the `OpenEMR\PaymentProcessing\Rainforest` namespace.
+
+`Api`: Interacts with the Rainforest API and performs various data format shifts
+
+Other classes in this namespace are data structures for API interaction.
+
+`Apis\...`: Classes used to power HTTP APIs that are used by OpenEMR UIs
