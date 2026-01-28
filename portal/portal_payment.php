@@ -1077,7 +1077,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') != 'Stripe' && $globalsBag->get('payment_gateway') != 'Sphere' && $globalsBag->get('payment_gateway') != 'Rainforest') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
