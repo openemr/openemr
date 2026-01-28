@@ -942,10 +942,9 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
+                $balance = 0;
                 if ($duept == 0) {
                     $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
-                } else {
-                    $balance = 0;
                 }
 
                 // Update running totals before rendering the table row
