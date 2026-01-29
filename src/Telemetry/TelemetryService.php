@@ -132,11 +132,33 @@ class TelemetryService
             error_log("Site UUID not found.");
         }
 
-        // server geo data
-        $geo = $this->createGeoTelemetry();
-        $serverGeoData = $geo->getServerGeoData();
-        if (isset($serverGeoData['error'])) {
-            error_log("Error fetching server geolocation: " . $serverGeoData['error']);
+        // server geo data - don't let geo lookup failures prevent telemetry reporting
+        $serverGeoData = [];
+        try {
+            $geo = $this->createGeoTelemetry();
+            $serverGeoData = $geo->getServerGeoData();
+            if (isset($serverGeoData['error'])) {
+                error_log("Telemetry: Unable to fetch server geolocation - " . $serverGeoData['error'] . ". Continuing with telemetry report.");
+                // Use null values for geo data if lookup fails
+                $serverGeoData = [
+                    'country' => null,
+                    'region' => null,
+                    'city' => null,
+                    'latitude' => null,
+                    'longitude' => null,
+                    'error' => $serverGeoData['error']
+                ];
+            }
+        } catch (\Exception $e) {
+            error_log("Telemetry: Exception during geolocation lookup - " . $e->getMessage() . ". Continuing with telemetry report.");
+            $serverGeoData = [
+                'country' => null,
+                'region' => null,
+                'city' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'error' => 'Exception: ' . $e->getMessage()
+            ];
         }
 
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
@@ -164,13 +186,13 @@ class TelemetryService
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
+            'populationData' => json_encode($populationData),
+            'moduleCounts' => json_encode($moduleCounts),
         ];
 
         $payload_data = [
             'usageRecords' => $usageRecords,
             'localeData' => $localeData,
-            'populationData' => $populationData,
-            'moduleCounts' => $moduleCounts,
         ];
 
         $payload = json_encode($payload_data);
@@ -193,7 +215,7 @@ class TelemetryService
             error_log("HTTP error: " . $httpStatus);
         }
 
-        error_log("Telemetry sent: " . $httpStatus);
+        error_log("Telemetry sent: " . $httpStatus . ': ' . json_encode($serverGeoData));
         return $httpStatus;
     }
 
