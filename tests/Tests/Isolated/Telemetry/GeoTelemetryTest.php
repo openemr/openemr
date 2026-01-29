@@ -21,6 +21,26 @@ use PHPUnit\Framework\TestCase;
 
 class GeoTelemetryTest extends TestCase
 {
+    private const CACHE_FILE = '/tmp/openemr_geo_cache.json';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Clean cache before each test
+        if (file_exists(self::CACHE_FILE)) {
+            @unlink(self::CACHE_FILE);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        // Clean cache after each test
+        if (file_exists(self::CACHE_FILE)) {
+            @unlink(self::CACHE_FILE);
+        }
+        parent::tearDown();
+    }
+
     public function testAnonymizeIpReturnsHashedValue(): void
     {
         $geoTelemetry = new GeoTelemetry();
@@ -122,14 +142,14 @@ class GeoTelemetryTest extends TestCase
             ->onlyMethods(['fileGetContents'])
             ->getMock();
 
-        // Both API calls return empty strings
-        $geoTelemetry->expects($this->exactly(2))
+        // All three API calls return empty strings (ipapi, geoplugin, ip-api.com)
+        $geoTelemetry->expects($this->exactly(3))
             ->method('fileGetContents')
             ->willReturn('');
 
         $result = $geoTelemetry->getGeoData('192.168.1.1');
 
-        $this->assertEquals(['error' => 'IP lookup failed'], $result);
+        $this->assertEquals(['error' => 'All IP lookup providers failed'], $result);
     }
 
     public function testGetGeoDataHandlesPartialData(): void
@@ -158,6 +178,44 @@ class GeoTelemetryTest extends TestCase
             'city' => 'Berlin',
             'latitude' => null,
             'longitude' => null
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testGetGeoDataWithFallbackToIpApiCom(): void
+    {
+        /** @var GeoTelemetry|MockObject $geoTelemetry */
+        $geoTelemetry = $this->getMockBuilder(GeoTelemetry::class)
+            ->onlyMethods(['fileGetContents'])
+            ->getMock();
+
+        $mockIpApiComResponse = json_encode([
+            'status' => 'success',
+            'country' => 'United Kingdom',
+            'regionName' => 'England',
+            'city' => 'London',
+            'lat' => 51.5074,
+            'lon' => -0.1278
+        ]);
+
+        // First two calls (ipapi.co and geoplugin) fail, third (ip-api.com) succeeds
+        $geoTelemetry->expects($this->exactly(3))
+            ->method('fileGetContents')
+            ->willReturnOnConsecutiveCalls(
+                '', // ipapi.co fails
+                '', // geoplugin fails
+                $mockIpApiComResponse // ip-api.com succeeds
+            );
+
+        $result = $geoTelemetry->getGeoData('8.8.4.4');
+
+        $expected = [
+            'country' => 'United Kingdom',
+            'region' => 'England',
+            'city' => 'London',
+            'latitude' => 51.5074,
+            'longitude' => -0.1278
         ];
 
         $this->assertEquals($expected, $result);
