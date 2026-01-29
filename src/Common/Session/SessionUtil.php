@@ -117,31 +117,8 @@ class SessionUtil
         return session_start($settings);
     }
 
-//    public static function switchToCoreSession($web_root, $read_only = true): void
-//    {
-//        session_write_close();
-//        session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
-//        self::coreSessionStart($web_root, $read_only);
-//        (new SystemLogger())->debug("SessionUtil: switched to core session");
-//    }
-
-//    public static function coreSessionStart($web_root, $read_only = true): void
-//    {
-//        $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
-//        self::sessionStartWrapper($settings);
-//        (new SystemLogger())->debug("SessionUtil: started core session");
-//    }
-
     public static function setSession($session_key_or_array, $session_value = null): void
     {
-        // Since our default is read_and_close the session shouldn't be active here.
-//        if (session_status() === PHP_SESSION_ACTIVE) {
-//            // ensure the session file is written from a previous
-//            // session open for write.
-//            session_write_close();
-//        }
-//        self::coreSessionStart($GLOBALS['webroot'], false);
-
         // TODO rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
         $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
@@ -156,10 +133,7 @@ class SessionUtil
             $portalSession->set($session_key_or_array, $session_value);
 
         }
-//        session_write_close();
-//        foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-//            $symfonySessionInstance->save();
-//        }
+
         (new SystemLogger())->debug("SessionUtil: set session value", [
             'session_key_or_array' => $session_key_or_array,
             'session_value' => $session_value
@@ -181,7 +155,7 @@ class SessionUtil
             $coreSession->remove($session_key_or_array);
             $portalSession->remove($session_key_or_array);
         }
-//        session_write_close();
+
         (new SystemLogger())->debug("SessionUtil: unset session value", [
             'session_key_or_array' => $session_key_or_array
         ]);
@@ -201,47 +175,11 @@ class SessionUtil
             $coreSession->remove($value);
             $portalSession->remove($value);
         }
-//        session_write_close();
+
         (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
         (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
-//    public static function coreSessionDestroy(): void
-//    {
-//        self::standardSessionCookieDestroy();
-//        (new SystemLogger())->debug("SessionUtil: destroyed core session");
-//    }
-//
-//    public static function portalSessionStart(): Session
-//    {
-//        if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
-//            (new SystemLogger())->debug("SessionUtil: started portal session");
-//            return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
-//        }
-//
-//        $settings = SessionConfigurationBuilder::forPortal();
-//
-//        $storage = new NativeSessionStorage($settings);
-//        $session = new Session($storage);
-//        if (!$session->isStarted()) {
-//            $session->start();
-//        }
-//
-//        self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] = $session;
-//
-//        (new SystemLogger())->debug("SessionUtil: started portal session");
-//
-//        return $session;
-//    }
-
-//    public static function portalPredisSessionStart(): void
-//    {
-//        $settings = SessionConfigurationBuilder::forPortal();
-//        self::sessionStartWrapper($settings);
-//
-//        (new SystemLogger())->debug("SessionUtil: started portal predis session");
-//    }
-//
     public static function portalSessionCookieDestroy(): void
     {
         $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
