@@ -39,6 +39,7 @@ $crypto = new CryptoGen();
 $whv = new Verifier($crypto->decryptStandard($gb->getString('rainforest_webhook_secret')));
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
+$logger = new Logger('OpenEMR');
 
 try {
     $wh = $whv->verify($req);
@@ -50,10 +51,10 @@ try {
     $disp = new Dispatcher(
         processors: [
             // Future: this should all get wired through DI, etc.
-            new RecordPayment(),
+            new RecordPayment(logger: $logger),
         ],
         merchantId: $mid,
-        logger: new Logger('OpenEMR'),
+        logger: $logger,
     );
     $disp->dispatch($wh);
 } catch (Throwable $e) {

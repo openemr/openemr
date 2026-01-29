@@ -21,6 +21,7 @@ use Money\{
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\PaymentProcessing\Rainforest\Metadata;
 use OpenEMR\PaymentProcessing\Recorder;
+use Psr\Log\LoggerInterface;
 
 /**
  * Webhook event handler that records payments happening and associates it with
@@ -28,6 +29,11 @@ use OpenEMR\PaymentProcessing\Recorder;
  */
 class RecordPayment implements ProcessorInterface
 {
+    public function __construct(
+        private LoggerInterface $logger,
+    ) {
+    }
+
     public function getEventTypes(): array
     {
         // For the moment, we're listening to authorized rather than succeeded
@@ -48,7 +54,6 @@ class RecordPayment implements ProcessorInterface
 
     public function handle(Webhook $webhook): void
     {
-        // FIXME: this must be idempotent
         assert($webhook->eventType === 'payin.authorized');
         // This transaction should be done in a general recording service, but
         // PaymentProcessing/Recorder isn't sophisticated enough yet.
@@ -56,6 +61,8 @@ class RecordPayment implements ProcessorInterface
         // Also, most of the data munging should be done prior to DB
         // interactions, but the use() would be bonkers.
         QueryUtils::inTransaction(function () use ($webhook): void {
+
+            $r = new Recorder();
 
             /**
              * @var array{
@@ -66,6 +73,14 @@ class RecordPayment implements ProcessorInterface
              * }
              */
             $data = $webhook->data;
+            $reference = $data['payin_id'];
+            $existingSessionId = $r->getSessionIdForReference($reference);
+            if ($existingSessionId !== null) {
+                $this->logger->notice('ar_session exists for rainforest payin_id {id}, skipping further processing', [
+                    'id' => $reference,
+                ]);
+                return;
+            }
 
             $metadata = Metadata::fromParsedJson($data['metadata']);
             $patientId = $metadata->patientId;
@@ -73,11 +88,10 @@ class RecordPayment implements ProcessorInterface
             $memo = sprintf('Rainforest transaction id %s', $data['payin_id']);
             $dmf = new DecimalMoneyFormatter(new ISOCurrencies());
 
-            $r = new Recorder();
             $sessionId = $r->createSession([
                 'payerId' => '',
                 'userId' => '',
-                'reference' => $data['payin_id'],
+                'reference' => $reference,
                 'payTotal' => new Money((string)$data['amount'], new Currency($data['currency_code'])),
                 'paymentType' => Recorder::PAYMENT_TYPE_PATIENT,
                 'description' => '',
