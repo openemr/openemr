@@ -38,8 +38,8 @@
 
             function logoutWarn() {
                 const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
-                    '<br />' + xl('Please take action to prevent being logged out!');
-                syncAlertMsg(warnMsg, 28000); // from utility.js
+                    '\n' + xl('Please take action to prevent being logged out!');
+                asyncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
             function logout() {

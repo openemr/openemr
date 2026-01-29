@@ -2,7 +2,7 @@ function sendPaymentDataToAnet(e) {
     e.preventDefault();
     const authData = {};
     authData.clientKey = publicKey;
-    authData.apiLoginID = apiKey;
+    authData.apiLoginID = apiLoginID;
 
     const cardData = {};
     cardData.cardNumber = document.getElementById("cardNumber").value;

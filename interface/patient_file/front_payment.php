@@ -716,7 +716,6 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
     var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
-    var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
@@ -1585,9 +1584,12 @@ function make_insurance() {
             // Include Authorize.Net dependency to tokenize card.
             // Will return a token to use for payment request keeping
             // credit info off the server.
+            //
+            // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
             ?>
             <script>
                 var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+                var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
 
                     // In House CC number Validation
                     $('#cardNumber').validateCreditCard(function (result) {
@@ -1626,7 +1628,7 @@ function make_insurance() {
                     e.preventDefault();
                     const authData = {};
                     authData.clientKey = publicKey;
-                    authData.apiLoginID = apiKey;
+                    authData.apiLoginID = apiLoginID;
 
                     const cardData = {};
                     cardData.cardNumber = document.getElementById("cardNumber").value;

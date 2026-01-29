@@ -15702,11 +15702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$MedEx might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/MedEx.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$result4 might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
