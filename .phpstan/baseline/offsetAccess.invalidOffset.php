@@ -1269,6 +1269,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
 ];
 $ignoreErrors[] = [

@@ -4397,6 +4397,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$error \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/MedEx/MedEx.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$remoteAddr \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/MedEx/MedEx.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',

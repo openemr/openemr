@@ -28977,6 +28977,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'success\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/MedEx/MedEx.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
@@ -51095,6 +51100,26 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Tabs/TabsWrapper.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'timestamp\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'custom_modules\' on mixed\\.$#',

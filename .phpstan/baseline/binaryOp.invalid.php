@@ -25137,9 +25137,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/VitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Error fetching…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+    'message' => '#^Binary operation "\\-" between int\\<1, max\\> and mixed results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'HTTP error\\: \' and mixed results in an error\\.$#',
@@ -25148,6 +25148,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Telemetry sent\\: \' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'Telemetry\\: Unable…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];

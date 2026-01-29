@@ -212,6 +212,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceIntegrationTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirLocationServiceTest\\:\\:createMockFhirLocation\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationAdvanceDirectiveServiceUSCore8Test\\:\\:findCategoryBySystem\\(\\) is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationAdvanceDirectiveServiceUSCore8Test.php',

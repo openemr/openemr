@@ -45467,6 +45467,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirImmunizationService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:createSearchParameterForField\\(\\) has parameter \\$fhirSearchField with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:createSearchParameterForField\\(\\) has parameter \\$searchValue with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',

@@ -11602,6 +11602,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:getCachedGeoData\\(\\) should return array\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchUsageRecords\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
@@ -11975,6 +11980,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\CoverageValidatorStub\\:\\:validateId\\(\\) should return true but returns OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/CoverageValidatorTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Anonymous function should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirPatientServiceMappingTest\\:\\:findTelecomEntry\\(\\) should return OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching but returns array\\.$#',

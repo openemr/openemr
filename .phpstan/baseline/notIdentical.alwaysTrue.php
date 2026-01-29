@@ -227,6 +227,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between null and false will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',

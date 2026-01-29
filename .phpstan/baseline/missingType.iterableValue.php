@@ -15372,7 +15372,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:cacheGeoData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:fetchJson\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:getCachedGeoData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
@@ -15383,6 +15393,21 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:getServerGeoData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:tryGeoPlugin\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:tryIpApiCom\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\GeoTelemetry\\:\\:tryIpApi\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
@@ -16315,6 +16340,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Integration\\\\Services\\\\FHIR\\\\FhirLocationServiceIntegrationTest\\:\\:\\$testFacilityIds type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceIntegrationTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirLocationServiceTest\\:\\:assertPatientFacilityTypeSearchField\\(\\) has parameter \\$expectedPatientUuids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirMedicationRequestServiceUSCore8Test\\:\\:validIntentProvider\\(\\) return type has no value type specified in iterable type array\\.$#',

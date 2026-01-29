@@ -3494,6 +3494,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/AllergyIntoleranceValidator.php',
 ];
 $ignoreErrors[] = [

@@ -1437,6 +1437,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionService3_1_1Test.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getChildren\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',

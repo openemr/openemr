@@ -4159,6 +4159,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationDispenseUSCore8ComplianceTest.php',
 ];
 $ignoreErrors[] = [
