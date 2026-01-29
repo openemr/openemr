@@ -1,6 +1,6 @@
 includes:
   - extension.neon
-  # baseline/loader.php
+  - baseline/loader.php
 parameters:
   reportUnmatchedIgnoredErrors: true
   scanFiles:
