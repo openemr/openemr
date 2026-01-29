@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
  * Webhook event handler that records payments happening and associates it with
  * the AR data for the encounters.
  */
-class RecordPayment implements ProcessorInterface
+readonly class RecordPayment implements ProcessorInterface
 {
     public function __construct(
         private LoggerInterface $logger,
