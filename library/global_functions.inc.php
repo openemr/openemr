@@ -616,3 +616,41 @@ function cbcell($name, $desc, $colname): string
 {
     return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
+
+/**
+ * Adapt text to be suitable as the contents of a table cell.
+ *
+ * @param  string $s Input text.
+ * @return string  Output text.
+ */
+function myCellText($s)
+{
+    $s = trim($s ?? '');
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
+}
+
+/**
+ * Get a list item title, translating if required.
+ *
+ * @param  string $listid List identifier.
+ * @param  string $value List item identifier.
+ * @return string  The item's title.
+ */
+function getListItem($listid, $value)
+{
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        [$listid, $value]
+    );
+    $tmp = xl_list_label($lrow['title']);
+    if (empty($tmp)) {
+        $tmp = (($value === '') ? '' : "($value)");
+    }
+
+    return $tmp;
+}

@@ -47,43 +47,6 @@ if (!isset($_REQUEST['form_refresh']) && !isset($_REQUEST['form_process_labs']) 
     $start_form = true;
 }
 
-/**
- * Get a list item title, translating if required.
- *
- * @param  string $listid List identifier.
- * @param  string $value List item identifier.
- * @return string  The item's title.
- */
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
-}
-
-/**
- * Adapt text to be suitable as the contents of a table cell.
- *
- * @param  string $s Input text.
- * @return string  Output text.
- */
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
 $errmsg = '';
 
 // Send selected unsent orders if requested. This does not support downloading
