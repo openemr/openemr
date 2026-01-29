@@ -43,5 +43,4 @@ if (!empty($_POST['callback_key'])) {
     exit;
 }
     echo "Not logged in: ";
-    echo $MedEx->getLastError();
     exit;

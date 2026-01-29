@@ -4537,11 +4537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getLastError\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/MedEx.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
