@@ -14382,16 +14382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getListItem\\(\\) has parameter \\$listid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListItem\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
@@ -14748,16 +14738,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_result_row\\(\\) has parameter \\$rrow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListItem\\(\\) has parameter \\$listid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListItem\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];

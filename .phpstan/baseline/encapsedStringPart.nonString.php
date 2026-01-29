@@ -3022,11 +3022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$value \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$fld \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
@@ -3158,11 +3153,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$procedure_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$value \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
