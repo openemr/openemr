@@ -3389,11 +3389,14 @@ $GLOBALS_METADATA = [
             xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
         ],
 
+        // This should be split apart per gateway since it can contain either
+        // a public or a secret value depending on which gateway is configured.
+        // See GHSA-2hq8-wc73-jvvq.
         'gateway_api_key' => [
             xl('Gateway API Login Auth Name or Secret'),
             'encrypted',
             '',
-            xl('The Auth Name or API key for selected account. Auth Name for Authorize.Net and API Secret for Stripe.')
+            xl('The Auth Name or API key for selected account. API Login ID for Authorize.Net and API Secret for Stripe.')
         ],
 
         'gateway_transaction_key' => [
