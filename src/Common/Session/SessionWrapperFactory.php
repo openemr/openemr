@@ -35,11 +35,20 @@ class SessionWrapperFactory
 
     private function findSessionWrapper(array $initData = []): SessionWrapperInterface
     {
+        // Check if we're already in an API/OAuth session context
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $isApiRequest = str_starts_with((string) $requestUri, SessionUtil::API_WEBROOT) ||
+                        str_starts_with((string) $requestUri, SessionUtil::OAUTH_WEBROOT);
+
         $app = SessionUtil::getAppCookie();
-        if (SessionUtil::isPredisSession()) {
-            SessionUtil::portalPredisSessionStart();
+
+        if ($isApiRequest || $app !== SessionUtil::PORTAL_SESSION_ID) {
+            // API/OAuth requests already have Symfony sessions active
+            // Non-portal requests use PHPSessionWrapper
+            // Return a PHPSessionWrapper that won't start a new session
             $session = new PHPSessionWrapper();
-        } else if ($app !== SessionUtil::PORTAL_SESSION_ID) {
+        } else if (SessionUtil::isPredisSession()) {
+            SessionUtil::portalPredisSessionStart();
             $session = new PHPSessionWrapper();
         } else {
             $session = new SymfonySessionWrapper(SessionUtil::portalSessionStart());
