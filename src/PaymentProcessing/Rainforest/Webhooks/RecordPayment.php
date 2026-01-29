@@ -26,11 +26,19 @@ class RecordPayment implements ProcessorInterface
 {
     public function getEventTypes(): array
     {
+        // For the moment, we're listening to authorized rather than succeeded
+        // for two main reasons:
+        // 1) We need CLI tooling to kick payments forward in the sandbox
+        //    environment, and it doens't make sense to build that until the
+        //    new CLI modules are complete
+        // 2) Their docs indicate it's a good notification point, which aligns
+        //    with "this should go through".
+        //
+        // It's not perfect, and this really needs improvements so the entire
+        // process becomes idempotent (across different webhook events for the
+        // same payment, too!). See downstream commentary on WH infra.
         return [
             'payin.authorized',
-            // payin.completed
-            // 'payin.processing',
-            // 'payin.created',
         ];
     }
 
