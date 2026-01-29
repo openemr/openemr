@@ -934,6 +934,8 @@ if ($groupid) {
  var durations = new Array();
 
  const IN_OFFICE_CAT_ID = '2';
+ const OUT_OF_OFFICE_CAT_ID = '3';
+ const OFFICE_VISIT_CAT_ID = '5';
 <?php
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
@@ -1112,7 +1114,7 @@ function set_allday() {
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
     <?php if ($GLOBALS['time_display_format'] == 1) { ?>
-        f.form_ampm.disabled = durationDisabled;
+        f.form_ampm.disabled = timeDisabled;
     <?php } ?>
     f.form_duration.disabled = durationDisabled;
 }
