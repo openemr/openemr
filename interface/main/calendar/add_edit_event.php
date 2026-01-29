@@ -1055,8 +1055,8 @@ function set_display() {
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
             f.form_prefcat.style.display = '';
-            f.form_duration.disabled = false;
-            f.form_duration.value = 0;
+            f.form_duration.disabled = true;
+            f.form_duration.value = '';
             document.getElementById('tdallday4').style.color = 'var(--gray)';
         } else {
             style_prefcat.display = 'none';
@@ -1867,6 +1867,7 @@ function are_days_checked(){
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
+    let isInOffice = document.forms[0].form_category.value == IN_OFFICE_CAT_ID;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1893,7 +1894,7 @@ function validateform(event,value){
         }
     };
 
-    if ( allDay == true) {
+    if ( allDay == true || isInOffice == true) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {
