@@ -31,6 +31,28 @@ class Recorder
     public const PAYMENT_TYPE_PATIENT = 'patient';
 
     // COPAY/PCP
+
+    /**
+     * If a session with the provided reference exists, its id will be
+     * returned. If one is not found, this will return `null`.
+     *
+     * Important: this is a best-effort check; the column needs to be unique
+     * and nullable for this to work in a fully-correct manner, and it's
+     * neither as of writing.
+     */
+    public function getSessionIdForReference(string $reference): ?string
+    {
+        $id = QueryUtils::fetchSingleValue(
+            'SELECT session_id FROM ar_session WHERE reference = ?',
+            'session_id',
+            [$reference],
+        );
+        if ($id === null) {
+            return null;
+        }
+        return (string) $id;
+    }
+
     /**
      * @param array{
      *   payerId: string,
