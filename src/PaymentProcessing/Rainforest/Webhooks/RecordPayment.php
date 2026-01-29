@@ -39,7 +39,7 @@ class RecordPayment implements ProcessorInterface
         // For the moment, we're listening to authorized rather than succeeded
         // for two main reasons:
         // 1) We need CLI tooling to kick payments forward in the sandbox
-        //    environment, and it doens't make sense to build that until the
+        //    environment, and it doesn't make sense to build that until the
         //    new CLI modules are complete
         // 2) Their docs indicate it's a good notification point, which aligns
         //    with "this should go through".
