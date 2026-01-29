@@ -22,6 +22,10 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\PaymentProcessing\Rainforest\Metadata;
 use OpenEMR\PaymentProcessing\Recorder;
 
+/**
+ * Webhook event handler that records payments happening and associates it with
+ * the AR data for the encounters.
+ */
 class RecordPayment implements ProcessorInterface
 {
     public function getEventTypes(): array
@@ -47,7 +51,7 @@ class RecordPayment implements ProcessorInterface
         // FIXME: this must be idempotent
         assert($webhook->eventType === 'payment.something');
         // This transaction should be done in a general recording service, but
-        // PaymentProcessing/Recorder isn't sophisticaed enough yet.
+        // PaymentProcessing/Recorder isn't sophisticated enough yet.
         //
         // Also, most of the data munging should be done prior to DB
         // interactions, but the use() would be bonkers.
@@ -70,7 +74,6 @@ class RecordPayment implements ProcessorInterface
             $dmf = new DecimalMoneyFormatter(new ISOCurrencies());
 
             $r = new Recorder();
-            // (txn should start here)
             $sessionId = $r->createSession([
                 'payerId' => '',
                 'userId' => '',
@@ -83,7 +86,6 @@ class RecordPayment implements ProcessorInterface
                 'paymentMethod' => Recorder::PAYMENT_METHOD_CREDIT_CARD,
             ]);
 
-            // See format $payinPayload in PaymentProcessing/Rainforest
             $activities = array_map(fn($enc): array => [
                 'patientId' => $patientId,
                 'encounterId' => $enc->id,
@@ -99,17 +101,13 @@ class RecordPayment implements ProcessorInterface
                 'accountCode' => 'PP', // this and paymentType above different for copay?
             ], $metadata->encounters);
 
-            //
-            // FROM WHAT I CAN TELL recording the payment is enough but ar_session
-            // seems relevant
-            // In txn?
             foreach ($activities as $activity) {
                 $r->recordActivity($activity);
             }
         });
-        // insert into payments ?
-        // insert into ar_session
-        // update onsite_portal_activity
-        // more?
+        // insert into payments? not all existing paths seem to do this
+        //
+        // update onsite_portal_activity (doesn't seem required, def. not on
+        // all paths)
     }
 }
