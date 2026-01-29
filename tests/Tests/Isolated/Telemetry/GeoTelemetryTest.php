@@ -21,24 +21,30 @@ use PHPUnit\Framework\TestCase;
 
 class GeoTelemetryTest extends TestCase
 {
-    private const CACHE_FILE = '/tmp/openemr_geo_cache.json';
-
     protected function setUp(): void
     {
         parent::setUp();
         // Clean cache before each test
-        if (file_exists(self::CACHE_FILE)) {
-            @unlink(self::CACHE_FILE);
-        }
+        $this->cleanCache();
     }
 
     protected function tearDown(): void
     {
         // Clean cache after each test
-        if (file_exists(self::CACHE_FILE)) {
-            @unlink(self::CACHE_FILE);
-        }
+        $this->cleanCache();
         parent::tearDown();
+    }
+
+    /**
+     * Clean cache file - use OpenEMR temp directory from globals
+     */
+    private function cleanCache(): void
+    {
+        $cacheFile = sys_get_temp_dir() . '/cache/openemr_geo_cache.json';
+        if (file_exists($cacheFile)) {
+            @chmod($cacheFile, 0666);
+            @unlink($cacheFile);
+        }
     }
 
     public function testAnonymizeIpReturnsHashedValue(): void

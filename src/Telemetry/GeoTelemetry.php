@@ -26,12 +26,21 @@
 namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 class GeoTelemetry implements GeoTelemetryInterface
 {
     private const GET_IP_URL = 'https://api.ipify.org';
-    private const CACHE_FILE = '/tmp/openemr_geo_cache.json';
+    private const CACHE_FILENAME = 'openemr_geo_cache.json';
     private const CACHE_DURATION = 86400; // 24 hours in seconds
+
+    /**
+     * Get the cache file path from OpenEMR temp directory
+     */
+    private function getCacheFilePath(): string
+    {
+        return sys_get_temp_dir() . '/cache/' . self::CACHE_FILENAME;
+    }
 
     /**
      * Anonymize IP using SHA-256 hashing
@@ -144,11 +153,13 @@ class GeoTelemetry implements GeoTelemetryInterface
      */
     private function getCachedGeoData(string $ip): ?array
     {
-        if (!file_exists(self::CACHE_FILE)) {
+        $cacheFile = $this->getCacheFilePath();
+
+        if (!file_exists($cacheFile)) {
             return null;
         }
 
-        $cacheContent = @file_get_contents(self::CACHE_FILE);
+        $cacheContent = @file_get_contents($cacheFile);
         if ($cacheContent === false) {
             return null;
         }
@@ -177,9 +188,11 @@ class GeoTelemetry implements GeoTelemetryInterface
      */
     private function cacheGeoData(string $ip, array $data): void
     {
+        $cacheFile = $this->getCacheFilePath();
         $cache = [];
-        if (file_exists(self::CACHE_FILE)) {
-            $cacheContent = @file_get_contents(self::CACHE_FILE);
+
+        if (file_exists($cacheFile)) {
+            $cacheContent = @file_get_contents($cacheFile);
             if ($cacheContent !== false) {
                 $cache = json_decode($cacheContent, true) ?: [];
             }
@@ -201,7 +214,7 @@ class GeoTelemetry implements GeoTelemetryInterface
         ];
 
         // Write cache file
-        @file_put_contents(self::CACHE_FILE, json_encode($cache), LOCK_EX);
+        @file_put_contents($cacheFile, json_encode($cache), LOCK_EX);
     }
 
     /**
@@ -227,7 +240,7 @@ class GeoTelemetry implements GeoTelemetryInterface
         if ($result === false && isset($http_response_header)) {
             // Parse status code from headers
             /** @phpstan-ignore-next-line */
-            if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', (string) $http_response_header[0], $matches)) {
+            if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', (string)$http_response_header[0], $matches)) {
                 $statusCode = (int)$matches[1];
                 if ($statusCode >= 400) {
                     error_log("GeoTelemetry: HTTP {$statusCode} error fetching {$url}");
