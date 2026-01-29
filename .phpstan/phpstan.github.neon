@@ -3,6 +3,8 @@ includes:
   - baseline/loader.php
 parameters:
   reportUnmatchedIgnoredErrors: true
+  scanDirectories:
+    - ../vendor/adodb/adodb-php
   scanFiles:
     - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
   excludePaths:
