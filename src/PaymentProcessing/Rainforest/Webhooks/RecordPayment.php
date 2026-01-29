@@ -49,7 +49,7 @@ class RecordPayment implements ProcessorInterface
     public function handle(Webhook $webhook): void
     {
         // FIXME: this must be idempotent
-        assert($webhook->eventType === 'payment.something');
+        assert($webhook->eventType === 'payin.authorized');
         // This transaction should be done in a general recording service, but
         // PaymentProcessing/Recorder isn't sophisticated enough yet.
         //
