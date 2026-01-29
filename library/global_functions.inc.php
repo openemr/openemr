@@ -645,8 +645,12 @@ function myCellText($s)
 function getListItem($listid, $value)
 {
     $title = QueryUtils::fetchSingleValue(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        <<<'SQL'
+        SELECT title
+        FROM list_options
+        WHERE list_id = ? AND option_id = ? AND activity = 1
+        LIMIT 1
+        SQL,
         'title',
         [$listid, $value]
     );
