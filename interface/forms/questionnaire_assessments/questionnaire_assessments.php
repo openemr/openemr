@@ -549,7 +549,7 @@ if ($isModule || $isDashboard || $isPortal) {
         $(function () {
             window.addEventListener("message", (e) => {
                 if (e.origin !== window.location.origin) {
-                    syncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
+                    asyncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {
@@ -558,7 +558,7 @@ if ($isModule || $isDashboard || $isPortal) {
                         e.preventDefault();
                         document.forms[0].submit();
                     } else {
-                        syncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
+                        asyncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
                         return false;
                     }
                 }

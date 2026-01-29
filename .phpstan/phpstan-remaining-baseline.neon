@@ -14200,10 +14200,6 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../library/MedEx/API.php
-    - message: '#^Variable \$MedEx might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../library/MedEx/MedEx.php
     - message: '#^Variable \$result4 might not be defined\.$#'
       identifier: variable.undefined
       count: 1
