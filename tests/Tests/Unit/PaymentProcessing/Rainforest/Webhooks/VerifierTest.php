@@ -18,6 +18,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Verifier;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Webhook;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -270,7 +271,7 @@ final class VerifierTest extends TestCase
     /**
      * Build a PSR-7 ServerRequest with the given body and headers.
      */
-    private function buildRequest(string $body, array $headers): \Psr\Http\Message\ServerRequestInterface
+    private function buildRequest(string $body, array $headers): ServerRequestInterface
     {
         $request = $this->factory->createServerRequest('POST', '/webhooks/rainforest');
         foreach ($headers as $name => $value) {
