@@ -2682,32 +2682,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getListItem may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/list_reports.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function myCellText may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/list_reports.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getLabID may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/load_compendium.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_order_summary may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListItem may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function myCellText may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
@@ -2918,16 +2898,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_result_row may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListItem may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function myCellText may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
