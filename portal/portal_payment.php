@@ -63,8 +63,10 @@ $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 $cryptoGen = new CryptoGen();
 
 $appsql = new ApplicationTable();
-$pid = $_REQUEST['pid'] ?? $pid;
-$pid = ($_REQUEST['hidden_patient_code'] ?? null) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+if (!$isPortal) {
+    $pid = $_REQUEST['pid'] ?? $pid;
+    $pid = ($_REQUEST['hidden_patient_code'] ?? 0) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+}
 $recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
 $adminUser = '';
 $portalPatient = '';
@@ -187,7 +189,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
-    $form_pid = $_POST['form_pid'];
+    $form_pid = $isPortal ? $pid : $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
@@ -397,7 +399,7 @@ if ($_POST['form_save'] ?? '') {
 
 if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     if (($_REQUEST['receipt'] ?? null)) {
-        $form_pid = $_GET['patient'];
+        $form_pid = $isPortal ? $pid : $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
 
