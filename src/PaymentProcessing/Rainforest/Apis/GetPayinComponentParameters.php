@@ -19,6 +19,7 @@ use Money\{
 };
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Rainforest;
+use Psr\Http\Message\ServerRequestInterface;
 use UnexpectedValueException;
 
 /**
@@ -53,23 +54,21 @@ class GetPayinComponentParameters
      *   session_key: string,
      * }
      */
-    public static function parseRawRequest(OEGlobalsBag $bag): array
+    public static function parseRawRequest(ServerRequestInterface $request, OEGlobalsBag $bag): array
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($request->getMethod() !== 'POST') {
             header('HTTP/1.1 405 Method Not Allowed');
             exit(1);
         }
 
-        if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
+        if (!str_starts_with($request->getHeaderLine('Content-Type'), 'application/json')) {
             header('HTTP/1.1 406 Not Acceptable');
             header('Accept: application/json');
             exit(1);
         }
 
-        $rawJson = file_get_contents('php://input');
+        $rawJson = (string) $request->getBody();
         $postBody = json_decode($rawJson, true, flags: JSON_THROW_ON_ERROR);
-
-        // Future scope: proper JSON API (e.g. PSR-7 resources)
 
         $currencies = new ISOCurrencies();
         $parser = new DecimalMoneyParser($currencies);
