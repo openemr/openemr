@@ -43,6 +43,7 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
         exit();
     }
 }
+assert(isset($pid)); // Set by globals.php via session; PHPStan can't see through require_once
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
