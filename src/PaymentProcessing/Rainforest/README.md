@@ -94,7 +94,7 @@ Other classes in the directory are generally implementations of `ProcessorInterf
 
 ### Related code
 
-- `interface/webhooks/rainforest/webhook.php`: Endpoint to receive and handle the webhooks
+- `interface/webhooks/payment/rainforest.php`: Endpoint to receive and handle the webhooks
 
 There are also touch points in `portal/patient_portal.php` and `interface/patient_file/front_payment.php`, which tie this in to the main payments UI.
 The `.rainforest.php` files next to them are appreciably the same, but cannot be unified (at this time) due to subtle differences in how auth and session handling works.
