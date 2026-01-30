@@ -4,6 +4,7 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
 use InvalidArgumentException;
+use OpenEMR\Services\Address\AddressRecord;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\PatientService;
 
@@ -25,7 +26,7 @@ class FormattedPatientService
         $patientResult['dobFormatted'] = $dobYmd;
         $patientResult['age'] = $patientService->getPatientAgeDisplay($dobYmd);
         $addressService = new AddressService();
-        $patientResult['addressFull'] = $addressService->getAddressFromRecordAsString($patientResult);
+        $patientResult['addressFull'] = $addressService->getAddressFromRecordAsString(AddressRecord::fromArray($patientResult));
         return $patientResult;
     }
 }

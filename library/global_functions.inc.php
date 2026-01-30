@@ -15,6 +15,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -615,4 +617,47 @@ function cbinput($name, $colname): string
 function cbcell($name, $desc, $colname): string
 {
     return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
+}
+
+/**
+ * Adapt text to be suitable as the contents of a table cell.
+ *
+ * @param  string $s Input text.
+ * @return string  Output text.
+ */
+function myCellText($s)
+{
+    $s = trim($s ?? '');
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
+}
+
+/**
+ * Get a list item title, translating if required.
+ *
+ * @param  string $listid List identifier.
+ * @param  string $value List item identifier.
+ * @return string  The item's title.
+ */
+function getListItem($listid, $value)
+{
+    $title = QueryUtils::fetchSingleValue(
+        <<<'SQL'
+        SELECT title
+        FROM list_options
+        WHERE list_id = ? AND option_id = ? AND activity = 1
+        LIMIT 1
+        SQL,
+        'title',
+        [$listid, $value]
+    );
+    $tmp = xl_list_label($title);
+    if (empty($tmp)) {
+        $tmp = (($value === '') ? '' : "($value)");
+    }
+
+    return $tmp;
 }
