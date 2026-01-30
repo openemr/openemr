@@ -36,19 +36,14 @@ readonly class Dispatcher
             return;
         }
 
-        $processingError = false;
         foreach ($this->getProcessorsFor($webhook->eventType) as $processor) {
             try {
                 $processor->handle($webhook);
             } catch (Throwable $e) {
-                $processingError = true;
                 $this->logger->error('', [
                     'exception' => $e,
                 ]);
             }
-        }
-
-        if ($processingError) {
         }
     }
 
