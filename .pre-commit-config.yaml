@@ -79,10 +79,17 @@ repos:
   - id: codespell
     # Configuration in .codespellrc
 
+# actionlint for verifying correct syntax in GitHub Actions workflows.
 - repo: https://github.com/rhysd/actionlint
   rev: v1.7.10
   hooks:
-  - id: actionlint-docker
+  - id: actionlint
+    language: golang
+    additional_dependencies:
+      # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
+      # and checks these with shellcheck.
+      # see also: https://github.com/rhysd/actionlint/pull/482
+      - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
 
 - repo: local
   hooks:
