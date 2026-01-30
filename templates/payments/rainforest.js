@@ -39,10 +39,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
         container.replaceChildren(component);
 
         component.addEventListener('approved', function (data) {
-            // console.debug(data)
-            // console.debug(data.detail)
-            // console.debug(data.detail[0].data)
-            // Show a general success message; let webhooks deal with the rest.
+            // Processing happens async through the webhooks.
             alert('Payment complete! It may take a few minutes to be reflected in the dashboard.');
             window.location.reload();
         })
