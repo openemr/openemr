@@ -31,4 +31,4 @@ jobs:
 
     - uses: j178/prek-action@v1
       with:
-        extra_args: "actionlint"
+        extra_args: "--all-files actionlint"
