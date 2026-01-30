@@ -15,6 +15,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -642,12 +644,17 @@ function myCellText($s)
  */
 function getListItem($listid, $value)
 {
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+    $title = QueryUtils::fetchSingleValue(
+        <<<'SQL'
+        SELECT title
+        FROM list_options
+        WHERE list_id = ? AND option_id = ? AND activity = 1
+        LIMIT 1
+        SQL,
+        'title',
         [$listid, $value]
     );
-    $tmp = xl_list_label($lrow['title']);
+    $tmp = xl_list_label($title);
     if (empty($tmp)) {
         $tmp = (($value === '') ? '' : "($value)");
     }
