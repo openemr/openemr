@@ -31,7 +31,11 @@ readonly class Metadata implements JsonSerializable
     }
 
     /**
-     * @return array{patientId: string, encounters: EncounterData[], formatVersion: int}
+     * @return array{
+     *   patientId: string,
+     *   encounters: EncounterData[],
+     *   formatVersion: int,
+     * }
      */
     public function jsonSerialize(): array
     {
@@ -43,7 +47,11 @@ readonly class Metadata implements JsonSerializable
     }
 
     /**
-     * @param array{formatVersion: int, patientId: string, encounters: array<array<string, mixed>>} $data
+     * @param array{
+     *   formatVersion: int,
+     *   patientId: string,
+     *   encounters: array<string, mixed>[],
+     * } $data
      */
     public static function fromParsedJson(array $data): Metadata
     {

@@ -69,6 +69,14 @@ readonly class Api
                 ],
             ],
         ];
+        /**
+         * (plus much more)
+         * @var array{
+         *   data: array{
+         *     session_key: string,
+         *   }
+         * }
+         */
         $sessionResponse = $this->post('/v1/sessions', $sessionPayload);
         $sessionKey = $sessionResponse['data']['session_key'];
 
@@ -83,6 +91,14 @@ readonly class Api
                 encounters: $encounters,
             ),
         ];
+        /**
+         * (plus much more)
+         * @var array{
+         *   data: array{
+         *     payin_config_id: string,
+         *   }
+         * }
+         */
         $payinResponse = $this->post('/v1/payin_configs', $payinPayload);
         $payinConfigId = $payinResponse['data']['payin_config_id'];
 
