@@ -3417,13 +3417,13 @@ $GLOBALS_METADATA = [
             xl('Rainforest Merchant ID'),
             'text',
             '',
-            xl('Used when payment_gateawy is Rainforest.'),
+            xl('Used when payment_gateway is Rainforest.'),
         ],
         'rainforest_platform_id' => [
             xl('Rainforest Platform ID'),
             'text',
             '',
-            xl('Used when payment_gateawy is Rainforest.'),
+            xl('Used when payment_gateway is Rainforest.'),
         ],
         'rainforest_webhook_secret' => [
             xl('Rainforest Webhook Secret'),
