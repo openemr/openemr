@@ -203,9 +203,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             }
 
             $message .= "\n" . xl('See the Clinical Reminders widget for more details');
-
-            $onload_code = 'alert(' . js_escape($message) . ');this.parentNode.removeChild(this);';
-            echo '<img src="../../pic/empty.gif" onload="' . attr($onload_code) . '" />';
+            echo '<img src="../../pic/empty.gif" onload="alert(' . attr_js($message) . ');this.parentNode.removeChild(this);" />';
             // end claude code
         }
     }
