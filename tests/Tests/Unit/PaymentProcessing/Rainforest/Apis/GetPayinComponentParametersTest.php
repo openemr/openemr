@@ -3,7 +3,7 @@
 /**
  * Tests for the GetPayinComponentParameters API class
  *
- * @package   OpenEMR\Tests\Unit\PaymentProcessing\Rainforest\Apis
+ * @package   OpenEMR
  * @author    Eric Stern <erics@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR, Inc
  * @license   GNU General Public License 3
