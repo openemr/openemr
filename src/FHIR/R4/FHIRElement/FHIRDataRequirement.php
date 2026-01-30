@@ -389,7 +389,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

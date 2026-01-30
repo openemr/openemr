@@ -35,7 +35,7 @@ if (AclMain::aclCheckCore('patients', 'med')) {
     }
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
     die(xlt("Not authorized"));
 }
 
@@ -47,7 +47,7 @@ foreach ($_POST as $key => $val) {
 
 // Update history_data:
 //
-$newdata = array();
+$newdata = [];
 $fres = sqlStatement(
     "SELECT * FROM layout_options " .
     "WHERE form_id LIKE 'HIS%' AND uor > 0 AND field_id != '' " .

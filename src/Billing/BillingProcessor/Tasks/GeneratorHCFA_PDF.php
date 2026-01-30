@@ -70,7 +70,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     {
         $post = $context['post'];
         $this->pdf = new \Cezpdf('LETTER');
-        $this->pdf->ezSetMargins(trim($post['top_margin']) + 0, 0, trim($post['left_margin']) + 0, 0);
+        $this->pdf->ezSetMargins(trim((string) $post['top_margin']) + 0, 0, trim((string) $post['left_margin']) + 0, 0);
         $this->pdf->selectFont('Courier');
 
         // This is to tell our execute method not to create a new page the first claim
@@ -94,7 +94,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         $hcfa = new Hcfa1500();
         $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
         $this->appendToLog($log);
-        $alines = explode("\014", $lines); // form feeds may separate pages
+        $alines = explode("\014", (string) $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
             // The first claim we don't create a new page.
             if ($this->createNewPage) {
@@ -103,10 +103,10 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
                 $this->createNewPage = true;
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
-            $this->pdf->ezText($tmplines, 12, array(
+            $this->pdf->ezText($tmplines, 12, [
                 'justification' => 'left',
                 'leading' => 12
-            ));
+            ]);
         }
     }
 
@@ -194,7 +194,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         // If we are just validating, the output should be a PDF presented
         // to the user, but we don't save to the edi/ directory.
         // This just writes to a tmp file, serves to user and then removes tmp file
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This is the callback function passed to the logger, called when the
             // result screen is finished rendering. This prints some JS that will
             // start the download of the 'temporary' HCFA pdf after messages have been printed to the
@@ -218,13 +218,13 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         // If a writable edi directory exists (and it should), write the pdf to it.
         $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
         if ($fh) {
-            fwrite($fh, $this->pdf->ezOutput());
+            fwrite($fh, (string) $this->pdf->ezOutput());
             fclose($fh);
         }
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This uses our parent's method to print the JS that automatically initiates
             // the download of this file, after the screen bill_log messages have printed
             $this->printDownloadClaimFileJS($this->batch->getBatFilename());

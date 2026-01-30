@@ -24,8 +24,8 @@ $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
         JOIN lang_constants AS c ON d.cons_id = c.cons_id
         WHERE d.lang_id = ?";
 $tarns = sqlStatement($sql, $_GET['lang_id']);
-$json = array();
-while ($row = SqlFetchArray($tarns)) {
+$json = [];
+while ($row = sqlFetchArray($tarns)) {
     $json[$row['constant_name']] = $row['definition'];
 }
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

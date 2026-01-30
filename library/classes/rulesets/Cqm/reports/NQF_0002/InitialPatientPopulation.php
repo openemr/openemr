@@ -41,7 +41,7 @@ class NQF_0002_InitialPatientPopulation implements CqmFilterIF
                      "WHERE opc.pc_catname = 'Office Visit' AND fe.pid = ? AND (fe.date BETWEEN ? AND ? ) " .
                      " AND p.rxnorm_drugcode in ( $antibiotics ) AND DATEDIFF(fe.date,p.date_added) <= 3";
 
-            $check = sqlQuery($query, array($patient->id, $beginDate, $endDate));
+            $check = sqlQuery($query, [$patient->id, $beginDate, $endDate]);
             if (!empty($check['drug'])) {
                 if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate)) {
                     return true;

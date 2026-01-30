@@ -157,7 +157,7 @@ function check_search_str()
     {
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
-    $res = sqlStatement($query, array('%' . $search_term . '%'));
+    $res = sqlStatement($query, ['%' . $search_term . '%']);
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
@@ -173,12 +173,12 @@ function check_search_str()
         $query = "SELECT option_id,title FROM list_options " .
         "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
         "ORDER BY title";
-        $res = sqlStatement($query, array('%' . $search_term . '%'));
+        $res = sqlStatement($query, ['%' . $search_term . '%']);
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
-            $row_count = $row_count + 1;
+            $row_count += 1;
             $itercode = $row['option_id'];
-            $itertext = ucfirst(strtolower(trim($row['title'])));
+            $itertext = ucfirst(strtolower(trim((string) $row['title'])));
             ?>
        <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }

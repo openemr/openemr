@@ -17,6 +17,9 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
@@ -28,11 +31,10 @@ class HhMainMenuLinksTest extends PantherTestCase
     private $client;
     private $crawler;
 
-    /**
-     * @dataProvider menuLinkProvider
-     * @depends testLoginAuthorized
-     */
-    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading): void
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testLoginAuthorized')]
+    #[Test]
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading = ''): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
@@ -133,7 +135,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Clinic -> Report Results menu link' => ['Reports||Clinic||Report Results', 'Report Results/History'],
             'Reports -> Clinic -> Standard Measures menu link' => ['Reports||Clinic||Standard Measures', 'Standard Measures'],
             'Reports -> Clinic -> Automated Measures (AMC) menu link' => ['Reports||Clinic||Automated Measures (AMC)', 'Automated Measure Calculations (AMC)'],
-            'Reports -> Clinic -> 2025 Real World Testing Report menu link' => ['Reports||Clinic||2025 Real World Testing Report', '2025 Real World Testing Report'],
+            'Reports -> Clinic -> 2026 Real World Testing Report menu link' => ['Reports||Clinic||2026 Real World Testing Report', '2026 Real World Testing Report'],
             'Reports -> Clinic -> Alerts Log menu link' => ['Reports||Clinic||Alerts Log', 'Alerts Log'],
             'Reports -> Visits -> Daily Report menu link' => ['Reports||Visits||Daily Report', 'Daily Summary Report'],
             'Reports -> Visits -> Patient Flow Board menu link' => ['Reports||Visits||Patient Flow Board', 'Patient Flow Board Report'],

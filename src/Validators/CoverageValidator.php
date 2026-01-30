@@ -49,12 +49,12 @@ class CoverageValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 if (!$context instanceof OpenEMRParticleValidator) {
                     throw new \RuntimeException("CoverageValidator requires an instance of OpenEMRParticleValidator");
                 }
                 $context->required('pid')->numeric();
-                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required('type')->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value) {
                         if ($GLOBALS['insurance_only_one']) {
                             if ($value !== 'primary') {
@@ -194,7 +194,7 @@ class CoverageValidator extends BaseValidator
                                     throw new InvalidValueException("A current policy (no end date) already exists for this patient and type.", "Record::DUPLICATE_CURRENT_POLICY");
                                 }
                             }
-                            if (!empty($values['date_end']) && strtotime($values['date']) > strtotime($values['date_end'])) {
+                            if (!empty($values['date_end']) && strtotime((string) $values['date']) > strtotime((string) $values['date_end'])) {
                                 throw new InvalidValueException("Start date cannot be after end date", "DateTime::INVALID_START_DATE");
                             }
                         }
@@ -208,23 +208,19 @@ class CoverageValidator extends BaseValidator
                             }
                         }
                         return false;
-                    }, null, true)
+                    })
                     ->datetime('Y-m-d')
-                    ->callback(function ($value, $values) {
-
-
-                        return true;
-                    });
+                    ->callback(fn($value, $values): true => true);
             }
         );
 
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
+                    function ($rules): void {
                         foreach ($rules as $key => $chain) {
                             if ($key !== 'type') {
                                 $chain->required(false);
@@ -233,20 +229,16 @@ class CoverageValidator extends BaseValidator
                     }
                 );
                 // additional uuid validation
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
             }
         );
 
         $this->validator->context(
             self::DATABASE_SWAP_CONTEXT,
-            function (Validator $context) {
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+            function (Validator $context): void {
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
                 $context->required("pid", "Patient ID")->numeric();
-                $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required("type", "Coverage Type")->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value, $values) {
                         if (empty($values['uuid']) && empty($values['pid'])) {
                             return true; // nothing to do here if we don't have a uuid or pid, so don't run the check and let other failures happen

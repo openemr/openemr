@@ -30,7 +30,10 @@ require_once("$srcdir/patient.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
@@ -45,7 +48,7 @@ $PDF_OUTPUT = ($patientid && $isform) ? false : true;
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -53,9 +56,9 @@ if ($PDF_OUTPUT) {
 
 $CPR = 4; // cells per row
 
-$prow = array();
-$erow = array();
-$irow = array();
+$prow = [];
+$erow = [];
+$irow = [];
 
 if ($patientid) {
     $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -72,7 +75,7 @@ if ($patientid) {
 }
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties('DEM', $grparr);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -187,14 +190,14 @@ td.dcols3 { width: 80%; }
 <?php
 // Generate header with optional logo.
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }
 
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -203,7 +206,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -217,10 +220,10 @@ function end_row()
     }
 }
 
-function end_group()
+function end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
+    if (strlen((string) $last_group) > 0) {
         end_row();
         echo " </table>\n";
         echo "</div>\n";
@@ -246,8 +249,8 @@ while ($frow = sqlFetchArray($fres)) {
     $list_id    = $frow['list_id'];
     $currvalue  = '';
 
-    if (strpos($field_id, 'em_') === 0) {
-        $tmp = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $tmp = substr((string) $field_id, 3);
         if (isset($erow[$tmp])) {
             $currvalue = $erow[$tmp];
         }
@@ -258,7 +261,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
   // Handle a data category (group) change.
-    if (strcmp($this_group, $last_group) != 0) {
+    if (strcmp((string) $this_group, (string) $last_group) != 0) {
         end_group();
 
         // if (strlen($last_group) > 0) echo "<br />\n";
@@ -267,7 +270,7 @@ while ($frow = sqlFetchArray($fres)) {
         // nasty html2pdf bug. When a table overflows to the next page, vertical
         // positioning for whatever follows it is off and can cause overlap.
         // TODO - now use mPDF, so should test if still need this fix
-        if (strlen($last_group) > 0) {
+        if (strlen((string) $last_group) > 0) {
             echo "</nobreak><br /><div><table><tr><td>&nbsp;</td></tr></table></div><br />\n";
         }
 
@@ -352,7 +355,7 @@ end_group();
 
 // Ending the last nobreak section for html2pdf.
 // TODO - now use mPDF, so should test if still need this fix
-if (strlen($last_group) > 0) {
+if (strlen((string) $last_group) > 0) {
     echo "</nobreak>\n";
 }
 ?>

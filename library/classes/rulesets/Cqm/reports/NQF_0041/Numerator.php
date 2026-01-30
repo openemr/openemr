@@ -9,6 +9,9 @@
 //
 class NQF_0041_Numerator implements CqmFilterIF
 {
+    // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
+    const INFLU_VACCINE = 'pro_influenza_vaccine';
+
     public function getTitle()
     {
         return "Numerator";
@@ -16,9 +19,9 @@ class NQF_0041_Numerator implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime($beginDate)));
-        $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime($beginDate)));
-        $influenza_procedure = implode(',', Codes::lookup(Procedure::INFLU_VACCINE, 'SNOMED'));
+        $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime((string) $beginDate)));
+        $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime((string) $beginDate)));
+        $influenza_procedure = implode(',', Codes::lookup(self::INFLU_VACCINE, 'SNOMED'));
         $influenza_medication = implode(',', Codes::lookup(Medication::INFLUENZA_VACCINE, 'CVX'));
         $provider_communication = implode(',', Codes::lookup(Communication::PREV_RECEIPT_VACCINE, 'SNOMED'));
 
@@ -29,7 +32,7 @@ class NQF_0041_Numerator implements CqmFilterIF
                "WHERE pid = ? and fe.date between ? and  ? " .
                "AND poc.procedure_code in ($influenza_procedure) and ( po.date_ordered <= ? or po.date_ordered <= ? )";
 
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days]);
         if ($sql['cnt'] > 0) {
             return true;
         }
@@ -38,7 +41,7 @@ class NQF_0041_Numerator implements CqmFilterIF
                "INNER JOIN immunizations imm on imm.patient_id = fe.pid " .
                "WHERE pid = ? and fe.date between ? and ? " .
                "AND imm.cvx_code in ($influenza_medication) and (imm.administered_date <= ? or imm.administered_date <= ?) ";
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days]);
         if ($sql['cnt'] > 0) {
             return true;
         }

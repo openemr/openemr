@@ -337,7 +337,7 @@ if (empty($row)) {
         }
 
         if ($no_of_items <= 1) {
-       //start new search - no patient record fount
+       //start new search - no patient record found
             $query = "update de_identification_status set status = 0";
             $res = sqlStatement($query);
             ?>
@@ -406,7 +406,7 @@ if (empty($row)) {
         <td>&nbsp;</td>
         <td rowspan="3">
         <br />
-        <?php echo xlt('Some error has occured during De Identification Process');
+        <?php echo xlt('Some error has occurred during De Identification Process');
           echo "<br /><br />";
           echo xlt('De Identified data may not be complete');
           echo "<br /><br />";
@@ -440,10 +440,10 @@ if (empty($row)) {
     <tr rowspan=2>
         <td>&nbsp;</td>
         <td><span class="text"><?php echo xlt('Begin Date'); ?></span>
-        <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? attr(substr($result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
+        <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
-        <td><span class="text"><?php xl('End Date', 'e'); ?></span>
-        <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? attr(substr($result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
+        <td><span class="text"><?php echo xl('End Date'); ?></span>
+        <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>

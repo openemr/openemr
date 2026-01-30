@@ -41,7 +41,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
     //
     $ret_str = '';
 
-    $aktext['ak304'] = array(
+    $aktext['ak304'] = [
             '1' => 'Unrecognized segment ID',
             '2' => 'Unexpected segment',
             '3' => 'Mandatory segment missing',
@@ -55,9 +55,9 @@ function edih_997_code_text($ak_seg_field, $ak_code)
             'I7' => 'Implementation loop occurs less than minimum times',
             'I8' => 'Implementation segment below minimum use',
             'I9' => 'Implementation dependent not used segment present'
-            );
+            ];
 
-    $aktext['ak403'] = array(
+    $aktext['ak403'] = [
            '1' => 'Mandatory data element missing',
            '2' => 'Conditional required data element missing',
            '3' => 'Too many data elements',
@@ -76,9 +76,9 @@ function edih_997_code_text($ak_seg_field, $ak_code)
            'I13' => 'Implementation dependent not used data element present',
            'I6' => 'Code value not used in implimentation',
            'I9' => 'Implementation dependent data element missing'
-           );
+           ];
 
-    $aktext['ak501'] = array(
+    $aktext['ak501'] = [
            'A' => 'Accepted advised',
            'E' => 'Accepted, but errors were noted',
            'M' => 'Rejected, message authentication code (MAC) failed',
@@ -86,9 +86,9 @@ function edih_997_code_text($ak_seg_field, $ak_code)
            'R' => 'Rejected advised',
            'W' => 'Rejected, assurance failed validity tests',
            'X' => 'Rejected, content after decryption could not be analyzed'
-           );
+           ];
 
-     $aktext['ak502'] = array(
+     $aktext['ak502'] = [
          '1' => 'Functional Group not supported',
          '2' => 'Functional Group Version not supported',
          '3' => 'Functional Group Trailer missing',
@@ -110,9 +110,9 @@ function edih_997_code_text($ak_seg_field, $ak_code)
          '25' => 'S4E Security End Segment missing for S4S Security Start Segment',
          '26' => 'S4S Security Start Segment missing for S4E Security End Segment',
          'I6' => 'Implementation dependent segment missing',
-         );
+         ];
     // array_key_exists($ak_seg_field, $aktext) && array_key_exists($ak_code, $aktext[$ak_seg_field]) )
-     return ( isset($aktext[$ak_seg_field][$ak_code]) ) ? $aktext[$ak_seg_field][$ak_code] : '';
+     return $aktext[$ak_seg_field][$ak_code] ?? '';
     //if ( isset($aktext[$ak_seg_field][$ak_code]) ) {
     //  return $aktext[$ak_seg_field][$ak_code];
     //} else {
@@ -131,7 +131,7 @@ function edih_997_ta1_code($code)
 {
     // codes in TA1 segment elements 4 and 5, since codes are distinct form, all values in one array
 
-    $ta1code = array('A' => 'Interchange accepted with no errors.',
+    $ta1code = ['A' => 'Interchange accepted with no errors.',
         'R' => 'Interchange rejected because of errors. Sender must resubmit file.',
         'E' => 'Interchange accepted, but errors are noted. Sender must not resubmit file.',
         '000' => 'No error',
@@ -166,7 +166,7 @@ function edih_997_ta1_code($code)
         '029' => 'Invalid delivery time in Deferred Delivery Request',
         '030' => 'Invalid delivery time Code in Deferred Delivery Request',
         '031' => 'Invalid grade of Service Code'
-        );
+        ];
     if (array_key_exists($code, $ta1code)) {
         return  $ta1code[$code];
     } else {

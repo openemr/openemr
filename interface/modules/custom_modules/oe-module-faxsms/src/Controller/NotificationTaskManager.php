@@ -46,11 +46,7 @@ class NotificationTaskManager
             return false;
         }
 
-        if (empty($hours)) {
-            $total_minutes = $this->getTaskHours($type);
-        } else {
-            $total_minutes = $hours * 60;
-        }
+        $total_minutes = empty($hours) ? $this->getTaskHours($type) : $hours * 60;
 
         $sql = "SELECT COUNT(*) as count FROM `background_services` WHERE `name` = ?";
         $result = sqlQueryNoLog($sql, [$name]);
@@ -60,8 +56,8 @@ class NotificationTaskManager
             return false;
         }
 
-        $sql = "INSERT INTO `background_services` 
-                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
+        $sql = "INSERT INTO `background_services`
+                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`)
                 VALUES (?, 'Scheduled Automated Notifications', '0', '0', current_timestamp(), ?, ?, '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php', '100')";
         sqlStatementNoLog($sql, [$name, $total_minutes, $fn]);
 

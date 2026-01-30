@@ -9,7 +9,6 @@
  */
 
 require_once dirname(__FILE__, 5) . "/globals.php";
-require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
@@ -29,18 +28,10 @@ if (!empty($_POST['token'])) {
     }
 
     $postStartDate = DateToYYYYMMDD($_POST['start_date']);
-    if (isValid($postStartDate) === true) {
-        $startDate = $postStartDate ;
-    } else {
-        $startDate = $_POST['start_date'];
-    }
+    $startDate = isValid($postStartDate) === true ? $postStartDate : $_POST['start_date'];
 
     $postEndDate = DateToYYYYMMDD($_POST['end_date']);
-    if (isValid($postEndDate) === true) {
-        $endDate = $postEndDate;
-    } else {
-        $endDate = $_POST['end_date'];
-    }
+    $endDate = isValid($postEndDate) === true ? $postEndDate : $_POST['end_date'];
 
     $postData = new AuthorizationService();
     $postData->setId($_POST['id']);
@@ -149,8 +140,8 @@ const TABLE_TD = "</td><td>";
                 if (!empty($authList)) {
                     while ($iter = sqlFetchArray($authList)) {
                         $editData = json_encode($iter);
-                        $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
-                        $remaining = $iter['init_units'] - $used['count'];
+                        $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
+                        $remaining = $iter['init_units'] - $used;
                         print "<tr><td>";
                         print text($iter['auth_num']);
                         print TABLE_TD . text($iter['init_units']);

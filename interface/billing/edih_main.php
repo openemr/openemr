@@ -7,14 +7,23 @@
  * @link      http://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+
+// Access control - same permission required as edih_view.php
+if (!AclMain::aclCheckCore('acct', 'eob')) {
+    http_response_code(403);
+    die(xlt('Access denied'));
+}
 
 /**
  * this define is used to prevent direct access to the included scripts
@@ -23,7 +32,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 define('SITE_IN', 1);
 
 // define constants
-// since enounter digits are sequential, digit length should rarely change
+// since encounter digits are sequential, digit length should rarely change
 // however for a startup they may, or a "mask" value of 1000 or 10000
 // would be a good idea if there are problems with deciphering the pid-encounter
 // same idea for pid value, but since encounter is unique and always last, it is essential
@@ -56,21 +65,21 @@ if (!defined("DS")) {
 
 //
 // path will be "$srcdir/edihistory/filename.php"
-require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php");
-require_once("$srcdir/edihistory/edih_io.php");         //dirname(__FILE__) . "/edihist/ibr_io.php");
+require_once("$srcdir/edihistory/edih_csv_inc.php");    //__DIR__ . "/edihist/csv_record_include.php");
+require_once("$srcdir/edihistory/edih_io.php");         //__DIR__ . "/edihist/ibr_io.php");
 require_once("$srcdir/edihistory/edih_x12file_class.php");
-require_once("$srcdir/edihistory/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php");
-require_once("$srcdir/edihistory/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php");
-require_once("$srcdir/edihistory/edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
+require_once("$srcdir/edihistory/edih_uploads.php");         //__DIR__ . "/edihist/ibr_uploads.php");
+require_once("$srcdir/edihistory/edih_csv_parse.php");          //__DIR__ . "/edihist/ibr_997_read.php");
+require_once("$srcdir/edihistory/edih_csv_data.php");          //__DIR__ . "/edihist/ibr_277_read.php");
 require_once("$srcdir/edihistory/edih_997_error.php");
 require_once("$srcdir/edihistory/edih_segments.php");
-require_once("$srcdir/edihistory/edih_archive.php");        //dirname(__FILE__) . "/edihist/ibr_batch_read.php");
-require_once("$srcdir/edihistory/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");
+require_once("$srcdir/edihistory/edih_archive.php");        //__DIR__ . "/edihist/ibr_batch_read.php");
+require_once("$srcdir/edihistory/edih_271_html.php");          //__DIR__ . "/edihist/ibr_ack_read.php");
 require_once("$srcdir/edihistory/edih_277_html.php");
 require_once("$srcdir/edihistory/edih_278_html.php");
-require_once("$srcdir/edihistory/edih_835_html.php");           //dirname(__FILE__) . "/edihist/ibr_era_read.php");
-require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
-require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php");
+require_once("$srcdir/edihistory/edih_835_html.php");           //__DIR__ . "/edihist/ibr_era_read.php");
+require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //__DIR__ . "/edihist/ibr_code_arrays.php");
+require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //__DIR__ . "/edihist/ibr_status_code_arrays.php");
 require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 //
 // php may output line endings with included files
@@ -84,7 +93,7 @@ if (isset($GLOBALS['OE_SITE_DIR'])) {
 }
 
 // if we are not set up, create directories and csv files
-//if (!is_dir(dirname(__FILE__) . '/edihist' . IBR_HISTORY_DIR) ) {
+//if (!is_dir(__DIR__ . '/edihist' . IBR_HISTORY_DIR) ) {
 if (!is_dir($edih_tmp_dir)) {
     //
     //echo "setup with base directory: $edih_base_dir <br />" .PHP_EOL;
@@ -99,7 +108,7 @@ if (!is_dir($edih_tmp_dir)) {
     }
 }
 
-// avoid unitialized variable error
+// avoid uninitialized variable error
 $html_str = '';
 // debug
 if (count($_GET)) {
@@ -125,7 +134,7 @@ if (count($_POST)) {
 /*
  * functions called in the if stanzas are now in edih_io.php
  */
-if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -173,7 +182,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
         csv_edihist_log($bg_str);
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
-} elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
+} elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -238,11 +247,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
             $html_str = edih_disp_x12trans();
         } elseif ($gtb == 'hist') {
             $chkd = (isset($_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_DEFAULT) : '';
-            if ($chkd == 'yes') {
-                $html_str = edih_disp_denied_claims();
-            } else {
-                $html_str = edih_disp_x12trans();
-            }
+            $html_str = $chkd == 'yes' ? edih_disp_denied_claims() : edih_disp_x12trans();
         } else {
             $html_str = '<p>Input error: missing parameter</p>';
             csv_edihist_log("GET error: missing parameter, no 'gtbl' value");
@@ -289,11 +294,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
         // =======================================
         $lgnm = (isset($_GET['log_select'])) ? filter_input(INPUT_GET, 'log_select', FILTER_DEFAULT) : '';
         $la = (isset($_GET['logshowfile'])) ? filter_input(INPUT_GET, 'logshowfile', FILTER_DEFAULT) : '';
-        if ($la == 'getlog' && $lgnm) {
-            $html_str = csv_log_html($lgnm);
-        } else {
-            $html_str = "Show Log: input parameter error<br />" ;
-        }
+        $html_str = $la == 'getlog' && $lgnm ? csv_log_html($lgnm) : "Show Log: input parameter error<br />";
     } elseif (isset($_GET['getnotes'])) {
         // ========= log user access for user commands ===========
         csv_edihist_log("User: " . $_SERVER['REMOTE_ADDR'] . ' - ' . date("F j, Y, g:i a"));

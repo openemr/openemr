@@ -14,17 +14,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 // block of code to securely support use by the patient portal
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($isPortal) {
     $ignoreAuth_onsite_portal = true;
@@ -32,7 +33,10 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getString('srcdir') . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
+// used for form generation utilities
+require_once("$srcdir/options.inc.php");
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -150,17 +154,9 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos((string) $GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
 } else {
-    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos((string) $GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
 }
 
 if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
@@ -488,6 +484,10 @@ if ($isModule || $isDashboard || $isPortal) {
             <?php } ?>
             <div class="mb-3">
                 <div class="input-group isNew d-none">
+                    <label for="category" class="font-weight-bold mt-2 mr-1"><?php echo xlt('Category'); ?>:</label>
+                    <?php echo generate_select_list('category', 'Observation_Types', $form['category'] ?? $q['category'] ?? 'survey', '', 'Unassigned', 'form-control-sm'); ?>
+                </div>
+                <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field bg-light text-dark" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
                 </div>
@@ -549,7 +549,7 @@ if ($isModule || $isDashboard || $isPortal) {
         $(function () {
             window.addEventListener("message", (e) => {
                 if (e.origin !== window.location.origin) {
-                    syncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
+                    asyncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {
@@ -558,7 +558,7 @@ if ($isModule || $isDashboard || $isPortal) {
                         e.preventDefault();
                         document.forms[0].submit();
                     } else {
-                        syncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
+                        asyncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
                         return false;
                     }
                 }

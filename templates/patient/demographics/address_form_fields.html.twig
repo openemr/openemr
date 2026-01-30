@@ -1,0 +1,179 @@
+{#
+  Address Form Fields Template
+  Reusable form fields for address editing
+#}
+
+{% set edit_options = edit_options|default('edit') %}
+{% set smallform = smallform|default('form-control form-control-sm') %}
+
+<div class="col-12">
+    {# Header Row 1 #}
+    <div class="form-row">
+        <div class="col-3 label_custom">
+            {{ 'Address Use'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Address Type'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Start Date'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'End Date'|xlt }}
+        </div>
+    </div>
+
+    {# Values Row 1 #}
+    <div class="form-row">
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][use]',
+                'smallform': smallform ~ ' form_addresses_uses',
+                'list_id': 'address-uses',
+                'empty_name': 'Unassigned',
+                'edit_options': edit_options
+            }, address.use|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][type]',
+                'smallform': smallform ~ ' form_addresses_types',
+                'list_id': 'address-types',
+                'empty_name': 'Unassigned',
+                'edit_options': edit_options
+            }, address.type|default('both')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textDate,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][period_start]',
+                'smallform': smallform ~ ' form_addresses_period_start'
+            }, address.period_start|default('now'|date('Y-m-d'))) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textDate,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][period_end]',
+                'smallform': smallform ~ ' form_addresses_period_end'
+            }, address.period_end|default('')) }}
+        </div>
+    </div>
+
+    {# Header Row 2 #}
+    <div class="form-row">
+        <div class="col-3 label_custom">
+            {{ 'Address'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Address Line 2'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'City'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'County/District'|xlt }}
+        </div>
+    </div>
+
+    {# Values Row 2 #}
+    <div class="form-row">
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][line_1]',
+                'smallform': smallform ~ ' form_addresses_line1'
+            }, address.line1|default(address.line_1)|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][line_2]',
+                'smallform': smallform ~ ' form_addresses_line2'
+            }, address.line2|default(address.line_2)|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][city]',
+                'smallform': smallform ~ ' form_addresses_city'
+            }, address.city|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][district]',
+                'smallform': smallform ~ ' form_addresses_district'
+            }, address.district|default('')) }}
+        </div>
+    </div>
+
+    {# Header Row 3 #}
+    <div class="form-row">
+        <div class="col-3 label_custom">
+            {{ 'State'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Postal Code'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Country'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Priority'|xlt }}
+        </div>
+    </div>
+
+    {# Values Row 3 #}
+    <div class="form-row">
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][state]',
+                'smallform': smallform ~ ' form_addresses_state',
+                'list_id': 'state',
+                'empty_name': 'Unassigned',
+                'edit_options': edit_options
+            }, address.state|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][zip]',
+                'smallform': smallform ~ ' form_addresses_postalcode'
+            }, address.zip|default(address.postalcode)|default(address.postal_code)|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][country]',
+                'smallform': smallform ~ ' form_addresses_country',
+                'list_id': 'country',
+                'empty_name': 'Unassigned',
+                'edit_options': edit_options
+            }, address.country|default('USA')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ address_index ~ '][priority]',
+                'smallform': smallform ~ ' form_addresses_priority'
+            }, address.priority|default('0')) }}
+        </div>
+    </div>
+
+    {# Notes Row #}
+    <div class="form-row">
+        <div class="col-12 label_custom">
+            {{ 'Notes'|xlt }}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <textarea class="form-control form_addresses_notes"
+                      name="{{ name_field_id|attr }}[{{address_index}}][notes]"
+                      rows="2">{{ address.notes|default('')|text }}</textarea>
+        </div>
+    </div>
+</div>

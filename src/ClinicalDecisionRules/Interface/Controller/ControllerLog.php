@@ -95,12 +95,8 @@ class ControllerLog extends BaseController
             }
 
             //Prepare the targets
-            $all_alerts = json_decode($row['value'], true);
-            if (!empty($row['new_value'])) {
-                $new_alerts = json_decode($row['new_value'], true);
-            } else {
-                $new_alerts = [];
-            }
+            $all_alerts = json_decode((string) $row['value'], true);
+            $new_alerts = !empty($row['new_value']) ? json_decode((string) $row['new_value'], true) : [];
             $row['category_title'] = $category_title;
             $row['all_alerts'] = $all_alerts;
             $row['new_alerts'] = $new_alerts;
@@ -118,14 +114,14 @@ class ControllerLog extends BaseController
         foreach ($alerts as $targetInfo => $alert) {
             if (($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup')) {
                 $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
-                $catAndTarget = explode(':', $targetInfo);
+                $catAndTarget = explode(':', (string) $targetInfo);
                 $category = $catAndTarget[0];
                 $target = $catAndTarget[1];
                 $formattedAlerts[] = [
                     'title' => $rule_title,
-                    'rule_action_category' => generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category),
-                    'rule_action' => generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $target),
-                    'due_status' => generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $alert['due_status']),
+                    'rule_action_category' => generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category),
+                    'rule_action' => generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $target),
+                    'due_status' => generate_display_field(['data_type' => '1','list_id' => 'rule_reminder_due_opt'], $alert['due_status']),
                     'feedback' => $alert['feedback'] ?? null,
                     'rawAlert' => $alert,
                     'text' => null

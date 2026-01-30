@@ -14,6 +14,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 
 class TrustedUserService
 {
@@ -26,21 +27,32 @@ class TrustedUserService
 
     public function getTrustedUsersForClient($clientId)
     {
-        $records = QueryUtils::fetchRecords("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ?", array($clientId));
+        $records = QueryUtils::fetchRecords("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ?", [$clientId]);
         return $records;
     }
 
-    public function getTrustedUser($clientId, $userId)
+    public function getTrustedUser($clientId, $userId): array|false
     {
-        $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
+        $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", [$clientId, $userId]);
         return $trusted;
     }
 
-    public function getTrustedUserByCode($code)
+    public function getTrustedUserByCode($code): array|false
     {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
+        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", [$code]);
     }
 
+    /**
+     * @param $clientId
+     * @param $userId
+     * @param $scope
+     * @param $persist
+     * @param $code
+     * @param $session
+     * @param $grant
+     * @throws SqlQueryException If the query fails
+     * @return int The ID of the trusted user record
+     */
     public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code')
     {
         if (\is_array($scope)) {
@@ -50,13 +62,20 @@ class TrustedUserService
             throw new \InvalidArgumentException("userId cannot be null unless this is a client_credentials grant");
         }
         $id = $this->getTrustedUser($clientId, $userId)['id'] ?? '';
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, ?, Now(), ?, ?, ?)";
-
-        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session, $grant));
+        $bind = [$userId, $clientId, $scope, $persist, $code, $session, $grant];
+        if (empty($id)) {
+            $sql = "INSERT INTO `oauth_trusted_user` (`user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, Now(), ?, ?, ?)";
+            $id = QueryUtils::sqlInsert($sql, $bind);
+        } else {
+            $sql = "UPDATE `oauth_trusted_user` SET `user_id` = ?, `client_id` = ?, `scope` = ?, `persist_login` = ?, `time` = Now(), `code` = ?, session_cache = ?, `grant_type` = ? WHERE `oauth_trusted_user`.`id` = ?";
+            $bind[] = $id;
+            QueryUtils::sqlStatementThrowException($sql, $bind);
+        }
+        return intval($id);
     }
 
     public function deleteTrustedUserById($id)
     {
-        return sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", array($id));
+        return sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", [$id]);
     }
 }

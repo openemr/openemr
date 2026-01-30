@@ -19,14 +19,11 @@ class DatabaseException extends Exception
     static $UNKNOWN = 0;
     static $CONNECTION_ERROR = 1;
     static $ERROR_IN_QUERY = 2;
-    public $data;
 
     // Redefine the constructor so message isn't optional
-    public function __construct($message, $code = 0, $data = "")
+    public function __construct($message, $code = 0, public $data = "")
     {
         // make sure everything is assigned properly
         parent::__construct($message, $code);
-
-        $this->data = $data;
     }
 }

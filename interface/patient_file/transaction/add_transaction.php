@@ -19,8 +19,11 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -38,16 +41,16 @@ $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 $body_onload_code = "";
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-    $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
+    $sqlBindArray = [$form_id, $session->get('authUser'), $session->get('authProvider'), $userauthorized];
 
     if ($transid) {
         array_push($sqlBindArray, $transid);
@@ -60,7 +63,7 @@ if ($mode) {
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_id, seq", array($form_id));
+    "ORDER BY group_id, seq", [$form_id]);
 
     while ($frow = sqlFetchArray($fres)) {
         $data_type = $frow['data_type'];
@@ -71,18 +74,18 @@ if ($mode) {
             if ($value === '') {
                 $query = "DELETE FROM lbt_data WHERE " .
                 "form_id = ? AND field_id = ?";
-                sqlStatement($query, array($transid, $field_id));
+                sqlStatement($query, [$transid, $field_id]);
             } else {
                 $query = "REPLACE INTO lbt_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
-                sqlStatement($query, array($value, $transid, $field_id));
+                sqlStatement($query, [$value, $transid, $field_id]);
             }
         } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbt_data " .
                     "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                    array($newid, $field_id, $value)
+                    [$newid, $field_id, $value]
                 );
             }
         }
@@ -119,7 +122,7 @@ if ($mode) {
 
 $CPR = 4; // cells per row
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -128,7 +131,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -142,10 +145,10 @@ function end_row()
     }
 }
 
-function end_group()
+function end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
+    if (strlen((string) $last_group) > 0) {
         end_row();
         echo " </table>\n";
         echo "</div>\n";
@@ -153,7 +156,7 @@ function end_group()
 }
 
 // If we are editing a transaction, get its ID and data.
-$trow = $transid ? getTransById($transid) : array();
+$trow = $transid ? getTransById($transid) : [];
 ?>
 <html>
 <head>
@@ -302,12 +305,18 @@ function sel_related(e) {
     } ?>', '_blank', 500, 400);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+ const params = new URLSearchParams({
+  transaction: <?php echo js_escape($transid); ?>,
+  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+ });
+ dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
  return false;
 }
+// AI-generated code end
 
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
@@ -355,7 +364,7 @@ function submitme() {
 }
 
 <?php if (function_exists($form_id . '_javascript')) {
-    call_user_func($form_id . '_javascript');
+    ($form_id . '_javascript')();
 } ?>
 
 </script>
@@ -372,17 +381,17 @@ div.tab {
 }
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Add/Edit Patient Transaction'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "back",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "transactions.php",//only for actions - reset, link and back
     'show_help_icon' => true,
     'help_file_name' => "add_edit_transactions_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
@@ -390,7 +399,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
@@ -481,14 +490,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
                         $last_group = '';
 
                         while ($frow = sqlFetchArray($fres)) {
                             $this_group = $frow['group_id'];
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -506,7 +515,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
 
                         $last_group = '';
                         $cell_count = 0;
@@ -536,7 +545,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $currvalue = date('Y-m-d');
                                 } elseif ($field_id == 'body' && $transid > 0) {
                                      $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                      "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
+                                      "pid = ? ORDER BY date DESC LIMIT 1", [$pid]);
                                     if (!empty($tmp)) {
                                         $currvalue = $tmp['reason'];
                                     }
@@ -544,9 +553,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
                                 end_group();
-                                $group_seq  = substr($this_group, 0, 1);
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -640,7 +649,7 @@ var skipArray = [
 // titleChanged();
 <?php
 if (function_exists($form_id . '_javascript_onload')) {
-    call_user_func($form_id . '_javascript_onload');
+    ($form_id . '_javascript_onload')();
 }
 ?>
 

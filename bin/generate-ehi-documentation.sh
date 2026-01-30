@@ -3,33 +3,32 @@
 DB_USER=openemr
 DB_NAME=openemr
 DB_SCHEMA=openemr
-DB_HOST=localhost
-DB_PORT=8320
+DB_HOST=172.18.0.6
+DB_PORT=3306
 DB_PASSWORD=openemr
 EHI_ROOT_FILE=../Documentation/EHI_Export/schemaspy
-SCHEMA_LOCATION=$EHI_ROOT_FILE/schemas/
-TEMPLATE_LOCATION=$EHI_ROOT_FILE/layout/
+SCHEMA_LOCATION=${EHI_ROOT_FILE}/schemas/
+TEMPLATE_LOCATION=${EHI_ROOT_FILE}/layout/
 DOC_OUTPUT=../Documentation/EHI_Export/docs/
-JAR_FILES=$EHI_ROOT_FILE/jars
+JAR_FILES=${EHI_ROOT_FILE}/jars
 TYPE=mariadb
-MYSQL_CONNECTOR=$JAR_FILES/mysql-connector-j-8.1.0.jar
-MARIADB_CONNECTOR=$JAR_FILES/mariadb-java-client-3.4.1.jar
-JAVA_CONNECTOR=$MARIADB_CONNECTOR
+MARIADB_CONNECTOR=${JAR_FILES}/mariadb-java-client-3.4.1.jar
+JAVA_CONNECTOR=${MARIADB_CONNECTOR}
 
 EYE_FORMS="form_eye_acuity|form_eye_antseg|form_eye_base|form_eye_biometrics|form_eye_external|form_eye_hpi|form_eye_locking|form_eye_mag_dispense|form_eye_mag_impplan|form_eye_mag_orders|form_eye_mag_wearing|form_eye_neuro|form_eye_postseg|form_eye_refraction|form_eye_ros|form_eye_vitals|form_taskman"
 CAMOS_FORMS="form_CAMOS|form_CAMOS_category|form_CAMOS_item|form_CAMOS_subcategory"
-FORM_ENCOUNTERS="forms|form_encounter|form_vitals|form_misc_billing_options|form_care_plan|form_clinical_instructions|form_clinical_notes|form_functional_cognitive_status|form_observation|form_reviewofs|form_ros|form_soap|form_dictation|form_questionnaire_assessments|form_aftercare_plan|form_ankleinjury|form_bronchitis|form_track_anything|form_track_anything_type|form_track_anything_results|form_sdoh|form_painmap|form_treatment_plan|form_prior_auth|form_gad7|form_phq9|form_note|form_transfer_summary|form_clinic_note|form_physical_exam|form_physical_exam_diagnoses|$CAMOS_FORMS|$EYE_FORMS"
+FORM_ENCOUNTERS="forms|form_encounter|form_vitals|form_misc_billing_options|form_care_plan|form_clinical_instructions|form_clinical_notes|form_functional_cognitive_status|form_observation|form_reviewofs|form_ros|form_soap|form_dictation|form_questionnaire_assessments|form_aftercare_plan|form_ankleinjury|form_bronchitis|form_track_anything|form_track_anything_type|form_track_anything_results|form_sdoh|form_painmap|form_treatment_plan|form_prior_auth|form_gad7|form_phq9|form_note|form_transfer_summary|form_clinic_note|form_physical_exam|form_physical_exam_diagnoses|form_vitals_calculation|form_vitals_calculation_components|form_vitals_calculation_form_vitals|${CAMOS_FORMS}|${EYE_FORMS}"
 BILLING_TABLES="billing|claims|voids|drug_sales|ar_activity|ar_session|insurance_data|eligibility_verification|benefit_eligibility|insurance_companies|insurance_type_codes|facility"
 PATIENT_REMINDER_TABLES="patient_reminders|rule_patient_data|rule_action_item"
 ASSESSMENT_TABLES="pro_assessments|questionnaire_response|questionnaire_repository"
 CALENDAR_TABLES="openemr_postcalendar_events|openemr_postcalendar_categories|medex_recalls"
 STATIC_TABLES="issue_types|list_options|layout_options|layout_group_properties"
-BASE_PATIENT_TABLES="patient_data|lists|lists_medication|prescriptions|immunizations|immunization_observation|pnotes|amendments|documents|transactions|amendments|users|groups|extended_log|history_data|patient_history|pharmacies|shared_attributes|drugs|lbt_data|lbf_data|esign_signatures|external_encounters|external_procedures|patient_tracker|patient_tracker_element|clinical_plans"
+BASE_PATIENT_TABLES="patient_data|lists|lists_medication|prescriptions|immunizations|immunization_observation|pnotes|amendments|documents|transactions|amendments|users|groups|extended_log|history_data|patient_history|pharmacies|shared_attributes|drugs|lbt_data|lbf_data|esign_signatures|external_encounters|external_procedures|patient_tracker|patient_tracker_element|clinical_plans|care_teams|form_history_sdoh|procedure_specimen|procedure_order_relationships|clinical_notes_documents|clinical_notes_procedure_results|form_history_sdoh_health_concerns|patient_treatment_intervention_preferences|patient_care_experience_preferences|preference_value_sets|person|contact_relation|contact_telecom|person_patient_link"
 THERAPY_PATIENT_TABLES="therapy_groups_participant_attendance|therapy_groups_participants|therapy_groups|therapy_groups_counselors|form_groups_encounter|form_group_attendance"
 PORTAL_TABLES="onsite_messages|onsite_mail|patient_access_onsite|onsite_documents|onsite_signatures|onsite_portal_activity"
 PROCEDURE_TABLES="procedure_order|procedure_providers|procedure_answers|procedure_questions|procedure_type|procedure_report|procedure_order_code|procedure_result"
-TABLES_INCLUDE="($BASE_PATIENT_TABLES|$BILLING_TABLES|$FORM_ENCOUNTERS|$CALENDAR_TABLES|$STATIC_TABLES|$PATIENT_REMINDER_TABLES|$ASSESSMENT_TABLES|$THERAPY_PATIENT_TABLES|$PROCEDURE_TABLES|$PORTAL_TABLES)"
-FILTER_CLAUSE="-i $TABLES_INCLUDE"
+TABLES_INCLUDE="(${BASE_PATIENT_TABLES}|${BILLING_TABLES}|${FORM_ENCOUNTERS}|${CALENDAR_TABLES}|${STATIC_TABLES}|${PATIENT_REMINDER_TABLES}|${ASSESSMENT_TABLES}|${THERAPY_PATIENT_TABLES}|${PROCEDURE_TABLES}|${PORTAL_TABLES})"
+FILTER_CLAUSE="-i ${TABLES_INCLUDE}"
 
 #vizjs uses javascript visual
 #pfp says to prompt to a password use -p to supply password on commandline
@@ -43,4 +42,4 @@ FILTER_CLAUSE="-i $TABLES_INCLUDE"
 # -noDbObjectPaging
 # schema file is named openemr.meta.xml
 
-java -jar $JAR_FILES/schemaspy.jar -t $TYPE -host $DB_HOST -port $DB_PORT -db $DB_NAME -u $DB_USER -p $DB_PASSWORD -o $DOC_OUTPUT -s $DB_SCHEMA -dp $JAVA_CONNECTOR -vizjs -norows -noimplied -nopages $FILTER_CLAUSE -meta $SCHEMA_LOCATION -template $TEMPLATE_LOCATION
+java -jar "${JAR_FILES}"/schemaspy.jar -t "${TYPE}" -host "${DB_HOST}" -port "${DB_PORT}" -db "${DB_NAME}" -u "${DB_USER}" -p "${DB_PASSWORD}" -o "${DOC_OUTPUT}" -s "${DB_SCHEMA}" -dp "${JAVA_CONNECTOR}" -vizjs -norows -noimplied -nopages "${FILTER_CLAUSE}" -meta "${SCHEMA_LOCATION}" -template "${TEMPLATE_LOCATION}"

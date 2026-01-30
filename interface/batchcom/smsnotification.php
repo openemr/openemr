@@ -57,9 +57,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
     if (!$form_err) {
         $sql_text = " ( `notification_id` , `sms_gateway_type` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
         $sql_value = " (?, ?, ?, ?, ?, ?, ?) ";
-        $values = array($_POST['notification_id'], $_POST['sms_gateway_type'],
+        $values = [$_POST['notification_id'], $_POST['sms_gateway_type'],
                         $_POST['provider_name'], $_POST['message'],
-                        '', '', 'SMS');
+                        '', '', 'SMS'];
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query, $values);
@@ -86,7 +86,7 @@ if ($result) {
 
 // array of legal values for sms_gateway_type.  This is a string field in
 // the db, not an enum, so new values can be added here with no db change.
-$sms_gateway = array ('CLICKATELL','TMB4');
+$sms_gateway =  ['CLICKATELL','TMB4'];
 
 //START OUT OUR PAGE....
 ?>

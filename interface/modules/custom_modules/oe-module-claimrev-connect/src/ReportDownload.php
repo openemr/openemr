@@ -19,7 +19,7 @@ class ReportDownload extends BaseService
 {
     public static function getWaitingFiles()
     {
-        $reportTypes = array("999", "277");
+        $reportTypes = ["999", "277"];
         $siteDir = $GLOBALS['OE_SITE_DIR'];
         //should be something like '/var/www/localhost/htdocs/openemr/sites/default'
 
@@ -34,7 +34,7 @@ class ReportDownload extends BaseService
 
             //$savePath = $siteDir . '/documents/edi/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
+                // Create a directory
                 mkdir($savePath, 0777, true);
             }
 
@@ -64,7 +64,7 @@ class ReportDownload extends BaseService
 
         //$savePath = $siteDir . '/documents/edi/';
         if (!file_exists($savePath)) {
-            // Create a direcotry
+            // Create a directory
             mkdir($savePath, 0777, true);
         }
 

@@ -14,18 +14,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $isPortal = false;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../interface/globals.php");
 }
@@ -35,7 +39,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere')) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 

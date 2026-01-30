@@ -1,0 +1,107 @@
+rules:
+  # Override echoed-request rule from p/php to add OpenEMR sanitizers
+  # This prevents false positives for OpenEMR's escaping functions like attr(), text(), xlt(), etc.
+  # See: library/htmlspecialchars.inc.php for function implementations
+- id: echoed-request
+  mode: taint
+  message: >-
+    `Echo`ing user input risks cross-site scripting vulnerability.
+    Use `attr()` for attribute values or `text()` for text content.
+    See library/htmlspecialchars.inc.php for available sanitizers.
+  languages: [php]
+  severity: ERROR
+  pattern-sources:
+  - pattern: $_REQUEST
+  - pattern: $_GET
+  - pattern: $_POST
+  pattern-sinks:
+  - pattern: echo $...VARS;
+  pattern-sanitizers:
+      # Standard PHP sanitizers
+  - pattern: htmlentities(...)
+  - pattern: htmlspecialchars(...)
+  - pattern: strip_tags(...)
+  - pattern: isset(...)
+  - pattern: empty(...)
+      # WordPress sanitizers
+  - pattern: esc_html(...)
+  - pattern: esc_attr(...)
+  - pattern: wp_kses(...)
+      # Laravel/Symfony/Twig sanitizers
+  - pattern: e(...)
+  - pattern: twig_escape_filter(...)
+      # CodeIgniter sanitizers
+  - pattern: xss_clean(...)
+  - pattern: html_escape(...)
+      # Drupal sanitizers
+  - pattern: Html::escape(...)
+  - pattern: Xss::filter(...)
+      # Laminas sanitizers
+  - pattern: escapeHtml(...)
+  - pattern: escapeHtmlAttr(...)
+      # OpenEMR sanitizers (library/htmlspecialchars.inc.php)
+  - pattern: text(...)
+  - pattern: attr(...)
+  - pattern: attr_url(...)
+  - pattern: attr_js(...)
+  - pattern: js_escape(...)
+  - pattern: js_url(...)
+  - pattern: xlt(...)
+  - pattern: xla(...)
+  - pattern: xlj(...)
+  - pattern: xlx(...)
+  - pattern: xmlEscape(...)
+  - pattern: csvEscape(...)
+  - pattern: errorLogEscape(...)
+      # OpenEMR display function (library/options.inc.php) - uses htmlspecialchars internally
+  - pattern: generate_display_field(...)
+  fix: echo attr($...VARS);
+  metadata:
+    technology:
+    - php
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A07:2017 - Cross-Site Scripting (XSS)
+    - A03:2021 - Injection
+    category: security
+    references:
+    - https://www.php.net/manual/en/function.htmlentities.php
+    - https://www.php.net/manual/en/reserved.variables.request.php
+    - https://www.php.net/manual/en/reserved.variables.post.php
+    - https://www.php.net/manual/en/reserved.variables.get.php
+    - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+    cwe2022-top25: true
+    cwe2021-top25: true
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: MEDIUM
+    confidence: MEDIUM
+
+  # OpenEMR-specific SQL functions with string concatenation
+  # These functions are unique to OpenEMR and not covered by p/php or p/security-audit
+- id: openemr-sql-injection-sqlstatement
+  patterns:
+  - pattern: sqlStatement($QUERY, ...)
+  - pattern-not: sqlStatement("...", ...)
+  - metavariable-pattern:
+      metavariable: $QUERY
+      pattern-either:
+      - pattern: $X . $Y
+      - pattern: '"$X$Y"'
+  message: Potential SQL injection in sqlStatement() - use parameterized queries
+  languages: [php]
+  severity: ERROR
+- id: openemr-sql-injection-sqlquery
+  patterns:
+  - pattern: sqlQuery($QUERY, ...)
+  - pattern-not: sqlQuery("...", ...)
+  - metavariable-pattern:
+      metavariable: $QUERY
+      pattern-either:
+      - pattern: $X . $Y
+      - pattern: '"$X$Y"'
+  message: Potential SQL injection in sqlQuery() - use parameterized queries
+  languages: [php]
+  severity: ERROR

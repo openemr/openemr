@@ -48,7 +48,7 @@ class NQF_0101_DenominatorException implements CqmFilterIF
                             "AND ( prc.procedure_code = '160685001' OR  prc.procedure_code = '161590003' OR prc.procedure_code = '183932001' OR prc.procedure_code = '183964008' OR prc.procedure_code = '183966005' OR prc.procedure_code = '216952002' OR prc.procedure_code = '266721009' OR prc.procedure_code = '269191009' ) " .
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
 
-        $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
+        $check = sqlQuery($riskCatAssessQry, [$beginDate, $endDate, $patient->id]);
         if ($check['cnt'] > 0) {
             return true;
         } else {

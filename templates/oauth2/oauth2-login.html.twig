@@ -25,7 +25,7 @@
                 <p>{{ invalid|text }}</p>
             </div>
         {% endif %}
-            <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw('oauth2')|attr }}" />
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
             {% if not mfaRequired %}
 
             {% if enforce_signin_email %}

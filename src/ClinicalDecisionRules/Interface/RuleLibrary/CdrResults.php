@@ -24,21 +24,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 class CdrResults
 {
-    var $id;
-    var $rule;
-    var $passive_flag;
-    var $active_flag;
-    var $reminder_flag;
-    var $access_control;
+    public $rule;
 
-    function __construct($rule_id = "", $active_alert_flag = "", $passive_alert_flag = "", $patient_reminder_flag = "", $access_control = "")
+    function __construct(public $id = "", public $active_flag = "", public $passive_flag = "", public $reminder_flag = "", public $access_control = "")
     {
-        $this->id = $rule_id;
         $this->rule = RuleTemplateExtension::getLabel($this->id, 'clinical_rules');
-        $this->active_flag = $active_alert_flag;
-        $this->passive_flag = $passive_alert_flag;
-        $this->reminder_flag = $patient_reminder_flag;
-        $this->access_control = $access_control;
     }
 
     function active_alert_flag()
@@ -80,12 +70,12 @@ class CdrResults
             ", patient_reminder_flag = ?" .
             " WHERE id = ? AND pid = 0";
 
-        sqlStatement($query, array($this->active_flag, $this->passive_flag, $this->reminder_flag, $this->id));
+        sqlStatement($query, [$this->active_flag, $this->passive_flag, $this->reminder_flag, $this->id]);
 
         // Set the settings that apply to all rules including the patient custom rules (pid is > 0)
         $query = "UPDATE clinical_rules SET access_control = ?" .
             " WHERE id = ?";
 
-        sqlStatement($query, array($this->access_control, $this->id));
+        sqlStatement($query, [$this->access_control, $this->id]);
     }
 }

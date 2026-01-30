@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+OpenEMR has two different kinds of tests:
+- "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
+- "Tests": Tests that require a database and initialization before they can run or pass.
+
+This file configures the kind that does not require initialization.
+-->
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         backupGlobals="false"
+         bootstrap="tests/bootstrap-isolated.php"
+         colors="true"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnRisky="false"
+         stopOnSkipped="false"
+         stopOnWarning="false"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         testdox="false">
+
+  <php>
+    <ini name="error_reporting" value="-1"/>
+    <!-- Disable database connections for isolated testing -->
+    <server name="DISABLE_DATABASE" value="1"/>
+  </php>
+
+  <testsuites>
+    <testsuite name="isolated">
+      <directory>tests/Tests/Isolated</directory>
+    </testsuite>
+
+    <!-- Include existing unit tests that don't require database -->
+    <testsuite name="unit-isolated">
+      <directory>tests/Tests/Unit/Common/Utils</directory>
+      <directory>tests/Tests/Unit/Common/Http</directory>
+      <directory>tests/Tests/Unit/library</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

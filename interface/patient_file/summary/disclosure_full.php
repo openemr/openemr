@@ -19,7 +19,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Control access
 if (!AclMain::aclCheckCore('patients', 'disclosure')) {
@@ -30,18 +33,18 @@ $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
 $authAddonly = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
 
 //retrieve the user name
-$res = sqlQuery("select username from users where username=?", array($_SESSION["authUser"]));
+$res = sqlQuery("select username from users where username=?", [$session->get("authUser")]);
 $uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $dates = trim($_POST['dates']);
-    $event = trim($_POST['form_disclosure_type']);
-    $recipient_name = trim($_POST['recipient_name']);
-    $disclosure_desc = trim($_POST['desc_disc']);
+    $dates = trim((string) $_POST['dates']);
+    $event = trim((string) $_POST['form_disclosure_type']);
+    $recipient_name = trim((string) $_POST['recipient_name']);
+    $disclosure_desc = trim((string) $_POST['desc_disc']);
     $disclosure_id = trim($_POST['disclosure_id'] ?? '');
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         if (!$authWrite) {
@@ -49,21 +52,21 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
             exit;
         }
         //update the recorded disclosure in the extended_log table.
-        EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        EventAuditLogger::getInstance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         if (!$authWrite && !$authAddonly) {
             echo xlt('Not Authorized');
             exit;
         }
         //insert the disclosure records in the extended_log table.
-        EventAuditLogger::instance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        EventAuditLogger::getInstance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
 }
 
 if (isset($_GET['deletelid'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -74,7 +77,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid = $_GET['deletelid'];
     //function to delete the recorded disclosures
-    EventAuditLogger::instance()->deleteDisclosure($deletelid);
+    EventAuditLogger::getInstance()->deleteDisclosure($deletelid);
 }
 ?>
 <html>
@@ -112,7 +115,7 @@ if (isset($_GET['deletelid'])) {
             " LEFT JOIN users u ON u.username = el.user " .
             " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
             " ORDER BY el.date DESC ";
-            $r2 = sqlStatement($disclQry, array($pid));
+            $r2 = sqlStatement($disclQry, [$pid]);
             $totalRecords = sqlNumRows($r2);
 
             $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
@@ -120,7 +123,7 @@ if (isset($_GET['deletelid'])) {
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
             " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
 
-            $r1 = sqlStatement($disclInnerQry, array($pid));
+            $r1 = sqlStatement($disclInnerQry, [$pid]);
             $n = sqlNumRows($r1);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>
@@ -140,7 +143,7 @@ if (isset($_GET['deletelid'])) {
                             <th><?php echo xlt('Provider'); ?></th>
                         </tr>
                     <?php
-                    $result2 = array();
+                    $result2 = [];
                     for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
                         $result2[$iter] = $frow;
                     }
@@ -217,7 +220,7 @@ $(function () {
     var DeleteNote = function (logevent) {
         if (confirm(<?php echo xlj('Are you sure you want to delete this disclosure?'); ?> + "\n " + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
-            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
         }
     }
 
@@ -241,5 +244,3 @@ function refreshme() {
 </script>
 </body>
 </html>
-
-

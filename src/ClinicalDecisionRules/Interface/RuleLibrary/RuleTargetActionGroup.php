@@ -18,21 +18,18 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
  */
 class RuleTargetActionGroup
 {
-    var $groupId;
-
     /**
      * @var RuleActions
      */
-    var $ruleTargets;
+    public $ruleTargets;
 
     /**
      * @var RuleTargets
      */
-    var $ruleActions;
+    public $ruleActions;
 
-    public function __construct($groupId = null)
+    public function __construct(public $groupId = null)
     {
-        $this->groupId = $groupId;
         $this->ruleActions = new RuleActions();
         $this->ruleTargets = new RuleTargets();
     }

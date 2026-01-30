@@ -7,13 +7,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
+require_once(__DIR__ . "/../../../../clinical_rules.php");
 
 abstract class AbstractCqmReport implements RsReportIF
 {
     protected $_cqmPopulation;
 
-    protected $_resultsArray = array();
+    protected $_resultsArray = [];
 
     protected $_rowRule;
     protected $_ruleId;
@@ -23,24 +23,24 @@ abstract class AbstractCqmReport implements RsReportIF
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
-        $className = get_class($this);
-        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
+        $className = static::class;
+        foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
         $this->_cqmPopulation = new CqmPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Calculate measurement period
         $tempDateArray = explode("-", ($dateTarget ?? ''));
         $tempYear = $tempDateArray[0];
@@ -69,7 +69,7 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         $populationCriterias = $this->createPopulationCriteria();
         if (!is_array($populationCriterias)) {
-            $tmpPopulationCriterias = array();
+            $tmpPopulationCriterias = [];
             $tmpPopulationCriterias[] = $populationCriterias;
             $populationCriterias = $tmpPopulationCriterias;
         }
@@ -93,7 +93,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
                 $numerators = $populationCriteria->createNumerators();
                 if (!is_array($numerators)) {
-                    $tmpNumerators = array();
+                    $tmpNumerators = [];
                     $tmpNumerators[] = $numerators;
                     $numerators = $tmpNumerators;
                 }
@@ -114,8 +114,8 @@ abstract class AbstractCqmReport implements RsReportIF
                 $denominatorPatientPopulation = 0;
                 $exclusionsPatientPopulation = 0;
                 $exceptionsPatientPopulation = 0; // this is a bridge to no where variable (calculated but not used below). Will keep for now, though.
-                $patExclArr = array();
-                $patExceptArr = array();
+                $patExclArr = [];
+                $patExceptArr = [];
                 $numeratorPatientPopulations = $this->initNumeratorPopulations($numerators);
                 foreach ($this->_cqmPopulation as $patient) {
                     if (!$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
@@ -198,7 +198,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
     private function initNumeratorPopulations(array $numerators)
     {
-        $numeratorPatientPopulations = array();
+        $numeratorPatientPopulations = [];
         foreach ($numerators as $numerator) {
             $numeratorPatientPopulations[$numerator->getTitle()] = 0;
         }

@@ -29,7 +29,7 @@ try {
         $_REQUEST['csrf_token'] ?? null,
         $intentData
     );
-} catch (CsrfInvalidException $exception) {
+} catch (CsrfInvalidException) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
     (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);

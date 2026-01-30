@@ -42,7 +42,7 @@ if (!empty($_POST)) {
 function getLoggedInUserFacility()
 {
     $sql = "SELECT f.name, f.facility_npi FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-    $res = sqlStatement($sql, array($_SESSION['authUserID']));
+    $res = sqlStatement($sql, [$_SESSION['authUserID']]);
     while ($arow = sqlFetchArray($res)) {
         return $arow;
     }
@@ -54,25 +54,14 @@ function getLoggedInUserFacility()
 function mapCodeType($incode)
 {
     $outcode = null;
-    $code = explode(":", $incode);
-    switch ($code[0]) {
-        case "ICD9":
-            $outcode = "I9CDX";
-            break;
-        case "ICD10":
-            $outcode = "I10";
-            break;
-        case "SNOMED-CT":
-            $outcode = "SCT";
-            break;
-        case "US Ext SNOMEDCT":
-            $outcode = "SCT";
-            break;
-        default:
-            $outcode = "I9CDX"; // default to ICD9
-            break;
-             // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
-    }
+    $code = explode(":", (string) $incode);
+    $outcode = match ($code[0]) {
+        "ICD9" => "I9CDX",
+        "ICD10" => "I10",
+        "SNOMED-CT" => "SCT",
+        "US Ext SNOMEDCT" => "SCT",
+        default => "I9CDX",
+    };
 
     return $outcode;
 }
@@ -81,13 +70,7 @@ function mapCodeType($incode)
 $from_date = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $to_date = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
-//
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
-
-  $sqlBindArray = array();
+  $sqlBindArray = [];
   $query =
   "select " .
   "l.pid as patientid, " .
@@ -137,7 +120,7 @@ if (!empty($from_date) || !empty($to_date)) {
     $query .= " and " ;
 }
 
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
+$form_code = $_POST['form_code'] ?? [];
 if (empty($form_code)) {
     $query_codes = '';
 } else {
@@ -175,11 +158,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
     while ($r = sqlFetchArray($res)) {
         // MSH
-        $content .= "MSH|^~\&|" . strtoupper($openemr_name) .
+        $content .= "MSH|^~\&|" . strtoupper((string) $openemr_name) .
         "|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
         "|||$now||" .
         "ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility
-        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowlegement
+        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowledgement
         "$D";
 
         // EVN
@@ -229,7 +212,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         $r['patientid'] . "^^^^MR" . "|" . // 3. (R) Patient identifier list
         "|" . // 4. (B) Alternate PID
         "^^^^^^~^^^^^^S" . "|" . // 5.R. Name
-        "|" . // 6. Mather Maiden Name
+        "|" . // 6. Mother's Maiden Name
         $r['DOB'] . "|" . // 7. Date, time of birth
         $r['sex'] . // 8. Sex
         "|||^^^||||||||||||||||||||||||||||" .
@@ -268,11 +251,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         // mark if issues generated/sent
         $query_insert = "insert into syndromic_surveillance(lists_id, submission_date, filename) " .
          "values (?, ?, ?)";
-        sqlStatement($query_insert, array($r['issueid'], $now1, $filename));
+        sqlStatement($query_insert, [$r['issueid'], $now1, $filename]);
     }
 
   // Ensoftek: Jul-2015: No need to tr the content
-  //$content = tr($content);
+  //$content = strtr($content, ' ', '^');
 
   // send the header here
     header('Content-type: text/plain');

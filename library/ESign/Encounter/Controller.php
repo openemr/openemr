@@ -5,10 +5,11 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2013 OEMR 501c3 www.oemr.org
+ * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
@@ -24,7 +25,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 
 class Encounter_Controller extends Abstract_Controller
 {
-    public function esign_is_encounter_locked()
+    public function esign_is_encounter_locked(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId);
@@ -57,7 +58,7 @@ class Encounter_Controller extends Abstract_Controller
         $this->render();
     }
 
-    public function esign_log_view()
+    public function esign_log_view(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId); // Contains features that make object signable
@@ -103,7 +104,7 @@ class Encounter_Controller extends Abstract_Controller
         // If google sign-in enable then valid google sign-in
         if ($force_google ===  1) {
             $valid = false;
-            $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken, false);
+            $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken);
             if (!empty($uPayload) && isset($uPayload['id']) && $uPayload['id'] == $_SESSION['authUserID']) {
                 $valid = true;
             }
@@ -118,7 +119,7 @@ class Encounter_Controller extends Abstract_Controller
                 $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {
-                $message = xlt("An error occured signing the form");
+                $message = xlt("An error occurred signing the form");
             }
         } else {
             $message = (isset($gMessage) && !empty($gMessage)) ? $gMessage : xlt("The password you entered is invalid");

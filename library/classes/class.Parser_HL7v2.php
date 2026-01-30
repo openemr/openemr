@@ -35,18 +35,18 @@ class Parser_HL7v2
         }
 
         // create return array
-        $cmp = array();
+        $cmp = [];
 
         // Loop through messages
         $segmentMethods = get_class_methods(new Segment('XYZ'));
-        foreach ($segments as $key => $segment) {
+        foreach ($segments as $segment) {
             $type = $segment->getName();
 
             $classMethods = get_class_methods($segment);
 
-            foreach ($classMethods as $index => $method) {
+            foreach ($classMethods as $method) {
                 if (
-                    substr($method, 0, 3) == "get" &&
+                    str_starts_with($method, "get") &&
                     !in_array($method, $segmentMethods) &&
                     $segment->$method()
                 ) {

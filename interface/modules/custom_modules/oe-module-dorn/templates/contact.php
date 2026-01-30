@@ -19,4 +19,4 @@
         <li> <?php echo xlt("Email Support"); ?>: <a href = "support@claimrev.com">support@claimrev.com</a> </li>
         <li> <?php echo xlt("Email Sales"); ?>: <a href = "info@claimrev.com">info@claimrev.com</a> </li>
     </ul>
-</div>        
+</div>

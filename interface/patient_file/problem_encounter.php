@@ -21,8 +21,16 @@ require_once("$srcdir/lists.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientIssuesService;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+/**
+ * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
+ */
+$pid ??= null;
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
@@ -43,7 +51,7 @@ $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -52,21 +60,20 @@ if (!empty($_POST['form_save'])) {
     // $pattern = '|/(\d+),(\d+),([YN])|';
     $pattern = '|/(\d+),(\d+)|';
 
-    preg_match_all($pattern, $form_pelist, $matches);
+    preg_match_all($pattern, (string) $form_pelist, $matches);
     $numsets = count($matches[1]);
-
-    $query = "DELETE FROM issue_encounter WHERE pid = ?";
-    sqlQuery($query, array($form_pid));
+    $patientIssuesService = new PatientIssuesService();
+    $encountersByListId = [];
     for ($i = 0; $i < $numsets; ++$i) {
         $list_id   = $matches[1][$i];
         $encounter = $matches[2][$i];
-        $query = "INSERT INTO issue_encounter ( " .
-            "pid, list_id, encounter" .
-            ") VALUES ( " .
-            " ?, ?, ?" .
-            ")";
-        sqlQuery($query, array($form_pid, $list_id, $encounter));
+        if (!isset($encountersByListId[$list_id])) {
+            $encountersByListId[$list_id] = [];
+        }
+        $encountersByListId[$list_id][] = $encounter;
     }
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $session->get('authUserID'));
+
 
     echo "<html><body>"
     . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
@@ -84,14 +91,14 @@ if (!empty($_POST['form_save'])) {
 
 // get problems
 $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-"ORDER BY type, date", array($pid));
+"ORDER BY type, date", [$pid]);
 
 // get encounters
 $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
-"ORDER BY date DESC", array($pid));
+"ORDER BY date DESC", [$pid]);
 
 // get problem/encounter relations
-$peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
+$peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", [$pid]);
 ?>
 <!DOCTYPE html>
 <html>
@@ -261,7 +268,7 @@ function doclick(pfx, id) {
 <body>
     <div class="container">
         <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <?php
             echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
             // pelist looks like /problem,encounter/problem,encounter/[...].
@@ -326,7 +333,7 @@ function doclick(pfx, id) {
                                     while ($row = sqlFetchArray($eres)) {
                                         $rowid = $row['encounter'];
                                         echo "    <tr class='detail' id='e_" . attr($rowid) . "' onclick='doclick(\"e\", " . attr_js($rowid) . ")'>\n";
-                                        echo "     <td class='align-top'>" . text(substr($row['date'], 0, 10)) . "</td>\n";
+                                        echo "     <td class='align-top'>" . text(substr((string) $row['date'], 0, 10)) . "</td>\n";
                                         echo "     <td class='align-top'>" . text($row['reason']) . "</td>\n";
                                         echo "    </tr>\n";
                                         $endjs .= "eselected[" . js_escape($rowid) . "] = '';\n";

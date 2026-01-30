@@ -128,7 +128,7 @@ class MyMailer extends PHPMailer
                         $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
                         $twig = $twigContainer->getTwig();
                         if (!empty($ret['template_name'])) {
-                            $templateData = json_decode($ret['body'], true);
+                            $templateData = json_decode((string) $ret['body'], true);
                             // we make sure to prefix this so that people have to work inside the openemr namespace for email templates
                             $htmlBody = $twig->render($ret['template_name'] . ".html.twig", $templateData);
                             $textBody = $twig->render($ret['template_name'] . ".text.twig", $templateData);

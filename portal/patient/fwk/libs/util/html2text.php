@@ -37,10 +37,10 @@ function convert_html_to_text($html)
     $output = iterate_over_node($doc);
 
     // remove leading and trailing spaces on each line
-    $output = preg_replace("/[ \t]*\n[ \t]*/im", "\n", $output);
+    $output = preg_replace("/[ \t]*\n[ \t]*/im", "\n", (string) $output);
 
     // remove leading and trailing whitespace
-    $output = trim($output);
+    $output = trim((string) $output);
 
     return $output;
 }
@@ -116,7 +116,7 @@ function iterate_over_node($node)
     $nextName = next_child_name($node);
     $prevName = prev_child_name($node);
 
-    $name = strtolower($node->nodeName);
+    $name = strtolower((string) $node->nodeName);
 
     // start whitespace
     switch ($name) {
@@ -236,10 +236,8 @@ function iterate_over_node($node)
 }
 class Html2TextException extends Exception
 {
-    var $more_info;
-    public function __construct($message = "", $more_info = "")
+    public function __construct($message = "", public $more_info = "")
     {
         parent::__construct($message);
-        $this->more_info = $more_info;
     }
 }

@@ -8,15 +8,20 @@
  * @author    duhlman
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PhoneType;
 
 /**
  * class Insurance Company
@@ -25,67 +30,61 @@ use OpenEMR\Common\ORDataObject\Address;
 
 class InsuranceCompany extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $phone_numbers;
-    var $attn;
-    var $cms_id;
-    var $alt_cms_id;
-    var $eligibility_id;
-    var $x12_receiver_id;
-    var $x12_default_partner_id;
-    var $x12_default_eligibility_id;
-    var $inactive;
-    var $InsuranceCompany;
+    public $name;
+    /** @var TypedPhoneNumber[] */
+    public array $phone_numbers = [];
+    public $attn;
+    public $cms_id;
+    public $alt_cms_id;
+    public $eligibility_id;
+    public $x12_receiver_id;
+    public $x12_default_partner_id;
+    public $x12_default_eligibility_id;
+    public $inactive;
+    public $InsuranceCompany;
     /*
     *   OpenEMR can use this value to determine special formatting for the specified type of payer.
     *   It is the key to the array returned by the InsuranceCompanyService
     *   getInsuranceTypes and getInsuranceClaimTypes methods.
     *   @var int Holds constant for type of payer
     */
-    var $ins_type_code;
+    public $ins_type_code;
 
     /*
     *   Array used to populate select dropdowns or other form elements
     *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
     */
-    var $ins_type_code_array;
+    public $ins_type_code_array;
 
     /*
     *   Array used with electronic claim submissions and
     *   corresponds with $ins_type_code_array
     *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
     */
-    var $ins_claim_type_array;
+    public $ins_claim_type_array;
 
-    var $address;
+    public $address;
 
-    var $X12Partner;
+    public $X12Partner;
 
     /**
      * @var Integer CQM SOP, Source of Payment, from HL7
      */
-    var $cqm_sop;
+    public $cqm_sop;
 
     /**
      * @var Array contains code and description of above
      */
-    var $cqm_sop_array;
+    public $cqm_sop_array;
 
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct($id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
+    public function __construct(public $id = "", ?InsuranceCompanyService $insuranceCompanyService = null)
     {
-        $this->id = $id;
         $this->name = "";
         $this->_table = "insurance_companies";
-        $phone = new PhoneNumber();
-        $phone->set_type(TYPE_WORK);
-        $fax = new PhoneNumber();
-        $fax->set_type(TYPE_FAX);
         $this->address = new Address();
-        $this->phone_numbers = array($phone, $fax);
         if ($insuranceCompanyService === null) {
             $this->InsuranceCompany = new InsuranceCompanyService();
         } else {
@@ -93,7 +92,7 @@ class InsuranceCompany extends ORDataObject
         }
         $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypesCached();
         $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
 
@@ -113,8 +112,8 @@ class InsuranceCompany extends ORDataObject
     // special function that the html forms use to prepopulate which allows for partial edits and wizard functionality
     public function set_form_id($id = "")
     {
-        if (!empty($id)) {
-            $this->populate($id);
+        if ($id !== '') {
+            $this->populate();
         }
     }
 
@@ -238,46 +237,45 @@ class InsuranceCompany extends ORDataObject
     public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
-            if ($phone->type == TYPE_WORK) {
-                return $phone->get_phone_display();
+            if ($phone->type === PhoneType::WORK) {
+                return $phone->formatLocal();
             }
         }
-
         return "";
     }
-    public function set_number($num, $type)
+
+    public function set_number(string $num, PhoneType $type): void
     {
-        $found = false;
-        for ($i = 0; $i < count($this->phone_numbers); $i++) {
-            if ($this->phone_numbers[$i]->type == $type) {
-                $found = true;
-                $this->phone_numbers[$i]->set_phone($num);
-            }
+        $typed = TypedPhoneNumber::tryCreate($num, $type);
+        if ($typed === null) {
+            return;
         }
 
-        if ($found == false) {
-            $p = new PhoneNumber("", $this->id);
-            $p->set_type($type);
-            $p->set_phone($num);
-            $this->phone_numbers[] = $p;
+        // Replace existing phone of same type, or add new
+        foreach ($this->phone_numbers as $i => $phone) {
+            if ($phone->type === $type) {
+                $this->phone_numbers[$i] = $typed;
+                return;
+            }
         }
+        $this->phone_numbers[] = $typed;
     }
 
     public function set_phone($phone)
     {
-        $this->set_number($phone, TYPE_WORK);
+        $this->set_number($phone, PhoneType::WORK);
     }
 
     public function set_fax($fax)
     {
-        $this->set_number($fax, TYPE_FAX);
+        $this->set_number($fax, PhoneType::FAX);
     }
 
     public function get_fax()
     {
         foreach ($this->phone_numbers as $phone) {
-            if ($phone->type == TYPE_FAX) {
-                return $phone->get_phone_display();
+            if ($phone->type === PhoneType::FAX) {
+                return $phone->formatLocal();
             }
         }
 
@@ -320,50 +318,65 @@ class InsuranceCompany extends ORDataObject
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
-        $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
+        $phoneService = new PhoneNumberService();
+        $this->phone_numbers = [];
+        foreach ($phoneService->getPhonesByForeignId($this->id) as $record) {
+            $areaCode = (string) ($record['area_code'] ?? '');
+            $prefix = (string) ($record['prefix'] ?? '');
+            $number = (string) ($record['number'] ?? '');
+            $phoneStr = $areaCode . $prefix . $number;
+            $typeValue = is_int($record['type']) ? $record['type'] : PhoneType::WORK->value;
+            $type = PhoneType::tryFrom($typeValue) ?? PhoneType::WORK;
+            $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
+            if ($typed !== null) {
+                $this->phone_numbers[] = $typed;
+            }
+        }
     }
 
     public function persist()
     {
         parent::persist();
         $this->address->persist($this->id);
+        $phoneService = new PhoneNumberService();
         foreach ($this->phone_numbers as $phone) {
-            $phone->persist($this->id);
+            $phoneData = ['phone' => $phone->phoneNumber->getNationalDigits()];
+            $phoneService->type = $phone->type->value;
+            // Always insert for now - PhoneNumberService handles upsert logic
+            $phoneService->insert($phoneData, $this->id);
         }
     }
 
     public function insurance_companies_factory()
     {
         $insuranceCompanyService = new InsuranceCompanyService();
-        $icompanies = array();
+        $icompanies = [];
 
         $listAll = $insuranceCompanyService->search([]);
         if ($listAll->hasData()) {
             $data = $listAll->getData();
             foreach ($data as $record) {
                 // we pass in the service array so we don't recreate it each time
-                $company = new InsuranceCompany("", "", $insuranceCompanyService);
+                $company = new InsuranceCompany("", $insuranceCompanyService);
                 $company->populate_array($record);
-                if (!empty($record['work_id'])) {
+                if (($record['work_id'] ?? null) !== null) {
                     $company->set_phone($record['work_number']);
                 }
-                if (!empty($record['fax_id'])) {
+                if (($record['fax_id'] ?? null) !== null) {
                     $company->set_fax($record['fax_number']);
                 }
                 $icompanies[] = $company;
             }
         }
         // sort by name since we don't know that the sql query will return them in the correct order
-        usort($icompanies, function ($a, $b) {
-            return strcasecmp($a->name, $b->name);
-        });
+        usort($icompanies, fn($a, $b): int => strcasecmp((string) $a->name, (string) $b->name));
 
         return $icompanies;
     }
 
     public function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "Name: " . $this->name . "\n"
         . "Attn:" . $this->attn . "\n"
@@ -371,11 +384,6 @@ class InsuranceCompany extends ORDataObject
         . "ALT Payer ID:" . $this->alt_cms_id . "\n"
         //. "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Address: " . $this->address->toString($html) . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 }

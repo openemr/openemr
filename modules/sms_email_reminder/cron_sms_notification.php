@@ -9,8 +9,10 @@
 // Updated by:  Larry Lart on 11/03/2008
 ////////////////////////////////////////////////////////////////////
 
-// comment below exit if plan to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_CRON_SMS_NOTIFICATION')) {
+    die('Set OPENEMR_ENABLE_CRON_SMS_NOTIFICATION=1 environment variable to enable this script');
+}
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
@@ -22,9 +24,9 @@ $ignoreAuth = 1;
 include_once("../../interface/globals.php");
 include_once("cron_functions.php");
 
-// check command line for quite option
+// check command line for option
 $bTestRun = 0;
-if ($argc > 1 && $argv[1] == 'test') {
+if (($argc ?? 0) > 1 && ($argv[1] ?? '') == 'test') {
     $bTestRun = 1;
 }
 
@@ -39,14 +41,6 @@ $check_date = date("Y-m-d", mktime(date("h") + $SMS_NOTIFICATION_HOUR, 0, 0, dat
 // it's content - to do latter
 $db_email_msg = cron_getNotificationData($TYPE);
 
-// object for sms
-global $mysms;
-if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
-    include_once("sms_clickatell.php");
-} elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
-    include_once("sms_tmb4.php");
-}
-
 // get notification settings
 $vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
@@ -58,9 +52,16 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 //echo "\nDEBUG :: user=".$vectNotificationSettings['SMS_gateway_username']."\n";
 
 // create sms object
-$mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+include_once("sms_interface.php");
+include_once("sms_clickatell.php");
+include_once("sms_tmb4.php");
+$mysms = match ($db_email_msg['sms_gateway_type']) {
+    'CLICKATELL' => new sms_clickatell($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY),
+    'TMB4' => new sms_tmb4($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY),
+};
 
-$db_patient = cron_getAlertpatientData($TYPE);
+
+$db_patient = cron_getAlertpatientData();
 echo "\n<br />Total " . text(count($db_patient)) . " Records Found";
 
 // for every event found
@@ -105,6 +106,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         // send sms to patinet - if not in test mode
         if ($bTestRun == 0) {
             cron_SendSMS(
+                $mysms,
                 $prow['phone_cell'],
                 $db_email_msg['email_subject'],
                 $db_email_msg['message'],

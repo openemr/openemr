@@ -104,7 +104,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             return;
         }
         // we want to push out to the system that we are making changes...
-        $logger = function ($message) use ($event) {
+        $logger = function ($message) use ($event): void {
             // make sure we escape this here.
             $event->getSqlUpgradeService()->flush_echo(text($message) . "<br />");
         };

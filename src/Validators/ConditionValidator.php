@@ -27,15 +27,13 @@ class ConditionValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required('title')->lengthBetween(2, 255);
                 $context->required('begdate')->datetime('Y-m-d');
                 $context->optional('diagnosis')->lengthBetween(2, 255);
                 $context->optional('enddate')->datetime('Y-m-d');
                 $context->required("puuid", "Patient UUID")->callback(
-                    function ($value) {
-                        return $this->validateId("uuid", "patient_data", $value, true);
-                    }
+                    fn($value) => $this->validateId("uuid", "patient_data", $value, true)
                 );
             }
         );
@@ -43,19 +41,17 @@ class ConditionValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }
                 );
                 // additional muuid validation
-                $context->required("uuid", "Condition UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "lists", $value, true);
-                })->uuid();
+                $context->required("uuid", "Condition UUID")->callback(fn($value) => $this->validateId("uuid", "lists", $value, true))->uuid();
             }
         );
     }

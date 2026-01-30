@@ -24,7 +24,7 @@ trait AbstractModuleActionTrait
     {
         $id = $_SESSION['authUserID'] ?? 1;
         $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
-        $result = sqlQuery($query, array($id));
+        $result = sqlQuery($query, [$id]);
 
         return $result;
     }

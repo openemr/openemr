@@ -22,7 +22,7 @@ require_once("verysimple/DB/DatabaseConfig.php");
 class DataDriverMySQL implements IDataDriver
 {
     /** @var characters that will be escaped */
-    static $BAD_CHARS = array (
+    static $BAD_CHARS =  [
             "\\",
             "\0",
             "\n",
@@ -30,10 +30,10 @@ class DataDriverMySQL implements IDataDriver
             "\x1a",
             "'",
             '"'
-    );
+    ];
 
     /** @var characters that will be used to replace bad chars */
-    static $GOOD_CHARS = array (
+    static $GOOD_CHARS =  [
             "\\\\",
             "\\0",
             "\\n",
@@ -41,7 +41,7 @@ class DataDriverMySQL implements IDataDriver
             "\Z",
             "\'",
             '\"'
-    );
+    ];
 
     /**
      * @inheritdocs
@@ -190,7 +190,7 @@ class DataDriverMySQL implements IDataDriver
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);
 
-        $tables = array ();
+        $tables =  [];
 
         while ($row = $this->Fetch($connection, $rs)) {
             if ($ommitEmptyTables == false || $rs ['Data_free'] > 0) {

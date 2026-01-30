@@ -20,15 +20,10 @@ class DemographicsViewCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/card/tab_base.html.twig';
 
-    private const CARD_ID = 'demographic';
+    private const CARD_ID = 'demographics';
 
-    private $patientData;
-    private $employerData;
-
-    public function __construct($patientData, $employerData, array $opts = [])
+    public function __construct(private $patientData, private $employerData, array $opts = [])
     {
-        $this->patientData = $patientData;
-        $this->employerData = $employerData;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
@@ -42,10 +37,9 @@ class DemographicsViewCard extends CardModel
         $opts['edit'] = true;
         $opts['add'] = false;
         $opts['requireRestore'] = (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false;
-        $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0 ? true : false;
+        $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0;
         $opts['identifier'] = self::CARD_ID;
         $opts['templateFile'] = self::TEMPLATE_FILE;
-        $opts['initiallyCollapsed'] = (getUserSetting(self::CARD_ID . '_expand') == 0);
         $opts['templateVariables'] = [];
         return $opts;
     }
@@ -64,7 +58,7 @@ class DemographicsViewCard extends CardModel
         $auth = ACLMain::aclCheckCore('patients', 'demo', '', 'write');
         $viewArgs = [
             'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
-            'initiallyCollapsed' => (getUserSetting("demographics_ps_expand") == 0) ? true : false,
+            'initiallyCollapsed' => getUserSetting("demographics_ps_expand") == 0,
             'tabID' => "DEM",
             'title' => xl("Demographics"),
             'id' => self::CARD_ID . '_ps_expand',

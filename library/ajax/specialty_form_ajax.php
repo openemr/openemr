@@ -29,7 +29,7 @@ if ($post_items['task_name_history'] === 'delete') {
     nameHistoryDelete($post_items['id']);
 }
 
-function nameHistoryDelete($id)
+function nameHistoryDelete($id): void
 {
     $patientNameService = new PatientNameHistoryService();
     $is_ok = $patientNameService->deletePatientNameHistoryById($id);
@@ -38,7 +38,7 @@ function nameHistoryDelete($id)
     exit;
 }
 
-function nameHistorySave($post_items)
+function nameHistorySave($post_items): void
 {
     if (!empty($post_items['previous_name_enddate'])) {
         $date = new DateTime($post_items['previous_name_enddate']);
@@ -48,7 +48,7 @@ function nameHistorySave($post_items)
     $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
     $name = $patientNameService->formatPreviousName($post_items);
 
-    $ret = array();
+    $ret = [];
     if (!empty($is_new)) {
         $ret['id'] = $is_new;
         $ret['name'] = $name;

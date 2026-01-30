@@ -11,19 +11,19 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRValueSet;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetCompose;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -156,14 +156,14 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         return [self::USCGI_PROFILE_URI];
     }
 
-    private function addAppointmentCategoriesValueSetForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, string $puuidBind = null)
+    private function addAppointmentCategoriesValueSetForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, ?string $puuidBind = null)
     {
         $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchFieldForAppointmentCategories());
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         if (
             !isset($oeSearchParameters['_id'])
-            // could be array (AND) or comma-delimited string value (OR)
-            // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
+            // _id parameter can be array (AND) or comma-delimited (OR). Since a resource can only
+            // have one ID, an array will have at most one element, so just check for our type.
             || $oeSearchParameters['_id']->hasCodeValue(self::APPOINTMENT_TYPE)
         ) {
             if (!isset($oeSearchParameters['_id'])) {

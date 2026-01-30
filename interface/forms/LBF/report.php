@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -21,16 +21,16 @@ use OpenEMR\Common\Acl\AclMain;
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
 
-function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
+function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): void
 {
     global $CPR;
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties($formname, $grparr, '*');
     // Check access control.
     if (!empty($grparr['']['grp_aco_spec'])) {
-        $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
+        $LBF_ACO = explode('|', (string) $grparr['']['grp_aco_spec']);
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
@@ -38,11 +38,11 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         }
     }
 
-    $arr = array();
+    $arr = [];
     $shrow = getHistoryData($pid);
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
-    "ORDER BY group_id, seq", array($formname));
+    "ORDER BY group_id, seq", [$formname]);
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         $currvalue = '';
@@ -71,7 +71,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         if ($no_wrap || ($frow['data_type'] == 34 || $frow['data_type'] == 25)) {
             $arr[$field_id] = $currvalue;
         } else {
-            $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+            $arr[$field_id] = wordwrap((string) $currvalue, 30, "\n", true);
         }
     }
 

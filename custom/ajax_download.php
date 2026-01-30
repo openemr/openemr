@@ -33,7 +33,7 @@ $fileName = $_GET['fileName'] ?? "";
 $provider_id = $_POST['provider_id'];
 
 if ($fileName) {
-    $fileList = explode(",", $fileName);
+    $fileList = explode(",", (string) $fileName);
     //if ( strpos($fileName,",") !== FALSE ) {
     if (count($fileList) > 1) {
         // Multiple files, zip them together
@@ -72,7 +72,7 @@ if ($fileName) {
 }
 
 $report_view = collectReportDatabase($reportID);
-$dataSheet = json_decode($report_view['data'], true);
+$dataSheet = json_decode((string) $report_view['data'], true);
 $target_date = $report_view['date_target'];
 
 $criteriaPatients = getCombinePatients($dataSheet, $reportID);
@@ -80,8 +80,8 @@ $patients = $criteriaPatients[$ruleID];
 
 //var_dump($dataSheet);
 
-$from_date = date('Y', strtotime($target_date)) . "-01-01";
-$to_date =  date('Y', strtotime($target_date)) . "-12-31";
+$from_date = date('Y', strtotime((string) $target_date)) . "-01-01";
+$to_date =  date('Y', strtotime((string) $target_date)) . "-12-31";
 
 if (count($patients)) {
     $zip = new ZipArchive();

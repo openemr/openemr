@@ -176,13 +176,13 @@ use OpenEMR\Common\Acl\AclMain;
             "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = array('lengthMenu' => (xla('Display') . ' _MENU_  ' . xla('records per page')),
+            <?php $translationsDatatablesOverride = ['lengthMenu' => (xla('Display') . ' _MENU_  ' . xla('records per page')),
                                                           'zeroRecords' => (xla('Nothing found - sorry')),
                                                           'info' => (xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('participants')),
                                                           'infoEmpty' => (xla('No records available')),
                                                           'infoFiltered' => ('(' . xla('filtered from') . ' _MAX_ ' . xla('total records') . ')'),
                                                           'infoPostFix' => (''),
-                                                          'url' => ('')); ?>
+                                                          'url' => ('')]; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
         var countRows =table.rows().count();
@@ -264,7 +264,7 @@ use OpenEMR\Common\Acl\AclMain;
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
     $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
-        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($groupId));
+        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", [$groupId]);
     ?>
 
     EncounterDateArray=new Array;
@@ -276,7 +276,7 @@ use OpenEMR\Common\Acl\AclMain;
         while ($rowresult4 = sqlFetchArray($result4)) {
             ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
-    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
     Count++;
             <?php

@@ -63,7 +63,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         $download_hl7   = $request->getPost('download_hl7', 0);
 
-        $params     = array(
+        $params     = [
                         'form_date_from'    => $fromDate,
                         'form_date_to'      => $toDate,
                         'form_icd_codes'    => $code_selected,
@@ -73,7 +73,7 @@ class SyndromicsurveillanceController extends AbstractActionController
                         'limit_start'   => $start,
                         'limit_end'     => $end,
                         'sl_no'         => $form_sl_no,
-                    );
+                    ];
         $params['form_icd_codes'][] = $code_selected;
 
         if ($new_search) {
@@ -95,7 +95,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $code_list  = $this->getSyndromicsurveillanceTable()->non_reported_codes();
         $provider   = $this->getSyndromicsurveillanceTable()->getProviderList();
 
-        $view               =  new ViewModel(array(
+        $view               =  new ViewModel([
             'code_list'     => $code_list,
             'provider'      => $provider,
             'result'        => $search_result,
@@ -103,7 +103,7 @@ class SyndromicsurveillanceController extends AbstractActionController
             'table_obj'     => $this->getSyndromicsurveillanceTable(),
             'listenerObject' => $this->listenerObject,
             'commonplugin'  => $this->CommonPlugin(),
-        ));
+        ]);
         return $view;
     }
 

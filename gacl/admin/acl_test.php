@@ -4,7 +4,7 @@ meinhard_jahn@web.de, 20041102: link to acl_test2.php and acl_test3.php
 */
 /*
 if (!empty($_GET['debug'])) {
-	$debug = $_GET['debug'];
+    $debug = $_GET['debug'];
 }
 */
 //First make sure user has access

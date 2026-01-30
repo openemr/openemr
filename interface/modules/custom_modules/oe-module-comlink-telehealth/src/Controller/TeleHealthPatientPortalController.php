@@ -20,30 +20,21 @@ use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Environment;
 
 class TeleHealthPatientPortalController
 {
-    private $twig;
-    private $assetPath;
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-    public function __construct(Environment $twig, $assetPath, TelehealthGlobalConfig $config)
+    public function __construct(private readonly Environment $twig, private $assetPath, private readonly TelehealthGlobalConfig $config)
     {
-        $this->twig = $twig;
-        $this->assetPath = $assetPath;
-        $this->config = $config;
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
-        $eventDispatcher->addListener(AppointmentFilterEvent::EVENT_NAME, [$this, 'filterPatientAppointment']);
-        $eventDispatcher->addListener(RenderEvent::EVENT_SECTION_RENDER_POST, [$this, 'renderTeleHealthPatientVideo']);
+        $eventDispatcher->addListener(AppointmentFilterEvent::EVENT_NAME, $this->filterPatientAppointment(...));
+        $eventDispatcher->addListener(RenderEvent::EVENT_SECTION_RENDER_POST, $this->renderTeleHealthPatientVideo(...));
     }
 
     public function renderTeleHealthPatientVideo(GenericEvent $event)

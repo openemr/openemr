@@ -26,7 +26,7 @@ require_once("verify_session.php");
 
 $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'allergy' ORDER BY begdate";
 
-$res = sqlStatement($sql, array($pid));
+$res = sqlStatement($sql, [$pid]);
 
 if (sqlNumRows($res) > 0) {
     ?>

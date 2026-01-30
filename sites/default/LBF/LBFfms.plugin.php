@@ -15,7 +15,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFfms_javascript()
+function LBFfms_javascript(): void
 {
     global $formid;
 
@@ -71,7 +71,7 @@ function fms_numeric_changed(e) {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFfms_javascript_onload()
+function LBFfms_javascript_onload(): void
 {
     echo "
 var f = document.forms[0];

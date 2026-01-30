@@ -33,7 +33,7 @@ foreach ($claim_files as $claim_file) {
     $element->status = xl($claim_file['status']);
     $element->created_at = $claim_file['created_at'];
     $element->updated_at = $claim_file['updated_at'];
-    $element->claims = json_decode($claim_file['claims']);
+    $element->claims = json_decode((string) $claim_file['claims']);
     $element->messages = json_decode($claim_file['messages'] ?? '');
     $response->data[] = $element;
 }

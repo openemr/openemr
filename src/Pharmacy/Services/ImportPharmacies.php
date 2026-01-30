@@ -72,10 +72,10 @@ class ImportPharmacies
 
         $body = $response->body(); // already should be json.
 
-        $pharmacyObj = json_decode($body, true, 512, 0);
+        $pharmacyObj = json_decode((string) $body, true, 512, 0);
         $i = 0;
-        foreach ($pharmacyObj as $obj => $value) {
-            foreach ($value as $key => $show) {
+        foreach ($pharmacyObj as $value) {
+            foreach ($value as $show) {
                 /*********************Skip duplicates*******************/
                 $npi = $show['number'];
                 if (self::entryCheck($npi) === true) {
@@ -83,8 +83,8 @@ class ImportPharmacies
                 }
                /*************Check Zip Code Length**********************/
                 $zipCode = $show['addresses'][0]['postal_code'];
-                if (strlen($zipCode) > 5) {
-                    $zip = substr($zipCode, 0, -4);
+                if (strlen((string) $zipCode) > 5) {
+                    $zip = substr((string) $zipCode, 0, -4);
                 }
                 /******************************************************/
                 $identifiers = $show['identifiers'];
@@ -115,7 +115,7 @@ class ImportPharmacies
      */
     private function findNcpdp($identifiers)
     {
-        foreach ($identifiers as $identifier => $value) {
+        foreach ($identifiers as $value) {
             if ($value['desc'] == 'Other') {
                 return $value['identifier'];
             }

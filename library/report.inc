@@ -6,4 +6,4 @@
 *  - Timeframe: this script can never be removed
 */
 
-require_once(dirname(__FILE__) . "/report.inc.php");
+require_once(__DIR__ . "/report.inc.php");

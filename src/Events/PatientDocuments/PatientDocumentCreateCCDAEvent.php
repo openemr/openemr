@@ -80,7 +80,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     public function __construct($pid)
     {
         $this->setPid($pid);
-        $this->setComponents(array());
+        $this->setComponents([]);
         $this->setFormat("xml");
         $this->setRecipient("self");
         $this->dateFrom = null;
@@ -128,7 +128,7 @@ class PatientDocumentCreateCCDAEvent extends Event
      */
     public function setComponents(array $components): PatientDocumentCreateCCDAEvent
     {
-        $this->components = array_filter($components, 'is_string');
+        $this->components = array_filter($components, is_string(...));
         return $this;
     }
 

@@ -17,17 +17,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
  */
 class TimeUnit
 {
-    var $code;
-    var $lbl;
-
     const Week = "week";
     const Month = "month";
     const Year = "year";
 
-    function __construct($code, $lbl)
+    function __construct(public $code, public $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**
@@ -49,7 +44,7 @@ class TimeUnit
 
     private static function map()
     {
-        $map = array(
+        $map = [
             'minute' => new TimeUnit('minute', xl('Minutes')),
             'hour' => new TimeUnit('hour', xl('Hours')),
             'day' => new TimeUnit('day', xl('Days')),
@@ -57,7 +52,7 @@ class TimeUnit
             'month' => new TimeUnit('month', xl('Months')),
             'year' => new TimeUnit('year', xl('Years')),
             'flu_season' => new TimeUnit('flu_season', xl('Flu season'))
-        );
+        ];
         return $map;
     }
 }

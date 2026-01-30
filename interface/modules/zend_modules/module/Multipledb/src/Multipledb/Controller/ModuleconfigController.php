@@ -22,10 +22,10 @@ namespace Multipledb\Controller;
 use Laminas\View\Model\ViewModel;
 
 /**
- * This is is the configuration for the openemr module installer.
- * here we adding the openemr hooks and the Acl (permission).
- * alse we put here the path to css and js file (now it's in zend public folder but in could change).
- * */
+ * This is the configuration for the OpenEMR module installer.
+ * Here we add the OpenEMR hooks and the ACL (permission).
+ * This also specifies the paths to CSS and JS files (currently in the Zend public folder, but this may change).
+ */
 class ModuleconfigController
 {
     public function getHookConfig()
@@ -36,33 +36,33 @@ class ModuleconfigController
         //AND IT’S ACTION IN THE PATH, (INCLUDING INDEX ACTION)
 
         //EXAMPLES!!
-        $hooks = array (
+        $hooks =  [
             // hook for patient screen low security
-            array (
+             [
                 'name' => "multipledb",
                 'title' => "Multipledb",
                 'path' => "public/multipledb",
-            )
-        );
+             ]
+        ];
         return $hooks;
     }
 
     public function getDependedModulesConfig()
     {
-        return array();
+        return [];
     }
 
     public function getAclConfig()
     {
         //new acl rule for disallow using in the General setting screen
         //EXAMPLES!!
-        $acl = array(
-            array(
+        $acl = [
+            [
                 'section_id' => "multipledb",
                 'section_name' => "Multipledb",
                 'parent_section' => ""
-            )
-        );
+            ]
+        ];
         return $acl;
     }
 }

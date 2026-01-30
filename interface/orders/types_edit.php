@@ -18,16 +18,16 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
 
-$typeid = (isset($_REQUEST['typeid']) ? $_REQUEST['typeid'] : '') + 0;
-$parent = (isset($_REQUEST['parent']) ? $_REQUEST['parent'] : '') + 0;
-$ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
+$typeid = ($_REQUEST['typeid'] ?? '') + 0;
+$parent = ($_REQUEST['parent'] ?? '') + 0;
+$ordtype = $_REQUEST['addfav'] ?? '';
 $disabled = $ordtype ? "disabled" : '';
-$labid = isset($_GET['labid']) ? $_GET['labid'] : 0;
+$labid = $_GET['labid'] ?? 0;
 $info_msg = "";
 
 function QuotedOrNull($fld)
 {
-    $fld = add_escape_custom(trim($fld));
+    $fld = add_escape_custom(trim((string) $fld));
     if ($fld) {
         return "'$fld'";
     }
@@ -41,34 +41,7 @@ function invalue($name)
     return "'$fld'";
 }
 
-function rbinput($name, $value, $desc, $colname)
-{
-    global $row;
-    $ret = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
-}
-
-function rbvalue($rbname)
-{
-    $tmp = $_POST[$rbname];
-    if (!$tmp) {
-        $tmp = '0';
-    }
-
-    return "'$tmp'";
-}
-
-function cbvalue($cbname)
-{
-    return empty($_POST[$cbname]) ? 0 : 1;
-}
-
-function recursiveDelete($typeid)
+function recursiveDelete($typeid): void
 {
     $res = sqlStatement("SELECT procedure_type_id FROM " .
         "procedure_type WHERE parent = ?", [$typeid]);
@@ -393,9 +366,9 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12 ordonly">
                                         <?php
-                                        $fieldnames = array('option_id', 'title');
-                                        $procedure_order_type = array();
-                                        $query = sqlStatement("SELECT " . implode(',', $fieldnames) . " FROM list_options where list_id = ? AND activity = 1 order by seq", array('order_type'));
+                                        $fieldnames = ['option_id', 'title'];
+                                        $procedure_order_type = [];
+                                        $query = sqlStatement("SELECT " . implode(',', $fieldnames) . " FROM list_options where list_id = ? AND activity = 1 order by seq", ['order_type']);
                                         while ($ll = sqlFetchArray($query)) {
                                             foreach ($fieldnames as $val) {
                                                 $procedure_order_type[$ll['option_id']][$val] = $ll[$val];
@@ -490,7 +463,7 @@ function recursiveDelete($typeid)
                                             title='<?php echo attr($title); ?>'>
                                             <?php
                                             if ($ordtype) {
-                                                $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = ? ORDER BY name, ppid", array($labid));
+                                                $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = ? ORDER BY name, ppid", [$labid]);
                                             } else {
                                                 $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
                                             }
@@ -588,12 +561,12 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
-                                        generate_form_field(array(
+                                        generate_form_field([
                                             'data_type' => 1,
                                             'field_id' => 'body_site',
                                             'list_id' => 'proc_body_site',
                                             'description' => xl('Body site, if applicable')
-                                        ), ($row['body_site'] ?? null));
+                                        ], ($row['body_site'] ?? null));
                                         ?>
                                     </div>
                                 </div>
@@ -611,12 +584,12 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
-                                        generate_form_field(array(
+                                        generate_form_field([
                                             'data_type' => 1,
                                             'field_id' => 'specimen',
                                             'list_id' => 'proc_specimen',
                                             'description' => xl('Specimen Type')
-                                        ), ($row['specimen'] ?? null));
+                                        ], ($row['specimen'] ?? null));
                                         ?>
                                     </div>
                                 </div>
@@ -635,12 +608,12 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
-                                        generate_form_field(array(
+                                        generate_form_field([
                                             'data_type' => 1,
                                             'field_id' => 'route_admin',
                                             'list_id' => 'proc_route',
                                             'description' => xl('Route of administration, if applicable')
-                                        ), ($row['route_admin'] ?? null));
+                                        ], ($row['route_admin'] ?? null));
                                         ?>
                                     </div>
                                 </div>
@@ -659,12 +632,12 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
-                                        generate_form_field(array(
+                                        generate_form_field([
                                             'data_type' => 1,
                                             'field_id' => 'laterality',
                                             'list_id' => 'proc_lat',
                                             'description' => xl('Laterality of this procedure, if applicable')
-                                        ), ($row['laterality'] ?? null));
+                                        ], ($row['laterality'] ?? null));
                                         ?>
                                     </div>
                                 </div>
@@ -683,12 +656,12 @@ function recursiveDelete($typeid)
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
-                                        generate_form_field(array(
+                                        generate_form_field([
                                             'data_type' => 1,
                                             'field_id' => 'units',
                                             'list_id' => 'proc_unit',
                                             'description' => xl('Optional default units for manual entry of results')
-                                        ), ($row['units'] ?? null));
+                                        ], ($row['units'] ?? null));
                                         ?>
                                     </div>
                                 </div>
@@ -756,7 +729,7 @@ function recursiveDelete($typeid)
                 </form>
             </div>
         </div>
-    </div><!--end of conatainer div-->
+    </div><!--end of container div-->
     <script>
         //jqury-ui tooltip
         $(function () {

@@ -14,9 +14,9 @@
 // this should trim the following path /interface/modules/custom_modules/oe-module-comlink-telehealth/public/
 // this should get us to the main openemr directory and include the webroot path if we have it
 // we have to do this as we don't have access to the globals.php file yet.
-$originalPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$basePath = dirname(dirname(dirname(dirname(dirname(dirname($originalPath))))));
-$query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+$originalPath = parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$basePath = dirname($originalPath, 6);
+$query = parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_QUERY);
 $redirect = $originalPath . "?";
 if (!empty($query)) {
     $redirect .= $query;

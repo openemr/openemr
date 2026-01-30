@@ -16,8 +16,8 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
@@ -26,12 +26,12 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigContainer
 {
-    private $paths = [];  // path in /templates
-
     /**
-     * Instance of Kernel
+     * Paths in /templates
      */
-    private $kernel = null;
+    private array $paths = [];
+
+    private ?Kernel $kernel = null;
 
     /**
      * Create a new Twig superclass holding a twig environment
@@ -42,11 +42,12 @@ class TwigContainer
     public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
         $this->paths[] = $GLOBALS['fileroot'] . '/templates';
+
         if (!empty($path)) {
             $this->addPath($path);
         }
 
-        if ($kernel) {
+        if (null !== $kernel) {
             $this->kernel = $kernel;
         }
     }
@@ -58,15 +59,16 @@ class TwigContainer
 
     /**
      * Get the Twig Environment.
-     *
-     * @return Environment The twig environment
      */
     public function getTwig(): Environment
     {
         $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
-        $globalsService = new GlobalsService($GLOBALS, [], []);
-        $twigEnv->addExtension(new TwigExtension($globalsService, $this->kernel));
+
+        $twigEnv->addExtension(new TwigExtension(
+            OEGlobalsBag::getInstance(),
+            $this->kernel,
+        ));
 
         $coreExtension = $twigEnv->getExtension(CoreExtension::class);
         // set our default date() twig render function if no format is specified
@@ -81,7 +83,7 @@ class TwigContainer
                 $twigEnv->enableDebug();
             }
             $event = new TwigEnvironmentEvent($twigEnv);
-            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED, 10);
+            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED);
         }
 
         return $twigEnv;

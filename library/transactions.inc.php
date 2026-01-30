@@ -2,8 +2,8 @@
 
 function getTransById($id, $cols = "*")
 {
-    $row = sqlQuery("SELECT " . escape_sql_column_name(process_cols_escape($cols), array('transactions')) . " FROM transactions WHERE id = ?", array($id));
-    $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", array($id));
+    $row = sqlQuery("SELECT " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " FROM transactions WHERE id = ?", [$id]);
+    $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$id]);
     while ($frow = sqlFetchArray($fres)) {
         $row[$frow['field_id']] = $frow['field_value'];
     }
@@ -13,15 +13,15 @@ function getTransById($id, $cols = "*")
 
 function getTransByPid($pid, $cols = "*")
 {
-    $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), array('transactions')) . " from transactions where pid = ? " .
-    "order by date DESC", array($pid));
+    $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " from transactions where pid = ? " .
+    "order by date DESC", [$pid]);
 
     $all = [];
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $fres = sqlStatement(
             "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-            array($row['id'])
+            [$row['id']]
         );
         while ($frow = sqlFetchArray($fres)) {
               $row[$frow['field_id']] = $frow['field_value'];
@@ -51,13 +51,13 @@ function newTransaction(
     ")");
     sqlStatement(
         "INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, ?, ?)",
-        array($id, 'body', $body)
+        [$id, 'body', $body]
     );
     return $id;
 }
 
-function authorizeTransaction($id, $authorized = "1")
+function authorizeTransaction($id, $authorized = "1"): void
 {
     sqlQuery("update transactions set authorized = ? where " .
-    "id = ?", array($authorized, $id));
+    "id = ?", [$authorized, $id]);
 }

@@ -1,0 +1,4 @@
+# https://www.shellcheck.net/wiki/Directive
+# Enable all optional shellcheck checks
+enable=all
+external-sources=true

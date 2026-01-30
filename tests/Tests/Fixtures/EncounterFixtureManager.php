@@ -20,7 +20,7 @@ class EncounterFixtureManager extends BaseFixtureManager
     private $facilityFixture;
     private $patientFixtureManager;
 
-    public function __construct(FacilityFixtureManager $facilityFixtureManager = null, FixtureManager $patientFixtureManager = null)
+    public function __construct(?FacilityFixtureManager $facilityFixtureManager = null, ?FixtureManager $patientFixtureManager = null)
     {
         parent::__construct("encounters.json", "form_encounter");
         if (isset($facilityFixtureManager)) {

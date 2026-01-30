@@ -12,22 +12,22 @@ class NumberToTextTest extends TestCase
   /**
    * @dataProvider cases
    */
-    public function testConvert($numeral, $text)
+    public function testConvert($numeral, $text): void
     {
         $ntt = new NumberToText($numeral);
         $this->assertEquals($text, $ntt->convert(), "'$numeral' converts to '$text'");
     }
     public static function cases()
     {
-        return array( array( 0,     'zero'),
-                  array( 1,     'one'),
-                  array( 14000, 'fourteen thousand'),
-                  array( 9,     'nine'),
-                  array( 99,    'ninety-nine'),
-                  array( 100,   'one hundred'),
-                  array( 1000,  'one thousand'),
-                  array( 1111,  'one thousand one hundred eleven'),
-                  );
+        return [ [ 0,     'zero'],
+                  [ 1,     'one'],
+                  [ 14000, 'fourteen thousand'],
+                  [ 9,     'nine'],
+                  [ 99,    'ninety-nine'],
+                  [ 100,   'one hundred'],
+                  [ 1000,  'one thousand'],
+                  [ 1111,  'one thousand one hundred eleven'],
+                  ];
     }
 }
 /*
@@ -36,7 +36,7 @@ terms of the GNU General Public License as publish by the Free Software
 Foundation.
 This file is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */

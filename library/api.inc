@@ -12,4 +12,4 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/api.inc.php");
+require_once(__DIR__ . "/api.inc.php");

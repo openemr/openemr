@@ -43,13 +43,13 @@ if ($serviceDelivery->frequencyCode != '') {
         <?php
     }
 }
-?>      
+?>
                                     </li>
             <?php
         }
 
         ?>
-                               
+
         <?php
     }
     ?>

@@ -10,7 +10,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\ActionRouter;
 
 class ControllerRouterTest extends TestCase
 {
-    public function testRouteWithBrowseListAction()
+    public function testRouteWithBrowseListAction(): void
     {
         // Mocking the OpenEMR\ClinicalDecisionRules\Interface\ActionRouter
         $mockActionRouter = $this->createMock(ActionRouter::class);

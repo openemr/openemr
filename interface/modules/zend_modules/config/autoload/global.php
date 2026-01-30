@@ -50,17 +50,17 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 }
 
 // Sets default factory using the default database
-$factories = array(
-    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+$factories = [
+    \Laminas\Db\Adapter\Adapter::class => function ($containerInterface, $requestedName) {
         $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
         \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
         return $adapter;
     }
-);
+];
 
 // This settings can be change in the global settings under security tab
-$adapters = array();
+$adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
     $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
@@ -69,14 +69,14 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
         foreach ($res->fetchAll() as $row) {
             // Create new adapters using data from database
             $cryptoGen = new CryptoGen();
-            $adapters[$row['namespace']] = array(
+            $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
                 'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
                 'driver_options' => $utf8,
                 'port' => $row['port'],
                 'username' => $row['username'],
                 'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
-            );
+            ];
 
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
@@ -89,22 +89,25 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
 
     $dbh = null; // Close pdo connection
 }
+// sites/<site_id>/sqlconf.php stores the database connection settings into a global sqlconf variable
+// we will use that instead of the individual globals set previously.
+$sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', 'pass' => '', 'port' => ''];
 
-return array(
-    'db' => array(
+return [
+    'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
-        'username'       => $GLOBALS['login'] ?? '',
-        'password'       => $GLOBALS['pass'] ?? '',
-        'port'           => $GLOBALS['port'] ?? '',
+        'dsn'            => 'mysql:dbname=' . ($sqlConf['dbase'] ?? '') . ';host=' . ($sqlConf['host'] ?? ''),
+        'username'       => $sqlConf['login'] ?? '',
+        'password'       => $sqlConf['pass'] ?? '',
+        'port'           => $sqlConf['port'] ?? '',
         'driver_options' => $utf8,
         'adapters' => $adapters
 
-    ),
-    'service_manager' => array(
+    ],
+    'service_manager' => [
         'factories' => $factories
-    )
-);
+    ]
+];
 
 
 
@@ -121,8 +124,8 @@ return array(
 function my_decrypt($data)
 {
     // Remove the base64 encoding from our key
-    $encryption_key = base64_decode($GLOBALS['safe_key_database']);
+    $encryption_key = base64_decode((string) $GLOBALS['safe_key_database']);
     // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
-    list($encrypted_data, $iv) = explode('::', base64_decode($data), 2);
+    [$encrypted_data, $iv] = explode('::', base64_decode((string) $data), 2);
     return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
 }

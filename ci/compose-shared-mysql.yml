@@ -1,0 +1,10 @@
+services:
+  mysql:
+    command:
+    - mysqld
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    depends_on:
+    - mysql

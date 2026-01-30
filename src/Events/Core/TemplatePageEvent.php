@@ -31,7 +31,7 @@ class TemplatePageEvent extends Event
     private $context;
 
     /**
-     * Array of twig varibles passed to the twig template
+     * Array of twig variables passed to the twig template
      *
      * @var array
      */
@@ -51,7 +51,7 @@ class TemplatePageEvent extends Event
      */
     private $pageName;
 
-    public function __construct(string $pageName, $context = array(), $twigTemplate = "", $twigVariables = [])
+    public function __construct(string $pageName, $context = [], $twigTemplate = "", $twigVariables = [])
     {
         $this->setContext($context);
         $this->setPageName($pageName);

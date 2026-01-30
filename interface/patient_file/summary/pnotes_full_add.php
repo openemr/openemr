@@ -19,7 +19,10 @@ require_once("$srcdir/gprelations.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!empty($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
@@ -34,15 +37,15 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
     die(xlt('Not authorized'));
 }
 
@@ -83,13 +86,13 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (strncmp($var, 'act', 3) == 0) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -134,7 +137,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id " . $noteid);
+            EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -142,7 +145,7 @@ if (isset($mode)) {
 }
 
 $title = '';
-$assigned_to = $_SESSION['authUser'];
+$assigned_to = $session->get('authUser');
 if ($noteid) {
     $prow = getPnoteById($noteid, 'title,assigned_to,body,date');
     $title = $prow['title'];
@@ -203,7 +206,7 @@ function submitform(attr) {
             ?>
 
             <form class='border-0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                 <div class="row">
                     <div class="col-12">
                         <h2 class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></h2>
@@ -233,7 +236,7 @@ function submitform(attr) {
                     if ($noteid) {
                     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                         echo xlt('Amend Existing Message') .
-                        "<span class='font-weight-bold'> &quot;" . generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) . "&quot;</span>\n";
+                        "<span class='font-weight-bold'> &quot;" . generate_display_field(['data_type' => '1','list_id' => 'note_type'], $title) . "&quot;</span>\n";
                     } else {
                         echo xlt('Add New Message') . "\n";
                     }
@@ -245,7 +248,7 @@ function submitform(attr) {
                     <label for='note_type' class='font-weight-bold'><?php echo xlt('Type'); ?>:</label>
                     <?php
                     // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-                    generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), $title);
+                    generate_form_field(['data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'], $title);
                     ?>
                 </div>
 
@@ -275,7 +278,7 @@ function submitform(attr) {
                     <div class="form-group mt-3">
                         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
-                            generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
+                            generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime);
                         ?>
                     </div>
                 <?php } ?>
@@ -284,7 +287,7 @@ function submitform(attr) {
                     <?php
                     if ($noteid) {
                         $body = $prow['body'];
-                        $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
+                        $body = preg_replace(['/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'], '${1}' . $patientname . '${2}', (string) $body);
                         $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         echo "<div class='text'>" . $body . "</div>";
                     }
@@ -308,7 +311,7 @@ function submitform(attr) {
 
             <form class='border-0' method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">
@@ -366,7 +369,7 @@ if (!empty($_GET['set_pid'])) {
 //
 if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
-    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', (string) $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>

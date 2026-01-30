@@ -115,7 +115,7 @@ class ClaimRevApi
             $bearer
          ];
 
-        $params = array('ediType' => $reportType);
+        $params = ['ediType' => $reportType];
 
         $endpoint = $api_server . "/api/EdiResponseFile/v1/GetReport";
         $url = $endpoint . '?' . http_build_query($params);
@@ -249,7 +249,7 @@ class ClaimRevApi
          ];
 
         $endpoint = $api_server . "/FileManagement/GetFileForDownload";
-        $params = array('id' => $objectId);
+        $params = ['id' => $objectId];
         $url = $endpoint . '?' . http_build_query($params);
 
         $ch = curl_init();
@@ -280,7 +280,7 @@ class ClaimRevApi
          ];
 
         $endpoint = $api_server . "/api/Eligibility/v1/GetEligibilityRequest";
-        $params = array('originatingSystemId' => $originatingSystemId);
+        $params = ['originatingSystemId' => $originatingSystemId];
         $url = $endpoint . '?' . http_build_query($params);
 
         $ch = curl_init();

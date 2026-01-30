@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
@@ -29,46 +30,36 @@ use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 
 class ExportState
 {
-    public \SimpleXMLElement $rootNode;
-    private \SplQueue $queue;
-    private Models\ExportResult $result;
+    private readonly \SplQueue $queue;
+    private readonly Models\ExportResult $result;
     private array $tableDefinitionsMap;
-    private SystemLogger $logger;
 
     // we use this to make sure if we are scheduled to hit an item again
     private $inQueueList = [];
 
-    private ExportTableDataFilterer $dataFilterer;
+    private readonly ExportTableDataFilterer $dataFilterer;
 
     /**
      * @var string the temp directory to use for this export
      */
     private string $tempDir;
 
-    private \SimpleXMLElement $metaNode;
+    private readonly ExportKeyDefinitionFilterer $keyFilterer;
 
-    private ExportKeyDefinitionFilterer $keyFilterer;
-
-    private EhiExportJobTask $jobTask;
-
-    public function __construct(SystemLogger $logger, \SimpleXMLElement $tableNode, \SimpleXMLElement $metaNode, EhiExportJobTask $jobTask)
+    public function __construct(private readonly SystemLogger $logger, public \SimpleXMLElement $rootNode, private readonly \SimpleXMLElement $metaNode, private readonly EhiExportJobTask $jobTask)
     {
-        $this->rootNode = $tableNode;
-        $this->metaNode = $metaNode;
         $this->queue = new \SplQueue();
         $this->result = new Models\ExportResult();
         $this->tableDefinitionsMap = [];
         $this->dataFilterer = new ExportTableDataFilterer();
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
-        $this->jobTask = $jobTask;
-
-        $this->logger = $logger;
     }
 
     public function getTempSysDir()
@@ -117,10 +108,7 @@ class ExportState
 
     public function getTableDefinitionForTable(string $tableName): ?ExportTableDefinition
     {
-        if (isset($this->tableDefinitionsMap[$tableName])) {
-            return $this->tableDefinitionsMap[$tableName];
-        }
-        return null;
+        return $this->tableDefinitionsMap[$tableName] ?? null;
     }
 
     public function getNextTableDefinitionToProcess(): ExportTableDefinition
@@ -263,7 +251,7 @@ class ExportState
             $sequenceNo = (int)($primaryKey->attributes()['sequenceNumberInPK'] ?? 0);
             $pkBySequence[$sequenceNo] = $columnName;
         }
-        foreach ($pkBySequence as $sequenceNo => $columnName) {
+        foreach ($pkBySequence as $columnName) {
             // since we add the sequence by integer, it will be in order and we can add the primary keys here so we create our hashes properly.
             $tableDef->addPrimaryKey($columnName);
         }
@@ -278,22 +266,18 @@ class ExportState
     private function exportTableDefininitionFactory(string $tableName)
     {
         // for specific tables that we need to do special handling with
-        if ($tableName == ExportOnsiteMessagesTableDefinition::TABLE_NAME) {
-            return new ExportOnsiteMessagesTableDefinition($tableName);
-        } else if ($tableName == ExportOnsiteMailTableDefinition::TABLE_NAME) {
-            return new ExportOnsiteMailTableDefinition($tableName);
-        } else if ($tableName == ExportEsignatureTableDefinition::TABLE_NAME) {
-            return new ExportEsignatureTableDefinition($tableName);
-        } else if ($tableName == ExportOpenEmrPostCalendarEventsTableDefinition::TABLE_NAME) {
-            return new ExportOpenEmrPostCalendarEventsTableDefinition($tableName);
-        } else if ($tableName == ExportClinicalNotesFormTableDefinition::TABLE_NAME) {
-            return new ExportClinicalNotesFormTableDefinition($tableName);
-        } else if ($tableName == ExportFormsGroupsEncounterTableDefinition::TABLE_NAME) {
-            return new ExportFormsGroupsEncounterTableDefinition($tableName);
-        } else if ($tableName == ExportTrackAnythingFormTableDefinition::TABLE_NAME) {
-            return new ExportTrackAnythingFormTableDefinition($tableName);
-        }
-        return new \OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition($tableName);
+        return match ($tableName) {
+            ExportOnsiteMessagesTableDefinition::TABLE_NAME => new ExportOnsiteMessagesTableDefinition($tableName),
+            ExportOnsiteMailTableDefinition::TABLE_NAME => new ExportOnsiteMailTableDefinition($tableName),
+            ExportEsignatureTableDefinition::TABLE_NAME => new ExportEsignatureTableDefinition($tableName),
+            ExportOpenEmrPostCalendarEventsTableDefinition::TABLE_NAME => new ExportOpenEmrPostCalendarEventsTableDefinition($tableName),
+            ExportClinicalNotesFormTableDefinition::TABLE_NAME => new ExportClinicalNotesFormTableDefinition($tableName),
+            ExportFormsGroupsEncounterTableDefinition::TABLE_NAME => new ExportFormsGroupsEncounterTableDefinition($tableName),
+            ExportTrackAnythingFormTableDefinition::TABLE_NAME => new ExportTrackAnythingFormTableDefinition($tableName),
+            ExportContactTableDefinition::TABLE_NAME => new ExportContactTableDefinition($tableName),
+            ExportPersonTableDefinition::TABLE_NAME => new ExportPersonTableDefinition($tableName),
+            default => new ExportTableDefinition($tableName),
+        };
     }
 
     private function existsTable(string $foreignTableName)

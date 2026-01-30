@@ -65,18 +65,15 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->encounterccdadispatchTable = $encounterccdadispatchTable;
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function indexAction()
     {
 
         global $assignedEntity;
         global $representedOrganization;
-
-        //$assignedEntity['streetAddressLine']    = '17 Daws Rd.';
-        //$assignedEntity['city']                 = 'Blue Bell';
-        //$assignedEntity['state']                = 'MA';
-        //$assignedEntity['postalCode']           = '02368';
-        //$assignedEntity['country']              = 'US';
-        //$assignedEntity['telecom']              = '5555551234';
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -96,13 +93,17 @@ class EncounterccdadispatchController extends AbstractActionController
         $downloadccda = $this->params('downloadccda');
         $downloadqrda = $this->params('downloadqrda');
         $downloadqrda3 = $this->params('downloadqrda3');
+
+        // Consolidated QRDA III download parameter
+        $downloadqrda3_consolidated = $this->params('downloadqrda3_consolidated');
+
         $this->latest_ccda = $request->getQuery('latest_ccda') ?: $this->params('latest_ccda');
         $hie_hook = $request->getQuery('hiehook') || 0;
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // Date Range format.
-        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
-        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_to'))) : null;
         $filter_content = !empty($this->getRequest()->getPost('form_filter_content') ?? null);
         $this->date_options = [
             'date_start' => $date_start,
@@ -118,19 +119,31 @@ class EncounterccdadispatchController extends AbstractActionController
             exit;
         }
 
-        // QRDA III user view html version @todo create reports html in service
+        // QRDA III user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
             exit;
         }
+
+        // QRDA III Consolidated user view
+        if ($this->getRequest()->getQuery('doctype') === 'qrda3_consolidated') {
+            $xmlController = new QrdaReportController();
+            $document = $xmlController->getConsolidatedCategoryIIIReport($combination, '');
+
+            // For HTML view, you could add XSL transformation here if needed
+            echo $document;
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 Consolidated view");
+            exit;
+        }
+
         // QRDA I batch selected pids download as zip.
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -142,20 +155,27 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;
         }
-        // QRDA III batch selected pids download as zip.
+
+        // QRDA III batch selected pids download as zip (individual files per measure).
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
-                    $measures = ''; // defaults to all current one per patient.
+                    $measures = ''; // defaults to all current measures
                 } elseif (($measures[0] ?? null) == 'all') {
-                    $measures = 'all'; // defaults to all current measures per patient.
+                    $measures = 'all'; // defaults to all current measures
                 }
             }
             $xmlController->downloadQrdaIII($pids, $measures);
+            exit;
+        }
+
+        // QRDA III Consolidated download (all measures in one file)
+        if ($downloadqrda3_consolidated === 'download_qrda3_consolidated') {
+            $this->handleConsolidatedQrda3Download();
             exit;
         }
 
@@ -178,7 +198,7 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                $arr = explode('|', $combination);
+                $arr = explode('|', (string) $combination);
                 foreach ($arr as $row) {
                     $arr = explode('_', $row);
                     $this->patient_id = $arr[0];
@@ -221,6 +241,11 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 if ($view && !$downloadccda) {
+                    if (str_starts_with($content, 'ERROR:')) {
+                        echo "<h3>" . text($content) . "</h3>";
+                        (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+                        die();
+                    }
                     $xml = simplexml_load_string($content);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
@@ -243,12 +268,12 @@ class EncounterccdadispatchController extends AbstractActionController
                     $pids = $this->params('pids') ?? $combination;
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type));
+                    $this->forward()->dispatch(EncountermanagerController::class, ['action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type]);
                 } else {
                     die;
                 }
             } else {
-                // oddly we send an empty string for our components here if there is no combination,
+                // oddly, we send an empty string for our components here if there is no combination,
                 // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
                 // Probably should nullFlavor encounter section in generator and still render document. Looking into sjp
                 $result = $ccdaGenerator->generate(
@@ -299,6 +324,86 @@ class EncounterccdadispatchController extends AbstractActionController
         }
     }
 
+    /**
+     * Handle consolidated QRDA III download
+     *
+     */
+    private function handleConsolidatedQrda3Download(): void
+    {
+        try {
+            $xmlController = new QrdaReportController();
+
+            // Get parameters using your existing pattern
+            $combination = $this->params('pids');
+            $pids = !empty($combination) ? explode('|', (string) $combination) : null;
+
+            // Get measures from request (same as your QRDA III logic)
+            $measures = $_REQUEST['report_measures_cat3'] ?? "";
+            if (is_array($measures)) {
+                if (empty($measures[0])) {
+                    $measures = ''; // defaults to all current measures
+                } elseif (($measures[0] ?? null) == 'all') {
+                    $measures = 'all'; // defaults to all current measures
+                }
+            }
+
+            // Use the enhanced downloadQrdaIII method with consolidated flag
+            $xmlController->downloadQrdaIII($pids, $measures, [], true); // true = consolidated
+        } catch (\Exception $e) {
+            error_log("Consolidated QRDA III download failed: " . $e->getMessage());
+
+            // Follow your existing error handling pattern
+            http_response_code(500);
+            echo xlt("Failed to generate consolidated QRDA III report. Please try again.");
+
+            // Log using your existing logging pattern
+            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Get consolidated QRDA III content (for API or internal use)
+     *
+     */
+    public function getConsolidatedQrda3Content($pids = null, $measures = [])
+    {
+        try {
+            $xmlController = new QrdaReportController();
+
+            // Handle different PID formats (following your existing pattern)
+            if (is_string($pids) && str_contains($pids, '|')) {
+                $pids = explode('|', $pids);
+            }
+
+            // Generate consolidated report
+            $content = $xmlController->getConsolidatedCategoryIIIReport($pids, $measures);
+
+            // Log the event (following your existing audit pattern)
+            EventAuditLogger::getInstance()->newEvent(
+                "qrda3-consolidated-generation",
+                $_SESSION['authUser'],
+                $_SESSION['authProvider'],
+                1,
+                "QRDA3 Consolidated content generated"
+            );
+
+            return $content;
+        } catch (\Exception $e) {
+            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
+                'message' => $e->getMessage()
+            ]);
+
+            return "ERROR: " . $e->getMessage();
+        }
+    }
+
+    /**
+     * @param $dir_source
+     * @return string
+     */
     public function get_file_name($dir_source)
     {
         $tmpfile = '';
@@ -318,6 +423,12 @@ class EncounterccdadispatchController extends AbstractActionController
         return $tmpfile;
     }
 
+    /**
+     * @param $tmpfile
+     * @param $practice_filename
+     * @param $file_size
+     * @return void
+     */
     public function download_file($tmpfile, $practice_filename, $file_size)
     {
         ob_clean();
@@ -345,6 +456,9 @@ class EncounterccdadispatchController extends AbstractActionController
     * @param    Post Variable       combination     Value format: pid_encounter
     * @return   Redirection         Redirects to Encounterccdadispatch controller for creating the CCDA, if auto send is enabled
     */
+    /**
+     * @return mixed|void
+     */
     public function autosendAction()
     {
         $auto_send = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_send_id');
@@ -352,12 +466,12 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
-        ));
+        ]);
         $view->setTerminal(true);
-        return $this->forward()->dispatch('encounterccdadispatch', array('action' => 'index'));
+        return $this->forward()->dispatch('encounterccdadispatch', ['action' => 'index']);
     }
 
     /*
@@ -366,6 +480,9 @@ class EncounterccdadispatchController extends AbstractActionController
     * @param    None
     * @return   None
     */
+    /**
+     * @return ViewModel
+     */
     public function autosignoffAction()
     {
         $auto_signoff_days = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_sign_off_id');
@@ -378,7 +495,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         $view = new ViewModel(
-            array('encounter' => $result, 'listenerObject' => $this->listenerObject)
+            ['encounter' => $result, 'listenerObject' => $this->listenerObject]
         );
         $view->setTerminal(true);
         return $view;

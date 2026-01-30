@@ -14,15 +14,15 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class TelehealthConfigurationVerifier
 {
-    private Client $httpClient;
+    private readonly Client $httpClient;
 
     /**
      * @var TeleHealthRemoteRegistrationService $telehealthRegistration
      */
-    private TeleHealthRemoteRegistrationService $telehealthRegistration;
+    private readonly TeleHealthRemoteRegistrationService $telehealthRegistration;
 
 
-    public function __construct(private SystemLogger $logger, private TeleHealthProvisioningService $provisioningService, private TeleHealthUserRepository $userRepository, private TelehealthGlobalConfig $config)
+    public function __construct(private readonly SystemLogger $logger, private readonly TeleHealthProvisioningService $provisioningService, private readonly TeleHealthUserRepository $userRepository, private readonly TelehealthGlobalConfig $config)
     {
         $this->httpClient = new Client();
         $this->telehealthRegistration = $this->provisioningService->getRemoteRegistrationService();

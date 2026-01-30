@@ -14,10 +14,16 @@
 
 class CreateRouteFromPrimaryViewModel
 {
-    public $customerAccountNumber = "";
+    public $customerAccountNumber;
     public $npi = "";
     public $labGuid;
-    public $labAccountNumber = "";
+    public $labAccountNumber;
+    public mixed $clientSiteId;
+    public mixed $eulaVersion;
+    public bool $eulaAcceptance;
+    public mixed $eulaAccepterFullName;
+    public mixed $eulaAcceptanceDateTimeUtc;
+
     public function __construct()
     {
     }
@@ -25,9 +31,16 @@ class CreateRouteFromPrimaryViewModel
     public static function loadByPost($postData)
     {
         $model = new CreateRouteFromPrimaryViewModel();
-        $model->npi = $postData["form_primaries"];
-        $model->labGuid = $postData["form_labGuid"];
-        $model->labAccountNumber = $postData["form_labAcctNumber"];
+        $model->customerAccountNumber = $postData["form_customerAcctNumber"] ?? "";
+        $model->npi = $postData["form_primaries"] ?? "";
+        $model->labGuid = $postData["form_labGuid"] ?? "";
+        $model->labAccountNumber = $postData["form_labAcctNumber"] ?? "";
+        $model->clientSiteId = $postData["form_clientSiteId"] ?? "";
+        $model->eulaVersion = $postData["form_eulaVersion"] ?? "";
+        $model->eulaAccepterFullName = $postData["form_eulaAccepterFullName"] ?? "";
+        $model->eulaAcceptanceDateTimeUtc = $postData["form_eulaAcceptanceDateTimeUtc"] ?? "";
+        $model->eulaAcceptance = isset($postData["form_eulaAcceptance"]) && (bool)$postData["form_eulaAcceptance"];
+
         return $model;
     }
 }

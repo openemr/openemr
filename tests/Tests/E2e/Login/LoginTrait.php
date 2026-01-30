@@ -48,7 +48,7 @@ trait LoginTrait
         if ($goalPass) {
             $this->assertSame('OpenEMR', $title, 'Login FAILED');
         } else {
-            $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should of FAILED');
+            $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should have FAILED');
         }
     }
 }

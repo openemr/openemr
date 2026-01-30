@@ -51,11 +51,7 @@ $alertmsg = '';
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
-if (empty($collectthis)) {
-    $collectthis = "undefined";
-} else {
-    $collectthis = json_sanitize($collectthis["new_user"]["rules"]);
-}
+$collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis["new_user"]["rules"]);
 ?>
 <script>
 
@@ -117,7 +113,7 @@ function submitform() {
         }
     } //secure_pwd if ends here
 
-    // Valiate Google email (if provided)
+    // Validate Google email (if provided)
     if(document.new_user.google_signin_email.value != "" && !isValidEmail(document.new_user.google_signin_email.value)) {
         alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
         return false;
@@ -271,7 +267,7 @@ function authorized_clicked() {
 <select name="groupname" class="form-control"<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display:none'" : ""; ?>>
 <?php
 $res = sqlStatement("select distinct name from `groups`");
-$result2 = array();
+$result2 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result2[$iter] = $row;
 }
@@ -305,7 +301,7 @@ foreach ($result2 as $iter) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-    for ($iter = 0; $iter < sizeof($fres); $iter++) {
+    for ($iter = 0; $iter < count($fres); $iter++) {
         $result[$iter] = $fres[$iter];
     }
 
@@ -327,7 +323,7 @@ if ($fres) {
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:120px;" class="form-control">
 <?php
-foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')] as $key => $value) {
     echo " <option value='" . attr($key) . "'";
     echo ">" . text($value) . "</option>\n";
 }
@@ -396,9 +392,9 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:120px;" class="form-control"></td>
-<td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
+<td class='text'><?php echo xlt('Ensora eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', array('style' => 'width:120px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', ['style' => 'width:120px']); ?>
 </td>
 </tr>
 <tr>
@@ -442,7 +438,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     <?php
     $user_id = 0; // in user_admin.php this is intval($_GET["id"]).
     $userFacilities = getUserFacilities($user_id, 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
-    $ufid = array();
+    $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
     }
@@ -463,7 +459,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
-                    array('warehouse', $frow['id'])
+                    ['warehouse', $frow['id']]
                 );
                 while ($lrow = sqlFetchArray($lres)) {
                     echo "    <option";
@@ -512,7 +508,7 @@ foreach ($list_acl_groups as $value) {
                 $fres = $facilityService->getAllBillingLocations();
                 if ($fres) {
                     $billResults = [];
-                    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+                    for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                         $billResults[$iter2] = $fres[$iter2];
                     }
 
@@ -611,7 +607,7 @@ foreach ($result3 as $iter) {
 <select name='groupname'>
 <?php
 $res = sqlStatement("select distinct name from `groups`");
-$result2 = array();
+$result2 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result2[$iter] = $row;
 }
@@ -644,7 +640,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
+        text(substr((string) $list, 0, strlen((string) $list) - 2)) . "</span><br />\n";
     }
 }
 ?>

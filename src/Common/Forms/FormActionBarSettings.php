@@ -11,11 +11,11 @@ class FormActionBarSettings
     const ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM = '2';
     public static function getGlobalSettingsList()
     {
-        return array(
+        return [
             self::ACTION_BAR_DISPLAY_FORM_TOP => xl('Top of Form (default)')
             ,self::ACTION_BAR_DISPLAY_FORM_BOTTOM => xl('Bottom of Form')
 //            ,self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM => xl('Top and Bottom of Form')
-        );
+        ];
     }
 
     public static function getDefaultSetting()

@@ -50,11 +50,7 @@ class AppointmentRestController
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        if (!empty($result)) {
-            $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
-        } else {
-            $serviceResult = [];
-        }
+        $serviceResult = !empty($result) ? $this->appointmentService->getAppointmentsForPatient($result[0]['pid']) : [];
 
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
@@ -76,7 +72,7 @@ class AppointmentRestController
         }
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
-        return RestControllerHelper::responseHandler(array("id" => $serviceResult), null, 200);
+        return RestControllerHelper::responseHandler(["id" => $serviceResult], null, 200);
     }
 
     public function delete($eid)

@@ -8,9 +8,11 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+//header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;", true); // Preserve CSP header for security
 
 require_once("../../../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -75,13 +77,15 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
-$urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
+$urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . urlencode($urlParam);
 
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><?php echo xlt('Weno eRx') ?></title>
     <?php Header::setupHeader(); ?>
     <style>
@@ -118,7 +122,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             <?php if ((int)$isValidKey > 997) { ?>
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
                     window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
@@ -126,10 +130,10 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             $(function () {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php
-                    echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
-                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
+                    echo xlt('Decryption failed! The Encryption key is incorrect') . "\n" .
+                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "\n" .
                         xlt('Afterwards you may continue and no other action is required by you.'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg');
             });
             <?php } else { ?>
             $(function () {
@@ -205,11 +209,11 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                         </table>
                     </div>
@@ -240,7 +244,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                     </div>
                     <div class="modal-body">
                         <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
-                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5($provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
+                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5((string) $provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>

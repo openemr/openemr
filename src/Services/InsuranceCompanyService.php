@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\{
     AddressService,
     PhoneNumberService,
@@ -35,8 +36,6 @@ class InsuranceCompanyService extends BaseService
     private $insuranceCompanyValidator;
     private $addressService = null;
     private $phoneNumberService = null;
-    public const TYPE_FAX = 5;
-    public const TYPE_WORK = 2;
 
     /**
      * @var null | array $cqm_sops cached CQM SOPS
@@ -73,11 +72,10 @@ class InsuranceCompanyService extends BaseService
         if ($searchResults->hasData()) {
             $insuranceCompany = $searchResults->getData()[0];
         }
-        if (!empty($insuranceCompany)) {
+        if ($insuranceCompany !== null) {
             return self::getDisplayNameForInsuranceRecord($insuranceCompany);
-        } else {
-            return "";
         }
+        return "";
     }
     public static function getDisplayNameForInsuranceRecord($insuranceCompany)
     {
@@ -104,7 +102,7 @@ class InsuranceCompanyService extends BaseService
                     ", " . $insuranceCompany['state'] . ", " . $insuranceCompany['zip'] . ", " . $insuranceCompany['cms_id'] . ")";
                 break;
             case '7':
-                preg_match("/\d+/", $insuranceCompany['line1'], $matches);
+                preg_match("/\d+/", (string) $insuranceCompany['line1'], $matches);
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['zip'] .
                     "," . $matches[0] . ")";
                 break;
@@ -122,69 +120,78 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql = " SELECT i.id,";
-        $sql .= "        i.uuid,";
-        $sql .= "        i.name,";
-        $sql .= "        i.attn,";
-        $sql .= "        i.cms_id,";
-        $sql .= "        i.ins_type_code,";
-        $sql .= "        i.x12_receiver_id,";
-        $sql .= "        i.x12_default_partner_id,";
-        $sql .= "        x12.x12_default_partner_name,";
-        $sql .= "        i.alt_cms_id,";
-        $sql .= "        i.inactive,work_number.work_id,fax_number.fax_id,";
-        $sql .= "        CONCAT(
-                            COALESCE(work_number.country_code,'')
-                            ,COALESCE(work_number.area_code,'')
-                            ,COALESCE(work_number.prefix,'')
-                            , work_number.number
-                        ) AS work_number,";
-        $sql .= "        CONCAT(
-                            COALESCE(fax_number.country_code,'')
-                            ,COALESCE(fax_number.area_code,'')
-                            ,COALESCE(fax_number.prefix,'')
-                            , fax_number.number
-                        ) AS fax_number,";
-        $sql .= "        a.line1,";
-        $sql .= "        a.line2,";
-        $sql .= "        a.city,";
-        $sql .= "        a.state,";
-        $sql .= "        a.zip,";
-        $sql .= "        a.plus_four,";
-        $sql .= "        a.country,";
-        $sql .= "        i.date_created,";
-        $sql .= "        i.last_updated";
-        $sql .= " FROM insurance_companies i ";
-        $sql .= " LEFT JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
-        // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
+        // foreign id could be ambiguous here... but since the sequence is globally unique @see \generate_id() we can
         // join here safely...
-        $sql .= " LEFT JOIN (
-                        SELECT id AS work_id,foreign_id,country_code, area_code, prefix, number
-                        FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_WORK . "
-                    ) work_number ON i.id = work_number.foreign_id";
-        $sql .= " LEFT JOIN (
-                        SELECT id AS fax_id,foreign_id,country_code, area_code, prefix, number
-                        FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_FAX . "
-                    ) fax_number ON i.id = fax_number.foreign_id";
-        $sql .= " LEFT JOIN (
-                        SELECT id AS x12_default_partner_id, name AS x12_default_partner_name
-                        FROM x12_partners
-                    ) x12 ON i.x12_default_partner_id = x12.x12_default_partner_id";
+        $sql = <<<'SQL'
+            SELECT i.id,
+                i.uuid,
+                i.name,
+                i.attn,
+                i.cms_id,
+                i.ins_type_code,
+                i.x12_receiver_id,
+                i.x12_default_partner_id,
+                x12.x12_default_partner_name,
+                i.alt_cms_id,
+                i.inactive,
+                work_number.work_id,
+                fax_number.fax_id,
+                CONCAT(
+                    COALESCE(work_number.country_code, ''),
+                    COALESCE(work_number.area_code, ''),
+                    COALESCE(work_number.prefix, ''),
+                    work_number.number
+                ) AS work_number,
+                CONCAT(
+                    COALESCE(fax_number.country_code, ''),
+                    COALESCE(fax_number.area_code, ''),
+                    COALESCE(fax_number.prefix, ''),
+                    fax_number.number
+                ) AS fax_number,
+                a.line1,
+                a.line2,
+                a.city,
+                a.state,
+                a.zip,
+                a.plus_four,
+                a.country,
+                i.date_created,
+                i.last_updated
+            FROM insurance_companies i
+            LEFT JOIN (
+                SELECT line1, line2, city, state, zip, plus_four, country, foreign_id
+                FROM addresses
+            ) a ON i.id = a.foreign_id
+            LEFT JOIN (
+                SELECT id AS work_id, foreign_id, country_code, area_code, prefix, number
+                FROM phone_numbers
+                WHERE number IS NOT NULL AND type = ?
+            ) work_number ON i.id = work_number.foreign_id
+            LEFT JOIN (
+                SELECT id AS fax_id, foreign_id, country_code, area_code, prefix, number
+                FROM phone_numbers
+                WHERE number IS NOT NULL AND type = ?
+            ) fax_number ON i.id = fax_number.foreign_id
+            LEFT JOIN (
+                SELECT id AS x12_default_partner_id, name AS x12_default_partner_name
+                FROM x12_partners
+            ) x12 ON i.x12_default_partner_id = x12.x12_default_partner_id
+            SQL;
+        $typeBindings = [PhoneType::WORK->value, PhoneType::FAX->value];
 
         $processingResult = new ProcessingResult();
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
-            $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
+            $boundValues = array_merge($typeBindings, $whereFragment->getBoundValues());
+            $records = QueryUtils::fetchRecords($sql, $boundValues);
 
-            if (!empty($records)) {
-                foreach ($records as $row) {
-                    $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-                    $processingResult->addData($resultRecord);
-                }
+            foreach ($records as $row) {
+                $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                $processingResult->addData($resultRecord);
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
@@ -201,7 +208,7 @@ class InsuranceCompanyService extends BaseService
         return $processingResult;
     }
 
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
@@ -218,7 +225,7 @@ class InsuranceCompanyService extends BaseService
             $search['id'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "id");
         }
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
@@ -238,9 +245,9 @@ class InsuranceCompanyService extends BaseService
         $sql .= " FROM insurance_companies i";
         $sql .= " LEFT JOIN addresses a ON i.id = a.foreign_id";
 
-        if (!empty($search)) {
+        if ($search !== []) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
@@ -264,7 +271,7 @@ class InsuranceCompanyService extends BaseService
         // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
         // compatibility we will leave this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
-        return sqlQuery($sql, array($id));
+        return sqlQuery($sql, [$id]);
     }
 
     public function getOne($uuid): ProcessingResult
@@ -343,8 +350,8 @@ class InsuranceCompanyService extends BaseService
         // addresses table with pharmacies
         // I don't like actually inserting a raw id... yet if we don't allow for this
         // it makes it very hard for any kind of data import that needs to maintain the same id.
-        if (empty($data["id"])) {
-            $data["id"] = generate_id();
+        if (!isset($data["id"]) || $data["id"] === '') {
+            $data["id"] = QueryUtils::generateId();
         }
         $freshId = $data['id'];
 
@@ -362,7 +369,7 @@ class InsuranceCompanyService extends BaseService
         // throws an exception if the record doesn't insert
         QueryUtils::sqlInsert(
             $sql,
-            array(
+            [
                 $freshId,
                 $data["name"],
                 $data["attn"],
@@ -372,14 +379,14 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
-            )
+            ]
         );
 
-        if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
-            $this->addressService->insert($data, $freshId);
+        if (($data["city"] ?? '') !== '' && ($data["state"] ?? '') !== '') {
+            $this->addressService->insert(AddressData::fromArray($data), $freshId);
         }
 
-        if (!empty($data["phone"] ?? null)) {
+        if (($data["phone"] ?? '') !== '') {
             $this->phoneNumberService->insert($data, $freshId);
         }
 
@@ -401,7 +408,7 @@ class InsuranceCompanyService extends BaseService
 
         $insuranceResults = sqlStatement(
             $sql,
-            array(
+            [
                 $data["name"],
                 $data["attn"],
                 $data["cms_id"],
@@ -411,21 +418,21 @@ class InsuranceCompanyService extends BaseService
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
                 $iid
-            )
+            ]
         );
 
         if (!$insuranceResults) {
             return false;
         }
 
-        $addressesResults = $this->addressService->update($data, $iid);
+        $addressesResults = $this->addressService->update(AddressData::fromArray($data), $iid);
 
         if (!$addressesResults) {
             return false;
         }
 
         // no point in updating the phone if there is no phone record...
-        if (!empty($data['phone'])) {
+        if (($data['phone'] ?? '') !== '') {
             $phoneNumberResults = $this->phoneNumberService->update($data, $iid);
 
             if (!$phoneNumberResults) {

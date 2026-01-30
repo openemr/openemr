@@ -37,7 +37,7 @@ class ClickatellSMSClient extends AppDispatch
         $message = $message ?: $this->getRequest('comments');
 
         /* Reformat $toPhone number */
-        $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
+        $cleanup_chr =  ["+", " ", "(", ")", "\r", "\n", "\r\n"];
         $toPhone = str_replace($cleanup_chr, "", $toPhone);
         if (!str_starts_with($toPhone, "1")) {
             $toPhone = "1" . $toPhone;
@@ -48,7 +48,7 @@ class ClickatellSMSClient extends AppDispatch
             $this->credentials['appKey'],
             $toPhone,
             $this->credentials['phone'],
-            rawurlencode($message)
+            rawurlencode((string) $message)
         );
         $context = stream_context_create([
             'http' => [
@@ -114,7 +114,7 @@ class ClickatellSMSClient extends AppDispatch
      */
     function authenticate($acl = ['patients', 'appt']): int
     {
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 }

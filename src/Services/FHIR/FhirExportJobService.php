@@ -19,14 +19,8 @@ use Psr\Log\LoggerInterface;
 
 class FhirExportJobService
 {
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
-
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
     {
-        $this->logger = $logger ?? new SystemLogger();
     }
     // TODO: @adunsulag is there another place in the system that has our standard datetime constants?
     /**

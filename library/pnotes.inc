@@ -6,4 +6,4 @@
  *  - Timeframe: this script can be remove in mid 2023
  */
 
-require_once(dirname(__FILE__) . "/pnotes.inc.php");
+require_once(__DIR__ . "/pnotes.inc.php");

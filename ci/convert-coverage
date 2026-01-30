@@ -1,0 +1,234 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Converts raw coverage PHP files (E2E or API) to PHPUnit .cov format.
+ *
+ * This script loads all the raw xdebug coverage arrays and merges them
+ * into a proper SebastianBergmann\CodeCoverage\CodeCoverage object.
+ *
+ * Usage:
+ *   ./convert-coverage <input-dir> <output-file>
+ *   ./convert-coverage <input-dir> <output-file> --clover=<clover-file>
+ *   ./convert-coverage <input-dir> <output-file> --no-clover
+ *
+ * Examples:
+ *   ./convert-coverage /tmp/coverage/e2e coverage/coverage.e2e.cov --clover=coverage.e2e.clover.xml
+ *   ./convert-coverage /tmp/coverage/api coverage/coverage.api.cov --clover=coverage.api.clover.xml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// This script must only be run from the command line
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    return;
+}
+
+// Find the autoloader
+$autoloadPaths = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../vendor/autoload.php',
+    __DIR__ . '/../../../vendor/autoload.php',
+];
+
+$autoloadFound = false;
+foreach ($autoloadPaths as $autoloadPath) {
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+        $autoloadFound = true;
+        break;
+    }
+}
+
+if (!$autoloadFound) {
+    fwrite(STDERR, "Error: Could not find composer autoload.php\n");
+    fwrite(STDERR, "Please run 'composer install' first\n");
+    exit(1);
+}
+
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
+use SebastianBergmann\CodeCoverage\Report\Clover;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+class ConvertCoverageCommand extends Command
+{
+    protected static $defaultName = 'convert';
+    protected static $defaultDescription = 'Convert raw coverage files to PHPUnit format';
+
+    protected function configure(): void
+    {
+        $this
+            ->setDescription(self::$defaultDescription)
+            ->setHelp('This command merges raw Xdebug coverage arrays (from E2E or API tests) into a CodeCoverage object and optionally generates a Clover report.')
+            ->addArgument(
+                'input',
+                InputArgument::REQUIRED,
+                'Directory containing raw coverage PHP files'
+            )
+            ->addArgument(
+                'output',
+                InputArgument::REQUIRED,
+                'Output file path for merged coverage (.cov)'
+            )
+            ->addOption(
+                'clover',
+                'c',
+                InputOption::VALUE_REQUIRED,
+                'Output file path for Clover XML report (optional)'
+            )
+            ->addOption(
+                'no-clover',
+                null,
+                InputOption::VALUE_NONE,
+                'Skip generating Clover report'
+            );
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $coverageDir = $input->getArgument('input');
+        $outputFile = $input->getArgument('output');
+        $cloverFile = $input->getOption('clover');
+        $noClover = $input->getOption('no-clover');
+
+        // Auto-generate clover filename if not specified and not disabled
+        // Extract test type from output filename (e.g., coverage.api.cov -> api)
+        if (!$cloverFile && !$noClover) {
+            $outputBasename = basename($outputFile, '.cov');
+            $cloverFile = dirname($outputFile) . '/' . $outputBasename . '.clover.xml';
+        }
+
+        $io->title('Coverage Converter');
+
+        // Validate input directory
+        if (!is_dir($coverageDir)) {
+            $io->error("Input directory does not exist: {$coverageDir}");
+            return Command::FAILURE;
+        }
+
+        // Find all raw coverage PHP files
+        $files = glob($coverageDir . '/*.php');
+        if (empty($files)) {
+            $io->error("No coverage files found in {$coverageDir}");
+            return Command::FAILURE;
+        }
+
+        $io->info(sprintf('Found %d coverage file(s) to process', count($files)));
+
+        // Create output directory if it doesn't exist
+        $outputDir = dirname($outputFile);
+        if (!is_dir($outputDir)) {
+            if (!mkdir($outputDir, 0755, true)) {
+                $io->error("Failed to create output directory: {$outputDir}");
+                return Command::FAILURE;
+            }
+        }
+
+        // Create a new CodeCoverage object
+        $io->section('Merging coverage data');
+        $io->progressStart(count($files));
+
+        try {
+            $filter = new Filter();
+            $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
+
+            // Load and merge each raw coverage file
+            $processedCount = 0;
+            $skippedCount = 0;
+            $errorCount = 0;
+
+            foreach ($files as $file) {
+                try {
+                    // Load the raw xdebug coverage array
+                    $rawCoverage = require $file;
+
+                    if (!is_array($rawCoverage)) {
+                        $io->warning("{$file} did not return an array, skipping");
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    // Wrap in RawCodeCoverageData object
+                    $rawData = RawCodeCoverageData::fromXdebugWithoutPathCoverage($rawCoverage);
+
+                    // Merge the raw data into the coverage object
+                    $coverage->append($rawData, basename($file));
+                    $processedCount++;
+                    $io->progressAdvance();
+                } catch (Exception $e) {
+                    if ($output->isVerbose()) {
+                        $io->warning("Failed to process {$file}: {$e->getMessage()}");
+                    }
+                    $errorCount++;
+                    $io->progressAdvance();
+                }
+            }
+
+            $io->progressFinish();
+
+            // Summary
+            $io->success(sprintf(
+                'Successfully processed %d coverage files',
+                $processedCount
+            ));
+
+            if ($skippedCount > 0) {
+                $io->note(sprintf('Skipped %d invalid files', $skippedCount));
+            }
+
+            if ($errorCount > 0) {
+                $io->warning(sprintf('Failed to process %d files', $errorCount));
+            }
+
+            // Save the merged coverage object
+            // The .cov file must be a PHP file that returns the coverage object
+            // This matches the format PHPUnit uses with --coverage-php
+            $io->section('Saving results');
+            $io->text("Writing merged coverage to: {$outputFile}");
+            $serialized = serialize($coverage);
+            $content = "<?php\nreturn unserialize(" . var_export($serialized, true) . ");\n";
+            file_put_contents($outputFile, $content);
+            $io->success('Merged coverage saved');
+
+            // Generate clover report if requested
+            if ($cloverFile) {
+                $io->text("Generating Clover report to: {$cloverFile}");
+                $cloverWriter = new Clover();
+                $cloverWriter->process($coverage, $cloverFile);
+                $io->success('Clover report generated');
+            }
+
+            $io->success('Conversion complete!');
+
+            return Command::SUCCESS;
+        } catch (Exception $e) {
+            $io->error('Failed to process coverage: ' . $e->getMessage());
+            if ($output->isVerbose()) {
+                $io->error($e->getTraceAsString());
+            }
+            return Command::FAILURE;
+        }
+    }
+}
+
+// Create and run the application
+$application = new Application('Coverage Converter', '1.0.0');
+$application->add(new ConvertCoverageCommand());
+$application->setDefaultCommand('convert', true);
+$application->run();

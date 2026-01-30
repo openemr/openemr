@@ -1,0 +1,60 @@
+name: Composer Checks
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  composer:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-version: ['8.2']
+    steps:
+    - name: "Checkout Code"
+      uses: actions/checkout@v6
+
+    - name: "Setup PHP"
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+
+    - name: "Get composer cache directory"
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+
+    - name: "Composer Cache"
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
+
+    - name: "Composer Install"
+      run: composer install --prefer-dist --no-progress
+
+    - name: "Validate Composer"
+      run: composer validate --strict
+
+    - name: "Check Composer Normalized"
+      run: composer normalize --dry-run

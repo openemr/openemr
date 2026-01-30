@@ -16,6 +16,7 @@ require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
+    Logging\SystemLogger,
 };
 use OpenEMR\Services\SpreadSheetService;
 
@@ -35,9 +36,14 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$immunizations = json_decode($_GET['data'], true);
+$immunizations = json_decode((string) $_GET['data'], true);
 
-$spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');
-if (!empty($spreadsheet->buildSpreadsheet())) {
-    $spreadsheet->downloadSpreadsheet('Xls');
+try {
+    $spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');
+    if (!empty($spreadsheet->buildSpreadsheet())) {
+        $spreadsheet->downloadSpreadsheet('Xls');
+    }
+} catch (\Exception $e) {
+    $logger = new SystemLogger();
+    $logger->logError($e->getMessage());
 }

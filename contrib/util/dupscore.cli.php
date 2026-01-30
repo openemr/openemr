@@ -42,12 +42,12 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line!\n");
 }
 
-$args = getopt('cq', array('webdir:', 'site:', 'maxmins:'));
+$args = getopt('cq', ['webdir:', 'site:', 'maxmins:']);
 
 // print_r($args); // debugging
 
-$args['webdir'] = $args['webdir'] ?? dirname(dirname(dirname(__FILE__)));
-$args['site'] = $args['site'] ?? 'default';
+$args['webdir'] ??= dirname(__DIR__, 2);
+$args['site'] ??= 'default';
 $args['maxmins'] = floatval($args['maxmins'] ?? 60);
 
 if (stripos(PHP_OS, 'WIN') === 0) {
@@ -79,7 +79,7 @@ $count = 0;
 $finished = false;
 
 while (!$finished && time() < $endtime) {
-    $scores = array();
+    $scores = [];
     $query1 = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
         " FROM patient_data AS p1, patient_data AS p2" .
         " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
@@ -94,7 +94,7 @@ while (!$finished && time() < $endtime) {
     foreach ($scores as $pid => $score) {
         sqlStatementNoLog(
             "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
-            array($score, $pid)
+            [$score, $pid]
         );
         ++$count;
     }

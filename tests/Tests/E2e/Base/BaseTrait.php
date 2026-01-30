@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,17 +16,58 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
+use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
     private function base(): void
     {
-        $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
-        $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
-        $this->client->manage()->window()->maximize();
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+
+        if ($useGrid === "true") {
+            // Use Selenium Grid (consistent testing environment with goal of stability)
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            // Configurable timeouts (higher when coverage is enabled due to performance impact)
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 30);
+            $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
+
+            $capabilities = DesiredCapabilities::chrome();
+
+            $chromeArgs = [
+                '--window-size=1920,1080',  // Matches SE_SCREEN_WIDTH/HEIGHT
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ];
+
+            // Add headless if forced (but VNC won't work in headless mode)
+            if ($forceHeadless === "true") {
+                $chromeArgs[] = '--headless';
+            }
+
+            $capabilities->setCapability('goog:chromeOptions', [
+                'args' => $chromeArgs
+            ]);
+
+            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            $capabilities->setCapability('pageLoadStrategy', 'normal');
+
+            $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
+            $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
+
+            $this->client->manage()->timeouts()->implicitlyWait($implicitWait);
+            $this->client->manage()->timeouts()->pageLoadTimeout($pageLoadTimeout);
+        } else {
+            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
+            $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
+            $this->client->manage()->window()->maximize();
+        }
     }
 
     private function switchToIFrame(string $xpath): void
@@ -44,7 +87,7 @@ trait BaseTrait
                     $alert = $driver->switchTo()->alert();
                     $alert->accept();
                     return true; // Alert is present and has been cleared
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return false; // Alert is not present
                 }
             });

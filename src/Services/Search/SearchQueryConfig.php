@@ -69,9 +69,9 @@ class SearchQueryConfig
         $config->pagination = new QueryPagination(intval($limit), intval($queryParams['_offset'] ?? 0));
 
         if (!empty($queryParams['_sort'])) {
-            $fields = explode(",", $queryParams['_sort']);
+            $fields = explode(",", (string) $queryParams['_sort']);
             foreach ($fields as $field) {
-                if (strpos($field, '-') === 0) {
+                if (str_starts_with($field, '-')) {
                     $field = substr($field, 1);
                     $config->addSearchFieldOrder(new SearchFieldOrder($field, false));
                 } else {

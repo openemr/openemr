@@ -32,7 +32,7 @@ $spell = "SELECT form_name, MAX(form_track_anything_results.track_timestamp) as 
             "AND formdir = ? " .
             "GROUP BY form_name " .
             "ORDER BY maxdate DESC ";
-$result = sqlStatement($spell, array($pid, 'track_anything'));
+$result = sqlStatement($spell, [$pid, 'track_anything']);
 if (!sqlNumRows($result)) { //If there are no disclosures recorded
     ?>
   <span class='text'> <?php echo xlt("No tracks have been documented.");

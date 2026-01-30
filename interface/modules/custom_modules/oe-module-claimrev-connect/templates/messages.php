@@ -14,7 +14,7 @@ if ($benefit->messages != null && $benefit->messages) {
     ?>
     <div class="row">
         <div class="col">
-            <?php echo xlt("Messages");?>            
+            <?php echo xlt("Messages");?>
         </div>
         <div class="col">
     <?php

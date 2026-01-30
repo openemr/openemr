@@ -22,5 +22,5 @@ $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\WenoModule\\", __D
 
 $module_config = 1;
 /* renders in a Laminas created iframe */
-require_once dirname(__FILE__) . '/templates/weno_setup.php';
+require_once __DIR__ . '/templates/weno_setup.php';
 exit;

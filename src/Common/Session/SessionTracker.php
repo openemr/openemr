@@ -46,8 +46,8 @@ class SessionTracker
             error_log("OpenEMR Error: session entry in session_tracker table is missing or invalid");
             return true;
         }
-        $last_updated = strtotime($sessionTracker['last_updated']);
-        $current_time = strtotime($sessionTracker['current_time']);
+        $last_updated = strtotime((string) $sessionTracker['last_updated']);
+        $current_time = strtotime((string) $sessionTracker['current_time']);
         if ($last_updated > $current_time) {
             error_log("OpenEMR Error: isSessionExpired error (last_updated time is ahead of current time which should be impossible)");
             return true;

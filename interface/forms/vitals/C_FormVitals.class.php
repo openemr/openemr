@@ -4,9 +4,11 @@
  * vitals C_FormVitals.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,14 +16,15 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Forms\FormVitals;
+use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\VitalsService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\VitalsService;
 
 class C_FormVitals
 {
@@ -30,11 +33,9 @@ class C_FormVitals
      */
     public $vitals;
 
-    var $template_dir;
-    var $form_id;
-    var $units_of_measurement;
-    var $template_mod;
-    var $context;
+    public $template_dir;
+    public $form_id;
+    public $units_of_measurement;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -44,13 +45,11 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general", $context = '')
+    public function __construct(public $template_mod = "general", public $context = '')
     {
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
-        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -112,7 +111,7 @@ class C_FormVitals
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
         $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
-        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
+        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)));
         $vitalFields = [
             [
                 'type' => 'textbox_conversion'
@@ -356,7 +355,7 @@ class C_FormVitals
             ,'VIEW' => true
             ,'patient_age' => $patient_age
             ,'patient_dob' => $patient_dob
-            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
         $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
@@ -402,21 +401,12 @@ class C_FormVitals
             $_POST["BMI"] = ($weight / $height / $height) * 703;
         }
 
-        // TODO: this should go into the vitals form...
-        if ($_POST["BMI"] > 42) {
-            $_POST["BMI_status"] = 'Obesity III';
-        } elseif ($_POST["BMI"] > 34) {
-            $_POST["BMI_status"] = 'Obesity II';
-        } elseif ($_POST["BMI"] > 30) {
-            $_POST["BMI_status"] = 'Obesity I';
-        } elseif ($_POST["BMI"] > 27) {
-            $_POST["BMI_status"] = 'Overweight';
-        } elseif ($_POST["BMI"] > 25) {
-            $_POST["BMI_status"] = 'Normal BL';
-        } elseif ($_POST["BMI"] > 18.5) {
-            $_POST["BMI_status"] = 'Normal';
-        } elseif ($_POST["BMI"] > 10) {
-            $_POST["BMI_status"] = 'Underweight';
+        $bmi = $_POST["BMI"] ?? null;
+        if (is_numeric($bmi)) {
+            $bmiCategory = BmiCategory::fromBmi((float)$bmi);
+            if ($bmiCategory !== null) {
+                $_POST["BMI_status"] = $bmiCategory->value;
+            }
         }
 
         $temperature = $_POST["temperature"];
@@ -448,9 +438,9 @@ class C_FormVitals
 
         // so we can get rid of smarty we are going to bring this from the controller class in here
         foreach ($_POST as $varname => $var) {
-            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", (string) $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+            if ((!(str_starts_with("_", (string) $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);
@@ -469,7 +459,7 @@ class C_FormVitals
         $obj->set_authorized($_SESSION['userauthorized']);
 
         // handle all of the vital details that we need here.
-        $detailsToUpdate = array();
+        $detailsToUpdate = [];
         if (isset($_POST['interpretation'])) {
             $interpretationList = $this->get_interpretation_list_as_hash();
             // grab our default list options

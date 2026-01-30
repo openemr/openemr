@@ -29,15 +29,8 @@ class RuleCriteriaType
     const custom = "custom";
     const custom_bucket = "custom_bucket";
 
-    var $code;
-    var $lbl;
-    var $method;
-
-    function __construct($code, $lbl, $method)
+    function __construct(public $code, public $lbl, public $method)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
-        $this->method = $method;
     }
 
     /**
@@ -59,7 +52,7 @@ class RuleCriteriaType
 
     private static function map()
     {
-        $map = array(
+        $map = [
             self::ageMin => new RuleCriteriaType(self::ageMin, xl('Age min'), 'age_min'),
             self::ageMax => new RuleCriteriaType(self::ageMax, xl('Age max'), 'age_max'),
             self::sex => new RuleCriteriaType(self::sex, xl('Sex'), 'sex'),
@@ -73,7 +66,7 @@ class RuleCriteriaType
             self::lifestyle => new RuleCriteriaType(self::lifestyle, xl('Lifestyle'), 'database'),
             self::custom => new RuleCriteriaType(self::custom, xl('Custom Table'), 'database'),
             self::custom_bucket => new RuleCriteriaType(self::custom_bucket, xl('Custom'), 'database')
-        );
+        ];
         return $map;
     }
 }

@@ -25,9 +25,9 @@
 function smarty_function_math($params, &$smarty)
 {
     static $_allowed_funcs =
-        array('int' => true, 'abs' => true, 'ceil' => true, 'cos' => true, 'exp' => true, 'floor' => true,
+        ['int' => true, 'abs' => true, 'ceil' => true, 'cos' => true, 'exp' => true, 'floor' => true,
               'log' => true, 'log10' => true, 'max' => true, 'min' => true, 'pi' => true, 'pow' => true, 'rand' => true,
-              'round' => true, 'sin' => true, 'sqrt' => true, 'srand' => true, 'tan' => true);
+              'round' => true, 'sin' => true, 'sqrt' => true, 'srand' => true, 'tan' => true];
     // be sure equation parameter is present
     if (empty($params[ 'equation' ])) {
         trigger_error("math: missing equation parameter", E_USER_WARNING);
@@ -38,30 +38,30 @@ function smarty_function_math($params, &$smarty)
     $equation = $params[ 'equation' ];
 
     // make sure parenthesis are balanced
-    if (substr_count($equation, "(") != substr_count($equation, ")")) {
+    if (substr_count((string) $equation, "(") != substr_count((string) $equation, ")")) {
         trigger_error("math: unbalanced parenthesis", E_USER_WARNING);
 
         return;
     }
 
     // disallow backticks
-    if (strpos($equation, '`') !== false) {
+    if (str_contains((string) $equation, '`')) {
         trigger_error("math: backtick character not allowed in equation", E_USER_WARNING);
 
         return;
     }
 
     // also disallow dollar signs
-    if (strpos($equation, '$') !== false) {
+    if (str_contains((string) $equation, '$')) {
         trigger_error("math: dollar signs not allowed in equation", E_USER_WARNING);
 
         return;
     }
 
     foreach ($params as $key => $val) {
-        if ($key != "equation" && $key != "format" && $key != "assign") {
+        if (!in_array($key, ["equation", "format", "assign"])) {
             // make sure value is not empty
-            if (strlen($val) == 0) {
+            if (strlen((string) $val) == 0) {
                 trigger_error("math: parameter '{$key}' is empty", E_USER_WARNING);
 
                 return;
@@ -75,7 +75,7 @@ function smarty_function_math($params, &$smarty)
     }
 
     // match all vars in equation, make sure all are passed
-    preg_match_all('!(?:0x[a-fA-F0-9]+)|([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)!', $equation, $match);
+    preg_match_all('!(?:0x[a-fA-F0-9]+)|([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)!', (string) $equation, $match);
 
     foreach ($match[ 1 ] as $curr_var) {
         if ($curr_var && !isset($params[ $curr_var ]) && !isset($_allowed_funcs[ $curr_var ])) {
@@ -86,8 +86,8 @@ function smarty_function_math($params, &$smarty)
     }
 
     foreach ($params as $key => $val) {
-        if ($key != "equation" && $key != "format" && $key != "assign") {
-            $equation = preg_replace("/\b$key\b/", " \$params['$key'] ", $equation);
+        if (!in_array($key, ["equation", "format", "assign"])) {
+            $equation = preg_replace("/\b$key\b/", " \$params['$key'] ", (string) $equation);
         }
     }
     $smarty_math_result = null;

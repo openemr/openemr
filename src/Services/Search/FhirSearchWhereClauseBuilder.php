@@ -23,10 +23,10 @@ class FhirSearchWhereClauseBuilder
     public static function build($search, $isAndCondition = true): SearchQueryFragment
     {
         $sqlBindArray = [];
-        $whereClauses = array(
+        $whereClauses = [
             'and' => []
         ,'or' => []
-        );
+        ];
 
         if (!empty($search)) {
             // make sure all the parameters are actual search fields and clean up any field that is a uuid

@@ -15,31 +15,32 @@
 //
 // To implement this feature, rename this file to BillingExport.php.
 
+use OpenEMR\Services\PhoneNumberService;
 
 class BillingExport
 {
   // You should customize these paths.  They must share the same
   // physical disk partition so that the final rename will be an
   // atomic operation.
-    var $TMP_DIR    = "/home/billing/tmp";
-    var $TARGET_DIR = "/home/billing/ftp";
+    public $TMP_DIR    = "/home/billing/tmp";
+    public $TARGET_DIR = "/home/billing/ftp";
 
-    var $tmpname; // output filename including path
-    var $tmpfh;   // output file handle
+    public $tmpname; // output filename including path
+    public $tmpfh;   // output file handle
 
     function fixString($string)
     {
-        return addslashes(trim($string));
+        return addslashes(trim((string) $string));
     }
 
     function fixMI($string)
     {
-        return addslashes(substr(trim($string), 0, 1));
+        return addslashes(substr(trim((string) $string), 0, 1));
     }
 
     function fixSex($sex)
     {
-        $sex = substr(strtoupper(trim($sex)), 0, 1);
+        $sex = substr(strtoupper(trim((string) $sex)), 0, 1);
         if ($sex == 'M') {
             return 'Male';
         }
@@ -51,20 +52,10 @@ class BillingExport
         return '';
     }
 
-    function fixPhone($phone)
-    {
-        $tmparr = array();
-        if (preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $phone, $tmparr)) {
-            return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
-        }
-
-        return '';
-    }
-
     function fixSSN($ssn)
     {
-        $tmparr = array();
-        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", $ssn, $tmparr)) {
+        $tmparr = [];
+        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", (string) $ssn, $tmparr)) {
             return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
         }
 
@@ -73,12 +64,12 @@ class BillingExport
 
     function fixMStatus($status)
     {
-        return ucfirst(trim($status));
+        return ucfirst(trim((string) $status));
     }
 
     function fixEStatus($employer)
     {
-        $status = strtoupper(trim($employer));
+        $status = strtoupper(trim((string) $employer));
         if (! $status) {
             return '';
         }
@@ -96,13 +87,13 @@ class BillingExport
 
     function fixRelation($rel)
     {
-        return ucfirst(trim($rel));
+        return ucfirst(trim((string) $rel));
     }
 
     function fixCPT($code, $mod)
     {
-        $code = trim($code);
-        $mod = trim($mod);
+        $code = trim((string) $code);
+        $mod = trim((string) $mod);
         if ($mod) {
             $code .= '-' . $mod;
         }
@@ -117,7 +108,7 @@ class BillingExport
 
     function fixDate($date)
     {
-        return substr($date, 0, 10);
+        return substr((string) $date, 0, 10);
     }
 
   // Creating a BillingExport object opens the output file.
@@ -143,7 +134,7 @@ class BillingExport
         "LEFT OUTER JOIN employer_data AS e ON e.pid = ? " .
         "WHERE p.pid = ? " .
         "LIMIT 1";
-        $prow = sqlQuery($query, array($patient_id, $patient_id));
+        $prow = sqlQuery($query, [$patient_id, $patient_id]);
 
         // Patient line.
         fwrite($this->tmpfh, 'PT' .
@@ -156,8 +147,8 @@ class BillingExport
         ',"' . $this->fixString($prow['city'])        . '"' .
         ',"' . $this->fixString($prow['state'])       . '"' .
         ',"' . $this->fixString($prow['postal_code']) . '"' .
-        ',"' . $this->fixPhone($prow['phone_home'])   . '"' .
-        ',"' . $this->fixPhone($prow['phone_biz'])    . '"' .
+        ',"' . PhoneNumberService::formatPhone($prow['phone_home'] ?? '') . '"' .
+        ',"' . PhoneNumberService::formatPhone($prow['phone_biz'] ?? '')  . '"' .
         ',"' . $this->fixSex($prow['sex'])            . '"' .
         ',"' . $prow['DOB']                    . '"' .
         ',"' . $this->fixSSN($prow['ss'])             . '"' .
@@ -178,7 +169,7 @@ class BillingExport
           "LEFT OUTER JOIN facility AS f ON f.name = e.facility " .
           "WHERE e.pid = ? AND e.encounter = ? " .
           "LIMIT 1";
-        $erow = sqlQuery($query, array($patient_id, $patient_id, $encounter));
+        $erow = sqlQuery($query, [$patient_id, $patient_id, $encounter]);
 
         // Performing Provider line.
         fwrite($this->tmpfh, 'PP' .
@@ -210,11 +201,11 @@ class BillingExport
           "AND n.insurance_company_id = c.id " .
           "WHERE d.pid = ? AND d.provider != '' " .
           "ORDER BY d.type ASC, d.date DESC";
-        $ires = sqlStatement($query, array($erow['id'], $patient_id));
+        $ires = sqlStatement($query, [$erow['id'], $patient_id]);
 
         $prev_type = '?';
         while ($irow = sqlFetchArray($ires)) {
-            if (strcmp($irow['type'], $prev_type) == 0) {
+            if (strcmp((string) $irow['type'], (string) $prev_type) == 0) {
                 continue;
             }
 
@@ -238,7 +229,7 @@ class BillingExport
               ',"' . $this->fixString($irow['city'])                      . '"' .
               ',"' . $this->fixString($irow['state'])                     . '"' .
               ',"' . $this->fixString($irow['zip'])                       . '"' .
-              ',"' . $this->fixPhone($irow['area_code'] . $irow['prefix'] . $irow['number']) . '"' .
+              ',"' . PhoneNumberService::formatPhone(($irow['area_code'] ?? '') . ($irow['prefix'] ?? '') . ($irow['number'] ?? '')) . '"' .
               ',"' . $this->fixString($irow['provider_number'])           . '"' .
               ',"' . $this->fixString($irow['provider_number'])           . '"' . // TBD: referring provider
               "\n");
@@ -251,7 +242,7 @@ class BillingExport
         "WHERE pid = ? AND encounter = ? " .
         "AND activity = 1 AND code_type = 'CPT4' " .
         "ORDER BY id";
-        $bres = sqlStatement($query, array($patient_id, $encounter));
+        $bres = sqlStatement($query, [$patient_id, $encounter]);
 
         while ($brow = sqlFetchArray($bres)) {
               fwrite($this->tmpfh, 'PR' .
@@ -276,6 +267,6 @@ class BillingExport
     {
         fclose($this->tmpfh);
         chmod($this->tmpname, 0666);
-        rename($this->tmpname, $this->TARGET_DIR . '/' . basename($this->tmpname));
+        rename($this->tmpname, $this->TARGET_DIR . '/' . basename((string) $this->tmpname));
     }
 }

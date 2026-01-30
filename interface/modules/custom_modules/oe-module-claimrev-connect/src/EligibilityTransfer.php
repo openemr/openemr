@@ -53,7 +53,7 @@ class EligibilityTransfer extends BaseService
             $eid = $eligibility['id'];
             $request_json = $eligibility['request_json'];
 
-            $elig = json_decode($request_json);
+            $elig = json_decode((string) $request_json);
             $result = ClaimRevApi::uploadEligibility($elig, $token);
             EligibilityTransfer::saveEligibility($result, $eid);
         }
@@ -110,7 +110,7 @@ class EligibilityTransfer extends BaseService
             $reportFolder = "f271";
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
+                // Create a directory
                 mkdir($savePath, 0777, true);
             }
 

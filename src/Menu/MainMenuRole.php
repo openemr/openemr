@@ -64,7 +64,7 @@ class MainMenuRole extends MenuRole
         $this->menuUpdateEntries($menu_parsed);
         $updatedMenuEvent = $this->dispatcher->dispatch(new MenuEvent($menu_parsed), MenuEvent::MENU_UPDATE);
 
-        $menu_restrictions = array();
+        $menu_restrictions = [];
         $tmp = $updatedMenuEvent->getMenu();
         $this->menuApplyRestrictions($tmp, $menu_restrictions);
         $updatedRestrictions = $this->dispatcher->dispatch(new MenuEvent($menu_restrictions), MenuEvent::MENU_RESTRICT);
@@ -126,7 +126,7 @@ class MainMenuRole extends MenuRole
     //
     protected function updateVisitForms(&$menu_list)
     {
-        $menu_list->children = array();
+        $menu_list->children = [];
         $reglastcat = '';
         $regrows = getFormsByCategory('1', false);
         foreach ($regrows as $entry) {
@@ -146,19 +146,19 @@ class MainMenuRole extends MenuRole
                 $catEntry->label = xl_form_title($reglastcat);
                 $catEntry->icon = 'fa-caret-right';
                 $catEntry->requirement = 2;
-                $catEntry->children = array();
+                $catEntry->children = [];
             }
             // Create object for form menu item and put it in its category object.
             $formEntry = new \stdClass();
             $formEntry->label = xl_form_title($title);
-            $formEntry->url = '/interface/patient_file/encounter/load_form.php?formname=' . urlencode($option_id);
+            $formEntry->url = '/interface/patient_file/encounter/load_form.php?formname=' . urlencode((string) $option_id);
             $formEntry->requirement = 2;
             $formEntry->target = 'enc';
             // Plug in ACO attribute, if any, of this form.
             if (!empty($entry['aco_spec'])) {
-                $tmp = explode('|', $entry['aco_spec']);
+                $tmp = explode('|', (string) $entry['aco_spec']);
                 if (!empty($tmp[1])) {
-                    $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+                    $formEntry->acl_req = [$tmp[0], $tmp[1], 'write', 'addonly'];
                 }
             }
             if (!empty($catEntry->children)) {
@@ -197,12 +197,12 @@ class MainMenuRole extends MenuRole
                 $catEntry->label = xl_form_title($reglastcat);
                 $catEntry->icon = 'fa-caret-right';
                 $catEntry->requirement = 0;
-                $catEntry->children = array();
+                $catEntry->children = [];
             }
             // Create object for form menu item and put it in its category object.
             $formEntry = new \stdClass();
             $formEntry->label = xl_form_title($title);
-            $formEntry->url = '/interface/forms/LBF/printable.php?isform=1&formname=' . urlencode($option_id);
+            $formEntry->url = '/interface/forms/LBF/printable.php?isform=1&formname=' . urlencode((string) $option_id);
             $formEntry->requirement = 0;
             $formEntry->target = 'pop';
             array_push($catEntry->children, $formEntry);

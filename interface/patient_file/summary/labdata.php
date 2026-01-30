@@ -40,7 +40,10 @@ require_once($GLOBALS["srcdir"] . "/api.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Labs")]);
@@ -83,7 +86,7 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') === "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -126,7 +129,7 @@ function checkAll(bx) {
                 $spell .= "FROM patient_data ";
                 $spell .= "WHERE pid = ?";
                 //---
-                $myrow = sqlQuery($spell, array($pid));
+                $myrow = sqlQuery($spell, [$pid]);
                 $lastname = $myrow["lname"];
                 $firstname  = $myrow["fname"];
                 $DOB  = $myrow["DOB"];
@@ -166,7 +169,7 @@ function checkAll(bx) {
                                         <?php
                                         // What items are there for patient $pid?
                                         // -----------------------------------------------
-                                        $value_list = array();
+                                        $value_list = [];
                                         $value_select = $_POST['value_code'] ?? null; // what items are checkedboxed?
                                         $tab = 0;
                                         echo "<td>";
@@ -181,7 +184,7 @@ function checkAll(bx) {
                                         $spell .= "AND procedure_result.result IS NOT NULL ";
                                         $spell .= "AND procedure_result.result != ''";
                                         $spell .= "ORDER BY procedure_result.result_code ASC ";
-                                        $query  = sqlStatement($spell, array($pid));
+                                        $query  = sqlStatement($spell, [$pid]);
 
                                         // Select which items to view...
                                         $i = 0;
@@ -268,12 +271,12 @@ function checkAll(bx) {
                             // set a plot-spacer
                             echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "' class='chart-dygraphs'></div></td></tr>";
                             $value_count = 0;
-                            $value_array = array(); // reset local array
-                            $date_array  = array();//  reset local array
+                            $value_array = []; // reset local array
+                            $date_array  = [];//  reset local array
 
                             // get data from db
                             $spell  = $main_spell;
-                            $query  = sqlStatement($spell, array($this_value,$pid));
+                            $query  = sqlStatement($spell, [$this_value,$pid]);
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_array[0][$value_count]   = $myrow['result'];
                                 $date_array[$value_count]   = $myrow['date_collected'];
@@ -282,7 +285,7 @@ function checkAll(bx) {
                                 echo "<td class='list_item'>" . text($myrow['result_text']) . "</td>";
 
 
-                                if ($myrow['abnormal'] == 'No' || $myrow['abnormal'] == 'no'  || $myrow['abnormal'] == '' || $myrow['abnormal'] == null) {
+                                if (in_array($myrow['abnormal'], ['No', 'no', '', null])) {
                                     echo "<td class='list_result'>&nbsp;&nbsp;&nbsp;" . text($myrow['result']) . "&nbsp;&nbsp;</td>";
                                 } else {
                                     echo "<td class='list_result_abnorm'>&nbsp;" ;
@@ -330,9 +333,9 @@ function checkAll(bx) {
                             function get_my_graph<?php echo attr($item_graph) ?>(){
                                 var thedates = JSON.stringify(<?php echo js_escape($date_array); ?>);
                                 var thevalues =  JSON.stringify(<?php echo js_escape($value_array); ?>);
-                                var theitem = JSON.stringify(<?php echo js_escape(array($the_item)); ?>);
+                                var theitem = JSON.stringify(<?php echo js_escape([$the_item]); ?>);
                                 var thetitle = JSON.stringify(<?php echo js_escape($the_item); ?>);
-                                var checkboxfake = JSON.stringify(<?php echo js_escape(array(0)); ?>);
+                                var checkboxfake = JSON.stringify(<?php echo js_escape([0]); ?>);
 
                                 $.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
                                         type: 'POST',
@@ -341,7 +344,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){
@@ -374,13 +377,13 @@ function checkAll(bx) {
 
                     //##########################################################################################################################
                     if ($mode == 'matrix') {
-                        $value_matrix = array();
-                        $datelist = array();
+                        $value_matrix = [];
+                        $datelist = [];
                         $i = 0;
                         // get all data of patient's items
                         foreach ($value_select as $this_value) {
                             $spell  = $main_spell;
-                            $query  = sqlStatement($spell, array($this_value,$pid));
+                            $query  = sqlStatement($spell, [$this_value,$pid]);
 
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_matrix[$i]['procedure_result_id']  = $myrow['procedure_result_id'];
@@ -411,7 +414,7 @@ function checkAll(bx) {
                             $date_collected[$key] = $row['date_collected'];
                         }
 
-                        array_multisort(array_map('strtolower', $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
+                        array_multisort(array_map(strtolower(...), $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
 
                         $cellcount = count($datelist);
                         $itemcount = count($value_matrix);
@@ -446,7 +449,7 @@ function checkAll(bx) {
                                     if ($value_matrix[$i]['result'] == null) {
                                         echo "<td class='matrix_result'> </td>";
                                     } else {
-                                        if ($value_matrix[$i]['abnormal'] == 'No' || $value_matrix[$i]['abnormal'] == 'no'  || $value_matrix[$i]['abnormal'] == '' || $value_matrix[$i]['abnormal'] == null) {
+                                        if (in_array($value_matrix[$i]['abnormal'], ['No', 'no', '', null])) {
                                             echo "<td class='matrix_result'>&nbsp;&nbsp;&nbsp;" . text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";
                                         } else {
                                             echo "<td class='matrix_result_abnorm'>&nbsp;&nbsp;" ;
@@ -505,4 +508,3 @@ function checkAll(bx) {
     </div>
 </body>
 </html>
-

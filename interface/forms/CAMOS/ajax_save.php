@@ -23,8 +23,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$field_names = array('category' => $_POST["category"], 'subcategory' => $_POST["subcategory"], 'item' => $_POST["item"], 'content' => $_POST['content']);
-$camos_array = array();
+$field_names = ['category' => $_POST["category"], 'subcategory' => $_POST["subcategory"], 'item' => $_POST["item"], 'content' => $_POST['content']];
+$camos_array = [];
 process_commands($field_names['content'], $camos_array);
 
 $CAMOS_form_name = "CAMOS-" . $field_names['category'] . '-' . $field_names['subcategory'] . '-' . $field_names['item'];
@@ -33,7 +33,7 @@ if ($encounter == "") {
     $encounter = date("Ymd");
 }
 
-if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $field_names['content']) == 0) { //make sure blanks do not get submitted
+if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", (string) $field_names['content']) == 0) { //make sure blanks do not get submitted
   // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
   //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
   //   before being submitted to the database. Will also continue to support placeholder conversion on report
@@ -47,14 +47,14 @@ if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $field_names['content']) == 0) { //m
 
 //deal with embedded camos submissions here
 foreach ($camos_array as $val) {
-    if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $val['content']) == 0) { //make sure blanks not submitted
+    if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", (string) $val['content']) == 0) { //make sure blanks not submitted
         foreach ($val as $k => $v) {
             // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
             //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
             //   before being submitted to the database. Will also continue to support placeholder conversion on report
             //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
             //   version 4.0).
-            $val[$k] = trim(replace($pid, $encounter, $v));
+            $val[$k] = trim((string) replace($pid, $encounter, $v));
         }
 
         $CAMOS_form_name = "CAMOS-" . $val['category'] . '-' . $val['subcategory'] . '-' . $val['item'];

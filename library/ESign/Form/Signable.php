@@ -4,24 +4,14 @@
  * Form implementation of SignableIF interface, which represents an
  * object that can be signed, locked and/or amended.
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
- **/
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
+ * @copyright Copyright (c) 2013 OEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace ESign;
 
@@ -30,16 +20,9 @@ require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {
-    protected $_encounterId = null;
-    protected $_formId = null;
-    protected $_formDir = null;
-
-    public function __construct($formId, $formDir, $encounterId)
+    public function __construct(protected $_formId, protected $_formDir, protected $_encounterId)
     {
-        $this->_formId = $formId;
-        $this->_formDir = $formDir;
-        $this->_encounterId = $encounterId;
-        parent::__construct($formId, 'forms');
+        parent::__construct($this->_formId, 'forms');
     }
 
     protected function getLastLockHash()
@@ -55,7 +38,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
                 $statement .= "WHERE E.tid = ? AND E.table = ? ";
                 $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-                $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName ));
+                $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName ]);
                 $hash = null;
                 if ($row && isset($row['hash'])) {
                     $hash = $row['hash'];
@@ -87,7 +70,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
             $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-            $row = sqlQuery($statement, array( $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ));
+            $row = sqlQuery($statement, [ $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ]);
             if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
                 $locked = true;
             }
@@ -111,21 +94,21 @@ class Form_Signable extends DbRow_Signable implements SignableIF
       // Exceptions are specified in formdir_keys list
         $row = sqlQuery(
             "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
-            array('formdir_keys', $this->_formDir)
+            ['formdir_keys', $this->_formDir]
         );
         if (isset($row['title'])) {
             $excp = json_decode("{" . $row['title'] . "}");
         }
 
-        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_" . $this->_formDir);
+        $tbl = ($excp->tbl ?? "form_" . $this->_formDir);
 
         // eye form fix
         if ($tbl == 'form_eye_mag') {
             $tbl = 'form_eye_base';
         }
 
-        $id = (isset($excp->id) ? $excp->id : 'id');
-        $limit = (isset($excp->limit) ? $excp->limit : 1);
+        $id = ($excp->id ?? 'id');
+        $limit = ($excp->limit ?? 1);
 
       // Get form data based on key from forms table
         $sql = sprintf(
@@ -133,17 +116,17 @@ class Form_Signable extends DbRow_Signable implements SignableIF
       		INNER JOIN forms f ON fd.%s = f.form_id
       		WHERE f.id = ?",
             escape_table_name($tbl),
-            escape_sql_column_name($id, array($tbl))
+            escape_sql_column_name($id, [$tbl])
         );
         if ($limit <> '*') {
             $sql .= ' LIMIT ' . escape_limit($limit);
         }
 
-        $rs = sqlStatement($sql, array( $this->_formId ));
+        $rs = sqlStatement($sql, [ $this->_formId ]);
         if (sqlNumRows($rs) == 1) { // maintain legacy hash
             $frs = sqlFetchArray($rs);
         } else {
-            $frs = array();
+            $frs = [];
             while ($fr = sqlFetchArray($rs)) {
                 array_push($frs, $fr);
             }

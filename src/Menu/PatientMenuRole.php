@@ -72,7 +72,7 @@ class PatientMenuRole extends MenuRole
         $this->menuUpdateEntries($menu_parsed);
         $updatedPatientMenuEvent = $this->dispatcher->dispatch(new PatientMenuEvent($menu_parsed), PatientMenuEvent::MENU_UPDATE);
 
-        $menu_restrictions = array();
+        $menu_restrictions = [];
         $tmp = $updatedPatientMenuEvent->getMenu();
         $this->menuApplyRestrictions($tmp, $menu_restrictions);
         $updatedPatientMenuRestrictions = $this->dispatcher->dispatch(new PatientMenuEvent($menu_restrictions), PatientMenuEvent::MENU_RESTRICT);
@@ -156,7 +156,7 @@ class PatientMenuRole extends MenuRole
                 }
 
                 $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;
@@ -189,13 +189,13 @@ class PatientMenuRole extends MenuRole
                     <ul class="navbar-nav">
         EOT;
         echo $str_top . "\r\n";
-        foreach ($menu_restrictions as $key => $value) {
+        foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
                 $list .= '<ul class="dropdown-menu">';
-                foreach ($value->children as $children_key => $children_value) {
+                foreach ($value->children as $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = $children_value->class ?? '';
                     $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
@@ -205,7 +205,7 @@ class PatientMenuRole extends MenuRole
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
                 $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
@@ -231,10 +231,10 @@ class PatientMenuRole extends MenuRole
      */
     private function getAbsoluteWebRoot($rel_url)
     {
-        if ($rel_url && !strpos($rel_url, "://")) {
+        if ($rel_url && !strpos((string) $rel_url, "://")) {
             // Normalize URL if it starts with a forward or backward slash
-            if (strpos($rel_url, '/') === 0 || strpos($rel_url, '\\') === 0) {
-                $rel_url = ltrim($rel_url, '/\\');
+            if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
+                $rel_url = ltrim((string) $rel_url, '/\\');
             }
             return $GLOBALS['webroot'] . "/" . $rel_url;
         }

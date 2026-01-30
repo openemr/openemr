@@ -124,7 +124,7 @@ class FHIRBiologicallyDerivedProductStatus extends FHIRElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

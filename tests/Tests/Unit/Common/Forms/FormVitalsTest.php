@@ -44,7 +44,7 @@ class FormVitalsTest extends TestCase
         QueryUtils::sqlStatementThrowException("DELETE FROM " . FormVitals::TABLE_NAME . " WHERE note=?", [self::NOTE_UNIT_TEST]);
     }
 
-    public function test__construct()
+    public function test__construct(): void
     {
         // make sure we can construct the object and there are no errors
         $formVitals = new FormVitals();
@@ -52,7 +52,7 @@ class FormVitalsTest extends TestCase
         $this->assertIsArray($formVitals->get_vital_details(), "Vital details should be array");
     }
 
-    public function test_set_details_for_column()
+    public function test_set_details_for_column(): void
     {
         $details = new FormVitalDetails();
         $formVitals = new FormVitals();
@@ -62,7 +62,7 @@ class FormVitalsTest extends TestCase
         $this->assertEquals($details, $formVitals->get_details_for_column(self::VITAL_DETAILS_COLUMN));
     }
 
-    public function test_persist()
+    public function test_persist(): void
     {
         $formVitals = new FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
@@ -74,7 +74,7 @@ class FormVitalsTest extends TestCase
         $this->assertNotEmpty($records, "Vital records should have been found");
     }
 
-    public function test_persist_vitals_with_details()
+    public function test_persist_vitals_with_details(): void
     {
         $formVitals = new FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
@@ -99,7 +99,7 @@ class FormVitalsTest extends TestCase
         $this->assertEquals(self::VITAL_DETAILS_COLUMN, $tableDetails['vitals_column'], "Vital detail column should have been persisted");
     }
 
-    public function test_persist_vitals_with_details_interpretation()
+    public function test_persist_vitals_with_details_interpretation(): void
     {
         $formVitals = new FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
@@ -137,7 +137,7 @@ class FormVitalsTest extends TestCase
         $this->assertEquals(self::VITAL_DETAILS_COLUMN, $tableDetails['vitals_column'], "Vital detail column should have been persisted");
     }
 
-    public function test_populate_array()
+    public function test_populate_array(): void
     {
         $vitalsArray = [
             'id' => 5

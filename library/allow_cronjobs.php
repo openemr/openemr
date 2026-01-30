@@ -21,7 +21,7 @@ if (php_sapi_name() !== 'cli') {
  *
  * Code below translates $argv to $_REQUEST
  */
-foreach ($argv as $argk => $argval) {
+foreach (($argv ?? []) as $argk => $argval) {
     if ($argk == 0) {
         continue;
     }
@@ -29,7 +29,7 @@ foreach ($argv as $argk => $argval) {
     $_REQUEST[trim($pair[0])] = (isset($pair[1]) ? trim($pair[1]) : null);
 }
 
-// Every job must have at least one argument specifing site
+// Every job must have at least one argument specifying site
 if (!isset($_REQUEST['site'])) {
     exit("site=?");
 }

@@ -1,0 +1,25 @@
+
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "Token Tools"|xlt }}{% endblock %}
+{% block contents %}
+<div class="card-body">
+    <div class="row">
+        <div class="col-12">
+            {% if requestMessage is not empty %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        {{ requestMessage|text }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% block toolContents %}
+            <form method="POST" action="{{ actionUrl }}">
+                {% include "interface/smart/admin-client/partials/textarea.html.twig" with {key: 'token', 'setting': tokenSettings} %}
+                <input type="submit" class="btn btn-sm btn-primary" value="{{ "Parse Token"|xla }}" />
+            </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

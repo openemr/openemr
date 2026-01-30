@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_sort_events($params, &$smarty)
+function smarty_function_pc_sort_events($params, &$smarty): void
 {
     extract($params);
 
@@ -50,40 +50,40 @@ function smarty_function_pc_sort_events($params, &$smarty)
 
     switch ($sort) {
         case 'category':
-            if (strtolower($order) == 'asc') {
+            if (strtolower((string) $order) == 'asc') {
                 $function = 'sort_byCategoryA';
             }
 
-            if (strtolower($order) == 'desc') {
+            if (strtolower((string) $order) == 'desc') {
                 $function = 'sort_byCategoryD';
             }
             break;
 
         case 'title':
-            if (strtolower($order) == 'asc') {
+            if (strtolower((string) $order) == 'asc') {
                 $function = 'sort_byTitleA';
             }
 
-            if (strtolower($order) == 'desc') {
+            if (strtolower((string) $order) == 'desc') {
                 $function = 'sort_byTitleD';
             }
             break;
 
         case 'time':
-            if (strtolower($order) == 'asc') {
+            if (strtolower((string) $order) == 'asc') {
                 $function = 'sort_byTimeA';
             }
 
-            if (strtolower($order) == 'desc') {
+            if (strtolower((string) $order) == 'desc') {
                 $function = 'sort_byTimeD';
             }
             break;
     }
 
-    $newArray = array();
+    $newArray = [];
     foreach ($value as $date => $events) {
         usort($events, $function);
-        $newArray[$date] = array();
+        $newArray[$date] = [];
         $newArray[$date] = $events;
     }
 

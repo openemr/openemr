@@ -14,8 +14,8 @@ namespace OpenEMR\Reports;
 
 class RealWorldTesting
 {
-    private string $beginDate;
-    private string $endDate;
+    private readonly string $beginDate;
+    private readonly string $endDate;
 
     public function __construct(string $beginDate, string $endDate)
     {

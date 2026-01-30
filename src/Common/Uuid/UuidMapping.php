@@ -18,18 +18,22 @@ namespace OpenEMR\Common\Uuid;
 
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 
 class UuidMapping
 {
     private const UUID_MAPPING_DEFINITIONS = [
-        ['resource' => 'CareTeam', 'table' => 'patient_data'],
         ['resource' => 'Location', 'table' => 'patient_data'],
         ['resource' => 'Location', 'table' => 'users'],
         ['resource' => 'Location', 'table' => 'facility'],
         ['resource' => 'Observation', 'table' => 'form_vitals', 'codes' => FhirObservationVitalsService::COLUMN_MAPPINGS, 'category' => FhirObservationVitalsService::CATEGORY],
+        // note the SDOH form also has social-history data, so we need to map those codes as well, even though it would seem to be a duplicate of the next entry
+        ['resource' => 'Observation', 'table' => 'form_history_sdoh', 'codes' => FhirObservationHistorySdohService::COLUMN_MAPPINGS, 'category' => FhirObservationHistorySdohService::CATEGORY_SOCIAL_HISTORY],
         ['resource' => 'Observation', 'table' => 'history_data', 'codes' => FhirObservationSocialHistoryService::COLUMN_MAPPINGS, 'category' => FhirObservationSocialHistoryService::CATEGORY],
+        ['resource' => 'Observation', 'table' => 'patient_data', 'codes' => FhirObservationPatientService::COLUMN_MAPPINGS, 'category' => FhirObservationPatientService::CATEGORY_SOCIAL_HISTORY],
         ['resource' => 'Group', 'table' => 'users']
     ];
 
@@ -70,7 +74,7 @@ class UuidMapping
         return $mappedCounter;
     }
 
-    public static function createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath = array())
+    public static function createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath = [])
     {
         $uuidRegistry = new UuidRegistry(['table_name' => 'uuid_mapping', 'mapped' => true]);
 

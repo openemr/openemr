@@ -14,10 +14,10 @@
 
 
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function note_report($pid, $encounter, $cols, $id)
+function note_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_note", $id);
@@ -25,13 +25,7 @@ function note_report($pid, $encounter, $cols, $id)
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                $key == "id" ||
-                $key == "pid" ||
-                $key == "user" ||
-                $key == "groupname" ||
-                $key == "authorized" ||
-                $key == "activity" ||
-                $key == "date" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
                 $value == "" ||
                 $value == "0000-00-00 00:00:00"
             ) {

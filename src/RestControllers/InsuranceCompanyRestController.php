@@ -13,6 +13,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
 
@@ -53,14 +54,14 @@ class InsuranceCompanyRestController
             return $insuranceCompanyValidationHandlerResult;
         }
 
-        $addressValidationResult = $this->addressService->validate($data);
+        $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
             return $addressValidationHandlerResult;
         }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, ['iid' => $serviceResult], 201);
     }
 
     public function put($iid, $data)
@@ -71,13 +72,13 @@ class InsuranceCompanyRestController
             return $insuranceCompanyValidationHandlerResult;
         }
 
-        $addressValidationResult = $this->addressService->validate($data);
+        $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
             return $addressValidationHandlerResult;
         }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
-        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $iid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['iid' => $iid], 200);
     }
 }

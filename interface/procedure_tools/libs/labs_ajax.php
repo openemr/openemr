@@ -29,8 +29,8 @@ function orderDate($order)
 $action = $_GET['action'];
 
 if ($action === 'code_detail') {
-    $code = strtoupper($_GET['code']);
-    $dos = array();
+    $code = strtoupper((string) $_GET['code']);
+    $dos = [];
 
     $query = "SELECT detail.name, ord.procedure_code AS code, detail.name AS title, detail.description, detail.notes FROM procedure_type det ";
     $query .= "LEFT JOIN procedure_type ord ON ord.procedure_type_id = detail.parent ";
@@ -66,9 +66,9 @@ if ($action === 'print_labels') {
     $client = $_GET['acctid'];
     $pid = $_GET['pid'];
     $order = $_GET['order'];
-    $specimen = array();
-    $specimens = explode(";", $_GET['specimen']);
-    $patient = strtoupper($_GET['patient']);
+    $specimen = [];
+    $specimens = explode(";", (string) $_GET['specimen']);
+    $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
     $count = 1;
@@ -76,7 +76,7 @@ if ($action === 'print_labels') {
         $count = (int)$_GET['count'];
     }
 
-    $pdf = new mPDF(array(
+    $pdf = new mPDF([
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => 'utf-8',
         'format' => [45, 19],
@@ -88,7 +88,7 @@ if ($action === 'print_labels') {
         'margin_bottom' => '0',
         'margin_header' => '0',
         'margin_footer' => '0'
-    ));
+    ]);
     $pdf->text_input_as_HTML = true;
 
     while ($count > 0) {
@@ -96,11 +96,7 @@ if ($action === 'print_labels') {
             if (empty($t)) {
                 continue;
             }
-            if ($t === 'none') {
-                $ord = $order;
-            } else {
-                $ord = $order . '-' . $t;
-            }
+            $ord = $t === 'none' ? $order : $order . '-' . $t;
 
             $pdf->AddPage();
             $barcode = '<div style="text-align: center;vertical-align: bottom;">';

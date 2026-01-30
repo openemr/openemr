@@ -27,6 +27,8 @@ The Edit/Create template of the clinical note form.
                 ,alertMessage: {{ alertMessage|js_escape }}
                 ,defaultType: {{ defaultType|json_encode }}
                 ,defaultCategory: {{ defaultCategory|json_encode }}
+                ,patientUuid: {{ patientUuid|json_encode }}
+                ,csrfToken: {{ csrfToken|json_encode }}
             });
         } else {
             console.error("Failed to find oeFormsClinicalNotes object. Please check the JavaScript file.");

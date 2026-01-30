@@ -34,7 +34,7 @@ class Therapy_Groups_Counselors
 
         $sql = 'SELECT * FROM ' . self::TABLE;
 
-        $counselors = array();
+        $counselors = [];
         $result = sqlStatement($sql);
         while ($c = sqlFetchArray($result)) {
             $counselors[] = $c;
@@ -48,8 +48,8 @@ class Therapy_Groups_Counselors
 
         $sql = 'SELECT user_id FROM ' . self::TABLE . ' WHERE group_id = ?';
 
-        $counselors = array();
-        $result = sqlStatement($sql, array($groupId));
+        $counselors = [];
+        $result = sqlStatement($sql, [$groupId]);
         while ($c = sqlFetchArray($result)) {
             $counselors[] = $c['user_id'];
         }
@@ -62,7 +62,7 @@ class Therapy_Groups_Counselors
     {
 
         $sql = "INSERT INTO " . self::TABLE . " (group_id, user_id) VALUES(?,?)";
-        sqlStatement($sql, array($groupId, $userId));
+        sqlStatement($sql, [$groupId, $userId]);
     }
 
     public function remove($groupId, $userId = null)
@@ -84,7 +84,7 @@ class Therapy_Groups_Counselors
 
         $counselors = $this->getCounselors($groupId);
         $userModel = new Users();
-        $result = array();
+        $result = [];
         foreach ($counselors as $counselor) {
             $counselorName = $userModel->getUserNameById($counselor);
             $result[] = $counselorName;
