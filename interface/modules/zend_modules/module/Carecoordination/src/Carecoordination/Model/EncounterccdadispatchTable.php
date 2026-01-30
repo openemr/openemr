@@ -4091,7 +4091,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $format = $format ?: 'm/d/y';
-        $temp = explode(' ', (string)$date); //split using space and consider the first portion, incase of date with time
+        $temp = explode(' ', (string)$date); //split using space and consider the first portion, in case of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -4583,7 +4583,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $xml .= '<question2>';
                 $xml .= '<code>88123-5</code>';
                 $xml .= '<code_system>2.16.840.1.113883.6.1</code_system>';
-                $xml .= '<display>Within past 12 months the food we bought just didnt last and we didnt have money to get more</display>';
+                $xml .= '<display>Within past 12 months the food we bought just didn\'t last and we didn\'t have money to get more</display>';
                 $xml .= '<answer_code>' . xmlEscape($sdoh['hunger_q2']) . '</answer_code>';
                 $xml .= '<answer_display>' . xmlEscape($q2_display) . '</answer_display>';
                 $xml .= '</question2>';

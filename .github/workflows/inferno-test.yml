@@ -60,7 +60,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
       with:
-        submodules: 'recursive'
+        submodules: recursive
         token: ${{ secrets.INFERNO_PAT }}
 
     - name: Fix permissions for Docker uid/gid differences
@@ -315,7 +315,7 @@ jobs:
         ENABLE_COVERAGE: 'true'
         INFERNO_TEST: 'true'
         XDEBUG_ON: '1'
-        XDEBUG_MODE: 'coverage'
+        XDEBUG_MODE: coverage
       run: |
         echo 'Starting Inferno certification test suite with coverage…'
         ./run.sh
@@ -358,14 +358,6 @@ jobs:
       if: ${{ !cancelled() && hashFiles('coverage.inferno-http.clover.xml') != '' }}
       run: mv coverage.inferno-http.clover.xml inferno-http.saved-cov-data
 
-    - name: Upload combined coverage to Codecov
-      if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.clover.xml
-        flags: inferno,combined,php${{ matrix.php-version }}
-
     # Unhide files before uploading to GitHub
     - name: Unhide test results and coverage for GitHub upload
       if: ${{ !cancelled() }}
@@ -385,15 +377,13 @@ jobs:
         path: junit-inferno.xml
 
     - name: Upload coverage artifacts to GitHub
-      if: ${{ !cancelled() && hashFiles('coverage.clover.xml') != '' }}
+      if: ${{ !cancelled() && hashFiles('coverage.inferno-phpunit.clover.xml', 'coverage.inferno-http.clover.xml') != '' }}
       uses: actions/upload-artifact@v6
       with:
         name: inferno-coverage-reports
         path: |
-          coverage.clover.xml
           coverage.inferno-phpunit.clover.xml
           coverage.inferno-http.clover.xml
-          htmlcov/
 
     - name: Cleanup Docker resources
       if: always()

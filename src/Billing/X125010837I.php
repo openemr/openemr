@@ -378,8 +378,8 @@ class X125010837I
                 "~\n";
         }
 
-        // Statment Dates
-        // DTP 434 RD8 (Statment from OR to date)
+        // Statement Dates
+        // DTP 434 RD8 (Statement from OR to date)
 
         if ($ub04id[13] ?? null) {
             ++$edicount;
@@ -663,7 +663,7 @@ class X125010837I
         // Segment HCP (Claim Pricing/Repricing Information) omitted.
 
         // This needs to allow Attending Physician 2310A, Operating Physician Name 2310B, Other Operating Physician Name 2310C
-        // and Rendering Provider Name (Rendering Provider Name is futher down)
+        // and Rendering Provider Name (Rendering Provider Name is further down)
 
         if ($ub04id[388] ?? null) {
             ++$edicount;
@@ -1037,7 +1037,7 @@ class X125010837I
 
             ++$edicount;
 
-            $out .= "DTP" . // Date of Service. Needs to be when service preformed.
+            $out .= "DTP" . // Date of Service. Needs to be when service performed.
                 "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
             $testnote = rtrim((string) $claim->cptNotecodes($prockey));

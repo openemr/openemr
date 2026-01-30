@@ -279,7 +279,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Payed Amt"); ?>:
+                                    <?php echo xlt("Paid Amt"); ?>:
                                     </div>
                                     <div class="col">
                                     <?php echo text($data->payerPaidAmount); ?>

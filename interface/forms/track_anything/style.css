@@ -146,7 +146,7 @@
 }
 
 
-#ta_type th.deactive {
+#ta_type th.deactivate {
   background-color: #a5a5a5;
   color: var(--black);
   font: 10px "Arial", "Helvetica", sans-serif;
@@ -154,7 +154,7 @@
 
 }
 
-#ta_type td.deactive {
+#ta_type td.deactivate {
   background-color: #bfbfbf;
   color: var(--black);
   font: 10px "Arial", "Helvetica", sans-serif;

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 4 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Access to undefined constant OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\GlobalConfig\\:\\:CONFIG_OPTION_ENCRYPTED\\.$#',

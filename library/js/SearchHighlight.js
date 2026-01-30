@@ -38,7 +38,7 @@
  *    This option has priority on highlight. 
  *    
  *  - keys (string, default:null)
- *    Disable the analisys of the referrer and search for the words given as argument    
+ *    Disable the analysis of the referrer and search for the words given as argument    
  *    
  */
 

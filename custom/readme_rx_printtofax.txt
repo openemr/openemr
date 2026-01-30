@@ -8,7 +8,7 @@ Changes:
 provider signature and other information that would normally be handled by hand.  The inherent in-security of this
 feature must be explained and managed at the clinic location and at the clinic's risk.
 
-* The follow text is printed on all print-to-faxes as addes security
+* The follow text is printed on all print-to-faxes as added security
 	"Please do not accept this prescription unless it was received via facsimile."
 
 Manual steps:

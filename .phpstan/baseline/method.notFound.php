@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 29 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Application\\\\Controller\\\\IndexController\\:\\:CommonPlugin\\(\\)\\.$#',

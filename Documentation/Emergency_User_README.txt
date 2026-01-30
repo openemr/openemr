@@ -16,9 +16,9 @@ Emergency Login acl can be assigned to the users in the following screens:-
 2. Administration->ACL->User Membership
 3. Administration->ACL->Advanced->Assign ARO Group
 
-Emergency User should be de-activated initally. Activate the Emergency User only during emergency situations.
+Emergency User should be de-activated initially. Activate the Emergency User only during emergency situations.
 Emergency Login username should start with "breakglass" or "emergency".
 
-When Emergency User is activated, a notication mail is sent to the email-id configured in $GLOBALS['Emergency_Login_email_id']
+When Emergency User is activated, a notification mail is sent to the email-id configured in $GLOBALS['Emergency_Login_email_id']
 
 Emergency Login Activation mail will be sent only if "$GLOBALS['Emergency_Login_email']" and "$GLOBALS['Emergency_Login_email_id']" is configured in globals.php

@@ -4,7 +4,7 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
- * @copyright      Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,10 +20,10 @@ use OpenEMR\Services\VersionService;
 /**
  * Provides telemetry reporting functionality.
  *
- * @package OpenEMR\Telemetry
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR\Telemetry
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
 {
@@ -32,9 +32,9 @@ class TelemetryService
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository $repository
+     * @param ?TelemetryRepository     $repository
      * @param ?VersionServiceInterface $versionService
-     * @param ?LoggerInterface $logger
+     * @param ?LoggerInterface         $logger
      */
     public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
     {
@@ -130,14 +130,35 @@ class TelemetryService
         $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
             error_log("Site UUID not found.");
-            return false;
         }
 
-        // server geo data
-        $geo = $this->createGeoTelemetry();
-        $serverGeoData = $geo->getServerGeoData();
-        if (isset($serverGeoData['error'])) {
-            error_log("Error fetching server geolocation: " . $serverGeoData['error']);
+        // server geo data - don't let geo lookup failures prevent telemetry reporting
+        $serverGeoData = [];
+        try {
+            $geo = $this->createGeoTelemetry();
+            $serverGeoData = $geo->getServerGeoData();
+            if (isset($serverGeoData['error'])) {
+                error_log("Telemetry: Unable to fetch server geolocation - " . $serverGeoData['error'] . ". Continuing with telemetry report.");
+                // Use null values for geo data if lookup fails
+                $serverGeoData = [
+                    'country' => null,
+                    'region' => null,
+                    'city' => null,
+                    'latitude' => null,
+                    'longitude' => null,
+                    'error' => $serverGeoData['error']
+                ];
+            }
+        } catch (\Exception $e) {
+            error_log("Telemetry: Exception during geolocation lookup - " . $e->getMessage() . ". Continuing with telemetry report.");
+            $serverGeoData = [
+                'country' => null,
+                'region' => null,
+                'city' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'error' => 'Exception: ' . $e->getMessage()
+            ];
         }
 
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
@@ -147,6 +168,8 @@ class TelemetryService
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
+        $populationData = $this->repository->fetchSitePopulationData();
+        $moduleCounts = $this->repository->fetchActiveModuleCounts();
 
         $settings = [
             'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
@@ -163,6 +186,8 @@ class TelemetryService
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
+            'populationData' => json_encode($populationData),
+            'moduleCounts' => json_encode($moduleCounts),
         ];
 
         $payload_data = [
@@ -180,7 +205,7 @@ class TelemetryService
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode((string) $response, true);
+            $responseData = json_decode((string)$response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {
@@ -190,6 +215,7 @@ class TelemetryService
             error_log("HTTP error: " . $httpStatus);
         }
 
+        error_log("Telemetry sent: " . $httpStatus . ': ' . json_encode($serverGeoData));
         return $httpStatus;
     }
 
@@ -249,7 +275,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

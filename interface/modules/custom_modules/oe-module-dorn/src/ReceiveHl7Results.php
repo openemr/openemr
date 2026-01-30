@@ -840,7 +840,7 @@ class ReceiveHl7Results
                 $ares['result_text'] = $result_text;
                 $ares['date'] = $this->rhl7DateTime($a[14] ?? '');
                 //$ares['facility'] = $this->rhl7Text($a[15]);
-                // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
+                // Ensoftek: Units may have multiple segments(as seen in MU2 samples), parse and take just first segment.
                 $tmp = explode($d2, ($a[6] ?? ''));
                 $ares['units'] = $this->rhl7Text($tmp[0]);
                 $ares['range'] = $this->rhl7Text($a[7] ?? '');

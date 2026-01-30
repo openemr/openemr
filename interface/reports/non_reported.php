@@ -70,12 +70,6 @@ function mapCodeType($incode)
 $from_date = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $to_date = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
-//
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
-
   $sqlBindArray = [];
   $query =
   "select " .
@@ -168,7 +162,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         "|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
         "|||$now||" .
         "ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility
-        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowlegement
+        "|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowledgement
         "$D";
 
         // EVN
@@ -218,7 +212,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         $r['patientid'] . "^^^^MR" . "|" . // 3. (R) Patient identifier list
         "|" . // 4. (B) Alternate PID
         "^^^^^^~^^^^^^S" . "|" . // 5.R. Name
-        "|" . // 6. Mather Maiden Name
+        "|" . // 6. Mother's Maiden Name
         $r['DOB'] . "|" . // 7. Date, time of birth
         $r['sex'] . // 8. Sex
         "|||^^^||||||||||||||||||||||||||||" .
@@ -261,7 +255,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     }
 
   // Ensoftek: Jul-2015: No need to tr the content
-  //$content = tr($content);
+  //$content = strtr($content, ' ', '^');
 
   // send the header here
     header('Content-type: text/plain');

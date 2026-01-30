@@ -32,6 +32,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -57,6 +58,7 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 ?>
 <!DOCTYPE html>
@@ -75,51 +77,6 @@ $facilityService = new FacilityService();
         <script src=<?php echo $script; ?> charset="utf-8"></script>
     <?php } ?>
 <?php
-
-// Display a row of data for an encounter.
-//
-$var_index = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
-{
-    global $var_index;
-    $var_index++;
-    $balance = $charges - $ptpaid - $inspaid;
-    $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
-    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
-    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
-    echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
-    echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
-        " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
-        "onkeyup='calctotal()'/></td>\n";
-    echo " </tr>\n";
-}
-
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
 
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
@@ -234,7 +191,7 @@ if (!empty($_POST['form_save'])) {
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                 } else {
                     $Codetype = '';
                     $Code = '';
@@ -250,14 +207,19 @@ if (!empty($_POST['form_save'])) {
                         [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                    $insrt_id = sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                        " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
-                    );
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
@@ -317,7 +279,7 @@ if (!empty($_POST['form_save'])) {
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
+                        $Modifier = $RowSearch['modifier'] ?? '';
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(
@@ -348,49 +310,35 @@ if (!empty($_POST['form_save'])) {
                                 $amount = 0;
                             }
 
-                              sqlBeginTrans();
-                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                              sqlStatement(
-                                  "insert into ar_activity set " .
-                                  "pid = ?" .
-                                  ", encounter = ?" .
-                                  ", sequence_no = ?" .
-                                  ", code_type = ?" .
-                                  ", code = ?" .
-                                  ", modifier = ?" .
-                                  ", payer_type = ?" .
-                                  ", post_time = now() " .
-                                  ", post_user = ?" .
-                                  ", session_id = ?" .
-                                  ", pay_amount = ?" .
-                                  ", adj_amount = ?" .
-                                  ", account_code = 'PP'",
-                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
-                              );
-                              sqlCommitTrans();
+                            $recorder->recordActivity([
+                                'patientId' => $form_pid,
+                                'encounterId' => $enc,
+                                'codeType' => $Codetype,
+                                'code' => $Code,
+                                'modifier' => $Modifier,
+                                'payerType' => '0',
+                                'postUser' => $session->get('authUserID'),
+                                'sessionId' => $payment_id,
+                                'payAmount' => $insert_value,
+                                'adjustmentAmount' => '0.0',
+                                'accountCode' => 'PP',
+                            ]);
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
-                              sqlBeginTrans();
-                                $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                                sqlStatement(
-                                    "insert into ar_activity set " .
-                                    "pid = ?" .
-                                    ", encounter = ?" .
-                                    ", sequence_no = ?" .
-                                    ", code_type = ?" .
-                                    ", code = ?" .
-                                    ", modifier = ?" .
-                                    ", payer_type = ?" .
-                                    ", post_time = now() " .
-                                    ", post_user = ?" .
-                                    ", session_id = ?" .
-                                    ", pay_amount = ?" .
-                                    ", adj_amount = ?" .
-                                    ", account_code = 'PP'",
-                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
-                                );
-                                sqlCommitTrans();
+                        $recorder->recordActivity([
+                            'patientId' => $form_pid,
+                            'encounterId' => $enc,
+                            'codeType' => $Codetype,
+                            'code' => $Code,
+                            'modifier' => $Modifier,
+                            'payerType' => '0',
+                            'postUser' => $session->get('authUserID'),
+                            'sessionId' => $payment_id,
+                            'payAmount' => $amount,
+                            'adjustmentAmount' => '0.0',
+                            'accountCode' => 'PP',
+                        ]);
                     }
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -768,7 +716,6 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
     var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
-    var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
@@ -1260,6 +1207,8 @@ function make_insurance() {
                                         'encounter' => $brow['encounter'],
                                         'date' => $brow['encdate'],
                                         'last_level_closed' => $brow['last_level_closed'],
+                                        'code' => $brow['code'],
+                                        'code_type' => $brow['code_type'],
                                         'charges' => 0,
                                         'payments' => 0];
                                     }
@@ -1331,12 +1280,38 @@ function make_insurance() {
                                 // If no billing was entered yet for today, then generate a line for
                                 // entering today's co-pay.
                                 //
-                                if (!$gottoday) {
-                                    echoLine("form_upay[0]", date("Y-m-d"), 0, 0, 0, 0 /*$duept*/);//No encounter yet defined.
-                                }
+                                if (!$gottoday) { ?>
+<tr id="tr_1">
+    <td><?=date("Y-m-d")?></td>
+    <td class="text-center" id="<?=date("Y-m-d")?>"></td>
+    <td class="text-center" id="td_charges_1"></td>
+    <td class="text-center" id="td_inspaid_1"></td>
+    <td class="text-center" id="td_ptpaid_1"></td>
+    <td class="text-center" id="td_patient_copay_1"></td>
+    <td class="text-center" id="td_copay_1"></td>
+    <td class="text-center" id="balance_1"></td>
+    <td class="text-center" id="duept_1"></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id=""
+            data-code=""
+            data-code-type=""
+            name="form_upay[0]"
+            id="paying_1"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                                <?php }
 
                                 $gottoday = false;
+                                $idx = 1; // Starts at 1 to reduce testing scope w/ previous impl; should *not* matter in practice
                                 foreach ($encs as $value) {
+                                    $idx++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
                                     if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
@@ -1387,18 +1362,39 @@ function make_insurance() {
                                         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                                     }
 
-                                    echoLine(
-                                        "form_upay[$enc]",
-                                        $dispdate,
-                                        $value['charges'],
-                                        $dpayment_pat,
-                                        ($dpayment + $dadjustment),
-                                        $duept,
-                                        $enc,
-                                        $inscopay,
-                                        $patcopay
-                                    );
-                                }
+                                    $balance = 0;
+                                    if ($duept == 0) {
+                                        $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                                    }
+
+                                    ?>
+<tr id="tr_<?=$idx?>">
+    <td><?=text(oeFormatShortDate($dispdate))?></td>
+    <td class="text-center" id="<?=attr($dispdate)?>"><?=text($enc)?></td>
+    <td class="text-center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="text-center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="text-center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="text-center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="text-center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="text-center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="text-center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id="<?=$enc?>"
+            data-code="<?=attr($value['code'])?>"
+            data-code-type="<?=attr($value['code_type'])?>"
+            name="form_upay[<?=$enc?>]"
+            id="paying_<?=$idx?>"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                                    <?php
+                                } // end foreach($encs)
                                 // Continue with display of the data entry form.
                                 ?>
 
@@ -1413,7 +1409,7 @@ function make_insurance() {
                                     <td class="font-weight-bold" id='td_total_8'></td>
                                     <td class="font-weight-bold text-right"><?php echo xlt('Total');?></td>
                                     <td class="font-weight-bold text-right">
-                                        <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
+                                        <input type='text' class='form-control text-success' id="form_paytotal" name='form_paytotal' value='' readonly />
                                     </td>
                                 </tr>
                             </table>
@@ -1427,7 +1423,7 @@ function make_insurance() {
                                     if ($GLOBALS['payment_gateway'] == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
-                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                        echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
                                         if (!empty($GLOBALS['cc_stripe_terminal'])) {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
@@ -1586,9 +1582,12 @@ function make_insurance() {
             // Include Authorize.Net dependency to tokenize card.
             // Will return a token to use for payment request keeping
             // credit info off the server.
+            //
+            // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
             ?>
             <script>
                 var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+                var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
 
                     // In House CC number Validation
                     $('#cardNumber').validateCreditCard(function (result) {
@@ -1627,7 +1626,7 @@ function make_insurance() {
                     e.preventDefault();
                     const authData = {};
                     authData.clientKey = publicKey;
-                    authData.apiLoginID = apiKey;
+                    authData.apiLoginID = apiLoginID;
 
                     const cardData = {};
                     cardData.cardNumber = document.getElementById("cardNumber").value;

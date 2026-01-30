@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 60 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$_FILES in isset\\(\\) always exists and is not nullable\\.$#',

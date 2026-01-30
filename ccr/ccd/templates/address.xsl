@@ -2,9 +2,9 @@
 <!--
 Conversion of CCR to Level 3 CCD
 
-Orginal Author:   	Ken Miller
+Original Author:   	Ken Miller
 Solventus LLC
-ken.miller@solventus.coms
+ken.miller@solventus.com
 
 Contributors:
 Richard Braman, EHR Doctors, Inc rbraman@ehrdoctors.com

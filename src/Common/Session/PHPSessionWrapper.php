@@ -22,11 +22,15 @@ class PHPSessionWrapper implements SessionWrapperInterface
 {
     public function __construct()
     {
-        $globalsBag = OEGlobalsBag::getInstance();
-        $webroot = $globalsBag->get('webroot');
-        if ($webroot !== null && session_status() !== PHP_SESSION_ACTIVE) {
-            SessionUtil::coreSessionStart($webroot, false);
+        // Skip if session already active (e.g., API/OAuth context where Symfony session exists)
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return;
         }
+
+        $globalsBag = OEGlobalsBag::getInstance();
+        // Empty webroot is valid - means OpenEMR is at document root
+        $webroot = $globalsBag->get('webroot') ?? '';
+        SessionUtil::coreSessionStart($webroot, false);
     }
 
     public function getId(): string

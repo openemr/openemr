@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 20 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:EndPage\\(\\) should return string but return statement is missing\\.$#',
@@ -79,7 +77,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method sms\\:\\:_send_sock\\(\\) should return string but return statement is missing\\.$#',
+    'message' => '#^Method sms_tmb4\\:\\:_send_sock\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
 ];

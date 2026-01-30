@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 22 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\CustomSkeletonFHIRResourceService not found\\.$#',
@@ -92,16 +90,6 @@ $ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\Gacl\\\\Hashed_Cache_Lite not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Caught class OpenEMR\\\\Tests\\\\E2e\\\\User\\\\Exception not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class OpenEMR\\\\Tests\\\\E2e\\\\User\\\\Exception not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

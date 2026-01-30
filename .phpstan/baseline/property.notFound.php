@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 91 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property Cache_Lite\\:\\:\\$_memoryCachingState\\.$#',
@@ -134,12 +132,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property sms\\:\\:\\$base\\.$#',
+    'message' => '#^Access to an undefined property sms_clickatell\\:\\:\\$base\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property sms\\:\\:\\$base_s\\.$#',
+    'message' => '#^Access to an undefined property sms_clickatell\\:\\:\\$base_s\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
 ];

@@ -52,6 +52,7 @@
         "doctrine/dbal": "^4.4",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
         "guzzlehttp/psr7": "^2.8",
@@ -157,6 +158,7 @@
             "library/classes"
         ],
         "files": [
+            "library/global_functions.inc.php",
             "library/htmlspecialchars.inc.php",
             "library/formdata.inc.php",
             "library/sanitize.inc.php",
@@ -259,6 +261,7 @@
             "composer normalize --dry-run"
         ],
         "code-quality": [
+            "@codespell",
             "@conventional-commits:check",
             "@php-syntax-check",
             "@phpcbf",
@@ -267,6 +270,7 @@
             "@rector-check",
             "@require-checker"
         ],
+        "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
@@ -274,8 +278,9 @@
         "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
         "phpstan-baseline": [
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",
-            "split-phpstan-baseline .phpstan/baseline/loader.php"
+            "php -d memory_limit=1g vendor/bin/split-phpstan-baseline .phpstan/baseline/loader.php --no-error-count"
         ],
+        "phpunit-isolated": "phpunit -c phpunit-isolated.xml",
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
         "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json"

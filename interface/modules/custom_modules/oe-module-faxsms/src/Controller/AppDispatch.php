@@ -18,6 +18,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Services\PhoneNumberService;
 
 /**
  * Class AppDispatch
@@ -268,7 +269,7 @@ abstract class AppDispatch
                 4 => fn(): EmailClient => new EmailClient(),
             ],
             'voice' => [
-                6 => fn(): VoiceClient => new VoiceClient(),
+                9 => fn(): VoiceClient => new VoiceClient(),
             ],
         ];
 
@@ -374,12 +375,12 @@ abstract class AppDispatch
             $username = $this->getRequest('username');
             $ext = $this->getRequest('extension');
             $account = $this->getRequest('account');
-            $phone = $this->formatPhoneForSave($this->getRequest('phone'));
+            $phone = $this->formatPhone($this->getRequest('phone') ?? '');
             $password = $this->getRequest('password');
             $appkey = $this->getRequest('key');
             $appsecret = $this->getRequest('secret');
             $production = $this->getRequest('production');
-            $smsNumber = $this->formatPhoneForSave($this->getRequest('smsnumber'));
+            $smsNumber = $this->formatPhone($this->getRequest('smsnumber') ?? '');
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
             $jwt = $this->getRequest('jwt');
@@ -387,8 +388,7 @@ abstract class AppDispatch
             $spaceUrl = $this->getRequest('space_url');
             $projectId = $this->getRequest('project_id');
             $apiToken = $this->getRequest('api_token');
-            $faxNumberRaw = $this->getRequest('fax_number');
-            $faxNumber = !empty($faxNumberRaw) ? $this->formatPhoneForSave($faxNumberRaw) : '';
+            $faxNumber = $this->formatPhone($this->getRequest('fax_number') ?? '');
 
             $setup = [
                 'username' => "$username",
@@ -464,7 +464,8 @@ abstract class AppDispatch
             '3' => '_etherfax',
             '4' => '_email',
             '5' => '_clickatell',
-            '6' => '_voice',
+            '6' => '_signalwire',
+            '9' => '_voice',
             default => null,
         };
     }
@@ -662,12 +663,15 @@ abstract class AppDispatch
         return $ret;
     }
 
-    public function formatPhoneForSave($number): string
+    /**
+     * Format a phone number to E.164 format for API calls.
+     *
+     * @param string $number The phone number to format
+     * @return string E.164 formatted number (e.g., +12125551234) or empty string if invalid
+     */
+    public function formatPhone(string $number): string
     {
-        // this is U.S. only. need E-164
-        $n = preg_replace('/[^0-9]/', '', (string) $number);
-        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
-        return $n;
+        return PhoneNumberService::toE164($number) ?? '';
     }
 
     /**

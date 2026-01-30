@@ -21,6 +21,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PhoneNumberService;
 
 class TransmitProperties
 {
@@ -201,7 +202,7 @@ class TransmitProperties
         $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
-        $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
+        $phonePrimary = PhoneNumberService::toNationalDigits($this->patient['phone_cell'] ?? '') ?? '';
         $age = self::getAge($this->patient['dob']);
         //create json array
         $wenObj = [];
@@ -245,7 +246,7 @@ class TransmitProperties
             $wenObj['ResponsiblePartyState'] = $this->responsibleParty['ResponsiblePartyState'];
             $wenObj['ResponsiblePartyPostalCode'] = $this->responsibleParty['ResponsiblePartyPostalCode'];
             $wenObj['ResponsiblePartyCountryCode'] = 'US';
-            $wenObj['ResponsiblePartyPrimaryPhone'] = self::formatPhoneNumber($this->responsibleParty['ResponsiblePartyPrimaryPhone']);
+            $wenObj['ResponsiblePartyPrimaryPhone'] = PhoneNumberService::toNationalDigits($this->responsibleParty['ResponsiblePartyPrimaryPhone'] ?? '') ?? '';
         }
         $wenObj['PatientLocation'] = "Home";
 
@@ -323,19 +324,6 @@ class TransmitProperties
         }
 
         return $age;
-    }
-
-    /**
-     * @param $phone
-     * @return string
-     */
-    public function formatPhoneNumber($phone): string
-    {
-        $phone = preg_replace('/\D+/', '', (string) $phone);
-        if (strlen((string) $phone) == 11) {
-            $phone = substr((string) $phone, 1, 10);
-        }
-        return $phone;
     }
 
     /**

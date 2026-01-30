@@ -480,7 +480,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker compose exec openemr /root/devtools setup-client-cert ssl
       ```
-    - To revert back to selfsigned certicates (ie. revert the changes required for client based certificates):
+    - To revert back to self-signed certificates (ie. revert the changes required for client based certificates):
       ```sh
       docker compose exec openemr /root/devtools on-self-signed-cert
       ```

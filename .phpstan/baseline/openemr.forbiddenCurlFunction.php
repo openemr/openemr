@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 258 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',

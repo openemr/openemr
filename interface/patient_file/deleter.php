@@ -99,25 +99,6 @@ function row_modify($table, $set, $where): void
     }
 }
 
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
 // Delete and undo product sales for a given patient or visit.
 // This is special because it has to replace the inventory.
 //

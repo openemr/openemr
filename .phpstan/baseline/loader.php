@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 19073 errors
-
 return ['includes' => [
     __DIR__ . '/arguments.count.php',
     __DIR__ . '/class.notFound.php',
@@ -18,6 +16,7 @@ return ['includes' => [
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
+    __DIR__ . '/openemr.noGlobalNsFunctions.php',
     __DIR__ . '/property.notFound.php',
     __DIR__ . '/requireOnce.fileNotFound.php',
     __DIR__ . '/return.missing.php',

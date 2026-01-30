@@ -22,7 +22,7 @@ class ESign
     }
 
     /**
-     * Check if the signable object is locked from futher editing
+     * Check if the signable object is locked from further editing
      *
      * @return boolean
      */

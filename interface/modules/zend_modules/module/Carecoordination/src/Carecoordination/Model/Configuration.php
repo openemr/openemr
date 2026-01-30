@@ -32,7 +32,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         ]);
 
     /*
-    * Automatic Tranfer settings
+    * Automatic Transfer settings
     */
         $this->add([
         'type' => \Laminas\Form\Element\Checkbox::class,
