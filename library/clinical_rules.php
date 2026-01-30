@@ -190,6 +190,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
             $message = xl('New Due Clinical Reminders') . "\n\n";
 
+            // coached claude sonnet 4.5 to rework
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", (string) $key);
                 $category = $category_item[0] ?? '';
@@ -205,6 +206,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             $onload_code = 'alert(' . js_escape($message) . ');this.parentNode.removeChild(this);';
             echo '<img src="../../pic/empty.gif" onload="' . attr($onload_code) . '" />';
+            // end claude code
         }
     }
 }
