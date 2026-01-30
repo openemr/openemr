@@ -79,6 +79,11 @@ repos:
   - id: codespell
     # Configuration in .codespellrc
 
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.10
+  hooks:
+  - id: actionlint-docker
+
 - repo: local
   hooks:
   - id: php-syntax-check

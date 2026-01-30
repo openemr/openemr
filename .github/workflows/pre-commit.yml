@@ -1,4 +1,4 @@
-name: Github Actions Linting
+name: Pre-commit
 
 on:
   push:
@@ -22,18 +22,11 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  actionlint:
-    name: actionlint
+  pre-commit:
+    name: pre-commit
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Add problem matcher
-      run: |
-        echo "::add-matcher::.github/actionlint-matcher.json"
-
-    - name: Run actionlint on all files
-      run: |
-        echo "Linting all Github Action workflow files in the repository..."
-        docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint -color
+    - uses: j178/prek-action@v1
