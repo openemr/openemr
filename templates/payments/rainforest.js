@@ -30,7 +30,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
     /**
      * @param { session_key: string, payin_config_id: string } responseData
      */
-    const createRainforstComponent = function (responseData) {
+    const createRainforestComponent = function (responseData) {
         const component = document.createElement('rainforest-payment');
         component.setAttribute('session-key', responseData.session_key)
         component.setAttribute('payin-config-id', responseData.payin_config_id);
@@ -49,7 +49,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify(data),
         dataType: 'json',
-        success: createRainforstComponent,
+        success: createRainforestComponent,
         type: 'POST',
         url: '{{ endpoint }}',
     })
