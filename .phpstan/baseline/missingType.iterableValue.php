@@ -9472,11 +9472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:getAddressFromRecordAsString\\(\\) has parameter \\$addressRecord with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\AppointmentService\\:\\:getAppointmentStatuses\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',

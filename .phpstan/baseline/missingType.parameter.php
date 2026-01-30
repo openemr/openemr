@@ -42467,36 +42467,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:getOneByForeignId\\(\\) has parameter \\$foreignId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:insert\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:insert\\(\\) has parameter \\$foreignId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:update\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:update\\(\\) has parameter \\$foreignId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AddressService\\:\\:validate\\(\\) has parameter \\$insuranceCompany with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:delete\\(\\) has parameter \\$puuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',

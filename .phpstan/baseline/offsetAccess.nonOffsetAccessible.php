@@ -24562,17 +24562,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'cms_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'country\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
@@ -24587,16 +24577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'line1\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'line2\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
@@ -24607,27 +24587,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'plus_four\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'x12_default_partner_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
@@ -43080,41 +43045,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<1, max\\> on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'country\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'line1\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'line2\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'plus_four\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AddressService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allergy_uuid\' on mixed\\.$#',
