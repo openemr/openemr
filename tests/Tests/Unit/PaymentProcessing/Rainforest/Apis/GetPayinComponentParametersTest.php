@@ -55,12 +55,11 @@ final class GetPayinComponentParametersTest extends TestCase
 
     public function testThrowsOnZeroAmount(): void
     {
-        $body = json_encode([
+        $request = $this->buildRequest(json_encode([
             'dollars' => '0.00',
             'patientId' => '123',
             'encounters' => [],
-        ]);
-        $request = $this->buildRequest($body);
+        ], JSON_THROW_ON_ERROR));
         $bag = $this->createMock(OEGlobalsBag::class);
 
         $this->expectException(UnexpectedValueException::class);
@@ -70,12 +69,11 @@ final class GetPayinComponentParametersTest extends TestCase
 
     public function testThrowsOnNegativeAmount(): void
     {
-        $body = json_encode([
+        $request = $this->buildRequest(json_encode([
             'dollars' => '-5.00',
             'patientId' => '123',
             'encounters' => [],
-        ]);
-        $request = $this->buildRequest($body);
+        ], JSON_THROW_ON_ERROR));
         $bag = $this->createMock(OEGlobalsBag::class);
 
         $this->expectException(UnexpectedValueException::class);

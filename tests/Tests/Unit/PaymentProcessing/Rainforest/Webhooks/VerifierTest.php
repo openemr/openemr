@@ -16,7 +16,6 @@ namespace OpenEMR\Tests\Unit\PaymentProcessing\Rainforest\Webhooks;
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Verifier;
-use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Webhook;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -45,8 +44,8 @@ final class VerifierTest extends TestCase
 
     public function testConstructorAcceptsValidSecret(): void
     {
-        $verifier = new Verifier(self::SECRET);
-        $this->assertInstanceOf(Verifier::class, $verifier);
+        $this->expectNotToPerformAssertions();
+        new Verifier(self::SECRET);
     }
 
     // ------- Missing header tests -------
@@ -149,7 +148,6 @@ final class VerifierTest extends TestCase
 
         $webhook = $verifier->verify($request);
 
-        $this->assertInstanceOf(Webhook::class, $webhook);
         $this->assertSame('payment.completed', $webhook->eventType);
         $this->assertSame('m_123', $webhook->getMerchantId());
     }
@@ -173,7 +171,6 @@ final class VerifierTest extends TestCase
 
         $webhook = $verifier->verify($request);
 
-        $this->assertInstanceOf(Webhook::class, $webhook);
         $this->assertSame('refund.created', $webhook->eventType);
     }
 
@@ -270,6 +267,8 @@ final class VerifierTest extends TestCase
 
     /**
      * Build a PSR-7 ServerRequest with the given body and headers.
+     *
+     * @param array<string, string> $headers
      */
     private function buildRequest(string $body, array $headers): ServerRequestInterface
     {
