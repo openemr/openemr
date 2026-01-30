@@ -14,9 +14,13 @@ namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
 
 readonly class Webhook
 {
+    /** @var array<string, mixed> */
     public array $data;
     public string $eventType;
 
+    /**
+     * @param array{event_type: string, data: array<string, mixed>} $body
+     */
     public function __construct(array $body)
     {
         $this->data = $body['data'];

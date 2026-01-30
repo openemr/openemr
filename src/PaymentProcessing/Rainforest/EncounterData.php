@@ -32,6 +32,9 @@ readonly class EncounterData implements JsonSerializable
     ) {
     }
 
+    /**
+     * @return array{id: string, code: string, codeType: string, amount: Money}
+     */
     public function jsonSerialize(): array
     {
         return [
@@ -42,6 +45,9 @@ readonly class EncounterData implements JsonSerializable
         ];
     }
 
+    /**
+     * @param array{id: string, code: string, codeType: string, amount: array{amount: string, currency: non-empty-string}} $data
+     */
     public static function fromParsedJson(array $data): EncounterData
     {
         return new EncounterData(

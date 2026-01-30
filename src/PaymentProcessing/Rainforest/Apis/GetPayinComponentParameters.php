@@ -68,6 +68,13 @@ class GetPayinComponentParameters
         }
 
         $rawJson = (string) $request->getBody();
+        /**
+         * @var array{
+         *   dollars: string,
+         *   patientId: string,
+         *   encounters: array<array{id: string, code: string, codeType: string, value: string}>,
+         * }
+         */
         $postBody = json_decode($rawJson, true, flags: JSON_THROW_ON_ERROR);
 
         $currencies = new ISOCurrencies();
@@ -81,7 +88,7 @@ class GetPayinComponentParameters
             throw new UnexpectedValueException('Payment amount must be positive');
         }
 
-        $encounters = array_map(fn($row) => new Rainforest\EncounterData(
+        $encounters = array_map(fn(array $row) => new Rainforest\EncounterData(
             id: $row['id'],
             code: $row['code'],
             codeType: $row['codeType'],

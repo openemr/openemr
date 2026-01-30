@@ -116,6 +116,7 @@ class Verifier
 
         // Technically, this might benefit from switching on a content-type
         // header if present... but that doesn't do much in practice.
+        /** @var array{event_type: string, data: array<string, mixed>} */
         $parsedBody = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
         return new Webhook($parsedBody);
     }

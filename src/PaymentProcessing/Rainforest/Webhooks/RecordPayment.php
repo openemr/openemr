@@ -67,7 +67,7 @@ readonly class RecordPayment implements ProcessorInterface
             /**
              * @var array{
              *   amount: int,
-             *   currency_code: string,
+             *   currency_code: non-empty-string,
              *   metadata: array<string, mixed>,
              *   payin_id: string,
              * }

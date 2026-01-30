@@ -131,6 +131,9 @@ readonly class Api
     {
         $crypto = new CryptoGen();
         $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
+        if ($apiKey === false) {
+            throw new \RuntimeException('Failed to decrypt rainforest_api_key');
+        }
         $mid = $bag->getString('rainforest_merchant_id');
         $pid = $bag->getString('rainforest_platform_id');
 
@@ -151,8 +154,8 @@ readonly class Api
     private static function parseResponse(ResponseInterface $response): array
     {
         $json = (string) $response->getBody();
-        $parsed = json_decode($json, flags: JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
-        assert(is_array($parsed));
+        /** @var array<string, mixed> */
+        $parsed = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         return $parsed;
     }
 }
