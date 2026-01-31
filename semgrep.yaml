@@ -184,3 +184,140 @@ rules:
   message: Potential SQL injection in sqlQuery() - use parameterized queries
   languages: [php]
   severity: ERROR
+
+  # --- JavaScript rules ---
+
+  # Detect eval() on dynamic data (e.g. AJAX responses, variables).
+  # Excludes eval of literal strings which are safe.
+- id: openemr-js-eval-ajax-response
+  patterns:
+  - pattern: eval($DATA)
+  - pattern-not: eval("...")
+  message: >-
+    eval() on dynamic data risks code injection. Use JSON.parse() for data
+    or a safer alternative to eval().
+  languages: [javascript]
+  severity: ERROR
+  metadata:
+    technology:
+    - javascript
+    cwe:
+    - "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: HIGH
+    confidence: MEDIUM
+
+  # Detect dynamic innerHTML assignments (DOM-based XSS).
+  # Excludes assignments of literal strings which are safe.
+- id: openemr-js-innerhtml-dynamic
+  patterns:
+  - pattern: $EL.innerHTML = $DATA;
+  - pattern-not: $EL.innerHTML = "...";
+  - pattern-not: $EL.innerHTML = '';
+  message: >-
+    Assigning dynamic data to innerHTML risks DOM-based XSS.
+    Use textContent for text or sanitize HTML before insertion.
+  languages: [javascript]
+  severity: WARNING
+  metadata:
+    technology:
+    - javascript
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: MEDIUM
+    confidence: MEDIUM
+
+  # --- Twig template rules (generic mode) ---
+  # Autoescape is globally disabled in OpenEMR (TwigContainer.php:66),
+  # so all escaping is manual. These rules target high-risk attribute contexts
+  # where unescaped output leads to XSS.
+
+  # Detect unescaped Twig output in href attributes.
+  # Safe patterns use |e or |attr_url filters.
+- id: openemr-twig-unescaped-output-in-href
+  pattern: href="{{ $VAR }}"
+  message: >-
+    Unescaped Twig variable in href attribute. Autoescape is disabled in OpenEMR.
+    Use |e('html_attr') or |attr_url to prevent XSS.
+  languages: [generic]
+  severity: ERROR
+  paths:
+    include:
+    - '*.twig'
+  metadata:
+    technology:
+    - twig
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: HIGH
+    confidence: MEDIUM
+
+  # Detect unescaped Twig output in form action attributes.
+- id: openemr-twig-unescaped-output-in-action
+  pattern: action="{{ $VAR }}"
+  message: >-
+    Unescaped Twig variable in action attribute. Autoescape is disabled in OpenEMR.
+    Use |e('html_attr') or |attr_url to prevent XSS.
+  languages: [generic]
+  severity: ERROR
+  paths:
+    include:
+    - '*.twig'
+  metadata:
+    technology:
+    - twig
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: HIGH
+    confidence: MEDIUM
+
+  # --- XSL template rules (generic mode) ---
+
+  # Detect disable-output-escaping in XSL transforms.
+  # Bypasses XML output encoding, risky when transforming untrusted CCR/CCD data.
+- id: openemr-xsl-disable-output-escaping
+  pattern: disable-output-escaping="yes"
+  message: >-
+    disable-output-escaping bypasses XML output encoding. When transforming
+    untrusted CCR/CCD data, this can lead to XSS in the rendered output.
+  languages: [generic]
+  severity: WARNING
+  paths:
+    include:
+    - '*.xsl'
+  metadata:
+    technology:
+    - xsl
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - audit
+    likelihood: LOW
+    impact: MEDIUM
+    confidence: MEDIUM
