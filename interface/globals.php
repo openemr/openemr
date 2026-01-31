@@ -225,6 +225,8 @@ if (empty($globalsBag)) {
 }
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
+// Absolute path to the location of documentroot directory for use with include statements:
+$globalsBag->set('webroot', $web_root);
 $globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
 $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
@@ -310,8 +312,6 @@ $globalsBag->set('fileroot', $webserver_root);
 // Absolute path to the location of interface directory for use with include statements:
 $include_root = "$webserver_root/interface";
 $globalsBag->set('include_root', $include_root);
-// Absolute path to the location of documentroot directory for use with include statements:
-$globalsBag->set('webroot', $web_root);
 
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
