@@ -387,8 +387,8 @@ class EncounterccdadispatchController extends AbstractActionController
             // Log the event (following your existing audit pattern)
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-generation",
-                $session->get('authUser')
-                , $session->get('authProvider'),
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 "QRDA3 Consolidated content generated"
             );
