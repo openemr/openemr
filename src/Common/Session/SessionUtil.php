@@ -91,7 +91,7 @@ class SessionUtil
 
     private static array $SESSION_INSTANCES = [];
 
-    private static SessionHandlerInterface $sessionHandler;
+    private static ?SessionHandlerInterface $sessionHandler;
 
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
