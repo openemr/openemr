@@ -38,10 +38,12 @@ jobs:
 
     - name: Run Semgrep (full scan)
       if: github.event_name != 'pull_request'
-      # Exclude the default echoed-request rule from p/php and use our custom
-      # version in semgrep.yaml instead. Our custom rule adds OpenEMR's
-      # sanitization functions (attr, text, xlt, etc.) to prevent false positives
-      # while still detecting real XSS vulnerabilities.
+      # Exclude the default echoed-request and printed-request rules from p/php
+      # and use our custom versions in semgrep.yaml instead. Our custom rules add
+      # OpenEMR's sanitization functions (attr, text, xlt, etc.) to prevent false
+      # positives while still detecting real XSS vulnerabilities.
+      # Exclude Documentation/ (generated SchemaSpy HTML, not application code)
+      # and *.mustache (QRDA/CDA XML templates, not browser-rendered HTML).
       run: |
         semgrep \
           --config p/php \
@@ -51,7 +53,10 @@ jobs:
           --exclude node_modules \
           --exclude tests \
           --exclude ccdaservice/node_modules \
+          --exclude Documentation \
+          --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \
+          --exclude-rule php.lang.security.injection.printed-request.printed-request \
           --sarif \
           --output=semgrep-results.sarif \
           .
@@ -60,10 +65,12 @@ jobs:
       if: github.event_name == 'pull_request'
       env:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
-      # Exclude the default echoed-request rule from p/php and use our custom
-      # version in semgrep.yaml instead. Our custom rule adds OpenEMR's
-      # sanitization functions (attr, text, xlt, etc.) to prevent false positives
-      # while still detecting real XSS vulnerabilities.
+      # Exclude the default echoed-request and printed-request rules from p/php
+      # and use our custom versions in semgrep.yaml instead. Our custom rules add
+      # OpenEMR's sanitization functions (attr, text, xlt, etc.) to prevent false
+      # positives while still detecting real XSS vulnerabilities.
+      # Exclude Documentation/ (generated SchemaSpy HTML, not application code)
+      # and *.mustache (QRDA/CDA XML templates, not browser-rendered HTML).
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         semgrep \
@@ -74,7 +81,10 @@ jobs:
           --exclude node_modules \
           --exclude tests \
           --exclude ccdaservice/node_modules \
+          --exclude Documentation \
+          --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \
+          --exclude-rule php.lang.security.injection.printed-request.printed-request \
           --baseline-commit="$BASE_SHA" \
           --sarif \
           --output=semgrep-results.sarif \
