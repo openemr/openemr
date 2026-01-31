@@ -15,6 +15,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\PatientPhotoService;

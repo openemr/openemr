@@ -15,7 +15,9 @@
 namespace OpenEMR\Services;
 
 use Document;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 class PatientPhotoService
 {
@@ -101,8 +103,8 @@ class PatientPhotoService
      */
     public function getPhotoCategoryId(): ?int
     {
-        $categoryName = $GLOBALS['patient_photo_category_name'] ?? 'Patient Photograph';
-        $categoryResult = sqlQuery(
+        $categoryName = OEGlobalsBag::getInstance()->get('patient_photo_category_name') ?? 'Patient Photograph';
+        $categoryResult = QueryUtils::querySingleRow(
             "SELECT id FROM categories WHERE name = ? LIMIT 1",
             [$categoryName]
         );

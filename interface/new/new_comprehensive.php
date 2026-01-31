@@ -75,7 +75,7 @@ $fres = getLayoutRes();
 <html>
 <head>
 <?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
-<script src="<?php echo $GLOBALS['webroot']; ?>/library/js/webcam-capture.js"></script>
+<script src="<?php echo attr(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')); ?>/library/js/webcam-capture.js"></script>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <style>
 .form-group {
