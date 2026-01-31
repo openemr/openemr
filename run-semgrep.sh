@@ -66,6 +66,14 @@ declare -a EXCLUDES=(
     "--exclude=node_modules"
     "--exclude=tests"
     "--exclude=ccdaservice/node_modules"
+    "--exclude=Documentation"
+    "--exclude=*.mustache"
+)
+
+# Exclude default p/php rules that we override in semgrep.yaml with OpenEMR sanitizers
+declare -a EXCLUDE_RULES=(
+    "--exclude-rule=php.lang.security.injection.echoed-request.echoed-request"
+    "--exclude-rule=php.lang.security.injection.printed-request.printed-request"
 )
 
 # Build output arguments
@@ -130,6 +138,7 @@ docker run --rm \
     "${FORMAT_ARG[@]}" \
     --no-git-ignore \
     "${EXCLUDES[@]}" \
+    "${EXCLUDE_RULES[@]}" \
     "${EXTRA_EXCLUDES[@]}" \
     "${OUTPUT_ARGS[@]}" \
     .
