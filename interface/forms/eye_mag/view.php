@@ -11,6 +11,8 @@
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,12 +25,12 @@ use OpenEMR\Core\Header;
 $form_name   = "eye_mag";
 $form_folder = "eye_mag";
 $Form_Name   = "Eye Exam";
-$form_id     = $_REQUEST['id'];
+$id          = intval($_REQUEST['id'] ?? 0);
+$form_id     = $id;
 $action      = $_REQUEST['action'] ?? null;
 $finalize    = $_REQUEST['finalize'] ?? null;
-$id          = $_REQUEST['id'];
 $display     = $_REQUEST['display'] ?? null;
-$pid         = $_REQUEST['pid'] ?? '';
+$pid         = intval($_REQUEST['pid'] ?? 0);
 $refresh     = $_REQUEST['refresh'] ?? null;
 
 // Get user preferences, for this user
@@ -162,10 +164,14 @@ if (!$form_id && !$encounter) {
     exit;
 }
 
-if ($refresh and $refresh != 'fullscreen') {
+if ($refresh !== null && $refresh !== 'fullscreen') {
     match ($refresh) {
-        "PMSFH" => print display_PRIOR_section($refresh, $id, $id, $pid),
-        "PMSFH_panel" => print show_PMSFH_panel($PMSFH),
+        "PMSFH" => (function () use ($id, $pid): void {
+            echo display_PRIOR_section("PMSFH", $id, $id, $pid);
+        })(),
+        "PMSFH_panel" => (function () use ($PMSFH): void {
+            echo show_PMSFH_panel($PMSFH);
+        })(),
         "page" => send_json_values($PMSFH),
         "GFS" => display_GlaucomaFlowSheet($pid),
         default => null,

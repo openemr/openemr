@@ -78,6 +78,9 @@ nast
 regester
 skelton
 
+# Smarty template modifier names
+spacify
+
 # Third-party library terms
 afterall
 atleast
