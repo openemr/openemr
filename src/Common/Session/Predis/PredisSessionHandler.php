@@ -20,6 +20,9 @@ use Psr\Log\LoggerInterface;
 use Predis\Client;
 use SessionHandlerInterface;
 
+/**
+ * @deprecated 8.0.0 No longer used by internal code use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler instead of this class
+ */
 class PredisSessionHandler implements SessionHandlerInterface
 {
     private ?string $currentSessionId = null;

@@ -91,14 +91,28 @@ class SessionUtil
 
     private static array $SESSION_INSTANCES = [];
 
+    private static SessionHandlerInterface $sessionHandler;
+
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
 
     public static function sessionStartWrapper(array $settings = []): bool
     {
-        if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
-            (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
+        // TODO: @adunsulag do we want to silently fail here or throw an exception?
+        if (\PHP_SESSION_ACTIVE === session_status()) {
+            // cannot start session as headers already sent or session already active
+            // inspiration for this came from Symfony's NativeSessionStorage::start()
+            throw new \RuntimeException('Failed to start the session: already started by PHP.');
+        }
+
+        $saveHandler = self::getSessionHandler();
+        if (isset($saveHandler)) {
+            $success = session_set_save_handler($saveHandler, true);
+            if (!$success) {
+                (new SystemLogger())->errorLogCaller("Failed to set session handler for Predis Sentinel.");
+                throw new \RuntimeException("Failed to set session handler for Predis Sentinel.");
+            }
+            (new SystemLogger())->debug("Successfully set session handler for Predis Sentinel.");
         }
         return session_start($settings);
     }
@@ -326,13 +340,16 @@ class SessionUtil
      * Get the session handler based on environment settings.
      * @return SessionHandlerInterface|null
      */
-    private static function getSessionHandler(): ?SessionHandlerInterface {
-        // handler defaults to symfony default handler, but if using predis sentinel, then get that handler
-        $handler = null;
-        if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
-            (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
+    public static function getSessionHandler(): ?SessionHandlerInterface {
+        if (!isset(self::$sessionHandler)) {
+            // handler defaults to symfony default handler, but if using predis sentinel, then get that handler
+            $handler = null;
+            if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+                (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
+                $handler = (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
+            }
+            self::$sessionHandler = $handler;
         }
-        return $handler;
+        return self::$sessionHandler;
     }
 }

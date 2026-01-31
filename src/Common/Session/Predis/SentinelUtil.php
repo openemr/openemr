@@ -220,16 +220,8 @@ class SentinelUtil
         return new Client($sentinelParameters, $options);
     }
 
-    public function configure(int $ttl): PredisSessionHandler {
+    public function configure(int $ttl): \SessionHandlerInterface {
         $redis = self::configureClient();
-        // Initialize and register the session handler
-        $handler = new PredisSessionHandler($redis, $ttl, 60, 70, 150000);
-        $success = session_set_save_handler($handler, true);
-        if (!$success) {
-            $this->logger->errorLogCaller("Failed to set session handler for Predis Sentinel.");
-            throw new \Exception("Failed to set session handler for Predis Sentinel.");
-        }
-        $this->logger->debug("Successfully set session handler for Predis Sentinel.");
-        return $handler;
+        return new RedisSessionHandler($redis, ['ttl' => $ttl]);
     }
 }
