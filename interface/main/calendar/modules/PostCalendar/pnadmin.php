@@ -29,6 +29,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -466,8 +467,9 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     //  PARSE MAIN
     //=================================================================
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // create translations if applicable
-    if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1)) {
+    if (($GLOBALS['translate_appt_categories']) && ($session->get('language_choice') > 1)) {
         $sizeAllCat = count($all_categories);
         for ($m = 0; $m < $sizeAllCat; $m++) {
             $tempCategory = $all_categories[$m]["name"];

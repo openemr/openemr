@@ -16,6 +16,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (AuthUtils::useActiveDirectory()) {
@@ -23,11 +24,13 @@ if (AuthUtils::useActiveDirectory()) {
     die(xlt('Not Applicable'));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION["authUserID"]]);
+$result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$session->get('authUserID')]);
 $current_date = date("Y-m-d");
 $pwd_expires = date("Y-m-d", strtotime($result['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
 $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));

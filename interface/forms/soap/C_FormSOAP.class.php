@@ -72,13 +72,14 @@ class C_FormSOAP extends Controller
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 $GLOBALS['encounter'],
                 "SOAP",
                 $this->form->id,
                 "soap",
                 $GLOBALS['pid'],
-                $_SESSION['userauthorized']
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

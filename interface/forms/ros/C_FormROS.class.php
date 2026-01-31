@@ -19,6 +19,7 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormROS.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class C_FormROS extends Controller
 {
@@ -27,13 +28,14 @@ class C_FormROS extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/ros/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
     function default_action()
@@ -68,7 +70,8 @@ class C_FormROS extends Controller
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Review Of Systems", $this->form->id, "ros", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            addForm($GLOBALS['encounter'], "Review Of Systems", $this->form->id, "ros", $GLOBALS['pid'], $session->get('userauthorized'));
             $_POST['process'] = "";
         }
 

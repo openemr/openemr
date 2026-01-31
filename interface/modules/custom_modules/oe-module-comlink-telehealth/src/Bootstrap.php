@@ -31,6 +31,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCode
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
@@ -191,7 +192,8 @@ class Bootstrap
 
     public function getCurrentLoggedInUser()
     {
-        return $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('authUserID');
     }
 
     public function subscribeToProviderEvents()

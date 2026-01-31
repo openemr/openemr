@@ -26,8 +26,11 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -41,7 +44,7 @@ if ($_GET["mode"] == "new") {
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
     $formid = $_GET["id"];
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
@@ -180,9 +183,9 @@ totalscore=? ,
 additional_notes=?
 WHERE id=?",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"] ?? null,
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["education"] ?? null),
         ($_POST["disability"] ?? null),

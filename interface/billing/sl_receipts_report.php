@@ -38,12 +38,16 @@ require_once('../forms/fee_sheet/codes.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function is_clinic($code)
 {
@@ -169,7 +173,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
     <div class="row">
         <div class="col-12">
                <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                 <div id="report_parameters">
 
@@ -213,7 +217,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                                     echo "   </select>\n";
                                 } else {
-                                    echo "<input type='hidden' name='form_doctor' value='" . attr($_SESSION['authUserID']) . "'>";
+                                    echo "<input type='hidden' name='form_doctor' value='" . attr($session->get('authUserID')) . "'>";
                                 }
                                 ?>
                             </td>
@@ -316,7 +320,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <?php
                 if (!empty($_POST['form_refresh'])) {
-                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                         CsrfUtils::csrfNotVerified();
                     }
 
@@ -371,7 +375,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         $form_doctor = $_POST['form_doctor'];
                         if (!AclMain::aclCheckCore('acct', 'rep_a')) {
                             // only allow user to see their encounter information
-                            $form_doctor = $_SESSION['authUserID'];
+                            $form_doctor = $session->get('authUserID');
                         }
 
                         $arows = [];

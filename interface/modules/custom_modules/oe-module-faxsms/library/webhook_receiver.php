@@ -17,6 +17,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Http\oeHttpRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 
@@ -24,6 +25,7 @@ use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 $ignoreAuth = true;
 $sessionAllowWrite = true;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Set site from query parameter for multi-site support
 $_GET['auth'] = 'portal';  // Enable site selection
 
@@ -149,7 +151,7 @@ function downloadAndStoreFaxMedia(
 }
 
 // Get site ID from query parameter and validate
-$siteId = SignalWireWebhookValidator::validateSiteId($_SESSION['site_id'] ?? $_GET['site'] ?? 'default');
+$siteId = SignalWireWebhookValidator::validateSiteId($session->get('site_id') ?? $_GET['site'] ?? 'default');
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
