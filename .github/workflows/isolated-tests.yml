@@ -57,9 +57,9 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
 
     - name: Install dependencies
