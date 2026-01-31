@@ -16,6 +16,9 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_name = "Eye Exam";
 $table_name = "form_eye_base";
@@ -27,20 +30,21 @@ $returnurl = 'encounter_top.php';
 $pid = $_REQUEST['pid'] ?? null;
 
 if (!$pid) {
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
 } else {
     SessionUtil::setSession('pid', $pid);
 }
 
 if (empty($user)) {
-    $user = $_SESSION['authUser'];
+    $user = $session->get('authUser');
 }
 
 if (empty($group)) {
-    $group = $_SESSION['authProvider'];
+    $group = $session->get('authProvider');
 }
 
-$encounter = !$_SESSION['encounter'] ? date("Ymd") : $_SESSION['encounter'];
+$encounter = $session->get('encounter');
+$encounter = !$encounter ? date("Ymd") : $encounter;
 
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, [$pid,$encounter]);

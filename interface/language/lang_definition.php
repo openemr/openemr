@@ -35,12 +35,14 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 ?>
 
 <form name='filterform' id='filterform' method='post'
-      action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
+      action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>'
       onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <!-- Filter for Constants -->
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
@@ -65,7 +67,8 @@ if (!$thisauth) {
         <select class="form-control" name='language_select' id="selectLanguage">
             <?php
           // sorting order of language titles depends on language translation options.
-            $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+            $language_choice = $session->get('language_choice');
+            $mainLangID = empty($language_choice) ? '1' : $language_choice;
             // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
@@ -113,7 +116,7 @@ if (!$disable_utf8_flag) {
 }
 
 if (!empty($_POST['load'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -178,7 +181,7 @@ if (!empty($_POST['load'])) {
 }
 
 if (!empty($_POST['edit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -217,8 +220,8 @@ if (!empty($_POST['edit'])) {
 
         $isResults = false; //flag to record whether there are any results
     echo ('<table><form method="post" action="?m=definition&csrf_token_form='
-        . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
-    echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
+        . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . '" onsubmit="return top.restoreSession()">');
+    echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken(session: $session)) . '" />');
     // only english definitions
     if ($lang_id == 1) {
         while ($row = sqlFetchArray($res)) {

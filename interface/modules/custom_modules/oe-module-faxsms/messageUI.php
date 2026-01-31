@@ -16,6 +16,7 @@
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
@@ -24,12 +25,14 @@ use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
 $serviceEnum = ServiceType::fromValue($service);
 $title = $serviceEnum?->getTranslatedDisplayName() ?? '';
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
+$site_id = $session->get('site_id');
 ?>
 <!DOCTYPE html>
 <html>
@@ -866,12 +869,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                                 <?php if ($serviceType == 'sms') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                                 <?php } ?>
                                 <?php if ($serviceType == 'email') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
                                 <?php } ?>
                                 <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                             </div>

@@ -14,19 +14,21 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 
 $module_config = 1;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
 
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -66,16 +68,16 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
 
 if ($_POST['form_save'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $_SESSION['editingUser'] = ($_POST['editingUser'] ?? 0);
+    $session->set('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
 // Handle user permissions form submission
 if ($_POST['form_save_permissions'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -346,7 +348,7 @@ $vendors = $boot->getVendorGlobals();
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
-                <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                <?php if (empty($current_primary_user) || $current_primary_user == $session->get('authUserID')) { ?>
                     <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
                 <?php } ?>
             <?php } ?>
@@ -369,7 +371,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <div class="form-group">
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
@@ -387,7 +389,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     <?php } ?>
                     <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
-                        <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                        <?php if (empty($current_primary_user) || $current_primary_user == $session->get('authUserID')) { ?>
                             <?php if (!empty($current_primary_user)) { ?>
                                 <div class="alert alert-success text-center" role="alert">
                                     <i class="fa fa-user-check"></i>
@@ -413,7 +415,7 @@ $vendors = $boot->getVendorGlobals();
                                         <option value="0"><?php echo xlt("Default (You)"); ?></option>
                                         <?php foreach ($active_users as $user) {
                                             $user_id = $user['id'];
-                                            if ($_SESSION['authUserID'] == $user_id) {
+                                            if ($session->get('authUserID') == $user_id) {
                                                 continue;
                                             }
                                             $display_name = trim($user['fname'] . ' ' . $user['lname']);
@@ -421,7 +423,7 @@ $vendors = $boot->getVendorGlobals();
                                                 $display_name = $user['username'];
                                             }
                                             ?>
-                                            <option value="<?php echo attr($user_id); ?>" <?php echo ($_SESSION['editingUser'] == $user_id) ? 'selected' : ''; ?>>
+                                            <option value="<?php echo attr($user_id); ?>" <?php echo ($session->get('editingUser') == $user_id) ? 'selected' : ''; ?>>
                                                 <?php echo text($display_name); ?>
                                             </option>
                                         <?php } ?>
@@ -500,7 +502,7 @@ $vendors = $boot->getVendorGlobals();
             </form>
 
             <form class="form w-100" id="form_action" method="POST" action="setup_services.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Background Service to Manage');
                         $showFlag = false; ?></legend>
@@ -592,7 +594,7 @@ $vendors = $boot->getVendorGlobals();
         <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
             <div class="frame col-12 d-none" id="set-user-permissions">
                 <form id="user_permissions_form" name="user_permissions_form" class="form" role="form" method="post" action="">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="container-fluid">
                         <div class="title text-center"><?php echo xlt("User Service Permissions"); ?></div>
                         <div class="small text-center mb-2">

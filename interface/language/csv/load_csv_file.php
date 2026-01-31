@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -37,9 +38,10 @@ while ($row = sqlFetchArray($resLanguages)) {
     array_push($languages, $row);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <form name="process_csv" method="post" enctype="multipart/form-data"
-    action="?m=csvval&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+    action="?m=csvval&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>"
     onsubmit="return top.restoreSession()">
 
     <!-- Select Language. Cloned from lang_definition.php. -->
@@ -48,7 +50,8 @@ while ($row = sqlFetchArray($resLanguages)) {
         <select class="form-control" name='language_id' id="selectLanguage">
             <?php
             // sorting order of language titles depends on language translation options.
-            $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+            $language_choice = $session->get('language_choice');
+            $mainLangID = empty($language_choice) ? '1' : $language_choice;
             // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .

@@ -16,6 +16,7 @@ use Document;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
 
@@ -1059,10 +1060,11 @@ class ReceiveHl7Results
         if ($fatal) {
             $rhl7_return['mssgs'][] = '*' . $msg;
             $rhl7_return['fatal'] = true;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "lab-results-error",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 0,
                 $msg
             );
@@ -1533,7 +1535,9 @@ class ReceiveHl7Results
             return;
         }
 
-        $message_sender = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $message_sender = $authUser;
         $message_group = 'Default';
         $authorized = '0';
         $activity = '1';
@@ -1544,7 +1548,7 @@ class ReceiveHl7Results
         }
 
         if (!$assigned_to) {
-            $assigned_to = $_SESSION['authUser'];
+            $assigned_to = $authUser;
         }
         $notify = $assigned_to; //@todo get user lookup
 

@@ -13,10 +13,12 @@
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\PatientPortalService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'contact-form')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'contact-form', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -57,12 +59,13 @@ function doOnetimeInvoiceRequest(): void
     }
     $message = "Dear " . $patient['fname'] . ' ' . $patient['lname'] . ",\n";
     $message .= xlt("Please review your current invoice by clinking the link to automatically redirect to your billing account portal. Use this PIN to complete authorization");
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $data = [
         'pid' => $ot_pid,
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
+        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $session->get('site_id')) . "&landOn=MakePayment",
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [

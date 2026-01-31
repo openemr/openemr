@@ -20,9 +20,12 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\ClinicalNotesService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -48,7 +51,9 @@ $note_relations = "";
 $clinicalNotesService = new ClinicalNotesService();
 
 if (!empty($form_id)) {
-    $existingIds  = $clinicalNotesService->getClinicalNoteIdsForPatientForm($form_id, $_SESSION['pid'], $_SESSION['encounter']);
+    $pid = $session->get('pid');
+    $encounter = $session->get('encounter');
+    $existingIds  = $clinicalNotesService->getClinicalNoteIdsForPatientForm($form_id, $pid, $encounter);
 
     // in order to find the ids that are unique we have to operate on the same type system, we'll convert everything into
     // an integer
@@ -62,13 +67,13 @@ if (!empty($form_id)) {
     foreach ($recordsIdsToDelete as $recordId) {
         $clinicalNotesService->setActivityForClinicalRecord(
             $recordId,
-            $_SESSION['pid'],
-            $_SESSION['encounter'],
+            $pid,
+            $encounter,
             ClinicalNotesService::ACTIVITY_INACTIVE
         );
     }
 } else {
-    $form_id = $clinicalNotesService->createClinicalNotesParentForm($_SESSION['pid'], $_SESSION['encounter'], $userauthorized);
+    $form_id = $clinicalNotesService->createClinicalNotesParentForm($session->get('pid'), $session->get('encounter'), $userauthorized);
 }
 
 // create our records let the underlying service fix everything
@@ -76,6 +81,10 @@ $note_records = [];
 
 $count = array_filter($count);
 if (!empty($count)) {
+    $authUser = $session->get('authUser');
+    $pid = $session->get('pid');
+    $encounter = $session->get('encounter');
+    $authProvider = $session->get('authProvider');
     foreach ($count as $key => $codeval) {
         $record = [];
         $record['id'] = $ids[$key] ?? null; // new records we don't set an id
@@ -89,18 +98,18 @@ if (!empty($count)) {
             // we only populate this on an insert as we don't want someone tampering with the user that created this
             // record, this avoids issues where the record can be impersonated by someone else (IE falsifying who entered
             // the note).
-            $record['user'] = $_SESSION["authUser"];
+            $record['user'] = $authUser;
         }
         // this is for related issues to the note
         $record['note_related_to'] = parse_note($record['description']);
         //$record['note_related_to'] = $record['description'];
         // note this is the form_id from the forms table and is NOT a unique record id
 
-        $record['pid'] = $_SESSION['pid'];
-        $record['encounter'] = $_SESSION['encounter'];
+        $record['pid'] = $pid;
+        $record['encounter'] = $encounter;
         $record['authorized'] = $userauthorized;
         $record['date'] = DateToYYYYMMDD($code_date[$key]);
-        $record['groupname'] = $_SESSION["authProvider"];
+        $record['groupname'] = $authProvider;
         $record['activity'] = ClinicalNotesService::ACTIVITY_ACTIVE;
 
         // Save the clinical note record
@@ -112,7 +121,7 @@ if (!empty($count)) {
         if (isset($linked_documents[$key]) && !empty($linked_documents[$key])) {
             $documentsData = json_decode((string) $linked_documents[$key], true);
             if (is_array($documentsData)) {
-                $clinicalNotesService->saveLinkedDocuments($clinicalNoteId, $documentsData, $_SESSION["authUser"]);
+                $clinicalNotesService->saveLinkedDocuments($clinicalNoteId, $documentsData, $authUser);
             }
         } else {
             // Clear existing linked documents if none provided
@@ -123,7 +132,7 @@ if (!empty($count)) {
         if (isset($linked_results[$key]) && !empty($linked_results[$key])) {
             $resultsData = json_decode((string) $linked_results[$key], true);
             if (is_array($resultsData)) {
-                $clinicalNotesService->saveLinkedResults($clinicalNoteId, $resultsData, $_SESSION["authUser"]);
+                $clinicalNotesService->saveLinkedResults($clinicalNoteId, $resultsData, $authUser);
             }
         } else {
             // Clear existing linked results if none provided
