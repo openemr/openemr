@@ -137,43 +137,13 @@ class CryptoGen implements CryptoInterface
      */
     public function cryptCheckStandard(?string $value): bool
     {
-        if ($value === null) {
+        try {
+            KeyVersion::fromPrefix($value ?? '');
+            return true;
+        } catch (\ValueError) {
             return false;
         }
-
-        // Must be at least "VVV" + 4 chars base64 (smallest meaningful chunk)
-        if (strlen($value) < 7) {
-            return false;
-        }
-        // Validate the 3-digit KeyVersion prefix
-        $kv = KeyVersion::fromPrefix($value);
-        if ($kv === null) {
-            return false;
-        }
-        // Validate the remainder as strict base64
-        $payloadB64 = substr($value, 3);
-
-        // structural checks (fast fail)
-        if ($payloadB64 === '' || (strlen($payloadB64) % 4) !== 0) {
-            return false;
-        }
-        if (!preg_match('#^[A-Za-z0-9+/]*={0,2}$#', $payloadB64)) {
-            return false;
-        }
-
-        $decoded = base64_decode($payloadB64, true); // strict
-        if ($decoded === false) {
-            return false;
-        }
-        // Conservative 16.
-        // Knowing minimum length of raw data AES HMAC + IV etc. would tighten this further.
-        if (strlen($decoded) < 16) {
-            return false;
-        }
-
-        return true;
     }
-
 
     /**
      * Core encryption function

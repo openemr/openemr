@@ -114,7 +114,7 @@ enum KeyVersion: int
     public static function fromPrefix(string $value): ?self
     {
         if (strlen($value) < 3) {
-            return null;
+            throw new \ValueError("Input string must be at least 3 bytes long");
         }
 
         $prefix = substr($value, 0, 3); // binary-safe
