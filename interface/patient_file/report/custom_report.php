@@ -121,22 +121,6 @@ function getContent()
     return $content;
 }
 
-function patientFilePostToGet($arin)
-{
-    $getstring = "";
-    foreach ($arin as $key => $val) {
-        if (is_array($val)) {
-            foreach ($val as $v) {
-                $getstring .= attr_url($key . "[]") . "=" . attr_url($v) . "&";
-            }
-        } else {
-            $getstring .= attr_url($key) . "=" . attr_url($val) . "&";
-        }
-    }
-
-    return $getstring;
-}
-
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -282,7 +266,7 @@ function patientFilePostToGet($arin)
                 </div>
                 <br />
                 <br />
-                <a href="custom_report.php?printable=1&<?php print patientFilePostToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+                <a href="custom_report.php?printable=1&<?php echo http_build_query($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
             <?php } // end not printable ?>

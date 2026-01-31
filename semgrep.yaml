@@ -23,6 +23,8 @@ rules:
   - pattern: strip_tags(...)
   - pattern: isset(...)
   - pattern: empty(...)
+  - pattern: intval(...)
+  - pattern: http_build_query(...)
       # WordPress sanitizers
   - pattern: esc_html(...)
   - pattern: esc_attr(...)
@@ -102,6 +104,8 @@ rules:
   - pattern: strip_tags(...)
   - pattern: isset(...)
   - pattern: empty(...)
+  - pattern: intval(...)
+  - pattern: http_build_query(...)
       # WordPress sanitizers
   - pattern: esc_html(...)
   - pattern: esc_attr(...)
