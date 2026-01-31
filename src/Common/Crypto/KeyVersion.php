@@ -86,7 +86,7 @@ enum KeyVersion: int
     /**
      * Create KeyVersion from string representation
      *
-     * @param  string $version The string version (e.g., "one", "two", etc.)
+     * @param string $version The string version (e.g., "one", "two", etc.)
      * @return self
      * @throws InvalidArgumentException If version string is invalid
      */
@@ -107,17 +107,21 @@ enum KeyVersion: int
     /**
      * Extract a KeyVersion from the prefix of a string.
      *
-     * @param  string $value The string to check (should be at least 3 bytes)
+     * @param string $value The string to check (should be at least 3 bytes)
      * @return self the KeyVersion extracted from the first 3 bytes of the string
      * @throws \ValueError If the prefix cannot be converted to a KeyVersion
      */
-    public static function fromPrefix(string $value): self
+    public static function fromPrefix(string $value): ?self
     {
         if (strlen($value) < 3) {
-            throw new \ValueError("Input string must be at least 3 bytes long");
+            return null;
         }
-        $rawPrefixStr = mb_substr($value, 0, 3, '8bit');
-        $rawPrefixInt = intval($rawPrefixStr);
-        return self::from($rawPrefixInt);
+
+        $prefix = substr($value, 0, 3); // binary-safe
+        if (!ctype_digit($prefix)) {
+            return null;
+        }
+
+        return self::tryFrom((int)$prefix); // enum tryFrom returns null if invalid
     }
 }
