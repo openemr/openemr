@@ -5807,6 +5807,7 @@ return [
      *  )
      */
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs", ['write','addonly']);
         $controller = new DocumentRestController();
         $controller->setSession($request->getSession());
         $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
@@ -5862,6 +5863,7 @@ return [
      *  )
      */
     "GET /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs");
         $return = (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
 
         return $return;
@@ -5906,6 +5908,7 @@ return [
      *  )
      */
     "GET /api/patient/:pid/document/:did" => function ($pid, $did, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs");
         $return = (new DocumentRestController())->downloadFile($pid, $did);
 
         return $return;
@@ -5994,6 +5997,7 @@ return [
      *  )
      */
     "GET /api/patient/:puuid/insurance" => function ($puuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $searchParams = $request->getQueryParams();
         $searchParams['puuid'] = $puuid;
         if ($request->isPatientRequest()) {
@@ -6052,6 +6056,7 @@ return [
      *  )
      */
     'GET /api/patient/:puuid/insurance/$swap-insurance' => function ($puuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         if ($request->isPatientRequest()) {
             $puuid = $request->getPatientUUIDString();
         }
@@ -6093,6 +6098,7 @@ return [
      *  )
      */
     "GET /api/patient/:puuid/insurance/:uuid" => function ($puuid, $uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
         if ($request->isPatientRequest()) {
             $puuid = $request->getPatientUUIDString();
         }

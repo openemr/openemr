@@ -15896,10 +15896,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../portal/portal_payment.php
-    - message: '#^Variable \$pid might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/portal_payment.php
     - message: '#^Variable \$session_id might not be defined\.$#'
       identifier: variable.undefined
       count: 1
