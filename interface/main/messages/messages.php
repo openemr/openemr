@@ -234,6 +234,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $messages = xl('My Messages');
                         }
                     } else {
+                        $show_all = "no";
                         $messages = xlt('My Messages');
                     }
                     ?>
