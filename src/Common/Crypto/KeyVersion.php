@@ -110,17 +110,17 @@ enum KeyVersion: int
      * @param string $value The string to check (should be at least 3 bytes)
      * @return KeyVersion|null the KeyVersion extracted from the first 3 bytes of the string
      */
-    public static function fromPrefix(string $value): ?self
+    public static function fromPrefix(string $value): self
     {
         if (strlen($value) < 3) {
             throw new \ValueError("Input string must be at least 3 bytes long");
         }
 
-        $prefix = substr($value, 0, 3); // binary-safe
+        $prefix = substr($value, 0, 3);
         if (!ctype_digit($prefix)) {
-            return null;
+            throw new \ValueError("Invalid KeyVersion prefix");
         }
 
-        return self::tryFrom((int)$prefix); // enum tryFrom returns null if invalid
+        return self::from((int)$prefix);
     }
 }
