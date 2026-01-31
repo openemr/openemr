@@ -39,7 +39,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: "Composer Cache"
       uses: actions/cache@v5

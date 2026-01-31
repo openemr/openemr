@@ -51,7 +51,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: Composer Cache
       uses: actions/cache/restore@v5
@@ -110,7 +110,7 @@ jobs:
       if: ${{ !cancelled() }}
       id: check-files
       run: |
-        echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+        echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
