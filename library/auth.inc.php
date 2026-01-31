@@ -103,19 +103,18 @@ if (
     }
 }
 
-// Ensure user has not timed out, if applicable
-// Have a mechanism to skip the timeout and timeout reset mechanisms if a skip_timeout_reset parameter exists. This
-//  can be used by scripts that continually request information from the server; for example the Messages
-//  and Reminders automated intermittent requests.
-// Also skipping this all on login since entry in session_tracker is not ready yet
-if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])) {
-    if (!SessionTracker::isSessionExpired()) {
-        SessionTracker::updateSessionExpiration();
-    } else {
+// Ensure user has not timed out, if applicable.
+// Skip on login since the session_tracker entry is not ready yet.
+if (empty($skipSessionExpirationCheck)) {
+    if (SessionTracker::isSessionExpired()) {
         // User has timed out.
         EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
+    } elseif (empty($_REQUEST['skip_timeout_reset'])) {
+        // Reset the session expiration timer unless the request opts out (e.g. background
+        // polling from Messages, Reminders, or the Flow Board).
+        SessionTracker::updateSessionExpiration();
     }
 }
 
