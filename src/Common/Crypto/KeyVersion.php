@@ -108,7 +108,7 @@ enum KeyVersion: int
      * Extract a KeyVersion from the prefix of a string.
      *
      * @param string $value The string to check (should be at least 3 bytes)
-     * @return KeyVersion|null the KeyVersion extracted from the first 3 bytes of the string
+     * @return KeyVersion the KeyVersion extracted from the first 3 bytes of the string
      */
     public static function fromPrefix(string $value): self
     {
