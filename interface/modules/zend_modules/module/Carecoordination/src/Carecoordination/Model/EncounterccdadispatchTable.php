@@ -71,7 +71,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     protected $adapter;
     protected $applicationTable;
-    private SessionWrapperInterface $session;
+    private readonly SessionWrapperInterface $session;
 
     public function __construct(ApplicationTable $applicationTable)
     {
