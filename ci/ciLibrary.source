@@ -12,8 +12,6 @@
 
 set -xeuo pipefail
 
-coverage_filter_dirs=(apis gacl interface library modules oauth2 portal sites src tests)
-
 coverage_args=(
     --coverage-filter apis
     --coverage-filter gacl
@@ -59,25 +57,6 @@ _exec() {
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
-}
-
-##
-# Run the convert-coverage script inside the Docker container with
-# the standard coverage filter directories. This ensures that
-# realpath() and is_file() resolve correctly for container paths.
-# Arguments:
-#   $1 - input directory (inside container)
-#   $2 - output file path (relative to project root)
-#   $@ - additional arguments passed to convert-coverage
-convert_coverage() {
-    local input_dir=$1
-    local output=$2
-    shift 2
-    local -a args=("${input_dir}" "${output}")
-    for dir in "${coverage_filter_dirs[@]}"; do
-        args+=(--coverage-filter="${dir}")
-    done
-    _exec php -d memory_limit=4G ci/convert-coverage "${args[@]}" "$@"
 }
 
 dockers_env_start() {

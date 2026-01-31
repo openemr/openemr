@@ -26,28 +26,18 @@ Configures PHP to auto-prepend the coverage script:
 - Restarts web server to apply configuration
 - Verifies prepend/shutdown handlers execute via marker files
 
-### 3. Conversion (`convert-coverage` via `convert_coverage` helper)
+### 3. Conversion (`convert-coverage`)
 
-After tests complete, the `convert_coverage()` shell helper (in `ciLibrary.source`) runs the
-`convert-coverage` CLI tool **inside the Docker container** via `_exec`. This is critical because
-the raw coverage arrays contain absolute container paths (e.g., `/var/www/localhost/htdocs/openemr/src/Foo.php`)
-that only resolve inside the container.
-
-The helper passes `--coverage-filter` for each source directory so the CodeCoverage `Filter` is
-populated with real files, which the Clover writer needs to produce a non-empty report.
-
-The `convert-coverage` CLI tool:
+After tests complete, this generic CLI tool:
 - Loads all raw Xdebug arrays from the specified input directory
-- Populates the coverage filter from `--coverage-filter` directories
 - Merges them into a single `CodeCoverage` object
 - Outputs `.cov` file (PHPUnit format) and Clover XML report
 
-Examples using the shell helper (from `ci/ciLibrary.source`):
+Examples:
 ```bash
-. ci/ciLibrary.source
-convert_coverage /tmp/openemr-coverage/e2e coverage/coverage.e2e.cov --clover=coverage.e2e.clover.xml
-convert_coverage /tmp/openemr-coverage/api coverage/coverage.api.cov --clover=coverage.api.clover.xml
-convert_coverage /tmp/openemr-coverage/inferno /dev/null --clover=coverage.inferno-http.clover.xml
+./ci/convert-coverage /tmp/coverage-e2e-raw/e2e coverage/coverage.e2e.cov --clover=coverage.e2e.clover.xml
+./ci/convert-coverage /tmp/coverage-api-raw/api coverage/coverage.api.cov --clover=coverage.api.clover.xml
+./ci/convert-coverage /tmp/coverage-inferno-raw/inferno coverage/coverage.inferno-http.cov --clover=coverage.inferno-http.clover.xml
 ```
 
 ### 4. Merging (`merge_coverage` in `ciLibrary.source`)
@@ -75,14 +65,16 @@ In `.github/workflows/test.yml`, the coverage process happens in these steps:
 
 ### For API Tests:
 1. **Api testing** - Runs API tests via `build_test api`
-2. **Convert API coverage to .cov format** - Runs `convert_coverage` inside the container to merge raw files into `coverage/coverage.api.cov`
-3. **Upload api test coverage to Codecov** - Uploads the clover XML report
+2. **Copy API coverage files from container** - Extracts raw coverage files from `/tmp/openemr-coverage/api`
+3. **Convert API coverage to .cov format** - Runs `./ci/convert-coverage` to merge raw files into `coverage/coverage.api.cov`
+4. **Upload api test coverage to Codecov** - Uploads the clover XML report
 
 ### For E2E Tests:
 1. **E2e setup** - Calls `setup_e2e_bookends()` to configure auto-prepend
 2. **E2e testing** - Runs E2E tests via `build_test e2e`
-3. **Convert E2E coverage to .cov format** - Runs `convert_coverage` inside the container to merge raw files into `coverage/coverage.e2e.cov`
-4. **Upload e2e test coverage to Codecov** - Uploads the clover XML report
+3. **Copy E2E coverage files from container** - Extracts raw coverage files from `/tmp/openemr-coverage/e2e`
+4. **Convert E2E coverage to .cov format** - Runs `./ci/convert-coverage` to merge raw files into `coverage/coverage.e2e.cov`
+5. **Upload e2e test coverage to Codecov** - Uploads the clover XML report
 
 ### Final Step:
 - **Combine coverage** - Calls `merge_coverage()` which runs `phpcov merge coverage/` to combine all `.cov` files into final reports
@@ -93,8 +85,9 @@ In `.github/workflows/test.yml`, the coverage process happens in these steps:
    - Calls `setup_e2e_bookends()` to enable auto-prepend for HTTP request coverage
    - Runs PHPUnit certification tests with `--coverage-php` to capture unit test coverage
    - After tests complete, calls `collect_inferno_coverage()` to:
-     - Run `convert_coverage` inside the container to convert raw HTTP coverage files
-     - Generate `coverage.inferno-http.clover.xml`
+     - Extract raw HTTP coverage files from `/tmp/openemr-coverage/inferno`
+     - Convert to `coverage/coverage.inferno-http.cov`
+     - Merge with PHPUnit coverage via `merge_coverage()`
 2. **Upload PHPUnit coverage to Codecov** - Uploads the PHPUnit-only clover XML report with `inferno,phpunit` flags
 3. **Upload HTTP coverage to Codecov** - Uploads the HTTP request clover XML report with `inferno,http` flags
 4. **Upload combined coverage to Codecov** - Uploads the merged clover XML report with `inferno,combined` flags
@@ -116,7 +109,8 @@ flowchart TD
     H --> I[Shutdown handler saves raw coverage]
     I --> J{More requests?}
     J -->|Yes| B
-    J -->|No| L[convert_coverage runs inside container]
+    J -->|No| K[Copy files from container to host]
+    K --> L[convert-coverage merges raw files]
     L --> M[Output: coverage/coverage.TYPE.cov]
     M --> N[phpcov merge combines all .cov files]
     N --> O[Final: coverage.clover.xml + htmlcov/]

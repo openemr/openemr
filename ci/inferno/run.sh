@@ -146,12 +146,30 @@ collect_inferno_coverage() {
 
     echo 'Collecting Inferno coverage...'
 
-    # Convert HTTP request coverage to clover.xml format
-    # Run inside the container so file paths resolve correctly
-    convert_coverage /tmp/openemr-coverage/inferno \
-                     /dev/null \
-                     --clover=coverage.inferno-http.clover.xml
-    ls -lah coverage.inferno-http.clover.xml || true
+    # Copy HTTP request coverage from container
+    local coverage_raw_tmpdir="${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
+    mkdir -p "${coverage_raw_tmpdir}"
+    # shellcheck disable=SC2310
+    if dc cp openemr:/tmp/openemr-coverage/inferno "${coverage_raw_tmpdir}"; then
+        echo "Successfully copied coverage files from container"
+    else
+        echo "Warning: Failed to copy coverage files (may not exist yet)"
+    fi
+
+    # Count raw coverage files
+    find "${coverage_raw_tmpdir}" -type f -name '*.php' | wc -l | xargs echo 'Found raw Inferno coverage files:'
+
+    # Convert HTTP request coverage to .cov format
+    if [[ -d "${coverage_raw_tmpdir}/inferno" ]]; then
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        ./ci/convert-coverage "${coverage_raw_tmpdir}/inferno" \
+                              coverage/coverage.inferno-http.cov \
+                              --clover=coverage.inferno-http.clover.xml
+        ls -lah coverage.inferno-http.clover.xml coverage/coverage.inferno-http.cov || true
+    else
+        echo "Warning: No Inferno HTTP coverage files found"
+    fi
 
     # Merge all Inferno coverage (PHPUnit + HTTP requests)
     cd -P "${repo_root}"

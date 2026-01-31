@@ -19,7 +19,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -56,7 +56,6 @@ use SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\Clover;
-use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -96,12 +95,6 @@ class ConvertCoverageCommand extends Command
                 null,
                 InputOption::VALUE_NONE,
                 'Skip generating Clover report'
-            )
-            ->addOption(
-                'coverage-filter',
-                'f',
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Source directories to include in coverage report (repeatable)'
             );
     }
 
@@ -153,14 +146,6 @@ class ConvertCoverageCommand extends Command
 
         try {
             $filter = new Filter();
-            $coverageFilterDirs = $input->getOption('coverage-filter');
-            if ($coverageFilterDirs) {
-                $facade = new FileIteratorFacade();
-                foreach ($coverageFilterDirs as $dir) {
-                    $filter->includeFiles($facade->getFilesAsArray($dir, '.php'));
-                }
-                $io->info(sprintf('Filter includes %d files from %d directories', count($filter->files()), count($coverageFilterDirs)));
-            }
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
 
             // Load and merge each raw coverage file
@@ -215,15 +200,11 @@ class ConvertCoverageCommand extends Command
             // The .cov file must be a PHP file that returns the coverage object
             // This matches the format PHPUnit uses with --coverage-php
             $io->section('Saving results');
-            if ($outputFile === '/dev/null') {
-                $io->text('Skipping .cov output (output is /dev/null)');
-            } else {
-                $io->text("Writing merged coverage to: {$outputFile}");
-                $serialized = serialize($coverage);
-                $content = "<?php\nreturn unserialize(" . var_export($serialized, true) . ");\n";
-                file_put_contents($outputFile, $content);
-                $io->success('Merged coverage saved');
-            }
+            $io->text("Writing merged coverage to: {$outputFile}");
+            $serialized = serialize($coverage);
+            $content = "<?php\nreturn unserialize(" . var_export($serialized, true) . ");\n";
+            file_put_contents($outputFile, $content);
+            $io->success('Merged coverage saved');
 
             // Generate clover report if requested
             if ($cloverFile) {
