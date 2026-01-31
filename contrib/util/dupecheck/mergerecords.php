@@ -24,9 +24,14 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
@@ -35,7 +40,7 @@ if (!empty($_POST)) {
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     foreach ($_GET as $key => $value) {
@@ -152,7 +157,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // add a log entry regarding the merged data
     if ($commitchanges == true) {
-        EventAuditLogger::getInstance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
+        EventAuditLogger::getInstance()->newEvent("data_merge", $session->get('authUser'), "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
     }
 
     echo "<li>Added entry to log</li>";
@@ -189,7 +194,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
 Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br />
 Do you wish to commit these changes to the database?
 <form method="post" action="mergerecords.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type="hidden" name="masterid" value="<?php echo attr($parameters['masterid']); ?>">
 <input type="hidden" name="dupecount" value="<?php echo attr($parameters['dupecount']); ?>">
     <?php

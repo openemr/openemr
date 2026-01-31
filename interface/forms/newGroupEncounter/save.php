@@ -26,16 +26,19 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
 $facilityService = new FacilityService();
 
-$group_id = $_SESSION['therapy_group'];
-$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+$group_id = $session->get('therapy_group');
+$provider_id = $userauthorized ? $session->get('authUserID') : 0;
 
 $date             = (isset($_POST['form_date']))            ? DateToYYYYMMDD($_POST['form_date']) : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? DateToYYYYMMDD($_POST['form_onset_date']) : '';
@@ -54,7 +57,7 @@ $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
 if ($mode == 'new') {
-    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+    $provider_id = $userauthorized ? $session->get('authUserID') : 0;
     $encounter = QueryUtils::generateId();
     addForm(
         $encounter,

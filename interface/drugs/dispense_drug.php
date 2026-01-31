@@ -13,11 +13,15 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Logging\SystemLogger;
 
 $facilityService = new FacilityService();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function send_email($subject, $body): void
 {
@@ -46,8 +50,8 @@ $drug_id         = $_REQUEST['drug_id'];
 $prescription_id = $_REQUEST['prescription'];
 $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
-$user            = $_SESSION['authUser'];
-$encounter       = $_REQUEST['encounter'] ?? $_SESSION['encounter'] ?? 0;
+$user            = $session->get('authUser');
+$encounter       = $_REQUEST['encounter'] ?? $session->get('encounter') ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));

@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\DashboardContext\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Companion to event bootstrapping
@@ -68,7 +69,8 @@ class ModuleService
      */
     public function getProviderName(): string
     {
-        $provider_info = QueryUtils::querySingleRow("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $provider_info = QueryUtils::querySingleRow("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
         $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }

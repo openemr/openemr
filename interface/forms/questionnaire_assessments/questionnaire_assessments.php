@@ -39,8 +39,6 @@ require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
@@ -62,6 +60,8 @@ if (!AclMain::aclCheckForm($_GET["formname"])) {
     $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
     AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // General error trap. Echo and die.
 try {
@@ -467,7 +467,7 @@ if ($isModule || $isDashboard || $isPortal) {
             <?php die();
         } ?>
         <form class="form" method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid ?? ''); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
             <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
             <input type="hidden" id="response_id" name="response_id" value="<?php echo attr($form["response_id"] ?? ''); ?>" />

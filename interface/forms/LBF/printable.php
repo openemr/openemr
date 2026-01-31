@@ -28,7 +28,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
@@ -124,7 +127,7 @@ if ($PDF_OUTPUT) {
     $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -284,7 +287,7 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 <?php
 // Generate header with optional logo.
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }

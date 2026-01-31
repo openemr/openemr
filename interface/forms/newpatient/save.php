@@ -17,6 +17,7 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
@@ -25,7 +26,9 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientIssuesService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -83,7 +86,7 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $_SESSION['authUserID'] ?: 0;
+$provider_id = $session->get('authUserID') ?: 0;
 $provider_id = $encounter_provider ?: $provider_id;
 
 $encounter_type = $_POST['encounter_type'] ?? '';
@@ -143,8 +146,8 @@ $encounterData = [
     'encounter_type_description' => $encounter_type_description,
     'pid' => $pid,
     'parent_encounter_id' => $parent_enc_id,
-    'user' => $_SESSION['authUser'],
-    'group' => $_SESSION['authProvider'],
+    'user' => $session->get('authUser'),
+    'group' => $session->get('authProvider'),
 ];
 
 if ($mode == 'new') {
@@ -178,7 +181,7 @@ setencounter($encounter);
 // Update the list of issues associated with this encounter.
 // always delete the issues for this encounter
 $patientIssueService = new PatientIssuesService();
-$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? [], $_SESSION['authUserID']);
+$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? [], $session->get('authUserID'));
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);

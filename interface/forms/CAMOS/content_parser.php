@@ -12,15 +12,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once(__DIR__ . "/../../../library/api.inc.php");
 require_once(__DIR__ . "/../../forms/vitals/C_FormVitals.class.php");
 
 function addAppt($days, $time)
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
     "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . add_escape_custom($days) .
     " day),'from CAMOS', ?, ?)";
-    return sqlInsert($sql, [$_SESSION['pid'], $_SESSION['authUserID'], $time]);
+    return sqlInsert($sql, [$session->get('pid'), $session->get('authUserID'), $time]);
 }
 function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
 {
@@ -59,8 +62,8 @@ function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifie
     $authorized = 1;
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?)";
-
-    return sqlInsert($sql, [$_SESSION['encounter'], $code_type, $code, $code_text, $_SESSION['pid'], $authorized, $_SESSION['authUserID'], $_SESSION['authProvider'], $_SESSION['authUserID'], $modifier, $units, $fee, $justify_string]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    return sqlInsert($sql, [$session->get('encounter'), $code_type, $code, $code_text, $session->get('pid'), $authorized, $session->get('authUserID'), $session->get('authProvider'), $session->get('authUserID'), $modifier, $units, $fee, $justify_string]);
 }
 
 function content_parser($input)
@@ -92,7 +95,7 @@ function remove_comments($string_to_process)
 
 function process_commands(&$string_to_process, &$camos_return_data)
 {
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //First, handle replace function as special case.  full depth of inserts should be evaluated prior
   //to evaluating other functions in final string assembly.
     $replace_finished = false;
@@ -124,7 +127,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_add(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, [$_SESSION['pid'], $_SESSION['encounter']]);
+        $statement = sqlStatement($query, [$session->get('pid'), $session->get('encounter')]);
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
@@ -134,7 +137,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_sub(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, [$_SESSION['pid'], $_SESSION['encounter']]);
+        $statement = sqlStatement($query, [$session->get('pid'), $session->get('encounter')]);
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }

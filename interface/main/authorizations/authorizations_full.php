@@ -15,14 +15,17 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
-    EventAuditLogger::getInstance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
+    EventAuditLogger::getInstance()->newEvent("authorize", $session->get('authUser'), $session->get('authProvider'), 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update forms set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update pnotes set authorized=1 where pid=?", [$_GET["pid"]]);
@@ -123,7 +126,7 @@ if (!empty($authorize)) {
 
         echo "<tr><td valign=top><span class=bold>" . text($name["fname"] . " " . $name["lname"]) .
              "</span><br /><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+             attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>" . xlt('Billing') .
              ":</span><span class=text><br />" . $patient["billing"] . "</td>\n";
         echo "<td valign=top><span class=bold>" . xlt('Transactions') .

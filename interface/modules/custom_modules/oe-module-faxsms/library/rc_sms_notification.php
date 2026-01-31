@@ -17,12 +17,14 @@
  */
 
 //hack add for command line version
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
@@ -64,7 +66,7 @@ if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
     exit(0);
 }
 
-if (empty($runtime['site']) && empty($_SESSION['site_id']) && empty($_GET['site'])) {
+if (empty($runtime['site']) && empty($session->get('site_id')) && empty($_GET['site'])) {
     echo xlt("Missing Site Id using default") . "\n";
     $_GET['site'] = $runtime['site'] = 'default';
 } else {
@@ -83,7 +85,7 @@ if (!empty($runtime['type'])) {
 $CRON_TIME = 150;
 // use service if needed
 if ($TYPE === "SMS") {
-    $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
+    $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
 
@@ -92,7 +94,7 @@ if ($TYPE === "SMS") {
     }
 }
 if ($TYPE === "EMAIL") {
-    $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
+    $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
     $emailApp = AppDispatch::getApiService('email');
     $cred = $emailApp->getEmailSetup();
 

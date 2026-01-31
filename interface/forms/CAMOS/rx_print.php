@@ -17,6 +17,9 @@
 require_once('../../globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //practice data
 $physician_name = '';
@@ -72,7 +75,7 @@ if ($result = sqlFetchArray($query)) {
 
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -87,12 +90,12 @@ if ($_POST['update']) { // OPTION update practice inf
     "phone = '" . add_escape_custom($_POST['practice_phone']) . "', " .
     "fax = '" . add_escape_custom($_POST['practice_fax']) . "', " .
     "federaldrugid = '" . add_escape_custom($_POST['practice_dea']) . "' " .
-    "where id ='" . add_escape_custom($_SESSION['authUserID']) . "'";
+    "where id ='" . add_escape_custom($session->get('authUserID')) . "'";
     sqlStatement($query);
 }
 
 //get user information
-$query = sqlStatement("select * from users where id =?", [$_SESSION['authUserID']]);
+$query = sqlStatement("select * from users where id =?", [$session->get('authUserID')]);
 if ($result = sqlFetchArray($query)) {
     $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title'];
     $practice_fname = $result['fname'];
@@ -108,7 +111,7 @@ if ($result = sqlFetchArray($query)) {
 }
 
 if ($_POST['print_pdf'] || $_POST['print_html']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -481,7 +484,7 @@ return count_turnoff;
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type=button name=cyclerx value='<?php echo xla('Cycle'); ?>' onClick='cycle()'><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>' onClick='checkall()'>
 <input type='button' value='<?php echo xla('Unselect All'); ?>' onClick='uncheckall()'>
@@ -494,19 +497,19 @@ return count_turnoff;
     <?php
 
 //check if an encounter is set
-    if ($_SESSION['encounter'] == null) {
+    if ($session->get('encounter') == null) {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
         mitigateSqlTableUpperCase("form_CAMOS") . " as x join forms as y on (x.id = y.form_id) " .
         "where y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
-        " and x.activity = 1", [$_SESSION['pid']]);
+        " and x.activity = 1", [$session->get('pid')]);
     } else {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
         mitigateSqlTableUpperCase("form_CAMOS") . "  as x join forms as y on (x.id = y.form_id) " .
         "where y.encounter = ?" .
         " and y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
-        " and x.activity = 1", [$_SESSION['encounter'], $_SESSION['pid']]);
+        " and x.activity = 1", [$session->get('encounter'), $session->get('pid')]);
     }
 
     $results = [];
@@ -530,7 +533,7 @@ return count_turnoff;
     echo "</div>\n";
 //create Prescription object for the purpose of drawing data from the Prescription
 //table for those who wish to do so
-    $rxarray = Prescription::prescriptions_factory($_SESSION['pid']);
+    $rxarray = Prescription::prescriptions_factory($session->get('pid'));
 //now give a choice of drugs from the Prescription table
     foreach ($rxarray as $val) {
         echo "<input type=checkbox name='chrx_" . attr($val->id) . "'>" .
@@ -546,7 +549,7 @@ return count_turnoff;
 </form>
 <h1><?php echo xlt('Update User Information'); ?></h1>
 <form method=POST name='pick_items'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <table>
 <tr>
 <td> <?php echo xlt('First Name'); ?>: </td>

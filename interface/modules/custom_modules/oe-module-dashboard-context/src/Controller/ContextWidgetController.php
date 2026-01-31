@@ -15,6 +15,7 @@
 namespace OpenEMR\Modules\DashboardContext\Controller;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -26,7 +27,8 @@ class ContextWidgetController
     public function __construct()
     {
         $this->contextService = new DashboardContextService();
-        $this->userId = (int)($_SESSION['authUserID'] ?? 0);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->userId = (int)($session->get('authUserID') ?? 0);
     }
 
     /**
@@ -49,7 +51,8 @@ class ContextWidgetController
         $isLocked = $this->contextService->isUserContextLocked($this->userId);
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
-        $csrfToken = CsrfUtils::collectCsrfToken();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
 
@@ -707,7 +710,8 @@ class ContextWidgetController
         $isLocked = $this->contextService->isUserContextLocked($this->userId);
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
-        $csrfToken = CsrfUtils::collectCsrfToken();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
         ob_start();

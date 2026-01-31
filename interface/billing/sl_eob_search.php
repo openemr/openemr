@@ -48,6 +48,8 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
@@ -79,7 +81,8 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
-                $_SESSION['portalUser'] = strtolower((string) $pData['fname']) . $pData['id'];
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $session->set('portalUser', strtolower((string) $pData['fname']) . $pData['id']);
                 return true;
             }
         } else {
@@ -102,8 +105,11 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             return false;
         } // this is all the invoice data for portal auditing
         $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
-        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0') == 1) { // remind admin this was sent
-            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0'); // notify patient
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $portalUser = $session->get('portalUser');
+        if (sendMail($authUser, $note, xlt('Bill/Collect'), '', '0', $authUser, $authUser, $portalUser, $invoices[0]['patient'], "New", '0') == 1) { // remind admin this was sent
+            sendMail($portalUser, $note, xlt('Bill/Collect'), '', '0', $authUser, $authUser, $portalUser, $invoices[0]['patient'], "New", '0'); // notify patient
         } else {
             return false;
         }
@@ -209,9 +215,11 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
-    if ($_SESSION['pc_facility']) {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_facility = $session->get('pc_facility');
+    if ($pc_facility) {
         $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, [$_SESSION['pc_facility']]);
+        $facility = sqlQuery($sql, [$pc_facility]);
     } else {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
         $facility = sqlQuery($sql);
@@ -276,7 +284,8 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     if ($GLOBALS['statement_appearance'] == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
-        if ($_SESSION['language_direction'] == 'rtl') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('language_direction') === 'rtl') {
             $pdf2->SetDirectionality('rtl');
         }
         ob_start();
@@ -582,7 +591,8 @@ if (
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
                     if ($isPdf) {
                         $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                        if ($_SESSION['language_direction'] == 'rtl') {
+                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                        if ($session->get('language_direction') === 'rtl') {
                             $pdf2->SetDirectionality('rtl');
                         }
                         $pdf2->WriteHTML($tmp);

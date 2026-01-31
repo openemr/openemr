@@ -21,6 +21,7 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -334,6 +335,7 @@ class C_FormVitals
             $vitalsHistoryLookback = $results ?? null;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $data = [
             'vitals' => $vitals
             ,'vitalFields' => $vitalFields
@@ -346,7 +348,7 @@ class C_FormVitals
             ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
             ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
-            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
+            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session)
             ,'results' => $results ?? null
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
             ,'hasMoreVitals' => $hasMoreVitals
@@ -454,10 +456,11 @@ class C_FormVitals
             $GLOBALS['encounter'] = date("Ymd");
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.
         $obj->set_encounter($GLOBALS['encounter']);
         $obj->set_pid($GLOBALS['pid']);
-        $obj->set_authorized($_SESSION['userauthorized']);
+        $obj->set_authorized($session->get('userauthorized'));
 
         // handle all of the vital details that we need here.
         $detailsToUpdate = [];
@@ -525,7 +528,8 @@ class C_FormVitals
 
     private function populate_session_user_information(FormVitals $vitals)
     {
-        $vitals->set_groupname($_SESSION['authProvider']);
-        $vitals->set_user($_SESSION['authUser']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals->set_groupname($session->get('authProvider'));
+        $vitals->set_user($session->get('authUser'));
     }
 }

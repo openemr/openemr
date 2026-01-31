@@ -85,6 +85,7 @@ class SessionWrapperFactory
                 session_write_close();
             }
             $this->portalSession = null;
+            $this->activeSession = null; // TODO this can get messy a lot easily
         }
     }
 
@@ -96,6 +97,7 @@ class SessionWrapperFactory
                 session_write_close();
             }
             $this->coreSession = null;
+            $this->activeSession = null;
         }
     }
 

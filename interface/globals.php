@@ -780,7 +780,7 @@ if (!empty($_GET['pid']) && empty($session->get('pid'))) {
     $session->set('pid', $_POST['pid']);
 }
 
-$pid = empty($session->get('pid')) ? 0 : $session->get('pid');
+$pid = $session->get('pid', 0);
 $userauthorized = empty($session->get('userauthorized')) ? 0 : $session->get('userauthorized');
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');
 
