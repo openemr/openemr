@@ -88,7 +88,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
             $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
             try {
-                $sessionHandler = (new SentinelUtil($settings['gc_maxlifetime']))->configure();
+                $sessionHandler = (new SentinelUtil())->configure($settings['gc_maxlifetime']);
             } catch (\Exception $e) {
                 // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
                 $this->getSystemLogger()->error(
