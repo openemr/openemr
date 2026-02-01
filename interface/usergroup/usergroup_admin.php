@@ -28,6 +28,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,8 +37,9 @@ use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -240,7 +242,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
             $authUtilsUpdatePassword = new AuthUtils();
-            $success = $authUtilsUpdatePassword->updatePassword($_SESSION['authUserID'], $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
+            $success = $authUtilsUpdatePassword->updatePassword($session->get('authUserID'), $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
             if (!$success) {
                 error_log(errorLogEscape($authUtilsUpdatePassword->getErrorMessage()));
                 $alertmsg .= $authUtilsUpdatePassword->getErrorMessage();
@@ -385,7 +387,7 @@ if (isset($_POST["mode"])) {
 
             $authUtilsNewPassword = new AuthUtils();
             $success = $authUtilsNewPassword->updatePassword(
-                $_SESSION['authUserID'],
+                $session->get('authUserID'),
                 0,
                 $_POST['adminPass'],
                 $_POST['stiltskin'],
@@ -575,7 +577,7 @@ function resetCounter(username) {
     request = new FormData;
     request.append("function", "resetUsernameCounter");
     request.append("username", username);
-    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter', session: $session)); ?>);
     fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
         method: 'POST',
         credentials: 'same-origin',
@@ -605,7 +607,7 @@ function resetCounter(username) {
                 <a href="facility_user.php" class="btn btn-secondary btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
@@ -683,7 +685,7 @@ function resetCounter(username) {
                             }
 
                             print "<tr>
-                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) .
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
@@ -757,7 +759,7 @@ function resetCounter(username) {
                 foreach ($result5 as $iter) {
                     $grouplist[$iter["name"]] .= text($iter["user"]) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
+                        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {

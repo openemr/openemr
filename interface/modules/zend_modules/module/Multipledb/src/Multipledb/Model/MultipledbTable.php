@@ -26,6 +26,7 @@ use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Db\Sql\Predicate;
 use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Adapter;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class MultipledbTable
 {
@@ -63,11 +64,12 @@ class MultipledbTable
         $rowset = $this->tableGateway->select(['namespace' => $namespace]);
         $count = $rowset->count();
 
-        if ($count and $_SESSION['multiple_edit_id'] == 0) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($count && $session->get('multiple_edit_id') == 0) {
             return 1;
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
     public function storeMultipledb($id = 0, $db = [])
