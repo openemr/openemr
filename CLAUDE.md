@@ -58,6 +58,35 @@ docker compose exec openemr /root/devtools php-log
 **Tip:** Install [openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd)
 for shorter commands (e.g., `openemr-cmd ut` for unit tests) from any directory.
 
+### Isolated tests (no Docker required)
+
+Isolated tests run on the host without a database or Docker:
+
+```bash
+composer phpunit-isolated        # Run all isolated tests
+```
+
+### Twig template tests
+
+Twig templates have two layers of testing (both isolated):
+
+- **Compilation tests** verify every `.twig` file parses and references valid
+  filters/functions/tests. These run automatically over all templates.
+- **Render tests** render specific templates with known parameters and compare
+  the full HTML output to expected fixture files in
+  `tests/Tests/Isolated/Common/Twig/fixtures/render/`.
+
+When modifying a Twig template that has render test coverage, update the
+fixture files:
+
+```bash
+composer update-twig-fixtures    # Regenerate fixture files
+```
+
+Review the diff before committing. See the
+[fixtures README](tests/Tests/Isolated/Common/Twig/fixtures/render/README.md)
+for details on adding new test cases.
+
 ## Code Quality
 
 These run on the host (requires local PHP/Node):
