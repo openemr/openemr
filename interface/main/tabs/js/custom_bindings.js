@@ -83,11 +83,9 @@ ko.bindingHandlers.location={
                     // setting the title will hide the spinner and remove the Loading... text
                     const currentUrl = tabData.url?.() ?? '';
 
-                    // eRx pages can be direct eRx.php URLs, newcrop redirects, or demographics page (which often means eRx context)
+                    // eRx pages navigate to an external domain (NewCrop), so the iframe document is unreadable
                     const erxMarkers = ['/interface/eRx.php', 'newcrop'];
-                    const isErxPage =
-                        (currentUrl && erxMarkers.some(marker => currentUrl.includes(marker))) ||
-                        (currentUrl.includes('demographics.php') && tabData.name?.() === 'pat');
+                    const isErxPage = currentUrl && erxMarkers.some(marker => currentUrl.includes(marker));
 
                     tabData.title(xl(isErxPage ? 'Ensora eRx' : 'Unknown'));
                 }
