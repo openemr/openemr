@@ -91,9 +91,7 @@ repos:
     name: PHP Syntax Check
     entry: php -l
     language: system
-    types:
-    - inc
-    - php
+    files: \.(php|inc)$
 
   - id: composer-validate
     name: Validate composer.json
@@ -113,33 +111,25 @@ repos:
     name: PHP Code Beautifier and Fixer
     entry: php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml
     language: system
-    types:
-    - inc
-    - php
+    files: \.(php|inc)$
 
   - id: phpcs
     name: PHP_CodeSniffer
     entry: php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml
     language: system
-    types:
-    - inc
-    - php
+    files: \.(php|inc)$
 
   - id: phpstan
     name: PHPStan Static Analysis
     entry: php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist
     language: system
-    types:
-    - inc
-    - php
+    files: \.(php|inc)$
 
   - id: rector
     name: Rector
     entry: php -d memory_limit=1g ./vendor/bin/rector process
     language: system
-    types:
-    - inc
-    - php
+    files: \.(php|inc)$
 
   - id: composer-require-checker
     name: Composer Require Checker
