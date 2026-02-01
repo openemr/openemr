@@ -3384,14 +3384,6 @@ parameters:
       identifier: nullCoalesce.variable
       count: 1
       path: ../interface/billing/sl_eob_invoice.php
-    - message: '#^Variable \$STMT_PRINT_CMD might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/billing/sl_eob_search.php
-    - message: '#^Variable \$STMT_TEMP_FILE might not be defined\.$#'
-      identifier: variable.undefined
-      count: 7
-      path: ../interface/billing/sl_eob_search.php
     - message: '#^Variable \$countline might not be defined\.$#'
       identifier: variable.undefined
       count: 1
