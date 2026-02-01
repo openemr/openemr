@@ -236,19 +236,19 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 // split content if unstructured is included from service.
                 $unstructured = "";
-                if (substr_count((string) $content, '</ClinicalDocument>') === 2) {
-                    $d = explode('</ClinicalDocument>', (string) $content);
+                if (substr_count($content, '</ClinicalDocument>') === 2) {
+                    $d = explode('</ClinicalDocument>', $content);
                     $content = $d[0] . '</ClinicalDocument>';
                     $unstructured = $d[1] . '</ClinicalDocument>';
                 }
 
                 if ($view && !$downloadccda) {
-                    if (str_starts_with((string) $content, 'ERROR:')) {
+                    if (str_starts_with($content, 'ERROR:')) {
                         echo "<h3>" . text($content) . "</h3>";
                         (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
                         die();
                     }
-                    $xml = simplexml_load_string((string) $content);
+                    $xml = simplexml_load_string($content);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.
