@@ -21,11 +21,22 @@ use Money\Parser\DecimalMoneyParser;
 
 class ParseERA
 {
+    private static $currencies;
+    private static $moneyParser;
+    private static $moneyFormatter;
+
+    private static function initializeMoney()
+    {
+        if (self::$currencies === null) {
+            self::$currencies = new ISOCurrencies();
+            self::$moneyParser = new DecimalMoneyParser(self::$currencies);
+            self::$moneyFormatter = new DecimalMoneyFormatter(self::$currencies);
+        }
+    }
+
     public static function parseERA2100(&$out, $cb)
     {
-        $currencies = new ISOCurrencies();
-        $moneyParser = new DecimalMoneyParser($currencies);
-        $moneyFormatter = new DecimalMoneyFormatter($currencies);
+        self::initializeMoney();
 
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
@@ -45,24 +56,24 @@ class ParseERA
                 //$money = $moneyParser->parse('$1.00');
                 //echo $money->getAmount(); // outputs 100
 
-                $chgtotal = $moneyParser->parse($out['amount_charged'], new Currency('USD'));
-                $paytotal = $moneyParser->parse($out['amount_approved'], new Currency('USD'));
-                $pattotal = $moneyParser->parse($out['amount_patient'], new Currency('USD'));
+                $chgtotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
+                $paytotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
+                $pattotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
                 $adjtotal = $chgtotal->subtract($paytotal);
                 $adjtotal = $adjtotal->subtract($pattotal);
                 foreach ($out['svc'] as $svc) {
-                    $paytotal = $paytotal->subtract($moneyParser->parse($svc['paid'], new Currency('USD')));
+                    $paytotal = $paytotal->subtract(self::$moneyParser->parse($svc['paid'], new Currency('USD')));
                     foreach ($svc['adj'] as $adj) {
                         if ($adj['group_code'] != 'PR') {
-                            $adjtotal = $adjtotal->subtract($moneyParser->parse($adj['amount'], new Currency('USD')));
+                            $adjtotal = $adjtotal->subtract(self::$moneyParser->parse($adj['amount'], new Currency('USD')));
                         }
                     }
                 }
 
                 //$paytotal = round($paytotal, 2);
-                $paytotal = $moneyFormatter->format($paytotal);
+                $paytotal = self::$moneyFormatter->format($paytotal);
                 //$adjtotal = round($adjtotal, 2);
-                $adjtotal = $moneyFormatter->format($adjtotal);
+                $adjtotal = self::$moneyFormatter->format($adjtotal);
                 if ($paytotal != 0 || $adjtotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
                         array_unshift($out['svc'], []);
