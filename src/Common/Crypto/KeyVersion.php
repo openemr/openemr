@@ -109,6 +109,7 @@ enum KeyVersion: int
      *
      * @param string $value The string to check (should be at least 3 bytes)
      * @return KeyVersion the KeyVersion extracted from the first 3 bytes of the string
+     * @throws \ValueError If the prefix cannot be converted to a KeyVersion
      */
     public static function fromPrefix(string $value): self
     {
