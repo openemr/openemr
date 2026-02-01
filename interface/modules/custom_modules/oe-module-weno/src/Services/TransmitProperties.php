@@ -20,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PhoneNumberService;
 
@@ -160,6 +161,9 @@ class TransmitProperties
             } else {
                 continue; // Skip non-array and non-string properties
             }
+
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $authUserID = $session->get('authUserID') ?? 0;
             // Iterate through the values
             foreach ($values as $v) {
                 if (str_contains((string) $v, "REQED")) {
@@ -180,7 +184,7 @@ class TransmitProperties
                 // Add error to the respective error type if not already present
                 if (!str_contains($error[$type], (string) $v)) {
                     // Append error with icon and onclick event
-                    $uid = attr_js($_SESSION['authUserID'] ?? 0);
+                    $uid = attr_js($authUserID);
                     $action = attr_js($action);
                     $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-pen text-warning mx-1'></i>$v<br>";
                 }
@@ -197,6 +201,7 @@ class TransmitProperties
      */
     public function createJsonObject(): false|string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //default is testing mode
         $testing = isset($GLOBALS['weno_rx_enable_test']);
         $mode = $testing ? 'Y' : 'N';
@@ -211,7 +216,7 @@ class TransmitProperties
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
-        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $_SESSION['authUserID'] ?? 0;
+        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . ($session->get('authUserID') ?? 0);
         $wenObj['LastName'] = $this->patient['lname'];
 
         $wenObj['FirstName'] = $this->patient['fname'];
@@ -291,10 +296,11 @@ class TransmitProperties
            AND type = 'primary'
         SQL;
 
-        $relation = sqlQuery($guardian, [$_SESSION['pid']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $relation = sqlQuery($guardian, [$session->get('pid')]);
         // if no guardian then check for primary insurance subscriber
         if (empty($relation['ResponsiblePartyLastName'])) {
-            $relation = sqlQuery($insurance, [$_SESSION['pid']]);
+            $relation = sqlQuery($insurance, [$session->get('pid')]);
         }
         if (empty($relation)) {
             return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian to add a person.");
@@ -344,13 +350,15 @@ class TransmitProperties
      */
     public function getFacilityInfo(): array|null|false
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // is user logged into a facility
-        if (!empty($_SESSION['facilityId'])) {
-            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and id = ?", [$_SESSION['facilityId'] ?? null]);
+        $facilityId = $session->get('facilityId');
+        if (!empty($facilityId)) {
+            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and id = ?", [$facilityId]);
         } else {
             // from users facility
             $facilityService = new FacilityService();
-            $locId = $facilityService->getFacilityForUser($_SESSION['authUserID'] ?? '');
+            $locId = $facilityService->getFacilityForUser($session->get('authUserID') ?? '');
         }
 
         if (empty($locId['weno_id'] ?? '')) {
@@ -388,7 +396,8 @@ class TransmitProperties
         // Since the transmitProperties is called in the logproperties
         // need to check to see if in an encounter or not. Patient data is not required to view the Weno log
 
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, phone_home, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, phone_home, postal_code, dob, sex, pid from patient_data where pid=?", [$session->get('pid')]);
         if (empty($patient['fname'])) {
             $patient['fname'] = "REQED:{demographics}" . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
         }
@@ -483,7 +492,8 @@ class TransmitProperties
      */
     public function getVitals(): ?array
     {
-        $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$session->get('pid')]);
         // Check if vitals are empty or missing height and weight
         $patient = $this->getPatientInfo();
         if (self::getAge($patient['dob']) < 19) {
@@ -507,7 +517,8 @@ class TransmitProperties
      */
     private function getSubscriber(): mixed
     {
-        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$session->get('pid')]);
         $relation ??= ['subscriber_relationship' => ''];
 
         return $relation['subscriber_relationship'] ?? '';
@@ -518,7 +529,8 @@ class TransmitProperties
      */
     public function getPharmacy(): string|array
     {
-        $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$session->get('pid')]);
         $response = [
             "primary" => $data['primary_ncpdp'] ?? '',
             "alternate" => $data['alternate_ncpdp'] ?? ''
@@ -542,7 +554,8 @@ class TransmitProperties
      */
     public function getProviderName(): string
     {
-        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
         $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
@@ -552,7 +565,8 @@ class TransmitProperties
      */
     public function getPatientName(): string
     {
-        $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$session->get('pid')]);
         $patient_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
@@ -562,7 +576,8 @@ class TransmitProperties
      */
     private function getEncounter(): mixed
     {
-        return $_SESSION['encounter'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('encounter') ?? 0;
     }
 
     /**
@@ -572,7 +587,8 @@ class TransmitProperties
     public function getWenoProviderId($id = null): mixed
     {
         if (empty($id)) {
-            $id = $_SESSION['authUserID'] ?? '';
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $id = $session->get('authUserID') ?? '';
         }
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);

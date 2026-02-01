@@ -21,10 +21,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function setLayoutTimestamp($layout_id): void
 {
@@ -289,12 +291,14 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
     $column_exists = !empty($tmp);
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
         EventAuditLogger::getInstance()->newEvent(
             "alter_table",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "$tablename ADD $field_id"
         );
@@ -324,8 +328,8 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                 );
                 EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
-                    $_SESSION['authUser'],
-                    $_SESSION['authProvider'],
+                    $session->get('authUser'),
+                    $session->get('authProvider'),
                     1,
                     "$tablename DROP $field_id "
                 );
@@ -376,10 +380,11 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(
         "alter_table",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "$tablename RENAME $old_field_id TO $new_field_id $colstr"
     );
@@ -412,7 +417,7 @@ $lbfonly = str_starts_with((string) $layout_id, 'LBF') ? "" : "style='display:no
 // Handle the Form actions
 
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // If we are saving, then save.
@@ -475,7 +480,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Add a new field to a specific group
@@ -510,7 +515,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Move field(s) to a new group in the layout
@@ -566,7 +571,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($tlayout);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Delete a field from a specific group
@@ -591,7 +596,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($layout_id);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Generate new value for layout_items.group_id.
@@ -605,7 +610,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // drop the fields from the related table (this is critical)
@@ -630,7 +635,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -659,7 +664,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
     // Renaming a group. This might include moving to a different parent group.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     $newparent = $_POST['renamegroupparent'];  // this is an ID
@@ -716,6 +721,7 @@ function writeFieldLine($linedata): void
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[" . attr($fld_line_no) . "]' class='" . ($fld_line_no % 2 ? 'even' : 'odd') . "'>\n";
 
@@ -762,7 +768,7 @@ function writeFieldLine($linedata): void
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
-    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_layout'] && $session->get('language_choice') > 1) {
         echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
     }
 
@@ -917,7 +923,7 @@ function writeFieldLine($linedata): void
         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
-        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+        if ($GLOBALS['translate_layout'] && $session->get('language_choice') > 1) {
             echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
@@ -1380,7 +1386,7 @@ function setListItemOptions(lino, seq, init) {
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
   const params = new URLSearchParams({
-    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
     current: current,
     listid: list_id,
     target: target
@@ -1452,7 +1458,7 @@ function myChangeCheck() {
 
 <body class="body_top admin-layout">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="" />
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="" />
@@ -1546,6 +1552,7 @@ if ($layout_id) {
         "ORDER BY p.grp_group_id, l.seq, l.field_id",
         [$layout_id]
     );
+    $language_choice = $session->get('language_choice');
     while ($row = sqlFetchArray($res)) {
         $group_id = $row['grp_group_id'];
         // Skip if this is the top level layout and (as expected) it has no fields.
@@ -1584,7 +1591,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'translate_layout' => ($GLOBALS['translate_layout'] && $language_choice > 1) ? xlt($gdispname) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
@@ -1620,7 +1627,7 @@ if ($layout_id) {
         <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
         <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
                 <?php // if not english and showing layout label translations, then show translation header for title
-                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                if ($GLOBALS['translate_layout'] && $language_choice > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
           <th><?php echo xlt('UOR'); ?></th>
@@ -1634,7 +1641,7 @@ if ($layout_id) {
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
                 <?php // if not english and showing layout label translations, then show translation header for description
-                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                if ($GLOBALS['translate_layout'] && $language_choice > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
           <th><?php echo xlt('Code(s)'); ?></th>
@@ -1823,7 +1830,7 @@ echo "{id: 'EP',text:" . xlj('Exclude in Portal') . "},
     {id: '2',text:" . xlj('Billing Code Descriptions') . "}];\n";
 
 // Language direction for select2
-echo 'var langDirection = ' . js_escape($_SESSION['language_direction']) . ';';
+echo 'var langDirection = ' . js_escape($session->get('language_direction')) . ';';
 ?>
 
 // used when selecting a list-name for a field

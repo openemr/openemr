@@ -20,6 +20,7 @@
 namespace Multipledb;
 
 use Laminas\ModuleManager\ModuleManager;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class Module
 {
@@ -58,9 +59,9 @@ class Module
             // @see https://framework.zend.com/apidoc/2.0/classes/Laminas.Mvc.Controller.Plugin.Layout.html
             $controller->layout('multipledb/layout/layout');
 
-
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             //global variable of language direction
-            $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
+            $controller->layout()->setVariable('language_direction', $session->get('language_direction'));
             $controller->layout()->setVariable('status', null);
             //variable that get object with all js variables from php
         }, 100);
