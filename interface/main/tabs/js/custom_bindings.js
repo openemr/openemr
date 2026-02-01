@@ -89,7 +89,7 @@ ko.bindingHandlers.location={
                         (currentUrl && erxMarkers.some(marker => currentUrl.includes(marker))) ||
                         (currentUrl.includes('demographics.php') && tabData.name?.() === 'pat');
 
-                    tabData.title(xl(isErxPage ? 'Ensora eRx' : 'Unknown') + (isErxPage ? '' : '+'));
+                    tabData.title(xl(isErxPage ? 'Ensora eRx' : 'Unknown'));
                 }
             } ,true
         );
