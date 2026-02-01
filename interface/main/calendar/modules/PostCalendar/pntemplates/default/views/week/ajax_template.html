@@ -696,9 +696,7 @@ foreach ($providers as $provider) {
 	        if($eventtype['pc_cattype']==1)
 	        $pccattype = 'true';
             $patientid = $event['pid'];
-            $commapos = strpos($event['patient_name'], ",");
-            $lname = substr($event['patient_name'], 0, $commapos);
-	        $fname = substr($event['patient_name'], $commapos + 2);
+            [$lname, $fname] = preg_split('/,\s*/', ($event['patient_name'] ?? ''), 2) + ['', ''];
 	        $address =  $event['patient_address'] ; //RM;
             $patient_dob = oeFormatShortDate($event['patient_dob']);
             $patient_age = $event['patient_age'];

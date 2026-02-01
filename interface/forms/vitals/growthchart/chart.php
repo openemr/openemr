@@ -106,26 +106,18 @@ rsort($datapoints);
 function unitsWt($wt)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return (number_format(($wt * 0.45359237), 2, '.', '') . xl('kg', '', ' '));
-    } else {
-    //keep US
-        return number_format($wt, 2) . xl('lb', '', ' ');
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'))
+        : sprintf('%s %s', number_format($wt, 2), xl('lb'));
 }
 
 // convert to applicable length units from Config Locale
 function unitsDist($dist)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return (number_format(($dist * 2.54), 2, '.', '') . xl('cm', '', ' '));
-    } else {
-        //keep US
-        return number_format($dist, 2)  . xl('in', '', ' ');
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'))
+        : sprintf('%s %s', number_format($dist, 2), xl('in'));
 }
 
 // convert vitals service data to US values for graphing
@@ -187,7 +179,7 @@ if ($charttype == 'birth') {
     }
 
     $ageOffset = 0;
-    $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
+    $heightOffset = 15; // Subtract 15 because the graph starts at 15 inches
     $weightOffset = 3;  // graph starts at 3 lbs
     $WToffset = 0; //for wt and ht table at bottom half of HC graph
     $HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
@@ -646,7 +638,7 @@ foreach ($datapoints as $data) {
 
         // Draw Weight bullseye
         $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
-        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outter ring
+        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outer ring
         imagefilledellipse($im, (int) $x, (int) $y2, 5, 5, $color); //center dot
 
         if ($charttype == "birth") {

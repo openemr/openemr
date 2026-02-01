@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Common\Database;
 
+use Throwable;
+
 class QueryUtils
 {
     /**
@@ -45,7 +47,7 @@ class QueryUtils
         return \escape_sql_column_name($columnName, $tables);
     }
 
-    public static function fetchRecordsNoLog($sqlStatement, $binds)
+    public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -154,7 +156,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return recordset
      */
-    public static function sqlStatementThrowException($statement, $binds, $noLog = false)
+    public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
         if ($noLog) {
             return \sqlStatementNoLog($statement, $binds, true);
@@ -268,11 +270,13 @@ class QueryUtils
 
     public static function generateId()
     {
+        // @phpstan-ignore openemr.deprecatedSqlFunction
         return \generate_id();
     }
 
     public static function ediGenerateId()
     {
+        // @phpstan-ignore openemr.deprecatedSqlFunction
         return \edi_generate_id();
     }
 
@@ -291,12 +295,35 @@ class QueryUtils
         \sqlRollbackTrans();
     }
 
+    /**
+     * Runs the $action within a database transaction, automatically committing
+     * it on success and rolling back if there's an exception.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function inTransaction(callable $action): mixed
+    {
+        self::startTransaction();
+
+        try {
+            $return = $action();
+
+            self::commitTransaction();
+            return $action;
+        } catch (Throwable $e) {
+            self::rollbackTransaction();
+            throw $e;
+        }
+    }
+
     public static function getLastInsertId()
     {
         return \sqlGetLastInsertId();
     }
 
-    public static function querySingleRow(string $sql, array $params)
+    public static function querySingleRow(string $sql, array $params = [])
     {
         $result = self::sqlStatementThrowException($sql, $params);
         return \sqlFetchArray($result);

@@ -96,7 +96,7 @@ function outputMessage($message): void
 }
 
 // collect parameters (need to do before globals)
-$args = parseArgs($argv);
+$args = parseArgs($argv ?? []);
 
 // Required arguments
 $requiredArgs = ['sourcePath', 'site', 'openemrPath'];

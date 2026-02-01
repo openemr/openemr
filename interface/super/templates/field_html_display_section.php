@@ -11,8 +11,7 @@ if (
     && is_callable($fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK])
 ) {
     try {
-        $displaySection = call_user_func(
-            $fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK],
+        $displaySection = ($fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK])(
             $fldid,
             $fldarr
         );

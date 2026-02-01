@@ -500,6 +500,8 @@ class ObservationService extends BaseService
 
         if (empty($observationData['uuid'])) {
             $observationData['uuid'] = $this->getUuidRegistry()->createUuid();
+        } else {
+            $observationData['uuid'] = UuidRegistry::uuidToBytes($observationData['uuid']);
         }
         $encounter = $observationData['encounter'];
         $pid = $observationData['pid'];

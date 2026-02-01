@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   composer:
     runs-on: ubuntu-24.04
@@ -21,7 +25,7 @@ jobs:
         php-version: ['8.2']
     steps:
     - name: "Checkout Code"
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: "Setup PHP"
       uses: shivammathur/setup-php@v2
@@ -35,10 +39,10 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: "Composer Cache"
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
@@ -50,7 +54,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: "Validate Composer"
-      run: composer validate
+      run: composer validate --strict
 
     - name: "Check Composer Normalized"
       run: composer normalize --dry-run

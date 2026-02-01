@@ -42,9 +42,6 @@ $textarea_cols = 80;
 $debug = '';
 $error = '';
 
-$preselect_category = '';
-$preselect_subcategory = '';
-$preselect_item = '';
 $preselect_category_override = '';
 $preselect_subcategory_override = '';
 $preselect_item_override = '';
@@ -57,17 +54,9 @@ $category = str_replace($quote_search, $quote_replace, $_POST['change_category']
 $subcategory = str_replace($quote_search, $quote_replace, $_POST['change_subcategory'] ?? '');
 $item = str_replace($quote_search, $quote_replace, $_POST['change_item'] ?? '');
 $content = str_replace($quote_search_content, $quote_replace_content, $_POST['textarea_content'] ?? '');
-if ($_POST['hidden_category']) {
-    $preselect_category = $_POST['hidden_category'];
-}
-
-if ($_POST['hidden_subcategory']) {
-    $preselect_subcategory = $_POST['hidden_subcategory'];
-}
-
-if ($_POST['hidden_item']) {
-    $preselect_item = $_POST['hidden_item'];
-}
+$preselect_category = $_POST['hidden_category'] ?? '';
+$preselect_subcategory = $_POST['hidden_subcategory'] ?? '';
+$preselect_item = $_POST['hidden_item'] ?? '';
 
 //handle changes to database
 if (str_starts_with($_POST['hidden_mode'] ?? '', 'add')) {
@@ -823,7 +812,7 @@ function click_item() {
   var sel = f2["select_item[]"].options[item_index].value;
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
-      //diplay text in content box
+      //display text in content box
       f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
     }
   }
@@ -914,13 +903,10 @@ function processajax (serverPage, obj, getOrPost, str){
 
 function setformvalues(form_array){
 
-  //Run through a list of all objects
-  var str = '';
-  for(key in form_array) {
-    str += key + "=" + encodeURIComponent(form_array[key]) + "&";
-  }
+  //Run through a list of all objects and build query string
+  const params = new URLSearchParams(form_array);
   //Then return the string values.
-  return str;
+  return params.toString();
 }
 
 //END OF AJAX RELATED FUNCTIONS

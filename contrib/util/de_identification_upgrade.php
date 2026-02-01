@@ -201,7 +201,7 @@ if (!empty($_POST['form_submit'])) {
     echo xlt("Please set de_identification_config variable back to zero");
     echo "</font></p>\n";
     echo "</body></html>\n";
-    sqlClose($dbh);
+    sqlClose();
     exit();
 }
 ?>
@@ -211,12 +211,12 @@ function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")
  {
-  alert("<?php echo xls('Enter Database root Username');?>");
+  alert(<?php echo xlj('Enter Database root Username');?>);
   return false;
  }
  /*if(document.forms[0].root_user_pass.value == "")
  {
-  alert("<?php echo xls('Enter Database root Password');?>");
+  alert(<?php echo xlj('Enter Database root Password');?>);
   return false;
  }*/
  return true;

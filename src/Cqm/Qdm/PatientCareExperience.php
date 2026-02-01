@@ -51,4 +51,3 @@ class PatientCareExperience extends QDMBaseType
 
     public $_type = 'QDM::PatientCareExperience';
 }
-

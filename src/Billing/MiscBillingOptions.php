@@ -9,9 +9,11 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (C) 2013 OEMR
  * @copyright Copyright (C) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */

@@ -31,4 +31,3 @@ class Organization extends Entity
 
     public $_type = 'QDM::Organization';
 }
-

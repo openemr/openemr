@@ -67,6 +67,7 @@
         changeIds('btn-add-documents');
         changeIds('btn-add-results');
 
+        $newRow.find('.hide-author').addClass('d-none')
         removeVal(newRow.id);
         updateDefaults(newRow.id);
         clearLinkingData(newRow.id);
@@ -216,7 +217,7 @@
                 // they are clearing out the value so we are going to empty everything out.
                 codeEl.value = "";
                 codeTextEl.value = "";
-                codeContext.vlaue = "";
+                codeContext.value = "";
             }
 
         } catch (e) {

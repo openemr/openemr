@@ -50,6 +50,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
     const USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis';
 
     // Date when UUID from the issue_encounters table begins
+    // TODO: would it be better to key off the db version?
     private const UUID_CUTOVER_DATE = '2025-11-15 00:00:00';
     const CATEGORY_ENCOUNTER_DIAGNOSIS = 'encounter-diagnosis';
 
@@ -84,7 +85,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
             'encounter' => new FhirSearchParameterDefinition('encounter', SearchFieldType::REFERENCE, [new ServiceField('encounter_uuid', ServiceField::TYPE_UUID)]),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['diagnosis']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            // we search both the old database and the new one for backwards compatability
+            // we search both the old database and the new one for backwards compatibility
             // TODO: @adunsulag - eventually we will want to phase out the lists_uuid search, or have a smarter search that will filter based on the uuid_registry.table_name
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('lists_uuid', ServiceField::TYPE_UUID), new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
@@ -208,6 +209,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
                 // Convert UUIDs to string format
                 $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
                 $row['lists_uuid'] = UuidRegistry::uuidToString($row['lists_uuid']);
+                // now determine which uuid to use for the condition resource based on the date
                 $row['uuid'] = $this->getConditionFhirUuid($row);
                 $row['encounter_uuid'] = UuidRegistry::uuidToString($row['encounter_uuid']);
                 $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
@@ -247,7 +249,6 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
         if ($conditionTime >= $cutoverTime) {
             return $dataRecord['uuid'];
         }
-
         // Historical condition - preserve original UUID
         return $dataRecord['lists_uuid'];
     }

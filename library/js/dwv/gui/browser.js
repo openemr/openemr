@@ -6,7 +6,7 @@ dwvOemr.browser = dwvOemr.browser || {};
 
 /**
  * Local function to ask Modernizr if a property is supported.
- * @parma {String} property The property to test.
+ * @param {String} property The property to test.
  */
 dwvOemr.browser.askModernizr = function (property) {
     if ( typeof dwv.Modernizr === "undefined" ) {

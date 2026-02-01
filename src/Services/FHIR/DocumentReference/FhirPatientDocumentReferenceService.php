@@ -23,6 +23,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
 use OpenEMR\Services\DocumentService;
+use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceAdvancedDirectiveCodeEnum;
+use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
+use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -30,11 +33,13 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
@@ -44,6 +49,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use FhirDocumentReferenceTrait;
 
     /**
      * @var DocumentService
@@ -65,15 +71,14 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
     public function supportsCategory($category)
     {
-        // we have no category definitions right now for patient
-        return false;
+        return !in_array(DocumentReferenceCategoryEnum::tryFrom($category), DocumentReferenceCategoryEnum::cases());
     }
 
 
     public function supportsCode($code)
     {
-        // we don't support searching by code
-        return false;
+        // exclude advanced directive codes as those are handled by another service
+        return !in_array(DocumentReferenceAdvancedDirectiveCodeEnum::tryFrom($code), DocumentReferenceAdvancedDirectiveCodeEnum::cases());
     }
 
     protected function loadSearchParameters()
@@ -81,8 +86,11 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::DATETIME, ['category_codes']),
+            'type' => new FhirSearchParameterDefinition('type', SearchFieldType::DATETIME, ['category_codes']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
+            // US Core 8.0 requires support for searching by category
         ];
     }
 
@@ -110,6 +118,16 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             // make sure we only return documents that are tied to patients
             $openEMRSearchParameters['patient'] = new TokenSearchField('puuid', [new TokenSearchValue(false, null)]);
             $openEMRSearchParameters['patient']->setModifier(SearchModifier::MISSING);
+        }
+        // we need to exclude the adi codes here as those are handled by another service
+        // going to use a NOT_EQUALS_EXACT modifier on a string field for this
+        $tokenField = new StringSearchField('category_codes', DocumentReferenceAdvancedDirectiveCodeEnum::getFullOpenEMRCodeList(), SearchModifier::NOT_EQUALS_EXACT, true);
+        if (isset($openEMRSearchParameters['category_codes'])) {
+            $compositeField = new CompositeSearchField('codes-filter', [], false);
+            $compositeField->addChild($openEMRSearchParameters['category_codes']);
+            $compositeField->addChild($tokenField);
+        } else {
+            $openEMRSearchParameters['category_codes'] = $tokenField;
         }
         return $this->service->search($openEMRSearchParameters);
     }
@@ -156,27 +174,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         // populate the link to download the patient document
-        if (!empty($dataRecord['uuid'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Binary/' . $dataRecord['uuid'];
-            $content = new FHIRDocumentReferenceContent();
-            $attachment = new FHIRAttachment();
-            $attachment->setContentType($dataRecord['mimetype']);
-            $attachment->setUrl(new FHIRUrl($url));
-            $attachment->setTitle($dataRecord['name'] ?? '');
-            $content->setAttachment($attachment);
-            // TODO: if we support tagging a specific document with a reference code we can put that here.
-            // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
-            $contentCoding = UtilsService::createCoding(
-                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-                "mimeType Sufficient",
-                FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
-            );
-            $content->setFormat($contentCoding);
-            $docReference->addContent($content);
-        } else {
-            // need to support data missing if its not there.
-            $docReference->addContent(UtilsService::createDataMissingExtension());
-        }
+        $this->populateContent($docReference, $dataRecord);
 
         if (!empty($dataRecord['puuid'])) {
             $docReference->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));

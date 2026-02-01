@@ -176,23 +176,99 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
 
+#IfNotTable care_team_member
+DROP TABLE IF EXISTS care_teams_v1;
+-- save old care teams
+SET @table_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.tables
+    WHERE table_schema = DATABASE()
+      AND table_name = 'care_teams'
+);
+SET @sql = IF(@table_exists > 0,
+  'RENAME TABLE `care_teams` TO `care_teams_v1`',
+  'SELECT "Table care_teams does not exist" AS message'
+);
+PREPARE task FROM @sql;
+EXECUTE task;
+DEALLOCATE PREPARE task;
+
+CREATE TABLE `care_team_member` (
+    `id`             int(11)     NOT NULL AUTO_INCREMENT,
+    `care_team_id`   int(11)     NOT NULL,
+    `user_id`        BIGINT(20) COMMENT 'fk to users.id represents a provider or staff member',
+    `contact_id`     BIGINT(20) COMMENT 'fk to contact.id which represents a contact person not in users or facility table',
+    `role`           varchar(50) NOT NULL COMMENT 'fk to list_options.option_id WHERE list_id=care_team_roles',
+    `facility_id`    BIGINT(20) COMMENT 'fk to facility.id represents an organization or location',
+    `provider_since` date        NULL,
+    `status`         varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `date_created`   datetime     DEFAULT current_timestamp(),
+    `date_updated`   datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`     BIGINT(20) COMMENT 'fk to users.id and is the user that added this team member',
+    `updated_by`     BIGINT(20) COMMENT 'fk to users.id and is the user that last updated this team member',
+    `note`           text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
+) ENGINE = InnoDB COMMENT ='Stores members of a care team for a patient';
+#EndIf
+
 #IfNotTable care_teams
 CREATE TABLE `care_teams` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `pid` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `role` varchar(50) NOT NULL,
-  `facility_id` int(11) NOT NULL,
-  `provider_since` date NULL,
-  `status` varchar(20) DEFAULT 'active',
-  `team_name` varchar(255) DEFAULT NULL,
-  `note` text,
-  `date_created` datetime DEFAULT current_timestamp(),
-  `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB;
+    `id`           int(11) NOT NULL AUTO_INCREMENT,
+    `uuid`         binary(16)   DEFAULT NULL,
+    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
+    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `team_name`    varchar(255) DEFAULT NULL,
+    `note`         text,
+    `date_created` datetime     DEFAULT current_timestamp(),
+    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
+    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+-- Migrate existing care teams if any.
+#IfTable care_teams_v1
+INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
+SELECT
+    MIN(`uuid`) AS `uuid`,
+    `pid`,
+    `status`,
+    `team_name`,
+    MIN(`date_created`) AS `date_created`,
+    MAX(`date_updated`) AS `date_updated`
+FROM `care_teams_v1`
+GROUP BY `pid`, `team_name`, `status`;
+--  Migrate all members to care_team_member table
+INSERT INTO `care_team_member` (
+    `care_team_id`,
+    `user_id`,
+    `role`,
+    `facility_id`,
+    `provider_since`,
+    `status`,
+    `date_created`,
+    `date_updated`,
+    `note`
+)
+SELECT
+    ct_new.`id` AS `care_team_id`,
+    ct_old.`user_id`,
+    ct_old.`role`,
+    ct_old.`facility_id`,
+    ct_old.`provider_since`,
+    ct_old.`status`,
+    ct_old.`date_created`,
+    ct_old.`date_updated`,
+    ct_old.`note`
+FROM `care_teams_v1` ct_old
+    INNER JOIN `care_teams` ct_new ON ct_old.`pid` = ct_new.`pid`
+    AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
+    AND ct_old.`status` = ct_new.`status`;
+
+DROP TABLE `care_teams_v1`;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id care_team_roles
@@ -460,41 +536,51 @@ CREATE TABLE `form_history_sdoh`
     `encounter`                       int(10) UNSIGNED             DEFAULT NULL,
     `created_at`                      datetime            NOT NULL DEFAULT current_timestamp(),
     `updated_at`                      datetime            NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by`                      int(10) UNSIGNED             DEFAULT NULL,
-    `updated_by`                      int(10) UNSIGNED             DEFAULT NULL,
+    `created_by`                      int(10) UNSIGNED             DEFAULT NULL COMMENT 'fk to users.id user that created this record',
+    `updated_by`                      int(10) UNSIGNED             DEFAULT NULL COMMENT 'fk to users.id user that last modified this record',
     `assessment_date`                 date                         DEFAULT NULL,
-    `screening_tool`                  varchar(255)                 DEFAULT NULL,
-    `assessor`                        varchar(255)                 DEFAULT NULL,
-    `food_insecurity`                 varchar(50)                  DEFAULT NULL,
+    `screening_tool`                  varchar(255)                 DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_instruments represents the assessment tool used to administer this assessment',
+    `assessor`                        varchar(255)                 DEFAULT NULL COMMENT 'fk to users.username the user that administered the assessment',
+    `food_insecurity`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
     `food_insecurity_notes`           text,
-    `housing_instability`             varchar(50)                  DEFAULT NULL,
+    `housing_instability`             varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_housing_worry',
     `housing_instability_notes`       text,
-    `transportation_insecurity`       varchar(50)                  DEFAULT NULL,
+    `transportation_insecurity`       varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_transportation_barrier',
     `transportation_insecurity_notes` text,
-    `utilities_insecurity`            varchar(50)                  DEFAULT NULL,
+    `utilities_insecurity`            varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_utilities_shutoff',
     `utilities_insecurity_notes`      text,
-    `interpersonal_safety`            varchar(50)                  DEFAULT NULL,
+    `interpersonal_safety`            varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
     `interpersonal_safety_notes`      text,
-    `financial_strain`                varchar(50)                  DEFAULT NULL,
+    `financial_strain`                varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
     `financial_strain_notes`          text,
-    `social_isolation`                varchar(50)                  DEFAULT NULL,
+    `social_isolation`                varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_social_isolation_freq',
     `social_isolation_notes`          text,
-    `childcare_needs`                 varchar(50)                  DEFAULT NULL,
+    `childcare_needs`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_childcare_needs',
     `childcare_needs_notes`           text,
-    `digital_access`                  varchar(50)                  DEFAULT NULL,
+    `digital_access`                  varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_digital_access',
     `digital_access_notes`            text,
-    `employment_status`               varchar(50)                  DEFAULT NULL,
-    `education_level`                 varchar(50)                  DEFAULT NULL,
-    `caregiver_status`                varchar(20)                  DEFAULT NULL,
-    `veteran_status`                  varchar(20)                  DEFAULT NULL,
-    `pregnancy_status`                varchar(20)                  DEFAULT NULL,
-    `pregnancy_edd`                   date                         DEFAULT NULL,
+    `employment_status`               varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `education_level`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_education_level',
+    `caregiver_status`                varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `veteran_status`                  varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `pregnancy_status`                varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=pregnancy_status',
+    `pregnancy_edd`                   date                         DEFAULT NULL COMMENT 'Estimated due date for pregnancy',
     `pregnancy_gravida`               smallint(6)                  DEFAULT NULL,
     `pregnancy_para`                  smallint(6)                  DEFAULT NULL,
-    `postpartum_status`               varchar(20)                  DEFAULT NULL,
-    `postpartum_end`                  date                         DEFAULT NULL,
+    `pregnancy_intent`                VARCHAR(32)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=pregnancy_intent Pregnancy Intent Over Next Year',
+    `postpartum_status`               varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=postpartum_status',
+    `postpartum_end`                  date                         DEFAULT NULL COMMENT 'PostPartum end date',
     `goals`                           text,
     `interventions`                   text,
+    `instrument_score`                INT                          DEFAULT NULL,
+    `positive_domain_count`           INT                          DEFAULT NULL,
+    `declined_flag`                   TINYINT(1)                   DEFAULT NULL,
+    `disability_status`               VARCHAR(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=disability_status',
+    `disability_status_notes`         TEXT,
+    `disability_scale`                TEXT,
+    `hunger_q1`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88122-7 response' COMMENT 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
+    `hunger_q2`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88123-5 response'COMMENT 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
+    `hunger_score`                    INT                          DEFAULT NULL COMMENT 'Calculated HVS score',
     PRIMARY KEY (`id`),
     KEY `uuid_idx` (`uuid`),
     KEY `pid_idx` (`pid`),
@@ -618,7 +704,6 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 #EndIf
--- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Observation Form Changes
 
@@ -720,114 +805,6 @@ ALTER TABLE `form_observation` ADD `uuid` binary(16) DEFAULT NULL COMMENT 'UUID 
 #EndIf
 
 -- =========================
--- Patient Related Persons
--- =========================
-#IfNotTable patient_related_persons
-CREATE TABLE `patient_related_persons`
-(
-    `pid`                    BIGINT UNSIGNED NOT NULL,
-    `uuid`                   BINARY(16)   DEFAULT NULL,
-    `related_firstname_1`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_1`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_1` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_1`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_1`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_1`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_1`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_1`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_1`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_1`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_1`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_1`        VARCHAR(254) DEFAULT NULL,
-    `related_firstname_2`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_2`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_2` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_2`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_2`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_2`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_2`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_2`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_2`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_2`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_2`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_2`        VARCHAR(254) DEFAULT NULL,
-    `related_firstname_3`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_3`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_3` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_3`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_3`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_3`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_3`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_3`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_3`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_3`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_3`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_3`        VARCHAR(254) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    KEY `uuid_idx` (`uuid`)
-) ENGINE = InnoDB;
-#EndIf
-
-
--- =========================
--- DEM Layout: Related group (guarded)
--- =========================
-#IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
-SET @newgrp := (
-    SELECT COALESCE(MAX(grp_group_id),0)+1 FROM layout_group_properties WHERE grp_form_id='DEM'
-);
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping)
-VALUES ('DEM', @newgrp, 'Related','');
-
--- (fields are inserted once because group/title is guarded)
-INSERT INTO `layout_options`
-(`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,
- `list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,
- `fld_rows`,`list_backup_id`,`source`,`conditions`,`validation`,`codes`)
-VALUES
-    ('DEM','related_firstname_1',@newgrp,'First Name',10,2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
-    ('DEM','related_lastname_1',@newgrp,'Last Name',20,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
-    ('DEM','related_relationship_1',@newgrp,'Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
-    ('DEM','related_sex_1',@newgrp,'Sex',40,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
-    ('DEM','related_address_1',@newgrp,'Address',50,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
-    ('DEM','related_city_1',@newgrp,'City',60,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
-    ('DEM','related_state_1',@newgrp,'State',70,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
-    ('DEM','related_postalcode_1',@newgrp,'Postal Code',80,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
-    ('DEM','related_country_1',@newgrp,'Country',90,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
-    ('DEM','related_phone_1',@newgrp,'Phone',100,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
-    ('DEM','related_workphone_1',@newgrp,'Work Phone',110,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
-    ('DEM','related_email_1',@newgrp,'Email',120,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
-    ('DEM','related_static_1',@newgrp,'Related Person',125,31,1,0,0,'',1,3,'','["K"]','Patient Second Related Person',0,'','F','','',''),
-
-    ('DEM','related_firstname_2',@newgrp,'First Name',130,2,1,25,63,'',1,1,'','["K"]','Related First Name',0,'','F','','',''),
-    ('DEM','related_lastname_2',@newgrp,'Last Name',140,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
-    ('DEM','related_relationship_2',@newgrp,'Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
-    ('DEM','related_sex_2',@newgrp,'Sex',160,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
-    ('DEM','related_address_2',@newgrp,'Address',170,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
-    ('DEM','related_city_2',@newgrp,'City',180,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
-    ('DEM','related_state_2',@newgrp,'State',190,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
-    ('DEM','related_postalcode_2',@newgrp,'Postal Code',200,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
-    ('DEM','related_country_2',@newgrp,'Country',210,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
-    ('DEM','related_phone_2',@newgrp,'Phone',220,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
-    ('DEM','related_workphone_2',@newgrp,'Work Phone',230,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
-    ('DEM','related_email_2',@newgrp,'Email',240,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
-    ('DEM','related_static_2',@newgrp,'Related Person',245,31,1,0,0,'',1,3,'','["K"]','Patient Third Related Person',0,'','F','','',''),
-
-    ('DEM','related_firstname_3',@newgrp,'First Name',250,2,1,25,63,'',1,1,'','["K"]','Related First Name',0,'','F','','',''),
-    ('DEM','related_lastname_3',@newgrp,'Last Name',260,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
-    ('DEM','related_relationship_3',@newgrp,'Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
-    ('DEM','related_sex_3',@newgrp,'Sex',280,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
-    ('DEM','related_address_3',@newgrp,'Address',290,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
-    ('DEM','related_city_3',@newgrp,'City',300,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
-    ('DEM','related_state_3',@newgrp,'State',310,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
-    ('DEM','related_postalcode_3',@newgrp,'Postal Code',320,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
-    ('DEM','related_country_3',@newgrp,'Country',330,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
-    ('DEM','related_phone_3',@newgrp,'Phone',340,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
-    ('DEM','related_workphone_3',@newgrp,'Work Phone',350,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
-    ('DEM','related_email_3',@newgrp,'Email',360,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
-#EndIf
-
--- =========================
 -- DEM Layout: Tribal Affiliations
 -- Resequence group by order of 10
 -- =========================
@@ -838,7 +815,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='religion' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations',@group_id,'Tribal Affiliations',@seq_add_to+10,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
 ALTER TABLE `patient_data` ADD `tribal_affiliations` TEXT;
-#Endif
+#EndIf
 
 -- =========================
 -- form_history_sdoh: grouped adds
@@ -1227,6 +1204,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
 #EndIf
 
+-- This is necessary due to potential third party. A common lab resource name
+#IfColumn procedure_specimen source_quantifier
+RENAME TABLE procedure_specimen TO procedure_specimen_by_v704;
+#EndIf
+
 #IfNotTable procedure_specimen
 CREATE TABLE `procedure_specimen` (
   `procedure_specimen_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
@@ -1276,7 +1258,7 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','em_start_date',@group_id,'Employment Start Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment Start Date',63,'','F',NULL,NULL,'');
 ALTER TABLE `employer_data` ADD `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient';
-#Endif
+#EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id em_end_date
 SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_start_date' AND form_id='DEM');
@@ -1286,7 +1268,7 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
 ('DEM','em_end_date',@group_id,'Employment End Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment End Date',63,'','F',NULL,NULL,'');
 ALTER TABLE `employer_data` ADD `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient';
-#Endif
+#EndIf
 
 #IfMissingColumn employer_data occupation
 -- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
@@ -1453,7 +1435,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='gender_identity' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','sex_identified',@group_id,'Sex',@seq_add_to+10,1,1,20,0,'administrative_sex',1,1,'UNK','sex_identified',"Sex",1,'','[\"N\"]','Sex',0,'');
-#Endif
+#EndIf
 
 #IfNotRow list_options list_id yes_no_unknown
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
@@ -1485,7 +1467,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='homeless' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','interpreter_needed',@group_id,'Interpreter',@seq_add_to+5,1,1,20,0,'yes_no_unknown',1,1,'UNK','interpreter_needed',"Interpreter needed?",1,'','','',0,'');
-#Endif
+#EndIf
 
 #IfMissingColumn form_misc_billing_options encounter
 ALTER TABLE `form_misc_billing_options` ADD `encounter` BIGINT(20) DEFAULT NULL;
@@ -1803,24 +1785,24 @@ CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
 CREATE TABLE `patient_treatment_intervention_preferences` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `uuid` binary(16) DEFAULT NULL,
-    `patient_id` int(11) NOT NULL,
+    `patient_id` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
     `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
     `observation_code_text` varchar(255) DEFAULT NULL,
     `value_type` enum('coded','text','boolean') DEFAULT 'coded',
-    `value_code` varchar(50) DEFAULT NULL,
-    `value_code_system` varchar(255) DEFAULT NULL,
-    `value_display` varchar(255) DEFAULT NULL,
+    `value_code` varchar(50) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_code',
+    `value_code_system` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_system',
+    `value_display` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_display',
     `value_text` text,
     `value_boolean` tinyint(1) DEFAULT NULL,
     `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` varchar(20) DEFAULT 'final',
+    `status` varchar(20) DEFAULT 'final' COMMENT 'valid options are final,amended,preliminary',
     `note` text,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unq_uuid` (`uuid`),
     KEY `patient_id` (`patient_id`),
     KEY `observation_code` (`observation_code`),
     KEY `status` (`status`)
-) ENGINE=InnoDB;
+    ) ENGINE=InnoDB;
 #EndIf
 
 -- Table for storing patient care experience preferences
@@ -1832,13 +1814,13 @@ CREATE TABLE `patient_care_experience_preferences` (
     `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
     `observation_code_text` varchar(255) DEFAULT NULL,
     `value_type` enum('coded','text','boolean') DEFAULT 'coded',
-    `value_code` varchar(50) DEFAULT NULL,
-    `value_code_system` varchar(255) DEFAULT NULL,
-    `value_display` varchar(255) DEFAULT NULL,
+    `value_code` varchar(50) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_code',
+    `value_code_system` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_system',
+    `value_display` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_display',
     `value_text` text,
     `value_boolean` tinyint(1) DEFAULT NULL,
     `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` varchar(20) DEFAULT 'final',
+    `status` varchar(20) DEFAULT 'final' COMMENT 'valid options are final,amended,preliminary',
     `note` text,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unq_uuid` (`uuid`),
@@ -1921,4 +1903,648 @@ INSERT INTO `preference_value_sets`
     ('103980-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
     ('95541-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
     ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
+#EndIf
+
+-- ---------------------------------------------------------------- psoas sn sjp---- related person implementation 11-06-2025----------------------------------------
+-- relatedperson
+-- https://build.fhir.org/relatedperson.html
+
+#IfNotTable person
+CREATE TABLE `person` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `uuid` BINARY(16) DEFAULT NULL,
+    `title` VARCHAR(31) DEFAULT NULL COMMENT 'Mr., Mrs., Dr., etc.',
+    `first_name` VARCHAR(63) DEFAULT NULL,
+    `middle_name` VARCHAR(63) DEFAULT NULL,
+    `last_name` VARCHAR(63) DEFAULT NULL,
+    `preferred_name` VARCHAR(63) DEFAULT NULL COMMENT 'Name person prefers to be called',
+    `gender` VARCHAR(31) DEFAULT NULL,
+    `birth_date` DATE DEFAULT NULL,
+    `death_date` DATE DEFAULT NULL,
+    `marital_status` VARCHAR(31) DEFAULT NULL,
+    `race` VARCHAR(63) DEFAULT NULL,
+    `ethnicity` VARCHAR(63) DEFAULT NULL,
+    `preferred_language` VARCHAR(63) DEFAULT NULL COMMENT 'ISO 639-1 code',
+    `communication` VARCHAR(254) DEFAULT NULL COMMENT 'Communication preferences/needs',
+    `ssn` VARCHAR(31) DEFAULT NULL COMMENT 'Should be encrypted in application',
+    `active` TINYINT(1) DEFAULT 1 COMMENT '1=active, 0=inactive',
+    `inactive_reason` VARCHAR(255) DEFAULT NULL,
+    `inactive_date` DATETIME DEFAULT NULL,
+    `notes` TEXT,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `idx_person_name` (`last_name`, `first_name`),
+    KEY `idx_person_dob` (`birth_date`),
+    KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
+    KEY `idx_person_active` (`active`)
+) ENGINE=InnoDB COMMENT='Core person demographics - contact info in contact_telecom';
+#EndIf
+
+
+#IfNotTable contact_relation
+CREATE TABLE `contact_relation` (
+    `id`  BIGINT(20) NOT NULL auto_increment,
+    `contact_id`  BIGINT(20) NOT NULL,
+    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
+    `target_id`  BIGINT(20) NOT NULL,
+    `active` BOOLEAN DEFAULT TRUE,
+    `role` VARCHAR(63)  DEFAULT NULL,
+    `relationship` VARCHAR(63)  DEFAULT NULL,
+    `contact_priority` INT DEFAULT 1 COMMENT '1=highest priority',
+    `is_primary_contact` BOOLEAN DEFAULT FALSE,
+    `is_emergency_contact` BOOLEAN DEFAULT FALSE,
+    `can_make_medical_decisions` BOOLEAN DEFAULT FALSE,
+    `can_receive_medical_info` BOOLEAN DEFAULT FALSE,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    `notes` TEXT,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+   PRIMARY KEY (`id`),
+   KEY (`contact_id`),
+   INDEX idx_contact_target_table (target_table, target_id)
+) ENGINE = InnoDB;
+#EndIf
+
+
+#IfMissingColumn contact_address created_date
+ALTER TABLE `contact_address` ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+ALTER TABLE `contact_address` ADD COLUMN `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `contact_address` ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+#EndIf
+
+#IfNotTable contact_telecom
+CREATE TABLE `contact_telecom` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `rank` INT(11) NULL COMMENT 'Specify preferred order of use (1 = highest)',
+    `system` VARCHAR(255) NULL
+    	COMMENT 'FK to list_options.option_id for list_id telecom_systems [phone, fax, email, pager, url, sms, other]',
+    `use` VARCHAR(255) NULL
+    	COMMENT 'FK to list_options.option_id for list_id telecom_uses [home, work, temp, old, mobile]',
+    `value` varchar(255) default NULL,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `notes` TINYTEXT,
+    `period_start` DATETIME NULL COMMENT 'Date the telecom became active',
+    `period_end` DATETIME NULL COMMENT 'Date the telecom became deactivated',
+    `inactivated_reason` VARCHAR(45) DEFAULT NULL COMMENT '[Values: ???, etc]',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+   PRIMARY KEY (`id`),
+    KEY (`contact_id`)
+) ENGINE = InnoDB ;
+#EndIf
+
+#IfNotTable person_patient_link
+CREATE TABLE `person_patient_link` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `person_id` BIGINT(20) NOT NULL COMMENT 'FK to person.id',
+    `patient_id` BIGINT(20) NOT NULL COMMENT 'FK to patient_data.id',
+    `linked_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+    `linked_by` BIGINT(20) DEFAULT NULL COMMENT 'FK to users.id - who created the link',
+    `link_method` VARCHAR(50) DEFAULT 'manual' COMMENT 'How link was created: manual, auto_detected, migrated, import',
+    `notes` TEXT COMMENT 'Optional notes about why/how they were linked',
+    `active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Whether link is active (allows soft delete)',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
+    KEY `idx_ppl_person` (`person_id`),
+    KEY `idx_ppl_patient` (`patient_id`),
+    KEY `idx_ppl_active` (`active`),
+    KEY `idx_ppl_linked_date` (`linked_date`),
+    KEY `idx_ppl_method` (`link_method`)
+) ENGINE=InnoDB COMMENT='Links person records to patient_data records when person becomes patient';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id additional_telecoms
+    -- additional_addresses has been in since v6.1.0 so let's not test for it here
+    SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
+    SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+    UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
+    INSERT INTO `layout_options`
+        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+    VALUES
+        ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id telecom_systems
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
+
+INSERT INTO list_options
+(list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('telecom_systems','phone','Phone',10,0,1),
+    ('telecom_systems','fax','Fax',20,0,1),
+    ('telecom_systems','email','Email',30,0,1),
+    ('telecom_systems','pager','Pager',40,0,1),
+    ('telecom_systems','url','URL',50,0,1),
+    ('telecom_systems','sms','SMS',60,0,1),
+    ('telecom_systems','other','Other',70,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id telecom_uses
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
+
+INSERT INTO list_options
+(list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('telecom_uses','mobile','Mobile',10,0,1),
+    ('telecom_uses','home','Home',20,0,1),
+    ('telecom_uses','work','Work',30,0,1),
+    ('telecom_uses','temp','Temp',40,0,1),
+    ('telecom_uses','old','Old',50,0,1);
+
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id person_patient_link_method
+INSERT IGNORE INTO list_options
+(list_id, option_id, title, seq, is_default)
+VALUES
+    ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);
+
+INSERT INTO list_options
+(list_id, option_id, title, seq, is_default, option_value, notes)
+VALUES
+    ('person_patient_link_method', 'manual', 'Manually Linked by User', 10, 1, 0, 'User explicitly linked person to patient'),
+    ('person_patient_link_method', 'auto_detected', 'Auto-Detected at Registration', 20, 0, 0, 'System detected match during patient registration'),
+    ('person_patient_link_method', 'migrated', 'Migrated from Legacy System', 30, 0, 0, 'Link created during data migration'),
+    ('person_patient_link_method', 'import', 'Imported from External System', 40, 0, 0, 'Link created during data import'),
+    ('person_patient_link_method', 'merge', 'Merged Duplicate Records', 50, 0, 0, 'Link created when merging duplicate records');
+#EndIf
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- relatedperson-relationshiptype Valuesets
+-- https://terminology.hl7.org/6.5.0/ValueSet-v3-PersonalRelationshipRoleType.html
+
+#IfNotRow2D list_options list_id lists option_id related_person_relationship
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','related_person_relationship','Related Person Relationships',0, 1, 0);
+
+-- Spouse/Partner
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','SPS','Spouse',10,0,1),
+    ('related_person_relationship','HUSB','Husband',20,0,1),
+    ('related_person_relationship','WIFE','Wife',30,0,1),
+    ('related_person_relationship','DOMPART','Domestic Partner',40,0,1),
+    ('related_person_relationship','SIGOTHR','Significant Other',50,0,1),
+    ('related_person_relationship','FMRSPS','Former Spouse',60,0,1);
+
+-- Parents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','PRN','Parent',70,0,1),
+    ('related_person_relationship','NPRN','Parent Natural',80,0,1),
+    ('related_person_relationship','FTH','Father',90,0,1),
+    ('related_person_relationship','NFTH','Father Natural',100,0,1),
+    ('related_person_relationship','MTH','Mother',110,0,1),
+    ('related_person_relationship','NMTH','Mother Natural',120,0,1),
+    ('related_person_relationship','ADOPTF','Father Adoptive',130,0,1),
+    ('related_person_relationship','ADOPTM','Mother Adoptive',140,0,1),
+    ('related_person_relationship','ADOPTP','Parent Adoptive',150,0,1),
+    ('related_person_relationship','FTHFOST','Father Foster',160,0,1),
+    ('related_person_relationship','MTHFOST','Mother Foster',170,0,1),
+    ('related_person_relationship','PRNFOST','Parent Foster',180,0,1),
+    ('related_person_relationship','STPFTH','Stepfather',190,0,1),
+    ('related_person_relationship','STPMTH','Stepmother',200,0,1),
+    ('related_person_relationship','STPPRN','Step Parent',210,0,1),
+    ('related_person_relationship','GESTM','Mother Gestational',220,0,1);
+
+-- Children
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','CHILD','Child',230,0,1),
+    ('related_person_relationship','NCHILD','Child Natural',240,0,1),
+    ('related_person_relationship','DAUC','Daughter',250,0,1),
+    ('related_person_relationship','DAU','Daughter Natural',260,0,1),
+    ('related_person_relationship','SONC','Son',270,0,1),
+    ('related_person_relationship','SON','Son Natural',280,0,1),
+    ('related_person_relationship','CHLDADOPT','Child Adopted',290,0,1),
+    ('related_person_relationship','DAUADOPT','Daughter Adopted',300,0,1),
+    ('related_person_relationship','SONADOPT','Son Adopted',310,0,1),
+    ('related_person_relationship','CHLDFOST','Child Foster',320,0,1),
+    ('related_person_relationship','DAUFOST','Daughter Foster',330,0,1),
+    ('related_person_relationship','SONFOST','Son Foster',340,0,1),
+    ('related_person_relationship','STPCHLD','Step Child',350,0,1),
+    ('related_person_relationship','STPDAU','Stepdaughter',360,0,1),
+    ('related_person_relationship','STPSON','Stepson',370,0,1);
+
+-- Siblings
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','SIB','Sibling',380,0,1),
+    ('related_person_relationship','NSIB','Sibling Natural',390,0,1),
+    ('related_person_relationship','BRO','Brother',400,0,1),
+    ('related_person_relationship','NBRO','Brother Natural',410,0,1),
+    ('related_person_relationship','SIS','Sister',420,0,1),
+    ('related_person_relationship','NSIS','Sister Natural',430,0,1),
+    ('related_person_relationship','HBRO','Half-Brother',440,0,1),
+    ('related_person_relationship','HSIS','Half-Sister',450,0,1),
+    ('related_person_relationship','HSIB','Half-Sibling',460,0,1),
+    ('related_person_relationship','STPBRO','Stepbrother',470,0,1),
+    ('related_person_relationship','STPSIS','Stepsister',480,0,1),
+    ('related_person_relationship','STPSIB','Step Sibling',490,0,1),
+    ('related_person_relationship','TWIN','Twin',500,0,1),
+    ('related_person_relationship','TWINBRO','Brother Twin',510,0,1),
+    ('related_person_relationship','TWINSIS','Sister Twin',520,0,1),
+    ('related_person_relationship','FTWIN','Twin Fraternal',530,0,1),
+    ('related_person_relationship','FTWINBRO','Brother Twin Fraternal',540,0,1),
+    ('related_person_relationship','FTWINSIS','Sister Twin Fraternal',550,0,1),
+    ('related_person_relationship','ITWIN','Twin Identical',560,0,1),
+    ('related_person_relationship','ITWINBRO','Brother Identical Twin',570,0,1),
+    ('related_person_relationship','ITWINSIS','Sister Identical Twin',580,0,1);
+
+-- Grandparents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GRPRN','Grandparent',590,0,1),
+    ('related_person_relationship','GRFTH','Grandfather',600,0,1),
+    ('related_person_relationship','GRMTH','Grandmother',610,0,1),
+    ('related_person_relationship','MGRPRN','Grandparent Maternal',620,0,1),
+    ('related_person_relationship','MGRFTH','Grandfather Maternal',630,0,1),
+    ('related_person_relationship','MGRMTH','Grandmother Maternal',640,0,1),
+    ('related_person_relationship','PGRPRN','Grandparent Paternal',650,0,1),
+    ('related_person_relationship','PGRFTH','Grandfather Paternal',660,0,1),
+    ('related_person_relationship','PGRMTH','Grandmother Paternal',670,0,1);
+
+-- Great Grandparents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GGRPRN','Great-Grandparent',680,0,1),
+    ('related_person_relationship','GGRFTH','Great-Grandfather',690,0,1),
+    ('related_person_relationship','GGRMTH','Great-Grandmother',700,0,1),
+    ('related_person_relationship','MGGRPRN','Great-Grandparent Maternal',710,0,1),
+    ('related_person_relationship','MGGRFTH','Great-Grandfather Maternal',720,0,1),
+    ('related_person_relationship','MGGRMTH','Great-Grandmother Maternal',730,0,1),
+    ('related_person_relationship','PGGRPRN','Great-Grandparent Paternal',740,0,1),
+    ('related_person_relationship','PGGRFTH','Great-Grandfather Paternal',750,0,1),
+    ('related_person_relationship','PGGRMTH','Great-Grandmother Paternal',760,0,1);
+
+-- Grandchildren
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GRNDCHILD','Grandchild',770,0,1),
+    ('related_person_relationship','GRNDDAU','Granddaughter',780,0,1),
+    ('related_person_relationship','GRNDSON','Grandson',790,0,1);
+
+-- Extended Family
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
+    ('related_person_relationship','EXT','Family Member Extended',810,0,1),
+    ('related_person_relationship','AUNT','Aunt',820,0,1),
+    ('related_person_relationship','MAUNT','Aunt Maternal',830,0,1),
+    ('related_person_relationship','PAUNT','Aunt Paternal',840,0,1),
+    ('related_person_relationship','UNCLE','Uncle',850,0,1),
+    ('related_person_relationship','MUNCLE','Uncle Maternal',860,0,1),
+    ('related_person_relationship','PUNCLE','Uncle Paternal',870,0,1),
+    ('related_person_relationship','COUSN','Cousin Maternal',880,0,1),
+    ('related_person_relationship','MCOUSN','Cousin Maternal',890,0,1),
+    ('related_person_relationship','PCOUSN','Cousin Paternal',900,0,1),
+    ('related_person_relationship','NEPHEW','Nephew',910,0,1),
+    ('related_person_relationship','NIECE','Niece',920,0,1);
+
+ -- In-Laws
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','INLAW','Inlaw',930,0,1),
+    ('related_person_relationship','PRNINLAW','Parent-In-Law',940,0,1),
+    ('related_person_relationship','FTHINLAW','Father-In-Law',950,0,1),
+    ('related_person_relationship','MTHINLAW','Mother-In-Law',960,0,1),
+    ('related_person_relationship','SIBINLAW','Sibling-In-Law',970,0,1),
+    ('related_person_relationship','BROINLAW','Brother-In-Law',980,0,1),
+    ('related_person_relationship','SISINLAW','Sister-In-Law',990,0,1),
+    ('related_person_relationship','DAUINLAW','Daughter-In-Law',1000,0,1),
+    ('related_person_relationship','SONINLAW','Son-In-Law',1010,0,1);
+
+-- Other Relationships
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','FRND','Friend Unrelated',1070,0,1),
+    ('related_person_relationship','NBOR','Neighbor',1080,0,1),
+    ('related_person_relationship','ROOM','Roommate',1090,0,1);
+
+-- Self
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','ONESELF','Self',1100,0,1);
+#EndIf
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- relatedperson-relationshiptype Valuesets
+-- https://build.fhir.org/valueset-relatedperson-relationshiptype.html
+
+#IfNotRow2D list_options list_id lists option_id related_person_role
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','related_person_role','Related Person Role',0, 1, 0);
+
+INSERT INTO list_options
+    (list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('related_person_role','ECON','Emergency Contact',10,0,1),
+    ('related_person_role','NOK','Next of Kin',20,0,1),
+    ('related_person_role','GUARD','Guardian',30,0,1),
+    ('related_person_role','DEPEN','Dependent',40,0,1),
+    ('related_person_role','CON','contact',50,0,1),
+    ('related_person_role','EMP','Employee',60,0,1),
+    ('related_person_role','GUAR','Guarantor',70,0,1),
+    ('related_person_role','CAREGIVER','Caregiver',80,0,1),
+    ('related_person_role','POWATT','Power of Attorney',90,0,1),
+    ('related_person_role','DPOWATT','Durable Power of Attorney',100,0,1),
+    ('related_person_role','HPOWATT','Healthcare Power of Attorney',110,0,1),
+    ('related_person_role','BILL','Billing Contact',120,0,1),
+    ('related_person_role','E','Employer',130,0,1),
+    ('related_person_role','POLHOLD','Policy Holder',140,0,1),
+    ('related_person_role','PAYEE','Payee',150,0,1),
+    ('related_person_role','NOT','Notary Public',160,0,1),
+    ('related_person_role','PROV','Healthcare Provider',170,0,1),
+    ('related_person_role','WIT','Witness',180,0,1),
+    ('related_person_role','O','Other',190,0,1),
+    ('related_person_role','U','Unknown',200,0,1);
+#EndIf
+
+ -- Removed Related Person migration. Depending on upgrade state could cause duplicates sjp
+
+#IfRow2D layout_options form_id DEM field_id related_firstname_1
+DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_1','related_lastname_1','related_relationship_1','related_sex_1','related_address_1','related_city_1','related_state_1','related_postalcode_1','related_country_1','related_phone_1','related_workphone_1','related_email_1','related_static_1');
+DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_2','related_lastname_2','related_relationship_2','related_sex_2','related_address_2','related_city_2','related_state_2','related_postalcode_2','related_country_2','related_phone_2','related_workphone_2','related_email_2','related_static_2');
+DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_3','related_lastname_3','related_relationship_3','related_sex_3','related_address_3','related_city_3','related_state_3','related_postalcode_3','related_country_3','related_phone_3','related_workphone_3','related_email_3','related_static_3');
+-- clear out the Related group if it exists so we can re-add it
+DELETE FROM layout_group_properties WHERE  grp_form_id = 'DEM' AND grp_title = 'Related';
+#EndIf
+
+#IfRow3D layout_options form_id DEM field_id guardiansname title Name
+UPDATE layout_options SET title = 'Guardian Name' WHERE form_id = 'DEM' AND field_id = 'guardiansname';
+#EndIf
+
+#IfRow2D layout_group_properties grp_form_id DEM grp_title Guardian
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='guardianemail' AND form_id='DEM');
+UPDATE layout_group_properties SET grp_title = 'Related' WHERE grp_title = 'Guardian' AND grp_form_id = 'DEM' AND grp_group_id = @group_id;
+#EndIf
+
+#IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
+SET @group_id = (SELECT max(`grp_group_id`)+1 FROM layout_group_properties WHERE grp_form_id='DEM');
+INSERT INTO layout_group_properties
+(grp_form_id, grp_group_id, grp_title, grp_mapping)
+VALUES
+    ('DEM', @group_id, 'Related','');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id related_persons
+-- Add Related Persons field to DEM form under Related group, if there are duplicates we add to the end
+SET @group_id = (SELECT max(`grp_group_id`) FROM layout_group_properties WHERE grp_form_id='DEM' AND grp_title='Related');
+SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+INSERT INTO `layout_options`
+(`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+VALUES
+    ('DEM','related_persons',@group_id,'',@seq_add_to+1,56,1,0,0,'',4,4,'','["J","SP"]','Related Persons',0);
+#EndIf
+
+#IfNotIndex patient_data idx_patient_name
+CREATE INDEX idx_patient_name ON patient_data(lname, fname);
+#EndIf
+
+#IfNotIndex patient_data idx_patient_dob
+CREATE INDEX idx_patient_dob ON patient_data(DOB);
+#EndIf
+
+-- ----------------------------------------------------------------------- sjp 11/10/2025 --------------------------------------------------------------
+-- Enhanced Patient Preferences Schema for USCDI v5 / US Core 8.0
+-- Additions to existing schema with more comprehensive value sets
+
+-- ========================================
+-- Additional Treatment Intervention Preferences
+-- ========================================
+#IfNotRow2D list_options list_id treatment_intervention_preferences option_id 75773-2
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('treatment_intervention_preferences','75773-2','Goals, preferences, and priorities for medical treatment [Reported]',5,'tip_general_answers','LOINC:75773-2',1),
+    ('treatment_intervention_preferences','81336-0','Patient''s thoughts on cardiopulmonary bypass',60,'tip_bypass_answers','LOINC:81336-0',1),
+    ('treatment_intervention_preferences','81337-8','Patient''s thoughts on mechanical ventilation',70,'tip_ventilation_answers','LOINC:81337-8',1),
+    ('treatment_intervention_preferences','81376-6','Upon death organ donation consent',80,'tip_organ_donation_answers','LOINC:81376-6',1),
+    ('treatment_intervention_preferences','81378-2','Patient Healthcare goals',90,'tip_healthcare_goals_text','LOINC:81378-2',1);
+#EndIf
+-- ========================================
+-- Additional Care Experience Preferences
+-- ========================================
+#IfNotRow2D list_options list_id care_experience_preferences option_id 81342-8
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('care_experience_preferences','81342-8','Care experience preference under certain health conditions',50,'cep_conditional_answers','LOINC:81342-8',1),
+    ('care_experience_preferences','81343-6','Care experience preference at end of life',60,'cep_endoflife_answers','LOINC:81343-6',1),
+    ('care_experience_preferences','81362-6','Preferred location for healthcare',70,'cep_location_answers','LOINC:81362-6',1),
+    ('care_experience_preferences','81363-4','Preferred healthcare professional',80,'cep_professional_answers','LOINC:81363-4',1);
+#EndIf
+-- ========================================
+-- Enhanced Value Sets
+-- ========================================
+-- General Goals/Preferences (75773-2 and general use)
+#IfNotRow preference_value_sets answer_code 385643006
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('75773-2','385643006','http://snomed.info/sct','Prefers full resuscitation',1,1),
+('75773-2','385644000','http://snomed.info/sct','Prefers limited resuscitation',2,1),
+('75773-2','304253006','http://snomed.info/sct','Does not want resuscitation',3,1),
+('75773-2','395092004','http://snomed.info/sct','Prefers aggressive treatment',4,1),
+('75773-2','395093009','http://snomed.info/sct','Prefers comfort measures only',5,1),
+('75773-2','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1);
+
+-- Cardiopulmonary Bypass (81336-0)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81336-0','373066001','http://snomed.info/sct','Yes',1,1),
+('81336-0','373067005','http://snomed.info/sct','No',2,1),
+('81336-0','261665006','http://snomed.info/sct','Unknown',98,1),
+('81336-0','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1);
+
+-- Mechanical Ventilation (81337-8)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81337-8','LA33470-8','http://loinc.org','Yes ventilation',1,1),
+('81337-8','LA33471-6','http://loinc.org','No ventilation',2,1),
+('81337-8','LA32996-3','http://loinc.org','Trial period of ventilation',3,1),
+('81337-8','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1);
+
+-- Organ Donation (81376-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81376-6','LA33-6','http://loinc.org','Yes',1,1),
+('81376-6','LA32-8','http://loinc.org','No',2,1),
+('81376-6','LA32948-4','http://loinc.org','Yes, but only certain organs/tissues',3,1),
+('81376-6','LA4489-6','http://loinc.org','Unknown',99,1);
+
+-- Care Under Certain Health Conditions (81342-8)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81342-8','LA33474-0','http://loinc.org','If mentally incapacitated',1,1),
+('81342-8','LA33475-7','http://loinc.org','If terminally ill',2,1),
+('81342-8','LA33476-5','http://loinc.org','If permanently unconscious',3,1),
+('81342-8','LA33477-3','http://loinc.org','If severe chronic illness',4,1),
+('81342-8','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other condition',99,1);
+
+-- Care at End of Life (81343-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81343-6','395092004','http://snomed.info/sct','Prefers aggressive treatment',1,1),
+('81343-6','395093009','http://snomed.info/sct','Prefers comfort measures only',2,1),
+('81343-6','385644000','http://snomed.info/sct','Limited intervention',3,1),
+('81343-6','225270000','http://snomed.info/sct','Hospice care',4,1),
+('81343-6','385656005','http://snomed.info/sct','Home death preferred',5,1),
+('81343-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1);
+
+-- Preferred Location (81362-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81362-6','264362003','http://snomed.info/sct','Home',1,1),
+('81362-6','22232009','http://snomed.info/sct','Hospital',2,1),
+('81362-6','284546000','http://snomed.info/sct','Hospice',3,1),
+('81362-6','42665001','http://snomed.info/sct','Nursing home',4,1),
+('81362-6','413456002','http://snomed.info/sct','Adult day care center',5,1),
+('81362-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other location',99,1);
+
+-- Preferred Healthcare Professional (81363-4)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81363-4','309343006','http://snomed.info/sct','Physician',1,1),
+('81363-4','106292003','http://snomed.info/sct','Professional nurse',2,1),
+('81363-4','224571005','http://snomed.info/sct','Nurse practitioner',3,1),
+('81363-4','449161006','http://snomed.info/sct','Physician assistant',4,1),
+('81363-4','768730001','http://snomed.info/sct','Home health aide',5,1),
+('81363-4','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other provider',99,1);
+
+-- ========================================
+-- Additional Common Answer Values
+-- ========================================
+-- Add more religious/cultural options
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81364-2','309884000','http://snomed.info/sct','Atheist',7,1),
+('81364-2','160234004','http://snomed.info/sct','Agnostic',8,1),
+('81364-2','428821008','http://snomed.info/sct','Latter Day Saints',9,1),
+('81364-2','80587008','http://snomed.info/sct','Jehovah''s Witness',10,1),
+('81364-2','309687009','http://snomed.info/sct','Baptist',11,1),
+('81364-2','160540005','http://snomed.info/sct','Sikh',12,1),
+('81364-2','LA14063-6','http://loinc.org','Prefer not to answer',98,1);
+#EndIf
+
+#IfMissingColumn immunizations encounter_id
+ALTER TABLE `immunizations` ADD COLUMN `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record';
+#EndIf
+
+-- We need to clean up any existing UUID mappings for the old vital signs Observation code for systolic BP (8480-6) as the observations are intended to be sub-component observations and not directly retrievable
+-- Users can retrieve systolic BP from the blood pressure observation which groups systolic and diastolic together
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8480-6
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6';
+#EndIf
+
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8462-4
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4';
+#EndIf
+
+-- Also clean up all of the Pulse Oximetry related Observation UUID mappings as these are now sub-component observations under the Oxygen Saturation observation (59408-5)
+-- Inferno won't validate with these resources as stand-alone
+-- Delete any existing mappings for Pulse Oximetry Oxygen Flow Rate (3150-8)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3151-8
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8';
+#EndIf
+
+-- Delete any existing mappings for Pulse Oximetry Oxygen Concentration (3150-0)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3150-0
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0';
+#EndIf
+
+-- Update codes in list_options for Abnormal Procedures
+-- Note this list looks almost like a duplicate of Observation Interpretation but has different option_ids and titles
+-- we may want to combine these at some point
+#IfNotRow3D list_options list_id proc_res_abnormal option_id no codes N
+UPDATE `list_options` SET codes='N' WHERE list_id='proc_res_abnormal' AND option_id='no';
+UPDATE `list_options` SET codes='A' WHERE list_id='proc_res_abnormal' AND option_id='yes';
+UPDATE `list_options` SET codes='H' WHERE list_id='proc_res_abnormal' AND option_id='high';
+UPDATE `list_options` SET codes='L' WHERE list_id='proc_res_abnormal' AND option_id='low';
+UPDATE `list_options` SET codes='HH' WHERE list_id='proc_res_abnormal' AND option_id='vhigh';
+UPDATE `list_options` SET codes='LL' WHERE list_id='proc_res_abnormal' AND option_id='vlow';
+#EndIf
+
+
+#IfMissingColumn lists_medication is_primary_record
+ALTER TABLE `lists_medication` ADD COLUMN `is_primary_record` TINYINT(1) DEFAULT '1' COMMENT 'Indicates if this medication is a primary record(1) or a reported record(0)';
+UPDATE `lists_medication` SET `is_primary_record` = 1;
+ALTER TABLE `lists_medication` ADD COLUMN `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by';
+#EndIf
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id imaging_narrative activity 1
+UPDATE `list_options` SET activity=0 WHERE list_id='Clinical_Note_Type' AND option_id='imaging_narrative';
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id diagnostic_imaging_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','diagnostic_imaging_narrative','Diagnostic imaging study',80,0,0,'','LOINC:18748-4','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id pathology_report_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Study Narrative',100,0,0,'','LOINC:11526-1','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id surgical_operative_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','surgical_operative_note','Surgical operation note',110,0,0,'','LOINC:11504-8','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id emergency_department_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','emergency_department_note','Emergency department Note',120,0,0,'','LOINC:34111-5','',0,0,1,'',1);
+#EndIf
+
+-- Country is required for Practitioners which still are stored in the users table (as the address book), eventually this will be in addresses
+-- We match the patient_data.country_code
+#IfMissingColumn users country_code
+ALTER TABLE `users` ADD COLUMN `country_code` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
+
+#IfMissingColumn users country_code2
+ALTER TABLE `users` ADD COLUMN `country_code2` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
+
+#IfMissingColumn form_questionnaire_assessments category
+ALTER TABLE `form_questionnaire_assessments` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
+#EndIf
+
+-- our ad_completed field in patient_data needs an authenticator field to track who validated the advance care directive
+#IfMissingColumn patient_data advance_directive_user_authenticator
+ALTER TABLE `patient_data` ADD COLUMN `advance_directive_user_authenticator` BIGINT(20) COMMENT 'fk to users.id of the user who authenticates that the advance care directive is valid.';
+ALTER TABLE `patient_data` MODIFY COLUMN `ad_reviewed` DATETIME DEFAULT NULL COMMENT 'Date and time the advance care directive was reviewed and validated by the authenticator user.';
+UPDATE categories
+    JOIN (
+        SELECT 'Do Not Resuscitate Order' AS cat_name, 'LOINC:84095-9' AS cat_code FROM DUAL
+        UNION SELECT 'Durable Power of Attorney' AS cat_name, 'LOINC:64298-3' AS cat_code FROM DUAL
+        UNION SELECT 'Living Will' AS cat_name, 'LOINC:86533-7' AS cat_code FROM DUAL
+    ) ad_categories ON categories.name = ad_categories.cat_name
+    SET
+        categories.codes = ad_categories.cat_code
+    WHERE
+      categories.codes = '' OR categories.codes IS NULL;
+UPDATE categories SET codes='LOINC:42348-3' WHERE name='Advance Directive' AND codes='LOINC:LP173418-7';
+#EndIf
+
+-- FHIR mandates that the general care experience code support a valueCodeableConcept so we add at least one to the list
+-- this was found as an example on the Behavioral Health Guides here: https://www.fhir.org/guides/astp/bhp/Observation-provider-preference-observation-example-2.xml.html
+-- so adding it to our list of care experience preferences so we can pass certification testing, a future improvement would be to give
+-- a general code selector or something for the general care experience so anything in SNOMED-CT could be used.
+#IfNotRow2D preference_value_sets loinc_code 95541-9 answer_code 314433002
+INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_display,sort_order,active) VALUES('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+#EndIf
+
+-- --------------------------------------------------------- sjp 11/20/2025 ----------------------------------------------------------------------------------------------------
+#IfColumn form_history_sdoh pregnancy_gravida
+ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
+#EndIf
+-- --------------------------------------------------------- sn 11/23/2025 sjp 11/25/2025 ------------------------------------------------------------------------------------
+#IfCareTeamsV1MigrationNeeded
+-- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
+UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
+#EndIf
+
+-- This meta turned out handy
+#IfUpdateEditOptionsNeeded add HIS EP dc_father,dc_mother,dc_siblings,dc_spouse,dc_offspring
 #EndIf

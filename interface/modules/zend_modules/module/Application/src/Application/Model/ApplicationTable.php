@@ -20,6 +20,7 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Database\QueryUtils;
 
 class ApplicationTable extends AbstractTableGateway
 {
@@ -44,7 +45,7 @@ class ApplicationTable extends AbstractTableGateway
      * Function zQuery
      * All DB Transactions take place
      *
-     * @param String  $sql    SQL Query Statment
+     * @param String  $sql    SQL Query Statement
      * @param array   $params SQL Parameters
      * @param boolean $log    Logging True / False
      * @param boolean $error  Error Display True / False
@@ -82,7 +83,7 @@ class ApplicationTable extends AbstractTableGateway
          * Logging, if the $log is true
          */
         if ($log) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -92,7 +93,7 @@ class ApplicationTable extends AbstractTableGateway
      * Function errorHandler
      * All error display and log
      * Display the Error, Line and File
-     * Same behavior of HelpfulDie fuction in OpenEMR
+     * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
      * @param type   $e
@@ -433,6 +434,6 @@ class ApplicationTable extends AbstractTableGateway
     */
     public function generateSequenceID()
     {
-        return generate_id();
+        return QueryUtils::generateId();
     }
 }

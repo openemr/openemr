@@ -68,7 +68,7 @@ if (!empty($count)) {
         $codetext_val       = $code_text[$key] ?? '';
         $description_val    = $code_des[$key] ?? '';
         $care_plan_type_val = $care_plan_type[$key] ?? '';
-        $care_user_val      = $care_plan_user[$key] ?? $_SESSION["authUser"];
+        $care_user_val      = $care_plan_user[$key] ?: $_SESSION["authUser"];
 
         // Dates & status normalization
         $start_date_val = trim($code_date[$key] ?? '');
@@ -111,9 +111,9 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date = ?,
-            date_end = ?, 
-            proposed_date = ?, 
-            plan_status = ?, 
+            date_end = ?,
+            proposed_date = ?,
+            plan_status = ?,
             care_plan_type = ?,
             note_related_to = ?,
             reason_code = ?,
@@ -153,9 +153,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}

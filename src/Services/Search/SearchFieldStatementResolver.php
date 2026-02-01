@@ -25,7 +25,7 @@ class SearchFieldStatementResolver
     /**
      * Given a search field that implements the ISearchField interface, convert the field based upon its type to a full
      * SQL Where Query fragment with its corresponding bound parameterized values.  This is a recursive method as it will
-     * traverse any composite search fields up to a heirachical depth of the class constant MAX_NESTED_LEVEL levels.
+     * traverse any composite search fields up to a hierarchical depth of the class constant MAX_NESTED_LEVEL levels.
      * @param ISearchField $field  The field to convert to a SQL SearchQueryFragment
      * @param int $count The current nested count
      * @return SearchQueryFragment
@@ -233,15 +233,31 @@ class SearchFieldStatementResolver
                 }
             // if we have other modifiers we would handle them here
             } else {
-                $clauses[] = $searchField->getField() . ' = ?';
+                $codeTypesService = new CodeTypesService();
+
                 // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
                 // field to its representative bound value
-                $codeTypesService = new CodeTypesService();
-                $code = $codeTypesService->getOpenEMRCodeForSystemAndCode(
-                    $value->getSystem(),
-                    $value->getCode()
-                );
-                $searchFragment->addBoundValue($code);
+                if ($codeTypesService->systemHasMultipleCodeTypes($value->getSystem())) {
+                    // for example FHIRCodeSystemConstants::SNOMED_CT maps to 'SNOMED', 'SNOMED-CT', 'SNOMED-PR' inside OpenEMR
+                    // TODO: adunsulag it may require more db normalization to improve performance here but for now this will work
+                    $codes = $codeTypesService->getAllOpenEMRCodesForSystemAndCode(
+                        $value->getSystem(),
+                        $value->getCode()
+                    );
+                    $placeholders = implode(',', array_fill(0, count($codes), '?'));
+                    $clauses[] = $searchField->getField() . ' IN (' . $placeholders . ')';
+                }
+                else {
+                    $clauses[] = $searchField->getField() . ' = ?';
+                    $code = $codeTypesService->getOpenEMRCodeForSystemAndCode(
+                        $value->getSystem(),
+                        $value->getCode()
+                    );
+                    $codes = [$code];
+                }
+                foreach ($codes as $code) {
+                    $searchFragment->addBoundValue($code);
+                }
             }
         }
 

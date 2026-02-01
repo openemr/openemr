@@ -66,4 +66,3 @@ class Diagnosis extends QDMBaseType
 
     public $_type = 'QDM::Diagnosis';
 }
-

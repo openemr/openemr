@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -38,9 +39,9 @@ use Twig\Environment;
 class SMARTAuthorizationController
 {
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var EventDispatcherInterface
@@ -211,7 +212,7 @@ class SMARTAuthorizationController
 
         // set our patient information up in our pid so we can handle our code property...
         try {
-            $patient_id = $request->request->get('patient_id'); // this patient_id is actually a uuid.. wierd
+            $patient_id = $request->request->get('patient_id'); // this patient_id is actually a uuid.. weird
             $searchController = $this->getPatientContextSearchController();
             // throws access denied if user doesn't have access
             // TODO: @adunsulag we should rename this method if it throws an AccessDeniedException

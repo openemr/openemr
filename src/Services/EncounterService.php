@@ -367,7 +367,7 @@ class EncounterService extends BaseService
             return $processingResult;
         }
 
-        $encounter = generate_id();
+        $encounter = QueryUtils::generateId();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         if (empty($data['date'])) {

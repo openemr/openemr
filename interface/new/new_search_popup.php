@@ -18,6 +18,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -89,18 +90,6 @@ $simpleSearch = $_GET['simple_search'] ?? null;
     color: var(--white);
   }
 </style>
-<script>
-    // This is called when forward or backward paging is done.
-    function submitList(offset) {
-        var f = document.forms[0];
-        var i = parseInt(f.fstart.value) + offset;
-        if (i < 0) {
-            i = 0;
-        }
-        f.fstart.value = i;
-        f.submit();
-    }
-</script>
 </head>
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
@@ -168,28 +157,16 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                         echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
                     } ?>
                 </td>
-                <td class='text text-right'>
-                    <?php
-                    // Show start and end row number, and number of rows, with paging links.
-                    $count = $GLOBALS['PATIENT_INC_COUNT'];
-                    $fend = $fstart + $MAXSHOW;
-                    if ($fend > $count) {
-                        $fend = $count;
-                    }
-                    ?>
-                    <?php if ($fstart) { ?>
-                        <a href="javascript:submitList(-<?php echo attr($MAXSHOW); ?>)">
-                            &lt;&lt;
-                        </a>&nbsp;
-                    <?php } ?>
-                    <?php echo ($fstart + 1) . text(" - $fend of $count") ?>
-                    <?php if ($count > $fend) { ?>
-                        &nbsp;&nbsp;
-                        <a href="javascript:submitList(<?php echo attr($MAXSHOW); ?>)">
-                            &gt;&gt;
-                        </a>
-                    <?php } ?>
-                </td>
+                <td class='text text-right'><?php
+                    $paginator = new PaginationUtils();
+                    echo $paginator->render(
+                        offset: $fstart,
+                        pageSize: $MAXSHOW,
+                        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+                        filename: basename(__FILE__),
+                        separator: '&nbsp;'
+                    );
+                    ?></td>
             </tr>
         </table>
     </div>

@@ -58,13 +58,15 @@ $datatypes = [
     "41" => xl("Patient Signature"),
     "42" => xl("User Signature"),
     "43" => xl("List box w/search"),
-    "44" => xl("Multi-Select Facilties"),
+    "44" => xl("Multi-Select Facilities"),
     "45" => xl("Multi-Select Provider"),
     "46" => xl("List box w/comment"),
     "51" => xl("Patient"),
     "52" => xl("Previous Names"),
     "53" => xl("Patient Encounters List"),
-    "54" => xl("Address List")
+    "54" => xl("Address List"),
+    "55" => xl("Telecom List"),
+    "56" => xl("Related Person List")
 ];
 
 // These are the data types that can reference a list.

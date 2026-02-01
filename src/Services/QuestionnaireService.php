@@ -83,16 +83,18 @@ class QuestionnaireService extends BaseService
     }
 
     /**
+     * TODO: There are so many arguments here this should be refactored to use a data object.
      * @param $q
      * @param $name
      * @param ?int $q_record_id
      * @param $q_id
      * @param $lform
      * @param $type
+     * @param ?string $category the grouping category of the questionnaire
      * @return false|int|mixed
      * @throws Exception
      */
-    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
+    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null, ?string $category = null)
     {
         $type ??= 'Questionnaire';
         $id = 0;
@@ -157,11 +159,12 @@ class QuestionnaireService extends BaseService
             $q_code,
             $q_display,
             $content,
-            $lform
+            $lform,
+            $category
         ];
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?)";
-        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`,`category`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?,?)";
+        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ?, `category` = ? WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
@@ -177,6 +180,7 @@ class QuestionnaireService extends BaseService
                 $q_display,
                 $content,
                 $lform,
+                $category,
                 $id['id']
             ];
             sqlInsert($sql_update, $bind);

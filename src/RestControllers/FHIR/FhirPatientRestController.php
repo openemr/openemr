@@ -60,9 +60,7 @@ class FhirPatientRestController
     {
         if (!isset($this->fhirPatientService)) {
             $this->fhirPatientService = new FhirPatientService();
-            $globals = $this->getOEGlobals();
-            $defaultVersion = $globals->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, FhirPatientService::PROFILE_VERSION_8_0_0);
-            $this->fhirPatientService->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
+            $this->fhirPatientService->setGlobalsBag($this->getOEGlobals());
             if (isset($this->systemLogger)) {
                 $this->fhirPatientService->setSystemLogger($this->systemLogger);
             }

@@ -144,7 +144,7 @@ window.observationForm = {
 
         // Build FHIR query parameters
         let queryParams = new URLSearchParams({
-            'subject': this.fhirConfig.patient_uuid,
+            'patient': this.fhirConfig.patient_uuid,
             '_sort': '-authored',
             '_count': '20'
         });

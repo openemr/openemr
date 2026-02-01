@@ -13,6 +13,7 @@ namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
@@ -26,11 +27,13 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Indicates;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -43,10 +46,13 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
+class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note';
 
     /**
      * @var ClinicalNotesService
@@ -72,7 +78,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category_code']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -102,14 +108,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $report = new FHIRDiagnosticReport();
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['last_updated'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
-        } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $report->setMeta($fhirMeta);
+        $this->populateMeta($report, $dataRecord);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -140,7 +139,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         }
         if (!empty($responsibleParty)) {
             $report->addPerformer($responsibleParty);
-            // we don't separate interpreter from responsibile party in clinical notes so they'll be the same
+            // we don't separate interpreter from responsible party in clinical notes so they'll be the same
             $report->addResultsInterpreter($responsibleParty);
         }
 
@@ -223,42 +222,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
             $openEMRSearchParameters['category_code'] = new TokenSearchField('category_code', [new TokenSearchValue(false)]);
             $openEMRSearchParameters['category_code']->setModifier(SearchModifier::MISSING);
         }
-        // TODO: @adunsulag we put this in for temporary testing of inferno to make sure we can pass those tests
         $result = $this->service->search($openEMRSearchParameters);
-        if ($result->hasData()) {
-            $updatedRecords = [];
-            foreach ($result->getData() as $record) {
-                $fhirMediaService = new FhirMediaService();
-                $fhirMediaService->setSession($this->getSession());
-                $records = $fhirMediaService->getAll(['patient' => $record['puuid']]);
-                if ($records->hasData()) {
-                    $documents = [];
-                    foreach ($records->getData() as $document) {
-                        $documents[] = [
-                            'uuid' => $document->getId()
-                        ];
-                        break;
-                    }
-                    $record['documents'] = $documents;
-                }
-
-                // now add in a linked results which are observations
-                $fhirObsService = new FhirObservationLaboratoryService();
-                $records = $fhirObsService->getAll(['patient' => $record['puuid']]);
-                if ($records->hasData()) {
-                    $linkedResults = [];
-                    foreach ($records->getData() as $observation) {
-                        $linkedResults[] = [
-                            'uuid' => $observation->getId()
-                        ];
-                        break;
-                    }
-                    $record['linked_results'] = $linkedResults;
-                }
-                $updatedRecords[] = $record;
-            }
-            $result->setData($updatedRecords);
-        }
         return $result;
     }
 
@@ -293,5 +257,40 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         } else {
             return $fhirProvenance;
         }
+    }
+
+
+    protected function populateMeta(FHIRDiagnosticReport $report, array $dataRecordReport): void
+    {
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        if (!empty($dataRecordReport['last_updated'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['last_updated']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        // Set profile (required, mustSupport)
+        $this->addProfilesToMeta($fhirMeta, $dataRecordReport);
+        $report->setMeta($fhirMeta);
+    }
+
+    /**
+     * @param FHIRMeta $meta
+     * @param array $dataRecord
+     * @return void
+     */
+    protected function addProfilesToMeta(FHIRMeta $fhirMeta, array $dataRecordReport): void
+    {
+        $profiles = $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+        foreach ($profiles as $profileUrl) {
+            $profile = new FHIRCanonical();
+            $profile->setValue($profileUrl);
+            $fhirMeta->addProfile($profile);
+        }
+    }
+
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

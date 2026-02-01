@@ -107,7 +107,7 @@ foreach (explode(',', $given) as $item) {
         var aitypes = new Array(); // issue type attributes
         var aopts = new Array(); // Option objects
         <?php
-//This builds the litle quick pick list in this section.
+//This builds the little quick pick list in this section.
 // If the provider has more 2 items already defined in the last month, they are collated
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
@@ -491,12 +491,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes((string) xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes((string) xl('Please enter a title!')); ?>");
+                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
                     return false;
                 }
             }
@@ -552,10 +552,10 @@ foreach (explode(',', $given) as $item) {
                 $("#smoke_code").html("");
         }
 
-        function setSelectBoxByText(eid, etxt) {
+        function setSelectBoxByText(eid, text) {
             var eid = document.getElementById(eid);
             for (var i = 0; i < eid.options.length; ++i) {
-                if (eid.options[i].text === etxt)
+                if (eid.options[i].text === text)
                     eid.options[i].selected = true;
             }
         }

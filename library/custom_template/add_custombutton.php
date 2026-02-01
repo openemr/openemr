@@ -38,7 +38,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
     $end = $st + $count;
     for ($cnt = $sta; $cnt <= $end; $cnt++) {
         if ($_POST['hidid' . $cnt]) {
-            if (trim(formData('inshort' . $cnt)) == '' && trim(formdata('designation' . $cnt)) == '') {
+            if (trimPost('inshort' . $cnt) == '' && trimPost('designation' . $cnt) == '') {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", [$_POST['hidid' . $cnt]]);
                 sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['hidid' . $cnt], $_SESSION['authUserID']]);
             } else {
@@ -46,7 +46,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
                 sqlStatement($sql, [$_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt], $_POST['hidid' . $cnt]]);
             }
         } else {
-            if (trim(formData('inshort' . $cnt)) != '' || trim(formdata('designation' . $cnt)) != '') {
+            if (trimPost('inshort' . $cnt) != '' || trimPost('designation' . $cnt) != '') {
                 $rowID = sqlQuery("SELECT MAX(cl_list_item_id)+1 as maxID FROM customlists WHERE cl_list_type=6");
                 $itemID = $rowID['maxID'] ?: 1;
                 $sql = "INSERT INTO customlists (cl_list_item_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order) VALUES(?,?,?,?,?)";
@@ -96,14 +96,14 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
 </head>
 <body class="body_top">
 <form name="designation_managment" action="" method="post" onsubmit="top.restoreSession();">
-  <h3 class="text-center"><?php echo htmlspecialchars((string) xl('Add Custom Button'), ENT_QUOTES); ?></h3>
+  <h3 class="text-center"><?php echo htmlspecialchars(xl('Add Custom Button'), ENT_QUOTES); ?></h3>
   <div class="table-responsive">
     <table class="table table-borderless">
         <tr class="text-center">
             <td class="title_bar_top">#</td>
-            <td class="title_bar_top"><?php echo htmlspecialchars((string) xl('Value'), ENT_QUOTES); ?></td>
-            <td class="title_bar_top"><?php echo htmlspecialchars((string) xl('Display Name'), ENT_QUOTES); ?></td>
-            <td class="title_bar_top"><?php echo htmlspecialchars((string) xl('Order'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Value'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Display Name'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Order'), ENT_QUOTES); ?></td>
             <td class="title_bar_top">&nbsp;</td>
         </tr>
         <?php
@@ -158,10 +158,10 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         <tr class="text">
             <td class="text-center" colspan="5">
                 <input type='submit' class="btn btn-primary" name='form_save' id='form_save'
-                       value="<?php echo htmlspecialchars((string) xl('Save'), ENT_QUOTES); ?>"/>
+                       value="<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?>"/>
                 <input type='submit' class="btn btn-secondary" name='form_delete' id='form_delete'
-                       value="<?php echo htmlspecialchars((string) xl('Delete'), ENT_QUOTES); ?>"
-                       title='<?php echo htmlspecialchars((string) xl('Select corresponding checkboxes to delete'), ENT_QUOTES); ?>'/>
+                       value="<?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES); ?>"
+                       title='<?php echo htmlspecialchars(xl('Select corresponding checkboxes to delete'), ENT_QUOTES); ?>'/>
             </td>
         </tr>
     </table>

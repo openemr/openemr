@@ -282,7 +282,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
             }
         }
     }
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "edit_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -307,7 +307,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         // send error and continue.
         echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
     }
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "add_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -319,7 +319,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", [$_POST['list_id']]);
     // delete the list from the master list-of-lists
     sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", [$_POST['list_id']]);
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "delete_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -524,8 +524,8 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         [$apptstat_color, $apptstat_timealert] = explode("|", (string) $notes);
         echo "  <td>";
-        echo "<input type='text' class='jscolor' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
-            attr($apptstat_color) . "' size='6' maxlength='6' class='optin' />";
+        echo "<input type='text' class='optin' data-jscolor='' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
+            attr($apptstat_color) . "' size='6' maxlength='6' />";
         echo "</td>\n";
         echo "  <td>";
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][apptstat_timealert]' value='" .

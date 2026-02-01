@@ -26,7 +26,7 @@
 /**
  * Codes that are unique to the 835 edi x12 type
  *
- * The element component separator and repetition seperator are optional
+ * The element component separator and repetition separator are optional
  *  ( see edih_x12_file class property delimiters[ds] [dr] )
  * The array code835 is created with keys for code types
  * Access the values with $text = $obj->get_835_code(key, code)
@@ -46,7 +46,7 @@ class edih_835_codes
 //public $code835 = array();
     private $code835 = [];
 // the key_match array is a concept of matching code lists to
-// segment elements when diferent segments are looking for the same
+// segment elements when different segments are looking for the same
 // code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');

@@ -12,11 +12,11 @@
 // 1.1: + Added unit in the constructor
 //      + Now Positions start at (1,1).. then the first label at top-left of a page is (1,1)
 //      + Added in the description of a label:
-//           font-size : defaut char size (can be changed by calling Set_Char_Size(xx);
+//           font-size : default char size (can be changed by calling Set_Char_Size(xx);
 //           paper-size: Size of the paper for this sheet (thanx to Al Canton)
 //           metric    : type of unit used in this description
 //                       You can define your label properties in inches by setting metric to
-//                       'in' and print in millimiters by setting unit to 'mm' in constructor
+//                       'in' and print in millimeters by setting unit to 'mm' in constructor
 //        Added some formats:
 //           5160, 5161, 5162, 5163, 5164: thanks to Al Canton
 //           8600                        : thanks to Kunal Walia

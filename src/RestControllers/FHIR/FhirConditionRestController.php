@@ -19,6 +19,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated use FhirGenericRestController
+ */
 class FhirConditionRestController
 {
     private readonly FhirConditionService $fhirConditionService;

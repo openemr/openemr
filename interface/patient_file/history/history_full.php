@@ -87,31 +87,43 @@ function submit_history() {
     document.forms[0].submit();
 }
 
+function oeSmokingQuantityRowToggle(show) {
+    if (show) {
+        document.querySelector(".row-smoking-status-year-packs").classList.remove('d-none');
+    } else {
+        document.querySelector(".row-smoking-status-year-packs").classList.add('d-none');
+    }
+}
+
 //function for selecting the smoking status in radio button based on the selection of drop down list.
 function radioChange(rbutton)
 {
     if (rbutton == 1 || rbutton == 2 || rbutton == 15 || rbutton == 16)
-     {
-     document.getElementById('radio_tobacco[current]').checked = true;
-     }
+    {
+        document.getElementById('radio_tobacco[current]').checked = true;
+        oeSmokingQuantityRowToggle(true);
+    }
      else if (rbutton == 3)
      {
-     document.getElementById('radio_tobacco[quit]').checked = true;
+        document.getElementById('radio_tobacco[quit]').checked = true;
+        oeSmokingQuantityRowToggle(true);
      }
      else if (rbutton == 4)
      {
-     document.getElementById('radio_tobacco[never]').checked = true;
+         document.getElementById('radio_tobacco[never]').checked = true;
+         oeSmokingQuantityRowToggle(false);
      }
      else if (rbutton == 5 || rbutton == 9)
      {
-     document.getElementById('radio_tobacco[not_applicable]').checked = true;
+         document.getElementById('radio_tobacco[not_applicable]').checked = true;
+         oeSmokingQuantityRowToggle(false);
      }
      else if (rbutton == '')
      {
-     var radList = document.getElementsByName('radio_tobacco');
-     for (var i = 0; i < radList.length; i++) {
-     if(radList[i].checked) radList[i].checked = false;
-     }
+         var radList = document.getElementsByName('radio_tobacco');
+         for (var i = 0; i < radList.length; i++) {
+            if(radList[i].checked) radList[i].checked = false;
+         }
      }
      //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
      if(rbutton!=""){

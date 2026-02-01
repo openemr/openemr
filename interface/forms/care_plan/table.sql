@@ -18,4 +18,3 @@ CREATE TABLE IF NOT EXISTS `form_care_plan` (
   `care_plan_type` varchar(30) DEFAULT NULL,
   `note_related_to` TEXT
 ) ENGINE=InnoDB;
-

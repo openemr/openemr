@@ -15,45 +15,9 @@ namespace OpenEMR\Services\ImageUtilities;
 use Exception;
 use Imagick;
 use ImagickException;
-use OpenEMR\Pdf\MpdfGenericPdfCreator;
 
 class HandleImageService
 {
-    /**
-     * @param $imageData
-     * @param $pdfPath
-     * @return false|string
-     */
-
-    public function convertImageToPdfUseGD($imageData, $pdfPath): false|string
-    {
-        try {
-            $imageRaw = base64_decode((string) $imageData); // Decode base64 image data (if needed)
-            $image = imagecreatefromstring($imageRaw); // Load image using GD
-            if ($image === false) {
-                throw new Exception('Failed to create image from data');
-            }
-            ob_start();
-            imagepng($image);
-            $imagePngData = ob_get_clean();
-            imagedestroy($image);
-
-            $pdf = new MpdfGenericPdfCreator();
-            $pdf->addImageToPDF($imagePngData); // Add image to PDF
-
-            return $pdf->outputPDF($pdfPath, 'S'); // Output PDF as a string
-        } catch (Exception $e) {
-            // Handle exceptions
-            error_log('Error: ' . text($e->getMessage()));
-            return false;
-        } finally {
-            // Clean up GD resources
-            if (is_resource($image)) {
-                imagedestroy($image);
-            }
-        }
-    }
-
     /**
      * @param $imageContent
      * @param $pdfOutPath

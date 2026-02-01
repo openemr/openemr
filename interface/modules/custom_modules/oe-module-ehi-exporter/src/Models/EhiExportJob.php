@@ -119,7 +119,7 @@ class EhiExportJob
     }
     public function addPatientIdList(array $pids)
     {
-        $this->pids = array_map('intval', $pids); // make sure we don't get invalid pids here
+        $this->pids = array_map(intval(...), $pids); // make sure we don't get invalid pids here
     }
     public function getPatientIds()
     {

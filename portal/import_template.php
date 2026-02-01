@@ -10,15 +10,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -109,7 +116,7 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -128,7 +135,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -149,7 +156,7 @@ if (($_POST['mode'] ?? null) === 'save') {
 }
 
 if (isset($_POST['blank-nav-button'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -182,7 +189,7 @@ if (isset($_POST['blank-nav-button'])) {
 }
 
 if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -215,7 +222,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
 
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -261,7 +268,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
 }
 
 if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -324,6 +331,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
 function renderEditorHtml($template_id, $content): void
 {
     global $authUploadTemplates;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $lists = [
         '{ParseAsHTML}', '{ParseAsText}', '{styleBlockStart}', '{styleBlockEnd}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{RadioGroup:option1_many...}', '{RadioGroupInline:option1_many...}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
@@ -355,7 +363,7 @@ function renderEditorHtml($template_id, $content): void
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save')); ?>" />
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save', $session->getSymfonySession())); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
@@ -377,11 +385,17 @@ function renderEditorHtml($template_id, $content): void
                     <ul class='list-group list-group-flush pl-1 mb-5'>
                         <?php
                         foreach ($lists as $list) {
-                            echo '<input class="list-group-item p-1" value="' . attr($list) . '">';
+                            // list item is both clickable and draggable
+                            echo '<li class="list-group-item p-1 directive-item"'
+                                . ' draggable="true"'
+                                . ' data-directive="' . attr($list) . '">'
+                                . text($list)
+                                . '</li>';
                         }
                         ?>
                     </ul>
                 </div>
+
             </div>
         </div>
     </body>
@@ -420,8 +434,98 @@ function renderEditorHtml($template_id, $content): void
         });
     </script>
     <script>
+        // … your existing JS (dialogs, Summernote init, etc.) …
+
+        function initDirectiveHelpers() {
+            var $template = $('#templateContent');
+
+            if (!$template.length) {
+                return;
+            }
+
+            /**
+             * Insert a directive string at the current caret position.
+             * Uses Summernote if active, else falls back to plain textarea insertion.
+             */
+            function insertDirective(text) {
+                if (!text) {
+                    return;
+                }
+
+                // Summernote active: use its editor API
+                if ($template.next('.note-editor').length && $template.data('summernote')) {
+                    $template.summernote('focus');
+                    $template.summernote('editor.insertText', text);
+                    return;
+                }
+
+                // Fallback: plain textarea
+                var el = $template.get(0);
+                if (!el) {
+                    return;
+                }
+
+                var start = el.selectionStart || 0;
+                var end = el.selectionEnd || 0;
+                var value = el.value || '';
+
+                el.value = value.substring(0, start) + text + value.substring(end);
+                var caret = start + text.length;
+                el.selectionStart = el.selectionEnd = caret;
+                el.focus();
+            }
+
+            // CLICK: insert on click for accessibility / speed
+            $(document).on('click', '.directive-item', function (e) {
+                e.preventDefault();
+                var text = $(this).data('directive') || '';
+                insertDirective(text);
+            });
+
+            // DRAG: start dragging directive text
+            $(document).on('dragstart', '.directive-item', function (e) {
+                var text = $(this).data('directive') || '';
+                if (!text) {
+                    return;
+                }
+
+                var dt = e.originalEvent.dataTransfer;
+                dt.setData('text/plain', text);
+                dt.effectAllowed = 'copy';
+            });
+
+            // Fallback: drop directly on the underlying textarea (if visible)
+            $template.on('dragover', function (e) {
+                e.preventDefault();
+            }).on('drop', function (e) {
+                e.preventDefault();
+                var dt = e.originalEvent.dataTransfer;
+                var text = dt.getData('text/plain');
+                insertDirective(text);
+            });
+
+            // Summernote editor surface: accept drops on the content area
+            $template.on('summernote.init', function () {
+                var $editable = $(this).next('.note-editor').find('.note-editable');
+
+                $editable.on('dragover', function (e) {
+                    e.preventDefault();
+                }).on('drop', function (e) {
+                    e.preventDefault();
+                    var dt = e.originalEvent.dataTransfer;
+                    var text = dt.getData('text/plain');
+                    insertDirective(text);
+                });
+            });
+        }
+
+        $(function () {
+            // Ensure this runs after Summernote init code
+            initDirectiveHelpers();
+        });
     </script>
-    </html>
+
+</html>
 <?php }
 
 /**
@@ -429,7 +533,7 @@ function renderEditorHtml($template_id, $content): void
  */
 function renderProfileHtml(): void
 {
-    global $templateService;
+    global $templateService, $globalsBag;
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -438,11 +542,11 @@ function renderProfileHtml(): void
     <html>
     <head>
         <?php
-        if (empty($GLOBALS['openemr_version'] ?? null)) {
+        if (empty($globalsBag->get('openemr_version'))) {
             Header::setupHeader(['opener', 'sortablejs']);
         } else {
             Header::setupHeader(['opener']); ?>
-            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+            <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
         <?php } ?>
     </head>
     <style>

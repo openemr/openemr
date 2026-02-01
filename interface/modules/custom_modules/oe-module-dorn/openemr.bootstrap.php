@@ -18,7 +18,7 @@ namespace OpenEMR\Modules\Dorn;
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\Dorn\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
+ * @global EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 
 $bootstrap = new Bootstrap($eventDispatcher, $GLOBALS['kernel']);

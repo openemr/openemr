@@ -34,15 +34,16 @@ class ClientCredentialsGrantFlowTest extends TestCase
      */
     public function testClientCredentialsGrantFlow(): void
     {
+        $jwks = json_decode(file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR);
         // Create a client that supports client credentials grant
         $request = HttpRestRequest::create("/oauth2/register", 'POST', [], [], [], [
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
                 "application_type" => "private",
                "redirect_uris" =>
-                 ["http=>//localhost=>4567/inferno/oauth2/static/redirect"],
+                 ["http=>//localhost:4567/inferno/oauth2/static/redirect"],
                "post_logout_redirect_uris" =>
-                 ["http=>//localhost=>4567/inferno/oauth2/static/logout"],
+                 ["http=>//localhost:4567/inferno/oauth2/static/logout"],
                "client_name" => "OpenEMR System Credentials Test Client - disable in production",
                 "initiate_login_uri" => "https=>/localhost=>4567/inferno/oauth2/static/launch",
                "token_endpoint_auth_method" => "client_secret_post",

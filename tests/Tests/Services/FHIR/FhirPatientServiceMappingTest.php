@@ -116,9 +116,9 @@ class FhirPatientServiceMappingTest extends TestCase
 
         foreach ($actualTelecoms as $actualTelecom) {
             if (
-                $expectedSystem == $actualTelecom->getSystem()->getValue() &&
-                $expectedUse == $actualTelecom->getUse()->getValue() &&
-                $expectedValue == $actualTelecom->getValue()->getValue()
+                $expectedSystem == $actualTelecom->getSystem() &&
+                $expectedUse == $actualTelecom->getUse() &&
+                $expectedValue == $actualTelecom->getValue()
             ) {
                 $matchFound = true;
                 break;
@@ -132,7 +132,7 @@ class FhirPatientServiceMappingTest extends TestCase
      * Asserts an expected identifier value against an array of patient identifiers
      *
      * @param $expectedCode The identifier code type code
-     * @param $expectedValue The expected identifer value (value set)
+     * @param $expectedValue The expected identifier value (value set)
      * @param $actualIdentifiers FHIRIdentifier[] FHIR Patient identifier entries
      */
     private function assertFhirPatientIdentifier($expectedCode, $expectedValue, $actualIdentifiers)

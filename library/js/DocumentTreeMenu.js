@@ -114,7 +114,7 @@ function arrayCopy(input)
 * Main function that draws the menu and assigns it
 * to the layer (or document.write()s it)
 */
-	TreeMenu.prototype.drawMenu = function ()// OPTIONAL ARGS: nodes = [], level = [], prepend = '', expanded = false, visbility = 'inline', parentLayerID = null
+	TreeMenu.prototype.drawMenu = function ()// OPTIONAL ARGS: nodes = [], level = [], prepend = '', expanded = false, visibility = 'inline', parentLayerID = null
 	{
 		/**
 	    * Necessary variables
@@ -570,7 +570,7 @@ function arrayCopy(input)
 /**
 * Also much adored, the PHP implode() function
 */
-	TreeMenu.prototype.implode = function (seperator, input)
+	TreeMenu.prototype.implode = function (separator, input)
 	{
 		var output = '';
 	
@@ -578,7 +578,7 @@ function arrayCopy(input)
 			if (i == 0) {
 				output += input[i];
 			} else {
-				output += seperator + input[i];
+				output += separator + input[i];
 			}
 		}
 		
@@ -711,7 +711,7 @@ function arrayCopy(input)
 // versions.
 
 /**
-* Severly curtailed all this as only certain elements
+* Severely curtailed all this as only certain elements
 * are required by TreeMenu, specifically:
 *  o is_ie4up
 *  o is_nav6up

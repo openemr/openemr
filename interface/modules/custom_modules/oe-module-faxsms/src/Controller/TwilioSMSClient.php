@@ -64,7 +64,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
-        return $this->_getPending($uiDateRangeFlag);
+        return $this->_getPending();
     }
 
     /**
@@ -106,18 +106,6 @@ class TwilioSMSClient extends AppDispatch
             return text('Error: ' . $message);
         }
         return text($message->sid);
-    }
-
-    /**
-     * @return string
-     */
-
-    public function formatPhone($number): string
-    {
-        // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', (string) $number);
-        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
-        return $n;
     }
 
     /**

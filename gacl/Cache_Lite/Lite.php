@@ -588,7 +588,7 @@ class Cache_Lite
     function _writeAndControl($data)
     {
         $this->_write($data);
-        $dataRead = $this->_read($data);
+        $dataRead = $this->_read();
         return ($dataRead==$data);
     }
 

@@ -19,7 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 
@@ -35,7 +35,7 @@ class TeleHealthPatientAdminController
         $this->registrationCodeService = new TelehealthRegistrationCodeService($this->globalConfig, $this->userRepository);
     }
 
-    public function subscribeToEvents(EventDispatcher $dispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $dispatcher)
     {
         $dispatcher->addListener(PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, $this->setupRegistrationCodeField(...));
 
@@ -69,7 +69,7 @@ class TeleHealthPatientAdminController
 
     public function setupRegistrationCodeField($event)
     {
-        // we need to inject in the display of the registation code if the twig template is the display template
+        // we need to inject in the display of the registration code if the twig template is the display template
         $data = $event->getData() ?? [];
         $data['comlink_app_title'] = $this->globalConfig->getAppTitle();
 

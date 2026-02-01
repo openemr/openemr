@@ -98,8 +98,8 @@ $content = $_REQUEST['content'];
             </tr>
             <tr>
                 <td colspan="2" align="center">
-                    <input type="button" name="save" value="<?php echo htmlspecialchars((string) xl('Save'), ENT_QUOTES);?>" onclick="save_this()">
-                    <input type="button" name="cancel" value="<?php echo htmlspecialchars((string) xl('Cancel'), ENT_QUOTES);?>" onclick="javascript:window.close()">
+                    <input type="button" name="save" value="<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?>" onclick="save_this()">
+                    <input type="button" name="cancel" value="<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?>" onclick="javascript:window.close()">
                 </td>
             </tr>
         </table>

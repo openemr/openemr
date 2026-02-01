@@ -180,7 +180,7 @@ class FhirConditionService8_0_0Test extends TestCase
         $patientData = $this->fixtureManager->createTestPatient();
         $encounterData = $this->fixtureManager->createTestEncounter($patientData['pid']);
         $conditionData = $this->fixtureManager->createTestEncounterCondition($patientData, $encounterData, [
-            'date' => '2024-01-01 10:00:00', // Before cutover date
+            'created_at' => '2024-01-01 10:00:00', // Before cutover date
         ]);
 
         $fhirConditionResult = $this->encounterDiagnosisService->getAll([

@@ -132,7 +132,7 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
             l.id,
             l.uuid,
             l.pid,
-            l.date AS condition_date,
+            l.condition_date,
             l.modifydate,
             l.type,
             l.title,
@@ -145,8 +145,28 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
             l.outcome,
             l.verification,
             pd.puuid,
-            COALESCE(l.modifydate, l.date) as last_updated_time
-        FROM lists l
+            l.last_updated_time
+        FROM (
+            SELECT
+                id,
+                uuid,
+                pid,
+                date AS condition_date,
+                modifydate,
+                type,
+                title,
+                begdate,
+                enddate,
+                diagnosis,
+                activity,
+                comments,
+                occurrence,
+                outcome,
+                verification,
+                COALESCE(modifydate, date) as last_updated_time
+            FROM
+                lists
+        ) l
         INNER JOIN (
             SELECT
                 uuid AS puuid

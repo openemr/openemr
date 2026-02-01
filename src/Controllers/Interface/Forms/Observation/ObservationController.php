@@ -41,23 +41,17 @@ class ObservationController
 
     const DATE_FORMAT_SAVE = 'Y-m-d H:i:s';
     const DEFAULT_STATUS = 'preliminary';
-    private ObservationService $observationService;
-    private FormService $formService;
     private Environment $twig;
     private CodeTypesService $codeTypeService;
-    private PatientService $patientService;
 
     public function __construct(
-        ?ObservationService $observationService = null,
-        ?FormService $formService = null,
+        private ?ObservationService $observationService = new ObservationService(),
+        private ?FormService $formService = new FormService(),
         ?Environment $twig = null,
-        ?PatientService $patientService = null
+        private ?PatientService $patientService = new PatientService()
     ) {
-        $this->observationService = $observationService ?? new ObservationService();
-        $this->formService = $formService ?? new FormService();
         $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         $this->codeTypeService = new CodeTypesService();
-        $this->patientService = $patientService ?? new PatientService();
     }
 
     public function setCodeTypesService(CodeTypesService $service): void

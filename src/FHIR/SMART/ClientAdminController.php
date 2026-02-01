@@ -29,12 +29,13 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -221,10 +222,10 @@ class ClientAdminController
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      * @throws Exception
      */
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->kernel->getEventDispatcher();
     }
@@ -303,7 +304,7 @@ class ClientAdminController
     private function getAccessTokenRepository(): AccessTokenRepository
     {
         if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
+            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
         }
         return $this->accessTokenRepository;
     }

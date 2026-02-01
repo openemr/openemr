@@ -2,6 +2,8 @@
 
 /** @package    verysimple::Phreeze */
 
+require_once("SerializableTrait.php");
+
 /**
  * Reporter allows creating dynamic objects that do not necessarily reflect
  * the structure of the datastore table.
@@ -14,15 +16,16 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-abstract class Reporter implements Serializable
+abstract class Reporter
 {
+    use SerializableTrait;
     private $_isLoaded;
     private $_isPartiallyLoaded;
     private $_cacheLevel = 0;
     private $_noCache = false;
 
     /** @var these properties will never be cached */
-    private static $NoCacheProperties =  [
+    private static $NoCacheProperties = [
             "_cache",
             "_phreezer",
             "_val_errors",
@@ -30,7 +33,7 @@ abstract class Reporter implements Serializable
     ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache =  [];
+    private static array $PublicPropCache = [];
 
     /**
      * Returns true if the current object has been loaded
@@ -115,56 +118,6 @@ abstract class Reporter implements Serializable
     }
 
     /**
-     * When serializing, make sure that we ommit certain properties that
-     * should never be cached or serialized.
-     */
-    function serialize()
-    {
-        $propvals =  [];
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->getName();
-
-            if (! in_array($propname, self::$NoCacheProperties)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $propvals [$propname] = $rp->getValue($this);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $propvals [$propname] = $rp->getValue($this);
-                }
-            }
-        }
-
-        return serialize($propvals);
-    }
-
-    /**
-     * Reload the object when it awakes from serialization
-     *
-     * @param
-     *          $data
-     */
-    function unserialize($data)
-    {
-        $propvals = unserialize($data);
-
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->name;
-            if (array_key_exists($propname, $propvals)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $rp->setValue($this, $propvals [$propname]);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $rp->setValue($this, $propvals [$propname]);
-                }
-            }
-        }
-    }
-
-    /**
      * Returns an array with all public properties, excluding any internal
      * properties used by the Phreeze framework.
      * This is cached for performance
@@ -176,7 +129,7 @@ abstract class Reporter implements Serializable
     {
         $className = static::class;
 
-        if (! property_exists(self::$PublicPropCache, $className)) {
+        if (! array_key_exists($className, self::$PublicPropCache)) {
             $props =  [];
             $ro = new ReflectionObject($this);
 
@@ -337,10 +290,4 @@ abstract class Reporter implements Serializable
     protected function OnLoad()
     {
     }
-
-    function __serialize()
-    {}
-
-    function __unserialize($data)
-    {}
 }

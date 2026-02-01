@@ -41,33 +41,6 @@ function invalue($name)
     return "'$fld'";
 }
 
-function rbinput($name, $value, $desc, $colname)
-{
-    global $row;
-    $ret = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
-}
-
-function rbvalue($rbname)
-{
-    $tmp = $_POST[$rbname];
-    if (!$tmp) {
-        $tmp = '0';
-    }
-
-    return "'$tmp'";
-}
-
-function cbvalue($cbname)
-{
-    return empty($_POST[$cbname]) ? 0 : 1;
-}
-
 function recursiveDelete($typeid): void
 {
     $res = sqlStatement("SELECT procedure_type_id FROM " .
@@ -756,7 +729,7 @@ function recursiveDelete($typeid): void
                 </form>
             </div>
         </div>
-    </div><!--end of conatainer div-->
+    </div><!--end of container div-->
     <script>
         //jqury-ui tooltip
         $(function () {

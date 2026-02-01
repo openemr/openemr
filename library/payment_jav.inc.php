@@ -25,7 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
-//This section handles payment related javascript functios.Add, Search and Edit screen uses these functions.
+//This section handles payment related javascript functions.Add, Search and Edit screen uses these functions.
 //===============================================================================
 ?>
 <script>
@@ -182,11 +182,11 @@
             top.restoreSession();
             document.forms[0].submit();
         } else {
-            alert("<?php echo htmlspecialchars((string) xl('Please Select a Patient.'), ENT_QUOTES) ?>")
+            alert("<?php echo htmlspecialchars(xl('Please Select a Patient.'), ENT_QUOTES) ?>")
         }
     }
 
-    function CheckUnappliedAmount() {//The value retured from here decides whether Payments can be posted/modified or not.
+    function CheckUnappliedAmount() {//The value returned from here decides whether Payments can be posted/modified or not.
         let UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
         if (UnappliedAmount < 0) {
             return 1;
@@ -201,7 +201,7 @@
         //Numeric validations, used while typing numbers.
         // Take into account comma currency numbers and allow.
         if (isNaN(formatNumber(TheObject.value))) {
-            alert("<?php echo htmlspecialchars((string) xl('Value Should be Numeric'), ENT_QUOTES) ?>");
+            alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
             TheObject.focus();
             return false;
         }
@@ -210,7 +210,7 @@
     function SavePayment() {//Used before saving.
         if (FormValidations())//FormValidations contains the form checks
         {
-            if (confirm("<?php echo htmlspecialchars((string) xl('Would you like to save?'), ENT_QUOTES) ?>")) {
+            if (confirm("<?php echo htmlspecialchars(xl('Would you like to save?'), ENT_QUOTES) ?>")) {
                 top.restoreSession();
                 document.getElementById('mode').value = 'new_payment';
                 document.forms[0].submit();
@@ -222,7 +222,7 @@
         }
     }
 
-    function OpenEOBEntry() {//Used before allocating the recieved amount.
+    function OpenEOBEntry() {//Used before allocating the received amount.
         if (FormValidations())//FormValidations contains the form checks
         {
             top.restoreSession();
@@ -319,10 +319,10 @@
             } else {
                 InsPatDropDownValue = document.getElementById('payment_ins' + RowCount).options[document.getElementById('payment_ins' + RowCount).selectedIndex].value;
                 if (PayingEntity == 'patient' && InsPatDropDownValue > 0) {
-                    alert("<?php echo htmlspecialchars((string) xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
+                    alert("<?php echo htmlspecialchars(xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
                     return false;
                 } else if (PayingEntity == 'insurance' && InsPatDropDownValue == 0) {
-                    alert("<?php echo htmlspecialchars((string) xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
+                    alert("<?php echo htmlspecialchars(xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
                     return false;
                 }
             }
@@ -344,7 +344,7 @@
             return false;
         } else if (!ValidateDateGreaterThanNow(document.getElementById('check_date').value, '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Date Cannot be greater than Today') ?>;
-            syncAlertMsg('<h4 class="bg-light text-danger">'+message+'</h4>', 1500, 'warning', 'lg');
+            asyncAlertMsg(message, 1500, 'warning', 'lg');
             document.getElementById('check_date').focus();
             return false;
         }
@@ -497,7 +497,7 @@
     }
     /*
     * Just to ensure our in screen calculations are up to date from value fetches.
-    *  Start from AdjAmount otherwise ajustments will reset for 0 balance auto's.
+    *  Start from AdjAmount otherwise adjustments will reset for 0 balance auto's.
     *
     * return awaited promise.
     * */

@@ -59,7 +59,7 @@ class ProcedureService extends BaseService
      */
     public function getUuidFields(): array
     {
-        return ['order_uuid', 'result_uuid', 'report_uuid', 'lab_uuid', 'puuid', 'euuid', 'provider_uuid', 'specimen_uuid'];
+        return ['order_uuid', 'result_uuid', 'report_uuid', 'lab_uuid', 'puuid', 'euuid', 'provider_uuid', 'specimen_uuid', 'lab_director_uuid'];
     }
 
     /**
@@ -67,7 +67,7 @@ class ProcedureService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search         search array parameters
+     * @param  array<string, ISearchField> $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                         payload.
@@ -118,6 +118,8 @@ class ProcedureService extends BaseService
         ,presult.result_result
         ,presult.result_range
         ,presult.result_abnormal
+        ,presult.result_abnormal_title
+        ,presult.result_abnormal_codes
         ,presult.result_comments
         ,presult.result_status
 
@@ -133,6 +135,8 @@ class ProcedureService extends BaseService
         ,labs.lab_uuid
         ,labs.lab_npi
         ,labs.lab_name
+        ,labs.lab_director_uuid
+        ,labs.lab_director_npi
 
         ,patients.puuid
         ,patients.pid
@@ -221,7 +225,10 @@ class ProcedureService extends BaseService
             ,`abnormal` AS result_abnormal
             ,`comments` AS result_comments
             ,`document_id` AS result_document_id
+            ,`lo_abnormal`.`title` AS result_abnormal_title
+            ,`lo_abnormal`.`codes` AS result_abnormal_codes
         FROM `procedure_result`
+        LEFT JOIN list_options lo_abnormal ON lo_abnormal.option_id = `procedure_result`.`abnormal` AND lo_abnormal.list_id = 'proc_res_abnormal'
     ) presult ON presult.procedure_report_id = preport.procedure_report_id
     LEFT JOIN (
         SELECT
@@ -239,11 +246,15 @@ class ProcedureService extends BaseService
     LEFT JOIN (
         SELECT
             ppid AS lab_id
-            ,uuid AS lab_uuid
-            ,npi AS lab_npi
-            ,`name` AS lab_name
-            ,`active` AS lab_active
+            ,procedure_providers.uuid AS lab_uuid
+            ,procedure_providers.npi AS lab_npi
+            ,procedure_providers.`name` AS lab_name
+            ,procedure_providers.`active` AS lab_active
+            ,users.uuid AS lab_director_uuid
+            ,users.npi AS lab_director_npi
         FROM procedure_providers
+        LEFT JOIN users ON users.id = procedure_providers.lab_director
+        WHERE users.npi IS NOT NULL AND users.npi != ''
     ) labs ON labs.lab_id = porder.order_lab_id
     LEFT JOIN (
         SELECT
@@ -303,12 +314,6 @@ class ProcedureService extends BaseService
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-
-        $r = sqlStatement("select uuid, pid as id from patient_data where pid > 0");
-        foreach ($r as $row) {
-            error_log($row['id'] . ' = ' . UuidRegistry::uuidToString($row['uuid']));
-        }
-
         $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
 
         return $processingResult;
@@ -384,6 +389,8 @@ class ProcedureService extends BaseService
                         ,'uuid' => $record['lab_uuid']
                         , 'name' => $record['lab_name']
                         ,'npi' => $record['lab_npi']
+                        ,'director_uuid' => $record['lab_director_uuid']
+                        ,'director_npi' => $record['lab_director_npi']
                     ];
                 }
 
@@ -449,6 +456,8 @@ class ProcedureService extends BaseService
                         , 'result' => $record['result_result']
                         ,'range' => $record['result_range']
                         ,'abnormal' => $record['result_abnormal']
+                        ,'result_abnormal_title' => $record['result_abnormal_title']
+                        ,'result_abnormal_codes' => $record['result_abnormal_codes']
                         , 'comments' => $record['result_comments']
                         ,'document_id' => $record['doc_id']
                         ,'status' => $record['result_status']

@@ -18,8 +18,10 @@ require_once(__DIR__ . "/../library/patient.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -45,6 +47,7 @@ class C_Document extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
@@ -54,7 +57,7 @@ class C_Document extends Controller
 
         if (php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
-            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
         }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
@@ -156,7 +159,7 @@ class C_Document extends Controller
     //Upload multiple files on single click
     public function upload_action_process()
     {
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Collect a manually set owner if this has been set
         // Used when want to manually assign the owning user/service such as the Direct mechanism
         $non_HTTP_owner = false;
@@ -203,7 +206,7 @@ class C_Document extends Controller
             if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
                 $error = xl("Not authorized to upload to the selected category.\n");
                 $skipUpload = true;
-                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'category-id' => $category_id]);
+                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'category-id' => $category_id]);
             }
         }
 
@@ -334,7 +337,7 @@ class C_Document extends Controller
                 }
                 $upload_plugin_pp = 'documentUploadPostProcess';
                 if (function_exists($upload_plugin_pp)) {
-                    $tmp = call_user_func($upload_plugin_pp, $value, $d);
+                    $tmp = $upload_plugin_pp($value, $d);
                     if ($tmp) {
                         $error = $tmp;
                     }
@@ -367,9 +370,9 @@ class C_Document extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $n = new Note();
-        $n->set_owner($_SESSION['authUserID']);
+        $n->set_owner($session->get('authUserID'));
         parent::populate_object($n);
         if ($_POST['identifier'] == "no") {
             // associate a note with a document
@@ -415,7 +418,7 @@ class C_Document extends Controller
                 $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
             }
             if (!file_exists($temp_url)) {
-                echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $temp_url;
+                echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.') . ' ' . text($temp_url);
             }
             $url = $temp_url;
             $pdetails = getPatientData($patient_id);
@@ -441,11 +444,11 @@ class C_Document extends Controller
         global $ISSUE_TYPES;
 
         require_once(__DIR__ . "/../library/lists.inc.php");
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken());
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
@@ -582,6 +585,7 @@ class C_Document extends Controller
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
@@ -633,16 +637,16 @@ class C_Document extends Controller
         $d = new Document($document_id);
 
         // ensure user/patient has access
-        if (isset($_SESSION['patient_portal_onsite_two']) && isset($_SESSION['pid'])) {
+        if ($session->has('patient_portal_onsite_two') && $session->has('pid')) {
             // ensure patient has access (called from patient portal)
-            if (!$d->can_patient_access($_SESSION['pid'])) {
-                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $_SESSION['pid'], 'document-id' => $document_id]);
+            if (!$d->can_patient_access($session->get('pid'))) {
+                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $session->get('pid'), 'document-id' => $document_id]);
                 die(xlt("Not authorized to view requested file"));
             }
         } else {
             // ensure user has access
             if (!$d->can_access()) {
-                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'document-id' => $document_id]);
+                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'document-id' => $document_id]);
                 die(xlt("Not authorized to view requested file"));
             }
         }
@@ -695,7 +699,7 @@ class C_Document extends Controller
                 header("Content-Length: " . strlen($filetext));
                 echo $filetext;
             }
-            exit;//exits only if file download from CouchDB is successfull.
+            exit; // exits only if file download from CouchDB is successful.
         }
         if ($couch_docid && $couch_revid) {
             //special case when retrieving a document from couchdb that has been converted to a jpg and not directly referenced in openemr documents table
@@ -836,96 +840,99 @@ class C_Document extends Controller
         }
 
         if (!file_exists($url)) {
-            echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $url;
+            (new SystemLogger())->error(
+                "Document file not found or insufficient permissions",
+                ['url' => $url, 'document_id' => $document_id, 'patient_id' => $patient_id]
+            );
+            return '';
+        }
+        if ($original_file) {
+            //normal case when serving the file referenced in database
+            if ($d->get_encrypted() == 1) {
+                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
+            } else {
+                if (!is_dir($url)) {
+                    $filetext = file_get_contents($url);
+                }
+            }
+            if ($disable_exit == true) {
+                return $filetext ?? '';
+            }
+            header('Content-Description: File Transfer');
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            if ($doEncryption) {
+                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
+                header("Content-Type: application/octet-stream");
+                header("Content-Length: " . strlen($ciphertext));
+                echo $ciphertext;
+            } else {
+                header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
+                header("Content-Type: " . $d->get_mimetype());
+                header("Content-Length: " . strlen($filetext ?? ''));
+                echo $filetext ?? '';
+            }
+            exit;
         } else {
-            if ($original_file) {
-                //normal case when serving the file referenced in database
+            //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
+            //try to convert it if it has not yet been converted
+            $originalUrl = $url;
+            if (strrpos((string) basename_international($url), '.') === false) {
+                $convertedFile = basename_international($url) . '_converted.jpg';
+            } else {
+                $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
+            }
+            $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
+            if (!is_file($url)) {
+                if ($d->get_encrypted() == 1) {
+                    // decrypt the from-file into a temporary file
+                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
+                    $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                    file_put_contents($from_file_tmp_name, $from_file_unencrypted);
+                    // prepare a temporary file for the unencrypted to-file
+                    $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                    $to_file_tmp_name = $to_file_tmp . ".jpg";
+                    // convert file to jpg
+                    exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
+                    // remove unencrypted tmp file
+                    unlink($from_file_tmp_name);
+                    // make the encrypted to-file if a to-file was created in above convert call
+                    if (is_file($to_file_tmp_name)) {
+                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                        file_put_contents($url, $to_file_encrypted);
+                        // remove unencrypted tmp files
+                        unlink($to_file_tmp);
+                        unlink($to_file_tmp_name);
+                    }
+                } else {
+                    // convert file to jpg
+                    exec("convert -density 200 " . escapeshellarg((string) $originalUrl) . " -append -resize 850 " . escapeshellarg($url));
+                }
+            }
+            if (is_file($url)) {
                 if ($d->get_encrypted() == 1) {
                     $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
-                    if (!is_dir($url)) {
-                        $filetext = file_get_contents($url);
-                    }
+                    $filetext = file_get_contents($url);
                 }
-                if ($disable_exit == true) {
-                    return $filetext ?? '';
-                }
-                header('Content-Description: File Transfer');
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Pragma: public');
-                if ($doEncryption) {
-                    $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
-                    header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
-                    header("Content-Type: application/octet-stream");
-                    header("Content-Length: " . strlen($ciphertext));
-                    echo $ciphertext;
-                } else {
-                    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
-                    header("Content-Type: " . $d->get_mimetype());
-                    header("Content-Length: " . strlen($filetext ?? ''));
-                    echo $filetext ?? '';
-                }
-                exit;
             } else {
-                //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
-                //try to convert it if it has not yet been converted
-                $originalUrl = $url;
-                if (strrpos((string) basename_international($url), '.') === false) {
-                    $convertedFile = basename_international($url) . '_converted.jpg';
-                } else {
-                    $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
-                }
-                $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
-                if (!is_file($url)) {
-                    if ($d->get_encrypted() == 1) {
-                        // decrypt the from-file into a temporary file
-                        $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $from_file_unencrypted);
-                        // prepare a temporary file for the unencrypted to-file
-                        $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        $to_file_tmp_name = $to_file_tmp . ".jpg";
-                        // convert file to jpg
-                        exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
-                        // remove unencrypted tmp file
-                        unlink($from_file_tmp_name);
-                        // make the encrypted to-file if a to-file was created in above convert call
-                        if (is_file($to_file_tmp_name)) {
-                            $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
-                            file_put_contents($url, $to_file_encrypted);
-                            // remove unencrypted tmp files
-                            unlink($to_file_tmp);
-                            unlink($to_file_tmp_name);
-                        }
-                    } else {
-                        // convert file to jpg
-                        exec("convert -density 200 " . escapeshellarg((string) $originalUrl) . " -append -resize 850 " . escapeshellarg($url));
-                    }
-                }
-                if (is_file($url)) {
-                    if ($d->get_encrypted() == 1) {
-                        $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
-                    } else {
-                        $filetext = file_get_contents($url);
-                    }
-                } else {
-                    $filetext = '';
-                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
-                }
-                if ($disable_exit == true) {
-                    return $filetext;
-                }
-                header("Pragma: public");
-                header("Expires: 0");
-                header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
-                header("Content-Type: image/jpeg");
-                header("Content-Length: " . strlen($filetext));
-                echo $filetext;
-                exit;
+                $filetext = '';
+                error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
             }
+            if ($disable_exit == true) {
+                return $filetext;
+            }
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
+            header("Content-Type: image/jpeg");
+            header("Content-Length: " . strlen($filetext));
+            echo $filetext;
+            exit;
         }
     }
 
@@ -943,7 +950,7 @@ class C_Document extends Controller
         //move to new category
         if (is_numeric($new_category_id) && is_numeric($document_id)) {
             $sql = "UPDATE categories_to_documents set category_id = ? where document_id = ?";
-            $messages .= xl('Document moved to new category', '', '', ' \'') . $this->tree->_id_name[$new_category_id]['name']  . xl('successfully.', '', '\' ') . "\n";
+            $messages .= sprintf("%s '%s' %s\n", xl('Document moved to new category'), $this->tree->_id_name[$new_category_id]['name'], xl('successfully.'));
             //echo $sql;
             $this->tree->_db->Execute($sql, [$new_category_id, $document_id]);
         }
@@ -956,16 +963,12 @@ class C_Document extends Controller
 
             if (!$result || $result->EOF) {
                 //patient id does not exist
-                $messages .= xl('Document could not be moved to patient id', '', '', ' \'') . $new_patient_id  . xl('because that id does not exist.', '', '\' ') . "\n";
+                $messages .= sprintf("%s '%s' %s\n", xl('Document could not be moved to patient id'), $new_patient_id, xl('because that id does not exist.'));
             } else {
                 $changefailed = !$d->change_patient($new_patient_id);
 
                 $this->_state = false;
-                if (!$changefailed) {
-                    $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('successfully.', '', '\' ') . "\n";
-                } else {
-                    $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('Failed.', '', '\' ') . "\n";
-                }
+                $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl($changefailed ? 'Failed.' : 'successfully.'));
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
@@ -1105,6 +1108,7 @@ class C_Document extends Controller
 
     public function list_action($patient_id = "")
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
@@ -1147,7 +1151,7 @@ class C_Document extends Controller
         $this->assign('place_hld', $place_hld);
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
-        $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
+        $this->assign('demo_pid', $session->get('pid'));
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
 
@@ -1302,7 +1306,7 @@ class C_Document extends Controller
             die("process is '" . text($_POST['process']) . "', expected 'true'");
             return;
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Create Encounter and Tag it.
         $event_date = date('Y-m-d H:i:s');
         $encounter_id = $_POST['encounter_id'];
@@ -1319,7 +1323,7 @@ class C_Document extends Controller
 
             $encounter_check = ( $encounter_check == 'on') ? 1 : 0;
             if ($encounter_check) {
-                $provider_id = $_SESSION['authUserID'] ;
+                $provider_id = $session->get('authUserID');
 
                 // Get the logged in user's facility
                 $facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", ["$provider_id"]);
@@ -1330,8 +1334,7 @@ class C_Document extends Controller
                 $billingFacility = $this->facilityService->getPrimaryBusinessEntity();
                 $billingFacilityID = $billingFacility['id'] ?: $facility_id;
 
-                $conn = $GLOBALS['adodb']['db'];
-                $encounter = $conn->GenID("sequences");
+                $encounter = QueryUtils::generateId();
                 $query = "INSERT INTO form_encounter SET
 						date = ?,
 						reason = ?,
@@ -1412,6 +1415,7 @@ class C_Document extends Controller
 
     public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", [$doc_id]);
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
@@ -1421,11 +1425,11 @@ class C_Document extends Controller
         } elseif ($image_procedure_id != 0) {
             $ep = sqlQuery("select u.username as assigned_to from procedure_order inner join users u on u.id = provider_id where procedure_order_id = ?", [$image_procedure_id]);
         } else {
-            $ep = ['assigned_to' => $_SESSION['authUser']];
+            $ep = ['assigned_to' => $session->get('authUser')];
         }
 
-        $encounter_provider = $ep['assigned_to'] ?? $_SESSION['authUser'];
-        $noteid = addPnote($_SESSION['pid'], 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
+        $encounter_provider = $ep['assigned_to'] ?? $session->get('authUser');
+        $noteid = addPnote($session->get('pid'), 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
         setGpRelation(1, $doc_id, 6, $noteid);
     }
 

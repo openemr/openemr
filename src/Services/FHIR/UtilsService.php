@@ -24,6 +24,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -34,6 +36,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -62,9 +65,9 @@ class UtilsService
             $fhirUrl .= "/";
         }
         $url = $fhirUrl . $resourceType . '/' . $uuid;
-        $cannonical = new FHIRCanonical();
-        $cannonical->setValue($url);
-        return $cannonical;
+        $canonical = new FHIRCanonical();
+        $canonical->setValue($url);
+        return $canonical;
     }
 
     public static function parseCanonicalUrl(?string $url)
@@ -115,10 +118,17 @@ class UtilsService
     public static function createQuantity($value, $unit, $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        $quantity->setCode($code);
+        // if there is no code provided we should not populate it nor the unit value
+        // that way it becomes a SimpleQuantity variant of Quantity
+        if (!empty($unit)) {
+            $quantity->setUnit($unit);
+            // only set the code if we have a unit as the unit is the textual display of the coded unit
+            if (!empty($code)) {
+                $quantity->setCode($code);
+            }
+            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+        }
         $quantity->setValue($value);
-        $quantity->setUnit($unit);
-        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
         return $quantity;
     }
 
@@ -199,7 +209,9 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_start'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start'], true);
+            // we don't use dateStringToDateTime as that converts from OpenEMR formatted strings to DateTime objects
+            $format = str_contains((string) $dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
+            $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",
@@ -207,6 +219,7 @@ class UtilsService
                 );
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
+            // TODO: look into why we use RFC3339_EXTENDED here instead of DATE_ATOM like other places
             $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
         } else {
             // we should always have a start period, but if we don't, we will go one year before

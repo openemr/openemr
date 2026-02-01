@@ -21,5 +21,5 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 require("C_FormROS.class.php");
 $c = new C_FormROS();
-echo $c->default_action_process($_POST);
+echo $c->default_action_process();
 @formJump();

@@ -137,7 +137,7 @@ class FhirConditionHealthConcernService extends FhirServiceBase implements IPati
              * @var TokenSearchValue[] $values
              */
             $values = $openEMRSearchParameters['subtype']->getValues();
-            $filteredValues = array_filter($values, fn($value): bool => $value->getCode() !== self::CATEGORY_HEALTH_CONCERN);
+            $filteredValues = array_filter($values, fn($value): bool => !in_array($value->getCode(), [self::CATEGORY_HEALTH_CONCERN, 'encounter-diagnosis', 'problem-list-item']));
             if (!empty($filteredValues)) {
                 $openEMRSearchParameters['subtype'] = new TokenSearchField('subtype', $filteredValues);
             } else {

@@ -219,7 +219,7 @@ class DownloadWenoPharmacies
                     $count = $this->processWenoPharmacyCsv($csvFile);
 
                     if ($count !== false) {
-                        EventAuditLogger::instance()->newEvent(
+                        EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
                             $_SESSION['authUser'],
                             $_SESSION['authProvider'],
@@ -229,7 +229,7 @@ class DownloadWenoPharmacies
                         $wenoLog->insertWenoLog("Pharmacy Directory", "Success $count pharmacies Updated");
                         error_log("Background Task Pharmacy Imported $count Pharmacies");
                     } else {
-                        EventAuditLogger::instance()->newEvent(
+                        EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
                             $_SESSION['authUser'],
                             $_SESSION['authProvider'],
@@ -247,7 +247,7 @@ class DownloadWenoPharmacies
                     }
                     return $count;
                 } else {
-                    EventAuditLogger::instance()->newEvent(
+                    EventAuditLogger::getInstance()->newEvent(
                         "pharmacy_log",
                         $_SESSION['authUser'],
                         $_SESSION['authProvider'],
@@ -262,11 +262,11 @@ class DownloadWenoPharmacies
                 $wenolog = new WenoLogService();
                 $isError = $wenolog->scrapeWenoErrorHtml($scrape);
                 if ($isError['is_error']) {
-                    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
                     error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
                     $wenolog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
                 } else {
-                    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
                     error_log("Pharmacy Failed download! Weno error: Other");
                     $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
                 }

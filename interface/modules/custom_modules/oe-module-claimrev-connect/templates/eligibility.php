@@ -256,6 +256,3 @@ foreach ($insurance as $row) {
     </div>
 </div>
 </div>
-
-
-

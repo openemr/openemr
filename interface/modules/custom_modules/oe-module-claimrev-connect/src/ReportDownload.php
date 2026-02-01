@@ -34,7 +34,7 @@ class ReportDownload extends BaseService
 
             //$savePath = $siteDir . '/documents/edi/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
+                // Create a directory
                 mkdir($savePath, 0777, true);
             }
 
@@ -64,7 +64,7 @@ class ReportDownload extends BaseService
 
         //$savePath = $siteDir . '/documents/edi/';
         if (!file_exists($savePath)) {
-            // Create a direcotry
+            // Create a directory
             mkdir($savePath, 0777, true);
         }
 

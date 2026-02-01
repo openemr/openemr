@@ -29,6 +29,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -59,15 +60,15 @@ class CustomClientCredentialsGrantTest extends TestCase
 
 
         $ttl = new \DateInterval('PT300S');
+        $clientRepository = $this->getMockClientRepository($clientEntity);
         $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
-        $grant->setClientRepository($this->getMockClientRepository($clientEntity));
-        $grant->setHttpClient(new Client());
+        $grant->setClientRepository($clientRepository);
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
-        $grant->setJwtRepository($this->getMockJwtRepository());
-
+        $jwtAuthservice = new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $this->getMockJwtRepository());
+        $grant->setJWTAuthenticationService($jwtAuthservice);
         $response = $this->createMock(ResponseTypeInterface::class);
 
         // make sure we assert that our setAccessToken will be called as this is the final step where we know
@@ -110,14 +111,15 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
+        $clientRepository = $this->getMockClientRepository($clientEntity);
         $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
-        $grant->setClientRepository($this->getMockClientRepository($clientEntity));
-        $grant->setHttpClient($httpClient);
+        $grant->setClientRepository($clientRepository);
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
-        $grant->setJwtRepository($this->getMockJwtRepository());
+        $jwtAuthservice = new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $this->getMockJwtRepository(), $httpClient);
+        $grant->setJWTAuthenticationService($jwtAuthservice);
 
         $response = $this->createMock(ResponseTypeInterface::class);
 
@@ -148,19 +150,19 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
+        $clientRepository = $this->getMockClientRepository($clientEntity);
         $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
-        $grant->setClientRepository($this->getMockClientRepository($clientEntity));
-        $grant->setHttpClient(new Client());
+        $grant->setClientRepository($clientRepository);
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
-
+        $grant->setJWTAuthenticationService(new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $this->getMockJwtRepository()));
         $response = $this->createMock(ResponseTypeInterface::class);
 
         // if the issuer is invalid than we get a client authentication failed message
         $this->expectException(OAuthServerException::class);
-        $this->expectExceptionMessage('Client authentication failed');
+        $this->expectExceptionMessage('The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.');
 
         $grant->respondToAccessTokenRequest($this->getMockServerRequestForJWT($jwt), $response, $ttl);
     }
@@ -289,6 +291,8 @@ class CustomClientCredentialsGrantTest extends TestCase
         $token = $configuration->builder()
             // Configures the issuer (iss claim)
             ->issuedBy($iss)
+            // Configures the subject (sub claim)
+            ->relatedTo($iss)
             // Configures the audience (aud claim)
             ->permittedFor($aud)
             // Configures the id (jti claim)

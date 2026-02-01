@@ -58,7 +58,7 @@ class InterventionPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -88,4 +88,3 @@ class InterventionPerformed extends QDMBaseType
 
     public $_type = 'QDM::InterventionPerformed';
 }
-

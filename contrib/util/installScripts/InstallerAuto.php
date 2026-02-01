@@ -104,7 +104,9 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i = 1; $i < count($argv); $i++) {
+$argc ??= 0;
+$argv ??= [];
+for ($i = 1; $i < $argc; $i++) {
     $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];

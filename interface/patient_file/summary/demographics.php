@@ -40,6 +40,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
@@ -66,8 +67,10 @@ use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 if (!isset($pid)) {
-    $pid = $_SESSION['pid'] ?? $_GET['pid'] ?? null;
+    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
 }
 
 // Reset the previous name flag to allow normal operation.
@@ -107,7 +110,7 @@ if ($GLOBALS['enable_cdr']) {
     //CDR Engine stuff
     if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
         //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
-        $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
+        $new_allergy_alerts = allergy_conflict($pid, 'new', $session->get('authUser'));
         if (!empty($new_allergy_alerts)) {
             $pod_warnings = '';
             foreach ($new_allergy_alerts as $new_allergy_alert) {
@@ -117,11 +120,12 @@ if ($GLOBALS['enable_cdr']) {
         }
     }
 
-    if ((empty($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+    $alertNotifyPid = $session->get('alert_notify_pid');
+    if ((empty($alertNotifyPid) || ($alertNotifyPid != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
         // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
-        $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
+        $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $session->get('authUser'), true);
         if ($GLOBALS['enable_allergy_check']) {
-            $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
+            $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'), true);
         }
     }
     SessionUtil::setSession('alert_notify_pid', $pid);
@@ -344,9 +348,6 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
-// Add related persons to result array
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);
 
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(
@@ -389,12 +390,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         function referentialCdsClick(codetype, codevalue) {
             top.restoreSession();
             // Force a new window instead of iframe to address cross site scripting potential
-            dlgopen('../education.php?type=' + encodeURIComponent(codetype) + '&code=' + encodeURIComponent(codevalue), '_blank', 1024, 750, true);
+            const params = new URLSearchParams({
+                code: codevalue,
+                type: codetype
+            });
+            dlgopen('../education.php?' + params, '_blank', 1024, 750, true);
         }
 
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
-            dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
+            const params = new URLSearchParams({
+                eid: eventid,
+                date: apptdate
+            });
+            dlgopen('../../main/calendar/add_edit_event.php?' + params, '_blank', 800, 500, '', title);
         }
 
         function advdirconfigure() {
@@ -408,7 +417,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
-            dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '', {
+            const params = new URLSearchParams({
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                patient: <?php echo js_escape($pid); ?>
+            });
+            dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
                 allowResize: false,
                 allowDrag: false,
                 dialogId: 'patdel',
@@ -424,7 +437,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
-            let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
+            const params = new URLSearchParams({
+                patientid: <?php echo js_escape($pid); ?>
+            });
+            const url = '../../main/calendar/add_edit_event.php?' + params.toString();
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
@@ -438,7 +454,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 0,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 });
             } else {
                 $(target).find(".indicator").text(<?php echo xlj('collapse'); ?>);
@@ -446,7 +462,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 1,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 });
             }
         }
@@ -457,9 +473,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         function editScripts(url) {
 
             let title = <?php echo xlj('Prescriptions'); ?>;
-            let w = 960; // for weno width
 
-            dlgopen(url, 'editScripts', w, 400, '', '', {
+            dlgopen(url, 'editScripts', 'modal-xl', 400, '', '', {
                 resolvePromiseOn: 'close',
                 allowResize: true,
                 allowDrag: true,
@@ -484,7 +499,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             let csrf = new FormData;
             // a security given.
-            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
             if (embedded === true) {
                 // special formatting in certain widgets.
                 csrf.append("embeddedScreen", true);
@@ -599,7 +614,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $(this).on("click", ".complete_btn", function () {
                     let btn = $(this);
                     let csrf = new FormData;
-                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
                     fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')), {
                         method: "POST",
                         credentials: 'same-origin',
@@ -639,10 +654,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
                 $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
-                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
                     let ruleId = $(this).data("ruleId");
-                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?action=review!view&pid="
-                        + encodeURIComponent(pid) + "&rule_id=" + encodeURIComponent(ruleId) + "&csrf_token_form=" + encodeURIComponent(csrfToken);
+                    const params = new URLSearchParams({
+                        action: 'review!view',
+                        csrf_token_form: csrfToken,
+                        pid: pid,
+                        rule_id: ruleId
+                    });
+                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?" + params;
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -659,8 +679,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
                             // loadFrame already handles webroot and /interface/ prefix.
-                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' + encodeURIComponent(data.ruleId)
-                                + "&csrf_token=" + encodeURIComponent(csrfToken);
+                            const editParams = new URLSearchParams({
+                                action: 'edit!summary',
+                                csrf_token: csrfToken,
+                                id: data.ruleId
+                            });
+                            let editUrl = '/super/rules/index.php?' + editParams;
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
                     };
@@ -704,7 +728,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ORDER BY grp_seq, grp_title");
             while ($gfrow = sqlFetchArray($gfres)) { ?>
             $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>, {
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
             });
             <?php } ?>
             tabbify();
@@ -827,7 +851,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             //  1. The patient is not deceased
             //  2. The birthday is today (or in the past depending on global selection)
             //  3. The notification has not been turned off (or shown depending on global selection) for this year
-                $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authUserID']);
+                $birthdayAlert = new BirthdayReminder($pid, $session->get('authUserID'));
                 if ($birthdayAlert->isDisplayBirthdayAlert()) {
                     ?>
             // show the active reminder modal
@@ -875,7 +899,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             }
             let formData = new FormData();
-            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
             top.restoreSession();
@@ -910,7 +934,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             var EncounterIdArray = [];
             var Count = 0;
                 <?php
-            //Encounter details are stored to javacript as array.
+            //Encounter details are stored to javascript as array.
                 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                 " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
                 if (sqlNumRows($result4) > 0) {
@@ -930,7 +954,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
-            encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
+            const encParams = new URLSearchParams({
+                pid: <?php echo js_escape($pid); ?>,
+                set_encounter: <?php echo js_escape($encounter); ?>
+            });
+            encurl = 'encounter/encounter_top.php?' + encParams.toString();
             parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
             parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
@@ -950,7 +978,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         border-radius: 0;
       }
 
-      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
+      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interrupting
          the UI. This should be configurable and should go in a more appropriate place
       .pami-list {
           max-height: 200px;
@@ -958,7 +986,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
       } */
 
       <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($session->get('language_direction') == 'ltr')) { ?>
       div.tab td.label_custom, div.label_custom {
         text-align: right !important;
       }
@@ -1021,7 +1049,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <body class="mt-1 patient-demographic bg-light">
-
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
@@ -1036,9 +1063,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mb-2">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
-        <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
+        <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($session->get('authUserID')); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-
         if ($thisauth) {
             if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
                 $thisauth = 0;
@@ -1046,6 +1072,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1693,7 +1720,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }  // close advanced dir block
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
-                    $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
+                    $clin_rem_check = resolve_rules_sql('', '0', true, '', $session->get('authUser'));
                     $cdr = $GLOBALS['enable_cdr'];
                     $cdr_crw = $GLOBALS['enable_cdr_crw'];
                     if (!empty($clin_rem_check) && $cdr && $cdr_crw && AclMain::aclCheckCore('patients', 'alert')) {
@@ -1825,7 +1852,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            // Note the translaution occurs here instead of in teh Twig file for some specific concatenation needs
+                            // Note the translaution occurs here instead of in the Twig file for some specific concatenation needs
                             $etitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
                                 $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;
@@ -2013,7 +2040,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
-                            'csrf' => CsrfUtils::collectCsrfToken(),
+                            'csrf' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
                             'pid' => $pid
                         ]);
                     endif;
@@ -2042,5 +2069,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         });
     </script>
 </body>
-<?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD, 10); ?>
+<?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD); ?>
 </html>

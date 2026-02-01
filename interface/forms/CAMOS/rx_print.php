@@ -9,6 +9,8 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -52,6 +54,11 @@ $sigline['signed'] =
     "<div class='sig'>"
   . "<img src='./sig.jpg'>"
   . "</div>\n";
+$siglineValue = match ($_GET['sigline'] ?? 'plain') {
+    'embossed' => $sigline['embossed'],
+    'signed' => $sigline['signed'],
+    default => $sigline['plain'],
+};
 $query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", [$_SESSION['pid']]);
 if ($result = sqlFetchArray($query)) {
     $patient_name = $result['fname'] . ' ' . $result['lname'];
@@ -203,7 +210,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[0];
             ?>
   </div>
-            <?php print $sigline[$_GET['sigline']] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -234,7 +241,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print $camos_content[1];
             ?>
   </div>
-            <?php print $sigline[$_GET['sigline']] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -265,7 +272,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[2];
             ?>
   </div>
-            <?php print $sigline[$_GET['sigline']] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -296,7 +303,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[3];
             ?>
   </div>
-            <?php print $sigline[$_GET['sigline']] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block

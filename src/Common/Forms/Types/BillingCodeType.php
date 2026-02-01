@@ -15,11 +15,11 @@ namespace OpenEMR\Common\Forms\Types;
 
 use OpenEMR\Common\Layouts\LayoutsUtils;
 
-class BillingCodeType
+class BillingCodeType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 15;
 
-    public function buildPrintView()
+    public function buildPrintView($frow, $currvalue, $value_allowed = true)
     {
     }
     public function getAccumActionConditions($frow, $condition_str, $action)
@@ -85,7 +85,7 @@ class BillingCodeType
         $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
 
         // Support edit option T which assigns the (possibly very long) description as
         // the default value.

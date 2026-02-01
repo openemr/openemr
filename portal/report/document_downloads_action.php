@@ -10,13 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../verify_session.php");
-require_once("$srcdir/documents.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '')) {
+require_once(__DIR__ . "/../../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
+require_once("../verify_session.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
+
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -26,15 +31,15 @@ if (empty($_POST['documents'])) {
 }
 
 // Get the temporary folder
-$tmp = $GLOBALS['temporary_files_dir'];
+$tmp = $globalsBag->getString('temporary_files_dir');
 $documentIds = $_POST['documents'];
-$pid = $_SESSION['pid'];
+$pid = $session->get('pid');
 
 // Process each selected document
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
     $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category

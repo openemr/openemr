@@ -65,7 +65,7 @@ class parseCSV
      * $csv->save();
      * ----------------
      * # add row/entry to end of CSV file
-     * # - only recommended when you know the extact sctructure of the file
+     * # - only recommended when you know the exact structure of the file
      * $csv = new parseCSV();
      * $csv->save('data.csv', array('1986', 'Home', 'Nowhere', ''), true);
      * ----------------
@@ -163,7 +163,7 @@ class parseCSV
     // array of field values in data parsed
     public $titles =  [];
 
-    // two dimentional array of CSV data
+    // two dimensional array of CSV data
     public $data =  [];
 
     /**
@@ -365,7 +365,7 @@ class parseCSV
         $n = 1;
         $to_end = true;
 
-        // walk specific depth finding posssible delimiter characters
+        // walk specific depth finding possible delimiter characters
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
             $nch = $data [$i + 1] ?? false;

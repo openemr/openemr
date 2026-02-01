@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -76,7 +77,7 @@ class TelehealthGlobalConfig
     private $publicWebPath;
 
 
-    public function __construct($publicWebPath, $moduleDirectoryName, private readonly Environment $twig)
+    public function __construct($publicWebPath, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
@@ -423,8 +424,8 @@ class TelehealthGlobalConfig
         $portalHost = parse_url((string) $portalAddress, PHP_URL_HOST);
         $hostnamesMatch = $qualifiedHost === $portalHost;
 
-        $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);
-        $isValidTelehealthApi = filter_var($this->getTelehealthAPIURI(), FILTER_VALIDATE_URL);
+        $isValidRegistrationUri = ValidationUtils::isValidUrl($this->getRegistrationAPIURI());
+        $isValidTelehealthApi = ValidationUtils::isValidUrl($this->getTelehealthAPIURI());
 
         $isLocaleConfigured = $this->isLocaleConfigured();
 

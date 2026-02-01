@@ -263,6 +263,10 @@ if ($what == 'codes') {
     exit();
 }
 
+// Initialize variables to avoid undefined variable warnings
+$iTotal = 0;
+$iFilteredTotal = 0;
+
 $skipTableCount = false;
 if ($what == 'fields' && $source == 'V') {
     $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);

@@ -134,44 +134,6 @@ function cron_updateentry($type, $pid, $pc_eid): void
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:    cron_getPhoneAlertpatientData
-// Purpose: get patient data for send to alert
-////////////////////////////////////////////////////////////////////
-function cron_getPhoneAlertpatientData($type, $trigger_hours)
-{
-
-    //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
-    if ($type == 'Phone') {
-        $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>''	and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
-
-        $check_date = date("Y-m-d", mktime(date("H") + $trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
-    }
-
-    $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,pd.phone_home,pd.hipaa_voice,";
-    $ssql .= " and (ope.pc_eventDate=?)";
-
-    $query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
-			ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
-			ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime,ope.pc_facility
-		from
-			openemr_postcalendar_events as ope ,patient_data as pd
-		where
-			ope.pc_pid=pd.pid $ssql
-		order by
-			ope.pc_eventDate,ope.pc_endDate,pd.pid";
-
-    $db_patient = (sqlStatement($query, [$check_date]));
-    $patient_array = [];
-    $cnt = 0;
-    while ($prow = sqlFetchArray($db_patient)) {
-        $patient_array[$cnt] = $prow;
-        $cnt++;
-    }
-
-    return $patient_array;
-}
-
-////////////////////////////////////////////////////////////////////
 // Function:    cron_InsertNotificationLogEntry
 // Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////

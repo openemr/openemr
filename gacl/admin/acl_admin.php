@@ -20,6 +20,11 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
+// Variables defined in gacl_admin.inc.php
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api Defined in gacl_admin.inc.php line 53 */
+/** @var \ADOConnection $db Database connection reference from $gacl_api->db, defined in gacl_admin.inc.php line 57 */
+/** @var \Smarty $smarty Smarty template engine, defined in gacl_admin.inc.php line 59 */
+
 if (!isset($_POST['action']) ) {
     $_POST['action'] = FALSE;
 }
@@ -147,7 +152,7 @@ switch ($_POST['action']) {
         }
 
         //Grab sections for select boxes
-        foreach (['acl','aco','aro','axo'] as $type) {
+        foreach (['acl', 'aco', 'aro', 'axo'] as $type) {
             $type_array = 'options_'. $type .'_sections';
             ${$type_array} = [];
 
@@ -167,6 +172,12 @@ switch ($_POST['action']) {
             ${$type .'_section_id'} = reset(${$type_array});
         }
 
+        // Variables created dynamically above (lines 155-173)
+        /** @var array<string, string> $options_acl_sections */
+        /** @var array<string, string> $options_aco_sections */
+        /** @var array<string, string> $options_aro_sections */
+        /** @var array<string, string> $options_axo_sections */
+
         //Init the main js array
         $js_array = 'var options = new Array();' . "\n";
 
@@ -182,7 +193,7 @@ switch ($_POST['action']) {
 				FROM '. $gacl_api->_db_table_prefix . $type .'
 				WHERE hidden=0
 				ORDER BY section_value,order_value,name';
-            $rs = $db->SelectLimit($query,$gacl_api->_max_select_box_items);
+            $rs = $db->SelectLimit($query, $gacl_api->_max_select_box_items);
 
             if (is_object($rs)) {
                 while ($row = $rs->FetchRow()) {

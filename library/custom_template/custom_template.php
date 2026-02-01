@@ -222,16 +222,20 @@ if ($isNN) {
             $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
         });
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function sortableCallback(elem){
-            let clorder  = [];
+            const params = new URLSearchParams({
+                action: "updateRecordsListings"
+            });
             for (let i=0; i< elem.length; i++) {
                 let ele = elem[i];
                 if(ele.tagName == "DIV"){
-                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
+                    params.append("clorder[]", ele.firstElementChild.id.split("_")[1]);
                 }
             }
-            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+            $.post("updateDB.php", params.toString());
         }
+        // AI-generated code end
         oeSortable(sortableCallback);
 
         // let's popup a warning dialog if we're in a context that is text only templates
@@ -275,11 +279,11 @@ if ($isNN) {
               </div>
               <div class="col-md-4 text mb-2" id="templateDD">
                 <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
-                    <option value=""><?php echo htmlspecialchars((string) xl('Select category'), ENT_QUOTES); ?></option>
+                    <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
                     $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", [$_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)]);
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
-                        echo "<option value='" . htmlspecialchars((string) $rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars((string) xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
+                        echo "<option value='" . htmlspecialchars((string) $rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
                     }
                     ?>
                 </select>
@@ -289,7 +293,7 @@ if ($isNN) {
                 <?php
                 $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$_SESSION['authUserID']]);
                 while ($row = sqlFetchArray($res)) { ?>
-                    <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars((string) xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars((string) xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
+                    <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>
                   <a class="btn btn-primary btn-sm btn-transmit float-right" href="#"><?php echo xlt('Insert in Form'); ?></a>
               </div>
@@ -298,7 +302,7 @@ if ($isNN) {
                     <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
                         <ul id="menu5" class="example_menu w-100">
                             <li>
-                                <a class="expanded"><?php echo htmlspecialchars((string) xl('Components'), ENT_QUOTES); ?></a>
+                                <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
                                 <ul>
                                     <div id="template_sentence"></div>
                                 </ul>
@@ -310,7 +314,7 @@ if ($isNN) {
                                     "ON u.id=p.providerID WHERE pid=?", [$pid]);
                                 ?>
                                 <li>
-                                    <a class="collapsed"><?php echo htmlspecialchars((string) xl('Patient Details'), ENT_QUOTES); ?></a>
+                                    <a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'), ENT_QUOTES); ?></a>
                                     <ul>
                                         <?php
                                         listitemCode(xl('First name'), $row['fname']);
@@ -327,7 +331,7 @@ if ($isNN) {
                                     $res = sqlStatement('SELECT title, id, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', [$pid, $issType]);
                                     if (sqlNumRows($res)) { ?>
                                     <li>
-                                        <a class="collapsed"><?php echo htmlspecialchars((string) xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
+                                        <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
                                         <ul>
                                             <?php
                                             while ($row = sqlFetchArray($res)) {
@@ -345,8 +349,8 @@ if ($isNN) {
                         </ul>
                     </div>
                 </div>
-                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars((string) xl('Personalize'), ENT_QUOTES); ?></a>
-                <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars((string) xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars((string) xl('Add Buttons'), ENT_QUOTES); ?></a>
+                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
+                <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
               <div class="col-md-8">
                 <textarea class="ckeditor mb-5" cols="100" rows="180"

@@ -15,23 +15,24 @@
  */
 
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
-require_once(__DIR__ . "/../../../vendor/autoload.php");
+require_once __DIR__ . "/../../../vendor/autoload.php";
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once("$srcdir/FeeSheetHtml.class.php");
+require_once "../../globals.php";
+require_once "$srcdir/api.inc.php";
+require_once "$srcdir/forms.inc.php";
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/patient.inc.php";
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once "$srcdir/FeeSheetHtml.class.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -117,7 +118,7 @@ $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_
 
 if ($patientPortalSession && !empty($formid)) {
     $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
-    if (empty($pidForm) || ($pidForm != $_SESSION['pid'])) {
+    if (empty($pidForm) || ($pidForm != $session->get('pid'))) {
         echo xlt("illegal Action");
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         exit;
@@ -204,7 +205,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 if (!$from_trend_form) {
     $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
-        include_once($fname);
+        include_once $fname;
     }
 }
 
@@ -300,7 +301,7 @@ if (
                 "REPLACE INTO shared_attributes SET " .
                 "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
                 "user_id = ?, field_value = ?",
-                [$pid, $visitid, $field_id, $_SESSION['authUserID'], $value]
+                [$pid, $visitid, $field_id, $session->get('authUserID'), $value]
             );
             continue;
         } elseif ($source == 'V') {
@@ -382,7 +383,7 @@ if (
     if (!$alertmsg && !$from_issue_form && empty($_POST['bn_save_continue'])) {
         // Support custom behavior at save time, such as going to another form.
         if (function_exists($formname . '_save_exit')) {
-            if (call_user_func($formname . '_save_exit')) {
+            if (($formname . '_save_exit')()) {
                 exit;
             }
         }
@@ -434,7 +435,7 @@ if (
 
     </style>
 
-    <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+    <?php require_once "{$GLOBALS['srcdir']}/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -466,7 +467,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -506,7 +507,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -515,7 +516,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -524,7 +525,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -533,7 +534,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -542,7 +543,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -551,7 +552,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -580,12 +581,14 @@ if (
             // This is the case of selecting a code for the Fee Sheet:
             if (!current_sel_name) {
                 if (code) {
-                    $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                        '?codetype=' + encodeURIComponent(codetype) +
-                        '&code=' + encodeURIComponent(code) +
-                        '&selector=' + encodeURIComponent(selector) +
-                        '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                    const params = new URLSearchParams({
+                        code: code,
+                        codetype: codetype,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                        pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
+                        selector: selector
+                    });
+                    $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
             }
@@ -693,8 +696,11 @@ if (
         // TBD: Move this to TabsWrapper.class.php.
         function openLBFEncounterForm(formdir, formname, formid) {
             top.restoreSession();
-            var url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?formname=" ?>' +
-                encodeURIComponent(formdir) + '&id=' + encodeURIComponent(formid);
+            const params = new URLSearchParams({
+                formname: formdir,
+                id: formid
+            });
+            const url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?" ?>' + params;
             parent.twAddFrameTab('enctabs', formname, url);
             return false;
         }
@@ -796,11 +802,13 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                pricelevel: f.form_fs_pricelevel.value
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -822,12 +830,14 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&selector=' + encodeURIComponent(a[2]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                pricelevel: f.form_fs_pricelevel.value,
+                selector: a[2]
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -849,11 +859,13 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to selecting a package of codes.
@@ -861,10 +873,12 @@ if (
             var f = sel.form;
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
-                $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                    '?list=' + encodeURIComponent(sel.value) +
-                    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                const params = new URLSearchParams({
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                    list: sel.value,
+                    pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+                });
+                $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;
         }
@@ -892,7 +906,7 @@ if (
         <?php } // end if (isset($fs))
 
         if (function_exists($formname . '_javascript')) {
-            call_user_func($formname . '_javascript');
+            ($formname . '_javascript')();
         }
         ?>
 
@@ -900,7 +914,8 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'"; } ?>>
+    echo " style='background-color:var(--white)'";
+                      } ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
@@ -943,7 +958,7 @@ if (
                                 [$formname, $formid]
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($session->get('authUserID') ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1293,7 +1308,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (!str_contains('?!.,:-=', substr((string) $tmp, -1, 1))) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1308,7 +1323,7 @@ if (
                         $tmp = ' text';
                         if (isOption($edit_options, 'DS')) {
                             $tmp .= ' RS';
-                        } else if (isOption($edit_options, 'DO')) {
+                        } elseif (isOption($edit_options, 'DO')) {
                             $tmp .= ' RO';
                         }
                         if ($USING_BOOTSTRAP) {
@@ -1450,7 +1465,7 @@ if (
                     $tmp_provider_id = $fs->provider_id ?: 0;
                     if (!$tmp_provider_id && $userauthorized) {
                         // Default to the logged-in user if they are a provider.
-                        $tmp_provider_id = $_SESSION['authUserID'];
+                        $tmp_provider_id = $session->get('authUserID');
                     }
                     echo xlt('Main Provider') . ": ";
                     echo "<select class='form-control' name='form_fs_provid'>";
@@ -1816,7 +1831,7 @@ if (
                                     <?php
                                     if (function_exists($formname . '_additional_buttons')) {
                                         // Allow the plug-in to insert more action buttons here.
-                                        call_user_func($formname . '_additional_buttons');
+                                        ($formname . '_additional_buttons')();
                                     }
 
                                     if ($form_is_graphable) {
@@ -1858,7 +1873,7 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 
@@ -1874,7 +1889,7 @@ if (
                     <?php echo $date_init; ?>
                     <?php
                     if (function_exists($formname . '_javascript_onload')) {
-                        call_user_func($formname . '_javascript_onload');
+                        ($formname . '_javascript_onload')();
                     }
 
                     if ($alertmsg) {

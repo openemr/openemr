@@ -30,6 +30,7 @@ class CacheRam implements ICache
     public function Set($key, $val, $flags = null, $timeout = 0)
     {
         $this->ram [$key] = $val;
+        return $val;
     }
     public function Delete($key)
     {

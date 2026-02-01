@@ -162,7 +162,7 @@ class ServerConfig
 
     public function getOauthAuthorizationUrl(): string
     {
-        return $this->oauthAddress . "/oauth2/" . $this->getSiteId();
+        return $this->oauthAddress . $this->webRoot . "/oauth2/" . $this->getSiteId();
     }
     public function getTokenUrl(): string
     {

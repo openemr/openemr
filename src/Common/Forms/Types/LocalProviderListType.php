@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Forms\Types;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 
-class LocalProviderListType
+class LocalProviderListType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 11;
 
@@ -135,7 +135,7 @@ class LocalProviderListType
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         if (!empty($this->providerList)) {
             $urest = $this->providerList;
         } else {

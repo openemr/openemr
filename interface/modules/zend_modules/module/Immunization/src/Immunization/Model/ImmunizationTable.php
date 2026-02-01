@@ -158,8 +158,18 @@ class ImmunizationTable extends AbstractTableGateway
         }
 
         $query .= "i.patient_id=p.pid and " .
-            add_escape_custom($query_codes) .
+            $query_codes .
             $query_pids . "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
+
+        // Merge code_bind_values into query_data to use parameterized queries
+        if (!empty($form_data['code_bind_values'])) {
+            $query_data = array_merge($query_data, $form_data['code_bind_values']);
+        }
+
+        // Merge pid_bind_values into query_data to use parameterized queries
+        if (!empty($form_data['pid_bind_values'])) {
+            $query_data = array_merge($query_data, $form_data['pid_bind_values']);
+        }
 
         if ($getCount) {
             $result = $this->applicationTable->zQuery($query, $query_data);

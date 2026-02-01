@@ -21,13 +21,17 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -40,7 +44,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
 {
     use FhirObservationTrait;
 
-    const CATEGORY_ASSESSMENT = 'assessment';
+    const CATEGORY_OBSERVATION_ADI = 'observation-adi-documentation';
 
     // LOINC codes for advance directive types
     const ADI_LIVING_WILL_CODE = '75320-2';
@@ -60,7 +64,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             'fullcode' => 'LOINC:' . self::ADI_LIVING_WILL_CODE,
             'code' => self::ADI_LIVING_WILL_CODE,
             'description' => 'Advance directive - living will',
-            'category' => self::CATEGORY_ASSESSMENT,
+            'category' => self::CATEGORY_OBSERVATION_ADI,
             'document_type' => 'Living Will',
             'profiles' => [
                 self::USCDI_PROFILE_ADI_DOCUMENTATION_URI => ['8.0.0']
@@ -70,7 +74,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             'fullcode' => 'LOINC:' . self::ADI_POWER_OF_ATTORNEY_CODE,
             'code' => self::ADI_POWER_OF_ATTORNEY_CODE,
             'description' => 'Advance directive - medical power of attorney',
-            'category' => self::CATEGORY_ASSESSMENT,
+            'category' => self::CATEGORY_OBSERVATION_ADI,
             'document_type' => 'Durable Power of Attorney',
             'profiles' => [
                 self::USCDI_PROFILE_ADI_DOCUMENTATION_URI => ['8.0.0']
@@ -80,7 +84,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             'fullcode' => 'LOINC:' . self::ADI_DNR_ORDER_CODE,
             'code' => self::ADI_DNR_ORDER_CODE,
             'description' => 'Do not resuscitate order',
-            'category' => self::CATEGORY_ASSESSMENT,
+            'category' => self::CATEGORY_OBSERVATION_ADI,
             'document_type' => 'Do Not Resuscitate Order',
             'profiles' => [
                 self::USCDI_PROFILE_ADI_DOCUMENTATION_URI => ['8.0.0']
@@ -90,13 +94,14 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             'fullcode' => 'LOINC:' . self::ADI_GENERIC_CODE,
             'code' => self::ADI_GENERIC_CODE,
             'description' => 'Advance directive',
-            'category' => self::CATEGORY_ASSESSMENT,
+            'category' => self::CATEGORY_OBSERVATION_ADI,
             'document_type' => 'Advance Directive',
             'profiles' => [
                 self::USCDI_PROFILE_ADI_DOCUMENTATION_URI => ['8.0.0']
             ]
         ],
     ];
+    const SUPPORTING_INFORMATION_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo";
 
     private ?PatientAdvanceDirectiveService $advanceDirectiveService = null;
 
@@ -113,7 +118,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
      */
     public function supportsCategory($category): bool
     {
-        return $category === self::CATEGORY_ASSESSMENT;
+        return $category === self::CATEGORY_OBSERVATION_ADI;
     }
 
     /**
@@ -164,6 +169,28 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
     }
 
     /**
+     * @param $dataRecord
+     * @param $encode
+     * @return FHIRDomainResource|string
+     * @throws \JsonException
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
+    {
+        $resource = $this->parseObservationOpenEMRRecord($dataRecord, false);
+        $this->populateIssued($resource, $dataRecord);
+        $this->populateSupportingInformation($resource, $dataRecord);
+        return $encode ? json_encode($resource, JSON_THROW_ON_ERROR) : $resource;
+    }
+
+    public function populateIssued(FHIRObservation $observation, array $dataRecord): void
+    {
+        if (!empty($observation->getMeta()->getLastUpdated())) {
+            // Set issued to last updated time
+            $observation->setIssued($observation->getMeta()->getLastUpdated());
+        }
+    }
+
+    /**
      * Search for advance directive observations
      *
      * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
@@ -178,7 +205,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
 
             // Validate category if provided
             if (isset($openEMRSearchParameters['category']) && $openEMRSearchParameters['category'] instanceof TokenSearchField) {
-                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY_ASSESSMENT)) {
+                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY_OBSERVATION_ADI)) {
                     throw new SearchFieldException("category", "invalid value - only 'assessment' category is supported");
                 }
                 unset($openEMRSearchParameters['category']);
@@ -291,6 +318,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             // Convert patient UUID bytes to string for observation records
             $patientUuidString = UuidRegistry::uuidToString($patientUuidBytes);
 
+            $codeTypesService = new CodeTypesService();
             // Transform observations to OpenEMR record format
             foreach ($adiData['observations'] as $observation) {
                 $code = $observation['code'];
@@ -333,29 +361,23 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
                             'display' => $mapping['description']
                         ]
                     ],
-                    "ob_type" => self::CATEGORY_ASSESSMENT,
+                    "ob_type" => self::CATEGORY_OBSERVATION_ADI,
                     "ob_status" => 'final', // ADI observations are always final
                     "puuid" => $patientUuidString,
                     "uuid" => $observationUuid,
                     "date" => $observation['effective_date'],
                     "last_modified" => $observation['provenance']['time'] ?? $observation['effective_date'],
                     "profiles" => $profiles,
-                    // Value as CodeableConcept - format: "system:code"
-                    "value" => $observation['value_system'] . ":" . $observation['value_code'],
+                    // our value is 'yes' if present... indicating the directive exists so hard-coding the system
+                    "value" => CodeTypesService::CODE_TYPE_SNOMED_CT . ":" . $observation['value_code'],
                     "value_code_description" => $observation['value_display'], // "Yes"
-                    // Add focus element for DocumentReference link
-                    "focus" => [
-                        [
-                            'reference' => 'DocumentReference/' . $observation['document_uuid']
-                        ]
-                    ],
                     // DocumentReference details
                     "document_id" => $observation['document_id'],
                     "document_uuid" => $observation['document_uuid'],
                     "document_location" => $observation['document_location'],
                     "document_name" => $observation['document_name'],
-                    // Author/provenance
-                    "author_id" => $observation['provenance']['author_id'] ?? null,
+                    // performer and provenance author
+                    "performer_uuid" => $observation['provenance']['uuid'] ?? null,
                 ];
 
                 $processingResult->addData($record);
@@ -390,6 +412,18 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             self::USCDI_PROFILE_ADI_DOCUMENTATION_URI,
             $this->getSupportedVersions()
         );
+    }
+
+    protected function setObservationCategory(FHIRObservation $observation, array $dataRecord): void
+    {
+        // Required survey category slice (mustSupport, min 1..1)
+        $observation->addCategory(UtilsService::createCodeableConcept([
+            $dataRecord['ob_type'] ?? self::CATEGORY_OBSERVATION_ADI => [
+                'system' => FhirCodeSystemConstants::HL7_US_CORE_CATEGORY_OBSERVATION,
+                'code' => $dataRecord['ob_type'] ?? self::CATEGORY_OBSERVATION_ADI,
+                'description' => $dataRecord['ob_type'] ?? 'Observation ADI Documentation'
+            ]
+        ]));
     }
 
     /**
@@ -431,6 +465,17 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             }
 
             $observation->setCode($codeableConcept);
+        }
+    }
+
+    protected function populateSupportingInformation(FHIRObservation|string $resource, array $dataRecord): void
+    {
+        if (!empty($dataRecord['document_uuid'])) {
+            $reference = UtilsService::createRelativeReference("DocumentReference", $dataRecord['document_uuid'], $dataRecord['document_name'] ?? null);
+            $extension = new FHIRExtension();
+            $extension->setUrl(self::SUPPORTING_INFORMATION_EXTENSION_URL);
+            $extension->setValueReference($reference);
+            $resource->addExtension($extension);
         }
     }
 }

@@ -1,0 +1,2 @@
+# Mark all PHPStan baseline files as generated
+.phpstan/baseline/ linguist-generated=true

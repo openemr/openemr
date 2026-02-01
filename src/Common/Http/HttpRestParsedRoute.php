@@ -23,21 +23,21 @@ class HttpRestParsedRoute
      * Whether the route definition is a valid match against the current request
      * @var bool
      */
-    private $isValid;
+    private bool $isValid = false;
 
     /**
      * The endpoint resource that the api request is for.  Only populated if the route definition
      * matches against the current route
-     * @var string
+     * @var ?string
      */
-    private $resource;
+    private ?string $resource = null;
 
     /**
      * The endpoint operation that the api request is for.  Only populated if the route definition
      * matches against the current route
-     * @var string
+     * @var ?string
      */
-    private $operation;
+    private ?string $operation = null;
 
     /**
      * The identifier of a resource for an instance level operation ie fhir/Patient/{id} -> id or
@@ -47,11 +47,11 @@ class HttpRestParsedRoute
     private ?string $instanceIdentifier;
 
     /**
-     * The endpoint paramters (identifiers, and anything else marked with the :colon param).
+     * The endpoint parameters (identifiers, and anything else marked with the :colon param).
      * Only populated if the route definition matches against the current route
-     * @var string
+     * @var array
      */
-    private $routeParams;
+    private array $routeParams = [];
 
     /**
      * @param mixed $requestMethod
@@ -192,7 +192,7 @@ class HttpRestParsedRoute
         }
 
         // We've implemented our FHIR api spec so the resource is the first argument
-        // We have to accomodate this for our scope permissions
+        // We have to accommodate this for our scope permissions
         // standard api allows for nesting of resources so we have to handle the other possibilities there.
         if ($apiType === 'fhir') {
             $this->resource = $parts[2] ?? null;

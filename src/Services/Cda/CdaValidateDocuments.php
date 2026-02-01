@@ -16,11 +16,14 @@ use CURLFile;
 use DOMDocument;
 use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
 
 class CdaValidateDocuments
 {
+    use SystemLoggerAwareTrait;
+
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
 
@@ -211,11 +214,12 @@ class CdaValidateDocuments
             'curesUpdate' => true,
             'ccdaFile' => $file
         ];
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -259,9 +263,9 @@ class CdaValidateDocuments
             foreach ($errors as $error) {
                 $detail = $this->formatXsdError($error);
                 $xsd_log['xsd'][] = $detail;
-                error_log($detail);
             }
             libxml_clear_errors();
+            $this->getSystemLogger()->errorLogCaller("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;

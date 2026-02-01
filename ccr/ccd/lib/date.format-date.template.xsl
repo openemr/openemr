@@ -74,7 +74,7 @@
                   <xsl:when test="substring($no-neg, $no-neg-length) = 'Z'">Z</xsl:when>
                   <xsl:otherwise>
                      <xsl:variable name="tz" select="substring($no-neg, $no-neg-length - 5)" />
-                     <xsl:if test="(substring($tz, 1, 1) = '-' or 
+                     <xsl:if test="(substring($tz, 1, 1) = '-' or
                                     substring($tz, 1, 1) = '+') and
                                    substring($tz, 4, 1) = ':'">
                         <xsl:value-of select="$tz" />
@@ -83,7 +83,7 @@
                </xsl:choose>
             </xsl:variable>
             <xsl:if test="not(string($timezone)) or
-                          $timezone = 'Z' or 
+                          $timezone = 'Z' or
                           (substring($timezone, 2, 2) &lt;= 23 and
                            substring($timezone, 5, 2) &lt;= 59)">
                <xsl:variable name="dt" select="substring($no-neg, 1, $no-neg-length - string-length($timezone))" />
@@ -178,7 +178,7 @@
          </xsl:otherwise>
       </xsl:choose>
    </xsl:variable>
-   <xsl:value-of select="$formatted" />   
+   <xsl:value-of select="$formatted" />
 </xsl:template>
 
 <xsl:template name="date:_format-date">
@@ -304,7 +304,7 @@
                      <xsl:variable name="dow"
                                    select="(($y-1 + floor($y-1 div 4) -
                                              floor($y-1 div 100) + floor($y-1 div 400) +
-                                             $days) 
+                                             $days)
                                             mod 7) + 1" />
                      <xsl:variable name="day-node" select="document('')/*/date:days/date:day[number($dow)]" />
                      <xsl:choose>
@@ -436,10 +436,10 @@
                         </xsl:when>
                         <xsl:when test="$char = 'W'">
                            <xsl:variable name="y-1" select="$year - 1" />
-                           <xsl:variable name="day-of-week" 
+                           <xsl:variable name="day-of-week"
                                          select="(($y-1 + floor($y-1 div 4) -
                                                   floor($y-1 div 100) + floor($y-1 div 400) +
-                                                  $days) 
+                                                  $days)
                                                   mod 7) + 1" />
                            <xsl:choose>
                               <xsl:when test="($day - $day-of-week) mod 7">
@@ -474,10 +474,10 @@
    <xsl:param name="year" />
    <xsl:variable name="y-1" select="$year - 1" />
    <!-- this gives the day of the week, counting from Sunday = 0 -->
-   <xsl:variable name="day-of-week" 
+   <xsl:variable name="day-of-week"
                  select="($y-1 + floor($y-1 div 4) -
                           floor($y-1 div 100) + floor($y-1 div 400) +
-                          $days) 
+                          $days)
                          mod 7" />
    <!-- this gives the day of the week, counting from Monday = 1 -->
    <xsl:variable name="dow">

@@ -28,6 +28,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   composer-require-checker:
     runs-on: ubuntu-24.04
@@ -39,7 +43,7 @@ jobs:
         - '4.16.1'
     steps:
     - name: "Checkout Code"
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: "Setup PHP"
       uses: shivammathur/setup-php@v2
@@ -54,7 +58,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     ##
     # These are reused a bunch so it's neater to collect them here
@@ -68,7 +72,7 @@ jobs:
 
     - name: "Restore vendor artifacts"
       id: vendor-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -81,7 +85,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.vendor }}'
         matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -90,7 +94,7 @@ jobs:
     - name: "Restore composer downloads"
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -104,14 +108,14 @@ jobs:
 
     - name: "Save composer cache"
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: "Save vendor artifacts"
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         path: vendor/

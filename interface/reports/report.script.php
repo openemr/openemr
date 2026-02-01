@@ -148,13 +148,13 @@
         document.getElementById('table_' + choose_this_page_criteria_value).style.display = '';
     }
 
-    function checkOptionExist(value0, seperator)//It returns the position of the option, if the value is found, in the final criteria select box submitted.
+    function checkOptionExist(value0, separator)//It returns the position of the option, if the value is found, in the final criteria select box submitted.
     {//If doesn't exist new insertion is done.If exist it is updated.
         var elSel = document.getElementById('final_this_page_criteria');
         var i;
         for (i = elSel.length - 1; i >= 0; i--) {
             OptionValue = elSel.options[i].value;
-            OptionValue = OptionValue.split('|' + seperator.trim());
+            OptionValue = OptionValue.split('|' + separator.trim());
             if (OptionValue[0] == value0) {
                 return i;
             }
@@ -176,17 +176,17 @@
         return -1;
     }
 
-    function appendOptionRadioCriteria(text0, value0, text1, value1, seperator, Type) {//If option doesn't exist new insertion is done.If exist it is updated in the select drop down.//Remove the item if the option is All.
+    function appendOptionRadioCriteria(text0, value0, text1, value1, separator, Type) {//If option doesn't exist new insertion is done.If exist it is updated in the select drop down.//Remove the item if the option is All.
         var elOptNew = document.createElement('option');
         if (Type == 'radio' || Type == 'query_drop_down') {
-            elOptNew.text = text0 + seperator + text1;
-            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
+            elOptNew.text = text0 + separator + text1;
+            elOptNew.value = value0 + "|" + separator.trim() + "|" + value1;
         } else if (Type == 'radio_like') {
             elOptNew.text = text0 + ' = ' + text1;
-            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
+            elOptNew.value = value0 + "|" + separator.trim() + "|" + value1;
         }
         var elSel = document.getElementById('final_this_page_criteria');
-        TheOptionIndex = checkOptionExist(value0, seperator);
+        TheOptionIndex = checkOptionExist(value0, separator);
         if (TheOptionIndex == -1) {
             if (value1 != 'all') {
                 try {
@@ -203,16 +203,16 @@
         }
     }
 
-    function appendOptionTextCriteria(text0, value0, text1, value1, seperator, Type) {//If option doesn't exist new insertion is done.If exist it is updated in the select drop down.//Remove the item if the value is blank.
+    function appendOptionTextCriteria(text0, value0, text1, value1, separator, Type) {//If option doesn't exist new insertion is done.If exist it is updated in the select drop down.//Remove the item if the value is blank.
         var elOptNew = document.createElement('option');
-        elOptNew.text = text0 + seperator + text1;
+        elOptNew.text = text0 + separator + text1;
         if (Type == 'text') {
-            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
+            elOptNew.value = value0 + "|" + separator.trim() + "|" + value1;
         } else if (Type == 'text_like') {
-            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1 + "%";
+            elOptNew.value = value0 + "|" + separator.trim() + "|" + value1 + "%";
         }
         var elSel = document.getElementById('final_this_page_criteria');
-        TheOptionIndex = checkOptionExist(value0, seperator);
+        TheOptionIndex = checkOptionExist(value0, separator);
         if (TheOptionIndex == -1) {
             if (!(value1 == '' || value1 == '&nbsp;'))//'&nbsp;' is for ajax case
             {
@@ -230,10 +230,10 @@
         }
     }
 
-    function appendOptionDateCriteria(text0, value0, text1, value1, seperator, FromDate, ToDate, Type)//For Date drop down
+    function appendOptionDateCriteria(text0, value0, text1, value1, separator, FromDate, ToDate, Type)//For Date drop down
     {//If option doesn't exist new insertion is done.If exist it is updated in the select drop down.//Remove the item if the drop down is All.
         var elOptNew = document.createElement('option');
-        elOptNew.text = text0 + seperator + text1;
+        elOptNew.text = text0 + separator + text1;
         FromDateValue = document.getElementById(FromDate).value;
         ToDateValue = document.getElementById(ToDate).value;
         // only require biller to enter from date
@@ -262,13 +262,13 @@
         }
     }
 
-    function CleanUpAjax(text0, value0, seperator) {//Cleans the values in the ajax (Insurance Company criteria)
+    function CleanUpAjax(text0, value0, separator) {//Cleans the values in the ajax (Insurance Company criteria)
         document.getElementById('type_code').value = '';
         document.getElementById('hidden_ajax_close_value').value = '';
         document.getElementById('hidden_type_code').value = '';
         document.getElementById('div_insurance_or_patient').innerHTML = '';
         var elSel = document.getElementById('final_this_page_criteria');
-        TheOptionIndex = checkOptionExist(value0, seperator);
+        TheOptionIndex = checkOptionExist(value0, separator);
         if (TheOptionIndex == -1) {
         } else {
             elSel.remove(TheOptionIndex);
@@ -376,8 +376,8 @@
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
-    //In Internet Explorer the ajax drop down of insurance was gettign hidden under the select drop down towards the right side.
-    //So an iframe is added to solve this issue.
+    //In Internet Explorer the ajax drop down of insurance was getting hidden under the select drop down towards the right side.
+    //So an iframe was added to solve this issue.
     //-------------------------------------------------------------------------------------------------------------------------
     function show_frame_to_hide() {//Show the iframe
         if (document.getElementById("AjaxContainerInsurance")) {

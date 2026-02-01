@@ -30,7 +30,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CareTeamService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
@@ -46,7 +46,7 @@ class C_EncounterVisitForm
 {
     private readonly Environment $twig;
 
-    private readonly EventDispatcher $eventDispatcher;
+    private readonly EventDispatcherInterface $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;
