@@ -556,8 +556,7 @@ if (
                     unset($stmt);
                 } else {
                     $tmp = make_statement($stmt);
-                    //email the statement from this point is where the individual statements exit
-                    if (!empty($_REQUEST['form_email'])) {
+                    if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         emailLogin($inv_pid[$inv_count], $tmp);
                     }
                     if (empty($tmp)) {
