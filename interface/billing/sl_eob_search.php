@@ -1,4 +1,4 @@
-<?php global $STMT_PRINT_CMD;
+<?php
 
 /**
  * This the first of two pages to support posting of EOBs.
