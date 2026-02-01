@@ -108,7 +108,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         // while we migrate the sessions to testable objects.
         if (!empty($_SESSION)) {
             foreach ($_SESSION as $key => $value) {
-                if ($key !== $session->getName()) { // Avoid overwriting session name
+                if (!in_array($key, [SessionUtil::OAUTH_SESSION_ID, SessionUtil::API_SESSION_ID, SessionUtil::CORE_SESSION_ID])) { // Avoid overwriting session name
                     $session->set($key, $value);
                 }
             }
