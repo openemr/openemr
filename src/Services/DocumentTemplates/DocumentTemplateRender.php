@@ -12,8 +12,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Ruth Moulton
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +25,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 use RuntimeException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 
@@ -41,6 +44,7 @@ class DocumentTemplateRender
     private $ptrow = [];
     private $enrow = [];
     private $hisrow = [];
+    private $vitalsrow = [];
     private int $inputs_cnt = -1;
     private int $obj_cnt = -1;
     private int $grp_cnt = -1;
@@ -88,6 +92,13 @@ class DocumentTemplateRender
                 $this->encounter
             ]);
         }
+
+        // Get most recent vitals.
+        $this->vitalsrow = sqlQuery(
+            "SELECT weight, height, BMI FROM form_vitals WHERE pid = ? ORDER BY id DESC LIMIT 1",
+            [$this->pid]
+        ) ?: [];
+
         // From database
         if (!empty($template_id)) {
             $template = $this->templateService->fetchTemplate($template_id)['template_content'];
@@ -419,6 +430,36 @@ class DocumentTemplateRender
                 $s = $this->keyReplace($s, $this->dataFixup($this->getIssues('medication'), xl('Medications')));
             } elseif ($this->keySearch($s, '{ProblemList}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->getIssues('medical_problem'), xl('Problem List')));
+            } elseif ($this->keySearch($s, '{PatientAge}')) {
+                $tmp = (new PatientService())->getPatientAgeDisplay($this->ptrow['DOB']);
+                $s = $this->keyReplace($s, $this->dataFixup($tmp, xl('Age')));
+            } elseif ($this->keySearch($s, '{PatientWeight}')) {
+                $s = $this->keyReplace($s, $this->dataFixup($this->vitalsrow['weight'] ?? '', xl('Weight')));
+            } elseif ($this->keySearch($s, '{PatientHeight}')) {
+                $s = $this->keyReplace($s, $this->dataFixup($this->vitalsrow['height'] ?? '', xl('Height')));
+            } elseif ($this->keySearch($s, '{PatientBMI}')) {
+                $s = $this->keyReplace($s, $this->dataFixup($this->vitalsrow['BMI'] ?? '', xl('BMI')));
+            } elseif ($this->keySearch($s, '{ProviderName}')) {
+                $tmp = $this->ptrow['ur_title'] ?? '';
+                if ($tmp !== '' && $tmp !== null) {
+                    $tmp .= ' ';
+                }
+                $tmp .= $this->ptrow['ur_fname'] ?? '';
+                if (!empty($this->ptrow['ur_mname'])) {
+                    if ($tmp) {
+                        $tmp .= ' ';
+                    }
+                    $tmp .= $this->ptrow['ur_mname'];
+                }
+                if (!empty($this->ptrow['ur_lname'])) {
+                    if ($tmp) {
+                        $tmp .= ' ';
+                    }
+                    $tmp .= $this->ptrow['ur_lname'];
+                }
+                $s = $this->keyReplace($s, $this->dataFixup(trim($tmp), xl('Provider')));
+            } elseif ($this->keySearch($s, '{ProviderSpecialty}')) {
+                $s = $this->keyReplace($s, $this->dataFixup($this->ptrow['ur_specialty'] ?? '', xl('Specialty')));
             } elseif ($this->keySearch($s, '{GRP}')) {     // This tag indicates the fields from here until {/GRP} are a group of fields
                 // separated by semicolons. Fields with no data are omitted, and fields with
                 // data are prepended with their field label from the form layout.

@@ -11,8 +11,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ruth Moulton
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2014 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +25,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\PatientService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -109,7 +112,7 @@ function getIssues($type)
 // Top level function for scanning and replacement of a file's contents.
 function doSubs($s)
 {
-    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
+    global $ptrow, $hisrow, $enrow, $vitalsrow, $nextLocation, $keyLocation, $keyLength;
     global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter, $ext;
 
     $nextLocation = 0;
@@ -212,6 +215,36 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
         } elseif (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
+        } elseif (keySearch($s, '{PatientAge}')) {
+            $tmp = (new PatientService())->getPatientAgeDisplay($ptrow['DOB']);
+            $s = keyReplace($s, dataFixup($tmp, xl('Age')));
+        } elseif (keySearch($s, '{PatientWeight}')) {
+            $s = keyReplace($s, dataFixup($vitalsrow['weight'] ?? '', xl('Weight')));
+        } elseif (keySearch($s, '{PatientHeight}')) {
+            $s = keyReplace($s, dataFixup($vitalsrow['height'] ?? '', xl('Height')));
+        } elseif (keySearch($s, '{PatientBMI}')) {
+            $s = keyReplace($s, dataFixup($vitalsrow['BMI'] ?? '', xl('BMI')));
+        } elseif (keySearch($s, '{ProviderName}')) {
+            $tmp = $ptrow['ur_title'] ?? '';
+            if ($tmp !== '' && $tmp !== null) {
+                $tmp .= ' ';
+            }
+            $tmp .= $ptrow['ur_fname'] ?? '';
+            if (!empty($ptrow['ur_mname'])) {
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+                $tmp .= $ptrow['ur_mname'];
+            }
+            if (!empty($ptrow['ur_lname'])) {
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+                $tmp .= $ptrow['ur_lname'];
+            }
+            $s = keyReplace($s, dataFixup(trim($tmp), xl('Provider')));
+        } elseif (keySearch($s, '{ProviderSpecialty}')) {
+            $s = keyReplace($s, dataFixup($ptrow['ur_specialty'] ?? '', xl('Specialty')));
         } elseif (preg_match('/^{CurrentDate:?.*}/', substr((string) $s, $keyLocation), $matches)) {
            /* defaults to ISO standard date format yyyy-mm-dd
             * modified by string following ':' as follows
@@ -333,7 +366,8 @@ function doSubs($s)
 
 // Get patient demographic info.
 $ptrow = sqlQuery("SELECT pd.*, " .
-  "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname " .
+  "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, " .
+  "ur.title AS ur_title, ur.specialty AS ur_specialty " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
   "WHERE pd.pid = ?", [$pid]);
@@ -348,6 +382,12 @@ if ($encounter) {
     $enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " .
     "encounter = ?", [$pid, $encounter]);
 }
+
+// Get most recent vitals.
+$vitalsrow = sqlQuery(
+    "SELECT weight, height, BMI FROM form_vitals WHERE pid = ? ORDER BY id DESC LIMIT 1",
+    [$pid]
+);
 
 $form_filename = $_REQUEST['form_filename'];
 $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
