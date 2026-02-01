@@ -31,6 +31,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+// statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
+assert(isset($STMT_TEMP_FILE));
+assert(isset($STMT_PRINT_CMD));
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
