@@ -1127,7 +1127,7 @@ STP2TBLBOT;
                     }
 
                     // Default collate value when using pre-created database (collate field not in form)
-                    $_REQUEST['collate'] = $_REQUEST['collate'] ?? 'utf8mb4_general_ci';
+                    $_REQUEST['collate'] ??= 'utf8mb4_general_ci';
                     if (! $installer->collateNameIsValid($_REQUEST['collate'])) {
                         $pass_step2_validation = false;
                         $error_step2_message .= "$error - A collation name is required <br />\n";
