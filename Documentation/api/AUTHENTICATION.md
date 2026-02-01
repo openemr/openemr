@@ -639,6 +639,16 @@ curl -X POST -k \
 - `password`: User's password
 - `email`: Required for patient role
 
+> **CLI Testing Tip**: If your password contains special characters like `!`, `$`, or `\`, you may encounter authentication failures when testing with bash/curl due to shell interpretation.
+>
+> **Solutions:**
+> - Disable bash history expansion: `set +H` before running curl
+> - Use single quotes around the entire curl command
+> - URL-encode special characters manually (`!` = `%21`, `$` = `%24`)
+> - Test using a scripting language (PHP, Python) instead of bash
+>
+> This is a shell behavior issue, not an OpenEMR bug. Production apps using HTTP libraries will not experience this problem.
+
 ### Refresh Token Grant
 
 Obtain new access tokens without re-authentication.
