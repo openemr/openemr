@@ -24,6 +24,7 @@ use Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
@@ -210,8 +211,10 @@ class InstModuleTable
             $fieldName,
             $moduleId,
         ];
-        $createdBy = $_SESSION['authUserID'];
-        $updatedBy = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
+        $createdBy = $authUserID;
+        $updatedBy = $authUserID;
         $result = $this->applicationTable->zQuery($sql, $params);
         if ($result->count() > 0) {
             $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?

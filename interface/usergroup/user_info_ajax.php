@@ -28,9 +28,11 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -45,7 +47,8 @@ if ($newPass != $newPass2) {
 }
 
 $authUtilsUpdatePassword = new AuthUtils();
-$success = $authUtilsUpdatePassword->updatePassword($_SESSION['authUserID'], $_SESSION['authUserID'], $curPass, $newPass);
+$authUserID = $session->get('authUserID');
+$success = $authUtilsUpdatePassword->updatePassword($authUserID, $authUserID, $curPass, $newPass);
 if ($success) {
     echo "<div class='alert alert-success'>" . xlt("Password change successful") . "</div>";
 } else {

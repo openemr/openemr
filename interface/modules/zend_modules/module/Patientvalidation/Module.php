@@ -19,6 +19,7 @@
  */
 namespace Patientvalidation;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Laminas\ModuleManager\ModuleManager;
 
 class Module
@@ -57,9 +58,9 @@ class Module
             //$controller->layout()->setVariable('status', null);
             $controller->layout('layout/layout.phtml');
 
-
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             //global variable of language direction
-            $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
+            $controller->layout()->setVariable('language_direction', $session->get('language_direction'));
             $controller->layout()->setVariable('status', null);
             //variable that get object with all js variables from php
         }, 100);
