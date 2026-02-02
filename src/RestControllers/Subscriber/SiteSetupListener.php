@@ -155,6 +155,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $eventDispatcher = $event->getKernel()->getEventDispatcher();
             $globalsBag = $event->getKernel()->getGlobalsBag();
         }
+        // if this is a local api request, the session gets setup in this call... so we have to handle that properly.
         $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
         // now that globals are setup, setup our centralized logger that will respect the global settings
         if ($event->getKernel() instanceof OEHttpKernel) {

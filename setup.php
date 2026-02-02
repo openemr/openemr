@@ -12,7 +12,7 @@
  *        2 - Step 2: Enter in database and openemr user information
  *        3 - Step 3: Create database
  *        4 - Step 4: Instructions on configuring PHP
- *        5 - Step 5: Instructions on configuring Apache
+ *        5 - Step 5: Instructions on configuring the web server
  *        6 - Step 6: Select a theme
  *        7 - Final step: Several miscellaneous instruction, login credentials, and link to OpenEMR
  *
@@ -22,10 +22,12 @@
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -764,7 +766,7 @@ STP2TBLTOP1;
                                     <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
-                                    <select name='collate' id=='collate' class='form-control'>
+                                    <select name='collate' id='collate' class='form-control'>
                                         <option selected value='utf8mb4_general_ci'>
                                             General (Recommended)
                                         </option>
@@ -1126,6 +1128,8 @@ STP2TBLBOT;
                         $error_step2_message .= "$error - A database name is required <br />\n";
                     }
 
+                    // Default collate value when using pre-created database (collate field not in form)
+                    $_REQUEST['collate'] ??= 'utf8mb4_general_ci';
                     if (! $installer->collateNameIsValid($_REQUEST['collate'])) {
                         $pass_step2_validation = false;
                         $error_step2_message .= "$error - A collation name is required <br />\n";
@@ -1611,25 +1615,95 @@ STP4TOP;
 
                 case 5:
                     $_SESSION['bootstrapStateInSetup'] = 6;
-                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Apache Web Server</h3>";
+                    $isFpm = in_array(PHP_SAPI, ['fpm-fcgi', 'cgi-fcgi'], true);
+                    $isCliServer = PHP_SAPI === 'cli-server';
+                    $defaultWs = $isFpm ? 'fpm' : ($isCliServer ? 'cli' : 'apache');
+                    $docsDirectoryGlob = text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory)));
+                    $openemrDirectory = text(realpath(__DIR__));
+                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Web Server</h3>";
                     echo "<div class='jumbotron p-5'>";
-                    echo "<p>Configuration of Apache web server...</p><br />\n";
-                    echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
-                    it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(__DIR__)) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
-                    &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(__DIR__)) . "/sites\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />";
+                    echo "<p>Select your web server configuration to see the required setup instructions.</p>";
+
+                    echo "
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_apache' value='apache'" . ($defaultWs === 'apache' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_apache'>Apache (mod_php)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_fpm' value='fpm'" . ($defaultWs === 'fpm' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_fpm'>PHP-FPM (nginx, etc.)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_cli' value='cli'" . ($defaultWs === 'cli' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_cli'>PHP built-in server</label>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_apache'" . ($defaultWs === 'apache' ? '' : " style='display:none'") . ">
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contain patient information, and
+                        it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:</p>
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $openemrDirectory . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
+                        &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;&lt;Directory \"" . $openemrDirectory . "/sites\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $docsDirectoryGlob . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />
+                        <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_fpm'" . ($defaultWs === 'fpm' ? '' : " style='display:none'") . ">
+                        <h5>1. Deny access to sensitive directories</h5>
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information. Block all direct web access to it:</p>
+                        <pre><code>"
+                            . text("location ~* ^/sites/*/(documents|edi|era) {") . "\n"
+                            . text("    deny all;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>2. URL rewriting</h5>
+                        <p>These rewrite rules are required for Zend modules, the patient portal, the REST API/FHIR, OAuth2, and health check probes:</p>
+                        <pre><code>"
+                            . text("if (!\$request_filename) {") . "\n"
+                            . text("    rewrite ^(.*/zend_modules/public)(.*) \$1/index.php?\$is_args\$args last;") . "\n"
+                            . text("    rewrite ^(.*/portal/patient)(.*) \$1/index.php?_REWRITE_COMMAND=\$1\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/apis/)(.*) \$1/dispatch.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/oauth2/)(.*) \$1/authorize.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/meta/health/)(.*) \$1/index.php last;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>3. Pass the Authorization header to PHP-FPM</h5>
+                        <p>Required for the REST API and FHIR to authenticate requests:</p>
+                        <pre><code>"
+                            . text("fastcgi_param HTTP_AUTHORIZATION \$http_authorization;")
+                        . "</code></pre>
+                        <p class='mt-3'><strong>Note:</strong> These examples use nginx syntax. If you use a different web server (Apache with php-fpm, LiteSpeed, Caddy, etc.), consult your web server's documentation for equivalent directives.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_cli'" . ($defaultWs === 'cli' ? '' : " style='display:none'") . ">
+                        <p>The PHP built-in server (<code>php -S</code>) is intended for development and testing only. It does not require web server configuration.</p>
+                        <p><strong>Do not use the built-in server in production.</strong> For production deployments, select one of the other options above to see the required configuration.</p>
+                    </div>";
+
+                    echo "
+                    <script>
+                        document.querySelectorAll('input[name=\"webserver\"]').forEach(function(radio) {
+                            radio.addEventListener('change', function() {
+                                document.getElementById('instructions_apache').style.display = this.value === 'apache' ? '' : 'none';
+                                document.getElementById('instructions_fpm').style.display = this.value === 'fpm' ? '' : 'none';
+                                document.getElementById('instructions_cli').style.display = this.value === 'cli' ? '' : 'none';
+                            });
+                        });
+                    </script>";
 
                     $btn_text = 'Proceed to Select a Theme';
-                    echo "<p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
-                    <p>We recommend you print these instructions for future reference.</p>
+                    echo "<p>We recommend you print these instructions for future reference.</p>
                     <p class='mark'>Click <strong>'" . text($btn_text) . "'</strong> to select a theme.</p>
                     <br />
                     <form method='post'>

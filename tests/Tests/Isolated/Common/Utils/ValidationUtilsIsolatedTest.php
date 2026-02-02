@@ -494,6 +494,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides valid phone numbers for validation testing.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function validPhoneProvider(): iterable
     {
@@ -510,6 +512,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides invalid phone numbers for validation testing.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function invalidPhoneProvider(): iterable
     {
@@ -520,6 +524,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides phone numbers with expected E.164 output.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function e164Provider(): iterable
     {
@@ -535,6 +541,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides phone numbers with expected national digits.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function nationalDigitsProvider(): iterable
     {
@@ -548,6 +556,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides phone numbers with expected formatLocal() output.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function formatLocalProvider(): iterable
     {
@@ -561,6 +571,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides phone numbers with expected HL7 output.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function hl7Provider(): iterable
     {
@@ -574,6 +586,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides phone numbers with expected parts.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function partsProvider(): iterable
     {
@@ -587,6 +601,8 @@ class ValidationUtilsIsolatedTest extends TestCase
 
     /**
      * Provides fictional phone numbers for non-strict mode testing.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function fictionalPhoneProvider(): iterable
     {

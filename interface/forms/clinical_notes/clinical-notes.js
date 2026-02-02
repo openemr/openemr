@@ -217,7 +217,7 @@
                 // they are clearing out the value so we are going to empty everything out.
                 codeEl.value = "";
                 codeTextEl.value = "";
-                codeContext.vlaue = "";
+                codeContext.value = "";
             }
 
         } catch (e) {

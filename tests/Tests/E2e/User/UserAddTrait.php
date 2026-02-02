@@ -10,7 +10,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -82,11 +82,16 @@ trait UserAddTrait
             )
         );
 
-        sleep(2); // wait for the form to be ready
+        // Wait for the form's submitform() JS function to be defined
+        $this->client->wait(10)->until(fn($driver) => $driver->executeScript('return typeof submitform === "function";'));
 
         $this->populateUserFormReliably($username);
 
-        sleep(2); // wait for the populated form to be ready
+        // Wait for the username field to have the expected value
+        $this->client->wait(10)->until(function ($driver) use ($username) {
+            $field = $driver->findElement(WebDriverBy::name('rumple'));
+            return $field->getAttribute('value') === $username;
+        });
 
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
@@ -120,21 +125,8 @@ trait UserAddTrait
 
     private function assertUserInDatabase(string $username): void
     {
-        // assert the new user is in the database (check 3 times with 5 second delay prior each check to
-        // ensure allow enough time)
-        $userExistDatabase = false;
-        $counter = 0;
-        while (!$userExistDatabase && $counter < 3) {
-            if ($counter > 0) {
-                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
-            }
-            sleep(2);
-            if ($this->isUserExist($username)) {
-                $userExistDatabase = true;
-            }
-            $counter++;
-        }
-        $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
+        // Poll the database for the new user (up to 10s, checking every 500ms)
+        $this->client->wait(10, 500)->until(fn() => $this->isUserExist($username));
     }
 
     private function populateUserFormReliably($username): void

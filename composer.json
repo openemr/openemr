@@ -274,7 +274,7 @@
         ],
         "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
-        "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
+        "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
         "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
         "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
@@ -285,6 +285,7 @@
         "phpunit-isolated": "phpunit -c phpunit-isolated.xml",
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
-        "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json"
+        "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json",
+        "update-twig-fixtures": "UPDATE_FIXTURES=1 phpunit -c phpunit-isolated.xml --filter TwigTemplateRenderTest"
     }
 }
