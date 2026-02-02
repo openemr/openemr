@@ -11,31 +11,18 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use function array_key_exists;
 
-class OEGlobalsBag extends ParameterBag
+/** @final */ class OEGlobalsBag extends ParameterBag
 {
-    private static ?OEGlobalsBag $instance = null;
+    use SingletonTrait;
 
-    /**
-     * Get the singleton instance of OEGlobalsBag
-     *
-     * @return OEGlobalsBag
-     */
-    public static function getInstance(): OEGlobalsBag
+    protected static function createInstance(): static
     {
-        if (null === self::$instance) {
-            self::$instance = new OEGlobalsBag($GLOBALS);
-        }
-
-        return self::$instance;
-    }
-
-    public function __construct(array $parameters = [])
-    {
-        parent::__construct($parameters);
+        return new self($GLOBALS);
     }
 
     public function set(string $key, mixed $value): void
