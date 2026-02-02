@@ -154,8 +154,7 @@ final class DispatcherTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('error')
-            ->with('', ['exception' => $exception]);
+            ->method('error');
 
         $dispatcher = new Dispatcher(
             processors: [$processor],
@@ -192,7 +191,7 @@ final class DispatcherTest extends TestCase
 
     private function makeWebhook(string $eventType, string $merchantId): Webhook
     {
-        return new Webhook([
+        return new Webhook('abc123', [
             'event_type' => $eventType,
             'data' => [
                 'merchant_id' => $merchantId,

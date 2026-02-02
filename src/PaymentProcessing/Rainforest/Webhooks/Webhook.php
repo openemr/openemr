@@ -21,7 +21,7 @@ readonly class Webhook
     /**
      * @param array{event_type: string, data: array<string, mixed>} $body
      */
-    public function __construct(array $body)
+    public function __construct(public string $id, array $body)
     {
         $this->data = $body['data'];
         $this->eventType = $body['event_type'];

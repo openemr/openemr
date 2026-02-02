@@ -40,9 +40,14 @@ readonly class Dispatcher
             try {
                 $processor->handle($webhook);
             } catch (Throwable $e) {
-                $this->logger->error('', [
-                    'exception' => $e,
-                ]);
+                $this->logger->error(
+                    'Excepting during webhook {id} processing ({handler})',
+                    [
+                        'exception' => $e,
+                        'handler' => get_class($processor),
+                        'id' => $webhook->id,
+                    ]
+                );
             }
         }
     }
