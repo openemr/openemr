@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +23,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class GgUserMenuLinksTest extends PantherTestCase
 {
@@ -36,39 +37,24 @@ class GgUserMenuLinksTest extends PantherTestCase
     #[Test]
     public function testUserMenuLink(string $menuTreeIcon, string $menuLinkItem, string $expectedTabTitle): void
     {
-        $counter = 0;
-        $threwSomething = true;
-        // below will basically allow 3 timeouts
-        while ($threwSomething) {
-            $threwSomething = false;
-            $counter++;
-            if ($counter > 1) {
-                echo "\n" . "RE-attempt (" . $menuTreeIcon . ") number " . $counter . " of 3" . "\n";
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            if ($menuLinkItem == 'Logout') {
+                // special case for Logout
+                $this->logOut();
+            } else {
+                $this->goToUserMenuLink($menuTreeIcon);
+                $this->assertActiveTab($expectedTabTitle);
             }
-            $this->base();
-            try {
-                $this->login(LoginTestData::username, LoginTestData::password);
-                if ($menuLinkItem == 'Logout') {
-                    // special case for Logout
-                    $this->logOut();
-                } else {
-                    $this->goToUserMenuLink($menuTreeIcon);
-                    $this->assertActiveTab($expectedTabTitle);
-                }
-            } catch (\Throwable $e) {
-                // Close client
-                $this->client->quit();
-                if ($counter > 2) {
-                    // re-throw since have failed 3 tries
-                    throw $e;
-                } else {
-                    // try again since not yet 3 tries
-                    $threwSomething = true;
-                }
-            }
+        } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
+            // re-throw the exception
+            throw $e;
         }
+        // Close client
+        $this->client->quit();
     }
 
     /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
