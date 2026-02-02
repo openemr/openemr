@@ -62,6 +62,6 @@ try {
     );
     $disp->dispatch($wh);
 } catch (Throwable $e) {
-    error_log((string)$e);
+    $logger->error('Webhook verification failed', ['exception' => $e]);
     header('HTTP/1.1 400 Bad Request');
 }
