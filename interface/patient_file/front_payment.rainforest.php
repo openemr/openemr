@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 chdir(dirname(__DIR__, 2));
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use Http\Discovery\Psr17Factory;
 use OpenEMR\Core\OEGlobalsBag;

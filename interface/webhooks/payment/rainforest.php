@@ -12,7 +12,7 @@
 
 chdir(__DIR__ . '/../../../');
 
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 header('Content-type: text/plain');
 
 $ignoreAuth_onsite_portal = true;
