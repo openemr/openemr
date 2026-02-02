@@ -168,7 +168,8 @@ function sqlStatement($statement, $binds = false)
  *
  * @param  string  $statement  query
  * @param  array   $binds      binded variables array (optional)
- * @return recordset
+ * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+ * @return ADORecordSet
  */
 function sqlStatementThrowException($statement, $binds = false)
 {
@@ -200,7 +201,8 @@ function sqlGetLastInsertId()
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset
+* @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
+* @return ADORecordSet
 */
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
@@ -305,7 +307,7 @@ function sqlInsert($statement, $binds = false)
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false
 */
 function sqlQuery($statement, $binds = false)
 {
@@ -330,7 +332,8 @@ function sqlQuery($statement, $binds = false)
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array|false|""
+* @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
+* @return array|false
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
@@ -374,6 +377,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 * This function should only be used in very special situations.
 *
 * @param  string  $statement  query
+* @param  array   $binds      binded variables array (optional)
 */
 function sqlInsertClean_audit($statement, $binds = false): void
 {
