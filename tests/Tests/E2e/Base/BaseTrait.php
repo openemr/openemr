@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -92,28 +92,15 @@ trait BaseTrait
                 }
             });
         }
-        $startTime = (int)(microtime(true) * 1000);
-        if (str_contains($loading, "||")) {
-            // have 2 $loading to check
-            $loading = explode("||", $loading);
-            while (
-                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
-                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
-            ) {
-                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
-                    $this->fail("Timeout waiting for tab [$text]");
-                }
-                usleep(100);
+        // Wait for each loading indicator to disappear from the live DOM
+        if (str_contains($loading, '||')) {
+            foreach (explode('||', $loading) as $loadingText) {
+                $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
             }
         } else {
-            // only have 1 $loading to check
-            while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
-                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
-                    $this->fail("Timeout waiting for tab [$text]");
-                }
-                usleep(100);
-            }
+            $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loading);
         }
+        $this->crawler = $this->client->refreshCrawler();
         if ($looseTabTitle) {
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");
         } else {
@@ -123,15 +110,8 @@ trait BaseTrait
 
     private function assertActivePopup(string $text): void
     {
-        $this->client->waitFor(XpathsConstants::MODAL_TITLE);
+        $this->client->waitForElementToContain(XpathsConstants::MODAL_TITLE, $text);
         $this->crawler = $this->client->refreshCrawler();
-        $startTime = (int)(microtime(true) * 1000);
-        while (empty($this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text())) {
-            if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
-                $this->fail("Timeout waiting for popup [$text]");
-            }
-            usleep(100);
-        }
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
