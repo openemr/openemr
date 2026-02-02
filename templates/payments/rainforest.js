@@ -45,11 +45,17 @@ document.getElementById('paynowbutton').onclick = function (e) {
         })
     }
 
+    const handleError = function () {
+        alert('An error occurred while preparing the payment. Your card has not been changed. Please try again.');
+        window.location.reload();
+    }
+
     $.ajax({
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify(data),
         dataType: 'json',
         success: createRainforestComponent,
+        error: handleError,
         type: 'POST',
         url: '{{ endpoint }}',
     })
