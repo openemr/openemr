@@ -14,6 +14,9 @@ namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
 
 use SensitiveParameter;
 use UnexpectedValueException;
+use DateTimeInterface;
+use DateTimeImmutable;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function hash_equals;
@@ -40,9 +43,12 @@ use const JSON_THROW_ON_ERROR;
  */
 class Verifier
 {
+    private const TIMESTAMP_TOLERANCE_SECONDS = 300;
+
     private readonly string $secretBytes;
 
     public function __construct(
+        private ClockInterface $clock,
         #[SensitiveParameter] string $webhookSecret,
     ) {
         if (!str_contains($webhookSecret, '_')) {
@@ -50,6 +56,15 @@ class Verifier
         }
         [$prefix, $data] = explode('_', $webhookSecret, 2);
         $this->secretBytes = base64_decode($data);
+    }
+
+    private function verifyTimestamp(DateTimeInterface $timestamp): void
+    {
+        $now = $this->clock->now();
+        $diff = abs($now->getTimestamp() - $timestamp->getTimestamp());
+        if ($diff > self::TIMESTAMP_TOLERANCE_SECONDS) {
+            throw new UnexpectedValueException('Timestamp is outside of tolerance');
+        }
     }
 
     /**
@@ -69,6 +84,8 @@ class Verifier
         }
         $id = $request->getHeaderLine('svix-id');
         $timestamp = $request->getHeaderLine('svix-timestamp');
+
+        $this->verifyTimestamp(new DateTimeImmutable('@' . $timestamp));
 
         $body = (string) $request->getBody();
 
