@@ -292,7 +292,7 @@ class QueryUtils
 
     public static function rollbackTransaction()
     {
-        \sqlRollbackTrans();
+        $GLOBALS['adodb']['db']->RollbackTrans();
     }
 
     /**

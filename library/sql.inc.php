@@ -743,7 +743,7 @@ function sqlCommitTrans($ok = true): void
  */
 function sqlRollbackTrans(): void
 {
-    $GLOBALS['adodb']['db']->RollbackTrans();
+    \OpenEMR\Common\Database\QueryUtils::rollbackTransaction();
 }
 
 /**
