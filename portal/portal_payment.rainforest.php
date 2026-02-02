@@ -16,7 +16,7 @@ $csrfToken = $req->getHeaderLine('X-CSRF-TOKEN');
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 if (!CsrfUtils::verifyCsrfToken($csrfToken, 'rainforest', $session->getSymfonySession())) {
-    throw new \Exception('Invalid CSRF token');
+    CsrfUtils::csrfNotVerified();
 }
 $ignoreAuth_onsite_portal = true;
 require_once  'interface/globals.php';
