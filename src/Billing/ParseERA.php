@@ -7,17 +7,37 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing;
 
+use Money\Currencies\ISOCurrencies;
+use Money\Currency;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Parser\DecimalMoneyParser;
+
 class ParseERA
 {
+    private static $currencies;
+    private static $moneyParser;
+    private static $moneyFormatter;
+
+    private static function initializeMoney()
+    {
+        if (self::$currencies === null) {
+            self::$currencies = new ISOCurrencies();
+            self::$moneyParser = new DecimalMoneyParser(self::$currencies);
+            self::$moneyFormatter = new DecimalMoneyFormatter(self::$currencies);
+        }
+    }
+
     public static function parseERA2100(&$out, $cb)
     {
+        self::initializeMoney();
+
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
             if (empty($out['production_date'])) {
@@ -33,22 +53,22 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             if ($GLOBALS['force_claim_balancing']) {
-                $chgtotal = floatval($out['amount_charged']);
-                $paytotal = floatval($out['amount_approved']);
-                $pattotal = floatval($out['amount_patient']);
-                $adjtotal = $chgtotal - $paytotal - $pattotal;
+                $chgTotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
+                $payTotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
+                $patTotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
+                $adjTotal = $chgTotal->subtract($payTotal)->subtract($patTotal);
+
                 foreach ($out['svc'] as $svc) {
-                    $paytotal -= $svc['paid'];
+                    $payTotal = $payTotal->subtract(self::$moneyParser->parse($svc['paid'], new Currency('USD')));
                     foreach ($svc['adj'] as $adj) {
                         if ($adj['group_code'] != 'PR') {
-                            $adjtotal -= $adj['amount'];
+                            $adjTotal = $adjTotal->subtract(self::$moneyParser->parse($adj['amount'], new Currency('USD')));
                         }
                     }
                 }
-
-                $paytotal = round($paytotal, 2);
-                $adjtotal = round($adjtotal, 2);
-                if ($paytotal != 0 || $adjtotal != 0) {
+                $payTotal = self::$moneyFormatter->format($payTotal);
+                $adjTotal = self::$moneyFormatter->format($adjTotal);
+                if ($payTotal != 0 || $adjTotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
                         array_unshift($out['svc'], []);
                         $out['svc'][0]['code'] = 'Claim';
@@ -60,20 +80,14 @@ class ParseERA
                             "force claim balancing.\n";
                     }
 
-                    $out['svc'][0]['paid'] += $paytotal;
-                    if ($adjtotal) {
+                    $out['svc'][0]['paid'] += $payTotal;
+                    if ($adjTotal) {
                         $j = count($out['svc'][0]['adj']);
                         $out['svc'][0]['adj'][$j] = [];
                         $out['svc'][0]['adj'][$j]['group_code'] = 'CR'; // presuming a correction or reversal
                         $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
-                        $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
+                        $out['svc'][0]['adj'][$j]['amount'] = $adjTotal;
                     }
-
-                    // if ($out['svc'][0]['code'] != 'Claim') {
-                    //   $out['warnings'] .= "First service item payment amount " .
-                    //   "adjusted by $paytotal due to payment imbalance. " .
-                    //   "This should not happen!\n";
-                    // }
                 }
             }
             $cb($out);
