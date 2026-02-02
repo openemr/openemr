@@ -131,12 +131,26 @@ class QueryUtils
      * It will act upon the object returned from the
      * sqlStatement() function (and sqlQ() function).
      *
-     * @param recordset $resultSet
-     * @return array
+     * @param ADORecordSet|false $resultSet
+     * @return array|false
      */
     public static function fetchArrayFromResultSet($resultSet)
     {
-        return sqlFetchArray($resultSet);
+        //treat as an adodb recordset
+        if ($resultSet === false) {
+            return false;
+        }
+
+        if ($resultSet->EOF ?? '') {
+            return false;
+        }
+
+        //ensure it's an object (ie. is set)
+        if (!is_object($resultSet)) {
+            return false;
+        }
+
+        return $resultSet->FetchRow();
     }
 
     /**

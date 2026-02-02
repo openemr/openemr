@@ -274,26 +274,12 @@ function sqlStatementCdrEngine($statement, $binds = false)
 * It will act upon the object returned from the
 * sqlStatement() function (and sqlQ() function).
 *
-* @param recordset $r
-* @return array
+* @param ADORecordSet|false $r
+* @return array|false
 */
 function sqlFetchArray($r)
 {
-    //treat as an adodb recordset
-    if ($r === false) {
-        return false;
-    }
-
-    if ($r->EOF ?? '') {
-        return false;
-    }
-
-    //ensure it's an object (ie. is set)
-    if (!is_object($r)) {
-        return false;
-    }
-
-    return $r->FetchRow();
+    return \OpenEMR\Common\Database\QueryUtils::fetchArrayFromResultSet($r);
 }
 
 
