@@ -282,7 +282,7 @@ class QueryUtils
 
     public static function startTransaction()
     {
-        \sqlBeginTrans();
+        $GLOBALS['adodb']['db']->BeginTrans();
     }
 
     public static function commitTransaction()

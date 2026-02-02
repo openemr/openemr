@@ -725,7 +725,7 @@ function generic_sql_insert_id()
  */
 function sqlBeginTrans(): void
 {
-    $GLOBALS['adodb']['db']->BeginTrans();
+    \OpenEMR\Common\Database\QueryUtils::startTransaction();
 }
 
 
