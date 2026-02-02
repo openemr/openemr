@@ -289,8 +289,7 @@ class QueryUtils
 
     public static function ediGenerateId()
     {
-        // @phpstan-ignore openemr.deprecatedSqlFunction
-        return \edi_generate_id();
+        return $GLOBALS['adodb']['db']->GenID("edi_sequences");
     }
 
     public static function startTransaction()
