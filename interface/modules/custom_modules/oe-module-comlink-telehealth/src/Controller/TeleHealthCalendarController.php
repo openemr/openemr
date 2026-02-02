@@ -31,11 +31,6 @@ use Twig\Environment;
 class TeleHealthCalendarController
 {
     /**
-     * Database record ID of the currently logged in user
-     */
-    private ?int $loggedInUserId = null;
-
-    /**
      * Repository for calendar event categories
      */
     private ?CalendarEventCategoryRepository $calendarEventCategoryRepository = null;
@@ -55,16 +50,15 @@ class TeleHealthCalendarController
      * @param Environment $twig Twig container
      * @param SystemLogger $logger
      * @param mixed $assetPath
-     * @param mixed $loggedInUserId
+     * @param ?int $loggedInUserId Database record ID of the currently logged in user
      */
     public function __construct(
         TelehealthGlobalConfig $config,
         private readonly Environment $twig,
         private readonly SystemLogger $logger,
         private $assetPath,
-        $loggedInUserId
+        private readonly ?int $loggedInUserId
     ) {
-        $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);
 //        $this->apptService = new AppointmentService();
