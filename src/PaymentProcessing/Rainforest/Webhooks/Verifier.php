@@ -81,7 +81,6 @@ readonly class Verifier
 
         $body = (string) $request->getBody();
 
-
         $signedContent = sprintf(
             '%s.%s.%s',
             $id,
@@ -130,6 +129,10 @@ readonly class Verifier
         return new Webhook($parsedBody);
     }
 
+    /**
+     * Checks that the timestamp in the header is within server tolerance.
+     * Throws an exception when the value is not in range.
+     */
     private function verifyTimestamp(DateTimeInterface $timestamp): void
     {
         $now = $this->clock->now();
@@ -138,5 +141,4 @@ readonly class Verifier
             throw new UnexpectedValueException('Timestamp is outside of tolerance');
         }
     }
-
 }
