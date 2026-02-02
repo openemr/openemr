@@ -27,7 +27,7 @@ class QueryUtils
      */
     public static function listTableFields($table)
     {
-        $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
+        $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
         $field_list = [];
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
@@ -69,7 +69,7 @@ class QueryUtils
                 . getSqlLastError() . " Statement: " . $sqlStatement);
         }
         $list = [];
-        while ($record = sqlFetchArray($recordset)) {
+        while ($record = self::fetchArrayFromResultSet($recordset)) {
             $list[] = $record;
         }
         return $list;
@@ -86,7 +86,7 @@ class QueryUtils
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[] = $record[$column] ?? null;
         }
         return $list;
@@ -107,7 +107,7 @@ class QueryUtils
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
-        while ($record = \sqlFetchArray($result)) {
+        while ($record = self::fetchArrayFromResultSet($result)) {
             $list[] = $record;
         }
         return $list;
@@ -125,7 +125,7 @@ class QueryUtils
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[$column] = $record[$column] ?? null;
         }
         return $list;
@@ -217,7 +217,7 @@ class QueryUtils
             // thrown which doesn't help us at all.
 
             $query = "SELECT 1 as id FROM " . $tableName . " LIMIT 1";
-            $statement = \sqlStatementNoLog($query, [], true);
+            $statement = self::sqlStatementThrowException($query, [], noLog: true);
             if ($statement !== false) {
                 unset($statement); // free the resource
                 return true;
@@ -288,11 +288,11 @@ class QueryUtils
         $sql .= !empty($order) ? " " . $order       : "";
         $sql .= !empty($limit) ? " LIMIT " . $limit : "";
 
-        $multipleResults = sqlStatementThrowException($sql, $data);
+        $multipleResults = self::sqlStatementThrowException($sql, $data);
 
         $results = [];
 
-        while ($row = sqlFetchArray($multipleResults)) {
+        while ($row = self::fetchArrayFromResultSet($multipleResults)) {
             array_push($results, $row);
         }
 
@@ -361,7 +361,7 @@ class QueryUtils
     public static function querySingleRow(string $sql, array $params = [])
     {
         $result = self::sqlStatementThrowException($sql, $params);
-        return \sqlFetchArray($result);
+        return self::fetchArrayFromResultSet($result);
     }
 
     /**
