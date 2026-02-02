@@ -284,8 +284,7 @@ class QueryUtils
 
     public static function generateId()
     {
-        // @phpstan-ignore openemr.deprecatedSqlFunction
-        return \generate_id();
+        return $GLOBALS['adodb']['db']->GenID("sequences");
     }
 
     public static function ediGenerateId()

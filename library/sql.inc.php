@@ -608,9 +608,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 */
 function generate_id()
 {
-    $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
-    return $database->GenID("sequences");
+    return \OpenEMR\Common\Database\QueryUtils::generateId();
 }
 
 /**
