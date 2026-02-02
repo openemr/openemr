@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\PaymentProcessing\Rainforest\Webhooks;
 
 use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Verifier;
 use PHPUnit\Framework\TestCase;
@@ -330,16 +331,7 @@ final class VerifierTest extends TestCase
      */
     private function createClock(int $unixTimestamp): ClockInterface
     {
-        return new class ($unixTimestamp) implements ClockInterface {
-            public function __construct(private int $ts)
-            {
-            }
-
-            public function now(): DateTimeImmutable
-            {
-                return new DateTimeImmutable('@' . $this->ts);
-            }
-        };
+        return new FrozenClock(new DateTimeImmutable('@' . $unixTimestamp));
     }
 
     /**
