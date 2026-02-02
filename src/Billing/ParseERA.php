@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -53,9 +53,6 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             if ($GLOBALS['force_claim_balancing']) {
-                //$money = $moneyParser->parse('$1.00');
-                //echo $money->getAmount(); // outputs 100
-
                 $chgtotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
                 $paytotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
                 $pattotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
@@ -69,10 +66,7 @@ class ParseERA
                         }
                     }
                 }
-
-                //$paytotal = round($paytotal, 2);
                 $paytotal = self::$moneyFormatter->format($paytotal);
-                //$adjtotal = round($adjtotal, 2);
                 $adjtotal = self::$moneyFormatter->format($adjtotal);
                 if ($paytotal != 0 || $adjtotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
@@ -94,12 +88,6 @@ class ParseERA
                         $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
                         $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
                     }
-
-                    // if ($out['svc'][0]['code'] != 'Claim') {
-                    //   $out['warnings'] .= "First service item payment amount " .
-                    //   "adjusted by $paytotal due to payment imbalance. " .
-                    //   "This should not happen!\n";
-                    // }
                 }
             }
             $cb($out);
