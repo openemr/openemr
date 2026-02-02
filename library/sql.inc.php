@@ -334,31 +334,14 @@ function sqlQuery($statement, $binds = false)
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        return QueryUtils::querySingleRow($statement, $binds, log: false);
+    } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
-            throw new SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
-        } else {
-            HelpfulDie("query failed: $statement", getSqlLastError());
+            throw $e;
         }
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
 }
 
 /**

@@ -358,9 +358,9 @@ class QueryUtils
         return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
     }
 
-    public static function querySingleRow(string $sql, array $params = [])
+    public static function querySingleRow(string $sql, array $params = [], bool $log = true)
     {
-        $result = self::sqlStatementThrowException($sql, $params);
+        $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
         return self::fetchArrayFromResultSet($result);
     }
 
