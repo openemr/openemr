@@ -56,8 +56,8 @@ class ParseERA
                 $chgtotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
                 $paytotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
                 $pattotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
-                $adjtotal = $chgtotal->subtract($paytotal);
-                $adjtotal = $adjtotal->subtract($pattotal);
+                $adjtotal = $chgtotal->subtract($paytotal)->subtract($pattotal);
+    
                 foreach ($out['svc'] as $svc) {
                     $paytotal = $paytotal->subtract(self::$moneyParser->parse($svc['paid'], new Currency('USD')));
                     foreach ($svc['adj'] as $adj) {
