@@ -19,6 +19,7 @@ $ignoreAuth_onsite_portal = true;
 require_once 'interface/globals.php';
 
 use Http\Discovery\Psr17Factory;
+use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{
     Dispatcher,
@@ -36,7 +37,10 @@ if ($mid === '') {
 }
 
 $crypto = new CryptoGen();
-$whv = new Verifier($crypto->decryptStandard($gb->getString('rainforest_webhook_secret')));
+$whv = new Verifier(
+    clock: SystemClock::fromSystemTimezone(),
+    webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))
+);
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
 $logger = new Logger('OpenEMR');
