@@ -49,14 +49,14 @@ class TeleHealthCalendarController
      * @param TelehealthGlobalConfig $config
      * @param Environment $twig Twig container
      * @param SystemLogger $logger
-     * @param mixed $assetPath
+     * @param string $assetPath
      * @param ?int $loggedInUserId Database record ID of the currently logged in user
      */
     public function __construct(
         TelehealthGlobalConfig $config,
         private readonly Environment $twig,
         private readonly SystemLogger $logger,
-        private $assetPath,
+        private readonly string $assetPath,
         private readonly ?int $loggedInUserId
     ) {
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();

@@ -28,47 +28,47 @@ class TeleHealthRemoteRegistrationService
     /**
      * API url endpoint to send registration requests to.
      */
-    private ?string $apiURL = null;
+    private string $apiURL;
 
     /**
      * UserID for api authentication needed for comlink video service
      */
-    private ?string $apiId = null;
+    private string $apiId;
 
     /**
      * Password for api authentication needed for comlink video service
      */
-    private ?string $apiPassword = null;
+    private string $apiPassword;
 
     /**
      * CMSID for api authentication needed for comlink video service
      */
-    private ?string $apiCMSID = null;
+    private string $apiCMSID;
 
     /**
      * HTTP client for API requests
      */
-    private ?Client $httpClient = null;
+    private Client $httpClient;
 
     /**
      * Unique installation id of the OpenEMR Institution
      */
-    private ?string $institutionId = null;
+    private string $institutionId;
 
     /**
      * Name of the OpenEMR institution
      */
-    private ?string $institutionName = null;
+    private string $institutionName;
 
     /**
      * System logger instance
      */
-    private ?SystemLogger $logger = null;
+    private SystemLogger $logger;
 
     /**
      * User repository for managing telehealth users
      */
-    private ?TeleHealthUserRepository $userRepository = null;
+    private TeleHealthUserRepository $userRepository;
 
     public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
     {
@@ -334,10 +334,6 @@ class TeleHealthRemoteRegistrationService
 
     private function sendAPIRequest($endpointUrl, array $body)
     {
-        if (empty($this->httpClient)) {
-            throw new \BadMethodCallException("httpClient must be setup in order to send request");
-        }
-
         // because this could be an already existing event we've tried saving before we decode the json, even though
         // on the first event notification we may be doubling the work
         $client = $this->getHttpClient();
