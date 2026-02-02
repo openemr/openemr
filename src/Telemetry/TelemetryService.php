@@ -170,6 +170,7 @@ class TelemetryService
         $usageRecords = $this->repository->fetchUsageRecords();
         $populationData = $this->repository->fetchSitePopulationData();
         $moduleCounts = $this->repository->fetchActiveModuleCounts();
+        $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
             'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
@@ -188,6 +189,7 @@ class TelemetryService
             'settings' => json_encode($settings),
             'populationData' => json_encode($populationData),
             'moduleCounts' => json_encode($moduleCounts),
+            'enabledEncounterForms' => json_encode($encEnabledForms),
         ];
 
         $payload_data = [
@@ -207,7 +209,7 @@ class TelemetryService
         if (in_array($httpStatus, [200, 201, 204])) {
             $responseData = json_decode((string)$response, true);
             if ($responseData) {
-                $this->repository->clearTelemetryData(); // clear telemetry data after successful report
+                $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
                 error_log("Error in response: " . json_encode($responseData));
             }

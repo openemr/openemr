@@ -134,4 +134,16 @@ class TelemetryRepository
 
         return $modulesData;
     }
+
+    public function fetchEnabledEncounterForms(): array
+    {
+        $sql = <<<'SQL'
+        SELECT name as `encounter_form_name`, `directory`, `category`
+            FROM `registry`
+            WHERE `state` = 1 AND `sql_run` = 1
+            ORDER BY `name` ASC
+        SQL;
+
+        return $this->fetchRecords($sql, [], noLog: true);
+    }
 }
