@@ -38,8 +38,11 @@ class AaLoginTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Login Page Load', 2000, '#4CAF50');
             $this->loginPage();
+            $this->annotateVideo('TEST COMPLETE: Login page verified', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             // Close client
             $this->client->quit();
             // re-throw the exception
@@ -54,8 +57,11 @@ class AaLoginTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Login Unauthorized', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password . "1", false);
+            $this->annotateVideo('TEST COMPLETE: Unauthorized login rejected', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             // Close client
             $this->client->quit();
             // re-throw the exception
@@ -70,10 +76,13 @@ class AaLoginTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: URL Redirect to Login', 2000, '#4CAF50');
             $this->crawler = $this->client->request('GET', '/interface/main/tabs/main.php?site=default&testing_mode=1');
             $title = $this->client->getTitle();
             $this->assertSame('OpenEMR Login', $title, 'FAILED to redirect to login page');
+            $this->annotateVideo('TEST COMPLETE: Redirect verified', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             // Close client
             $this->client->quit();
             // re-throw the exception
