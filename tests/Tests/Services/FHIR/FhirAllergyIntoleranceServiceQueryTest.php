@@ -95,6 +95,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function searchParameterPatientReferenceDataProvider(): array
     {

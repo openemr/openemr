@@ -224,6 +224,7 @@ class FhirCareTeamServiceUSCore8Test extends TestCase
         $this->assertEquals($statusValue, $status, "Status should be '$statusValue'");
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function statusValuesProvider(): array
     {
         return [
@@ -733,6 +734,7 @@ class FhirCareTeamServiceUSCore8Test extends TestCase
         $this->assertTrue($foundExpectedCode, "Role '$role' should map to SNOMED CT code '$expectedSnomedCode'");
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function roleCodeMappingsProvider(): array
     {
         return [
