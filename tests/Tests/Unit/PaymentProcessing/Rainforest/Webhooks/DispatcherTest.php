@@ -42,6 +42,7 @@ final class DispatcherTest extends TestCase
             processors: [$processor],
             merchantId: self::MERCHANT_ID,
             logger: $logger,
+            rethrowLastProcessingException: false,
         );
 
         $webhook = $this->makeWebhook('payin.authorized', 'merchant_other');
@@ -60,6 +61,7 @@ final class DispatcherTest extends TestCase
             processors: [$processor],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
         $dispatcher->dispatch($webhook);
@@ -83,6 +85,7 @@ final class DispatcherTest extends TestCase
             processors: [$matching, $nonMatching],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
         $dispatcher->dispatch($webhook);
@@ -104,6 +107,7 @@ final class DispatcherTest extends TestCase
             processors: [$first, $second],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
         $dispatcher->dispatch($webhook);
@@ -121,6 +125,7 @@ final class DispatcherTest extends TestCase
             processors: [$processor],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
         $dispatcher->dispatch($webhook);
@@ -136,6 +141,7 @@ final class DispatcherTest extends TestCase
             processors: [],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
         $dispatcher->dispatch($webhook);
@@ -160,6 +166,7 @@ final class DispatcherTest extends TestCase
             processors: [$processor],
             merchantId: self::MERCHANT_ID,
             logger: $logger,
+            rethrowLastProcessingException: false,
         );
 
         // Should not throw — exception is caught and logged
@@ -182,8 +189,33 @@ final class DispatcherTest extends TestCase
             processors: [$failing, $succeeding],
             merchantId: self::MERCHANT_ID,
             logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: false,
         );
 
+        $dispatcher->dispatch($webhook);
+    }
+
+    public function testDispatchThrowsWhenConfigured(): void
+    {
+        $webhook = $this->makeWebhook('payin.authorized', self::MERCHANT_ID);
+
+        $failure = new RuntimeException('fail');
+        $failing = $this->createMock(ProcessorInterface::class);
+        $failing->method('getEventTypes')->willReturn(['payin.authorized']);
+        $failing->method('handle')->willThrowException($failure);
+
+        $succeeding = $this->createMock(ProcessorInterface::class);
+        $succeeding->method('getEventTypes')->willReturn(['payin.authorized']);
+        $succeeding->expects($this->once())->method('handle')->with($webhook);
+
+        $dispatcher = new Dispatcher(
+            processors: [$failing, $succeeding],
+            merchantId: self::MERCHANT_ID,
+            logger: $this->createMock(LoggerInterface::class),
+            rethrowLastProcessingException: true,
+        );
+
+        $this->expectExceptionObject($failure);
         $dispatcher->dispatch($webhook);
     }
 
