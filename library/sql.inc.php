@@ -734,7 +734,7 @@ function sqlBeginTrans(): void
  */
 function sqlCommitTrans($ok = true): void
 {
-    $GLOBALS['adodb']['db']->CommitTrans();
+    \OpenEMR\Common\Database\QueryUtils::commitTransaction();
 }
 
 

@@ -287,7 +287,7 @@ class QueryUtils
 
     public static function commitTransaction()
     {
-        \sqlCommitTrans();
+        $GLOBALS['adodb']['db']->CommitTrans();
     }
 
     public static function rollbackTransaction()
