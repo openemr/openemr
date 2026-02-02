@@ -19,6 +19,8 @@
 
 require_once(__DIR__ . "/sqlconf.php");
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -179,7 +181,7 @@ function sqlStatement($statement, $binds = false)
  */
 function sqlStatementThrowException($statement, $binds = false)
 {
-    return \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
+    return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
 }
 
 /**
@@ -188,7 +190,7 @@ function sqlStatementThrowException($statement, $binds = false)
  */
 function sqlGetLastInsertId()
 {
-    return \OpenEMR\Common\Database\QueryUtils::getLastInsertId();
+    return QueryUtils::getLastInsertId();
 }
 
 /**
@@ -217,7 +219,7 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
     }
 
     if ($throw_exception_on_error) {
-        return \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
+        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
     }
 
     // Use adodb ExecuteNoLog with binding and return a recordset.
@@ -265,7 +267,7 @@ function sqlStatementCdrEngine($statement, $binds = false)
 */
 function sqlFetchArray($r)
 {
-    return \OpenEMR\Common\Database\QueryUtils::fetchArrayFromResultSet($r);
+    return QueryUtils::fetchArrayFromResultSet($r);
 }
 
 
@@ -385,7 +387,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 
     if ($recordset === false) {
         if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+            throw new SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
         } else {
             HelpfulDie("query failed: $statement", getSqlLastError());
         }
@@ -594,7 +596,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 */
 function generate_id()
 {
-    return \OpenEMR\Common\Database\QueryUtils::generateId();
+    return QueryUtils::generateId();
 }
 
 /**
@@ -695,7 +697,7 @@ function generic_sql_insert_id()
  */
 function sqlBeginTrans(): void
 {
-    \OpenEMR\Common\Database\QueryUtils::startTransaction();
+    QueryUtils::startTransaction();
 }
 
 
@@ -704,7 +706,7 @@ function sqlBeginTrans(): void
  */
 function sqlCommitTrans($ok = true): void
 {
-    \OpenEMR\Common\Database\QueryUtils::commitTransaction();
+    QueryUtils::commitTransaction();
 }
 
 
@@ -713,7 +715,7 @@ function sqlCommitTrans($ok = true): void
  */
 function sqlRollbackTrans(): void
 {
-    \OpenEMR\Common\Database\QueryUtils::rollbackTransaction();
+    QueryUtils::rollbackTransaction();
 }
 
 /**
@@ -863,5 +865,5 @@ function privQuery($sql, $params = null)
 */
 function edi_generate_id()
 {
-    return \OpenEMR\Common\Database\QueryUtils::ediGenerateId();
+    return QueryUtils::ediGenerateId();
 }
