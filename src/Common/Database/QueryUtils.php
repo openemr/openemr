@@ -332,7 +332,9 @@ class QueryUtils
 
     public static function getLastInsertId()
     {
-        return \sqlGetLastInsertId();
+        // Return the correct last id generated using function
+        //   that is safe with the audit engine.
+        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
     }
 
     public static function querySingleRow(string $sql, array $params = [])
