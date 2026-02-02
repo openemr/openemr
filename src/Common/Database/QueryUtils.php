@@ -39,7 +39,15 @@ class QueryUtils
 
     public static function escapeTableName($table)
     {
-        return \escape_table_name($table);
+        $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
+        $tables_array = [];
+        while ($row = self::fetchArrayFromResultSet($res)) {
+            $keys_return = array_keys($row);
+            $tables_array[] = $row[$keys_return[0]];
+        }
+
+        // Now can escape(via whitelisting) the sql table name
+        return \escape_identifier($table, $tables_array, true, false);
     }
 
     public static function escapeColumnName($columnName, $tables = [])
