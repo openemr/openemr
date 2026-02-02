@@ -1258,7 +1258,10 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
         }
         echo '<script type="text/javascript">';
-        echo $twig->render('payments/rainforest.js', ['endpoint' => 'portal_payment.rainforest.php']);
+        echo $twig->render('payments/rainforest.js', [
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'endpoint' => 'portal_payment.rainforest.php',
+        ]);
         echo '</script>';
     }
     ?>

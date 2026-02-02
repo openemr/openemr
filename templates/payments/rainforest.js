@@ -54,6 +54,9 @@ document.getElementById('paynowbutton').onclick = function (e) {
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify(data),
         dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf }}',
+        },
         success: createRainforestComponent,
         error: handleError,
         type: 'POST',
