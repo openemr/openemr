@@ -148,20 +148,11 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 */
 function sqlStatement($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    // Use adodb Execute with binding and return a recordset.
-    //   Note that the auditSQLEvent function is embedded
-    //    in the Execute command.
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-    if ($recordset === false) {
+    try {
+        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
+    } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    return $recordset;
 }
 
 /**
