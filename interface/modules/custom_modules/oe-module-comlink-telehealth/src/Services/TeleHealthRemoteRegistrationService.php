@@ -27,52 +27,48 @@ class TeleHealthRemoteRegistrationService
 {
     /**
      * API url endpoint to send registration requests to.
-     * @var string
      */
-    private $apiURL;
-
-    /*
-     * UserID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiId;
-
-    /*
-     * Password for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiPassword;
-
-    /*
-     * CMSID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiCMSID;
-
+    private ?string $apiURL = null;
 
     /**
-     * Client
+     * UserID for api authentication needed for comlink video service
      */
-    private $httpClient;
+    private ?string $apiId = null;
+
+    /**
+     * Password for api authentication needed for comlink video service
+     */
+    private ?string $apiPassword = null;
+
+    /**
+     * CMSID for api authentication needed for comlink video service
+     */
+    private ?string $apiCMSID = null;
+
+    /**
+     * HTTP client for API requests
+     */
+    private ?Client $httpClient = null;
 
     /**
      * Unique installation id of the OpenEMR Institution
-     * @var string
      */
-    private $institutionId;
+    private ?string $institutionId = null;
 
     /**
      * Name of the OpenEMR institution
-     * @var string
      */
-    private $institutionName;
+    private ?string $institutionName = null;
 
     /**
-     * @var SystemLogger
+     * System logger instance
      */
-    private $logger;
+    private ?SystemLogger $logger = null;
 
-    private TeleHealthUserRepository $userRepository;
+    /**
+     * User repository for managing telehealth users
+     */
+    private ?TeleHealthUserRepository $userRepository = null;
 
     public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
     {

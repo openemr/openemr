@@ -31,20 +31,23 @@ use Twig\Environment;
 class TeleHealthCalendarController
 {
     /**
-     * @var The database record if of the currently logged in user
+     * Database record ID of the currently logged in user
      */
-    private $loggedInUserId;
+    private ?int $loggedInUserId = null;
 
     /**
-     * @var CalendarEventCategoryRepository
+     * Repository for calendar event categories
      */
-    private $calendarEventCategoryRepository;
+    private ?CalendarEventCategoryRepository $calendarEventCategoryRepository = null;
 
     /**
-     * @var AppointmentService
+     * Appointment service instance
      */
-    private $apptService;
+    private ?AppointmentService $apptService = null;
 
+    /**
+     * Repository for telehealth providers
+     */
     private readonly TeleHealthProviderRepository $teleHealthProviderRepository;
 
     /**

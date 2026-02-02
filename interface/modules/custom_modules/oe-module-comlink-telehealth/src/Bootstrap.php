@@ -33,6 +33,7 @@ use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
+use OpenEMR\Common\Utils\OEGlobalsBag;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
@@ -118,8 +119,6 @@ class Bootstrap
         private readonly EventDispatcherInterface $eventDispatcher,
         ?Kernel $kernel = null
     ) {
-        global $GLOBALS;
-
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
@@ -144,7 +143,8 @@ class Bootstrap
 
     public function getURLPath()
     {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
+        $webroot = OEGlobalsBag::getInstance()->get('webroot');
+        return $webroot . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
     }
 
     /**
@@ -237,7 +237,8 @@ class Bootstrap
     {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
-        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
+        $qualifiedSiteAddr = OEGlobalsBag::getInstance()->get('qualified_site_addr');
+        return $qualifiedSiteAddr . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
     }
 
     private function getAssetPath()

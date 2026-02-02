@@ -15,6 +15,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\OEGlobalsBag;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
@@ -300,9 +301,7 @@ class TelehealthGlobalConfig
 
     public function getGlobalSetting($settingKey)
     {
-        global $GLOBALS;
-        // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
-        return $GLOBALS[$settingKey] ?? null;
+        return OEGlobalsBag::getInstance()->get($settingKey);
     }
 
     public function getAppRegistrationCodeLength()
@@ -462,14 +461,13 @@ class TelehealthGlobalConfig
 
     public function setupConfiguration(GlobalsService $service)
     {
-        global $GLOBALS;
         $section = xlt("TeleHealth");
         $service->createSection($section, 'Portal');
 
         $settings = $this->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $setting = new GlobalSetting(
                 xlt($config['title']),
                 $config['type'],
