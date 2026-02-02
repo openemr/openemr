@@ -172,11 +172,24 @@ class QueryUtils
      */
     public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
-        if ($noLog) {
-            return \sqlStatementNoLog($statement, $binds, true);
-        } else {
-            return \sqlStatementThrowException($statement, $binds);
+        // Below line is to avoid a nasty bug in windows.
+        if (empty($binds)) {
+            $binds = false;
         }
+
+        //Run a adodb execute
+        // Note the auditSQLEvent function is embedded in the
+        //   Execute function.
+        if ($noLog) {
+            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
+        } else {
+            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+        }
+        if ($recordset === false) {
+            throw new SqlQueryException($statement, "Failed to execute statement. Error: "
+                . getSqlLastError() . " Statement: " . $statement);
+        }
+        return $recordset;
     }
 
     /**
