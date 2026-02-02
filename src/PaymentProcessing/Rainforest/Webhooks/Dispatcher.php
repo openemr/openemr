@@ -24,6 +24,7 @@ readonly class Dispatcher
         private array $processors,
         private string $merchantId,
         private LoggerInterface $logger,
+        private bool $rethrowLastProcessingException,
     ) {
     }
 
@@ -36,10 +37,12 @@ readonly class Dispatcher
             return;
         }
 
+        $lastException = null;
         foreach ($this->getProcessorsFor($webhook->eventType) as $processor) {
             try {
                 $processor->handle($webhook);
             } catch (Throwable $e) {
+                $lastException = $e;
                 $this->logger->error(
                     'Excepting during webhook {id} processing ({handler})',
                     [
@@ -49,6 +52,10 @@ readonly class Dispatcher
                     ]
                 );
             }
+        }
+
+        if ($this->rethrowLastProcessingException && $lastException !== null) {
+            throw $lastException;
         }
     }
 

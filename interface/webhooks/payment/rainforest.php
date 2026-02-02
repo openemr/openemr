@@ -47,6 +47,13 @@ $logger = new Logger('OpenEMR');
 
 try {
     $wh = $whv->verify($req);
+} catch (Throwable $e) {
+    $logger->error('Webhook verification failed', ['exception' => $e]);
+    header('HTTP/1.1 400 Bad Request');
+    exit;
+}
+
+try {
     // In the future, we may want this to have an async "save for later and
     // write into a queue" receiver, and immediately yield a 2xx. As long as
     // the Webhook structure is serializable, the processors should work just
@@ -59,9 +66,11 @@ try {
         ],
         merchantId: $mid,
         logger: $logger,
+        rethrowLastProcessingException: true,
     );
     $disp->dispatch($wh);
 } catch (Throwable $e) {
-    $logger->error('Webhook verification failed', ['exception' => $e]);
-    header('HTTP/1.1 400 Bad Request');
+    // Already logged by dispatcher.
+    header('HTTP/1.1 500 Internal Server Error');
+    exit;
 }
