@@ -66,6 +66,8 @@ try {
         ],
         merchantId: $mid,
         logger: $logger,
+        // Since there is no internal retry, let a failure propagate so we get
+        // external retries due to the non-2xx response.
         rethrowLastProcessingException: true,
     );
     $disp->dispatch($wh);
