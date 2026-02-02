@@ -41,11 +41,11 @@ use const JSON_THROW_ON_ERROR;
  * Future scope: make this less Rainforest-specific? The only thing specific to
  * them is the webhook body format.
  */
-class Verifier
+readonly class Verifier
 {
     private const DEFAULT_TIMESTAMP_TOLERANCE_SECONDS = 300;
 
-    private readonly string $secretBytes;
+    private string $secretBytes;
 
     public function __construct(
         private ClockInterface $clock,
