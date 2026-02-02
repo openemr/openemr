@@ -344,46 +344,6 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
     }
 }
 
-/**
-* Specialized sql query in OpenEMR that ignores sql errors, bypasses the
-* auditing engine and only returns the first row of query results as an
-* associative array.
-*
-* Function that will allow use of the adodb binding
-* feature to prevent sql-injection. It is equivalent to the
-* sqlQuery() function, EXCEPT it skips the
-* audit engine and ignores errors. This function should only be used
-* in very special situations.
-*
-* @param  string  $statement  query
-* @param  array   $binds      binded variables array (optional)
-* @return array
-*/
-function sqlQueryNoLogIgnoreError($statement, $binds = false)
-{
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
-        // ignore the error and return FALSE
-        return false;
-    }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
-}
 
 /**
 * sqlQuery() function wrapper for CDR engine in OpenEMR.
