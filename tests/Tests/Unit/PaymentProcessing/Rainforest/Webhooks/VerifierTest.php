@@ -106,8 +106,7 @@ final class VerifierTest extends TestCase
     public function testVerifyRejectsTimestampTooFarInThePast(): void
     {
         $timestamp = '1706000000';
-        // Clock is 301 seconds ahead of the timestamp (just over tolerance)
-        $verifier = new Verifier($this->createClock(1706000301), self::SECRET);
+        $verifier = new Verifier($this->createClock(1706000031), self::SECRET, 30);
         $body = '{"event_type":"test","data":{}}';
         $msgId = 'msg_old';
         $signature = $this->computeSignature($msgId, $timestamp, $body);
@@ -125,9 +124,8 @@ final class VerifierTest extends TestCase
 
     public function testVerifyRejectsTimestampTooFarInTheFuture(): void
     {
-        $timestamp = '1706000301';
-        // Clock is 301 seconds behind the timestamp (just over tolerance)
-        $verifier = new Verifier($this->createClock(1706000000), self::SECRET);
+        $timestamp = '1706000031';
+        $verifier = new Verifier($this->createClock(1706000000), self::SECRET, 30);
         $body = '{"event_type":"test","data":{}}';
         $msgId = 'msg_future';
         $signature = $this->computeSignature($msgId, $timestamp, $body);
@@ -146,8 +144,7 @@ final class VerifierTest extends TestCase
     public function testVerifyAcceptsTimestampAtEdgeOfTolerance(): void
     {
         $timestamp = '1706000000';
-        // Clock is exactly 300 seconds ahead (at the boundary)
-        $verifier = new Verifier($this->createClock(1706000300), self::SECRET);
+        $verifier = new Verifier($this->createClock(1706000030), self::SECRET, 30);
         $body = '{"event_type":"payment.completed","data":{"merchant_id":"m_edge"}}';
         $msgId = 'msg_edge';
         $signature = $this->computeSignature($msgId, $timestamp, $body);
