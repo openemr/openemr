@@ -53,22 +53,22 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             if ($GLOBALS['force_claim_balancing']) {
-                $chgtotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
-                $paytotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
-                $pattotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
-                $adjtotal = $chgtotal->subtract($paytotal)->subtract($pattotal);
-    
+                $chgTotal = self::$moneyParser->parse($out['amount_charged'], new Currency('USD'));
+                $payTotal = self::$moneyParser->parse($out['amount_approved'], new Currency('USD'));
+                $patTotal = self::$moneyParser->parse($out['amount_patient'], new Currency('USD'));
+                $adjTotal = $chgTotal->subtract($payTotal)->subtract($patTotal);
+
                 foreach ($out['svc'] as $svc) {
-                    $paytotal = $paytotal->subtract(self::$moneyParser->parse($svc['paid'], new Currency('USD')));
+                    $payTotal = $payTotal->subtract(self::$moneyParser->parse($svc['paid'], new Currency('USD')));
                     foreach ($svc['adj'] as $adj) {
                         if ($adj['group_code'] != 'PR') {
-                            $adjtotal = $adjtotal->subtract(self::$moneyParser->parse($adj['amount'], new Currency('USD')));
+                            $adjTotal = $adjTotal->subtract(self::$moneyParser->parse($adj['amount'], new Currency('USD')));
                         }
                     }
                 }
-                $paytotal = self::$moneyFormatter->format($paytotal);
-                $adjtotal = self::$moneyFormatter->format($adjtotal);
-                if ($paytotal != 0 || $adjtotal != 0) {
+                $payTotal = self::$moneyFormatter->format($payTotal);
+                $adjTotal = self::$moneyFormatter->format($adjTotal);
+                if ($payTotal != 0 || $adjTotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
                         array_unshift($out['svc'], []);
                         $out['svc'][0]['code'] = 'Claim';
@@ -80,13 +80,13 @@ class ParseERA
                             "force claim balancing.\n";
                     }
 
-                    $out['svc'][0]['paid'] += $paytotal;
-                    if ($adjtotal) {
+                    $out['svc'][0]['paid'] += $payTotal;
+                    if ($adjTotal) {
                         $j = count($out['svc'][0]['adj']);
                         $out['svc'][0]['adj'][$j] = [];
                         $out['svc'][0]['adj'][$j]['group_code'] = 'CR'; // presuming a correction or reversal
                         $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
-                        $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
+                        $out['svc'][0]['adj'][$j]['amount'] = $adjTotal;
                     }
                 }
             }
