@@ -43,28 +43,20 @@ use const JSON_THROW_ON_ERROR;
  */
 class Verifier
 {
-    private const TIMESTAMP_TOLERANCE_SECONDS = 300;
+    private const DEFAULT_TIMESTAMP_TOLERANCE_SECONDS = 300;
 
     private readonly string $secretBytes;
 
     public function __construct(
         private ClockInterface $clock,
         #[SensitiveParameter] string $webhookSecret,
+        private int $timestampToleranceSec = self::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS,
     ) {
         if (!str_contains($webhookSecret, '_')) {
             throw new UnexpectedValueException('Invalid secret');
         }
         [$prefix, $data] = explode('_', $webhookSecret, 2);
         $this->secretBytes = base64_decode($data);
-    }
-
-    private function verifyTimestamp(DateTimeInterface $timestamp): void
-    {
-        $now = $this->clock->now();
-        $diff = abs($now->getTimestamp() - $timestamp->getTimestamp());
-        if ($diff > self::TIMESTAMP_TOLERANCE_SECONDS) {
-            throw new UnexpectedValueException('Timestamp is outside of tolerance');
-        }
     }
 
     /**
@@ -137,4 +129,14 @@ class Verifier
         $parsedBody = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
         return new Webhook($parsedBody);
     }
+
+    private function verifyTimestamp(DateTimeInterface $timestamp): void
+    {
+        $now = $this->clock->now();
+        $diff = abs($now->getTimestamp() - $timestamp->getTimestamp());
+        if ($diff > $this->timestampToleranceSec) {
+            throw new UnexpectedValueException('Timestamp is outside of tolerance');
+        }
+    }
+
 }
