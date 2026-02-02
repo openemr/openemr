@@ -309,27 +309,11 @@ function sqlInsert($statement, $binds = false)
 */
 function sqlQuery($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        return QueryUtils::querySingleRow($statement, $binds);
+    } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
 }
 
 /**
