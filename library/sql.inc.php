@@ -204,22 +204,14 @@ function sqlGetLastInsertId()
 */
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    if ($throw_exception_on_error) {
+    try {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
-    }
-
-    // Use adodb ExecuteNoLog with binding and return a recordset.
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-    if ($recordset === false) {
+    } catch (SqlQueryException $e) {
+        if ($throw_exception_on_error) {
+            throw $e;
+        }
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    return $recordset;
 }
 
 /**
