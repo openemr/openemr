@@ -910,6 +910,8 @@ class SessionWrapperFactoryTest extends TestCase
      * Data provider for session types
      *
      * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function sessionTypeProvider(): array
     {

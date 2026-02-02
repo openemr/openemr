@@ -91,6 +91,7 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
         }
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function menuLinkProvider()
     {
         return [

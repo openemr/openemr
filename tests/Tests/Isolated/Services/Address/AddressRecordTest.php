@@ -107,6 +107,8 @@ class AddressRecordTest extends TestCase
 
     /**
      * @return array<string, array{AddressRecord, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function toStringProvider(): array
     {

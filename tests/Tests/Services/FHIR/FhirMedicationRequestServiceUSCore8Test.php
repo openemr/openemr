@@ -575,6 +575,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $this->assertNotNull($medicationRequest->getSubject(), 'Subject is required');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function validStatusProvider(): array
     {
         return [
@@ -601,6 +602,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $this->assertEquals($status, $medicationRequest->getStatus());
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function validIntentProvider(): array
     {
         return [

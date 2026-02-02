@@ -336,6 +336,8 @@ class ClientAdminControllerTest extends TestCase
 
     /**
      * Test data provider for various action scenarios
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function actionDataProvider(): array
     {
