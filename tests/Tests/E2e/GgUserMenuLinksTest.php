@@ -47,6 +47,7 @@ class GgUserMenuLinksTest extends PantherTestCase
             }
             $this->base();
             try {
+                $this->annotateVideo("TEST START: User Menu - $menuLinkItem", 2000, '#4CAF50');
                 $this->login(LoginTestData::username, LoginTestData::password);
                 if ($menuLinkItem == 'Logout') {
                     // special case for Logout
@@ -55,7 +56,9 @@ class GgUserMenuLinksTest extends PantherTestCase
                     $this->goToUserMenuLink($menuTreeIcon);
                     $this->assertActiveTab($expectedTabTitle);
                 }
+                $this->annotateVideo("TEST COMPLETE: $menuLinkItem verified", 2000, '#4CAF50');
             } catch (\Throwable $e) {
+                $this->annotateVideo("TEST FAILED: $menuLinkItem - " . $e->getMessage(), 3000, '#F44336');
                 // Close client
                 $this->client->quit();
                 if ($counter > 2) {
