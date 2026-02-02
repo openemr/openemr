@@ -33,7 +33,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Utils\OEGlobalsBag;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;

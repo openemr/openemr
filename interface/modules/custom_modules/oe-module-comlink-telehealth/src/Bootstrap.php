@@ -33,7 +33,7 @@ use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
-use OpenEMR\Common\Utils\OEGlobalsBag;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
