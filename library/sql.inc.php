@@ -685,19 +685,6 @@ function get_db()
     return $GLOBALS['adodb']['db'];
 }
 
-/**
- * Generic mysql select db function
- * Used when converted to mysqli to centralize special circumstances.
- * @param string $database
- */
-function generic_sql_select_db($database, $link = null): void
-{
-    if (is_null($link)) {
-        $link = $GLOBALS['dbh'];
-    }
-
-    mysqli_select_db($link, $database);
-}
 
 /**
  * Generic mysql affected rows function

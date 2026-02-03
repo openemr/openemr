@@ -176,7 +176,7 @@ if (!empty($_POST['form_submit'])) {
     }
     $login = $sqlconf["login"];
     $loginhost = $sqlconf["host"];
-    generic_sql_select_db($sqlconf['dbase']);
+    mysqli_select_db($GLOBALS['dbh'], $sqlconf['dbase']);
     if (sqlStatement("GRANT FILE ON *.* TO '$login'@'$loginhost'") == false) {
         echo xlt("Error when granting file privilege to the OpenEMR user.");
         echo "\n";
