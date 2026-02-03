@@ -127,6 +127,10 @@ class SessionUtil
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
+        // TODO: we shouldn't ever be reaching here with an active session, but we as a separate work item need to investigate why this is happening.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close(); // Close any existing session
+        }
         $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started core session");
@@ -255,6 +259,10 @@ class SessionUtil
 
     public static function oauthSessionStart($web_root): void
     {
+        // TODO: we shouldn't ever be reaching here with an active session, but we as a separate work item need to investigate why this is happening.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close(); // Close any existing session
+        }
         $settings = SessionConfigurationBuilder::forOAuth($web_root);
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started oauth session");
