@@ -232,28 +232,31 @@ class OneTimeAuth
         if (stripos((string) $site_addr, "?") === false) {
             $format = "%s?%s";
         }
+        // Use RFC3986 so + and / in base64-like tokens are encoded as %2B and %2F,
+        // preventing query string parsing from turning + into space (issue #10517).
+        $enc_type = defined('PHP_QUERY_RFC3986') ? PHP_QUERY_RFC3986 : 2;
         if ($this->scope == 'register') {
             $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $site_id
-            ]));
+            ], '', '&', $enc_type));
         } elseif ($this->scope == 'reset_password') {
             $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                 'forward' => $token_encrypt,
                 'site' => $site_id
-            ]));
+            ], '', '&', $enc_type));
         } else {
             if (!empty($encrypted_redirect)) {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'target' => $encrypted_redirect,
                     'site' => $site_id
-                ]));
+                ], '', '&', $enc_type));
             } else {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'site' => $site_id
-                ]));
+                ], '', '&', $enc_type));
             }
         }
         $this->systemLogger->debug("Onetime link " . text($encoded_link) . " encoded");

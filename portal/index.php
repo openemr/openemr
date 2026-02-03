@@ -94,6 +94,7 @@ $redirectUrl = $_REQUEST['redirect'] ?? '';
  * The embedded pid in token is compared to the token looked up result pid.
  * Also verified as the portal account id is rebuilt from patient data
  * and compared to portal credential account id lookup.
+ * Restore + in token: query string parsing turns + into space (issue #10517).
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
     $oneTime = new OneTimeAuth();
@@ -102,15 +103,16 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
-        $token = $_GET['service_auth'];
-        $ot = $oneTime->decodePortalOneTime($token, null, false);
+        $token = str_replace(' ', '+', (string) $_GET['service_auth']);
+        $target = isset($_GET['target']) ? str_replace(' ', '+', (string) $_GET['target']) : null;
+        $ot = $oneTime->decodePortalOneTime($token, $target, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session->getSymfonySession());
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
-            'service_auth' => $_GET['service_auth'],
-            'target' => $_GET['target'] ?? null,
+            'service_auth' => $token,
+            'target' => $target,
             'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session->getSymfonySession()),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
@@ -118,8 +120,8 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         ]);
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
-        $token = $_POST['service_auth'];
-        $redirect_token = $_POST['target'] ?? null;
+        $token = str_replace(' ', '+', (string) $_POST['service_auth']);
+        $redirect_token = isset($_POST['target']) ? str_replace(' ', '+', (string) $_POST['target']) : null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
             if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session->getSymfonySession())) {
