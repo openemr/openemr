@@ -56,7 +56,7 @@ class QueryUtils
         return \escape_sql_column_name($columnName, $tables);
     }
 
-    public static function fetchRecordsNoLog($sqlStatement, $binds = []): array
+    public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -83,7 +83,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumn($sqlStatement, $column, $binds = []): array
+    public static function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -93,7 +93,7 @@ class QueryUtils
         return $list;
     }
 
-    public static function fetchSingleValue($sqlStatement, $column, $binds = []): mixed
+    public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
         // note if $records[0] is actually the value 0 then the value returned is null...
@@ -104,7 +104,7 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false): array
+    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -122,7 +122,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = []): array
+    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
