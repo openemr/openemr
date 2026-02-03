@@ -686,16 +686,6 @@ function get_db()
 }
 
 
-/**
- * Generic mysql affected rows function
- * Used when converted to mysqli to centralize special circumstances.
- *
- */
-function generic_sql_affected_rows()
-{
-    return $GLOBALS['adodb']['db']->affected_rows();
-}
-
 
 /**
  * Begin a Transaction.
