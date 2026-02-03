@@ -344,7 +344,7 @@ class QueryUtils
             $return = $action();
 
             self::commitTransaction();
-            return $action;
+            return $return;
         } catch (Throwable $e) {
             self::rollbackTransaction();
             throw $e;

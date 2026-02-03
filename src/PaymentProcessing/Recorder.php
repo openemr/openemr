@@ -1,13 +1,117 @@
 <?php
 
+/**
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link      https://www.open-emr.org
+ * @package   OpenEMR
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing;
 
+use Money\{
+    Currencies\ISOCurrencies,
+    Formatter\DecimalMoneyFormatter,
+    Money,
+};
 use OpenEMR\Common\Database\QueryUtils;
 
 class Recorder
 {
+    // Future (all blocks): convert to enums
+    // Future (all blocks): add other supported types
+
+    public const ADJUSTMENT_CODE_PATIENT_PAYMENT = 'patient_payment';
+
+    public const PAYMENT_METHOD_CREDIT_CARD = 'credit_card';
+
+    public const PAYMENT_TYPE_PATIENT = 'patient';
+
+    // COPAY/PCP
+
+    /**
+     * If a session with the provided reference exists, its id will be
+     * returned. If one is not found, this will return `null`.
+     *
+     * Important: this is a best-effort check; the column needs to be unique
+     * and nullable for this to work in a fully-correct manner, and it's
+     * neither as of writing.
+     */
+    public function getSessionIdForReference(string $reference): ?string
+    {
+        $id = QueryUtils::fetchSingleValue(
+            'SELECT session_id FROM ar_session WHERE reference = ?',
+            'session_id',
+            [$reference],
+        );
+        if ($id === null) {
+            return null;
+        }
+        return (string) $id;
+    }
+
+    /**
+     * @param array{
+     *   payerId: string,
+     *   userId: string,
+     *   reference: string,
+     *   payTotal: Money,
+     *   paymentType: self::PAYMENT_TYPE_*,
+     *   description: string,
+     *   adjustmentCode: self::ADJUSTMENT_CODE_*,
+     *   patientId: string,
+     *   paymentMethod: self::PAYMENT_METHOD_*,
+     * } $data
+     * @return string the session identifier
+     */
+    public function createSession(array $data): string
+    {
+        $now = date('Y-m-d H:i:s');
+        $date = date('Y-m-d'); // Future: param?
+        $query = <<<'SQL'
+        INSERT INTO `ar_session` (
+            `payer_id`,
+            `user_id`,
+            `closed`,
+            `reference`,
+            `check_date`,
+            `deposit_date`,
+            `pay_total`,
+            `created_time`,
+            `modified_time`,
+            `global_amount`,
+            `payment_type`,
+            `description`,
+            `adjustment_code`,
+            `post_to_date`,
+            `patient_id`,
+            `payment_method`
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        SQL;
+        $params = [
+            $data['payerId'], // `payer_id`
+            $data['userId'], // `user_id`
+            0, // `closed`
+            $data['reference'], // `reference`
+            $date, // `check_date`
+            $date, // `deposit_date`
+            self::formatMoney($data['payTotal']), // `pay_total`
+            $now, // `created_time`
+            $now, // `modified_time`
+            '0.00', // `global_amount`
+            $data['paymentType'], // `payment_type`
+            $data['description'], // `description`
+            $data['adjustmentCode'], // `adjustment_code`
+            $date, // `post_to_date`
+            $data['patientId'], // `patient_id`
+            $data['paymentMethod'], // `payment_method
+        ];
+        return (string) QueryUtils::sqlInsert($query, $params);
+    }
+
     /**
      * Future scope:
      * - Amounts to Money type
@@ -85,7 +189,7 @@ class Recorder
                 $data['adjustmentAmount'],
                 $data['memo'] ?? '',
                 $data['accountCode'] ?? '',
-                $data['followUp'] ? 'y' : '',
+                ($data['followUp'] ?? false) ? 'y' : '',
                 $data['followUpNote'] ?? null,
                 $data['reasonCode'] ?? null,
                 $data['postDate'] ?? null,
@@ -108,5 +212,17 @@ class Recorder
             WHERE pid = ? AND encounter = ?
         SQL, [$patientId, $encounterId]);
         return $result['increment'];
+    }
+
+    /**
+     * Converts well-formed Money objects to a decimal string
+     *
+     * e.g. Money::USD(123) => '1.23'
+     */
+    private static function formatMoney(Money $money): string
+    {
+        // Note: this should be done in a DBAL layer, not here.
+        $dmf = new DecimalMoneyFormatter(new ISOCurrencies());
+        return $dmf->format($money);
     }
 }

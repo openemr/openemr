@@ -1079,7 +1079,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1148,7 +1148,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
                                 <div class="form-group">
@@ -1250,6 +1250,19 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
+            echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
+        echo '<script type="text/javascript">';
+        echo $twig->render('payments/rainforest.js', [
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'endpoint' => 'portal_payment.rainforest.php',
+        ]);
+        echo '</script>';
     }
     ?>
 
