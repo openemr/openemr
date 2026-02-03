@@ -7,7 +7,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023 - 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +21,10 @@ use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
@@ -29,18 +32,22 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private $cryptoGen;
-    private $systemLogger;
+    private readonly CryptoGen $cryptoGen;
+    private readonly SystemLogger $systemLogger;
+    private readonly SessionWrapperInterface $session;
+    private readonly OEGlobalsBag $globalsBag;
 
     /**
      * @param string $context context = portal, patient etc.
-     * @param string $scope scope = portal/service tasks (reset, register).
+     * @param string $scope   scope = portal/service tasks (reset, register).
      * @param string $profile
      */
     public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
+        $this->session = SessionWrapperFactory::getInstance()->getWrapper();
+        $this->globalsBag = OEGlobalsBag::getInstance();
     }
 
     /**
@@ -64,7 +71,6 @@ class OneTimeAuth
      *        'max_access_count' => 0, // 0 = unlimited.
      *     ]
      */
-
     public function createPortalOneTime(array $p, bool $encrypt_redirect = false): array|bool
     {
         $redirect_token = null;
@@ -86,7 +92,7 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
-        $redirect_raw = trim((string) ($p['redirect_link'] ?? null));
+        $redirect_raw = trim((string)($p['redirect_link'] ?? null));
         if (!empty($redirect_raw) && $encrypt_redirect) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
             $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
@@ -98,7 +104,7 @@ class OneTimeAuth
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
-            $site_addr = trim((string) $GLOBALS['portal_onsite_two_address']);
+            $site_addr = trim((string)$this->globalsBag->get('portal_onsite_two_address', ''));
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);
@@ -151,7 +157,7 @@ class OneTimeAuth
         $one_time = '';
         $t_info = [];
 
-        if (strlen((string) $onetime_token) >= 64) {
+        if (strlen((string)$onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
                 $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
                 if (!empty($one_time)) {
@@ -218,8 +224,8 @@ class OneTimeAuth
      */
     private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
-        if (stripos((string) $site_addr, "portal") !== false) {
+        $site_id = $this->session->get('site_id', 'default');
+        if (stripos((string)$site_addr, "portal") !== false) {
             $site_addr = strtok($site_addr, '?');
             if (stripos($site_addr, "index.php") !== false) {
                 $site_addr = dirname($site_addr);
@@ -229,31 +235,34 @@ class OneTimeAuth
             }
         }
         $format = "%s&%s";
-        if (stripos((string) $site_addr, "?") === false) {
+        if (stripos((string)$site_addr, "?") === false) {
             $format = "%s?%s";
         }
+        // Use RFC3986 so + and / in base64-like tokens are encoded as %2B and %2F,
+        // preventing query string parsing from turning + into space (issue #10517).
+        $enc_type = defined('PHP_QUERY_RFC3986') ? PHP_QUERY_RFC3986 : 2;
         if ($this->scope == 'register') {
             $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $site_id
-            ]));
+            ], '', '&', $enc_type));
         } elseif ($this->scope == 'reset_password') {
             $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                 'forward' => $token_encrypt,
                 'site' => $site_id
-            ]));
+            ], '', '&', $enc_type));
         } else {
             if (!empty($encrypted_redirect)) {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'target' => $encrypted_redirect,
                     'site' => $site_id
-                ]));
+                ], '', '&', $enc_type));
             } else {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'site' => $site_id
-                ]));
+                ], '', '&', $enc_type));
             }
         }
         $this->systemLogger->debug("Onetime link " . text($encoded_link) . " encoded");
@@ -272,7 +281,7 @@ class OneTimeAuth
     public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires, $scope = '', $profile = '', $actions = []): int
     {
         $actions = json_encode($actions);
-        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires, $scope, $profile, $actions];
+        $bind = [$pid, $this->session->get('authUserID', null), $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires, $scope, $profile, $actions];
         $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `expires`, `date_created`, `scope`, `profile`, `onetime_actions`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, current_timestamp(), ?, ?, ?)";
 
         return sqlInsert($sql, $bind);
@@ -335,40 +344,43 @@ class OneTimeAuth
             unset($auth);
             throw new OneTimeAuthException(xlt("Authentication Failed! Contact administrator."));
         }
+
         $patientService = new PatientService();
         $patient = $patientService->findByPid($auth['pid']);
 
         // preserve session for target use
-        $_SESSION['pid'] = $auth['pid'];
-        $_SESSION['auth_pin'] = $auth['pin'];
-        $_SESSION['auth_scope'] = $this->scope;
-        $_SESSION['redirect_target'] = $auth['redirect'];
-        $_SESSION['onetime'] = $auth['portal_pwd'];
-        $_SESSION['patient_portal_onsite_two'] = 1;
-        $_SESSION['onetime_actions'] = $auth['actions'];
+        $this->session->set('pid', $auth['pid']);
+        $this->session->set('auth_pin', $auth['pin']);
+        $this->session->set('auth_scope', $this->scope);
+        $this->session->set('redirect_target', $auth['redirect']);
+        $this->session->set('onetime', $auth['portal_pwd']);
+        $this->session->set('patient_portal_onsite_two', 1);
+        $this->session->set('onetime_actions', $auth['actions']);
 
         // set up the other variables needed for the session interaction
         // this was taken from portal/get_patient_info.php
         $userService = new UserService();
         $tmp = $userService->getUser($patient['providerID']);
-        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
-        $_SESSION['providerUName'] = $tmp['username'] ?? null;
-        $_SESSION['sessionUser'] = '-patient-';
-        $_SESSION['providerId'] = $patient['providerID'] ?: 'undefined';
-        $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
+        $this->session->set('providerName', ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''));
+        $this->session->set('providerUName', $tmp['username'] ?? null);
+        $this->session->set('sessionUser', '-patient-');
+        $this->session->set('providerId', $patient['providerID'] ?: 'undefined');
+        $this->session->set('ptName', $patient['fname'] . ' ' . $patient['lname']);
         // never set authUserID though authUser is used for ACL!
-        $_SESSION['authUser'] = 'portal-user';
-        $_SESSION['portal_username'] = $auth['username']; // required by portal/handle_note.php
-        $_SESSION['portal_login_username'] = $auth['login_username']; // required by portal/handle_note.php
+        $this->session->set('authUser', 'portal-user');
+        $this->session->set('portal_username', $auth['username']); // required by portal/handle_note.php
+        $this->session->set('portal_login_username', $auth['login_username']); // required by portal/handle_note.php
+
         // Set up the csrf private_key (for the patient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
 
         $extend = ($auth['actions']['extend_portal_visit'] ?? 1) ? 1 : 0;
-        $_SESSION['portal_visit_extended'] = $extend;
+        $this->session->set('portal_visit_extended', $extend);
 
         CsrfUtils::setupCsrfKey();
         header('Location: ' . $auth['redirect']);
+
         // allows logging and any other processing to be handled on the return
         return $auth;
     }
