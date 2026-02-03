@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use Doctrine\DBAL\DriverManager;
+use InvalidArgumentException;
 use SensitiveParameter;
 
 /**
@@ -42,6 +43,28 @@ final readonly class DatabaseConnectionOptions
         public ?string $charset = null,
         public array $driverOptions = [],
     ) {
+        $hasHost = $host !== null;
+        $hasPort = $port !== null;
+        $hasSocket = $unixSocket !== null;
+
+        $hasTcp = $hasHost && $hasPort;
+        $hasPartialTcp = $hasHost !== $hasPort;
+
+        if ($hasPartialTcp) {
+            throw new InvalidArgumentException(
+                'host and port must both be provided together'
+            );
+        }
+        if ($hasTcp && $hasSocket) {
+            throw new InvalidArgumentException(
+                'Cannot specify both host/port and unixSocket'
+            );
+        }
+        if (!$hasTcp && !$hasSocket) {
+            throw new InvalidArgumentException(
+                'Must specify either host/port or unixSocket'
+            );
+        }
     }
 
     /**
