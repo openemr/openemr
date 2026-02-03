@@ -71,7 +71,7 @@ try {
         rethrowLastProcessingException: true,
     );
     $disp->dispatch($wh);
-} catch (Throwable $e) {
+} catch (Throwable) {
     // Already logged by dispatcher.
     header('HTTP/1.1 500 Internal Server Error');
     exit;

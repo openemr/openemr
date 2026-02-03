@@ -47,7 +47,7 @@ readonly class Dispatcher
                     'Excepting during webhook {id} processing ({handler})',
                     [
                         'exception' => $e,
-                        'handler' => get_class($processor),
+                        'handler' => $processor::class,
                         'id' => $webhook->id,
                     ]
                 );
