@@ -213,11 +213,6 @@ function sqlGetLastInsertId()
 */
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
     if ($throw_exception_on_error) {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
     }
