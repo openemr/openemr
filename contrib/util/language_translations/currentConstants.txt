@@ -8392,7 +8392,6 @@ Please provide a valid email address
 Please refer to
 Please reset the password.
 Please resolve errors and resubmit order.
-Please restart the apache server before playing with de-identification
 Please return this bottom part with your payment
 Please see forum and wiki
 Please see forum or wiki
@@ -8433,7 +8432,6 @@ Please Select Type Of Payment.
 Please select visit category
 Please select X12 partner, required to create the 270 batch
 Please set
-Please set de_identification_config variable back to zero
 Please set pharmacy in patient\'s chart!
 Please Specify at least One Direct Address
 Please specify Void Notes.
@@ -12185,7 +12183,6 @@ Upgrade
 Upgrade ACL
 Upgrade Database
 Upgrade SQL
-Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process
 Upgrading will continue
 UPIN
 Upload
@@ -12417,7 +12414,6 @@ Value if comparing
 Value Should be Numeric
 Var1
 Var2
-variable to one to run de-identification upgrade script
 Variation in red color discrimination between the eyes (eg. OD=100, OS=75)
 Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)
 Varicella 1
