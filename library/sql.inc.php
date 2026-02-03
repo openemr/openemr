@@ -709,16 +709,6 @@ function generic_sql_affected_rows()
     return $GLOBALS['adodb']['db']->affected_rows();
 }
 
-/**
- * Generic mysql insert id function
- * Used when converted to mysqli to centralize special circumstances.
- *
-                 */
-function generic_sql_insert_id()
-{
-    return mysqli_insert_id($GLOBALS['dbh']);
-}
-
 
 /**
  * Begin a Transaction.
