@@ -473,17 +473,6 @@ class AuthorizationController
         ))->fromGlobals();
     }
 
-    public function base64url_encode($data): string
-    {
-        return HttpUtils::base64url_encode($data);
-    }
-
-    public function base64url_decode($token): string
-    {
-        $b64 = strtr($token, '-_', '+/');
-        return base64_decode($b64);
-    }
-
     public function clientRegisteredDetails(HttpRestRequest $request): ResponseInterface
     {
         $response = $this->createServerResponse();
@@ -1438,7 +1427,7 @@ class AuthorizationController
 
     public function decodeToken($token)
     {
-        return json_decode($this->base64url_decode($token), true);
+        return json_decode(HttpUtils::base64url_decode($token), true);
     }
 
     public function userSessionLogout(HttpRestRequest $request): ResponseInterface
