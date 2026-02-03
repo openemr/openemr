@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use ADORecordSet;
 use Throwable;
 
 class QueryUtils
@@ -142,19 +143,13 @@ class QueryUtils
      * @param ADORecordSet|false $resultSet
      * @return array|false
      */
-    public static function fetchArrayFromResultSet($resultSet)
+    public static function fetchArrayFromResultSet(ADORecordSet|false $resultSet): array|false
     {
-        //treat as an adodb recordset
         if ($resultSet === false) {
             return false;
         }
 
-        if ($resultSet->EOF ?? '') {
-            return false;
-        }
-
-        //ensure it's an object (ie. is set)
-        if (!is_object($resultSet)) {
+        if ($resultSet->EOF) {
             return false;
         }
 
@@ -217,11 +212,8 @@ class QueryUtils
             // thrown which doesn't help us at all.
 
             $query = "SELECT 1 as id FROM " . $tableName . " LIMIT 1";
-            $statement = self::sqlStatementThrowException($query, [], noLog: true);
-            if ($statement !== false) {
-                unset($statement); // free the resource
-                return true;
-            }
+            self::sqlStatementThrowException($query, [], noLog: true);
+            return true;
         } catch (\Exception) {
             // do nothing as we know the table doesn't exist
         }

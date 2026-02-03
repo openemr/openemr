@@ -35,14 +35,12 @@ function add_escape_custom($s)
  * this is centralized to a function (in case need to upgrade this
  * function to support larger numbers in the future).
  *
- * @param   string $s  Limit variable to be escaped.
- * @return  string     Escaped limit variable.
+ * @param   string|int $limit  Limit variable to be escaped.
+ * @return  int     Escaped limit variable.
  */
-function escape_limit($s)
+function escape_limit(string|int $limit): int
 {
-    //prepare for safe mysql insertion
-    $s = (int)$s;
-    return $s;
+    return (int) $limit;
 }
 
 /**
