@@ -417,7 +417,7 @@ class UuidRegistry
         WHERE " . implode(" AND ", $columnsWhere) . "
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
+        $groupsWithoutUuid = sqlStatementNoLog($query, [], true);
         $number = sqlNumRows($groupsWithoutUuid);
 
         // create uuids and populate the groups with them
@@ -464,7 +464,7 @@ class UuidRegistry
         WHERE `q2`.`uuid` IS NOT NULL AND `q2`.`uuid` != '' AND `q2`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
+        $groupsWithoutUuid = sqlStatementNoLog($query, [], true);
         $number = sqlNumRows($groupsWithoutUuid);
 
         // populate the groups with the already existent uuids

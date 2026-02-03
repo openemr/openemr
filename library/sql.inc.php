@@ -146,7 +146,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 * @param  array   $binds      binded variables array (optional)
 * @return ADORecordSet
 */
-function sqlStatement($statement, $binds = false)
+function sqlStatement(string $statement, array $binds = [])
 {
     try {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
@@ -171,7 +171,7 @@ function sqlStatement($statement, $binds = false)
  * @throws SqlQueryException Thrown if there is an error in the database executing the statement
  * @return ADORecordSet
  */
-function sqlStatementThrowException($statement, $binds = false)
+function sqlStatementThrowException(string $statement, array $binds = [])
 {
     return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
 }
@@ -204,7 +204,7 @@ function sqlGetLastInsertId()
 * @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
 * @return ADORecordSet
 */
-function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
+function sqlStatementNoLog(string $statement, array $binds = [], bool $throw_exception_on_error = false)
 {
     try {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
@@ -225,13 +225,8 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
 * @param  array   $binds      binded variables array (optional)
 * @return ADORecordSet
 */
-function sqlStatementCdrEngine($statement, $binds = false)
+function sqlStatementCdrEngine(string $statement, array $binds = [])
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
     if ($GLOBALS['audit_events_cdr']) {
         return sqlStatement($statement, $binds);
     } else {
@@ -267,7 +262,7 @@ function sqlFetchArray($r)
  * @param boolean $first2Cols
  * @return array
  */
-function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols = false)
+function sqlGetAssoc(string $sql, array $bindvars = [], bool $forceArray = false, bool $first2Cols = false)
 {
 
     return $GLOBALS['adodb']['db']->getAssoc($sql, $bindvars, $forceArray, $first2Cols);
@@ -289,7 +284,7 @@ function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols =
 * @param  array    $binds      binded variables array (optional)
 * @return integer  Last id generated from the sql insert command
 */
-function sqlInsert($statement, $binds = false)
+function sqlInsert(string $statement, array $binds = [])
 {
     try {
         return QueryUtils::sqlInsert($statement, $binds);
@@ -309,10 +304,10 @@ function sqlInsert($statement, $binds = false)
 * @param  array   $binds      binded variables array (optional)
 * @return array|false
 */
-function sqlQuery($statement, $binds = false)
+function sqlQuery(string $statement, array $binds = [])
 {
     try {
-        return QueryUtils::querySingleRow($statement, $binds ?: []);
+        return QueryUtils::querySingleRow($statement, $binds);
     } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
@@ -336,10 +331,10 @@ function sqlQuery($statement, $binds = false)
 * @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
 * @return array|false
 */
-function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
+function sqlQueryNoLog(string $statement, array $binds = [], bool $throw_exception_on_error = false)
 {
     try {
-        return QueryUtils::querySingleRow($statement, $binds ?: [], log: false);
+        return QueryUtils::querySingleRow($statement, $binds, log: false);
     } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
             throw $e;
@@ -358,13 +353,8 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 * @param  array   $binds      binded variables array (optional)
 * @return array|false
 */
-function sqlQueryCdrEngine($statement, $binds = false)
+function sqlQueryCdrEngine(string $statement, array $binds = [])
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
     if ($GLOBALS['audit_events_cdr']) {
         return sqlQuery($statement, $binds);
     } else {
@@ -380,7 +370,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 */
-function sqlInsertClean_audit($statement, $binds = false): void
+function sqlInsertClean_audit(string $statement, array $binds = []): void
 {
     try {
         QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
