@@ -702,11 +702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$mainObservations on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientPortalService.php',
@@ -750,11 +745,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$v on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$records on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$DateValue on left side of \\?\\? always exists and is not nullable\\.$#',
