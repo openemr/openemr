@@ -144,7 +144,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset
+* @return ADORecordSet
 */
 function sqlStatement($statement, $binds = false)
 {
@@ -223,7 +223,7 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset/resource
+* @return ADORecordSet
 */
 function sqlStatementCdrEngine($statement, $binds = false)
 {
@@ -328,7 +328,8 @@ function sqlQuery($statement, $binds = false)
 * audit engine. This function should only be used
 * in very special situations.
 *
-* Note: If you do an INSERT or UPDATE statement you will get an empty string ("") as a response
+* Note: This function is not suitable for INSERT or UPDATE statements;
+* use sqlStatementNoLog() instead.
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
@@ -355,7 +356,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false
 */
 function sqlQueryCdrEngine($statement, $binds = false)
 {
@@ -392,8 +393,7 @@ function sqlInsertClean_audit($statement, $binds = false): void
 * Function that will safely return the last error,
 * and accounts for the audit engine.
 *
-* @param   string  $mode either adodb(default) or native_mysql
-* @return  string        last mysql error
+* @return  string  last mysql error
 */
 function getSqlLastError()
 {
@@ -404,8 +404,7 @@ function getSqlLastError()
  * Function that will safely return the last error no,
  * and accounts for the audit engine.
  *
- * @param   string  $mode either adodb(default) or native_mysql
- * @return  string        last mysql error no
+ * @return  string  last mysql error no
  */
 function getSqlLastErrorNo()
 {
@@ -434,7 +433,7 @@ function sqlListFields($table)
 /**
 * Returns the number of sql rows
 *
-* @param recordset $r
+* @param ADORecordSet $r
 * @return integer Number of rows
 */
 function sqlNumRows($r)
@@ -709,9 +708,9 @@ function getPrivDB()
 /**
  * mechanism to use "super user" for SQL queries related to password operations
  *
- * @param type $sql
- * @param type $params
- * @return type
+ * @param string $sql
+ * @param array|null $params
+ * @return ADORecordSet
  */
 function privStatement($sql, $params = null)
 {
@@ -735,9 +734,9 @@ function privStatement($sql, $params = null)
  * Wrapper for privStatement that just returns the first row of a query or FALSE
  * if there were no results.
  *
- * @param type $sql
- * @param type $params
- * @return boolean
+ * @param string $sql
+ * @param array|null $params
+ * @return array|false
  */
 function privQuery($sql, $params = null)
 {
