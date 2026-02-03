@@ -1146,8 +1146,8 @@ class Prescription extends ORDataObject
         $p = new Prescription();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE patient_id = ? " .
                 "ORDER BY " . add_escape_custom($order_by);
-        $results = sqlQ($sql, [$patient_id]);
-        while ($row = sqlFetchArray($results)) {
+        $records = QueryUtils::fetchRecords($sql, [$patient_id]);
+        foreach ($records as $row) {
             $prescriptions[] = new Prescription($row['id']);
         }
 

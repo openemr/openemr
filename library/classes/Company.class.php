@@ -9,6 +9,7 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
 
@@ -58,10 +59,7 @@ class Company extends ORDataObject
 
         $a = new Address();
         $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id " . $foreign_id_sql;
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql, $sqlArray);
-        //echo "sql: $sql";
-        $row = sqlFetchArray($results);
+        $row = QueryUtils::querySingleRow($sql, $sqlArray);
         if (!empty($row)) {
             $a = new Address($row['id']);
         }
