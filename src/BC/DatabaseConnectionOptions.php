@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use SensitiveParameter;
 
 /**
@@ -22,40 +22,16 @@ use SensitiveParameter;
  * ensuring that sensitive values (password) are protected from leaking in
  * stack traces, var_dump(), and error logs.
  *
- * @phpstan-type DriverOptions array<int, mixed>
- * @phpstan-type DbalParams array{
- *   driver: 'pdo_mysql'|'mysqli',
- *   dbname: string,
- *   host?: string,
- *   port?: int,
- *   unix_socket?: string,
- *   user: string,
- *   password: string,
- *   charset?: string,
- *   driverOptions?: DriverOptions,
- *   serverVersion?: string,
- *   wrapperClass?: class-string<Connection>,
- * }
+ * @phpstan-import-type Params from DriverManager
  */
 final readonly class DatabaseConnectionOptions
 {
     private const REDACTED = '[REDACTED]';
 
     /**
-     * @param 'pdo_mysql'|'mysqli' $driver The database driver
-     * @param string $dbname Database name (required)
-     * @param string $user Username for authentication (required)
-     * @param string $password Password for authentication
-     * @param string|null $host Hostname (required if unixSocket not provided)
-     * @param int|null $port Port number (default: 3306 for MySQL)
-     * @param string|null $unixSocket Unix socket path (alternative to host/port)
-     * @param string|null $charset Connection charset (e.g., 'utf8mb4')
-     * @param DriverOptions $driverOptions PDO driver options (e.g., SSL settings)
-     * @param string|null $serverVersion Server version hint for platform detection
-     * @param class-string<Connection>|null $wrapperClass Custom connection wrapper class
+     * @param array<int, mixed> $driverOptions PDO driver options (e.g., SSL certs)
      */
     public function __construct(
-        public string $driver,
         public string $dbname,
         public string $user,
         #[SensitiveParameter]
@@ -65,8 +41,6 @@ final readonly class DatabaseConnectionOptions
         public ?string $unixSocket = null,
         public ?string $charset = null,
         public array $driverOptions = [],
-        public ?string $serverVersion = null,
-        public ?string $wrapperClass = null,
     ) {
     }
 
@@ -74,12 +48,12 @@ final readonly class DatabaseConnectionOptions
      * Converts the options to the array format expected by Doctrine DBAL's
      * DriverManager::getConnection().
      *
-     * @return DbalParams
+     * @return Params
      */
     public function toDbalParams(): array
     {
         $params = [
-            'driver' => $this->driver,
+            'driver' => 'pdo_mysql',
             'dbname' => $this->dbname,
             'user' => $this->user,
             'password' => $this->password,
@@ -105,14 +79,6 @@ final readonly class DatabaseConnectionOptions
             $params['driverOptions'] = $this->driverOptions;
         }
 
-        if ($this->serverVersion !== null) {
-            $params['serverVersion'] = $this->serverVersion;
-        }
-
-        if ($this->wrapperClass !== null) {
-            $params['wrapperClass'] = $this->wrapperClass;
-        }
-
         return $params;
     }
 
@@ -125,7 +91,6 @@ final readonly class DatabaseConnectionOptions
     public function __debugInfo(): array
     {
         return [
-            'driver' => $this->driver,
             'dbname' => $this->dbname,
             'user' => $this->user,
             'password' => self::REDACTED,
@@ -134,8 +99,6 @@ final readonly class DatabaseConnectionOptions
             'unixSocket' => $this->unixSocket,
             'charset' => $this->charset,
             'driverOptions' => $this->driverOptions,
-            'serverVersion' => $this->serverVersion,
-            'wrapperClass' => $this->wrapperClass,
         ];
     }
 }

@@ -57,8 +57,8 @@ class Database
     public static function instance(): Database
     {
         if (self::$instance === null) {
-            $params = self::readLegacyConfig();
-            $connection = DriverManager::getConnection($params);
+            $options = self::readLegacyConfig();
+            $connection = DriverManager::getConnection($options->toDbalParams());
             self::$instance = new self($connection);
         }
         return self::$instance;
@@ -76,19 +76,8 @@ class Database
     /**
      * Parses the <=8.0.0 (and probably later) db config files into a format
      * usable by `doctrine/dbal`.
-     *
-     * @return array{
-     *   driver: 'pdo_mysql',
-     *   dbname: string,
-     *   host: string,
-     *   port: int,
-     *   user: string,
-     *   password: string,
-     *   charset: string,
-     *   driverOptions: array<PDO::MYSQL_*, string>,
-     * }
      */
-    private static function readLegacyConfig(): array
+    private static function readLegacyConfig(): DatabaseConnectionOptions
     {
         $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
@@ -97,23 +86,19 @@ class Database
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );
         }
-        // replicate the same ssl cert detection in a compatible format
-
-        $connParams = [
-            'driver' => 'pdo_mysql',
-            'dbname' => $sqlconf['dbase'],
-            'host' => $sqlconf['host'],
-            'port' => $sqlconf['port'],
-            'user' => $sqlconf['login'],
-            'password' => $sqlconf['pass'],
-            'charset' => $sqlconf['db_encoding'],
-        ];
 
         $siteDir = $bag->getString('OE_SITE_DIR');
-        $options = self::inferSslOptions($siteDir);
-        $connParams['driverOptions'] = $options;
+        $driverOptions = self::inferSslOptions($siteDir);
 
-        return $connParams;
+        return new DatabaseConnectionOptions(
+            dbname: $sqlconf['dbase'],
+            user: $sqlconf['login'],
+            password: $sqlconf['pass'],
+            host: $sqlconf['host'],
+            port: $sqlconf['port'],
+            charset: $sqlconf['db_encoding'],
+            driverOptions: $driverOptions,
+        );
     }
 
     /**
