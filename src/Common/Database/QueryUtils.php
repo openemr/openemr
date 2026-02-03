@@ -382,10 +382,10 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
+     * @param   string|int $limit  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
-    public static function escapeLimit(string|int $limit)
+    public static function escapeLimit(string|int $limit): int
     {
         return \escape_limit($limit);
     }
