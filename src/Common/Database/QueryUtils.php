@@ -56,7 +56,7 @@ class QueryUtils
         return \escape_sql_column_name($columnName, $tables);
     }
 
-    public static function fetchRecordsNoLog(string $sqlStatement, array $binds = []): array
+    public static function fetchRecordsNoLog($sqlStatement, $binds = []): array
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -83,7 +83,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumn(string $sqlStatement, string $column, array $binds = []): array
+    public static function fetchTableColumn($sqlStatement, $column, $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -93,7 +93,7 @@ class QueryUtils
         return $list;
     }
 
-    public static function fetchSingleValue(string $sqlStatement, string $column, array $binds = []): mixed
+    public static function fetchSingleValue($sqlStatement, $column, $binds = []): mixed
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
         // note if $records[0] is actually the value 0 then the value returned is null...
@@ -104,7 +104,7 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords(string $sqlStatement, array $binds = [], bool $noLog = false): array
+    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false): array
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -122,7 +122,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumnAssoc(string $sqlStatement, string $column, array $binds = []): array
+    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -143,7 +143,7 @@ class QueryUtils
      * @param ADORecordSet|false $resultSet
      * @return array|false
      */
-    public static function fetchArrayFromResultSet(ADORecordSet|false $resultSet): array|false
+    public static function fetchArrayFromResultSet($resultSet)
     {
         if ($resultSet === false) {
             return false;
@@ -173,7 +173,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return ADORecordSet
      */
-    public static function sqlStatementThrowException(string $statement, array $binds = [], bool $noLog = false)
+    public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -237,7 +237,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert(string $statement, array $binds = []): int
+    public static function sqlInsert($statement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -359,7 +359,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array|false
      */
-    public static function querySingleRow(string $sql, array $params = [], bool $log = true)
+    public static function querySingleRow($sql, $params = [], $log = true)
     {
         $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
         return self::fetchArrayFromResultSet($result);
@@ -377,7 +377,7 @@ class QueryUtils
      * @param   string|int $limit  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
-    public static function escapeLimit(string|int $limit): int
+    public static function escapeLimit($limit)
     {
         return \escape_limit($limit);
     }

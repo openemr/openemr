@@ -38,7 +38,7 @@ function add_escape_custom($s)
  * @param   string|int $limit  Limit variable to be escaped.
  * @return  int     Escaped limit variable.
  */
-function escape_limit(string|int $limit): int
+function escape_limit($limit): int
 {
     return (int) $limit;
 }
