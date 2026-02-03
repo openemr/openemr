@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 ?>
 <div id='esign-signature-log-<?php echo attr($this->logId); ?>' class='esign-signature-log-container'>
@@ -21,13 +22,14 @@ use OpenEMR\Common\Logging\EventAuditLogger;
         <div class="esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
 
         <?php if (!$this->verified) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "esign",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 0,
-                'Esign data integrity test failed for a form in encounter ' . $_SESSION['encounter'],
-                $_SESSION['pid']
+                'Esign data integrity test failed for a form in encounter ' . $session->get('encounter'),
+                $session->get('pid')
             );
         } ?>
 
