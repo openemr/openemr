@@ -312,7 +312,7 @@ function sqlInsert($statement, $binds = false)
 function sqlQuery($statement, $binds = false)
 {
     try {
-        return QueryUtils::querySingleRow($statement, $binds);
+        return QueryUtils::querySingleRow($statement, $binds ?: []);
     } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
@@ -339,7 +339,7 @@ function sqlQuery($statement, $binds = false)
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     try {
-        return QueryUtils::querySingleRow($statement, $binds, log: false);
+        return QueryUtils::querySingleRow($statement, $binds ?: [], log: false);
     } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
             throw $e;
