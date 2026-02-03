@@ -55,7 +55,7 @@ class QueryUtils
         return \escape_sql_column_name($columnName, $tables);
     }
 
-    public static function fetchRecordsNoLog($sqlStatement, $binds = [])
+    public static function fetchRecordsNoLog(string $sqlStatement, array $binds = []): array
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -82,7 +82,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumn($sqlStatement, $column, $binds = [])
+    public static function fetchTableColumn(string $sqlStatement, string $column, array $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -92,7 +92,7 @@ class QueryUtils
         return $list;
     }
 
-    public static function fetchSingleValue($sqlStatement, $column, $binds = [])
+    public static function fetchSingleValue(string $sqlStatement, string $column, array $binds = []): mixed
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
         // note if $records[0] is actually the value 0 then the value returned is null...
@@ -103,7 +103,7 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
+    public static function fetchRecords(string $sqlStatement, array $binds = [], bool $noLog = false): array
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -121,7 +121,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
+    public static function fetchTableColumnAssoc(string $sqlStatement, string $column, array $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -178,7 +178,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return ADORecordSet
      */
-    public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
+    public static function sqlStatementThrowException(string $statement, array $binds = [], bool $noLog = false)
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -245,7 +245,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = [])
+    public static function sqlInsert(string $statement, array $binds = []): int
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
