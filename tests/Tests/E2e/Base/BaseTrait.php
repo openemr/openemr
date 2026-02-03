@@ -120,6 +120,8 @@ trait BaseTrait
         // wait for the main menu to be visible
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
+        // Wait for the main menu to be populated by Knockout.js
+        $this->client->waitForVisibility('//div[@id="mainMenu"]/div', 30);
         // got to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;
