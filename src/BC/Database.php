@@ -95,7 +95,7 @@ class Database
             user: $sqlconf['login'],
             password: $sqlconf['pass'],
             host: $sqlconf['host'],
-            port: $sqlconf['port'],
+            port: ((int)$sqlconf['port']) ?? 3306,
             charset: $sqlconf['db_encoding'],
             driverOptions: $driverOptions,
         );
