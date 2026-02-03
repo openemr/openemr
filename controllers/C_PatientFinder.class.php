@@ -5,7 +5,7 @@ class C_PatientFinder extends Controller
     function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
         ///////////////////////////////////
         //// What should this be?????
         //////////////////////////////////

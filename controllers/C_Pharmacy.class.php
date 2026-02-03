@@ -22,7 +22,7 @@ class C_Pharmacy extends Controller
     {
         parent::__construct();
         $this->pharmacies = [];
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->Pharmacy = new Pharmacy();

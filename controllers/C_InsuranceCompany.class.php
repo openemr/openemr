@@ -13,7 +13,7 @@ class C_InsuranceCompany extends Controller
         parent::__construct();
         $this->icompanies = [];
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims']);
