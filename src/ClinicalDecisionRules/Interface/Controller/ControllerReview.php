@@ -11,6 +11,7 @@ use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerReview extends BaseController
@@ -26,7 +27,8 @@ class ControllerReview extends BaseController
     public function _action_view()
     {
         $ruleId = Common::get('rule_id');
-        $pid = $_SESSION['pid']; // don't trust the pid in the URL
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid'); // don't trust the pid in the URL
 
         if (!AclMain::aclCheckCore('patients', 'med')) {
             throw new AccessDeniedException("patients", "med", "Invalid ACL access to CDR review");
@@ -36,7 +38,7 @@ class ControllerReview extends BaseController
             throw new NotFoundHttpException("Patient ID not found");
         }
 
-        if (!CsrfUtils::verifyCsrfToken(Common::get("csrf_token_form"))) {
+        if (!CsrfUtils::verifyCsrfToken(Common::get("csrf_token_form"), session: $session)) {
             throw new CsrfInvalidException("Invalid CSRF token");
         }
         // first try to grab the more specific rule in case this is a custom rule, then grab the generic one
@@ -60,13 +62,14 @@ class ControllerReview extends BaseController
     public function _action_submit_feedback()
     {
         $ruleId = Common::post('rule_id');
-        $pid = $_SESSION['pid']; // don't trust the pid in the URL
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid'); // don't trust the pid in the URL
 
         if ($pid == null) {
             throw new NotFoundHttpException("Patient ID not found");
         }
 
-        if (!CsrfUtils::verifyCsrfToken(Common::post("csrf_token"))) {
+        if (!CsrfUtils::verifyCsrfToken(Common::post("csrf_token"), session: $session)) {
             throw new CsrfInvalidException("Invalid CSRF token");
         }
         // first try to grab the more specific rule in case this is a custom rule, then grab the generic one
@@ -83,7 +86,7 @@ class ControllerReview extends BaseController
         // so we need to check the length here, but note that the client side may see a different length in certain edge cases.
         if (mb_strlen((string) $rule->getFeedback()) > 2048) {
             (new SystemLogger())->errorLogCaller("Rule length exceeded, client side should have caught this", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_INVALID);
         }
         $this->viewBean->rule = $rule;
@@ -92,9 +95,10 @@ class ControllerReview extends BaseController
             "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
             "ORDER BY `id` DESC LIMIT 1";
 
+        $authUserID = $session->get('authUserID');
         $combinedSql = "(" . $sqlCategory . ") UNION (" . $sqlCategory . ") ORDER BY `category`";
-        $data = QueryUtils::fetchRecords($combinedSql, ['clinical_reminder_widget', $pid, $_SESSION['authUserID']
-        , 'active_reminder_popup', $pid, $_SESSION['authUserID']]);
+        $data = QueryUtils::fetchRecords($combinedSql, ['clinical_reminder_widget', $pid, $authUserID
+        , 'active_reminder_popup', $pid, $authUserID]);
         $deserializeData = [];
         foreach ($data as $record) {
             $record['valueArray'] = json_decode((string) $record['value'], true);
@@ -102,13 +106,13 @@ class ControllerReview extends BaseController
         }
         $clinicalRuleLog = $this->findClinicalRuleLog($deserializeData, $rule);
         if (!empty($clinicalRuleLog)) {
-            $this->insertFeedbackForClinicalRuleLog($clinicalRuleLog, $rule, $pid, $_SESSION['authUserID']);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
+            $this->insertFeedbackForClinicalRuleLog($clinicalRuleLog, $rule, $pid, $authUserID);
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_SUCCESS);
         } else {
             // TODO: if there is no feedback... we never should have gotten here... log an error and throw an exception
             (new SystemLogger())->errorLogCaller("No rule found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_FAILED);
         }
     }

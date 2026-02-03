@@ -21,9 +21,11 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     echo json_encode(["error" => xl('Authentication Error') ]);
     CsrfUtils::csrfNotVerified(false);
 }
@@ -73,12 +75,13 @@ echo '{ "error":"", "options": [';
 echo '{"id":"","title":' . xlj('Unassigned') . '}';
 $comma = ",";
 $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", [$list_id]);
+$language_choice = $session->get('language_choice');
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":' . js_escape($lrow['option_id']) . ',';
 
     // translate title if translate-lists flag set and not english
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
         echo '"title":' . xlj($lrow['title']) . '}';
     } else {
         echo '"title":' . js_escape($lrow['title']) . '}';

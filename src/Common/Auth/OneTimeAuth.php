@@ -21,7 +21,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientPortalService;
@@ -33,7 +33,7 @@ class OneTimeAuth
 {
     private readonly CryptoGen $cryptoGen;
     private readonly SystemLogger $systemLogger;
-    private readonly SessionWrapperInterface $session;
+    private readonly SessionInterface $session;
     private readonly OEGlobalsBag $globalsBag;
 
     /**
@@ -45,7 +45,7 @@ class OneTimeAuth
     {
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
-        $this->session = SessionWrapperFactory::getInstance()->getWrapper();
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->globalsBag = OEGlobalsBag::getInstance();
     }
 
@@ -377,7 +377,7 @@ class OneTimeAuth
         $extend = ($auth['actions']['extend_portal_visit'] ?? 1) ? 1 : 0;
         $this->session->set('portal_visit_extended', $extend);
 
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey(session: $this->session);
         header('Location: ' . $auth['redirect']);
 
         // allows logging and any other processing to be handled on the return
