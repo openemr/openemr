@@ -1660,7 +1660,7 @@ STP4TOP;
                         <h5>1. Deny access to sensitive directories</h5>
                         <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information. Block all direct web access to it:</p>
                         <pre><code>"
-                            . text("location ~* ^/sites/*/(documents|edi|era) {") . "\n"
+                            . text("location ~* ^/sites/*/documents {") . "\n"
                             . text("    deny all;") . "\n"
                             . text("}")
                         . "</code></pre>
