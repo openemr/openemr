@@ -17,6 +17,7 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -37,6 +38,8 @@ require_once(OEGlobalsBag::getInstance()->getString('srcdir') . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -77,7 +80,7 @@ try {
         if (empty($form)) {
             throw new RuntimeException("Can not find encounter form.");
         }
-        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
         $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
         // if empty form will revert to the backup response stored with form.
         if (!empty($qr)) {
@@ -154,9 +157,9 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    $theme = stripos((string) $GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)$GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
 } else {
-    $theme = stripos((string) $GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)$GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
 }
 
 if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
