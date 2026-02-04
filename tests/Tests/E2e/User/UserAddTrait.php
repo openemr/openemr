@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
+use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
@@ -68,9 +69,14 @@ trait UserAddTrait
         // add the user
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use elementToBeClickable + direct WebDriver click instead of
+        // Panther's refreshCrawler/filterXPath/click pattern
+        $addUserBtn = $this->client->wait(30)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $addUserBtn->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
@@ -87,14 +93,14 @@ trait UserAddTrait
 
         $this->populateUserFormReliably($username);
 
-        // Wait for the username field to have the expected value
-        $this->client->wait(10)->until(function ($driver) use ($username) {
-            $field = $driver->findElement(WebDriverBy::name('rumple'));
-            return $field->getAttribute('value') === $username;
-        });
-
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use direct WebDriver click instead of Panther's crawler click,
+        // which can fail with stale DOM references
+        $createBtn = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $createBtn->click();
 
         // Switch to default content to properly detect modal state changes
         $this->client->switchTo()->defaultContent();
@@ -129,7 +135,7 @@ trait UserAddTrait
         $this->client->wait(10, 500)->until(fn() => $this->isUserExist($username));
     }
 
-    private function populateUserFormReliably($username): void
+    private function populateUserFormReliably(string $username): void
     {
         // Wait for password field and Create User button to be ready
         $this->client->waitFor('//input[@name="stiltskin"]');
@@ -139,21 +145,39 @@ trait UserAddTrait
             )
         );
 
-        $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
+        // Populate form fields using direct WebDriver sendKeys instead of
+        // Panther's Form API. The Form API captures DOM element references at
+        // a point in time; if JavaScript modifies the form structure after
+        // capture, the stale references silently fail to set values.
+        $driver = $this->client->getWebDriver();
+        $this->clearAndType($driver, 'fname', UserTestData::FIRSTNAME);
+        $this->clearAndType($driver, 'lname', UserTestData::LASTNAME);
+        $this->clearAndType($driver, 'adminPass', LoginTestData::password);
+        $this->clearAndType($driver, 'stiltskin', UserTestData::PASSWORD);
+        // Set username last to ensure earlier field handlers cannot overwrite it
+        $this->clearAndType($driver, 'rumple', $username);
 
-        $newUser['rumple'] = $username;
-        $newUser['fname'] = UserTestData::FIRSTNAME;
-        $newUser['lname'] = UserTestData::LASTNAME;
-        $newUser['adminPass'] = LoginTestData::password;
-        $newUser['stiltskin'] = UserTestData::PASSWORD;
-
-        // Wait until the password field has the expected value
-        $this->client->wait(10)->until(function ($driver) {
-            $field = $driver->findElement(WebDriverBy::name('stiltskin'));
-            return $field->getAttribute('value') === UserTestData::PASSWORD;
+        // Verify all form fields accepted their values. If a field was
+        // silently cleared by JavaScript, the form submission will fail
+        // server-side and the modal won't close, causing a timeout.
+        $this->client->wait(10)->until(function ($driver) use ($username) {
+            $rumple = $driver->findElement(WebDriverBy::name('rumple'));
+            $stiltskin = $driver->findElement(WebDriverBy::name('stiltskin'));
+            $fname = $driver->findElement(WebDriverBy::name('fname'));
+            $lname = $driver->findElement(WebDriverBy::name('lname'));
+            return $rumple->getAttribute('value') === $username
+                && $stiltskin->getAttribute('value') === UserTestData::PASSWORD
+                && $fname->getAttribute('value') === UserTestData::FIRSTNAME
+                && $lname->getAttribute('value') === UserTestData::LASTNAME;
         });
 
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
+    }
+
+    private function clearAndType(WebDriver $driver, string $fieldName, string $value): void
+    {
+        $field = $driver->findElement(WebDriverBy::name($fieldName));
+        $field->clear();
+        $field->sendKeys($value);
     }
 }
