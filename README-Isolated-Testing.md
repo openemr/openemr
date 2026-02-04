@@ -1,6 +1,6 @@
 # Isolated Testing Suite
 
-This directory contains an isolated testing setup that allows you to run PHPUnit tests without database or service dependencies.
+OpenEMR includes an isolated testing setup that allows you to run PHPUnit tests without database or service dependencies.
 
 ## Problem
 
@@ -17,10 +17,11 @@ New code written to fully follow SOLID design principles, and in particular (D)e
 
 The isolated test suite bypasses the main test suite's bootstrap process, and provides only the Composer autoloader.
 
-- `phpunit-isolated.xml` - PHPUnit configuration for isolated tests
-- `tests/Tests/Isolated/` - Directory for dependency-free tests
+Key files:
+- `phpunit-isolated.xml` — PHPUnit configuration for isolated tests
+- `tests/Tests/Isolated/` — Directory for dependency-free tests
 
-### What's NOT Loaded
+## What's NOT Loaded
 
 - Database connections
 - OpenEMR session management
@@ -28,9 +29,9 @@ The isolated test suite bypasses the main test suite's bootstrap process, and pr
 - Service containers and OEGlobalsBag
 - Authentication systems
 - Module system
-- Globals
+- Global variables set by the bootstrap (`$GLOBALS`)
 
-### Benefits
+## Benefits
 
 - **Fast**: No database connection overhead
 - **Reliable**: No external service dependencies
@@ -64,7 +65,7 @@ vendor/bin/phpunit -c phpunit-isolated.xml tests/Tests/Isolated/ExampleIsolatedT
 2. Use appropriate namespace: `OpenEMR\Tests\Isolated\{Module}`
 3. Extend `PHPUnit\Framework\TestCase`
 4. Avoid using OpenEMR classes that require database connections
-5. Use only pure PHP functions and Composer-loaded dependencies
+5. Only use classes that don't require the OpenEMR bootstrap
 6. Use dependency injection — classes under test should accept dependencies via
    constructor parameters so tests can provide mocks or stubs
 
