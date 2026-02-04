@@ -144,7 +144,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                     <input type='text'
                                                         id="proposed_date_<?php echo attr($key) + 1; ?>"
                                                         name='proposed_date[]'
-                                                        class="form-control end_date datepicker"
+                                                        class="form-control proposed_date datepicker"
                                                         value='<?php echo attr($obj["proposed_date"] ?? ""); ?>'
                                                         title='<?php echo xla('yyyy-mm-dd HH:MM Target or Achieve-by date'); ?>' />
                                                 </div>

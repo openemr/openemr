@@ -10,7 +10,7 @@ rules:
   service-image-require-explicit-tag: 0
   no-unbound-port-interfaces: 0
   require-quotes-in-ports: 0
-  
+
   # Alphabetical ordering rules are kept as warnings
   services-alphabetical-order: 1
   service-ports-alphabetical-order: 1

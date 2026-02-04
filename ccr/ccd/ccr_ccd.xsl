@@ -2,9 +2,9 @@
 <!--
 Conversion of CCR to Level 3 CCD
 
-Orginal Author:   	Ken Miller
+Original Author:   	Ken Miller
 Solventus LLC
-ken.miller@solventus.coms
+ken.miller@solventus.com
 
 Contributors:
 Richard Braman, EHR Doctors, Inc rbraman@ehrdoctors.com
@@ -100,7 +100,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                         </xsl:call-template>
                     </assignedCustodian>
                 </custodian>
-            </xsl:if> 
+            </xsl:if>
 
             <documentationOf>
                 <serviceEvent classCode="PCPR">
@@ -261,7 +261,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
 
                                                     <statusCode code="completed"/>
 													<value xsi:type="CD" />
-													
+
                                                    <participant typeCode="CSM">
                                                         <xsl:choose>
                                                             <xsl:when test="a:Agent/a:Products/a:Product/a:Product">
@@ -269,7 +269,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                                                                     <xsl:with-param name="ccrCodedDescription" select="a:Product/a:Description"/>
                                                                 </xsl:call-template>
                                                             </xsl:when>
-                                                            
+
                                                         </xsl:choose>
                                                     </participant>
 
@@ -1686,7 +1686,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                                         <table>
                                             <tbody>
                                                 <tr>
-                                                    <th>Descripion</th>
+                                                    <th>Description</th>
                                                     <th>Plan Status</th>
                                                     <th>Type</th>
                                                     <th>Date</th>
@@ -2631,7 +2631,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
          <xsl:if test="$CCRActor/a:Organization">
             <name><xsl:value-of select="$CCRActor/a:Organization/a:Name"></xsl:value-of></name>
         </xsl:if>
-    </xsl:template>		
+    </xsl:template>
     <xsl:template name="ccdAddress">
         <xsl:param name="CCRActorAddress"/>
         <addr>
@@ -2662,7 +2662,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
             </xsl:choose>
         </addr>
     </xsl:template>
-    
+
     <xsl:template name="ccdTelecom">
         <xsl:param name="CCRActor"/>
         <telecom>

@@ -26,4 +26,3 @@ class NegativeDiagnosticStudyRecommended extends DiagnosticStudyRecommended
 
     public $_type = 'QDM::NegativeDiagnosticStudyRecommended';
 }
-

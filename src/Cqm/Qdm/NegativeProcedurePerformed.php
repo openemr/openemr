@@ -26,4 +26,3 @@ class NegativeProcedurePerformed extends ProcedurePerformed
 
     public $_type = 'QDM::NegativeProcedurePerformed';
 }
-

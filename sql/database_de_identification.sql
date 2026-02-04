@@ -11,7 +11,7 @@ $
 $
 CREATE PROCEDURE `de_identification`()
 BEGIN
-#Run the de-identification process. 
+#Run the de-identification process.
 DECLARE unknown_table_name INT DEFAULT 0;
 DECLARE unknown_col_name INT DEFAULT 0;
 DECLARE unknown_prepare_stmt INT DEFAULT 0;
@@ -21,16 +21,16 @@ DECLARE CONTINUE HANDLER FOR 1054 SET unknown_col_name = 1;
 DECLARE CONTINUE HANDLER FOR 1243 SET unknown_prepare_stmt = 1;
 DECLARE CONTINUE HANDLER FOR 1050 SET table_already_exists = 1;
 
-#Create the transaction_metadata_de_identification table, which contains the tables/columns to include in the report, and whether the table/column needs to be de-identified or not. 
+#Create the transaction_metadata_de_identification table, which contains the tables/columns to include in the report, and whether the table/column needs to be de-identified or not.
 call load_transaction_metadata_de_identification_table();
 
-#Create an empty de_identified_data table, which will contain the complete,de-identified data once this process is finished. 
+#Create an empty de_identified_data table, which will contain the complete,de-identified data once this process is finished.
 call create_de_identified_data_table();
 
-#Filter the patients to include in the report, based on the drugs,immunizations, and diagnosis selected. 
+#Filter the patients to include in the report, based on the drugs,immunizations, and diagnosis selected.
 call filter_pid();
 
-#For each patient, and table/column name to include in the report,select the data from the appropriate tables, and insert into the de_identified_data table.  Skip any tables/columns containing identifiers (names, telephone, etc). 
+#For each patient, and table/column name to include in the report,select the data from the appropriate tables, and insert into the de_identified_data table.  Skip any tables/columns containing identifiers (names, telephone, etc).
 call perform_de_identification();
 
 #Handle error conditions
@@ -60,7 +60,7 @@ call drop_no_value_column();
 #Drop transaction table created from De-identification process
 call drop_transaction_tables();
 END
-$ 
+$
 
 -- --------------------------------------------------------
 
@@ -80,7 +80,7 @@ BEGIN
 #temp_re_identification : Contains a re-identification code for each patient.
 #temp_patient_record_id : A temporary table, contains the primary id of the record corresponding to a patient.
 #param_include_tables : Contains the tables/columns to include in this report.
-#param_filter_pid : Contains the drugs/immunizations/diagnosis for filtering which patients to include 
+#param_filter_pid : Contains the drugs/immunizations/diagnosis for filtering which patients to include
 
 DROP TABLE IF EXISTS transaction_metadata_de_identification;
 CREATE TABLE transaction_metadata_de_identification (table_name varchar(255) NOT NULL,col_name varchar(255) NOT NULL, load_to_lexical_table tinyint(1) NOT NULL,include_in_de_identification int(2) NOT NULL,include_in_re_identification tinyint(1) NOT NULL);
@@ -110,7 +110,7 @@ CREATE PROCEDURE `load_lexical_look_up_table`()
 BEGIN
 #Populate lexical look up table with 18 unique identifiers specified by HIPAA as identifying data from openemr database
 
-#The lexical_look_up_table is used to store the text of known patient identifiers, such as patient names (John Smith), telephone numbers (408-111-222), etc.  Later on, during the identification process, these text snippets will be removed from unstructured data, such as patient notes. 
+#The lexical_look_up_table is used to store the text of known patient identifiers, such as patient names (John Smith), telephone numbers (408-111-222), etc.  Later on, during the identification process, these text snippets will be removed from unstructured data, such as patient notes.
 
 DECLARE tableName VARCHAR(255) ;
 DECLARE colName VARCHAR(255) ;
@@ -130,7 +130,7 @@ FETCH cur1 INTO tableName, colName;
   CLOSE cur1;
   update lexical_look_up_table set lex_text = LOWER(lex_text);
   delete from lexical_look_up_table where char_length(lex_text) <= 1;
-END 
+END
 $
 
 -- --------------------------------------------------------
@@ -147,10 +147,10 @@ BEGIN
 
 #The param_include_tables contains the tables/columns that will be used in this report.
 #The metadata_de_identification table tells which tables/columns need to be de-identified.
-#Populate the transaction_metadata_de_identification table with the same information as the metadata_de_identification table, except only include the tables/columns that are included in this data report. 
+#Populate the transaction_metadata_de_identification table with the same information as the metadata_de_identification table, except only include the tables/columns that are included in this data report.
 
 #Include_tables contains string of table names separated by '#', like "history_data#prescriptions#"
-#Loop through each table name by getting the substring delimited by '#'. 
+#Loop through each table name by getting the substring delimited by '#'.
 declare nowords int;
 declare subString varchar(255);
 declare include_tables varchar(500);
@@ -158,7 +158,7 @@ declare includeUnstructured int;
 select value into include_tables from param_include_tables;
 select include_unstructured into includeUnstructured from param_include_tables;
 delete from transaction_metadata_de_identification;
-#In parameter individual values are separated by '#'  
+#In parameter individual values are separated by '#'
 SET include_tables = LTRIM(include_tables);
 SET include_tables = RTRIM(include_tables);
 IF include_tables = "all" THEN
@@ -199,7 +199,7 @@ $
 CREATE PROCEDURE `create_de_identified_data_table`()
 BEGIN
 
-#This creates a table (de_identified_data) containing all the patient data to be included in the report.  Each table/column that is included in this report (such as history_data/tobacco) will have a corresponding column in the de_identified_data.  
+#This creates a table (de_identified_data) containing all the patient data to be included in the report.  Each table/column that is included in this report (such as history_data/tobacco) will have a corresponding column in the de_identified_data.
 #In addition, the de_identified_data table will have columns number, sub_number which contain the primary id of the table/column row where this data was read from.
 
 DECLARE colName VARCHAR(255) ;
@@ -225,7 +225,7 @@ SET @v = CONCAT("alter table de_identified_data add column `", colName, "` text 
 
 	 alter table de_identified_data add column immunization_name text not null;
 
-	END IF; 
+	END IF;
 #For duplicate column name append table name with the col name
 IF(duplicateColumn) THEN
  SET newColName = CONCAT(tableName,":",colName);
@@ -257,7 +257,7 @@ CREATE PROCEDURE `filter_pid`()
 BEGIN
 #Retrieve a list of patient ids that satisfy the selections picked in the de-identification Input screen.
 #  The table param_filter_pid contains the parameters (start/end date, diagnosis, drugs, immunizations)
-#for filter out which patients to select.  Store the selected patient ids in the temp_patient_id_table 
+#for filter out which patients to select.  Store the selected patient ids in the temp_patient_id_table
 declare startDate varchar(30);
 declare endDate varchar(30);
 declare diagnosis_list varchar(1000);
@@ -274,7 +274,7 @@ drop table  IF EXISTS t1;
 create table t1 (pid int);
 delete from temp_patient_id_table;
 insert into temp_patient_id_table (pid) select pid from patient_data;
-#In parameter individual values are separated by '#'  
+#In parameter individual values are separated by '#'
 SET diagnosis_list = LTRIM(diagnosis_list);
 SET diagnosis_list = RTRIM(diagnosis_list);
 IF (diagnosis_list != "all") then
@@ -332,8 +332,8 @@ insert into t1 (pid) select patient_id from immunizations where administered_dat
 END IF;
 DELETE FROM temp_patient_id_table where pid NOT IN (SELECT pid FROM t1);
 DELETE FROM t1;
-  
-END 
+
+END
 $
 
 -- --------------------------------------------------------
@@ -347,7 +347,7 @@ $
 $
 CREATE PROCEDURE `drop_no_value_column`()
 begin
-#In table de_identified_data, remove any empty columns (columns that contain an empty value, for every patient). 
+#In table de_identified_data, remove any empty columns (columns that contain an empty value, for every patient).
 DECLARE done INT DEFAULT 0;
 DECLARE val int default 0;
 declare colName VARCHAR(255) ;
@@ -358,18 +358,18 @@ OPEN metadate_cursor;
    WHILE (done = 0) do
    SET @v = CONCAT("select count(`", colName ,"`) INTO @val from de_identified_data where `", colName ,"` != ' '");
 PREPARE stmt1 FROM @v;
-EXECUTE stmt1;   
+EXECUTE stmt1;
 if @val <= 1 then
 SET @v = CONCAT("alter table de_identified_data drop column `", colName ,"`");
 PREPARE stmt1 FROM @v;
-EXECUTE stmt1;  
+EXECUTE stmt1;
 DELETE FROM transaction_metadata_de_identification where col_name = colName;
-    
+
     end if;
 FETCH metadate_cursor INTO colName;
    end while;
 close metadate_cursor;
-end 
+end
 $
 
 -- --------------------------------------------------------
@@ -383,7 +383,7 @@ $
 $
 CREATE FUNCTION `match_regular_expression`(unstructuredData varchar(255)) RETURNS varchar(255)
 BEGIN
-#Given some unstructured data (like patient notes), replace any urls, dates, or names in the data with 'xxx'.  Then return the modified data. 
+#Given some unstructured data (like patient notes), replace any urls, dates, or names in the data with 'xxx'.  Then return the modified data.
 DECLARE newString varchar(255);
 DECLARE subString varchar(30);
 DECLARE noWords INT;
@@ -392,10 +392,10 @@ SET newString = " ";
 SET unstructuredData = CONCAT(unstructuredData,' ');
 SET noWords=LENGTH(unstructuredData) - LENGTH(REPLACE(unstructuredData, ' ', '')) ;
 WHILE( noWords >= count) do
-    
+
 SET subString = SUBSTRING_INDEX( SUBSTRING_INDEX( unstructuredData, ' ', count), ' ', -1 );
 #Check for url
-IF ( LOCATE("www.", subString) || LOCATE(".com", subString) || LOCATE("http", subString) || LOCATE(".co", subString) || LOCATE(".in", subString) )THEN 
+IF ( LOCATE("www.", subString) || LOCATE(".com", subString) || LOCATE("http", subString) || LOCATE(".co", subString) || LOCATE(".in", subString) )THEN
 SET subString = "xxx";
 #Check for date (yyyy/mm/dd or dd-mm-yyyy)
 ELSEIF (SELECT subString REGEXP "([0-9]{4})[-|/|.|\]([0-9]{1,2})[-|/|.|\]([0-9]{1,2})")THEN  SET subString = LEFT(subString,4);
@@ -537,11 +537,11 @@ if charPosition && tableName = substring(colName,1,charPosition-1) then
 
  set colName = substring(colName,charPosition+1);
 
- set columnFlag = 1; 
+ set columnFlag = 1;
  if (tableName = 'lists' ) then
    set @z = CONCAT("update de_identified_data set `", originalColName ,"` = 'issues:", colName, "' where number = 0 ");
  end if;
-else 
+else
   if (tableName = 'lists' ) then
    set @z = CONCAT("update de_identified_data set `", colName ,"` = 'issues:", colName, "' where number = 0 ");
   else
@@ -697,16 +697,16 @@ END IF;
     PREPARE stmt1 FROM @v;
 
     EXECUTE stmt1;
- 
 
-	
+
+
 
 	 SET @z = CONCAT("update de_identified_data set immunization_name = ( select title from list_options where list_id = 'immunizations' and option_id = ",@immunizationId," ) where sub_number = ",recordCount,  " and number = ", recordNumber  );
 
     PREPARE stmt2 FROM @z;
 
     EXECUTE stmt2;
-  
+
 
 	END IF;
 set recordCount = recordCount - 1;
@@ -733,7 +733,7 @@ end while;
 
 
 
-END 
+END
 $
 -- --------------------------------------------------------
 -- Procedure to drop transaction tables
@@ -752,7 +752,7 @@ DROP TABLE IF EXISTS temp_patient_id_table;
 DROP TABLE IF EXISTS temp_re_identification_code_table;
 DROP TABLE IF EXISTS temp_patient_record_id;
 DROP TABLE IF EXISTS param_filter_pid;
-   
+
 DROP TABLE IF EXISTS param_filter_pid;
 END
 $
@@ -785,7 +785,7 @@ insert into de_identification_error_log values("re-identification",CURRENT_TIMES
 END IF;
 IF unknown_prepare_stmt = 1 THEN
 insert into de_identification_error_log values("re-identification",CURRENT_TIMESTAMP(), "Unkown prepare statement");
-END IF;  
+END IF;
 IF unknown_col_name = 1 THEN
 insert into de_identification_error_log values("re-identification",CURRENT_TIMESTAMP(), "Unkown column name");
 END IF;
@@ -826,7 +826,7 @@ FETCH metadata_cursor INTO colName;
   end WHILE;
 
   CLOSE metadata_cursor;
-END 
+END
 $
 
 -- --------------------------------------------------------
@@ -843,7 +843,7 @@ BEGIN
 #When this prodecure starts:
    #The temp_re_identification_code_table contains the list of re-identification codes to gather data for.
    #The re_identified_data table contains the table/column names to gather data for
-   #metadata_de_identification which tells whether the table/column needs to be de-identified or not. 
+   #metadata_de_identification which tells whether the table/column needs to be de-identified or not.
 DECLARE colName VARCHAR(255) ;
 DECLARE tableName VARCHAR(255) ;
 DECLARE patientId INT;
@@ -881,7 +881,7 @@ FETCH metadata_cursor INTO colName, tableName;
        EXECUTE stmt1;
 
 
-   set @z = CONCAT("update re_identified_data set `", colName ,"` = '", tableName, ":", colName, "' where number = 0 "); 
+   set @z = CONCAT("update re_identified_data set `", colName ,"` = '", tableName, ":", colName, "' where number = 0 ");
    PREPARE stmt2 FROM @z;
        EXECUTE stmt2;
 
@@ -1008,5 +1008,3 @@ insert into re_identification_status values (0);
 
 
 ------------------------------------------------------------
-
-

@@ -169,6 +169,7 @@ class HttpRestRouteHandler
                 "GET" =>  $this->getGetRequestPermission($parsedRoute)
                 , "POST" => 'c'
                 , "PUT" => 'u'
+                , "PATCH" => 'u'
                 , "DELETE" => 'd'
                 , default => throw new HttpException(Response::HTTP_NOT_IMPLEMENTED, "Not implemented")
             };

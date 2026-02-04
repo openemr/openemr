@@ -8,29 +8,30 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady@sparmy.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
-//
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
-    $user = $_SESSION['sessionUser'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
+    $user = $session->get('sessionUser');
 } else {
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
+
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
@@ -63,20 +64,19 @@ $auth_demo = true; //AclMain::aclCheckCore('patients'  , 'demo');
 $ignoreAuth_onsite_portal = true;
 
 $portalPatientReportController = new PortalPatientReportController();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 $issues = [];
 $data = [];
 try {
-    $data['phone_country_code'] = $GLOBALS['phone_country_code'] ?? '';
+    $data['phone_country_code'] = $globalsBag->get('phone_country_code') ?? '';
     $data['returnurl'] = (!empty($returnurl)) ? "$rootdir/patient_file/encounter/$returnurl" : '';
     $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);
     $data['procedureOrders'] = $portalPatientReportController->getProcedureOrders($pid);
-    $data['documents'] = $portalPatientReportController->getDocuments($pid);
-    $data['phimail_enable'] = $GLOBALS['phimail_enable'] ?? false;
-    $data['phimail_ccr_enable'] = $GLOBALS['phimail_ccr_enable'] ?? false;
-    $data['phimail_ccd_enable'] = $GLOBALS['phimail_ccd_enable'] ?? false;
+    $data['phimail_enable'] = $globalsBag->get('phimail_enable') ?? false;
+    $data['phimail_ccr_enable'] = $globalsBag->get('phimail_ccr_enable') ?? false;
+    $data['phimail_ccd_enable'] = $globalsBag->get('phimail_ccd_enable') ?? false;
     $data['sections'] = [
         'demographics' => [
             'selected' => true
@@ -91,7 +91,7 @@ try {
             ,'label' => xl('Insurance')
         ]
         ,'billing' => [
-            'selected' => $GLOBALS['simplified_demographics'] ? false : true
+            'selected' => !$globalsBag->get('simplified_demographics')
             ,'label' => xl('Billing')
         ]
         ,'allergies' => [
@@ -132,7 +132,7 @@ try {
     ];
     $event = new PatientReportFilterEvent();
     $event->populateData($data);
-    $updatedEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientReportFilterEvent::FILTER_PORTAL_TWIG_DATA);
+    $updatedEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch($event, PatientReportFilterEvent::FILTER_PORTAL_TWIG_DATA);
     $updatedData  = $event->getDataAsArray();
     echo $twig->render("portal/portal_patient_report.html.twig", $updatedData);
 } catch (SyntaxError $exception) {

@@ -36,7 +36,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
             })
             .then(apptReadyData => {
                 if (patientConferenceRoom.__shutdown || !checkProviderReadyForPatientInterval) {
-                    return; // don't do anything else here as we have shutdown inbetween the callback.
+                    return; // don't do anything else here as we have shutdown in between the callback.
                 }
                 if (apptReadyData.session)
                 {

@@ -13,7 +13,6 @@
 namespace Carecoordination\Form;
 
 use Laminas\Form\Form;
-use Laminas\Db\Adapter\AdapterInterface;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 
@@ -23,7 +22,7 @@ class ModuleconfigForm extends Form
 
     protected $application;
 
-    public function __construct(?AdapterInterface $dbAdapter = null)
+    public function __construct()
     {
         $this->application  = new ApplicationTable();
         $this->zListener = new Listener();
@@ -45,7 +44,7 @@ class ModuleconfigForm extends Form
             ]);
 
         /*
-        * Automatic Tranfer settings
+        * Automatic Transfer settings
         */
         $this->add([
             'type' => \Laminas\Form\Element\Checkbox::class,

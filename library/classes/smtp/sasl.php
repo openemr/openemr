@@ -22,13 +22,13 @@ class sasl_interact_class
 };
 
 /*
-{metadocument}<?xml version="1.0" encoding="ISO-8859-1" ?>
+{metadocument}<?xml version="1.0" encoding="UTF-8" ?>
 <class>
 
     <package>net.manuellemos.sasl</package>
 
     <version>@(#) $Id$</version>
-    <copyright>Copyright © (C) Manuel Lemos 2004</copyright>
+    <copyright>Copyright Â© (C) Manuel Lemos 2004</copyright>
     <title>Simple Authentication and Security Layer client</title>
     <author>Manuel Lemos</author>
     <authoraddress>mlemos-at-acm.org</authoraddress>
@@ -178,7 +178,7 @@ class sasl_client_class
             <purpose>Retrieve the values of one or more credentials to be used by
                 the authentication mechanism classes.</purpose>
             <usage>This is meant to be used by authentication mechanism driver
-                classes to retrieve the credentials that may be neede.</usage>
+                classes to retrieve the credentials that may be needed.</usage>
             <returnvalue>The function may return <tt>SASL_CONTINUE</tt> if it
                 succeeded, or <tt>SASL_NOMECH</tt> if it was not possible to
                 retrieve one of the requested credentials.</returnvalue>
@@ -359,7 +359,7 @@ class sasl_client_class
         <type>INTEGER</type>
         <documentation>
             <purpose>Process the authentication steps after the initial step,
-                until the authetication iteration dialog is complete.</purpose>
+                until the authentication iteration dialog is complete.</purpose>
             <usage>Call this function iteratively after a successful initial
                 step calling the <functionlink>Start</functionlink> function.</usage>
             <returnvalue>The function returns <tt>SASL_CONTINUE</tt> if step was

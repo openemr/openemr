@@ -16,7 +16,9 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
@@ -623,7 +625,7 @@ class Claim
       * In most cases, the ISA08 and GS03 are the same. However
       *
       * In some clearing houses ISA08 and GS03 are different
-      * Therefore if the x12_gs03 segement is explicitly specified we use that value,
+      * Therefore if the x12_gs03 segment is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
         if (!empty($this->x12_partner['x12_gs03'])) {
@@ -1195,11 +1197,7 @@ class Claim
             $ptphone = $this->patient_data['phone_cell'];
         }
 
-        if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
-            return $tmp[1] . $tmp[2] . $tmp[3];
-        }
-
-        return '';
+        return PhoneNumberService::toNationalDigits((string) $ptphone) ?? '';
     }
 
     public function patientDOB()
@@ -1619,20 +1617,7 @@ class Claim
 
     public function NPIValid($npi)
     {
-        // A NPI MUST be a 10 digit number
-        if ($npi === '') {
-            return false;
-        }
-
-        if (strlen((string) $npi) != 10) {
-            return false;
-        }
-
-        if (!preg_match("/[0-9]*/", (string) $npi)) {
-            return false;
-        }
-
-        return true;
+        return ValidationUtils::isValidNPI((string) $npi);
     }
     public function providerNPIValid($prockey = -1)
     {

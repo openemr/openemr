@@ -41,4 +41,3 @@ CREATE TABLE `form_observation` (
   KEY `idx_pid_encounter` (`pid`, `encounter`),
   KEY `idx_date` (`date`)
 ) ENGINE=InnoDB;
-

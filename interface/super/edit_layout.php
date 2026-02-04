@@ -424,7 +424,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $field_id_original = trim((string) $iter['originalid']);
         $data_type = trim((string) $iter['datatype']);
         $listval = $data_type == 34 ? trim((string) $iter['contextName']) : trim((string) $iter['list_id']);
-        $action = $iter['action'];
+        $action = $iter['action'] ?? '';
         if ($action == 'value' || $action == 'hsval') {
             $action .= '=' . $iter['value'];
         }
@@ -469,7 +469,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "description = '"   . add_escape_custom(trim((string) $iter['desc']))      . "', " .
                 "codes = '"   . add_escape_custom(trim((string) $iter['codes']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(trim((string) $iter['validation']))   . "' " .
+                "validation = '"   . add_escape_custom(trim((string) ($iter['validation'] ?? '')))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
 
               setLayoutTimestamp($layout_id);

@@ -88,7 +88,7 @@ class SMARTSessionTokenContextBuilder
                 'need_patient_banner' => true
                 ,'smart_style_url' => $this->getSmartStyleURL()
             ];
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $returnContext = [
                 'need_patient_banner' => false
                 ,'smart_style_url' => $this->getSmartStyleURL()
@@ -117,7 +117,7 @@ class SMARTSessionTokenContextBuilder
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $context = $this->getEHRLaunchContext();
         }
         return $context;

@@ -114,4 +114,3 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
     </main>
 </body>
 </html>
-

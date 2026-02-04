@@ -33,91 +33,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 
-function hl7Text($s)
-{
-  // See http://www.interfaceware.com/hl7_escape_protocol.html:
-    $s = str_replace('\\', '\\E\\', $s);
-    $s = str_replace('^', '\\S\\', $s);
-    $s = str_replace('|', '\\F\\', $s);
-    $s = str_replace('~', '\\R\\', $s);
-    $s = str_replace('&', '\\T\\', $s);
-    $s = str_replace("\r", '\\X0d\\', $s);
-    return $s;
-}
-
-function hl7Zip($s)
-{
-    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
-}
-
-function hl7Date($s)
-{
-    return preg_replace('/[^\d]/', '', (string) $s);
-}
-
-function hl7Time($s)
-{
-    if (empty($s)) {
-        return '';
-    }
-
-    return date('YmdHis', strtotime((string) $s));
-}
-
-function hl7Sex($s)
-{
-    $s = strtoupper(substr((string) $s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') {
-        $s = 'U';
-    }
-
-    return $s;
-}
-
-function hl7Phone($s)
-{
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2];
-    }
-
-    return '';
-}
-
-function hl7SSN($s)
-{
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    return '';
-}
-
-function hl7Priority($s)
-{
-    return strtoupper(substr((string) $s, 0, 1)) == 'H' ? 'S' : 'R';
-}
-
-function hl7Relation($s)
-{
-    $tmp = strtolower((string) $s);
-    if ($tmp == 'self' || $tmp == '') {
-        return 1;
-    } elseif ($tmp == 'spouse') {
-        return 2;
-    } elseif ($tmp == 'child') {
-        return 8;
-    } elseif ($tmp == 'other') {
-        return 8;
-    }
-
-  // Should not get here so this will probably get noticed if we do.
-    return $s;
-}
-
 /**
  * Get array of insurance payers for the specified patient as of the specified
  * date. If no date is passed then the current date is used.
@@ -247,11 +162,11 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
     $d2 . hl7Text($porow['state']) .
     $d2 . hl7Zip($porow['postal_code']) .
     $d1 .
-    $d1 . hl7Phone($porow['phone_home']) .
-    $d1 . hl7Phone($porow['phone_biz']) .
+    $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+    $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
     $d1 . $d1 . $d1 .
     $d1 . $porow['encounter'] .
-    $d1 . hl7SSN($porow['ss']) .
+    $d1 . hl7SSN($porow['ss'], withDashes: true) .
     $d1 . $d1 . $d1 .
     $d0;
 
@@ -303,13 +218,13 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Text($payer_address->get_state()) .  // State
                 $d2 . hl7Zip($payer_address->get_zip()) .     // Zip Code
                 $d1 .
-                $d1 . hl7Phone($payer_object->get_phone()) .    // Phone Number
+                $d1 . hl7Phone($payer_object->get_phone(), formatted: true) .    // Phone Number
                 $d1 . hl7Text($payer['data']['group_number']) . // Insurance Company Group Number
                 str_repeat($d1, 7) .                            // IN1 9-15 all empty
                 $d1 . hl7Text($payer['data']['subscriber_lname']) .   // Insured last name
                 $d2 . hl7Text($payer['data']['subscriber_fname']) . // Insured first name
                 $d2 . hl7Text($payer['data']['subscriber_mname']) . // Insured middle name
-                $d1 . hl7Relation($payer['data']['subscriber_relationship']) .
+                $d1 . hl7RelationCode((string) $payer['data']['subscriber_relationship'], childAsOther: true) .
                 $d1 . hl7Date($payer['data']['subscriber_DOB']) .     // Insured DOB
                 $d1 . hl7Date($payer['data']['subscriber_street']) .  // Insured Street Address
                 $d2 .
@@ -354,13 +269,13 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
             $d2 . hl7Text($porow['city']) .
             $d2 . hl7Text($porow['state']) .
             $d2 . hl7Zip($porow['postal_code']) .
-            $d1 . hl7Phone($porow['phone_home']) .
-            $d1 . hl7Phone($porow['phone_biz']) .
+            $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+            $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
             $d1 . hl7Date($porow['DOB']) .   // DOB
             $d1 . hl7Sex($porow['sex']) .   // Sex: M, F or U
             $d1 .
             $d1 . '1' .                   // Relationship
-            $d1 . hl7SSN($porow['ss']) .
+            $d1 . hl7SSN($porow['ss'], withDashes: true) .
             $d0;
     }
   // Common Order.
@@ -388,7 +303,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
         $d2 . hl7Text($pcrow['procedure_name']) .
         $d1 . hl7Priority($porow['order_priority']) . // S=Stat, R=Routine
         $d1 .
-        $d1 . hl7Time($porow['date_collected']) .     // Observation Date/Time
+        $d1 . hl7Time($porow['date_collected'], withSeconds: true) .     // Observation Date/Time
         str_repeat($d1, 8) .                  // OBR 8-15 not used
         $d1 . hl7Text($porow['docnpi']) .             // Physician ID
         $d2 . hl7Text($porow['doclname']) .         // Last Name

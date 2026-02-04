@@ -69,7 +69,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
         $buffer = preg_replace("!<textarea[^>]+>.*?</textarea>!is", '@@@SAVANT:TRIM:TEXTAREA@@@', (string) $buffer);
 
         // remove all leading spaces, tabs and carriage returns NOT
-        // preceeded by a php close tag.
+        // preceded by a php close tag.
         $buffer = trim((string) preg_replace('/((?<!\?>)\n)[\s]+/m', '\1', (string) $buffer));
 
         // replace script blocks

@@ -247,13 +247,14 @@
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label class="pr-1">{{ 'Gender:'|xlt }}</label>
-                                <select id="person_gender" class="form-control form-control-sm mb-1">
-                                    <option value="">{{ 'Select'|xlt }}</option>
-                                    <option value="Male">{{ 'Male'|xlt }}</option>
-                                    <option value="Female">{{ 'Female'|xlt }}</option>
-                                    <option value="Other">{{ 'Other'|xlt }}</option>
-                                    <option value="Unknown">{{ 'Unknown'|xlt }}</option>
-                                </select>
+                                {{ generateFormField({
+                                    'data_type': widget_constants.list,
+                                    'field_id': 'person_gender',
+                                    'smallform': 'form-control form-control-sm mb-1',
+                                    'list_id': 'administrative_sex',
+                                    'edit_options': edit_options,
+                                    'description': 'Select Gender'|xl
+                                }, '') }}
                             </div>
                         </div>
                     </div>
@@ -343,7 +344,7 @@
         document.getElementById('person_last_name').value = '';
         document.getElementById('person_middle_name').value = '';
         document.getElementById('person_dob').value = '';
-        document.getElementById('person_gender').value = '';
+        document.getElementById('form_person_gender').value = '';
         document.getElementById('person_phone').value = '';
          document.getElementById('person_notes').value = '';
     }
@@ -572,7 +573,7 @@
         const last_name = document.getElementById('person_last_name').value.trim();
         const middle_name = document.getElementById('person_middle_name').value.trim();
         const dob = document.getElementById('person_dob').value;
-        const gender = document.getElementById('person_gender').value;
+        const gender = document.getElementById('form_person_gender').value;
         const phone = document.getElementById('person_phone').value.trim();
         const notes = document.getElementById('person_notes').value.trim();
 

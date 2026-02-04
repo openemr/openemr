@@ -195,8 +195,8 @@
                 telecomFormHandler();
             }
         });
-        
- 
+
+
         function telecomFormHandler() {
             console.debug("Running telecomFormHandler for table id:", tableId);
             const table = document.getElementById(tableId);
@@ -205,7 +205,7 @@
                 return;
             }
             const container = table.querySelector('.table_edit_telecoms')
-            
+
             let TELECOM_ACTION_VALUES = {
                 'INACTIVATE': 'INACTIVATE',
                 'ADD': 'ADD',
@@ -275,9 +275,9 @@
 
             function addTelecom(event) {
                 console.log('addTelecom called', event, 'Table:', tableId);
-                
+
                 // Get the button element
-                const target = event.currentTarget || event.target;         
+                const target = event.currentTarget || event.target;
                 if (!target) {
                     console.error('No target element in event:', event);
                     alert('Error: Could not determine which button was clicked.');
@@ -298,7 +298,7 @@
                         nextSibling = nextSibling.nextElementSibling;
                     }
                 }
-                
+
                 if (!row_telecom_template) {
                     console.error('✗ Could not find template for this telecom table');
                     console.error('  Table:', table);
@@ -332,7 +332,7 @@
 
                 // Replace __T-INDEX__ placeholder
                 newRowDiv.setAttribute('data-index', newIndex);
-                
+
                 var allElements = newRowDiv.querySelectorAll('*');
                 allElements.forEach(function(el) {
                     // Replace in attributes
@@ -342,7 +342,7 @@
                             el.setAttribute(attr, val.replace(/__T-INDEX__/g, newIndex));
                         }
                     });
-                    
+
                     // Replace in text content for specific elements
                     if (el.tagName === 'LABEL') {
                         el.textContent = el.textContent.replace(/__T-INDEX__/g, newIndex);
@@ -356,12 +356,12 @@
                 var actualNewRow = table.querySelector('.telecoms_group[data-index="' + newIndex + '"]');
                 if (actualNewRow) {
                     setupTelecomsRowButtonEventListeners(actualNewRow.querySelector('.display_telecoms'));
-                    
+
                     var formTelecoms = actualNewRow.querySelector('.form_telecoms');
                     if (formTelecoms) {
                         setupContainerDatePickers(formTelecoms);
                         setupContainerListAddButtons(formTelecoms);
-                        
+
                         // Automatically open the edit form
                         showElement(formTelecoms);
                         var firstInput = formTelecoms.querySelector('input.form_telecoms_value, select.form_telecoms_system');
@@ -386,7 +386,7 @@
                 }
 
                 var target = event.target;
-                
+
                 var formTelecoms = target.closest('.form_telecoms');
                 if (!formTelecoms) {
                     return;
@@ -444,7 +444,7 @@
                 }
 
                 var isCurrentlyHidden = row_form_telecoms.classList.contains('d-none');
-                
+
                 if (isCurrentlyHidden) {
                     showElement(row_form_telecoms);
                     editButton.classList.remove('fa-caret-right');
@@ -460,11 +460,11 @@
                     var systemSelect = row_form_telecoms.querySelector('select.form_telecoms_system');
                     var useSelect = row_form_telecoms.querySelector('select.form_telecoms_use');
 
-                    var systemText = systemSelect && systemSelect.selectedOptions.length > 0 
-                        ? systemSelect.selectedOptions[0].textContent 
+                    var systemText = systemSelect && systemSelect.selectedOptions.length > 0
+                        ? systemSelect.selectedOptions[0].textContent
                         : '';
-                    var useText = useSelect && useSelect.selectedOptions.length > 0 
-                        ? useSelect.selectedOptions[0].textContent 
+                    var useText = useSelect && useSelect.selectedOptions.length > 0
+                        ? useSelect.selectedOptions[0].textContent
                         : '';
 
                     var displaySystem = row_display_telecoms.querySelector('.display_telecoms_system');
@@ -484,9 +484,9 @@
                     // Update icon
                     var iconElement = row_display_telecoms.querySelector('.display_telecoms_system_column i:nth-of-type(2)');
                     if (iconElement) {
-                        iconElement.className = 'fas fa-' + 
-                            (record.system === 'phone' || record.system === 'mobile' ? 'phone' : 
-                                record.system === 'email' ? 'envelope' : 
+                        iconElement.className = 'fas fa-' +
+                            (record.system === 'phone' || record.system === 'mobile' ? 'phone' :
+                                record.system === 'email' ? 'envelope' :
                                 record.system === 'fax' ? 'fax' : 'link') + ' mr-1';
                     }
                 }

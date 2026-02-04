@@ -26,4 +26,3 @@ class NegativeSubstanceOrder extends SubstanceOrder
 
     public $_type = 'QDM::NegativeSubstanceOrder';
 }
-

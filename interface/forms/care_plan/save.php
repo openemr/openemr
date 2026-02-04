@@ -111,9 +111,9 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date = ?,
-            date_end = ?, 
-            proposed_date = ?, 
-            plan_status = ?, 
+            date_end = ?,
+            proposed_date = ?,
+            plan_status = ?,
             care_plan_type = ?,
             note_related_to = ?,
             reason_code = ?,
@@ -153,9 +153,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}
