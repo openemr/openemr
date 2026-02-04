@@ -380,7 +380,7 @@ class BaseService implements BaseServiceInterface
      * Fetch ID by UUID of Resource
      *
      * @param string $uuid              - UUID of Resource
-     * @param string $table             - Table reffering to the ID field
+     * @param string $table             - Table referring to the ID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return ID
      */
@@ -395,7 +395,7 @@ class BaseService implements BaseServiceInterface
      * Fetch UUID by ID of Resource
      *
      * @param string $id                - ID of Resource
-     * @param string $table             - Table reffering to the UUID field
+     * @param string $table             - Table referring to the UUID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return UUID string
      */
@@ -574,7 +574,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $fields                    - All IDs separated with | sign
      * @param string $table                     - Name of the table of targeted ID
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs

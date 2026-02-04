@@ -64,7 +64,7 @@ class ExceptionThrower
      * Fired by the PHP error handler function.
      * Calling this function will
      * always throw an exception unless error_reporting == 0. If the
-     * PHP command is called with @ preceeding it, then it will be ignored
+     * PHP command is called with @ preceding it, then it will be ignored
      * here as well.
      *
      * @param string $code
@@ -75,7 +75,7 @@ class ExceptionThrower
      */
     static function HandleError($code, $string, $file, $line, $context = '')
     {
-        // ignore supressed errors
+        // ignore suppressed errors
         if (error_reporting() == 0) {
             return;
         }

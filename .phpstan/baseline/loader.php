@@ -15,6 +15,7 @@ return ['includes' => [
     __DIR__ . '/openemr.deprecatedLaminasDb.php',
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
+    __DIR__ . '/openemr.forbiddenGlobalKeyword.php',
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
     __DIR__ . '/openemr.noGlobalNsFunctions.php',
     __DIR__ . '/property.notFound.php',

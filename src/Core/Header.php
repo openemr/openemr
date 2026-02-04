@@ -20,7 +20,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  *
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
- * for creating a `<head>` element, but for now it sufficently handles the
+ * for creating a `<head>` element, but for now it sufficiently handles the
  * `setupHeader()`
  *
  * @package OpenEMR
@@ -335,7 +335,7 @@ class Header
      *
      * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
+     * array, will replace the occurrence with the value of that key.
      *
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
@@ -365,7 +365,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
-        // make sure we clear out any attributes we don't want overriden
+        // make sure we clear out any attributes we don't want overridden
         if (isset($nodeAttributes['src'])) {
             unset($nodeAttributes['src']);
         }

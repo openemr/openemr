@@ -82,33 +82,6 @@ function QuotedOrNull($fld)
     return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
 }
 
-function rbinput($name, $value, $desc, $colname)
-{
-    global $irow;
-    $_p = [
-        attr($name),
-        attr($value),
-        ($irow[$colname] == $value) ? " checked" : "",
-        text($desc)
-    ];
-    $str = '<input type="radio" name="%s" value="%s" %s>%s';
-    return vsprintf($str, $_p);
-}
-
-// Given an issue type as a string, compute its index.
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-        ++$i;
-    }
-    return $i;
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////
@@ -540,7 +513,7 @@ function getCodeText($code)
 
     // Called when the Active checkbox is clicked.  For consistency we
     // use the existence of an end date to indicate inactivity, even
-    // though the simple verion of the form does not show an end date.
+    // though the simple version of the form does not show an end date.
     function activeClicked(cb) {
         var f = document.forms[0];
         if (cb.checked) {

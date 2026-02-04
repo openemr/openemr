@@ -162,8 +162,8 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         if (
             !isset($oeSearchParameters['_id'])
-            // could be array (AND) or comma-delimited string value (OR)
-            // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
+            // _id parameter can be array (AND) or comma-delimited (OR). Since a resource can only
+            // have one ID, an array will have at most one element, so just check for our type.
             || $oeSearchParameters['_id']->hasCodeValue(self::APPOINTMENT_TYPE)
         ) {
             if (!isset($oeSearchParameters['_id'])) {

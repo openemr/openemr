@@ -16,7 +16,7 @@ require_once("verysimple/Authentication/IAuthenticatable.php");
 /**
  * Controller is a base controller object used for an MVC pattern
  * This controller uses Phreeze ORM and RenderEngine Template Engine
- * This controller could be extended to use a differente ORM and
+ * This controller could be extended to use a different ORM and
  * Rendering engine as long as they implement compatible functions.
  *
  * @package verysimple::Phreeze
@@ -34,7 +34,7 @@ abstract class PortalController
      *
      * @var string ModelName is used by the base Controller class for certain functions in which
      *      require knowledge of what Model is being used. For example, when validating user input.
-     *      This may be defined in Init() if any of thes base Controller features will be used.
+     *      This may be defined in Init() if any of these base Controller features will be used.
      */
     protected $ModelName;
     protected $Context;
@@ -157,7 +157,7 @@ abstract class PortalController
 
     /**
      * Init is called by the base constructor immediately after construction.
-     * This method must be implemented and provided an oportunity to
+     * This method must be implemented and provided an opportunity to
      * set any class-wide variables such as ModelName, implement
      * authentication for this Controller or any other class-wide initialization
      */
@@ -359,7 +359,7 @@ abstract class PortalController
     }
 
     /**
-     * Use as an alterative to print in order to capture debug output
+     * Use as an alternative to print in order to capture debug output
      *
      * @param
      *          string text to print
@@ -481,7 +481,7 @@ abstract class PortalController
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
             } catch (exception $ex) {
-                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage());
+                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to suppress this error: " . $ex->getMessage());
             }
         }
 
@@ -571,7 +571,7 @@ abstract class PortalController
                     ) // guid
                     ;
                 } else {
-                    $rssWriter->addItem("Item $count doesn't implment IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
+                    $rssWriter->addItem("Item $count doesn't implement IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
                 }
             }
         } else {
@@ -627,7 +627,7 @@ abstract class PortalController
         } else {
             $vr->Success = false;
             $vr->Errors = $obj->GetValidationErrors();
-            $vr->Message = "Validation Errors Occured";
+            $vr->Message = "Validation Errors Occurred";
         }
 
         // if the user requested to save inline, their Save method will take over from here
@@ -862,7 +862,7 @@ abstract class PortalController
      * @param
      *          bool if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
      * @param
-     *          array (only relvant if useSimpleObject is true) options array passed through to Phreezable->ToString()
+     *          array (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
      * @param
      *          bool set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
      */
@@ -947,7 +947,7 @@ abstract class PortalController
      * @param string $action
      *          in the format Controller.Method
      * @param mixed $feedback
-     *          string which will be assigne to the template as "feedback" or an array of values to assign
+     *          string which will be assigned to the template as "feedback" or an array of values to assign
      * @param array $params
      * @param string $mode
      *          (client | header) default = Controller::$DefaultRedirectMode

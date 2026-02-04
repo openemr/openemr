@@ -54,7 +54,7 @@ abstract class Abstract_Controller implements ViewableIF
     abstract public function esign_log_view();
 
     /**
-     * Triggered when the ESign Sigature form is submitted
+     * Triggered when the ESign Signature form is submitted
      */
     abstract public function esign_form_submit();
 

@@ -29,7 +29,7 @@ class CcrTable extends AbstractTableGateway
     {
     }
   /*
-  * Fetch the Catagory ID from categories table
+  * Fetch the Category ID from categories table
   *
   * @param    title    Text    Name of the category(eg: CCR)
   * @return   records  Array   ID of the Category
@@ -71,7 +71,7 @@ class CcrTable extends AbstractTableGateway
     }
 
   /*
-  * List the documents uploaded by the user alogn with the matched data
+  * List the documents uploaded by the user along with the matched data
   *
   * @param    cat_title   Text    Category Name
   * @return   records     Array   List of CCR imported to the system, pending approval
@@ -101,7 +101,7 @@ class CcrTable extends AbstractTableGateway
     }
 
   /*
-  * Update the audit mater ID to documents table for future reference
+  * Update the audit master ID to documents table for future reference
   *
   * @param    audit_master_id   Integer   ID from audit_master table
   * @param    doc_id            Integer   ID from documents table
@@ -350,7 +350,7 @@ class CcrTable extends AbstractTableGateway
     }
 
   /*
-  * Fetch the currect Lab Results of a patient
+  * Fetch the correct Lab Results of a patient
   *
   * @param    pid       Integer     patient id
   * @return   records   Array       list of lab results
@@ -546,7 +546,7 @@ class CcrTable extends AbstractTableGateway
   /*
   * Update the status of a document after importing
   *
-  * @param    $document_id    Interger    Document ID
+  * @param    $document_id    Integer    Document ID
   */
     public function update_imported($document_id)
     {

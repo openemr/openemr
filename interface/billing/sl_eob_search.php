@@ -31,6 +31,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+// statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
+assert(isset($STMT_TEMP_FILE));
+assert(isset($STMT_PRINT_CMD));
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -67,7 +70,7 @@ $form_cb = false;
 
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
-    /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
+    /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
@@ -177,19 +180,30 @@ function era_callback(&$out): void
     }
 }
 
-function emailLogin($patient_id, $message)
+/**
+ * Email a patient statement bill.
+ *
+ * @param non-empty-string $message
+ * @throws \InvalidArgumentException if message has no text content
+ * @throws \RuntimeException if the email cannot be sent
+ */
+function emailLogin(int $patient_id, string $message): void
 {
+    if (trim(strip_tags($message)) === '') {
+        throw new InvalidArgumentException('Statement message has no text content');
+    }
+
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {
-        return false;
+    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || ($GLOBALS['patient_reminder_sender_email'] ?? '') === '') {
+        throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
 
     if (!(ValidationUtils::isValidEmail($patientData['email']))) {
-        return false;
+        throw new RuntimeException(xl('Patient email address is invalid'));
     }
 
     if (!(ValidationUtils::isValidEmail($GLOBALS['patient_reminder_sender_email']))) {
-        return false;
+        throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
     if ($_SESSION['pc_facility']) {
@@ -214,12 +228,12 @@ function emailLogin($patient_id, $message)
     $mail->AltBody = $message;
 
     if ($mail->Send()) {
-        return true;
-    } else {
-        $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
-        return false;
+        return;
     }
+
+    $email_status = $mail->ErrorInfo;
+    error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
+    throw new RuntimeException(xl('Failed to send statement email'));
 }
 
 // Upload a file to the client's browser
@@ -240,22 +254,6 @@ function upload_file_to_client($file_to_send): void
     exit(); //added to exit from process properly in order to stop bad html code -ehrlive
     // sleep one second to ensure there's no follow-on.
     sleep(1);
-}
-
-function upload_file_to_client_email($ppid, $file_to_send): void
-{
-    $message = "";
-    global $STMT_TEMP_FILE_PDF;
-    $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
-    while (!feof($file)) {
-        $OneLine = fgets($file);//one line is read
-
-        $message = $message . $OneLine . '<br />';
-
-        $countline++;
-    }
-
-    emailLogin($ppid, $message);
 }
 
 function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false): void
@@ -553,6 +551,13 @@ if (
                     unset($stmt);
                 } else {
                     $tmp = make_statement($stmt);
+                    if (!empty($_REQUEST['form_email']) && $tmp !== '') {
+                        try {
+                            emailLogin($inv_pid[$inv_count], $tmp);
+                        } catch (RuntimeException $e) {
+                            $alertmsg = $e->getMessage();
+                        }
+                    }
                     if (empty($tmp)) {
                         $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
                         $tmp .= "<br />\n\014<br /><br />";
@@ -603,8 +608,6 @@ if (
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
         upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
-    } elseif ($_REQUEST['form_email']) {
-        upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_portalnotify']) {
         if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');

@@ -47,9 +47,9 @@ class thumbnail
      * @param string $sourceFilename
      *          Filename for the image to have thumbnail made from
      * @param integer $maxWidth
-     *          The maxium width for the resulting thumbnail
+     *          The maximum width for the resulting thumbnail
      * @param integer $maxHeight
-     *          The maxium height for the resulting thumbnail
+     *          The maximum height for the resulting thumbnail
      * @param string $targetFormatOrFilename
      *          Either a filename extension (gif|jpg|png) or the
      * @param

@@ -874,6 +874,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
         );
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function advanceDirectiveDataProvider(): array
     {
         // Note: This will be called before setUp(), so we create minimal data here

@@ -107,13 +107,6 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
 // Get a list item's title, translated if appropriate.
 //
 function getListTitle($list, $option)
@@ -1609,11 +1602,11 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         // If there is an adjustment for this line, insert it.
         if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
             $adjust = 0.00 + trim((string) $line['adjust']);
-            $memo = formDataCore($line['memo']);
+            $memo = $line['memo'];
             if ($adjust != 0 || $memo !== '') {
                 // $memo = xl('Discount');
                 if ($memo === '') {
-                    $memo = formData('form_discount_type');
+                    $memo = trimPost('form_discount_type');
                 }
                 $recorder = new Recorder();
                 $recorder->recordActivity([
@@ -1660,7 +1653,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         } else {
             $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
         }
-        $memo = formData('form_discount_type');
+        $memo = trimPost('form_discount_type');
         $recorder = new Recorder();
         $recorder->recordActivity([
             'patientId' => $patient_id,
@@ -1710,9 +1703,9 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     if (!$current_irnumber) {
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
-            $invoice_refno = formData('form_irnumber', 'P', true);
+            $invoice_refno = trimPost('form_irnumber');
         } else {
-            $invoice_refno = add_escape_custom(BillingUtilities::updateInvoiceRefNumber());
+            $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
         if ($invoice_refno) {
             sqlStatement(

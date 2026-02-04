@@ -26,7 +26,7 @@
         </div>
 
         <div class="esign-signature-form-element gs-hide-element">
-              <span id='esign-signature-form-prompt'><?php echo xlt("Checking the lock checkbox will prevent any futher edits on any forms in this encounter."); ?></span>
+              <span id='esign-signature-form-prompt'><?php echo xlt("Checking the lock checkbox will prevent any further edits on any forms in this encounter."); ?></span>
         </div>
 
         <?php if ($this->form->showLock) { ?>

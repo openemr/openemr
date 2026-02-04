@@ -162,7 +162,7 @@ function download_file()
             }
 
             if ($no_of_items <= 1) {
-                //start new search - no patient record fount
+                //start new search - no patient record found
                 $query = "update re_identification_status set status = 0";
                 $res = sqlStatement($query);
                 ?>

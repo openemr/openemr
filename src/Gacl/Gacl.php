@@ -98,7 +98,7 @@ class Gacl {
 
     /**
      * Constructor
-     * @param array An arry of options to oeverride the class defaults
+     * @param array An array of options to override the class defaults
      */
     function __construct($options = NULL) {
 
@@ -652,7 +652,7 @@ class Gacl {
              * If root_group_id is specified, we have to narrow this query down
              * to just groups deeper in the tree then what is specified.
              * This essentially creates a virtual "subtree" and ignores all outside groups.
-             * Useful for sites like sourceforge where you may seperate groups by "project".
+             * Useful for sites like sourceforge where you may separate groups by "project".
              */
             if ( $root_group != '') {
                 //It is important to note the below line modifies the tables being selected.

@@ -12,6 +12,8 @@
 
 set -xeuo pipefail
 
+coverage_filter_dirs=(apis gacl interface library modules oauth2 portal sites src tests)
+
 coverage_args=(
     --coverage-filter apis
     --coverage-filter gacl
@@ -53,10 +55,30 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set XDEBUG_MODE for xdebug coverage (ignored if using pcov)
         dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
+}
+
+##
+# Run the convert-coverage script inside the Docker container with
+# the standard coverage filter directories. This ensures that
+# realpath() and is_file() resolve correctly for container paths.
+# Arguments:
+#   $1 - input directory (inside container)
+#   $2 - output file path (relative to project root)
+#   $@ - additional arguments passed to convert-coverage
+convert_coverage() {
+    local input_dir=$1
+    local output=$2
+    shift 2
+    local -a args=("${input_dir}" "${output}")
+    for dir in "${coverage_filter_dirs[@]}"; do
+        args+=(--coverage-filter="${dir}")
+    done
+    _exec php -d memory_limit=4G ci/convert-coverage "${args[@]}" "$@"
 }
 
 dockers_env_start() {
@@ -108,7 +130,16 @@ ccda_build() (
 )
 
 configure_coverage() {
-    _exec sh -c 'XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh'
+    # Check which coverage driver is available (pcov is faster)
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if _exec php -r 'exit(function_exists("pcov\\start") ? 0 : 1);'; then
+        echo "Coverage driver: pcov"
+    elif _exec php -r 'exit(function_exists("xdebug_start_code_coverage") ? 0 : 1);'; then
+        echo "Coverage driver: xdebug (already installed)"
+    else
+        echo "Coverage driver: xdebug (installing)"
+        _exec sh -c 'XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh'
+    fi
 }
 
 install_configure() {

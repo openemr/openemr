@@ -13,12 +13,19 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\Common\Enum\PlaceOfServiceEnum;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -28,7 +35,6 @@ use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
@@ -64,6 +70,16 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     {
         parent::__construct();
         $this->locationService = new LocationService();
+    }
+
+    public function getLocationService(): LocationService
+    {
+        return $this->locationService;
+    }
+
+    public function setLocationService(LocationService $locationService): void
+    {
+        $this->locationService = $locationService;
     }
 
     public function getOrganizationService(): FhirOrganizationService {
@@ -222,6 +238,64 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     }
 
     /**
+     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
+     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
+     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
+     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
+     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
+     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
+     * @return void
+     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
+     * @throws ExportException  If there is an error in processing the export
+     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
+     */
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+    {
+        $type = $job->getExportType();
+
+        $searchParams = [];
+        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+            $patientUuids = $job->getPatientUuidsToExport();
+            if (empty($patientUuids)) {
+                // TODO: @adunsulag do we want to handle this higher up the chain instead of creating a bunch of
+                // empty files with no data?
+                return; // nothing to export here as we have no patients
+            }
+            (new SystemLogger())->debug(
+                "FhirLocationService->export() filtering by patient uuids",
+                ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => static::class]
+            );
+            $searchField = $this->getPatientContextSearchFieldForPatientUuids($patientUuids);
+            $searchParams[$searchField->getName()] = $searchField;
+        }
+        $searchField = $this->getLastModifiedSearchField();
+        if ($searchField !== null) {
+            $searchParams[$searchField->getName()] = $job->getResourceIncludeSearchParamValue();
+        }
+
+        $processingResult = $this->getAll($searchParams);
+        $records = $processingResult->getData();
+        foreach ($records as $record) {
+            if (!($record instanceof FHIRDomainResource)) {
+                throw new ExportException(self::class . " returned records that are not a valid fhir resource type for this class", 0, $lastResourceIdExported);
+            }
+            $writer->append($record);
+            $lastResourceIdExported = $record->getId();
+        }
+    }
+
+    protected function createSearchParameterForField($fhirSearchField, $searchValue): ISearchField
+    {
+        // because of our unique handling of patient bound locations we need to handle this one specially
+        if ($fhirSearchField === 'patient-facility-type' && $searchValue instanceof ISearchField) {
+            // we handle this one specially as it is a composite field that needs to be built based on context
+            return $searchValue;
+        } else {
+            return parent::createSearchParameterForField($fhirSearchField, $searchValue);
+        }
+    }
+
+    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
@@ -229,38 +303,53 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        // even though its not a patient compartment issue we still don't want certain location data such as clinician home addresses
-        // being returned... or other patient locations...  Wierd that its not in the patient compartment
+        // even though it's not a patient compartment issue we still don't want certain location data such as clinician home addresses
+        // being returned... or other patient locations...  Weird that it's not in the patient compartment
         if (!empty($this->patientUuid)) {
-            // if there is no uuid search field this becomes
-            //      (table_uuid = ? and type = 'patient') OR (type = 'facility')
-            // if there is an uuid search field this becomes:
-            //      (table_uuid = ? and type = 'patient' and uuid = ?) OR (type = 'facility' AND uuid = ?)
-
-            $patientType = new CompositeSearchField('patient-type', [], true);
-            // patient id is the target_uuid, the uuid column is the mapped 'Location' resource in FHIR
-            $patientType->addChild(new TokenSearchField('table_uuid', [new TokenSearchValue($this->patientUuid, null, true)]));
-            $patientType->addChild(new TokenSearchField('type', [new TokenSearchValue(LocationService::TYPE_PATIENT)]));
-
-            $facilityType = new CompositeSearchField('facility-type', [], true);
-            $facilityType->addChild(new TokenSearchField('type', [new TokenSearchValue(LocationService::TYPE_FACILITY)]));
-
-            if (!empty($openEMRSearchParameters['uuid'])) {
-                // id must match the patient type as well
-                $patientType->addChild($openEMRSearchParameters['uuid']);
-
-                // or id must match the facility location
-                $facilityType->addChild($openEMRSearchParameters['uuid']);
-                unset($openEMRSearchParameters['uuid']);
+            $uuidSearch = $openEMRSearchParameters['uuid'] ?? null;
+            if ($uuidSearch !== null) {
+                unset($openEMRSearchParameters['uuid']); // remove it so we can handle it properly
             }
-
-            // if we are patient bound we want to make sure we grab only patient locations or facility locations
-            $patientFacilityType = new CompositeSearchField('patient-facility-type', [], false);
-            $patientFacilityType->addChild($facilityType);
-            $patientFacilityType->addChild($patientType);
-            $openEMRSearchParameters['patient-facility-type'] = $patientFacilityType;
+            $openEMRSearchParameters['patient-facility-type'] = $this->getPatientContextSearchFieldForPatientUuids(
+                [$this->patientUuid],
+                $uuidSearch
+            );
         }
-        return $this->locationService->getAll($openEMRSearchParameters, true);
+        return $this->locationService->getAll($openEMRSearchParameters);
+    }
+
+    /**
+     * @param string[] $patientUuids
+     * @return ISearchField
+     */
+    private function getPatientContextSearchFieldForPatientUuids(array $patientUuids, ?ISearchField $uuidSearch = null): ISearchField
+    {
+        // if there is no uuid search field this becomes
+        //      (table_uuid = ? and type = 'patient') OR (type = 'facility')
+        // if there is an uuid search field this becomes:
+        //      (table_uuid = ? and type = 'patient' and uuid = ?) OR (type = 'facility' AND uuid = ?)
+
+        $patientType = new CompositeSearchField('patient-type', [], true);
+        // patient id is the target_uuid, the uuid column is the mapped 'Location' resource in FHIR
+        $patientType->addChild(new TokenSearchField('table_uuid', $patientUuids, true));
+        $patientType->addChild(new TokenSearchField('type', [new TokenSearchValue(LocationService::TYPE_PATIENT)]));
+
+        $facilityType = new CompositeSearchField('facility-type', [], true);
+        $facilityType->addChild(new TokenSearchField('type', [new TokenSearchValue(LocationService::TYPE_FACILITY)]));
+
+        if ($uuidSearch !== null) {
+            // id must match the patient type as well
+            $patientType->addChild($uuidSearch);
+
+            // or id must match the facility location
+            $facilityType->addChild($uuidSearch);
+        }
+
+        // if we are patient bound we want to make sure we grab only patient locations or facility locations
+        $patientFacilityType = new CompositeSearchField('patient-facility-type', [], false);
+        $patientFacilityType->addChild($facilityType);
+        $patientFacilityType->addChild($patientType);
+        return $patientFacilityType;
     }
 
     private function hasAccessToUserLocationData()

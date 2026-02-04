@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
+// removed as jquery is already called in messages page (if you need to use jQuery, uncomment it further down)
 require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
@@ -29,7 +29,7 @@ $today = strtotime(date('Y/m/d'));
 // ----- set $hasAlerts to false, this is used for auto-hiding reminders if there are no due or overdue reminders
 $hasAlerts = false;
 
-// mulitply $updateDelay by 1000 to get miliseconds
+// multiply $updateDelay by 1000 to get milliseconds
 $updateDelay *= 1000;
 
 //-----------------------------------------------------------------------------

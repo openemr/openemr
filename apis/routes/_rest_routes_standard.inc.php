@@ -5807,9 +5807,10 @@ return [
      *  )
      */
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs", ['write','addonly']);
         $controller = new DocumentRestController();
         $controller->setSession($request->getSession());
-        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document']);
+        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
 
         return $return;
     },
@@ -5837,6 +5838,15 @@ return [
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="query",
+     *          description="The Encounter ID (optional) the document is assigned to",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -5853,6 +5863,7 @@ return [
      *  )
      */
     "GET /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs");
         $return = (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
 
         return $return;
@@ -5897,6 +5908,7 @@ return [
      *  )
      */
     "GET /api/patient/:pid/document/:did" => function ($pid, $did, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "docs");
         $return = (new DocumentRestController())->downloadFile($pid, $did);
 
         return $return;
@@ -5985,6 +5997,7 @@ return [
      *  )
      */
     "GET /api/patient/:puuid/insurance" => function ($puuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $searchParams = $request->getQueryParams();
         $searchParams['puuid'] = $puuid;
         if ($request->isPatientRequest()) {
@@ -6043,6 +6056,7 @@ return [
      *  )
      */
     'GET /api/patient/:puuid/insurance/$swap-insurance' => function ($puuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         if ($request->isPatientRequest()) {
             $puuid = $request->getPatientUUIDString();
         }
@@ -6084,6 +6098,7 @@ return [
      *  )
      */
     "GET /api/patient/:puuid/insurance/:uuid" => function ($puuid, $uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
         if ($request->isPatientRequest()) {
             $puuid = $request->getPatientUUIDString();
         }
@@ -6102,7 +6117,7 @@ return [
      *
      * If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
      *
-     * If the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.
+     * If the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.
      *
      * An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.
      *  @OA\Schema(
@@ -6567,7 +6582,7 @@ return [
      *      ),
      *      @OA\Property(
      *          property="visits",
-     *          description="The number of vists for the referral",
+     *          description="The number of visits for the referral",
      *          type="string"
      *      ),
      *      @OA\Property(
