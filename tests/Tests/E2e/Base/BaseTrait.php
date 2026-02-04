@@ -79,25 +79,21 @@ trait BaseTrait
      * Wait for the application to be fully initialized after login.
      *
      * Verifies Knockout.js has applied bindings by checking that the
-     * #mainMenu div has children (rendered by the menu template). If
-     * the check fails within 10 seconds — typically because a script
-     * failed to load under resource pressure — refreshes the page and
-     * retries with a 30-second timeout.
+     * #mainMenu div has children (rendered by the menu template).
+     * Without this gate, tests that immediately navigate menus can
+     * fail because the page HTML loaded but the JS framework hasn't
+     * finished rendering.
+     *
+     * Note: a refresh-and-retry strategy won't work here because
+     * prevent_browser_refresh defaults to 2, which causes main.php
+     * to consume the session token after first validation. A refresh
+     * would fail token validation and destroy the session.
      */
     private function waitForAppReady(): void
     {
-        $appInitialized = fn($driver) => $driver->executeScript(
+        $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
             'return document.getElementById("mainMenu")?.children.length > 0'
-        );
-        try {
-            $this->client->wait(10)->until($appInitialized);
-        } catch (\Throwable) {
-            // JavaScript didn't fully initialize — refresh and retry.
-            // WebDriver refresh reloads the current URL (preserving any
-            // session tokens in the query string).
-            $this->client->getWebDriver()->navigate()->refresh();
-            $this->client->wait(30)->until($appInitialized);
-        }
+        ));
     }
 
     private function switchToIFrame(string $xpath): void
