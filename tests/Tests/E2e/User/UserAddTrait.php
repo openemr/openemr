@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
-use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
@@ -145,17 +144,15 @@ trait UserAddTrait
             )
         );
 
-        // Populate form fields using direct WebDriver sendKeys instead of
-        // Panther's Form API. The Form API captures DOM element references at
-        // a point in time; if JavaScript modifies the form structure after
-        // capture, the stale references silently fail to set values.
-        $driver = $this->client->getWebDriver();
-        $this->clearAndType($driver, 'fname', UserTestData::FIRSTNAME);
-        $this->clearAndType($driver, 'lname', UserTestData::LASTNAME);
-        $this->clearAndType($driver, 'adminPass', LoginTestData::password);
-        $this->clearAndType($driver, 'stiltskin', UserTestData::PASSWORD);
+        // Populate form fields using JavaScript value assignment (see
+        // clearAndType). Panther's Form API and WebDriver sendKeys() both
+        // have reliability issues under CI resource pressure.
+        $this->clearAndType('fname', UserTestData::FIRSTNAME);
+        $this->clearAndType('lname', UserTestData::LASTNAME);
+        $this->clearAndType('adminPass', LoginTestData::password);
+        $this->clearAndType('stiltskin', UserTestData::PASSWORD);
         // Set username last to ensure earlier field handlers cannot overwrite it
-        $this->clearAndType($driver, 'rumple', $username);
+        $this->clearAndType('rumple', $username);
 
         // Verify all form fields accepted their values. If a field was
         // silently cleared by JavaScript, the form submission will fail
@@ -174,10 +171,23 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
     }
 
-    private function clearAndType(WebDriver $driver, string $fieldName, string $value): void
+    /**
+     * Set a form field's value using JavaScript instead of WebDriver
+     * sendKeys(). Under CI resource pressure, sendKeys() dispatches key
+     * events one-by-one and Chrome can drop keystrokes. JavaScript
+     * value assignment is atomic and reliable. Input and change events
+     * are dispatched so any listeners (e.g. password strength meter)
+     * still fire.
+     */
+    private function clearAndType(string $fieldName, string $value): void
     {
-        $field = $driver->findElement(WebDriverBy::name($fieldName));
-        $field->clear();
-        $field->sendKeys($value);
+        $this->client->executeScript(
+            'var f = document.getElementsByName(arguments[0])[0];'
+            . 'f.value = "";'
+            . 'f.value = arguments[1];'
+            . 'f.dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'f.dispatchEvent(new Event("change", {bubbles: true}));',
+            [$fieldName, $value]
+        );
     }
 }
