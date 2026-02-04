@@ -43,6 +43,7 @@ require_once("$srcdir/report.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
@@ -686,7 +687,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
                     // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
-                    sqlStatement(
+                    QueryUtils::sqlStatementThrowException(
                         <<<'SQL'
                         UPDATE `lists`
                         SET `type` = ?,
@@ -734,7 +735,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         ]
                     );
                     if ($text_type == "medication" && $form_end != '') {
-                        sqlStatement(
+                        QueryUtils::sqlStatementThrowException(
                             <<<'SQL'
                             UPDATE `prescriptions`
                             SET `medication` = 0
@@ -746,7 +747,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         );
                     }
                 } else {
-                    $issue = sqlInsert(
+                    $issue = QueryUtils::sqlInsert(
                         <<<'SQL'
                         INSERT INTO `lists` (
                             `date`, `pid`, `type`, `title`, `activity`, `comments`,

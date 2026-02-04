@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PhoneNumberService;
@@ -94,7 +95,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 // Report already exists.
                 $binds[] = $report_id;
                 if ($form_review) {
-                    sqlStatement(
+                    QueryUtils::sqlStatementThrowException(
                         <<<'SQL'
                         UPDATE `procedure_report`
                         SET `procedure_order_id` = ?,
@@ -109,7 +110,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         $binds
                     );
                 } else {
-                    sqlStatement(
+                    QueryUtils::sqlStatementThrowException(
                         <<<'SQL'
                         UPDATE `procedure_report`
                         SET `procedure_order_id` = ?,
@@ -126,7 +127,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
             } else {
                 // Add new report.
                 if ($form_review) {
-                    $report_id = sqlInsert(
+                    $report_id = QueryUtils::sqlInsert(
                         <<<'SQL'
                         INSERT INTO `procedure_report` (
                             `procedure_order_id`, `procedure_order_seq`, `date_report`,
@@ -136,7 +137,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         $binds
                     );
                 } else {
-                    $report_id = sqlInsert(
+                    $report_id = QueryUtils::sqlInsert(
                         <<<'SQL'
                         INSERT INTO `procedure_report` (
                             `procedure_order_id`, `procedure_order_seq`, `date_report`,
@@ -186,7 +187,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
             if ($result_id) {
                 // Result already exists.
                 $binds[] = $result_id;
-                sqlStatement(
+                QueryUtils::sqlStatementThrowException(
                     <<<'SQL'
                     UPDATE `procedure_result`
                     SET `procedure_report_id` = ?,
@@ -207,7 +208,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 );
             } else {
                 // Add new result.
-                $result_id = sqlInsert(
+                $result_id = QueryUtils::sqlInsert(
                     <<<'SQL'
                     INSERT INTO `procedure_result` (
                         `procedure_report_id`, `result_code`, `result_text`, `date`,
