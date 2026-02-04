@@ -1,0 +1,43 @@
+name: Setup PHP and Composer
+description: Sets up PHP, configures Composer caching, and installs dependencies
+
+inputs:
+  php-version:
+    description: PHP version to install
+    required: true
+  coverage:
+    description: Coverage driver (none, xdebug, pcov)
+    required: false
+    default: none
+  install:
+    description: Whether to run composer install
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: ${{ inputs.coverage }}
+
+    - name: Get composer cache directory
+      id: composer-cache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ inputs.php-version }}-
+          ${{ runner.os }}-composer-
+
+    - name: Install Composer dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: composer install --prefer-dist --no-progress
