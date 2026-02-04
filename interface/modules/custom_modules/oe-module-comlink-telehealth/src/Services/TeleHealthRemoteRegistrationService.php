@@ -28,22 +28,22 @@ class TeleHealthRemoteRegistrationService
     /**
      * API url endpoint to send registration requests to.
      */
-    private string $apiURL;
+    private readonly string $apiURL;
 
     /**
      * UserID for api authentication needed for comlink video service
      */
-    private string $apiId;
+    private readonly string $apiId;
 
     /**
      * Password for api authentication needed for comlink video service
      */
-    private string $apiPassword;
+    private readonly string $apiPassword;
 
     /**
      * CMSID for api authentication needed for comlink video service
      */
-    private string $apiCMSID;
+    private readonly string $apiCMSID;
 
     /**
      * HTTP client for API requests
@@ -53,17 +53,17 @@ class TeleHealthRemoteRegistrationService
     /**
      * Unique installation id of the OpenEMR Institution
      */
-    private string $institutionId;
+    private readonly string $institutionId;
 
     /**
      * Name of the OpenEMR institution
      */
-    private string $institutionName;
+    private readonly string $institutionName;
 
     /**
      * System logger instance
      */
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
     /**
      * User repository for managing telehealth users
