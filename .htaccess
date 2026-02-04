@@ -1,20 +1,27 @@
-# Send all PHP traffic to the front controller file at `public/index.php`.
-# Static assets should continue to be served by the webserver directly.
-
-# Important: .htaccess files in child directories (and equiavelent rules for
-# non-Apache webservers in their respective config formats) could still
-# potentially take precedence. To fully migrate all web trafic through the
-# FC file, those files will need to be removed (or, at minimum, have
-# RewriteRules removed) and have the logic ported into
-# `OpenEMR\BC\FallbackRouter`.
+# Front controller infrastructure for OpenEMR.
+#
+# This file sets up routing through `public/index.php` and `FallbackRouter`.
+# Paths are migrated incrementally - add RewriteRules here as corresponding
+# subdirectory .htaccess files are decommissioned.
+#
+# See `OpenEMR\BC\FallbackRouter` for the PHP-side routing logic.
 
 RewriteEngine On
 
-# Serve existing files EXCEPT PHP
+# Static files - serve directly
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond %{REQUEST_URI} !\.php$
 RewriteRule ^ - [L]
 
-# Everything else goes to front controller
+# Existing PHP files - route through front controller
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} \.php$
 RewriteRule ^ public/index.php [QSA,L]
+
+# Paths migrated to front controller (add incrementally as subdirectory
+# .htaccess files are decommissioned):
+# RewriteRule ^apis/ public/index.php [QSA,L]
+# RewriteRule ^oauth2/ public/index.php [QSA,L]
+
+# Everything else: pass through to subdirectory .htaccess or 404
 
