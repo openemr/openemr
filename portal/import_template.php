@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -53,7 +53,8 @@ if (($_REQUEST['mode'] ?? null) === 'render_profile') {
 if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_REQUEST['docid']);
-        echo "data:application/pdf;base64," . base64_encode((string)$template['template_content']);
+        $dataUrl = 'data:application/pdf;base64,' . base64_encode((string)$template['template_content']);
+        echo attr($dataUrl);
         exit();
     }
     die(xlt('Invalid File'));
