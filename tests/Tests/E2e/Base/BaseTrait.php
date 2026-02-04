@@ -75,6 +75,31 @@ trait BaseTrait
         }
     }
 
+    /**
+     * Wait for the application to be fully initialized after login.
+     *
+     * Verifies Knockout.js has applied bindings by checking that the
+     * #mainMenu div has children (rendered by the menu template). If
+     * the check fails within 10 seconds — typically because a script
+     * failed to load under resource pressure — refreshes the page and
+     * retries with a 30-second timeout.
+     */
+    private function waitForAppReady(): void
+    {
+        $appInitialized = fn($driver) => $driver->executeScript(
+            'return document.getElementById("mainMenu")?.children.length > 0'
+        );
+        try {
+            $this->client->wait(10)->until($appInitialized);
+        } catch (\Throwable) {
+            // JavaScript didn't fully initialize — refresh and retry.
+            // WebDriver refresh reloads the current URL (preserving any
+            // session tokens in the query string).
+            $this->client->getWebDriver()->navigate()->refresh();
+            $this->client->wait(30)->until($appInitialized);
+        }
+    }
+
     private function switchToIFrame(string $xpath): void
     {
         $selector = WebDriverBy::xpath($xpath);
@@ -124,13 +149,6 @@ trait BaseTrait
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
-        // Wait for the page to be fully loaded. Catches pending resource
-        // loads that could prevent Knockout.js from applying bindings.
-        $this->client->wait(30)->until(
-            fn($driver) => $driver->executeScript('return document.readyState') === 'complete'
-        );
-        // Wait for the main menu to be populated by Knockout.js
-        $this->client->waitForVisibility('//div[@id="mainMenu"]/div', 30);
         // go to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;
