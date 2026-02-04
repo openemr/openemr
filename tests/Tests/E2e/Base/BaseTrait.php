@@ -124,9 +124,14 @@ trait BaseTrait
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
+        // Wait for the page to be fully loaded. Catches pending resource
+        // loads that could prevent Knockout.js from applying bindings.
+        $this->client->wait(30)->until(
+            fn($driver) => $driver->executeScript('return document.readyState') === 'complete'
+        );
         // Wait for the main menu to be populated by Knockout.js
         $this->client->waitForVisibility('//div[@id="mainMenu"]/div', 30);
-        // got to and click the menu link
+        // go to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;
         foreach ($menuLinkSequenceArray as $menuLinkItem) {
@@ -151,9 +156,16 @@ trait BaseTrait
                 $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
             }
 
-            $this->client->waitFor($menuLink);
-            $this->crawler = $this->client->refreshCrawler();
-            $this->crawler->filterXPath($menuLink)->click();
+            // Use elementToBeClickable + direct WebDriver click instead of
+            // Panther's refreshCrawler/filterXPath/click, which can fail
+            // with stale DOM references if the page updates between the
+            // crawler snapshot and the click
+            $element = $this->client->wait(30)->until(
+                WebDriverExpectedCondition::elementToBeClickable(
+                    WebDriverBy::xpath($menuLink)
+                )
+            );
+            $element->click();
             $counter++;
         }
     }
@@ -162,16 +174,18 @@ trait BaseTrait
     {
         $menuLink = XpathsConstants::USER_MENU_ICON;
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
-        $this->client->wait(10)->until(
+        $element = $this->client->wait(10)->until(
             WebDriverExpectedCondition::elementToBeClickable(
                 WebDriverBy::xpath($menuLink)
             )
         );
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath($menuLink)->click();
-        $this->client->waitFor($menuLink2);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath($menuLink2)->click();
+        $element->click();
+        $element2 = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($menuLink2)
+            )
+        );
+        $element2->click();
     }
 
     private function isUserExist(string $username): bool
