@@ -15,6 +15,7 @@ namespace OpenEMR\FHIR\Config;
 
 use http\Exception\RuntimeException;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ServerConfig
 {
@@ -37,8 +38,9 @@ class ServerConfig
 
     public function __construct()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we may let these be injected at another point in time but for now we set this up as globals
-        $this->siteId = $_SESSION['site_id'] ?? '';
+        $this->siteId = $session->get('site_id') ?? '';
         $this->oauthAddress = $GLOBALS['site_addr_oath'] ?? $_SERVER['HTTP_HOST'];
         $this->webServerRoot = $GLOBALS['fileroot'] ?? '';
         $this->webRoot = $GLOBALS['web_root'] ?? '';
