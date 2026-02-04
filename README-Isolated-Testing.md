@@ -46,6 +46,8 @@ vendor/bin/phpunit -c phpunit-isolated.xml tests/Tests/Isolated/ExampleIsolatedT
 3. Extend `PHPUnit\Framework\TestCase`
 4. Avoid using OpenEMR classes that require database connections
 5. Use only pure PHP functions and Composer-loaded dependencies
+6. Use dependency injection — classes under test should accept dependencies via
+   constructor parameters so tests can provide mocks or stubs
 
 ### Example Test Structure
 ```
@@ -91,8 +93,6 @@ class SomeValidatorStub extends SomeValidator
 
 The isolated bootstrap only loads:
 - Composer autoloader (`vendor/autoload.php`)
-- Minimal global variables required by some classes
-- UTF-8 character encoding settings
 
 ## What's NOT Loaded
 
