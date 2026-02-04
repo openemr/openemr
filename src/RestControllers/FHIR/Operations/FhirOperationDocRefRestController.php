@@ -101,7 +101,7 @@ class FhirOperationDocRefRestController
                 if (str_starts_with((string) $key, "_")) {
                     continue; // skip internal session keys
                 }
-                $_SESSION[$key] = $value;
+                // $_SESSION[$key] = $value; // TODO do we need this, since it seems it migrate from Symfony to PHP Session
             }
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
             $bundleEntries = [];

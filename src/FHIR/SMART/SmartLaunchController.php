@@ -17,6 +17,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -114,17 +115,20 @@ class SmartLaunchController
         if (empty($client)) {
             throw new \Exception("Invalid client id");
         }
-        CsrfUtils::verifyCsrfToken($csrf_token);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        CsrfUtils::verifyCsrfToken($csrf_token, session: $session);
         $puuid = null;
         $euuid = null;
-        if (isset($_SESSION['pid'])) {
+        $pid = $session->get('pid');
+        if (!empty($pid)) {
             // grab the patient puuid
             $patientService = new PatientService();
-            $puuid = UuidRegistry::uuidToString($patientService->getUuid($_SESSION['pid']));
+            $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         }
-        if (!empty($_SESSION['encounter'])) {
+        $encounter = $session->get('encounter');
+        if (!empty($encounter)) {
             // grab the encounter euuid
-            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
         $appointmentUuid = null;
         if (!empty($intentData)) {
@@ -145,9 +149,9 @@ class SmartLaunchController
                 }
             }
         }
-        if (!empty($_SESSION['encounter'])) {
+        if (!empty($encounter)) {
             // grab the encounter euuid
-            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
 
         $issuer = (new ServerConfig())->getFhirUrl();

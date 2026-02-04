@@ -16,6 +16,7 @@ namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
 use OpenEMR\Menu\PatientMenuEvent;
 
@@ -142,6 +143,8 @@ class PatientMenuRole extends MenuRole
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
 
         if (sqlNumRows($module_query)) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $authUserID = $session->get('authUserID');
             while ($hookrow = sqlFetchArray($module_query)) {
                 if ($hookrow['type'] == 0) {
                     $modulePath = $GLOBALS['customModDir'];
@@ -151,7 +154,7 @@ class PatientMenuRole extends MenuRole
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ? "" : "1") {
+                if (AclMain::zhAclCheck($authUserID, $hookrow['obj_name']) ? "" : "1") {
                     continue;
                 }
 
@@ -178,7 +181,8 @@ class PatientMenuRole extends MenuRole
 
     public function displayHorizNavBarMenu()
     {
-        $pid = $_SESSION['pid'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid');
         $menu_restrictions = $this->getMenu();
         $li_id = 1;
         $str_top = <<<EOT

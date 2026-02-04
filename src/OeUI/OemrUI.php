@@ -13,6 +13,7 @@
 namespace OpenEMR\OeUI;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -81,8 +82,9 @@ class OemrUI
     {
         global $v_js_includes;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->page_id = $arrOeUiSettings['page_id'] ?? 'unknown';
-        $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
+        $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($session->get('pid')) : ($arrOeUiSettings['heading_title'] ?? '');
         $this->expandable = $arrOeUiSettings['expandable'] ?? null;
         $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
         $this->arrAction = [($arrOeUiSettings['action'] ?? null), ($arrOeUiSettings['action_title'] ?? null), ($arrOeUiSettings['action_href'] ?? null)];
@@ -267,7 +269,8 @@ class OemrUI
                 break;
             case "back":
                 $action_title = $action_title ?: xl("Go Back");
-                $arrow_direction = ($_SESSION['language_direction'] == 'rtl') ? "fa-arrow-circle-right" : "fa-arrow-circle-left";
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $arrow_direction = ($session->get('language_direction') === 'rtl') ? "fa-arrow-circle-right" : "fa-arrow-circle-left";
                 $icon = $arrow_direction;
                 break;
             default:
@@ -414,7 +417,8 @@ class OemrUI
         $contractTitle = xlj("Click to Expand and set to henceforth open in Expanded mode");
         $arrFiles = json_encode($this->arrFiles);
         $web_root = $GLOBALS['webroot'];
-        $collectToken = js_escape(CsrfUtils::collectCsrfToken());
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $collectToken = js_escape(CsrfUtils::collectCsrfToken(session: $session));
         $header_expand_js = <<<EXP
         <script>
         $(window).on('resize', function() {//hide icon on smaller devices as width is almost 100%
