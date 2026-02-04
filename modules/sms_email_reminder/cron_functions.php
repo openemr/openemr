@@ -208,31 +208,6 @@ function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-    // larry :: this was commented - i remove comment - what it means * in this field ?
-    //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - something to follow ?
-    //$set = " pc_apptstatus='*' ";
-
-    //$query="update openemr_postcalendar_events set $set ";
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } else {
-        $query .= " pc_sendalertemail='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
-}
-
-////////////////////////////////////////////////////////////////////
 // Function:    cron_getAlertpatientData
 // Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////

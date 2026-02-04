@@ -16,6 +16,7 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\FacilityService;
 
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
@@ -726,4 +727,48 @@ function markTaxes($taxrates): void
             $taxes[$value][2] = '1';
         }
     }
+}
+
+/**
+ * Get facilities data and build facility-to-message and facility-to-phone maps.
+ *
+ * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
+ */
+function cron_getFacilitiesMap(FacilityService $facilityService)
+{
+    $message_map = $GLOBALS['phone_appt_message'];
+    $facility_msg_map = [];
+    $facility_phone_map = [];
+
+    $facilities = $facilityService->getAllFacility();
+    foreach ($facilities as $row) {
+        $facility_msg_map[$row['id']] = $message_map[$row['name']];
+        $facility_phone_map[$row['id']] = $row['phone'];
+    }
+
+    return [
+        'msg_map' => $facility_msg_map,
+        'phone_map' => $facility_phone_map
+    ];
+}
+
+/**
+ * Update calendar event to mark that an alert was sent to the patient.
+ *
+ * @param string $type The notification type ('SMS', 'Email', or 'Phone')
+ * @param int|string $pid The patient ID
+ * @param int|string $pc_eid The calendar event ID
+ */
+function cron_updateentry(string $type, $pid, $pc_eid): void
+{
+    $query = "UPDATE openemr_postcalendar_events SET ";
+
+    if ($type === 'SMS' || $type === 'Phone') {
+        $query .= "pc_sendalertsms = 'YES'";
+    } elseif ($type === 'Email') {
+        $query .= "pc_sendalertemail = 'YES'";
+    }
+
+    $query .= " WHERE pc_pid = ? AND pc_eid = ?";
+    sqlStatement($query, [$pid, $pc_eid]);
 }
