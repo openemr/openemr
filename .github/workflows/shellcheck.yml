@@ -138,7 +138,7 @@ jobs:
           # Check if we've seen this hash before
           [[ -f "/tmp/shellcheck-hashes/$hash" ]] && continue
           # New unique file
-          > "/tmp/shellcheck-hashes/$hash"
+          touch "/tmp/shellcheck-hashes/$hash"
           unique_files+=( "$file" )
         done
 

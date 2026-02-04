@@ -174,7 +174,7 @@ function postcalendar_userapi_buildView($args)
     $tpl = new pcSmarty();
 
     //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //diable caching completely
+    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -1205,8 +1205,8 @@ function getBlockTime($time)
 }
 
 /*==========================
- * Gather up all the Events matching the arguements
- * Arguements can be:
+ * Gather up all the Events matching the arguments
+ * Arguments can be:
  *  start = starting date in m/d/Y format
  *  end = ending date in m/d/Y format
  *  viewtype = day|week|month|year
@@ -1407,7 +1407,7 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
                                 if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
@@ -1470,7 +1470,7 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
-                // below a problem with overfow will occur so it is set to 1 to prevent this.
+                // below a problem with overflow will occur so it is set to 1 to prevent this.
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
@@ -1492,7 +1492,7 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
                                 if (preg_replace("/-/", "", $occurance) == $exception) {
                                     $excluded = true;

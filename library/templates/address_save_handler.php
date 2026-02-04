@@ -32,7 +32,7 @@ function saveAddressesForPatient($pid, $addressData)
 {
     $logger = new SystemLogger();
     $logger->debug("Saving addresses for patient", [
-        'pid' => $pid, 
+        'pid' => $pid,
         'addressData' => $addressData
     ]);
 

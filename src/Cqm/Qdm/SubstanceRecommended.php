@@ -81,4 +81,3 @@ class SubstanceRecommended extends QDMBaseType
 
     public $_type = 'QDM::SubstanceRecommended';
 }
-

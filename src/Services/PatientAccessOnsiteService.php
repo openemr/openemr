@@ -102,7 +102,7 @@ class PatientAccessOnsiteService
 
         $updatedEvent = $this->kernel->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_PRE) ?? $preUpdateEvent;
         $query_parameters = [$updatedEvent->getUsername(), $updatedEvent->getLoginUsername()];
-        $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
+        $hash = (new AuthHash())->passwordHash($clear_pass);
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');

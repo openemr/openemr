@@ -5,8 +5,11 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,7 +42,7 @@ class EmailClient extends AppDispatch
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $this->smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         parent::__construct();
     }
 
@@ -139,7 +142,12 @@ class EmailClient extends AppDispatch
             throw new InvalidEmailAddressException("Missing valid email address");
         }
         if (!$this->smtpEnabled) {
-            throw new SmtpNotConfiguredException("SMTP not configured");
+            throw new SmtpNotConfiguredException(sprintf(
+                "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
+                $GLOBALS['SMTP_HOST'] ?? 'NOT_SET',
+                $GLOBALS['SMTP_PORT'] ?? 'NOT_SET',
+                !empty($GLOBALS['SMTP_USER']) ? 'SET' : 'NOT_SET'
+            ));
         }
         $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
         $desc = text($body);

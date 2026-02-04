@@ -110,7 +110,7 @@ class EligibilityTransfer extends BaseService
             $reportFolder = "f271";
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
+                // Create a directory
                 mkdir($savePath, 0777, true);
             }
 

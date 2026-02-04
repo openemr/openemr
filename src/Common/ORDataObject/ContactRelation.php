@@ -318,7 +318,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
             if (is_string($start_date)) {
                 // Try DateFormatterUtils first
                 $date = DateFormatterUtils::dateStringToDateTime($start_date);
-                
+
                 // If that fails, try native DateTime
                 if ($date === false) {
                     try {
@@ -327,7 +327,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                         throw new \InvalidArgumentException("Invalid start_date format: " . $start_date . " - " . $e->getMessage());
                     }
                 }
-                
+
                 $this->start_date = $date;
             } elseif ($start_date instanceof DateTime) {
                 $this->start_date = $start_date;
@@ -347,7 +347,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
             if (is_string($end_date)) {
                 // Try DateFormatterUtils first
                 $date = DateFormatterUtils::dateStringToDateTime($end_date);
-                
+
                 // If that fails, try native DateTime
                 if ($date === false) {
                     try {
@@ -356,7 +356,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                         throw new \InvalidArgumentException("Invalid end_date format: " . $end_date . " - " . $e->getMessage());
                     }
                 }
-                
+
                 $this->end_date = $date;
             } elseif ($end_date instanceof DateTime) {
                 $this->end_date = $end_date;

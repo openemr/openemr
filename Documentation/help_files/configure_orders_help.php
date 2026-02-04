@@ -411,7 +411,7 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("Unlike the regular Groups that were created earlier, each Custom Favorite Group has an Identifying Code that has to be unique. As this is our custom group and not a lab recognized panel we will give it our arbitrary unique Identifying Code - CFGWWT001");?>.</p>
 
-                    <p><?php echo xlt("Click Save to create a new line with a Name of Well Womans Tests preceded by a vertical line indicating that it has no descendants or children");?>.
+                    <p><?php echo xlt("Click Save to create a new line with a Name of Well Woman Tests preceded by a vertical line indicating that it has no descendants or children");?>.
                         <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
                     </p>
 

@@ -498,7 +498,7 @@ function edih_disp_x12trans()
 
 /**
  * display file uploaded from x12 File tab
- * wrap individual transactions in accordian jquery ui widget
+ * wrap individual transactions in accordion jquery ui widget
  *
  * @uses csv_check_x12_obj()
  * @uses edih_271_transaction_html()

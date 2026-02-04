@@ -145,7 +145,7 @@ class BillingClaimBatch
      * of the x-12 partners that were found during billing process.
      * This will usually only ever have one element, but just in case
      * There are more than one x-12 partner configured and input through
-     * billing manger, we handle the array case.
+     * billing manager, we handle the array case.
      *
      */
     public function write_batch_file()

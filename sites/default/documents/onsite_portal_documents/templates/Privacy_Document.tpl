@@ -15,7 +15,7 @@ Medicare Patients:
 I certify that the information given by me for application for payment under title XVIII of the Social Security Act is correct. I authorize any holder of medical or other relevant information about me be released to the Social Security Administration or it's intermediaries of carriers and such information needed to support application for payment. Including records pertaining to HIV status or treatment (AIDS records), drug and alcohol treatment, and or psychiatric treatment. I assign and authorize payment directly to <em>{ReferringDOC}</em> for the unpaid charges for the physician's services. I understand that I am responsible for all insurance deductibles and coinsurance.
 Comments: {TextInput}
 Signature: {PatientSignature}
-Do you authorize electronic signature {CheckMark} 
+Do you authorize electronic signature {CheckMark}
 Relationship to patient (if signed by a personal representative): {TextInput}
 Are you Primary Care Giver:{ynRadioGroup}
 Date: {DOS}

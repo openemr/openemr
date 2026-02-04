@@ -124,7 +124,7 @@ class Mime_Types
     /**
      * Scan - goes through all MIME types passing the extension and type to the callback function.
      * The types will be sent in alphabetical order.
-     * If a type has multiple extensions, each extension will be passed seperately (not as an array).
+     * If a type has multiple extensions, each extension will be passed separately (not as an array).
      *
      * The callback function can be a method from another object (eg. array(&$my_obj, 'my_method')).
      * The callback function should accept 3 arguments:
@@ -283,7 +283,7 @@ class Mime_Types
      *          either array containing type and extensions, or the type as string
      * @param mixed $exts
      *          either array holding extensions, or string holding extensions
-     *          seperated by space.
+     *          separated by space.
      * @return void
      */
     function set($type, $exts = null)
@@ -401,7 +401,7 @@ class Mime_Types
      * $mime->remove_extension(array('txt', 'exe', 'html'));
      *
      * @param mixed $exts
-     *          string holding extension(s) seperated by space, or array
+     *          string holding extension(s) separated by space, or array
      * @return void
      */
     function remove_extension($exts)

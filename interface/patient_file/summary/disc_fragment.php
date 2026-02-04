@@ -24,7 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 /**
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
- * @param $limit -  certain limit up to which the disclosures are to be displyed.
+ * @param $limit -  certain limit up to which the disclosures are to be displayed.
  */
 function getDisclosureByDate($pid, $limit)
 {

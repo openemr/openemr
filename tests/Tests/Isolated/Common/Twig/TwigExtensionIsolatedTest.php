@@ -16,9 +16,7 @@ use OpenEMR\Common\Twig\TwigExtension;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[Group('isolated')]
@@ -27,52 +25,26 @@ use PHPUnit\Framework\TestCase;
 #[CoversMethod(TwigExtension::class, 'getGlobals')]
 class TwigExtensionIsolatedTest extends TestCase
 {
-    #[Test]
-    #[DataProvider('getGlobalsDataProvider')]
-    public function getGlobalsTest(
-        array $globals,
-        array $expectedTwigGlobals,
-    ): void {
-        $extension = new TwigExtension(
-            new OEGlobalsBag($globals),
-        );
+    public function testGetGlobals(): void
+    {
+        $bag = new OEGlobalsBag([
+            'assets_static_relative' => 'some-asset-dir',
+            'srcdir' => 'some-src-dir',
+            'rootdir' => 'some-root-dir',
+            'webroot' => 'some-webroot-dir',
+        ]);
+        $extension = new TwigExtension($bag);
+
+        $expectedTwigGlobals = [
+            'assets_dir' => 'some-asset-dir',
+            'srcdir' => 'some-src-dir',
+            'rootdir' => 'some-root-dir',
+            'webroot' => 'some-webroot-dir',
+            'assetVersion' => null,
+            'session' => [],
+        ];
 
         $twigGlobals = $extension->getGlobals();
         $this->assertEquals($expectedTwigGlobals, $twigGlobals);
-    }
-
-    public static function getGlobalsDataProvider(): iterable
-    {
-        yield [[], [
-            'assets_dir' => null,
-            'srcdir' => null,
-            'rootdir' => null,
-            'webroot' => null,
-            'assetVersion' => null,
-            'session' => [],
-        ]];
-
-        yield [[
-            'srcdir' => 'srcdir',
-        ], [
-            'assets_dir' => null,
-            'srcdir' => 'srcdir',
-            'rootdir' => null,
-            'webroot' => null,
-            'assetVersion' => null,
-            'session' => [],
-        ]];
-
-        yield [[
-            'srcdir' => 'srcdir',
-            'rootdir' => 'rootdir',
-        ], [
-            'assets_dir' => null,
-            'srcdir' => 'srcdir',
-            'rootdir' => 'rootdir',
-            'webroot' => null,
-            'assetVersion' => null,
-            'session' => [],
-        ]];
     }
 }

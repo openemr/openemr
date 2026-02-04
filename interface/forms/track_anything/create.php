@@ -229,7 +229,7 @@ if ($the_item) {
 
 
     if ($deactivate) {
-    // deactive the item/track
+    // deactivate the item/track
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET active = '0' ";
         $updatespell .= "WHERE track_anything_type_id = ? ";
@@ -279,9 +279,9 @@ while ($myrow = sqlFetchArray($result)) {
         echo "<td class='parent'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
         echo "<td class='parent'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
     } elseif ($type_active == '0') {
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_name) . "</td>\n";
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_name) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
     }
 
     echo "<td class='op'>";
@@ -317,9 +317,9 @@ while ($myrow = sqlFetchArray($result)) {
             echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
             echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
         } elseif ($item_active == '0') {
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
         }
 
         echo "<td class='op'>";

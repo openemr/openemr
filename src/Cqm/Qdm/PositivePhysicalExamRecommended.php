@@ -26,4 +26,3 @@ class PositivePhysicalExamRecommended extends PhysicalExamRecommended
 
     public $_type = 'QDM::PositivePhysicalExamRecommended';
 }
-

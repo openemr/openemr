@@ -13,6 +13,8 @@
             {% if attribute(result, vitalsValue) != 0 %}
                 {% if precision is defined %}
                     {{ attribute(result, vitalsValue)|number_format(precision)|text }}
+                {% elseif translate|default(false) %}
+                    {{ attribute(result, vitalsValue, [true])|text }}
                 {% else %}
                     {{ attribute(result, vitalsValue)|text }}
                 {% endif %}

@@ -59,7 +59,7 @@ echo "<div id='track_anything'>";
 if (!$formid) {
     // this is a new Track
 
-    // check if procedure is selcted
+    // check if procedure is selected
     if ($_POST['bn_select'] ?? null) {
         // "save"-Button was clicked, saving Form into db
 
@@ -136,7 +136,7 @@ if ($formid) {
     }
 
     // if all of the input is NULL, we do nothing
-    // if at least one entrie is NOT NULL, we save all into db
+    // if at least one entry is NOT NULL, we save all into db
     if ($all_are_null > 0) {
         for ($i = 0; $i < $length; $i++) {
             $thisid = $mylist[$i];
@@ -256,7 +256,7 @@ while ($myrow = sqlFetchArray($query)) {
         echo "<td>";
         echo "<input type='hidden' name='old_id[" . attr($main_counter) . "][" . attr($counter) . "]' value='" . attr($myrow2['result_id']) . "'>";
         echo "<input type='text' size='12' name='old_value[" . attr($main_counter) . "][" . attr($counter) . "]' value='" . attr($myrow2['result']) . "'></td>";
-        $counter++; // next cloumn
+        $counter++; // next column
     }
 
     echo "</tr>";

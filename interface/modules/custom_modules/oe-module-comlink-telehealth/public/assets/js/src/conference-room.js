@@ -1333,7 +1333,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (conf.__bridge && conf.__bridge.enableMicrophone) {
             conf.__bridge.enableMicrophone(toggle);
         } else {
-            console.error("__bridge is not initalized and cannot toggle microphone");
+            console.error("__bridge is not initialized and cannot toggle microphone");
         }
         toggleClass(node, toggle, 'fa-microphone','fa-microphone-slash');
     };
@@ -1352,7 +1352,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (conf.__bridge && conf.__bridge.enableCamera) {
             conf.__bridge.enableCamera(toggle);
         } else {
-            console.error("app is not initalized and cannot toggle microphone");
+            console.error("app is not initialized and cannot toggle microphone");
         }
         toggleClass(node, toggle, 'fa-video','fa-video-slash');
     };

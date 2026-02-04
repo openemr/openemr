@@ -13,8 +13,8 @@
    <xsl:choose>
       <xsl:when test="not($length) or not($chars)" />
       <xsl:otherwise>
-         <xsl:variable name="string" 
-                       select="concat($chars, $chars, $chars, $chars, $chars, 
+         <xsl:variable name="string"
+                       select="concat($chars, $chars, $chars, $chars, $chars,
                                       $chars, $chars, $chars, $chars, $chars)" />
          <xsl:choose>
             <xsl:when test="string-length($string) >= $length">

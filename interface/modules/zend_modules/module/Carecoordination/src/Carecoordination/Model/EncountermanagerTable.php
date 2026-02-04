@@ -155,7 +155,7 @@ class EncountermanagerTable extends AbstractTableGateway
         }
 
         $format = $format ?: 'm/d/y';
-        $temp = explode(' ', (string) $date); //split using space and consider the first portion, incase of date with time
+        $temp = explode(' ', (string) $date); //split using space and consider the first portion, in case of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -260,7 +260,7 @@ class EncountermanagerTable extends AbstractTableGateway
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = $appTable->zQuery($query, [$value]);
-                    // wierd foreach loop considering the limit 1 up above?
+                    // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
                         // gets connected at the time the ccda is created

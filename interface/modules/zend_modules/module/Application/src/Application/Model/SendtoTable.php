@@ -49,7 +49,7 @@ class SendtoTable extends AbstractTableGateway
 
     /*
     * getFaxRecievers
-    * @return array fax reciever types
+    * @return array fax receiver types
     *
     **/
     public function getFaxRecievers()

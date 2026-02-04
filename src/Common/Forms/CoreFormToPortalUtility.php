@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 class CoreFormToPortalUtility
@@ -24,8 +25,8 @@ class CoreFormToPortalUtility
     public static function isPatientPortalSession(?array $get): bool
     {
         if (isset($get['isPortal']) && (int)$get['isPortal'] !== 0) {
-            SessionUtil::portalSessionStart();
-            if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
                 // patient portal session is authenticated
                 return true;
             } else {

@@ -12,23 +12,30 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 // Service
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
@@ -190,7 +197,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
@@ -347,7 +354,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete')); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session->getSymfonySession())); ?>)
             }
             return false;
         };
@@ -674,7 +681,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session->getSymfonySession())); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>

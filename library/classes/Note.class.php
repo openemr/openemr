@@ -3,7 +3,7 @@
 /**
  * class Note
  * This class offers functionality to store sequential comments/notes about an external object or anything with a unique id.
- * It is not intended that once a note is save it can be editied or changed.
+ * It is not intended that once a note is save it can be edited or changed.
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
@@ -23,7 +23,7 @@ class Note extends ORDataObject
     public $note;
 
     /*
-    *   Foreign key identifier of who initially persisited the note,
+    *   Foreign key identifier of who initially persisted the note,
     *   potentially ownership could be changed but that would be up to an external non-document object process
     *   @var int
     */
@@ -169,7 +169,7 @@ class Note extends ORDataObject
 
     /*
     *   Overridden function to store current object state in the db.
-    *   This overide is to allow for a "just in time" foreign id, often this is needed
+    *   This override is to allow for a "just in time" foreign id, often this is needed
     *   when the object is never directly exposed and is handled as part of a larger
     *   object hierarchy.
     *   @param int $fid foreign id that should be used so that this note can be related (joined) on it later

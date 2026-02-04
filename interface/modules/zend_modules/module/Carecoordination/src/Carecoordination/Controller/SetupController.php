@@ -135,7 +135,7 @@ class SetupController extends AbstractActionController
     }
 
     /**
-    * Funtion getTitle
+    * Function getTitle
     * Setup Title settings at Configuration View
     *
     * @return string

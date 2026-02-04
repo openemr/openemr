@@ -82,12 +82,12 @@ use OpenEMR\Core\OEGlobalsBag;
 class MyService
 {
     private OEGlobalsBag $globals;
-    
+
     public function __construct(OEGlobalsBag $globals)
     {
         $this->globals = $globals;
     }
-    
+
     public function doSomething(): void
     {
         $setting = $this->globals->get('some_setting');
@@ -209,7 +209,7 @@ class MyServiceTest extends TestCase
             'some_setting' => 'test value',
             'timeout' => 60
         ]);
-        
+
         $service = new MyService($testGlobals);
         // Test your service
     }

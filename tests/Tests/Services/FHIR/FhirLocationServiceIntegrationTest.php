@@ -9,8 +9,8 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    [Your Name]
- * @copyright Copyright (c) 2024 [Your Name]
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

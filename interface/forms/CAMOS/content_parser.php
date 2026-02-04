@@ -44,7 +44,7 @@ function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifie
     }
     $justify_string = '';
     if ($justify) {
-        //trim eahc entry
+        //trim each entry
         foreach ($justify as $temp_justify) {
             $justify_trimmed[] = trim((string) $temp_justify);
         }

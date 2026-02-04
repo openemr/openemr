@@ -16,34 +16,34 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\CDADocumentService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once __DIR__ . "/../vendor/autoload.php";
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $sessionAllowWrite = true;
-if (isset($_SESSION['pid'], $_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth = true;
     require_once __DIR__ . "/../interface/globals.php";
     define('IS_DASHBOARD', false);
-    define('IS_PORTAL', $_SESSION['pid']);
+    define('IS_PORTAL', $session->get('pid'));
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once __DIR__ . "/../interface/globals.php";
-    if (empty($_SESSION['authUserID'])) {
+    if (empty($session->get('authUserID'))) {
         header('Location: index.php');
         exit;
     }
-    define('IS_DASHBOARD', $_SESSION['authUserID']);
+    define('IS_DASHBOARD', $session->get('authUserID'));
     define('IS_PORTAL', false);
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"] ?? '')) {
+if (!CsrfUtils::verifyCsrfToken(($_GET["csrf_token_form"] ?? ''), 'default' , $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -51,8 +51,10 @@ if (!isServiceEnabled()) {
     die(xlt("CDA generation service is disabled. Verify in Administration->Globals."));
 }
 
-$_SESSION['site_id'] ??= 'default';
-session_write_close();
+if (!$session->has('site_id')) {
+    $session->set('site_id', 'default');
+}
+$session->save();
 
 $action = $_REQUEST['action'] ?? '';
 $pid ??= 0;

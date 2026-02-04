@@ -107,7 +107,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     public $created = null;
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public $author = [];
@@ -268,7 +268,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public function getAuthor()
@@ -277,7 +277,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */

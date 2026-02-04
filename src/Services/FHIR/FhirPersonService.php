@@ -242,7 +242,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult

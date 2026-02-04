@@ -44,7 +44,7 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $globalsConfig = new TelehealthGlobalConfig("", "", $this->createMock(Environment::class));
+        $globalsConfig = new TelehealthGlobalConfig("", $this->createMock(Environment::class));
         $this->telehealthConfig = $globalsConfig;
         $providerRepo = new TeleHealthProviderRepository(new SystemLogger(), $globalsConfig);
         $userRepo = new TeleHealthUserRepository();

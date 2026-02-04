@@ -1331,7 +1331,7 @@ class Date_Calc
      * Calculates the date of the Nth weekday of the month,
      * such as the second Saturday of January 2000.
      *
-     * @param string occurance: 1=first, 2=second, 3=third, etc.
+     * @param string occurrence: 1=first, 2=second, 3=third, etc.
      * @param string dayOfWeek: 0=Sunday, 1=Monday, etc.
      * @param string year in format CCYY
      * @param string month in format MM
@@ -1342,16 +1342,16 @@ class Date_Calc
      * @return string date in given format
      */
 
-    static function NWeekdayOfMonth($occurance, $dayOfWeek, $month, $year, $format = "%Y%m%d")
+    static function NWeekdayOfMonth($occurrence, $dayOfWeek, $month, $year, $format = "%Y%m%d")
     {
 
         $year = sprintf("%04d", $year);
         $month = sprintf("%02d", $month);
 
-        $DOW1day = sprintf("%02d", (($occurance - 1) * 7 + 1));
+        $DOW1day = sprintf("%02d", (($occurrence - 1) * 7 + 1));
         $DOW1 = Date_Calc::dayOfWeek($DOW1day, $month, $year);
 
-        $wdate = ($occurance - 1) * 7 + 1 +
+        $wdate = ($occurrence - 1) * 7 + 1 +
                 (7 + $dayOfWeek - $DOW1) % 7;
 
         if ($wdate > Date_Calc::daysInMonth($month, $year)) {
@@ -1593,7 +1593,7 @@ class Date_Calc
     } // end func getWeekdayFullname
 
     /**
-    * Returns the numeric month from the month name or an abreviation
+    * Returns the numeric month from the month name or an abbreviation
     *
     * Both August and Aug would return 8.
     * Month name is case insensitive.
@@ -1615,7 +1615,7 @@ class Date_Calc
     }
 
     /**
-    * Retunrs an array of month names
+    * Returns an array of month names
     *
     * Used to take advantage of the setlocale function to return
     * language specific month names.

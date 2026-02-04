@@ -97,7 +97,7 @@ function tabRefresh(data,evt)
         data.window.location = data.window.location;
         activateTab(data);
     } catch(e) {
-        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
+        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie Ensora)
     }
 }
 

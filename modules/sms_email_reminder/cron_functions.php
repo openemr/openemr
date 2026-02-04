@@ -136,7 +136,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
             echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {
-             echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
+             echo "Could not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
              $mstatus = false;
         }
 
@@ -172,7 +172,7 @@ function WriteLog($data): void
 }
 
 ////////////////////////////////////////////////////////////////////
-// define my_print_r - used for debuging - if not defined
+// define my_print_r - used for debugging - if not defined
 ////////////////////////////////////////////////////////////////////
 if (!function_exists('my_print_r')) {
     function my_print_r($data): void
@@ -187,9 +187,8 @@ if (!function_exists('my_print_r')) {
 // Function:    cron_SendSMS
 // Purpose: send sms
 ////////////////////////////////////////////////////////////////////
-function cron_SendSMS($to, $subject, $vBody, $from)
+function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
 {
-    global $mysms;
     $cnt = "";
     $cnt .= "\nDate Time :" . date("d M, Y  h:i:s");
     $cnt .= "\nTo : " . $to;
@@ -215,7 +214,7 @@ function cron_SendSMS($to, $subject, $vBody, $from)
 function cron_updateentry($type, $pid, $pc_eid): void
 {
     // larry :: this was commented - i remove comment - what it means * in this field ?
-    //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
+    //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - something to follow ?
     //$set = " pc_apptstatus='*' ";
 
     //$query="update openemr_postcalendar_events set $set ";
@@ -241,7 +240,7 @@ function cron_getAlertpatientData($type)
 {
     // larry :: move this at the top - not in the function body
     global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
-    // larry :: end commment
+    // larry :: end comment
 
 
     //$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";

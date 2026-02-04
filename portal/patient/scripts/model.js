@@ -15,7 +15,7 @@ Backbone.emulateJSON = false;
 var model = {};
 
 /**
- * long polling duration in miliseconds.  (5000 = recommended, 0 = disabled)
+ * long polling duration in milliseconds.  (5000 = recommended, 0 = disabled)
  * warning: setting this to a low number will increase server load
  */
 model.longPollDuration = 0;
@@ -78,7 +78,7 @@ model.AbstractCollection = Backbone.Collection.extend({
 				aVal = aVal ? aVal.toLowerCase() : '';
 				bVal = bVal ? bVal.toLowerCase() : '';
 			} else {
-				// treat comparision as a number
+				// treat comparison as a number
 				aVal = Number(aVal);
 				bVal = Number(bVal);
 			}

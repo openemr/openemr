@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxStore.php Functions for interacting with NewCrop database.
+ * interface/eRxStore.php Functions for interacting with Ensora eRx database.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

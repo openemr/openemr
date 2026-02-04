@@ -23,9 +23,9 @@ class ReminderIntervalDetailTest extends TestCase
         $timeUnit = TimeUnit::from('day');
 
         $detail = new ReminderIntervalDetail($intervalType, $intervalRange, $amount, $timeUnit);
-        
+
         $result = $detail->display();
-        
+
         // Expected format: "Warning: 5 Days"
         // The result will contain translated strings, so we just check for the number
         $this->assertStringContainsString('5', $result);
@@ -46,7 +46,7 @@ class ReminderIntervalDetailTest extends TestCase
         foreach ($amounts as $amount) {
             $detail = new ReminderIntervalDetail($intervalType, $intervalRange, $amount, $timeUnit);
             $result = $detail->display();
-            
+
             // Verify the numeric amount is present in the output
             $this->assertStringContainsString((string)$amount, $result);
         }

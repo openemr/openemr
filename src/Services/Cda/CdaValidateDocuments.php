@@ -16,11 +16,14 @@ use CURLFile;
 use DOMDocument;
 use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
 
 class CdaValidateDocuments
 {
+    use SystemLoggerAwareTrait;
+
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
 
@@ -260,9 +263,9 @@ class CdaValidateDocuments
             foreach ($errors as $error) {
                 $detail = $this->formatXsdError($error);
                 $xsd_log['xsd'][] = $detail;
-                error_log($detail);
             }
             libxml_clear_errors();
+            $this->getSystemLogger()->errorLogCaller("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;

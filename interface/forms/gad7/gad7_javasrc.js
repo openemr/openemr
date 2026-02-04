@@ -14,7 +14,7 @@ var no_qs = 8; // number of questions in the form
  // 'cause the server side doesn't parse this file and execute the php before sending to client
 
 var all_scores = [0,0,0,0,0,0,0,0];
-var changes_made = false; 
+var changes_made = false;
 var q8_gone = true; // if question 8 has been removed - or on startup when it's not displayed automatically
 var question = null;  //the element that holds the 8th question
 var all_answered = [false, false, false, false, false, false, false];
@@ -38,20 +38,20 @@ function manage_question_8 (value) {
     if ((gad7_score > 0 ) && q8_gone){
         question = document.createElement("small");  // create the node to hold question 8
         question.class="text";
-        var menue = document.createElement("select");  // create 'select' element, to hold the menue
+        var menu = document.createElement("select");  // create 'select' element, to hold the menu
         // set some of the parameters
-        menue.name = "difficulty";
-        menue.onchange = "record_score_q8(my_form.difficulty.value);changes_made = true;" ;
-        menue.length=5;
-        create_q8 (question, menue); // populate question 8 and menue - do in main page as it requires php
+        menu.name = "difficulty";
+        menu.onchange = "record_score_q8(my_form.difficulty.value);changes_made = true;" ;
+        menu.length=5;
+        create_q8 (question, menu); // populate question 8 and menu - do in main page as it requires php
         // set the default value - if new it's 'select answer', else it's previous value
-        if (value == "undef")  {menue.options[0].defaultSelected = true;}
+        if (value == "undef")  {menu.options[0].defaultSelected = true;}
          // else we can use value as an index
-        else {menue.options[Number(value)+1].defaultSelected = true;}
-        //    display the question and  menue in the reservered place
+        else {menu.options[Number(value)+1].defaultSelected = true;}
+        //    display the question and  menu in the reserved place
         place = document.getElementById("q8_place");
         place.parentNode.appendChild( question, place);
-        place.parentNode.appendChild( menue, place);
+        place.parentNode.appendChild( menu, place);
         q8_gone = false;
     }
     else if (gad7_score == 0 && !q8_gone) {    //take question 8 off the displayed form
@@ -73,7 +73,7 @@ function update_score(index, new_score) {  //index is the number of the question
     var score = new_score;
     var explanation ='';
     var total_string = '';
-     
+
     if (index == 'undef'){
         // display score  - called from view on startup - 'new_score' is previous total
         gad7_score = score;
@@ -94,7 +94,7 @@ function update_score(index, new_score) {  //index is the number of the question
             gad7_score = gad7_score + Number(all_scores[index]) ;
         }
     }
-    // decide which explanatory string to dispay for the new score
+    // decide which explanatory string to display for the new score
     if (gad7_score < 5 ) explanation = str_score_analysis[0];
     else if (gad7_score <15) explanation = str_score_analysis[1];
     else explanation = str_score_analysis[2];
@@ -123,4 +123,3 @@ function update_score(index, new_score) {  //index is the number of the question
 function record_score_q8 (score) {
     all_scores[7] = Number(score); // record the scores for a review/edit of the form
 }
-

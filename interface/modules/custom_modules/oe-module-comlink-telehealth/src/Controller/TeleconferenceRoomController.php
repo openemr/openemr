@@ -499,7 +499,7 @@ class TeleconferenceRoomController
     {
         $patientService = new PatientService();
         $listService = new ListService();
-        // wierd that it goes off the option title instead of the option id here
+        // weird that it goes off the option title instead of the option id here
         $sexOption = $listService->getListOption('sex', 'UNK');
         $yesOption = $listService->getListOption('yesno', 'YES');
         // the validator will scream if we are sending the wrong data
@@ -1148,7 +1148,7 @@ class TeleconferenceRoomController
         if (empty($appointment)) {
             throw new InvalidArgumentException("appointment eid could not be found for " . $pc_eid);
         } else {
-            // TODO: so wierd... why is appointment returning an array list?
+            // TODO: so weird... why is appointment returning an array list?
             $appointment = $appointment[0];
         }
         if ($this->isPendingAppointment($appointment)) { // pending status

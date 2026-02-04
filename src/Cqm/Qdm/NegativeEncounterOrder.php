@@ -26,4 +26,3 @@ class NegativeEncounterOrder extends EncounterOrder
 
     public $_type = 'QDM::NegativeEncounterOrder';
 }
-

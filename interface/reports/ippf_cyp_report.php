@@ -35,15 +35,6 @@ function formatcyp($amount)
     return '';
 }
 
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
-}
-
 /**
  * Render a line item for the CYP report HTML table.
  *

@@ -7,6 +7,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
+
+require_once __DIR__ . '/Allergy.php';
+require_once __DIR__ . '/Communication.php';
+require_once __DIR__ . '/Diagnosis.php';
+require_once __DIR__ . '/Encounter.php';
+require_once __DIR__ . '/LabResult.php';
+require_once __DIR__ . '/Medication.php';
+require_once __DIR__ . '/PhysicalExam.php';
+require_once __DIR__ . '/Procedure.php';
+
 class Codes
 {
     const ICD9 = 'ICD9';

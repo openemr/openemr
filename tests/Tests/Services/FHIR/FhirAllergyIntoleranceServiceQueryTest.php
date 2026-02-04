@@ -61,7 +61,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installAllergyIntoleranceFixtures();
         $this->fhirService = new FhirAllergyIntoleranceService(self::$apiBaseURL);
-        // surpress logging below critical level as that's part of the tests.
+        // suppress logging below critical level as that's part of the tests.
         $systemLogger = new SystemLogger(Level::Critical);
         $this->fhirService->setSystemLogger($systemLogger);
     }
@@ -95,6 +95,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function searchParameterPatientReferenceDataProvider(): array
     {

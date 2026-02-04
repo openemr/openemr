@@ -34,7 +34,7 @@
         {% else %}
         <h5 class="m-5">{{ "Please wait while we authenticate your session"|xlt }}</h5>
         {% endif %}
-        <form method="POST" id="autologinform" action="{{ action }}">
+        <form method="POST" id="autologinform" action="{{ action|attr }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}" />
             <input type="hidden" name="service_auth" value="{{ service_auth|attr }}" />
             <input type="hidden" name="target" value="{{ target|attr_url }}" />

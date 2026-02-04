@@ -16,7 +16,7 @@ class ExceptionFormatter
     /**
      * This is a utility function for tracing errors.
      * It will return a string that
-     * displys the current execution stack
+     * displays the current execution stack
      *
      * @param string $msg
      *          a debugging message to include

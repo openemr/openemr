@@ -25,31 +25,7 @@
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title'] ?? '');
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    $s = trim($s ?? '');
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
@@ -317,6 +293,8 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
@@ -362,13 +340,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];
-
+    $language_direction = $session->get('language_direction');
     ?>
 
     <?php if ($genstyles) { ?>
 <style>
 
-        <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
+        <?php if (empty($language_direction) || $language_direction === 'ltr') { ?>
     .labres tr.head {
         font-size: 0.8125rem;
         background-color: var(--gray200);

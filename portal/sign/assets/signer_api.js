@@ -231,11 +231,11 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-        const backdrop = document.querySelector('.modal-backdrop');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
         $("#openSignModal").modal('hide');
-        if (backdrop) {
+        backdrops.forEach(function (backdrop) {
             backdrop.remove();
-        }
+        });
     }).catch(error => signerAlertMsg(error));
 
     return true;

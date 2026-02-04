@@ -63,6 +63,7 @@ class FhirPatientServiceQueryTest extends TestCase
         }
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function searchParameter(): array
     {
 
@@ -156,6 +157,7 @@ class FhirPatientServiceQueryTest extends TestCase
         ];
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function searchParameterCompound(): array
     {
         return [

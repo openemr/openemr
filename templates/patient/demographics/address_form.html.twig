@@ -52,15 +52,15 @@
         <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}" data-index="{{ address_index }}">
 
             {# CRITICAL: Hidden fields OUTSIDE hideable sections - always submitted #}
-            <input type="hidden" class="form_addresses_data_action" 
+            <input type="hidden" class="form_addresses_data_action"
                 name="{{ name_field_id|attr }}[{{ address_index }}][data_action]" value="NO CHANGE" />
-            <input type="hidden" class="form_addresses_contact_address_id" 
+            <input type="hidden" class="form_addresses_contact_address_id"
                 name="{{ name_field_id|attr }}[{{ address_index }}][contact_address_id]" value="{{ address.contact_address_id|default(address.id)|attr }}" />
-            <input type="hidden" class="form_addresses_contact_id" 
+            <input type="hidden" class="form_addresses_contact_id"
                 name="{{ name_field_id|attr }}[{{ address_index }}][contact_id]" value="{{ address.contact_id|attr }}" />
-            <input type="hidden" class="form_addresses_addresses_id" 
+            <input type="hidden" class="form_addresses_addresses_id"
                 name="{{ name_field_id|attr }}[{{ address_index }}][addresses_id]" value="{{ address.addresses_id|default(address.address_id)|attr }}" />
-            <input type="hidden" class="form_addresses_status" 
+            <input type="hidden" class="form_addresses_status"
                 name="{{ name_field_id|attr }}[{{ address_index }}][status]" value="{{ address.status|attr }}" />
 
             <div class="display_addresses form-row no-gutters justify-content-between pl-1">
@@ -135,15 +135,15 @@
     <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
 
         {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
-        <input type="hidden" class="form_addresses_data_action" 
+        <input type="hidden" class="form_addresses_data_action"
             name="{{ name_field_id|attr }}[__A-INDEX__][data_action]" value="ADD" />
-        <input type="hidden" class="form_addresses_contact_address_id" 
+        <input type="hidden" class="form_addresses_contact_address_id"
             name="{{ name_field_id|attr }}[__A-INDEX__][contact_address_id]" value="" />
-        <input type="hidden" class="form_addresses_contact_id" 
+        <input type="hidden" class="form_addresses_contact_id"
             name="{{ name_field_id|attr }}[__A-INDEX__][contact_id]" value="{{ contact_id|default('')|attr }}" />
-        <input type="hidden" class="form_addresses_addresses_id" 
+        <input type="hidden" class="form_addresses_addresses_id"
             name="{{ name_field_id|attr }}[__A-INDEX__][addresses_id]" value="" />
-        <input type="hidden" class="form_addresses_status" 
+        <input type="hidden" class="form_addresses_status"
             name="{{ name_field_id|attr }}[__A-INDEX__][status]" value="A" />
 
         <div class="display_addresses form-row no-gutters justify-content-between pl-1">
@@ -306,19 +306,19 @@
 
             function addAddress(event) {
                 console.log('addAddress called', event);
-                
+
                 // Get the button element
-                const target = event.currentTarget || event.target;   
+                const target = event.currentTarget || event.target;
                 if (!target) {
                     console.error('No target element in event:', event);
                     alert('Error: Could not determine which button was clicked.');
                     return;
                 }
-                
+
                 const addAddressButton = document.getElementById(target.id);
 
                 let row_address_template = null;
-                
+
                 if (table) {
                     let nextSibling = table.nextElementSibling;
                     while (nextSibling) {
@@ -339,7 +339,7 @@
                     alert('Error: Could not find address template. Check console for details.');
                     return;
                 }
-                
+
 
 
                 // Find no_addresses element within this specific container
@@ -364,23 +364,23 @@
                 var tempDiv = document.createElement('div');
                 tempDiv.innerHTML = row_address_template.innerHTML;
                 var html = tempDiv.innerHTML;
-                
+
                 // Check if we're inside a relation form (nested scenario)
                 var relationGroup = container.closest('.relations_group');
                 var relationIndex = null;
-                
+
                 if (relationGroup) {
                     relationIndex = relationGroup.getAttribute('data-index');
                     console.log('Found parent relation with index:', relationIndex);
                 }
-                
+
                 // Replace __A-INDEX__ with actual index
                 html = html.replace(/__A-INDEX__/g, newIndex);
-                
+
                 // If we're in a nested relation form, fix the field naming
                 if (relationIndex !== null) {
                     console.log('Fixing nested field names for relation index:', relationIndex);
-                    
+
                     // Fix the pattern: [addresses][NUMBER] should become [RELATION_INDEX][addresses][NUMBER]
                     var namePattern = /name="([^"]*)\[addresses\]\[(\d+)\]/g;
                     html = html.replace(namePattern, function(match, prefix, addressIdx) {
@@ -392,7 +392,7 @@
                         return 'name="' + prefix + '[' + relationIndex + '][addresses][' + addressIdx + ']';
                     });
                 }
-                
+
                 tempDiv.innerHTML = html;
                 var row_address_clone = tempDiv.firstElementChild;
 
@@ -463,8 +463,8 @@
                 event.preventDefault();
                 event.stopPropagation();
 
-                const inactivateButton = event.currentTarget || event.target;            
-                
+                const inactivateButton = event.currentTarget || event.target;
+
                 const row_display_addresses = inactivateButton.closest('.display_addresses');
                 if (!row_display_addresses) {
                     return;

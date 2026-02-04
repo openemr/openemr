@@ -53,4 +53,3 @@ trait SingletonTrait
         return new static(); // @phpstan-ignore-line new.static
     }
 }
-

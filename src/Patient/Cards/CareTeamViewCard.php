@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -126,7 +127,7 @@ class CareTeamViewCard extends CardModel
                 CsrfUtils::csrfNotVerified();
             }
 
-            $teamId = filter_var($_POST['team_id'], FILTER_VALIDATE_INT);
+            $teamId = ValidationUtils::validateInt($_POST['team_id']);
             $teamId = $teamId === false ? null : $teamId;
             $teamName = trim($_POST['team_name'] ?? '');
             $team = $_POST['team'] ?? [];

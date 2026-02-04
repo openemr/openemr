@@ -670,4 +670,3 @@ UPDATE `code_types` SET `ct_proc`='1' WHERE `ct_key`='CPT4' OR `ct_key`='HCPCS' 
 #IfNotIndex forms form_id
 CREATE INDEX `form_id` ON `forms` (`form_id`);
 #EndIf
-

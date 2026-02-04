@@ -25,7 +25,7 @@ class SearchFieldStatementResolver
     /**
      * Given a search field that implements the ISearchField interface, convert the field based upon its type to a full
      * SQL Where Query fragment with its corresponding bound parameterized values.  This is a recursive method as it will
-     * traverse any composite search fields up to a heirachical depth of the class constant MAX_NESTED_LEVEL levels.
+     * traverse any composite search fields up to a hierarchical depth of the class constant MAX_NESTED_LEVEL levels.
      * @param ISearchField $field  The field to convert to a SQL SearchQueryFragment
      * @param int $count The current nested count
      * @return SearchQueryFragment

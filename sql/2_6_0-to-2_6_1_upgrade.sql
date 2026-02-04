@@ -460,9 +460,9 @@ UNIQUE (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
 
 ALTER TABLE `x12_partners` ADD `id_number` VARCHAR( 255 ) AFTER `name` ;
 
-ALTER TABLE `phone_numbers` CHANGE `prefix` `prefix` VARCHAR( 3 ) DEFAULT NULL; 
+ALTER TABLE `phone_numbers` CHANGE `prefix` `prefix` VARCHAR( 3 ) DEFAULT NULL;
 ALTER TABLE `phone_numbers` CHANGE `area_code` `area_code` VARCHAR( 3 ) DEFAULT NULL;
-ALTER TABLE `phone_numbers` CHANGE `number` `number` VARCHAR( 4 ) DEFAULT NULL; 
+ALTER TABLE `phone_numbers` CHANGE `number` `number` VARCHAR( 4 ) DEFAULT NULL;
 
 #
 # Table structure for table `integration_mapping`

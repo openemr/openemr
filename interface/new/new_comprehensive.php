@@ -452,7 +452,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $data_type  = $frow['data_type'];
                         $field_id   = $frow['field_id'];
                         $list_id    = $frow['list_id'];
-                        $currvalue  = '';
+                        $currvalue  = null;
 
                         // Accumulate action conditions into a JSON expression for the browser side.
                         accumActionConditions($frow, $condition_str);

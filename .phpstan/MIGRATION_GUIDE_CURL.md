@@ -79,7 +79,7 @@ try {
     $response = $client->request('POST', 'https://api.example.com/endpoint', [
         'json' => $data  // Automatically sets Content-Type and encodes JSON
     ]);
-    
+
     $result = json_decode($response->getBody()->getContents(), true);
 } catch (GuzzleException $e) {
     error_log("HTTP Error: " . $e->getMessage());
@@ -163,7 +163,7 @@ try {
             'Authorization' => 'Bearer ' . $token
         ]
     ]);
-    
+
     $data = json_decode($response->getBody()->getContents(), true);
 } catch (\Exception $e) {
     error_log("HTTP request failed: " . $e->getMessage());

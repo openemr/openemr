@@ -78,7 +78,7 @@ class Holidays_Storage
             }
 
             $row = [
-                self::CALENDAR_CATEGORY_HOLIDAY,//catgory
+                self::CALENDAR_CATEGORY_HOLIDAY,//category
                 0,//authid
                 0,//pid
                 $holiday['description'],//title

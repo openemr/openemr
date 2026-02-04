@@ -2,7 +2,7 @@
 
 /**
  * CompositeSearchField implements the ISearchField interface and represents a search that covers more than one search
- * field.  The class is heirarchical in that it has a one to many child relationship that can represent multiple complex
+ * field.  The class is hierarchical in that it has a one to many child relationship that can represent multiple complex
  * search operations up to 10 levels deep of unions or intersections.
  *
  * @package openemr

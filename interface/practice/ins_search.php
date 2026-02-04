@@ -296,7 +296,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line'
-       value='<?php echo attr($ins_co_address['line1'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address?->line1 ?? ''); ?>' />
   </td>
  </tr>
 
@@ -304,7 +304,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any'
-       value='<?php echo attr($ins_co_address['line2'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address?->line2 ?? ''); ?>' />
   </td>
  </tr>
 
@@ -313,11 +313,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name'
-                 value='<?php echo attr($ins_co_address['city'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->city ?? ''); ?>' />
          </div>
          <div class="col">
              <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality'
-                 value='<?php echo attr($ins_co_address['state'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->state ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -327,11 +327,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code'
-                 value='<?php echo attr(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
+                 value='<?php echo attr(($ins_co_address?->zip ?? '') . ($ins_co_address?->plusFour ?? '')); ?>' />
          </div>
          <div class="col">
              <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name'
-                 value='<?php echo attr($ins_co_address['country'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->country ?? ''); ?>' />
          </div>
      </td>
  </tr>

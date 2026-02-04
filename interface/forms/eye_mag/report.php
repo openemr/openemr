@@ -671,7 +671,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             <?php }
                         if (($CONTRASTODVA ?? '') || ($CONTRASTOSVA ?? '')) { ?>
                                 <tr>
-                                    <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                                    <td><?php echo xlt('Contrast{{Contrast Visual Acuity}}'); ?></td>
                                     <td><?php echo text($CONTRASTODVA); ?></td>
                                     <td><?php echo text($CONTRASTOSVA); ?></td>
                                 </tr>
@@ -1885,7 +1885,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($ODNPA); ?></td>
                                                 <td style="text-align:center;font-weight:bold;"><span
-                                                            title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?></span>
+                                                            title="<?php echo xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?></span>
                                                 </td>
                                                 <td style="text-align:left;
                                         flex-wrap: wrap;

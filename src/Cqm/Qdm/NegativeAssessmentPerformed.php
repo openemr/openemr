@@ -26,4 +26,3 @@ class NegativeAssessmentPerformed extends AssessmentPerformed
 
     public $_type = 'QDM::NegativeAssessmentPerformed';
 }
-

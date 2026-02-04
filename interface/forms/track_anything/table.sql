@@ -27,4 +27,3 @@ CREATE TABLE IF NOT EXISTS form_track_anything_type (
   active int(11) DEFAULT NULL,
   PRIMARY KEY (track_anything_type_id)
 ) ENGINE=InnoDB;
-

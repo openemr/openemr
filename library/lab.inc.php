@@ -167,15 +167,3 @@ function getFacilityInfo($facilityID): bool|array
 
     return false;
 }
-
-function formatPhone($phone): array|string|null
-{
-    $phone = preg_replace("/[^0-9]/", "", (string) $phone);
-    if (strlen((string) $phone) == 7) {
-        return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", (string) $phone);
-    } elseif (strlen((string) $phone) == 10) {
-        return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", (string) $phone);
-    } else {
-        return $phone;
-    }
-}

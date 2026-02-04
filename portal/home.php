@@ -16,16 +16,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('verify_session.php');
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once('lib/portal_mail.inc.php');
-require_once(__DIR__ . '/../library/appointments.inc.php');
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
@@ -36,14 +32,28 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+$srcdir = $globalsBag->getString('srcdir');
+$web_root = $globalsBag->getString('web_root');
+
+require_once('verify_session.php');
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once('lib/portal_mail.inc.php');
+require_once(__DIR__ . '/../library/appointments.inc.php');
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+if ($session->has('register') && $session->get('register') === true) {
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
-if (!isset($_SESSION['portal_init'])) {
-    $_SESSION['portal_init'] = true;
+if (!$session->has('portal_init')) {
+    $session->set('portal_init', true);
 }
 
 // Example https://localhost/openemr/portal/index.php?site=default&landOn=BillingSummary
@@ -64,13 +74,14 @@ $landOnHref = [
 ];
 // redirect using the interface query landOn or last page visited
 // TODO sjp - qualify if redirect feature is enabled!
-$whereto = $_SESSION['whereto'] ?? null;
+$whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirected card.
-$landWhere = $_SESSION['landOn'] = $_REQUEST['landOn'] ?? null;
+$session->set('landOn', $_REQUEST['landOn'] ?? null);
+$landWhere = $_REQUEST['landOn'] ?? null;
 // Set the landOn href query from lookup.
 $where = $landOnHref[$landWhere] ?? null;
 if (!empty($where)) {
-    $_SESSION['whereto'] = $where;
+    $session->set('whereto', $where);
 }
 
 $logoService = new LogoService();
@@ -78,10 +89,10 @@ $logoService = new LogoService();
 // Get language definitions for js
 $language_defs = TranslationService::getLanguageDefinitionsForSession();
 
-$user = $_SESSION['sessionUser'] ?? 'portal user';
+$user = $session->get('sessionUser', 'portal user');
 $result = getPatientData($pid);
 
-$msgs = getPortalPatientNotes($_SESSION['portal_username']);
+$msgs = getPortalPatientNotes($session->get('portal_username'));
 $msgcnt = count($msgs);
 $newcnt = 0;
 foreach ($msgs as $i) {
@@ -94,9 +105,9 @@ foreach ($msgs as $i) {
 /*if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }*/
-$messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
+$messagesURL = "$web_root/portal/messaging/messages.php";
 
-$isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
+$isEasyPro = $globalsBag->get('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
 
 $current_date2 = date('Y-m-d');
 $apptLimit = 10;
@@ -134,7 +145,7 @@ if ($appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
         $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
@@ -168,7 +179,7 @@ if ($past_appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
         $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
@@ -198,13 +209,15 @@ function collectStyles(): array
 
 function buildNav($newcnt, $pid, $result): array
 {
+    global $globalsBag;
+
     $hideLedger = false;
     $hidePayment = false;
-    if (empty($GLOBALS['portal_two_ledger'])) {
+    if (empty($globalsBag->get('portal_two_ledger'))) {
         $hideLedger = true;
     }
 
-    if (empty($GLOBALS['portal_two_payments'])) {
+    if (empty($globalsBag->get('portal_two_payments'))) {
         $hidePayment = true;
     }
     $navItems = [
@@ -230,7 +243,7 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
-                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
+                    'url' => $globalsBag->getString('web_root') . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
                     'label' => xl('Forms and Documents'),
                     'icon' => 'fa-file',
                 ],
@@ -267,7 +280,7 @@ function buildNav($newcnt, $pid, $result): array
     // Build sub nav items
 
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
-        if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === xl('Menu')) {
+        if ($globalsBag->get('allow_portal_appointments') && $navItems[$i]['label'] === xl('Menu')) {
             $navItems[$i]['children'][] = [
                 'url' => '#appointmentcard',
                 'label' => xl('Appointments'),
@@ -323,14 +336,15 @@ while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }
 // CCDA Alt Service
-$ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
+$ccda_alt_service_enable = $globalsBag->get('ccda_alt_service_enable');
+$ccdaOk = ($ccda_alt_service_enable == 2 || $ccda_alt_service_enable == 3);
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer('', $globalsBag->get('kernel')))->getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,
@@ -338,32 +352,32 @@ try {
     ];
     $patientReportEvent = new PatientReportFilterEvent();
     $patientReportEvent->setDataElement('healthSnapshot', $healthSnapshot);
-    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
+    $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
     $data = [
         'user' => $user,
-        'whereto' => ($_SESSION['whereto'] ?? null) ?: ($whereto ?? '#quickstart-card'),
+        'whereto' => ($session->get('whereto', null)) ?: ($whereto ?? '#quickstart-card'),
         'result' => $result,
         'msgs' => $msgs,
         'msgcnt' => $msgcnt,
         'newcnt' => $newcnt,
         'menuLogo' => $logoService->getLogo('portal/menu/primary'),
-        'allow_portal_appointments' => $GLOBALS['allow_portal_appointments'],
-        'web_root' => $GLOBALS['web_root'],
-        'payment_gateway' => $GLOBALS['payment_gateway'],
-        'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
-        'portal_two_payments' => $GLOBALS['portal_two_payments'],
-        'allow_portal_chat' => $GLOBALS['allow_portal_chat'] ?? false,
-        'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
-        'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
-        'images_static_relative' => $GLOBALS['images_static_relative'],
+        'allow_portal_appointments' => $globalsBag->get('allow_portal_appointments'),
+        'web_root' => $globalsBag->get('web_root'),
+        'payment_gateway' => $globalsBag->get('payment_gateway'),
+        'gateway_mode_production' => $globalsBag->get('gateway_mode_production'),
+        'portal_two_payments' => $globalsBag->get('portal_two_payments'),
+        'allow_portal_chat' => $globalsBag->get('allow_portal_chat') ?? false,
+        'portal_onsite_document_download' => $globalsBag->get('portal_onsite_document_download'),
+        'portal_two_ledger' => $globalsBag->get('portal_two_ledger'),
+        'images_static_relative' => $globalsBag->get('images_static_relative'),
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
-        'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
-        'pagetitle' => $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
+        'primaryMenuLogoHeight' => $globalsBag->get('portal_primary_menu_logo_height') ?? '30',
+        'pagetitle' => $globalsBag->get('openemr_name') . ' ' . xl('Portal'),
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
-        'patientName' => $_SESSION['ptName'] ?? null,
-        'csrfUtils' => CsrfUtils::collectCsrfToken(),
+        'patientName' => $session->get('ptName', null),
+        'csrfUtils' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,
@@ -372,20 +386,20 @@ try {
         'appointmentCount' => $count ?? null,
         'pastAppointmentCount' => $pastCount ?? null,
         'displayLimitLabel' => xl('Display limit reached'),
-        'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
-        'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
+        'site_id' => $session->get('site_id', null) ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
+        'portal_timeout' => $globalsBag->get('portal_timeout') ?? 1800, // timeout is in seconds
         'language_defs' => $language_defs,
         'current_theme' => $current_theme,
         'styleArray' => $styleArray,
         'ccdaOk' => $ccdaOk,
-        'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
+        'allow_custom_report' => $globalsBag->get('allow_custom_report') ?? '0',
         'healthSnapshot' => $filteredEvent->getDataElement('healthSnapshot'),
-        'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
-        'dateDisplayFormat' => $GLOBALS['date_display_format'],
-        'timeDisplayFormat' => $GLOBALS['time_display_format'],
-        'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
-        'assetVersion' => $GLOBALS['v_js_includes'],
-        'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
+        'languageDirection' => $session->get('language_direction', 'ltr'),
+        'dateDisplayFormat' => $globalsBag->get('date_display_format'),
+        'timeDisplayFormat' => $globalsBag->get('time_display_format'),
+        'timezone' => $globalsBag->get('gbl_time_zone') ?? '',
+        'assetVersion' => $globalsBag->get('v_js_includes'),
+        'extendVisit' => $session->get('portal_visit_extended', 1),
         'isTelemetryAllowed' => $isTelemetryAllowed,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,

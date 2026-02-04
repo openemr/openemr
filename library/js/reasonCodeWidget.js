@@ -8,7 +8,7 @@
  *
  * .code-selector-popup -> text code that will be sent to the server.  In the format of CODE_SYSTEM:CODE
  * .code-selector-text-display -> text description of the selected code or empty if code is deleted
- * .code-selector-text -> text descriptoin of the selected code or empty (intended to be a hidden attribute to be sent to the server)
+ * .code-selector-text -> text description of the selected code or empty (intended to be a hidden attribute to be sent to the server)
  *
  * If the reasonCodeWidget is toggled off it will clear all of the reason code values inside the container.
  *

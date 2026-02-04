@@ -15,6 +15,7 @@
 //
 // To implement this feature, rename this file to BillingExport.php.
 
+use OpenEMR\Services\PhoneNumberService;
 
 class BillingExport
 {
@@ -46,16 +47,6 @@ class BillingExport
 
         if ($sex == 'F') {
             return 'Female';
-        }
-
-        return '';
-    }
-
-    function fixPhone($phone)
-    {
-        $tmparr = [];
-        if (preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $phone, $tmparr)) {
-            return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
         }
 
         return '';
@@ -156,8 +147,8 @@ class BillingExport
         ',"' . $this->fixString($prow['city'])        . '"' .
         ',"' . $this->fixString($prow['state'])       . '"' .
         ',"' . $this->fixString($prow['postal_code']) . '"' .
-        ',"' . $this->fixPhone($prow['phone_home'])   . '"' .
-        ',"' . $this->fixPhone($prow['phone_biz'])    . '"' .
+        ',"' . PhoneNumberService::formatPhone($prow['phone_home'] ?? '') . '"' .
+        ',"' . PhoneNumberService::formatPhone($prow['phone_biz'] ?? '')  . '"' .
         ',"' . $this->fixSex($prow['sex'])            . '"' .
         ',"' . $prow['DOB']                    . '"' .
         ',"' . $this->fixSSN($prow['ss'])             . '"' .
@@ -238,7 +229,7 @@ class BillingExport
               ',"' . $this->fixString($irow['city'])                      . '"' .
               ',"' . $this->fixString($irow['state'])                     . '"' .
               ',"' . $this->fixString($irow['zip'])                       . '"' .
-              ',"' . $this->fixPhone($irow['area_code'] . $irow['prefix'] . $irow['number']) . '"' .
+              ',"' . PhoneNumberService::formatPhone(($irow['area_code'] ?? '') . ($irow['prefix'] ?? '') . ($irow['number'] ?? '')) . '"' .
               ',"' . $this->fixString($irow['provider_number'])           . '"' .
               ',"' . $this->fixString($irow['provider_number'])           . '"' . // TBD: referring provider
               "\n");

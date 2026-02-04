@@ -26,4 +26,3 @@ class PositiveImmunizationAdministered extends ImmunizationAdministered
 
     public $_type = 'QDM::PositiveImmunizationAdministered';
 }
-

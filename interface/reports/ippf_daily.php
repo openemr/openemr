@@ -52,26 +52,6 @@ $atotals = [];
 
 $cellcount = 0;
 
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
-
 // Usually this generates one cell, but allows for two or more.
 //
 function genAnyCell($data, $right = false, $class = ''): void

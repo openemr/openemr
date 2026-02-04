@@ -143,4 +143,3 @@ CREATE TABLE `form_ros` (
 	`hai_status` varchar(3) NOT NULL default 'N/A',
 	PRIMARY KEY (id)
 	) ENGINE=InnoDB;
-

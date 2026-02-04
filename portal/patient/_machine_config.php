@@ -19,19 +19,21 @@
 /* */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
 
-if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && $session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     GlobalConfig::$PORTAL = 1;
-    if (!isset($_SESSION['portal_init'])) {
-        $_SESSION['portal_init'] = true;
+    if (!$session->has('portal_init')) {
+        $session->set('portal_init', true);
     }
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
@@ -39,7 +41,7 @@ if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) ||
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;
@@ -53,10 +55,10 @@ require_once("verysimple/HTTP/RequestUtil.php");
  * database connection settings
  */
 GlobalConfig::$CONNECTION_SETTING = new ConnectionSetting();
-GlobalConfig::$CONNECTION_SETTING->ConnectionString = $GLOBALS['host'] . ":" . $GLOBALS['port'];
-GlobalConfig::$CONNECTION_SETTING->DBName = $GLOBALS['dbase'];
-GlobalConfig::$CONNECTION_SETTING->Username = $GLOBALS['login'];
-GlobalConfig::$CONNECTION_SETTING->Password = $GLOBALS['pass'];
+GlobalConfig::$CONNECTION_SETTING->ConnectionString = $globalsBag->get('host') . ":" . $globalsBag->get('port');
+GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
+GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
+GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
 if (!$disable_utf8_flag) {
     if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
@@ -75,11 +77,11 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
-GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
-if ($GLOBALS['portal_onsite_two_basepath']) {
+GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
+if ($globalsBag->get('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
-    GlobalConfig::$ROOT_URL = $GLOBALS['web_root'] . '/portal/patient/';
+    GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';
 }
 
 

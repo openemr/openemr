@@ -21,7 +21,7 @@ enum ServiceType: int
     case EMAIL = 4;
     case CLICKATELL_SMS = 5;
     case SIGNALWIRE = 6;
-
+    case VOICE = 9;
     /**
      * Get the display name for this service type
      *
@@ -36,6 +36,7 @@ enum ServiceType: int
             self::EMAIL => 'Email',
             self::CLICKATELL_SMS => 'Clickatell SMS',
             self::SIGNALWIRE => 'SignalWire Fax',
+            self::VOICE => 'Voice',
         };
     }
 
@@ -53,6 +54,7 @@ enum ServiceType: int
             self::EMAIL => xlt('Email'),
             self::CLICKATELL_SMS => xlt('Clickatell SMS'),
             self::SIGNALWIRE => xlt('SignalWire Fax'),
+            self::VOICE => xlt('Voice'),
         };
     }
 

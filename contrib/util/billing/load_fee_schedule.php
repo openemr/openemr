@@ -31,7 +31,7 @@ require_once __DIR__ . "/../../../interface/globals.php";
 
 use League\Csv\Reader;
 
-// setup a csv file with a header consiting of type, code and modifier
+// setup a csv file with a header consisting of type, code and modifier
 // at the specified location
 $filename = DIRECTORY_SEPARATOR . $argv[2];
 $filepath = $GLOBALS['temporary_files_dir'];

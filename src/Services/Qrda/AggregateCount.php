@@ -38,7 +38,7 @@ class AggregateCount
             }
 
             $population = $this->create_population_from_population_set($pop_code, $population_set, $cache_entry);
-            if ($cache_entry['pop_set_hash']['stratification_id']) {
+            if (!empty($cache_entry['pop_set_hash']['stratification_id'])) {
                  // strat_id = population_set.stratifications.where(stratification_id: cache_entry.pop_set_hash[:stratification_id]).first&.hqmf_id
                  // observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
                  // population.add_stratification(strat_id,cache_entry[pop_code], observation)
@@ -61,7 +61,7 @@ class AggregateCount
                 if ($cache_entry['observations'] && $cache_entry['observations'][$pop_code]) {
                     $population->observation = $cache_entry['observations'][$pop_code];
                 }
-                $population->supplemental_data = $cache_entry['supplemental_data'][$pop_code];
+                $population->supplemental_data = $cache_entry['supplemental_data'][$pop_code] ?? null;
             }
 
             $entry_populations[] = $population;

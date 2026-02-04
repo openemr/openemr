@@ -26,4 +26,3 @@ class PositiveMedicationAdministered extends MedicationAdministered
 
     public $_type = 'QDM::PositiveMedicationAdministered';
 }
-

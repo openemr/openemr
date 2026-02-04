@@ -26,4 +26,3 @@ class NegativeInterventionRecommended extends InterventionRecommended
 
     public $_type = 'QDM::NegativeInterventionRecommended';
 }
-

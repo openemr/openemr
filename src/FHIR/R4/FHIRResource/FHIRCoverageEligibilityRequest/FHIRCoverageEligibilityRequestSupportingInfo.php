@@ -82,7 +82,7 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
     public $information = null;
 
     /**
-     * The supporting materials are applicable for all detail items, product/servce categories and specific billing codes.
+     * The supporting materials are applicable for all detail items, product/service categories and specific billing codes.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
     public $appliesToAll = null;
@@ -133,7 +133,7 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
     }
 
     /**
-     * The supporting materials are applicable for all detail items, product/servce categories and specific billing codes.
+     * The supporting materials are applicable for all detail items, product/service categories and specific billing codes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
     public function getAppliesToAll()
@@ -142,7 +142,7 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
     }
 
     /**
-     * The supporting materials are applicable for all detail items, product/servce categories and specific billing codes.
+     * The supporting materials are applicable for all detail items, product/service categories and specific billing codes.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $appliesToAll
      * @return $this
      */

@@ -38,7 +38,7 @@ trait FhirConditionTrait
             FhirConditionCategory::ENCOUNTER_DIAGNOSIS->value,
             FhirConditionCategory::HEALTH_CONCERNS->value,
         ];
-        return array_filter($categories, fn($category) => in_array($category, $supportedCategories));
+        return array_filter($categories, static fn($category): bool => in_array($category, $supportedCategories));
     }
 
     protected function populateId(array $dataRecord, FHIRCondition $conditionResource)

@@ -102,7 +102,7 @@ if ($GLOBALS['barcode_label_type'] == '12') {   // datamatrix
 }
 
 // -------------------------------------------------- //
-//            ALLOCATE FPDF RESSOURCE
+//            ALLOCATE FPDF RESOURCE
 // -------------------------------------------------- //
 
 $pdf = new eFPDF('P', 'mm', [102,252]); // set the orentation, unit of measure and size of the page

@@ -405,6 +405,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $this->assertEquals("yes", $parsedData['interpreter_needed']);
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function invalidDataProvider(): array
     {
         return [

@@ -1,6 +1,6 @@
 codecov:
   notify:
-    after_n_builds: 14
+    manual_trigger: true
 
 coverage:
   status:

@@ -59,4 +59,3 @@ function policykeyup(e)
     e.value = filteredString;
     return;
 }
-

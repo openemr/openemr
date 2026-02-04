@@ -22,7 +22,7 @@
 use OpenEMR\RestControllers\Config\RestConfig;
 
 /**
- *  @OA\Info(title="OpenEMR API", version="8.0.0")
+ *  @OA\Info(title="OpenEMR API", version="8.0.1")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
@@ -167,6 +167,15 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *          }
  *      )
  *  )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="bearer",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Enter a previously generated Bearer token here to authenticate"
+ * )
+ *
  *  @OA\Tag(
  *      name="fhir",
  *      description="FHIR R4 API"

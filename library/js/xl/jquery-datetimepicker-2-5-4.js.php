@@ -58,7 +58,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
     },
     <?php if (($_SESSION['language_direction'] ?? '') == 'rtl') { ?>
     /**
-     * In RTL languages a datepicker popup is opened in left and it's cutted by the edge of the window
+     * In RTL languages a datepicker popup is opened on the left and cut by the edge of the window
      * This patch resolves that and moves a datepicker popup to right side.
      */
     onGenerate:function(current_time,$input){

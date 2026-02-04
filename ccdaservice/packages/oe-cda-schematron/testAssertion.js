@@ -4,7 +4,7 @@ module.exports = testAssertion;
 
 function testAssertion(test, selected, select, xmlDoc, resourceDir, xmlSnippetMaxLength) {
     var results = [];
-    
+
     for (var i = 0; i < selected.length; i++) {
         try {
             var result = select('boolean(' + test + ')', selected[i]);
@@ -24,7 +24,7 @@ function testAssertion(test, selected, select, xmlDoc, resourceDir, xmlSnippetMa
             return { ignored: true, errorMessage: err.message };
         }
     }
-    
+
     for (var i = 0; i < results.length; i++) {
         if (results[i].result !== true && results[i].result !== false) {
             return { ignored: true, errorMessage: 'Test returned non-boolean result' };
@@ -33,7 +33,7 @@ function testAssertion(test, selected, select, xmlDoc, resourceDir, xmlSnippetMa
     return results;
 }
 
-function getXPath(node, path) {    
+function getXPath(node, path) {
     var top = !path ? true : false;
     path = path || [];
     if (node.parentNode) {

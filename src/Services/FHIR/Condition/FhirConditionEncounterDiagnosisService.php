@@ -85,7 +85,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
             'encounter' => new FhirSearchParameterDefinition('encounter', SearchFieldType::REFERENCE, [new ServiceField('encounter_uuid', ServiceField::TYPE_UUID)]),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['diagnosis']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            // we search both the old database and the new one for backwards compatability
+            // we search both the old database and the new one for backwards compatibility
             // TODO: @adunsulag - eventually we will want to phase out the lists_uuid search, or have a smarter search that will filter based on the uuid_registry.table_name
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('lists_uuid', ServiceField::TYPE_UUID), new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),

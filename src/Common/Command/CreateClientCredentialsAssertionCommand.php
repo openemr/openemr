@@ -65,7 +65,7 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
             $jwks = file_get_contents($keyLocation . "jwk-public-valid.json");
             echo "JSON Web Key Set (Public Key)\n";
             echo "WARNING - THIS IS FOR TESTING PURPOSES ONLY!\n";
-            echo "DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITED TO THE SOURCE CODE\n\n";
+            echo "DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITTED TO THE SOURCE CODE\n\n";
             echo $jwks . "\n\n";
             return;
         }

@@ -79,7 +79,7 @@ class Cat3 extends \Mustache_Engine
             $this->measure_result_hash[$key]['aggregate_count'] = $this->agg_results($key, $hash['measure_data'], $hash['population_sets']);
         }
 
-        $this->provider = $options['provider'];
+        $this->provider = $options['provider'] ?? null;
         // Start and end time properties are in Date helper
         $this->_performance_period_start = $options['start_time'];
         $this->_performance_period_end = $options['end_time'];

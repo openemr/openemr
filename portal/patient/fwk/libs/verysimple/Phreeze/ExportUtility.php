@@ -145,7 +145,7 @@ class ExportUtility
     }
 
     /**
-     * Given a zero-based column number, the approriate Excel column letter is
+     * Given a zero-based column number, the appropriate Excel column letter is
      * returned, ie A, B, AB, CJ, etc.
      * max supported is ZZ, higher than that will
      * throw an exception.

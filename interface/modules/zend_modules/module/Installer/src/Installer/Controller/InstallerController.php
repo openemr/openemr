@@ -846,7 +846,7 @@ class InstallerController extends AbstractActionController
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
-                // TODO: This is a wierd error... why is it written like this?
+                // TODO: This is a weird error... why is it written like this?
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
             }
         } elseif ($modType == InstModuleTable::MODULE_TYPE_ZEND) {

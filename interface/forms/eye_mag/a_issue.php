@@ -107,7 +107,7 @@ foreach (explode(',', $given) as $item) {
         var aitypes = new Array(); // issue type attributes
         var aopts = new Array(); // Option objects
         <?php
-//This builds the litle quick pick list in this section.
+//This builds the little quick pick list in this section.
 // If the provider has more 2 items already defined in the last month, they are collated
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
@@ -552,10 +552,10 @@ foreach (explode(',', $given) as $item) {
                 $("#smoke_code").html("");
         }
 
-        function setSelectBoxByText(eid, etxt) {
+        function setSelectBoxByText(eid, text) {
             var eid = document.getElementById(eid);
             for (var i = 0; i < eid.options.length; ++i) {
-                if (eid.options[i].text === etxt)
+                if (eid.options[i].text === text)
                     eid.options[i].selected = true;
             }
         }

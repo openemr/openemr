@@ -15,7 +15,7 @@ describe('getNpiFacility', () => {
         });
     });
 
-    describe('input wihout facility_npi value', () => {
+    describe('input without facility_npi value', () => {
         it('should return undefined for structured documents', () => {
             expect(getNpiFacility({ encounter_provider: {} }, false)).toEqual(
                 undefined

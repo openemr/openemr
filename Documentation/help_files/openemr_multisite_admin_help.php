@@ -38,7 +38,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <p><?php echo ("This is the central location to manage multisite intallations");?>.</p>
+                    <p><?php echo ("This is the central location to manage multisite installations");?>.</p>
 
                     <p><?php echo ("It serves three functions");?>:</p>
                         <ul>

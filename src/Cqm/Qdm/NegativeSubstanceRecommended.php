@@ -26,4 +26,3 @@ class NegativeSubstanceRecommended extends SubstanceRecommended
 
     public $_type = 'QDM::NegativeSubstanceRecommended';
 }
-

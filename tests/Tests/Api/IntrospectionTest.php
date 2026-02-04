@@ -45,7 +45,7 @@ class IntrospectionTest extends TestCase
         }
         $this->assertEquals(200, $actualValue->getStatusCode(), "Client authorization returned the wrong status code");
         $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()), "ID token was not sent via client authorization");
-        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()), "Acccess token was not sent via client authorization");
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()), "Access token was not sent via client authorization");
         if ($type == 'private') {
             $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()), "Refresh token was not sent via client authorization for private client");
         }

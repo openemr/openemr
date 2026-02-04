@@ -14,7 +14,7 @@
 # text options that will immediately appear in the box below (javascript must be active of course).
 # The format for this file is that any line starting with a '#' is a comment.
 # Categories and choices for the select boxes are entered with a '::' separating them. see
-# below for example.  You may add more choices, change them or do away with them alltogether.
+# below for example.  You may add more choices, change them or do away with them altogether.
 # If a category has no choices assigned in this file, the select box will not appear.
 # The files that had to be altered for this feature to work are in openemr/interface/patient_file/summary.
 # Three statements were added to 5 files marked with a clickoptions comment and two files were added

@@ -20,6 +20,7 @@ use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Log\LoggerInterface;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
@@ -27,7 +28,6 @@ use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentRestController
@@ -137,7 +137,7 @@ class FhirDocumentRestController
 
     private function findDocumentForDocumentId(string $documentId)
     {
-        if (Uuid::isValid($documentId)) {
+        if (ValidationUtils::isValidUuid($documentId)) {
             $document = \Document::getDocumentForUuid($documentId);
         } else {
             // use our integer values

@@ -26,4 +26,3 @@ class NegativeLaboratoryTestOrder extends LaboratoryTestOrder
 
     public $_type = 'QDM::NegativeLaboratoryTestOrder';
 }
-

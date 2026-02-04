@@ -114,7 +114,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         if (isset($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
+        // why in some cases are users with an empty name... that seems so weird but we have them so we are supporting them.
         if (empty(trim((string) $narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
@@ -275,7 +275,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult

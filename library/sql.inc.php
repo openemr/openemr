@@ -8,15 +8,19 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/sqlconf.php");
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * Variables set by sqlconf.php or SqlConfigEvent
@@ -76,7 +80,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         }
     }
     $database->port = $port;
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
         $database->PConnect($host, $login, $pass, $dbase);
     } else {
         $database->connect($host, $login, $pass, $dbase);
@@ -198,7 +202,7 @@ function sqlGetLastInsertId()
 {
     // Return the correct last id generated using function
     //   that is safe with the audit engine.
-    return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+    return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
 }
 
 /**
@@ -435,7 +439,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 * Function that will allow use of the adodb binding
 * feature to prevent sql-injection. It is equivalent to the
 * sqlQuery() function, EXCEPT it skips the
-* audit engine and ignores erros. This function should only be used
+* audit engine and ignores errors. This function should only be used
 * in very special situations.
 *
 * @param  string  $statement  query
@@ -576,7 +580,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
 
-    if (!$GLOBALS['sql_string_no_show_screen'] ?? '') {
+    if (!($GLOBALS['sql_string_no_show_screen'] ?? '')) {
         echo "<p><font color='red'>ERROR:</font> " . text($statement) . "</p>";
     }
 
@@ -759,7 +763,7 @@ function sqlRollbackTrans(): void
  *
  * By configuring a server in this way, the default MySQL user can be denied access
  * to sensitive tables (currently only "users_secure" would qualify).  Thus
- * the likelyhood of unintended modification can be reduced (e.g. through SQL Injection).
+ * the likelihood of unintended modification can be reduced (e.g. through SQL Injection).
  *
  * Details on how to set this up are included in Documentation/privileged_db/priv_db_HOWTO
  *
@@ -770,6 +774,7 @@ function sqlRollbackTrans(): void
  */
 function getPrivDB()
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     if (!isset($GLOBALS['PRIV_DB'])) {
         $secure_config = $GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
         if (file_exists($secure_config)) {
@@ -812,7 +817,7 @@ function getPrivDB()
             // $port variable is from main sqlconf.php (global scope)
             global $port;
             $GLOBALS['PRIV_DB']->port = $port;
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
             } else {
                 $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
@@ -842,7 +847,7 @@ function privStatement($sql, $params = null)
     $recordset = is_array($params) ? getPrivDB()->ExecuteNoLog($sql, $params) : getPrivDB()->ExecuteNoLog($sql);
 
     if ($recordset === false) {
-        // These error messages are explictly NOT run through xl() because we still
+        // These error messages are explicitly NOT run through xl() because we still
         // need them if there is a database problem.
         echo "Failure during database access! Check server error log.";
         $backtrace = debug_backtrace();

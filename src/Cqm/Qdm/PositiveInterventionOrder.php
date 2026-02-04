@@ -26,4 +26,3 @@ class PositiveInterventionOrder extends InterventionOrder
 
     public $_type = 'QDM::PositiveInterventionOrder';
 }
-

@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\Translation\TranslationCache;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!(function_exists('xlWarmCache'))) {
     /**
@@ -9,7 +10,9 @@ if (!(function_exists('xlWarmCache'))) {
      */
     function xlWarmCache(): void
     {
-        $lang_id = !empty($_SESSION['language_choice']) ? (int)$_SESSION['language_choice'] : 1;
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $language_choice = $session->get('language_choice');
+        $lang_id = !empty($language_choice) ? (int)$language_choice : 1;
         TranslationCache::warm($lang_id);
     }
 }
@@ -17,7 +20,7 @@ if (!(function_exists('xlWarmCache'))) {
 if (!(function_exists('xl'))) {
     /**
      * Translation function - the translation engine for OpenEMR
-     * 
+     *
      * Translates a given constant string into the current session language.
      * Note: In some installation scenarios this function may already be declared,
      * so we check to ensure it hasn't been declared yet.
@@ -30,9 +33,10 @@ if (!(function_exists('xl'))) {
         if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $language_choice = $session->get('language_choice');
         // set language id
-        $lang_id = !empty($_SESSION['language_choice']) ? $_SESSION['language_choice'] : 1;
+        $lang_id = !empty($language_choice) ? $language_choice : 1;
 
         // TRANSLATE
         // first, clean lines
@@ -99,7 +103,7 @@ if (!(function_exists('xl'))) {
 //
 /**
  * Conditionally translates list labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_lists'] is set to true.
  * Added 5-09 by BM.
  *
@@ -113,7 +117,7 @@ function xl_list_label($constant)
 
 /**
  * Conditionally translates layout labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_layout'] is set to true.
  * Added 5-09 by BM.
  *
@@ -127,7 +131,7 @@ function xl_layout_label($constant)
 
 /**
  * Conditionally translates access control group labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_gacl_groups'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -141,7 +145,7 @@ function xl_gacl_group($constant)
 
 /**
  * Conditionally translates patient form (notes) titles based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_form_titles'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -155,7 +159,7 @@ function xl_form_title($constant)
 
 /**
  * Conditionally translates document categories based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_document_categories'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -169,7 +173,7 @@ function xl_document_category($constant)
 
 /**
  * Conditionally translates appointment categories based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_appt_categories'] is set to true.
  * Added 6-2009 by BM.
  *

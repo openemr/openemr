@@ -29,7 +29,7 @@ class ModuleconfigController extends AbstractActionController
 
     public function indexAction()
     {
-        $form = new ModuleconfigForm($this->dbAdapter);
+        $form = new ModuleconfigForm();
         $form->get('hie_author_id')->setAttribute('options', ['user 1','user 2']);
 
         $view =  new ViewModel([

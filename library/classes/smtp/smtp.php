@@ -100,7 +100,7 @@ class smtp_class
         {
             if(feof($this->connection))
             {
-                $this->error="reached the end of data while reading from the SMTP server conection";
+                $this->error="reached the end of data while reading from the SMTP server connection";
                 return("");
             }
             if(GetType($data=@fgets($this->connection,100))!="string"
@@ -219,8 +219,9 @@ class smtp_class
             || !extension_loaded("openssl"))
                 return("establishing SSL connections requires the OpenSSL extension enabled");
         }
-        if(preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',(string) $domain))
-            $ip=$domain;
+        if (\OpenEMR\Common\Utils\ValidationUtils::isValidIpAddress((string) $domain, FILTER_FLAG_IPV4)) {
+            $ip = $domain;
+        }
         else
         {
             if($this->debug)

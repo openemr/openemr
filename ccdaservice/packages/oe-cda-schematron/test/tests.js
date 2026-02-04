@@ -66,7 +66,7 @@ describe('Validator should', function() {
         expect(results.ignoredCount).to.be.equal(1);
         done();
     });
-    
+
     it('return similar results without warnings', function(done) {
         results = validator.validate(xml, schematron, { includeWarnings: false });
         expect(results).to.be.an('object');
@@ -84,7 +84,7 @@ describe('Validator should', function() {
         expect(results.ignoredCount).to.be.equal(1);
         done();
     });
-    
+
     it('return similar results given xml filepath', function(done) {
         results = validator.validate(xmlPath, schematron);
         expect(results).to.be.an('object');
@@ -102,7 +102,7 @@ describe('Validator should', function() {
         expect(results.ignoredCount).to.be.equal(1);
         done();
     });
-    
+
     it('return similar results given schematron filepath', function(done) {
         results = validator.validate(xml, schematronPath);
         expect(results).to.be.an('object');
@@ -120,7 +120,7 @@ describe('Validator should', function() {
         expect(results.ignoredCount).to.be.equal(1);
         done();
     });
-    
+
     it('return similar results given xml filepath and schematron filepath', function(done) {
         results = validator.validate(xmlPath, schematronPath);
         expect(results).to.be.an('object');

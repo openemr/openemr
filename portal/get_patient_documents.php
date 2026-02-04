@@ -20,15 +20,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 require_once("./verify_session.php");
 /**
  * @Global $srcdir openemr src folder, setup during verify_session.php
  */
-require_once("$srcdir/documents.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once($globalsBag->getString('fileroot') . "/controllers/C_Document.class.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+
 
 // Get all the documents of the patient
 $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ? AND `deleted` = 0";
@@ -112,7 +121,7 @@ while ($file = sqlFetchArray($fres)) {
     <div class="container-fluid">
         <h4><?php echo xlt("Select Documents to Download"); ?></h4>
         <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
                 <label class="form-check-label" for="selectAll"><?php echo xlt("Select All Documents"); ?></label>

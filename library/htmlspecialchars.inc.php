@@ -199,7 +199,7 @@ function textArray(array $arr, $depth = 0)
  * NOTE: This can be used as a "generic" HTML escape since it does maximal
  * quoting.  However, some HTML and XML contexts (CDATA) don't provide
  * escape mechanisms.  Also, further pre- or post-escaping might need to
- * be done when embdedded other languages (like JavaScript) inside HTML /
+ * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
  * @param string $text The string to escape, possibly including (&), (<),

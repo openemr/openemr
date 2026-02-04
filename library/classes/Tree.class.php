@@ -5,7 +5,7 @@ define("ROOT_TYPE_NAME", 2);
 
 /**
  * class Tree
- * This class is a clean implementation of a modified preorder tree traversal hierachy to relational model
+ * This class is a clean implementation of a modified preorder tree traversal hierarchy to relational model
  * Don't use this class directly as it won't work, extend it and set the $this->_table variable, currently
  * this class needs its own sequence per table. MPTT uses a lot of self referential parent child relationships
  * and having ids that are more or less sequential makes human reading, fixing and reconstruction much easier.
@@ -130,7 +130,7 @@ class Tree
             //now eval the string to create the tree array
             //there must be a more efficient way to do this than eval?
             // TODO: refactor this eval out... there's tons of ways to construct trees w/o needing to do eval code.
-            // not sure how many nodes they needed to account for, but our category heirarchy has to be less than a few
+            // not sure how many nodes they needed to account for, but our category hierarchy has to be less than a few
             // thousand records. An n-ary tree w/ pointers would accomplish this very quickly w/o the potential of sneaking a eval
             // code execution into our category database names.
             // There could be tens of thousands of documents,  However, leaf nodes which are documents will not have any
@@ -138,7 +138,7 @@ class Tree
             // which we sort by document name order.
             eval($ar_string);
 
-            //merge the evaled array with all of the already exsiting tree elements,
+            //merge the evaled array with all of the already existing tree elements,
             //merge recursive is used so that no keys are replaced in other words a key
             //with a specific value will not be replace but instead that value will be turned into an array
             //consisting of the previous value and the new value
@@ -308,7 +308,7 @@ class Tree
         //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-        //only update the childrens parent setting if the node has children
+        //only update the children's parent setting if the node has children
         if ($right > ($left + 1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
             //echo $sql . "<br />";

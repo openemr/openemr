@@ -187,7 +187,7 @@ while ($frow = sqlFetchArray($fres)) {
 try {
     updatePatientData($pid, $newdata['patient_data']);
     if (!$GLOBALS['omit_employers']) {
-        updateEmployerData($pid, false, $newdata['employer_data']);
+        updateEmployerData($pid, [], $newdata['employer_data']);
     }
 } catch (Exception $e) {
     $logger->error("Error updating patient/employer data", [

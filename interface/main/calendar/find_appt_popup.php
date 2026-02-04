@@ -24,6 +24,7 @@ require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 
 ?>
@@ -135,13 +136,17 @@ $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 $evslots = $catslots;
 if (isset($_REQUEST['evdur'])) {
     // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-    // if the event duration is less than or equal to zero, use the global calander interval
+    // if the event duration is less than or equal to zero, use the global calendar interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
-    if (intval($_REQUEST['evdur']) <= 0) {
-        $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']) <= 0 ? 10 : intval($GLOBALS['calendar_interval']);
+    $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
+    if ($evdur === false) {
+        $evdur = ValidationUtils::validateInt($GLOBALS['calendar_interval'], min: 1);
+        if ($evdur === false) {
+            $evdur = 10;
+        }
     }
 
-    $evslots = 60 * $_REQUEST['evdur'];
+    $evslots = 60 * $evdur;
     $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
 }
 

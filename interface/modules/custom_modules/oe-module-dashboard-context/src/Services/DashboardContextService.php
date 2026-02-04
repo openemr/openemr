@@ -288,7 +288,7 @@ class DashboardContextService
 
     /**
      * Get widget visibility configuration for a specific context
-     * 
+     *
      * Order of precedence:
      * 1. User's custom config for this specific context (user_dashboard_context_config)
      * 2. Custom context definition (dashboard_context_definitions)

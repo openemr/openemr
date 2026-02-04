@@ -27,8 +27,8 @@ if (empty($loincCode)) {
     die(json_encode(['error' => 'LOINC code required']));
 }
 
-$sql = "SELECT * FROM preference_value_sets 
-        WHERE loinc_code = ? AND active = 1 
+$sql = "SELECT * FROM preference_value_sets
+        WHERE loinc_code = ? AND active = 1
         ORDER BY sort_order";
 
 $result = QueryUtils::fetchRecords($sql, [$loincCode]);

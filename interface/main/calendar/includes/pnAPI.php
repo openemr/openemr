@@ -529,7 +529,7 @@ function pnVarPrepHTMLDisplay()
 }
 
 /**
- * ready databse output
+ * ready database output
  * <br />
  * Gets a variable, cleaning it up such that the text is
  * stored in a database exactly as expected

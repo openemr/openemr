@@ -49,15 +49,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = false;
 }
 
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
-}
-
 /**
  * Render a line item for the sales by item html table.
  *

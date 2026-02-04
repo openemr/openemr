@@ -1,31 +1,33 @@
 <?php
 
-/************************************************************************
-            pharmacy.php - Copyright duhlman
-
-/usr/share/apps/umbrello/headings/heading.php
-
-This file was generated on %date% at %time%
-The original location of this file is /home/duhlman/uml-generated-code/prescription.php
-**************************************************************************/
+/**
+ * Pharmacy class for smarty templates
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    duhlman
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) duhlman
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 define("TRANSMIT_PRINT", 1);
 define("TRANSMIT_EMAIL", 2);
 define("TRANSMIT_FAX", 3);
 define("TRANSMIT_ERX", 4);
 
-/**
- * class Pharmacy
- *
- */
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
+use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PhoneType;
 
 class Pharmacy extends ORDataObject
 {
     public $name;
-    public $phone_numbers;
+    /** @var TypedPhoneNumber[] */
+    public array $phone_numbers = [];
     public $address;
     public $transmit_method;
     public $email;
@@ -38,7 +40,7 @@ class Pharmacy extends ORDataObject
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct(public $id = "", $prefix = "")
+    function __construct(public $id = "")
     {
         $this->state = $this->getState();
         $this->name = "";
@@ -46,9 +48,6 @@ class Pharmacy extends ORDataObject
         $this->transmit_method = 1;
         $this->transmit_method_array = [xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx")];
         $this->_table = "pharmacies";
-        $phone  = new PhoneNumber();
-        $phone->set_type(TYPE_WORK);
-        $this->phone_numbers = [$phone];
         $this->address = new Address();
         if ($this->id != "") {
             $this->populate();
@@ -65,7 +64,7 @@ class Pharmacy extends ORDataObject
     }
     function set_form_id($id = "")
     {
-        if (!empty($id)) {
+        if ($id !== '') {
             $this->populate();
         }
     }
@@ -140,7 +139,7 @@ class Pharmacy extends ORDataObject
     }
     function get_transmit_method()
     {
-        if ($this->transmit_method == TRANSMIT_EMAIL && empty($this->email)) {
+        if ($this->transmit_method == TRANSMIT_EMAIL && $this->email === '') {
             return TRANSMIT_PRINT;
         }
 
@@ -153,65 +152,77 @@ class Pharmacy extends ORDataObject
     function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
-            if ($phone->type == TYPE_WORK) {
-                return $phone->get_phone_display();
+            if ($phone->type === PhoneType::WORK) {
+                return $phone->formatLocal();
             }
         }
-
         return "";
     }
-    function set_number($num, $type)
+    function set_number(string $num, PhoneType $type): void
     {
-        $found = false;
-        for ($i = 0; $i < count($this->phone_numbers); $i++) {
-            if ($this->phone_numbers[$i]->type == $type) {
-                $found = true;
-                $this->phone_numbers[$i]->set_phone($num);
-            }
+        $typed = TypedPhoneNumber::tryCreate($num, $type);
+        if ($typed === null) {
+            return;
         }
 
-        if ($found == false) {
-            $p = new PhoneNumber("", $this->id);
-            $p->set_type($type);
-            $p->set_phone($num);
-            $this->phone_numbers[] = $p;
-            //print_r($this->phone_numbers);
-            //echo "num is now:" . $p->get_phone_display()  . "<br />";
+        // Replace existing phone of same type, or add new
+        foreach ($this->phone_numbers as $i => $phone) {
+            if ($phone->type === $type) {
+                $this->phone_numbers[$i] = $typed;
+                return;
+            }
         }
+        $this->phone_numbers[] = $typed;
     }
 
     function set_phone($phone)
     {
-        $this->set_number($phone, TYPE_WORK);
+        $this->set_number($phone, PhoneType::WORK);
     }
     function set_fax($fax)
     {
-        $this->set_number($fax, TYPE_FAX);
+        $this->set_number($fax, PhoneType::FAX);
     }
 
     function get_fax()
     {
         foreach ($this->phone_numbers as $phone) {
-            if ($phone->type == TYPE_FAX) {
-                return $phone->get_phone_display();
+            if ($phone->type === PhoneType::FAX) {
+                return $phone->formatLocal();
             }
         }
-
         return "";
     }
     function populate()
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
-        $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
+        $phoneService = new PhoneNumberService();
+        $this->phone_numbers = [];
+        foreach ($phoneService->getPhonesByForeignId($this->id) as $record) {
+            $areaCode = (string) ($record['area_code'] ?? '');
+            $prefix = (string) ($record['prefix'] ?? '');
+            $number = (string) ($record['number'] ?? '');
+            $phoneStr = $areaCode . $prefix . $number;
+            $typeValue = is_int($record['type']) ? $record['type'] : PhoneType::WORK->value;
+            $type = PhoneType::tryFrom($typeValue) ?? PhoneType::WORK;
+            $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
+            if ($typed !== null) {
+                $this->phone_numbers[] = $typed;
+            }
+        }
     }
 
     function persist()
     {
         parent::persist();
         $this->address->persist($this->id);
+        $phoneService = new PhoneNumberService();
         foreach ($this->phone_numbers as $phone) {
-            $phone->persist($this->id);
+            $phoneData = ['phone' => $phone->phoneNumber->getNationalDigits()];
+            $phoneService->type = $phone->type->value;
+            // Always insert for now - PhoneNumberService handles upsert logic
+            $phoneService->insert($phoneData, $this->id);
         }
     }
 
@@ -222,13 +233,12 @@ class Pharmacy extends ORDataObject
             "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
         while ($row = sqlFetchArray($res)) {
-                $d_string = $row['city'];
-            if (!empty($row['city']) && $row['state']) {
+            $d_string = $row['city'];
+            if (($row['city'] ?? '') !== '' && ($row['state'] ?? '') !== '') {
                 $d_string .= ", ";
             }
-
-                $d_string .=  $row['state'];
-                $pharmacy_array[strval($row['id'])] = $row['name'] . " " . $d_string;
+            $d_string .= $row['state'];
+            $pharmacy_array[strval($row['id'])] = $row['name'] . " " . $d_string;
         }
 
         return ($pharmacy_array);
@@ -241,7 +251,7 @@ class Pharmacy extends ORDataObject
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id ";
-        if (!empty($GLOBALS['weno_rx_enable'])) {
+        if ($GLOBALS['weno_rx_enable'] ?? false) {
             $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
         }
         $sql .= "ORDER BY name";
@@ -263,10 +273,11 @@ class Pharmacy extends ORDataObject
 
     function toString($html = false)
     {
+        $phoneDisplay = ($this->phone_numbers[0] ?? null)?->formatLocal() ?? '';
         $string = "\n"
         . "ID: " . $this->id . "\n"
         . "Name: " . $this->name . "\n"
-        . "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
+        . "Phone: " . $phoneDisplay . "\n"
         . "Email:" . $this->email . "\n"
         . "Address: " . $this->address->toString($html) . "\n"
         . "Method: " . $this->transmit_method_array[$this->transmit_method];

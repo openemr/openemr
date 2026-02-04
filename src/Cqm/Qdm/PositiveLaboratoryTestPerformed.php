@@ -26,4 +26,3 @@ class PositiveLaboratoryTestPerformed extends LaboratoryTestPerformed
 
     public $_type = 'QDM::PositiveLaboratoryTestPerformed';
 }
-

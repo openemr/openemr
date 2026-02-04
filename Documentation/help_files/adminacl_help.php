@@ -122,7 +122,7 @@ use OpenEMR\Core\Header;
                             </ul>
                         <li><strong><?php echo xlt('Menus (menus)');?></strong></li>
                             <ul>
-                                <li><?php echo xlt('Modules (modle)');?></li>
+                                <li><?php echo xlt('Modules (module)');?></li>
                             </ul>
                         <li><strong><?php echo xlt('Nation Notes (nationnotes)');?></strong></li>
                             <ul>

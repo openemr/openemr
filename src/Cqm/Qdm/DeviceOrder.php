@@ -61,4 +61,3 @@ class DeviceOrder extends QDMBaseType
 
     public $_type = 'QDM::DeviceOrder';
 }
-

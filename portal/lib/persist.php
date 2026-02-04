@@ -11,23 +11,23 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $sessionAllowWrite = true;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . '/../../interface/globals.php');
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . '/../../interface/globals.php');
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = 'index.php';
         header('Location: ' . $landingpage);
         exit;
@@ -39,12 +39,12 @@ use OpenEMR\Services\PatientPortalService;
 
 $data = (array)(json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR));
 
-if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
+if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'], 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
 if (!empty($data['where'] ?? null)) {
-    $_SESSION['whereto'] = $data['where'];
+    $session->set('whereto', $data['where']);
 }
 
 // Set a patient setting to persist

@@ -81,7 +81,13 @@ ko.bindingHandlers.location={
                 } else {
                     // need to cancel the loading if we are on another domain
                     // setting the title will hide the spinner and remove the Loading... text
-                    tabData.title(xl("Unknown"));
+                    const currentUrl = tabData.url?.() ?? '';
+
+                    // eRx pages navigate to an external domain (NewCrop), so the iframe document is unreadable
+                    const erxMarkers = ['/interface/eRx.php', 'newcrop'];
+                    const isErxPage = currentUrl && erxMarkers.some(marker => currentUrl.includes(marker));
+
+                    tabData.title(xl(isErxPage ? 'Ensora eRx' : 'Unknown'));
                 }
             } ,true
         );

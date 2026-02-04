@@ -7,6 +7,9 @@ require_once("verysimple/DB/ISqlFunction.php");
 require_once("verysimple/DB/DatabaseException.php");
 require_once("verysimple/DB/DatabaseConfig.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * An implementation of IDataDriver that communicates with
  * a MySQL server.
@@ -63,13 +66,14 @@ class DataDriverMySQLi implements IDataDriver
         if (! function_exists("mysqli_connect")) {
             throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $globalsBag = OEGlobalsBag::getInstance();
             // if the port is provided in the connection string then strip it out and provide it as a separate param
         $hostAndPort = explode(":", $connectionstring);
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
 
-        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+        if ((!empty($globalsBag->get("enable_database_connection_pooling")) || !empty($session->get("enable_database_connection_pooling"))) && empty($globalsBag->get('connection_pooling_off'))) {
             $host = "p:" . $host;
         }
 
@@ -79,19 +83,20 @@ class DataDriverMySQLi implements IDataDriver
         }
 
         //Below was added by OpenEMR to support mysql ssl
+        $oeSiteDir = $globalsBag->getString('OE_SITE_DIR');
         $mysqlSsl = false;
-        if (defined('MYSQLI_CLIENT_SSL') && file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+        if (defined('MYSQLI_CLIENT_SSL') && file_exists("$oeSiteDir/documents/certificates/mysql-ca")) {
             $mysqlSsl = true;
             if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+                file_exists("$oeSiteDir/documents/certificates/mysql-key") &&
+                file_exists("$oeSiteDir/documents/certificates/mysql-cert")
             ) {
                 // with client side certificate/key
                 mysqli_ssl_set(
                     $connection,
-                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key",
-                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert",
-                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    "$oeSiteDir/documents/certificates/mysql-key",
+                    "$oeSiteDir/documents/certificates/mysql-cert",
+                    "$oeSiteDir/documents/certificates/mysql-ca",
                     null,
                     null
                 );
@@ -101,7 +106,7 @@ class DataDriverMySQLi implements IDataDriver
                     $connection,
                     null,
                     null,
-                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    "$oeSiteDir/documents/certificates/mysql-ca",
                     null,
                     null
                 );
@@ -152,7 +157,7 @@ class DataDriverMySQLi implements IDataDriver
             }
         }
 
-        if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
+        if (!empty($globalsBag->getString('debug_ssl_mysql_connection'))) {
             $sslTestCipher = mysqli_query($connection, "SHOW STATUS LIKE 'Ssl_cipher';");
             error_log("CHECK SSL CIPHER IN PATIENT PORTAL MYSQLI: " . htmlspecialchars(print_r(mysqli_fetch_assoc($sslTestCipher), true), ENT_QUOTES));
             mysqli_free_result($sslTestCipher);

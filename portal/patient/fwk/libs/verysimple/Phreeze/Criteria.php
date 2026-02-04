@@ -10,7 +10,7 @@ require_once("CriteriaFilter.php");
 require_once("verysimple/IO/Includer.php");
 
 /**
- * Criteria is a base object that is passed into Phreeze->Query for retreiving
+ * Criteria is a base object that is passed into Phreeze->Query for retrieving
  * records based on specific criteria
  *
  * @package verysimple::Phreeze
@@ -168,7 +168,7 @@ class Criteria
     }
 
     /**
-     * Reset the Criteria for re-use.
+     * Reset the Criteria for reuse.
      * This is called by querybuilder after the criteria has been used
      * to generate SQL. It can be called manually as well.
      */

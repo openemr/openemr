@@ -124,7 +124,7 @@ abstract class AbstractClickmapModel extends ORDataObject
     /**
      * @brief Override this abstract function with your implementation of getCode.
      *
-     * @return A string thats a 'code' for this form.
+     * @return A string that's a 'code' for this form.
      */
     abstract function getCode();
 

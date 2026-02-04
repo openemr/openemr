@@ -26,4 +26,3 @@ class PositiveEncounterRecommended extends EncounterRecommended
 
     public $_type = 'QDM::PositiveEncounterRecommended';
 }
-

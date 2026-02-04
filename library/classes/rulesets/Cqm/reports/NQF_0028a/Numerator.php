@@ -16,7 +16,7 @@ class NQF_0028a_Numerator implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
+        // See if user has been a tobacco user before or simultaneously to the encounter within two years (24 months)
         foreach ($this->getApplicableEncounters() as $encType) {
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             foreach ($dates as $date) {

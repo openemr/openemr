@@ -406,7 +406,7 @@ function phimail_check(): void
 
             $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
 
-            //logging only after succesful download, storage, and acknowledgement of message
+            //logging only after successful download, storage, and acknowledgement of message
             $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
                 "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
             $res = sqlStatementNoLog($sql, [$msg_id, $sender, $recipient, phimail_service_userID()]);
@@ -439,7 +439,7 @@ function phimail_check(): void
                     if (empty($body_text ?? '')) {
                         $body_text = xl("Please note, this message was received empty and is not an error.");
                     } else {
-                        // meager attempt to covert to text. @TODO convert our Messages message body from textarea to div so can display html.
+                        // meager attempt to convert to text. @TODO convert our Messages message body from textarea to div so can display html.
                         $body_text = trim(html_entity_decode(strip_tags(str_ireplace(["<br />", "<br>", "<br/>"], PHP_EOL, $body_text))));
                     }
                     $pnote_id = addPnote(
@@ -612,7 +612,7 @@ function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
     if (!$isAllowedFile) {
         // we used to only bypass if the Direct mime type matched with what comes through in the event.
         // This fails though if there are multiple possible mime types such as application/xml vs text/xml and the Direct
-        // mime type differs from the local OS detection. We will just bypass the mime check alltogether.
+        // mime type differs from the local OS detection. We will just bypass the mime check altogether.
         $event->setAllowedFile(true);
     }
     return $event;

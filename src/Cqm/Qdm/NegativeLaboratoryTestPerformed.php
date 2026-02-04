@@ -26,4 +26,3 @@ class NegativeLaboratoryTestPerformed extends LaboratoryTestPerformed
 
     public $_type = 'QDM::NegativeLaboratoryTestPerformed';
 }
-

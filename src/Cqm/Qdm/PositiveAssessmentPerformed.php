@@ -26,4 +26,3 @@ class PositiveAssessmentPerformed extends AssessmentPerformed
 
     public $_type = 'QDM::PositiveAssessmentPerformed';
 }
-

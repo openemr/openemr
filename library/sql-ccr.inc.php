@@ -308,7 +308,7 @@ function getProblemData()
 
   # Note we are hard-coding (only allowing) problems that have been coded to ICD9. Would
   #  be easy to upgrade this to other codesets in future (ICD10,SNOMED) by using already
-  #  existant flags in the code_types table.
+  #  existent flags in the code_types table.
   # Additionally, only using problems that have one diagnosis code set in diagnosis field.
   #  Note OpenEMR allows multiple codes set per problem, but will limit to showing only
   #  problems with one diagnostic code set in order to maintain previous behavior

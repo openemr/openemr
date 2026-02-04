@@ -239,7 +239,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                             <?php
                             if (!empty($obj["provider_id"])) {
                                 $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
-                            } else { // defalut to the patient's ref_prov
+                            } else { // default to the patient's ref_prov
                                 $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                             } ?>
                         </div>

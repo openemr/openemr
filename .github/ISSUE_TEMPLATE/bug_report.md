@@ -30,5 +30,3 @@ Steps to reproduce the behavior:
 
 <!-- Love openemr? Please consider supporting our project:
 👉  https://github.com/sponsors/openemr -->
-
-

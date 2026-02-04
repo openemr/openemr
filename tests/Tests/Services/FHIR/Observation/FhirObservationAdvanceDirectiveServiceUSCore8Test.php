@@ -191,7 +191,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertNotEmpty($profiles, 'Observation must have at least one profile');
 
         // Verify US Core 8.0 ADI profile is present
-        $profileUris = array_map(fn($profile) => (string)$profile, $profiles);
+        $profileUris = array_map(static fn($profile): string => (string)$profile, $profiles);
 
         $expectedProfile = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation|8.0.0';
         $this->assertContains(
@@ -277,6 +277,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'LOINC display must match expected');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function allSupportedCodesProvider(): array
     {
         // This will be populated in setUp, but we need to return static data
@@ -502,6 +503,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'Value display must match');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function valueSetCodesProvider(): array
     {
         return [

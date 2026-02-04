@@ -2363,6 +2363,8 @@ final class EventAuditLoggerTest extends TestCase
      * Data provider for HTTP request tests
      *
      * @return array<string, array<string, string|int|null>>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function httpRequestDataProvider(): array
     {

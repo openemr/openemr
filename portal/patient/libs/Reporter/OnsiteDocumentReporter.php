@@ -15,7 +15,7 @@ require_once("verysimple/Phreeze/Reporter.php");
 
 /**
  * This is an example Reporter based on the OnsiteDocument object.  The reporter object
- * allows you to run arbitrary queries that return data which may or may not fith within
+ * allows you to run arbitrary queries that return data which may or may not fit within
  * the data access API.  This can include aggregate data or subsets of data.
  *
  * Note that Reporters are read-only and cannot be used for saving data.

@@ -23,10 +23,13 @@ require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
@@ -37,7 +40,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -77,33 +80,6 @@ if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
 function QuotedOrNull($fld)
 {
     return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
-}
-
-function rbinput($name, $value, $desc, $colname)
-{
-    global $irow;
-    $_p = [
-        attr($name),
-        attr($value),
-        ($irow[$colname] == $value) ? " checked" : "",
-        text($desc)
-    ];
-    $str = '<input type="radio" name="%s" value="%s" %s>%s';
-    return vsprintf($str, $_p);
-}
-
-// Given an issue type as a string, compute its index.
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-        ++$i;
-    }
-    return $i;
 }
 
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
@@ -225,7 +201,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -292,8 +268,8 @@ if (!empty($_POST['form_save'])) {
     } else {
         $issueRecord["date"] = date("Y-m-d H:m:s");
         $issueRecord['activity'] = 1;
-        $issueRecord['user'] = $_SESSION['authUser'];
-        $issueRecord['groupname'] = $_SESSION['authProvider'];
+        $issueRecord['user'] = $session->get('authUser');
+        $issueRecord['groupname'] = $session->get('authProvider');
         $savedRecord = $patientIssuesService->createIssue($issueRecord);
         $issue = $savedRecord['id'] ?? "";
     }
@@ -312,7 +288,7 @@ if (!empty($_POST['form_save'])) {
     // If requested, link the issue to a specified encounter.
     if ($thisenc) {
         $patientIssuesService = new PatientIssuesService();
-        $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $_SESSION['authUserID']);
+        $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $session->get('authUserID'));
     }
 
     $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " . substr((string) $_POST['form_title'], 0, 40);
@@ -537,7 +513,7 @@ function getCodeText($code)
 
     // Called when the Active checkbox is clicked.  For consistency we
     // use the existence of an end date to indicate inactivity, even
-    // though the simple verion of the form does not show an end date.
+    // though the simple version of the form does not show an end date.
     function activeClicked(cb) {
         var f = document.forms[0];
         if (cb.checked) {
@@ -680,7 +656,7 @@ function getCodeText($code)
         param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Processing'); ?>);
 
         top.restoreSession();
-        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi')); ?>;
+        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi', $session->getSymfonySession())); ?>;
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -795,7 +771,7 @@ function getCodeText($code)
                     <div class="container-fluid">
                         <div class="row">
                             <div class='col-sm-6'>
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.

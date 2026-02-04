@@ -75,6 +75,6 @@ try {
         $twig->render('error/general_http_error', ['statusCode' => 500]);
         exit;
     } else {
-        echo xlt("Server error occured. Check logs for details");
+        echo xlt("Server error occurred. Check logs for details");
     }
 }

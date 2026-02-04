@@ -79,7 +79,10 @@ class CsrfUtils
     }
 
     // Function to manage when a csrf token is not verified
-    public static function csrfNotVerified($toScreen = true, $toLog = true, $die = true)
+    /**
+     * @return ($die is true ? never : void)
+     */
+    public static function csrfNotVerified(bool $toScreen = true, bool $toLog = true, bool $die = true)
     {
         if ($toScreen) {
             echo xlt('Authentication Error');

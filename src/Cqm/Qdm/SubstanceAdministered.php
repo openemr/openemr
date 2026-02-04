@@ -81,4 +81,3 @@ class SubstanceAdministered extends QDMBaseType
 
     public $_type = 'QDM::SubstanceAdministered';
 }
-

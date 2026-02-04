@@ -49,4 +49,3 @@ use OpenEMR\Common\Acl\AclMain;
 
     </ul>
 </nav>
-

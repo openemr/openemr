@@ -46,4 +46,3 @@ class PatientCharacteristicBirthdate extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicBirthdate';
 }
-

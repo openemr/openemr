@@ -29,30 +29,6 @@ if (!$thisauth) {
     exit;
 }
 
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = "($value)";
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
 function generate_order_summary($orderid): void
 {
 

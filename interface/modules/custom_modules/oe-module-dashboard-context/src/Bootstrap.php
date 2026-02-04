@@ -138,9 +138,9 @@ class Bootstrap
         try {
             $controller = new ContextWidgetController();
             $navHtml = $controller->renderNavbarDropdown();
-            
+
             $this->logger->debug("DashboardContext: Appending titleNavContent", ['length' => strlen($navHtml)]);
-            
+
             // Append HTML content to be injected into the title nav area
             // This will appear between the page title and the action buttons
             // Let modules be modules ...

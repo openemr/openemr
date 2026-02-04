@@ -37,11 +37,11 @@ if (!empty($_POST)) {
     }
 }
 
-// Element data seperator
+// Element data separator
 $eleDataSep = "*";
 // Segment Terminator
 $segTer = "~";
-// Component Element seperator
+// Component Element separator
 $compEleSep     = ":";
 
 // filter conditions for the report and batch creation

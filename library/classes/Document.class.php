@@ -23,6 +23,8 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -68,7 +70,7 @@ class Document extends ORDataObject
 
     /*
     *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
-    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
+    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatibility we ONLY use this for patient
     *  documents.
     *   @public int
     */
@@ -144,7 +146,7 @@ class Document extends ORDataObject
     public $pages;
 
     /*
-    *   Foreign key identifier of who initially persisited the document,
+    *   Foreign key identifier of who initially persisted the document,
     *   potentially ownership could be changed but that would be up to an external non-document object process
     *   @public int
     */
@@ -793,7 +795,7 @@ class Document extends ORDataObject
     }
     /*
     *   Overridden function to stor current object state in the db.
-    *   current overide is to allow for a just in time foreign id, often this is needed
+    *   current override is to allow for a just in time foreign id, often this is needed
     *   when the object is never directly exposed and is handled as part of a larger
     *   object hierarchy.
     *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
@@ -897,7 +899,8 @@ class Document extends ORDataObject
         $tmpfile = null,
         $date_expires = null,
         $foreign_reference_id = null,
-        $foreign_reference_table = null
+        $foreign_reference_table = null,
+        $eid = "",
     ) {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
@@ -905,6 +908,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
@@ -932,7 +936,7 @@ class Document extends ORDataObject
             $has_thumbnail = false;
         }
 
-        $encounter_id = '';
+        $encounter_id = $eid;
         $this->storagemethod = $GLOBALS['document_storage_method'];
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
@@ -995,7 +999,8 @@ class Document extends ORDataObject
             // Storing document files locally.
             $repository = $GLOBALS['oer_config']['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
-            if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
+            $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
+            if ((!empty($higher_level_path)) && $validPatientId !== false) {
                 // Allow higher level directory structure in documents directory and a patient is mapped.
                 $filepath = $repository . $higher_level_path . "/";
             } elseif (!empty($higher_level_path)) {
@@ -1003,7 +1008,7 @@ class Document extends ORDataObject
                 // (will create up to 10000 random directories and increment the path_depth by 1).
                 $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
                 ++$path_depth;
-            } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+            } elseif ($validPatientId === false) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
                 $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
@@ -1051,7 +1056,7 @@ class Document extends ORDataObject
                     $storedThumbnailData = $thumbnail_data;
                 }
                 if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
-                    // this should never happend with current uuid mechanism
+                    // this should never happen with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
                 if (
@@ -1080,8 +1085,9 @@ class Document extends ORDataObject
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
+        $this->owner = $owner ?: $session->get('authUserID');
         $this->date_expires = $date_expires;
+        $this->encounter_id = $encounter_id;
         $this->set_foreign_id($patient_id);
         $this->persist();
         $this->populate();

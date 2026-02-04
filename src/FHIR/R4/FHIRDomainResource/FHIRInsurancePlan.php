@@ -107,7 +107,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     public $period = null;
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public $ownedBy = null;
@@ -280,7 +280,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public function getOwnedBy()
@@ -289,7 +289,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ownedBy
      * @return $this
      */

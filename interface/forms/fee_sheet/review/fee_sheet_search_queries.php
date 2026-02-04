@@ -5,12 +5,16 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("$srcdir/../custom/code_types.inc.php");
+
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 
 /**
  *
@@ -26,7 +30,7 @@ function diagnosis_search($search_type_id, $search_type, $search_query)
     $retval = [];
     $search = main_code_set_search($search_type, $search_query, 20);
     while ($code = sqlFetchArray($search)) {
-        array_push($retval, new code_info($code['code'], $search_type, $code['code_text']));
+        array_push($retval, new CodeInfo($code['code'], $search_type, $code['code_text']));
     }
 
     return $retval;

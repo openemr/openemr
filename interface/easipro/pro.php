@@ -59,7 +59,7 @@ use OpenEMR\OeUI\OemrUI;
                 dataType: "json",
                 success: function (data) {
                     if (data.Error) {
-                        syncAlertMsg(data.Error, 10000);
+                        asyncAlertMsg(data.Error, 10000);
                         // let drop through to show available categories.
                     }
                     $('#form-list').html("");

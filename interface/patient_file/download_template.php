@@ -216,7 +216,7 @@ function doSubs($s)
            /* defaults to ISO standard date format yyyy-mm-dd
             * modified by string following ':' as follows
             * 'global' will use the global date format setting
-            * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' overide the global setting
+            * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' override the global setting
             * anything else is ignored
             *
             * oeFormatShortDate($date = 'today', $showYear = true) - OpenEMR function to format
@@ -230,7 +230,7 @@ function doSubs($s)
                 /* use global setting */
                 $currentdate = oeFormatShortDate(date('Y-m-d'), true);
             } elseif (
-                /* there's an overiding format */
+                /* there's an overriding format */
                     preg_match('/YYYY-MM-DD/i', $matched, $matches)
             ) {
                    /* nothing to do here as this is the default format */

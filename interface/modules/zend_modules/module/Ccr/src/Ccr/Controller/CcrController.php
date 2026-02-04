@@ -238,7 +238,7 @@ class CcrController extends AbstractActionController
     * Review the data imported from the CCR file
     * Approve/Discard the data imported
     *
-    * @param    amid            Audit mater table ID
+    * @param    amid            Audit master table ID
     * @param    pid             Patient ID to which the data has to be merged
     * @param    document_id     documents table ID
     */

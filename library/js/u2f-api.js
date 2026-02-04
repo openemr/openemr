@@ -37,7 +37,7 @@ var js_api_version;
 
 
 /**
- * Message types for messsages to/from the extension
+ * Message types for messages to/from the extension
  * @const
  * @enum {string}
  */

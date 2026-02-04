@@ -54,7 +54,7 @@ class DashboardContextAdminService
             }
         }
 
-        $sql = "SELECT cd.*, u.username as created_by_username 
+        $sql = "SELECT cd.*, u.username as created_by_username
                 FROM {$this->contextTable} cd
                 LEFT JOIN users u ON cd.user_id = u.id
                 ORDER BY cd.sort_order, cd.context_name";
@@ -96,8 +96,8 @@ class DashboardContextAdminService
         }
 
         $result = QueryUtils::sqlStatementThrowException(
-            "INSERT INTO {$this->contextTable} 
-            (user_id, context_key, context_name, description, widget_config, is_global, sort_order, created_at, updated_at) 
+            "INSERT INTO {$this->contextTable}
+            (user_id, context_key, context_name, description, widget_config, is_global, sort_order, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
             [
                 $createdBy,
@@ -173,7 +173,7 @@ class DashboardContextAdminService
 
     /**
      * Get all users with their current context assignments
-     * 
+     *
      * Updated to use the new user_dashboard_context_config table for checking
      * if user has custom widget configurations.
      */
@@ -204,7 +204,7 @@ class DashboardContextAdminService
 
         // Updated query: removed widget_config from user_dashboard_context
         // Now we check user_dashboard_context_config for custom configs
-        $sql = "SELECT 
+        $sql = "SELECT
                     u.id,
                     u.username,
                     u.fname,
@@ -258,14 +258,14 @@ class DashboardContextAdminService
      */
     public function getUserContextConfigs(int $userId): array
     {
-        $sql = "SELECT context_key, widget_config, created_at, updated_at 
-                FROM {$this->userContextConfigTable} 
-                WHERE user_id = ? 
+        $sql = "SELECT context_key, widget_config, created_at, updated_at
+                FROM {$this->userContextConfigTable}
+                WHERE user_id = ?
                 ORDER BY context_key";
-        
+
         $result = QueryUtils::sqlStatementThrowException($sql, [$userId]);
         $configs = [];
-        
+
         while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $configs[$row['context_key']] = [
                 'widget_config' => json_decode((string) $row['widget_config'], true),
@@ -273,7 +273,7 @@ class DashboardContextAdminService
                 'updated_at' => $row['updated_at'],
             ];
         }
-        
+
         return $configs;
     }
 
@@ -305,8 +305,8 @@ class DashboardContextAdminService
         );
 
         $result = QueryUtils::sqlStatementThrowException(
-            "INSERT INTO {$this->assignmentTable} 
-            (user_id, context_id, context_key, assigned_by, is_locked, is_active, assigned_at) 
+            "INSERT INTO {$this->assignmentTable}
+            (user_id, context_id, context_key, assigned_by, is_locked, is_active, assigned_at)
             VALUES (?, ?, ?, ?, ?, 1, NOW())",
             [$userId, $contextId, $contextKey, $assignedBy, $isLocked ? 1 : 0]
         );
@@ -494,7 +494,7 @@ class DashboardContextAdminService
      */
     public function getContextUsageStats(): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     COALESCE(udc.active_context, 'primary_care') as context_key,
                     COUNT(*) as user_count
                 FROM users u
@@ -518,7 +518,7 @@ class DashboardContextAdminService
      */
     public function getCustomConfigStats(): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     context_key,
                     COUNT(DISTINCT user_id) as user_count
                 FROM {$this->userContextConfigTable}
@@ -625,9 +625,9 @@ class DashboardContextAdminService
             $params[] = $filters['date_to'];
         }
 
-        $sql = "SELECT al.*, 
-                       u.username as user_username, 
-                       u.fname as user_fname, 
+        $sql = "SELECT al.*,
+                       u.username as user_username,
+                       u.fname as user_fname,
                        u.lname as user_lname,
                        p.username as performer_username
                 FROM {$this->auditLogTable} al

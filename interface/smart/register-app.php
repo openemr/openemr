@@ -2,7 +2,7 @@
 
 /**
  * register-app.php Handles the registration of a new OpenEMR OAuth2 application.  This is just a front-end GUI for the
- * /oauth2/<site>/registeration endpoint.
+ * /oauth2/<site>/registration endpoint.
  * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR

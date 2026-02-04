@@ -37,5 +37,3 @@ sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id'
     <p><?php echo "<br> <br>" .  xlt("If you are seeing this message the record was deleted. Click done, pls"); ?></p>
 </body>
 </html>
-
-

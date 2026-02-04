@@ -26,4 +26,3 @@ class NegativeCommunicationPerformed extends CommunicationPerformed
 
     public $_type = 'QDM::NegativeCommunicationPerformed';
 }
-
