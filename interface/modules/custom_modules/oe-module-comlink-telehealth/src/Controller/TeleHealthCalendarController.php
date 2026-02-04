@@ -16,7 +16,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
