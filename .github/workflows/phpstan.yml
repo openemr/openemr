@@ -67,6 +67,8 @@ jobs:
     - name: PHPStan Baseline
       if: failure()
       run: composer run phpstan-baseline
+    # Upload the resulting baseline as an artifact. This is intended mostly for
+    # debugging and isn't actively used by GH workflows.
     - name: Upload PHPStan Baseline
       if: failure()
       uses: actions/upload-artifact@v6
