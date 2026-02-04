@@ -132,9 +132,6 @@ class AuthHash
 
     public function passwordHash(&$password)
     {
-        // TODO: remove this test error
-        $this->thisMethodDoesNotExist();
-
         // Process SHA512HASH algo separately, since uses crypt
         if ($this->algo == "SHA512HASH") {
             // Create salt
