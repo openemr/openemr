@@ -411,19 +411,6 @@ function cron_SetMessage($prow, $db_sms_msg): string
     return $message;
 }
 
-/**
- * Get Notification Settings
- *
- * @return array|false
- */
-function cron_GetNotificationSettings(): bool|array
-{
-    $strQuery = "SELECT * FROM notification_settings WHERE type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return ($vectNotificationSettings);
-}
-
 function displayHelp(): void
 {
     //echo text($helpt);

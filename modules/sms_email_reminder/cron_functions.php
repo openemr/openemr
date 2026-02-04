@@ -344,14 +344,3 @@ function cron_setmessage($prow, $db_email_msg)
     return $message;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_GetNotificationSettings
-// Purpose: get notification settings
-////////////////////////////////////////////////////////////////////
-function cron_GetNotificationSettings()
-{
-    $strQuery = "select * from notification_settings where type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return( $vectNotificationSettings );
-}

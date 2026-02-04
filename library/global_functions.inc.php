@@ -753,6 +753,18 @@ function cron_getFacilitiesMap(FacilityService $facilityService)
 }
 
 /**
+ * Get notification settings from the database.
+ *
+ * @return array|false The notification settings row, or false if not found
+ */
+function cron_GetNotificationSettings(): array|false
+{
+    return sqlFetchArray(sqlStatement(
+        "SELECT * FROM notification_settings WHERE type = 'SMS/Email Settings'"
+    ));
+}
+
+/**
  * Update calendar event to mark that an alert was sent to the patient.
  *
  * @param string $type The notification type ('SMS', 'Email', or 'Phone')
