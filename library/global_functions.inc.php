@@ -661,3 +661,48 @@ function getListItem($listid, $value)
 
     return $tmp;
 }
+
+// ============================================================================
+// Tax Calculation Functions
+// ============================================================================
+
+/**
+ * Compute taxes from a tax rate string and a possibly taxable amount.
+ *
+ * @param array $row Row containing 'taxrates' field (colon-separated rate IDs)
+ * @param float $amount The taxable amount
+ * @return float The total tax amount
+ */
+function calcTaxes($row, $amount)
+{
+    $total = 0;
+    if (empty($row['taxrates'])) {
+        return $total;
+    }
+
+    $arates = explode(':', (string) $row['taxrates']);
+    if (empty($arates)) {
+        return $total;
+    }
+
+    foreach ($arates as $value) {
+        if (empty($value)) {
+            continue;
+        }
+
+        $trow = sqlQuery(
+            "SELECT option_value FROM list_options WHERE " .
+            "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1",
+            [$value]
+        );
+        if (empty($trow['option_value'])) {
+            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
+            continue;
+        }
+
+        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
+        $total += $tax;
+    }
+
+    return $total;
+}
