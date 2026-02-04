@@ -75,6 +75,27 @@ trait BaseTrait
         }
     }
 
+    /**
+     * Wait for the application to be fully initialized after login.
+     *
+     * Verifies Knockout.js has applied bindings by checking that the
+     * #mainMenu div has children (rendered by the menu template).
+     * Without this gate, tests that immediately navigate menus can
+     * fail because the page HTML loaded but the JS framework hasn't
+     * finished rendering.
+     *
+     * Note: a refresh-and-retry strategy won't work here because
+     * prevent_browser_refresh defaults to 2, which causes main.php
+     * to consume the session token after first validation. A refresh
+     * would fail token validation and destroy the session.
+     */
+    private function waitForAppReady(): void
+    {
+        $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
+            'return document.getElementById("mainMenu")?.children.length > 0'
+        ));
+    }
+
     private function switchToIFrame(string $xpath): void
     {
         $selector = WebDriverBy::xpath($xpath);
@@ -124,13 +145,6 @@ trait BaseTrait
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
-        // Wait for the page to be fully loaded. Catches pending resource
-        // loads that could prevent Knockout.js from applying bindings.
-        $this->client->wait(30)->until(
-            fn($driver) => $driver->executeScript('return document.readyState') === 'complete'
-        );
-        // Wait for the main menu to be populated by Knockout.js
-        $this->client->waitForVisibility('//div[@id="mainMenu"]/div', 30);
         // go to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;

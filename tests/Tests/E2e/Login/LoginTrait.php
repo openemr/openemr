@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -47,6 +49,12 @@ trait LoginTrait
         $title = $this->client->getTitle();
         if ($goalPass) {
             $this->assertSame('OpenEMR', $title, 'Login FAILED');
+            // Wait for the JavaScript application to fully initialize
+            // (Knockout.js bindings applied, menu rendered). Without
+            // this, tests that immediately navigate menus or click UI
+            // elements can fail because the page HTML loaded but the
+            // JS framework hasn't finished rendering.
+            $this->waitForAppReady();
         } else {
             $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should have FAILED');
         }
