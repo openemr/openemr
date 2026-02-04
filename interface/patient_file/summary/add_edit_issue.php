@@ -77,11 +77,6 @@ if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
     die(xlt("Not authorized for this squad!"));
 }
 
-function QuotedOrNull($fld)
-{
-    return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////
