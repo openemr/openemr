@@ -69,9 +69,14 @@ trait UserAddTrait
         // add the user
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use elementToBeClickable + direct WebDriver click instead of
+        // Panther's refreshCrawler/filterXPath/click pattern
+        $addUserBtn = $this->client->wait(30)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $addUserBtn->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
@@ -88,8 +93,14 @@ trait UserAddTrait
 
         $this->populateUserFormReliably($username);
 
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use direct WebDriver click instead of Panther's crawler click,
+        // which can fail with stale DOM references
+        $createBtn = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $createBtn->click();
 
         // Switch to default content to properly detect modal state changes
         $this->client->switchTo()->defaultContent();
@@ -146,12 +157,18 @@ trait UserAddTrait
         // Set username last to ensure earlier field handlers cannot overwrite it
         $this->clearAndType($driver, 'rumple', $username);
 
-        // Verify critical fields accepted the values
+        // Verify all form fields accepted their values. If a field was
+        // silently cleared by JavaScript, the form submission will fail
+        // server-side and the modal won't close, causing a timeout.
         $this->client->wait(10)->until(function ($driver) use ($username) {
             $rumple = $driver->findElement(WebDriverBy::name('rumple'));
             $stiltskin = $driver->findElement(WebDriverBy::name('stiltskin'));
+            $fname = $driver->findElement(WebDriverBy::name('fname'));
+            $lname = $driver->findElement(WebDriverBy::name('lname'));
             return $rumple->getAttribute('value') === $username
-                && $stiltskin->getAttribute('value') === UserTestData::PASSWORD;
+                && $stiltskin->getAttribute('value') === UserTestData::PASSWORD
+                && $fname->getAttribute('value') === UserTestData::FIRSTNAME
+                && $lname->getAttribute('value') === UserTestData::LASTNAME;
         });
 
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
