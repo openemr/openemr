@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -91,9 +92,33 @@ trait BaseTrait
      */
     private function waitForAppReady(): void
     {
-        $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
-            'return document.getElementById("mainMenu")?.children.length > 0'
-        ));
+        try {
+            $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
+                'return document.getElementById("mainMenu")?.children.length > 0'
+            ));
+        } catch (TimeoutException) {
+            // Gather page state to help diagnose timeout failures.
+            // Knowing whether the page loaded, Knockout.js initialized,
+            // and whether #mainMenu exists narrows down root causes.
+            try {
+                $diagnostics = (string) $this->client->executeScript(<<<'JS_WRAP'
+                    return JSON.stringify({
+                        url: location.href,
+                        readyState: document.readyState,
+                        title: document.title,
+                        koAvailable: typeof ko !== 'undefined',
+                        mainMenuExists: document.getElementById('mainMenu') !== null,
+                        mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
+                        bodyLength: document.body?.innerHTML?.length ?? 0
+                    });
+                JS_WRAP);
+            } catch (\Throwable) {
+                $diagnostics = 'unable to gather diagnostics (executeScript failed)';
+            }
+            throw new TimeoutException(
+                "waitForAppReady() timed out after 30s. Page state: {$diagnostics}"
+            );
+        }
     }
 
     private function switchToIFrame(string $xpath): void
