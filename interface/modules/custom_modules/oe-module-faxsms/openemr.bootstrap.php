@@ -56,15 +56,25 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  */
 $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
+$isUserPermissionOverride = BootstrapService::getVendorGlobal('oeenable_users_permissions') ?? false;
+
 
 // Verify our module service permissions based on User Permission overrides.
 // The Globals are set to the module services enabled status in module Setup.
 // Be aware that the Globals are set to the service vendor identifier(int) values in the module setup.
 // So not true/false booleans.
-$GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] ?? null : false;
-$GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] ?? null : false;
-$GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] ?? null : false;
-$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] ?? null : false;
+if ($isUserPermissionOverride) {
+    $GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] ?? null : false;
+    $GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] ?? null : false;
+    $GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] ?? null : false;
+    $GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] ?? null : false;
+} else {
+    // No user permission overrides, so just set to enabled/disabled based on module setup.
+    $GLOBALS['oefax_enable_fax'] = !empty($GLOBALS['oefax_enable_fax']) ? $GLOBALS['oefax_enable_fax'] : false;
+    $GLOBALS['oefax_enable_sms'] = !empty($GLOBALS['oefax_enable_sms']) ? $GLOBALS['oefax_enable_sms'] : false;
+    $GLOBALS['oe_enable_email'] = !empty($GLOBALS['oe_enable_email']) ? $GLOBALS['oe_enable_email'] : false;
+    $GLOBALS['oe_enable_voice'] = !empty($GLOBALS['oe_enable_voice']) ? $GLOBALS['oe_enable_voice'] : false;
+}
 // Set local variables for use in this bootstrap.
 $allowFax = $GLOBALS['oefax_enable_fax'];
 $allowSMS = $GLOBALS['oefax_enable_sms'];

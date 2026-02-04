@@ -381,7 +381,7 @@ function send_reminders()
                 sqlStatementCdrEngine("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", [$reminder['id']]);
                 $logging['number_success_emails']++;
             } else {
-                // deal with and keep track of this unsuccesful email
+                // deal with and keep track of this unsuccessful email
                 $logging['number_failed_emails']++;
             }
         }
@@ -417,7 +417,7 @@ function send_reminders()
     *        $logging['number_failed_calls']++;
     *      }
     *      else {
-    *        // deal with and keep track of this succesful call
+    *        // deal with and keep track of this successful call
     *        sqlStatementCdrEngine("UPDATE `patient_reminders` SET `voice_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
     *        $logging['number_success_calls']++;
     *      }

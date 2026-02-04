@@ -1734,7 +1734,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
         <text></text>
         <entry typeCode="DRIV">
           <act classCode="ACT" moodCode="EVN">
-            <!-- This is the templateId for Reporting Parameteres Act -->
+            <!-- This is the templateId for Reporting Parameters Act -->
             <templateId root="2.16.840.1.113883.10.20.17.3.8"/>
             <templateId extension="2016-03-01" root="2.16.840.1.113883.10.20.17.3.8.1"/>
             <id extension="de86fa20-bb25-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>

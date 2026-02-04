@@ -38,8 +38,8 @@
 
             function logoutWarn() {
                 const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
-                    '<br />' + xl('Please take action to prevent being logged out!');
-                syncAlertMsg(warnMsg, 28000); // from utility.js
+                    '\n' + xl('Please take action to prevent being logged out!');
+                asyncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
             function logout() {
@@ -67,7 +67,7 @@
 {% endblock %}
 {% block header %}
 <nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-	<a class="navbar-brand" href="{{ portalUrl }}">
+	<a class="navbar-brand" href="{{ portalUrl|attr }}">
 		<img class="img-fluid" width="140" src="{{ images_static_relative | attr }}/logo-full-con.png"/>
 	</a>
 </nav>
@@ -79,14 +79,14 @@
             {{ "We're sorry but this Telehealth Session either does not exist or has ended."|xlt }}
             {{ "Please contact your provider if you have questions."|xlt }}
         </p>
-        <a href="{{ portalUrl }}" class="btn btn-lg btn-link">{{ "Back to Portal Dashboard"|xlt  }}</a>
+        <a href="{{ portalUrl|attr }}" class="btn btn-lg btn-link">{{ "Back to Portal Dashboard"|xlt  }}</a>
     </div>
     <div class="card overflow-auto text-center {% if not activeSession %}d-none{% endif %}">
         <header class="card-header bg-primary text-light">{{ 'Starting Telehealth Session' | xlt }}</header>
         <h5 class="m-5">{{ "If your session does not start in a few seconds, use the Launch Session button below"|xlt }}</h5>
         <input class="btn btn-success btn-lg" type="button" value="{{ "Launch Session"|xlt  }}" />
 
-        <a href="{{ portalUrl }}" class="btn btn-lg btn-link mt-5">{{ "Back to Portal Dashboard"|xlt  }}</a>
+        <a href="{{ portalUrl|attr }}" class="btn btn-lg btn-link mt-5">{{ "Back to Portal Dashboard"|xlt  }}</a>
     </div>
     {% if activeSession %}
         <script>

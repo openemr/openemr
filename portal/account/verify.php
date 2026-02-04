@@ -15,24 +15,26 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
-session_regenerate_id(true);
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session->migrate(true);
 
-unset($_SESSION['itsme']);
-$_SESSION['verifyPortalEmail'] = true;
+$session->remove('itsme');
+$session->set('verifyPortalEmail', true);
 
 $ignoreAuth_onsite_portal = true;
 require_once("../../interface/globals.php");
 
-$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
+if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -40,10 +42,10 @@ if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_reca
 }
 
 // set up csrf
-CsrfUtils::setupCsrfKey();
+CsrfUtils::setupCsrfKey($session->getSymfonySession());
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [
-    $GLOBALS['language_default']
+    $globalsBag->get('language_default')
 ]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
@@ -57,13 +59,13 @@ if (count($result2) == 1) {
     $defaultLangName = "English";
 }
 
-if (!isset($_SESSION['language_choice'])) {
-    $_SESSION['language_choice'] = $defaultLangID;
+if (!$session->has('language_choice')) {
+    $session->set('language_choice', $defaultLangID);
 }
 // collect languages if showing language menu
-if ($GLOBALS['language_menu_login']) {
+if ($globalsBag->get('language_menu_login')) {
     // sorting order of language titles depends on language translation options.
-    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+    $mainLangID = empty($session->get('language_choice')) ? '1' : $session->get('language_choice');
     // Use and sort by the translated language name.
     $sql = "SELECT ll.lang_id, " . "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " . "ll.lang_description " .
         "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
@@ -221,11 +223,11 @@ if ($GLOBALS['language_menu_login']) {
         </div>
         <!-- // Start Forms // -->
         <form id="startForm" role="form" action="account.php?action=verify_email" method="post">
-            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf')); ?>' />
+            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf', $session->getSymfonySession())); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">
-                    <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) { ?>
+                    <?php if ($globalsBag->get('language_menu_login') && (count($result3) != 1)) { ?>
                         <div class="form-group">
                             <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
                             <select class="form-control" id="selLanguage" name="languageChoice">
@@ -233,15 +235,15 @@ if ($GLOBALS['language_menu_login']) {
                                 echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                                 foreach ($result3 as $iter) {
-                                    if ($GLOBALS['language_menu_showall']) {
-                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                    if ($globalsBag->get('language_menu_showall')) {
+                                        if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
                                         echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                             text($iter['trans_lang_description']) . "</option>\n";
                                     } else {
-                                        if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                        if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
+                                            if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                                 continue; // skip the dummy language
                                             }
                                             echo "<option value='" . attr($iter['lang_id']) . "'>" .
@@ -281,7 +283,7 @@ if ($GLOBALS['language_menu_login']) {
                     </div>
                     <div class="form-group">
                         <div class="d-flex justify-content-center">
-                            <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
+                            <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->get('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
                         </div>
                     </div>
                 </div>

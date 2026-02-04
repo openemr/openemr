@@ -76,4 +76,3 @@ class ProcedureOrder extends QDMBaseType
 
     public $_type = 'QDM::ProcedureOrder';
 }
-

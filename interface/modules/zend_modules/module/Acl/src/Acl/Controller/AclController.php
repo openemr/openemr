@@ -261,7 +261,7 @@ class AclController extends AbstractActionController
 
     /**
      *
-     * Function to Print Componets Tree Structure
+     * Function to Print Components Tree Structure
      * @param String $currentParent Root Node of Tree
      * @param String $currLevel Current Depth of Tree
      * @param String $prevLevel Prev Depth of Tree

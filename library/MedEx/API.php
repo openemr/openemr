@@ -1158,34 +1158,34 @@ class Events extends Base
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
                 [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
-                $occurence = $event['pc_eventDate'];
+                $occurrence = $event['pc_eventDate'];
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime((string) $occurence) < strtotime((string) $start_date)) {
+                while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 //now we are cooking...
-                while ($occurence <= $stop_date) {
+                while ($occurrence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
                             // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", (string) $occurence) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                 $excluded = true;
                             }
                         }
                     }
 
                     if ($excluded == false) {
-                        $data[] = $occurence;
+                        $data[] = $occurrence;
                     }
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
 
@@ -1224,23 +1224,23 @@ class Events extends Base
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurence === -1);
+                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurrence === -1);
 
-                    if ($occurence >= $start_date && $occurence <= $stop_date) {
+                    if ($occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurence) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
                         }
 
                         if ($excluded == false) {
-                            $event['pc_eventDate'] = $occurence;
+                            $event['pc_eventDate'] = $occurrence;
                             $event['pc_endDate'] = '0000-00-00';
                             $events2[] = $event;
                             $data[] = $event['pc_eventDate'];

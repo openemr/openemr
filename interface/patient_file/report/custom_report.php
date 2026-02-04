@@ -32,10 +32,13 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
@@ -64,7 +67,7 @@ if ($PDF_OUTPUT) {
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
     $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -118,59 +121,6 @@ function getContent()
     return $content;
 }
 
-function patientFilePostToGet($arin)
-{
-    $getstring = "";
-    foreach ($arin as $key => $val) {
-        if (is_array($val)) {
-            foreach ($val as $v) {
-                $getstring .= attr_url($key . "[]") . "=" . attr_url($v) . "&";
-            }
-        } else {
-            $getstring .= attr_url($key) . "=" . attr_url($val) . "&";
-        }
-    }
-
-    return $getstring;
-}
-
-function report_basename($pid)
-{
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(['.', ',', ' '], '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
-
-    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
-}
-
-function zip_content($source, $destination, $content = '', $create = true)
-{
-    if (!extension_loaded('zip')) {
-        return false;
-    }
-
-    $zip = new ZipArchive();
-    if ($create) {
-        if (!$zip->open($destination, ZipArchive::CREATE)) {
-            return false;
-        }
-    } else {
-        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
-            return false;
-        }
-    }
-
-    if (is_file($source) === true) {
-        $zip->addFromString(basename((string) $source), file_get_contents($source));
-    } elseif (!empty($content)) {
-        $zip->addFromString(basename((string) $source), $content);
-    }
-
-    return $zip->close();
-}
-
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -181,7 +131,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <?php Header::setupHeader(['esign-theme-only', 'search-highlight']); ?>
     <?php } ?>
 
-    <?php // do not show stuff from report.php in forms that is encaspulated
+    <?php // do not show stuff from report.php in forms that is encapsulated
     // by div of navigateLink class. Specifically used for CAMOS, but
     // can also be used by other forms that require output in the
     // encounter listings output, but not in the custom report. ?>
@@ -224,8 +174,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                  * $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
                  *******************************************************************/
                 $facility = null;
-                if ($_SESSION['pc_facility']) {
-                    $facility = $facilityService->getById($_SESSION['pc_facility']);
+                if ($session->get('pc_facility')) {
+                    $facility = $facilityService->getById($session->get('pc_facility'));
                 } else {
                     $facility = $facilityService->getPrimaryBillingLocation();
                 }
@@ -251,7 +201,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename((string) $practice_logo);
                 }
 
-                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
+                echo genFacilityTitle(getPatientName($pid), $session->get('pc_facility'), $logo); ?>
 
             <?php } else { // not printable
                 ?>
@@ -316,7 +266,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 </div>
                 <br />
                 <br />
-                <a href="custom_report.php?printable=1&<?php print patientFilePostToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+                <a href="custom_report.php?printable=1&<?php echo http_build_query($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
             <?php } // end not printable ?>

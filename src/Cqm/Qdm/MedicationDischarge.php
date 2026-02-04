@@ -91,4 +91,3 @@ class MedicationDischarge extends QDMBaseType
 
     public $_type = 'QDM::MedicationDischarge';
 }
-

@@ -12,5 +12,3 @@ skip,effectiveDate,effectiveEndDate,qrda_file,pubpid,measure,pop_set,IPP,DENOM,N
 0,2019-01-01,2019-04-01,1_N_GP_Geriatric.xml,604f648ddfe4bd03c5e79881,CMS127v9,1,1,1,1,0,0,0
 0,2019-01-01,2019-04-01,1_N_GP_Geriatric.xml,604f648ddfe4bd03c5e79881,CMS130v9,1,1,1,1,0,0,0
 0,2019-01-01,2019-04-01,Z4_Heart_Adult.xml,604f6456dfe4bd03c5e78d1d,CMS165v9,1,1,1,1,0,0,0
-
-

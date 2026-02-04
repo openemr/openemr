@@ -31,4 +31,3 @@ class Identifier extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::Identifier';
 }
-

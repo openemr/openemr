@@ -57,7 +57,7 @@ if (!empty($form_id)) {
     $submittedIdInts = array_map(intval(...), array_filter($ids, is_numeric(...)));
 
     // now grab all of the ids that exist that were not submitted so we can mark them as inactive.  This does a
-    // mathmatical set substraction.  We don't really delete the records as we need an audit trail here.
+    // mathematical set subtraction.  We don't really delete the records as we need an audit trail here.
     $recordsIdsToDelete = array_diff($existingIdInts, $submittedIdInts);
     foreach ($recordsIdsToDelete as $recordId) {
         $clinicalNotesService->setActivityForClinicalRecord(
@@ -99,7 +99,7 @@ if (!empty($count)) {
         $record['pid'] = $_SESSION['pid'];
         $record['encounter'] = $_SESSION['encounter'];
         $record['authorized'] = $userauthorized;
-        $record['date'] = $code_date[$key];
+        $record['date'] = DateToYYYYMMDD($code_date[$key]);
         $record['groupname'] = $_SESSION["authProvider"];
         $record['activity'] = ClinicalNotesService::ACTIVITY_ACTIVE;
 
@@ -136,8 +136,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}

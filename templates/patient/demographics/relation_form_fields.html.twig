@@ -115,7 +115,7 @@
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][gender]',
                     'smallform': smallform ~ ' form_relations_gender',
                     'list_id': 'administrative_sex',
-                    'edit_options': edit_options,                   
+                    'edit_options': edit_options,
                     'description': 'Select Gender'
                 }, relatedPerson.gender|default('')) }}
             </div>
@@ -321,8 +321,7 @@
                           rows="1"
                           cols="50"
                           placeholder=""
-                          maxlength="1000">{{ relatedPerson.notes|default('')|text }}
-                </textarea>
+                          maxlength="1000">{{ relatedPerson.notes|default('')|text }}</textarea>
                 <small class="form-text text-muted">
                     <span id="notes_char_count_{{ loop.index0|default('new') }}">0</span>/1000 {{ 'characters'|xlt }}
                 </small>
@@ -495,4 +494,3 @@
         }
     })();
 </script>
-

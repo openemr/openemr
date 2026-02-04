@@ -272,14 +272,14 @@ function pnModAPILoad($modname, $type = 'user')
         require "modules/$osdirectory/pnlang/eng/{$ostype}api.php";
     }
 
-    // Load datbase info
+    // Load database info
     pnModDBInfoLoad($modname, $directory);
 
     return true;
 }
 
 /**
- * load datbase definition for a module
+ * load database definition for a module
  * @param name - name of module to load database definition for
  * @param directory - directory that module is in (if known)
  * @returns bool
@@ -391,7 +391,7 @@ function pnModLoad($modname, $type = 'user')
         require "modules/$osdirectory/pnlang/eng/$ostype.php";
     }
 
-    // Load datbase info
+    // Load database info
     pnModDBInfoLoad($modname, $directory);
 
     // Return the module name

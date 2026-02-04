@@ -24,7 +24,7 @@ CREATE TABLE `lang_definitions` (
 --
 -- Dumping data for table `lang_definitions`
 --
--- WHERE:   lang_id=5 
+-- WHERE:   lang_id=5
 
 INSERT INTO `lang_definitions` VALUES (1926,2258,5,'');
 INSERT INTO `lang_definitions` VALUES (1925,1726,5,'');
@@ -2712,4 +2712,3 @@ INSERT INTO `lang_definitions` VALUES (2905,2683,5,'Selecteer');
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-

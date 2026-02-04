@@ -11,6 +11,8 @@
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,18 +25,13 @@ use OpenEMR\Core\Header;
 $form_name   = "eye_mag";
 $form_folder = "eye_mag";
 $Form_Name   = "Eye Exam";
-$form_id     = $_REQUEST['id'];
+$id          = intval($_REQUEST['id'] ?? 0);
+$form_id     = $id;
 $action      = $_REQUEST['action'] ?? null;
 $finalize    = $_REQUEST['finalize'] ?? null;
-$id          = $_REQUEST['id'];
 $display     = $_REQUEST['display'] ?? null;
-$pid         = $_REQUEST['pid'] ?? '';
+$pid         = intval($_REQUEST['pid'] ?? 0);
 $refresh     = $_REQUEST['refresh'] ?? null;
-
-if (!empty($_REQUEST['url'])) {
-    header('Location: ' . $_REQUEST['url']);
-    exit;
-}
 
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
@@ -167,10 +164,14 @@ if (!$form_id && !$encounter) {
     exit;
 }
 
-if ($refresh and $refresh != 'fullscreen') {
+if ($refresh !== null && $refresh !== 'fullscreen') {
     match ($refresh) {
-        "PMSFH" => print display_PRIOR_section($refresh, $id, $id, $pid),
-        "PMSFH_panel" => print show_PMSFH_panel($PMSFH),
+        "PMSFH" => (function () use ($id, $pid): void {
+            echo display_PRIOR_section("PMSFH", $id, $id, $pid);
+        })(),
+        "PMSFH_panel" => (function () use ($PMSFH): void {
+            echo show_PMSFH_panel($PMSFH);
+        })(),
         "page" => send_json_values($PMSFH),
         "GFS" => display_GlaucomaFlowSheet($pid),
         default => null,
@@ -888,7 +889,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                   <div id="Lyr31" id="HxAcuities">
                       <span title="Display the Visual Acuity History" id="LayerVision_VAHx_lightswitch" name="LayerVision_VAHx_lightswitch">
-                      <?php echo xlt('V{{One letter abbrevation for Vision}}'); ?></span>
+                      <?php echo xlt('V{{One letter abbreviation for Vision}}'); ?></span>
                   </div>
                   <div id="Visions_A" name="Visions_A">
                       <b>OD</b>
@@ -1583,7 +1584,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <tr>
                                 <td></td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
-                                  title="<?php echo xla('Click here to Edit the Manufacter List'); ?>"
+                                  title="<?php echo xla('Click here to Edit the Manufacturer List'); ?>"
                                   name="CTL"><?php echo xlt('Manufacturer'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
@@ -1920,7 +1921,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td title="<?php echo xla('Near Acuity with Manifest (Dry) refraction'); ?>"><?php echo xlt('MRNear{{manifest refraction near}}'); ?></td>
                         <td title="<?php echo xla('Potential Acuity'); ?>"><?php echo xlt('PAM{{Potential Acuity Meter}}'); ?></td>
                         <td title="<?php echo xla('Brightness Acuity Testing'); ?>"><?php echo xlt('BAT{{Brightness Acuity Testing}}'); ?></td>
-                        <td title="<?php echo xla('Contrast Acuity'); ?>"><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                        <td title="<?php echo xla('Contrast Acuity'); ?>"><?php echo xlt('Contrast{{Contrast Visual Acuity}}'); ?></td>
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input class="jaeger" type="text" id="SCNEARODVA" title="<?php echo xla('Near Acuity without Correction'); ?>" name="SCNEARODVA" value="<?php echo attr($SCNEARODVA); ?>" tabindex="10320"></td>
@@ -2993,7 +2994,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <table style="position:relative;float:left;text-align:center;margin: 4 2;width:100%;font-size:1.0em;padding:4px;">
                                     <tr style="font-weight:bold;"><td style="width:50%;"></td><td><?php echo xlt('OD{{right eye}}'); ?></td><td><?php echo xlt('OS{{left eye}}'); ?></td></tr>
                                     <tr>
-                                        <td class="right"><span title="<?php xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?>:</span></td>
+                                        <td class="right"><span title="<?php xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?>:</span></td>
                                         <td><input type="text" id="ODNPA" style="width:70%;" class="neurosens2" name="ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
                                         <td><input type="text" id="OSNPA" style="width:70%;" class="neurosens2" name="OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
                                     </tr>
@@ -3613,7 +3614,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                *        then click the BUILD icon to append the selected DXs to the bottom of the IMP/Plan list.
                                *    c. Drag a DX across onto the IMP.textarea appends this data to the current IMP.textarea data
                                *    d. Drag a DX across onto the IMP/Plan area appends this DX to the bottom of the IMP/Plan list
-                               *    e. DoubleClick a DX appends this DX to the bottom of the IMP/Plan list
+                               *    e. double-click a DX appends this DX to the bottom of the IMP/Plan list
                                */
 
                             if (!$PMSFH) {
@@ -3943,7 +3944,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   $TODO_data = sqlStatement($query, ["Eye_todo_done_" . $provider_id]);
                                 if (sqlNumRows($TODO_data) < '1') {
                                     // Provider list is not created yet, or was deleted.
-                                    // Create it fom defaults...
+                                    // Create it from defaults...
                                     $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
                                     sqlStatement($query, ['Eye_todo_done_' . $provider_id,'Eye Orders ' . $prov_data['lname']]);
                                     $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";

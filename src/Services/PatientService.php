@@ -22,6 +22,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -41,6 +42,35 @@ class PatientService extends BaseService
 {
     public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
+
+    /**
+     * Columns allowed for sorting in patient search API.
+     * This whitelist prevents SQL injection via the _sort parameter.
+     */
+    private const ALLOWED_SORT_COLUMNS = [
+        'id',
+        'pid',
+        'pubpid',
+        'title',
+        'fname',
+        'lname',
+        'mname',
+        'DOB',
+        'sex',
+        'street',
+        'city',
+        'state',
+        'postal_code',
+        'country_code',
+        'phone_home',
+        'phone_cell',
+        'phone_biz',
+        'email',
+        'status',
+        'date',
+        'regdate',
+        'last_updated',
+    ];
 
     /**
      * In the case where a patient doesn't have a picture uploaded,
@@ -133,6 +163,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -142,7 +173,7 @@ class PatientService extends BaseService
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
         // we should never be null here but for legacy reasons we are going to default to this
-        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+        $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $data['created_by'] = $createdBy;
         $data['updated_by'] = $createdBy; // for an insert this is the same
         if (empty($data['pubpid'])) {
@@ -215,13 +246,14 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Get the data before update to send to the event listener
         $dataBeforeUpdate = $this->findByPid($data['pid']);
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
         // we should never be null here but for legacy reasons we are going to default to this
-        $updatedBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the updatedBy
+        $updatedBy = $session->get('authUserID'); // we don't let anyone else but the current user be the updatedBy
         $data['updated_by'] = $updatedBy; // for an insert this is the same
         $table = PatientService::TABLE_NAME;
 
@@ -296,10 +328,10 @@ class PatientService extends BaseService
 
             $originalData = [];
             if ($dataBeforeUpdate->hasData()) {
-                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+                $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
             }
             // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
-            // we need the uuid to be the same binary fomrat as the other event firing.
+            // we need the uuid to be the same binary format as the other event firing.
             if (!empty($originalData['uuid'])) {
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
@@ -354,7 +386,7 @@ class PatientService extends BaseService
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
-            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            // for backwards compatibility, we will make sure we do exact matches on the keys using string comparisons if no object is used
             foreach ($search as $field => $key) {
                 if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
@@ -439,7 +471,10 @@ class PatientService extends BaseService
 
         if (!empty($config)) {
             $pagination = $config->getPagination();
-            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig(
+                $config,
+                self::ALLOWED_SORT_COLUMNS
+            );
             $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
         } else {
             $orderBy = "";
@@ -783,7 +818,7 @@ class PatientService extends BaseService
                 $months_since_birthday = 12 - $dobmonth + $monthnow;
                 $days_since_dobday = $daynow - $dobday;
             }
-        } else // if patient has had birthday this calandar year
+        } else // if patient has had birthday this calendar year
         {
             $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {

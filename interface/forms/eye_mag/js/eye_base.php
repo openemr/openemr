@@ -634,7 +634,7 @@ function populate_form(result) {
  *  To reach a detailed E&M level of documentation the chart
  *  may comment on the status of 3 or more CHRONIC/Inactive problems.
  *  The user can type them into the CHRONIC fields manually, or
- *  we can do it programatically if the user does the following:
+ *  we can do it programmatically if the user does the following:
  *     1.  documenting a PMH diagnosis in the PMSFH area
  *     2.  listing it as "Chronic"
  *     3.  making a comment about it
@@ -3764,10 +3764,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  var index   = '0';
                                                  var valued = isNaN($("#"+zone[1]).val());
                                                  if ((zone[2] =='RLSO')||(zone[2] =='LLSO')||(zone[2] =='RRIO')||(zone[2] =='LRIO')) {
-                                                 //find or make a hash tage for "\"
+                                                 //find or make a hash tag for "\"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  } else {
-                                                 //find or make a hash tage for "/"
+                                                 //find or make a hash tag for "/"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  }
                                                  } else {

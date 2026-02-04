@@ -72,7 +72,7 @@ class InsuranceNumbers extends ORDataObject
          * Constructor sets all Insurance attributes to their default value
          */
 
-        function __construct(public $id = "", $prefix = "")
+        function __construct(public $id = "")
         {
             $this->_table = "insurance_numbers";
             if ($this->id != "") {

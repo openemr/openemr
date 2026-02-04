@@ -9,9 +9,9 @@
 
 4.Set de_identification_config variable to 1 ([OPENEMR]/contrib/util/de_identification_upgrade.php)
 and run de_identification_upgrade.php to create procedures, functions, tables needed for de-identification
-(administration -> De identification -> click here to run de_identification_upgrade.php - for first time) 
+(administration -> De identification -> click here to run de_identification_upgrade.php - for first time)
 or http://HOSTNAME:PORT_NUMBER/contrib/util/de_identification_upgrade.php
-(eg: http://vicareplus.com:3000/contrib/util/de_identification_upgrade.php). 
+(eg: http://vicareplus.com:3000/contrib/util/de_identification_upgrade.php).
 Mysql root user and password is required for successful execution of the upgrade script
 
 5.Please restart the apache server before playing with de-identification and set de_identification_config variable back to zero
@@ -20,13 +20,13 @@ Mysql root user and password is required for successful execution of the upgrade
 (administration -> De identification) by providing the inputs to de-identification process
 
 7.Visit de-identification screen after some time, click download button to download the de-identified data
-(De-identification files will be saved in '\tmp' location of the openemr machine and may contain sensitive data, 
+(De-identification files will be saved in '\tmp' location of the openemr machine and may contain sensitive data,
 so it is recommended to manually delete the files after its use)
 
 8.For re-identification, provide re-identification code as input and click download button to download the re-identified data
-(Re-identification files will be saved in '\tmp' location of the openemr machine and may contain sensitive data, 
+(Re-identification files will be saved in '\tmp' location of the openemr machine and may contain sensitive data,
 so it is recommended to manually delete the files after its use)
 
-9.When current de-identification process got hang in between, run following query in backend 
-"update de_identification_status set status = 0;" , so as to start new de-identification process. 
+9.When current de-identification process got hang in between, run following query in backend
+"update de_identification_status set status = 0;" , so as to start new de-identification process.
 For case of re-identification, run the following query "update re_identification_status set status = 0;"

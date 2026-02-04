@@ -481,7 +481,7 @@ class EhiExporter
 
         $tempDir = $GLOBALS['temporary_files_dir'];
         if (!file_exists($tempDir)) {
-            throw new \RuntimeException("Could not access globals temporary_files_dir location verify the property is set correctly and the webserver has write acess to the location");
+            throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }
 
         $zipName = uniqid('ehi-export-') . '.zip';

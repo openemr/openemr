@@ -71,7 +71,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement;
 class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
     public $label = null;
@@ -327,7 +327,7 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     private $_fhirElementName = 'ElementDefinition.Example';
 
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
     public function getLabel()
@@ -336,7 +336,7 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $label
      * @return $this
      */

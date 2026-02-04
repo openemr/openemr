@@ -2,7 +2,7 @@
 
 /**
  * interface/soap_functions/soap_accountStatusDetails.php Display current
- * patients NewCrop account status.
+ * patients Ensora eRx account status.
  *
  * Copyright (C) 2011 ZMG LLC <sam@zhservices.com>
  *
@@ -17,7 +17,7 @@
  * If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package    OpenEMR
- * @subpackage NewCrop
+ * @subpackage Ensora
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>
  * @author     Sam Likins <sam.likins@wsi-services.com>

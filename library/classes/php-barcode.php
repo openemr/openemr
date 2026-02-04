@@ -644,7 +644,7 @@ class Barcode39
             return('');
         }
 
-        // Add Start and Stop charactere : *
+        // Add Start and Stop character : *
         $code = strtoupper('*' . $code . '*');
 
         $len = strlen($code);
@@ -788,7 +788,7 @@ class Barcode128
             }
         }
 
-        // check firsts characters : start with C table only if enought numeric
+        // check firsts characters : start with C table only if enough numeric
         $tableCActivated = $len > 1;
         $c = '';
         for ($i = 0; $i < 3 && $i < $len; $i++) {
@@ -804,7 +804,7 @@ class Barcode128
         while ($i < $len) {
             if (! $tableCActivated) {
                 $j = 0;
-                // check next character to activate C table if interresting
+                // check next character to activate C table if interesting
                 while (($i + $j < $len) && preg_match('`[0-9]`', (string) $code[$i + $j])) {
                     $j++;
                 }
@@ -1079,7 +1079,7 @@ class BarcodeDatamatrix
                 }
             }
 
-            // Renversement des blocs calcules
+            // Reversal of calculated blocks
             $j = $nDataCW + $k;
             for ($i = $errorBlocks - 1; $i >= 0; $i--) {
                 $dataTab[$j] = $correctionCW[$i];
@@ -1284,7 +1284,7 @@ class BarcodeDatamatrix
 
         self::addReedSolomonCW($solomonCWCount, $g, $totalDataCWCount, $dataCodeWords, $blocks); // Add Reed Solomon codewords
 
-        $codeWordsBits = []; // Calculte bits from codewords
+        $codeWordsBits = []; // Calculate bits from codewords
         for ($i = 0; $i < $totalCWCount; $i++) {
             $codeWordsBits[$i] = self::getBits($dataCodeWords[$i]);
         }

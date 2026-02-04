@@ -34,3 +34,22 @@ $GLOBALS['disable_database_connection'] = true;
 $GLOBALS['HTML_CHARSET'] = 'UTF-8';
 ini_set('default_charset', 'utf-8');
 mb_internal_encoding('UTF-8');
+
+// Define check_code_set_filters if it doesn't exist (for isolated testing)
+if (!function_exists('check_code_set_filters')) {
+    function check_code_set_filters($key, $filters = [])
+    {
+        global $code_types;
+        if (empty($filters)) {
+            return false;
+        }
+        foreach ($filters as $filter) {
+            if (array_key_exists($key, $code_types)) {
+                if (($code_types[$key][$filter] ?? 0) != 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}

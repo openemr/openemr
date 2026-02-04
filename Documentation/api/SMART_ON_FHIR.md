@@ -889,7 +889,7 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/.well-known/smart-configur
 | `permission-patient`             | Patient-level scopes supported                                                 |
 | `permission-user`                | User-level scopes supported                                                    |
 | `authorize-post` | Pass data via POST directly to authorization endpoint instead of via GET ✨ NEW |
-| `permission-v1`                  | SMART v1 scopes (Backwards compatability) ✨ NEW                                |
+| `permission-v1`                  | SMART v1 scopes (Backwards compatibility) ✨ NEW                                |
 | `permission-v2`                  | SMART v2 scopes (granular permissions) ✨ NEW                                   |
 
 ### Using SMART Configuration

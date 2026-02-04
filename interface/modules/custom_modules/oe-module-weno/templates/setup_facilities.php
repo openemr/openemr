@@ -34,7 +34,7 @@ if ($_POST) {
     }
 
     $posted = json_encode($_POST);
-    $wenoLog->insertWenoLog("Module setup modified.", "Facilty Locations save.", $posted);
+    $wenoLog->insertWenoLog("Module setup modified.", "Facility Locations save.", $posted);
 }
 
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility");
@@ -59,7 +59,7 @@ while ($row = sqlFetchArray($list)) {
         persistChange.forEach(persist => {
             persist.addEventListener('change', () => {
                 top.restoreSession();
-                syncAlertMsg(successMsg, 1000, 'success')
+                asyncAlertMsg(successMsg, 1000, 'success')
                 .then(() => {
                     isPersistEvent = true;
                     $("#save_weno_id").click();

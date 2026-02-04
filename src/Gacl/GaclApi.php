@@ -266,7 +266,7 @@ class GaclApi extends Gacl {
                 return false;
             }
 
-            $this->debug_text("add_consolidated_acl(): ADD_ACL() successfull, returning True.");
+            $this->debug_text("add_consolidated_acl(): ADD_ACL() successful, returning True.");
             return true;
         }
 
@@ -400,7 +400,7 @@ class GaclApi extends Gacl {
         $get_acl = $this->get_acl($acl_id);
         $acl_array = &$get_acl;
 
-        //Append each object type seperately.
+        //Append each object type separately.
         if (is_array($aro_array) AND count($aro_array) > 0) {
             $this->debug_text("append_acl(): Appending ARO's");
 
@@ -522,7 +522,7 @@ class GaclApi extends Gacl {
         $acl_array = &$get_acl;
 
         //showarray($acl_array);
-        //Remove each object type seperately.
+        //Remove each object type separately.
         if (is_array($aro_array) AND count($aro_array) > 0) {
             $this->debug_text("shift_acl(): Removing ARO's");
 
@@ -766,7 +766,7 @@ class GaclApi extends Gacl {
      */
     function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $ignore_acl_ids=NULL) {
         //Check for potential conflicts. Ignore groups, as groups will almost always have "conflicting" ACLs.
-        //Thats part of inheritance.
+        //That's part of inheritance.
 
         if (!is_array($aco_array)) {
             $this->debug_text('is_conflicting_acl(): Invalid ACO Array.');
@@ -890,7 +890,7 @@ class GaclApi extends Gacl {
      *
      * Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
      *
-     * @return bool Return ACL ID of new ACL if successful, FALSE otherewise.
+     * @return bool Return ACL ID of new ACL if successful, FALSE otherwise.
      *
      * @param array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      * @param array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
@@ -1123,7 +1123,7 @@ class GaclApi extends Gacl {
      *
      * Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
      *
-     * @return bool Return TRUE if successful, FALSE otherewise.
+     * @return bool Return TRUE if successful, FALSE otherwise.
      *
      * @param int ACL ID # to edit
      * @param array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
@@ -2550,7 +2550,7 @@ class GaclApi extends Gacl {
      * Grabs ID's of all Objects (ARO's and AXO's only) in the database not assigned to a Group.
      *
      * This function is useful for applications that synchronize user databases with an outside source.
-     * If syncrhonization doesn't automatically place users in an appropriate group, this function can
+     * If synchronization doesn't automatically place users in an appropriate group, this function can
      * quickly identify them so that they can be assigned to the correct group.
      *
      * @return array Returns an array of object ID's
@@ -3104,7 +3104,7 @@ class GaclApi extends Gacl {
 
         $this->db->BeginTrans();
 
-        //Get old value incase it changed, before we do the update.
+        //Get old value in case it changed, before we do the update.
         $query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
         $old = $this->db->GetRow($query);
 
@@ -3581,7 +3581,7 @@ class GaclApi extends Gacl {
 
         $this->db->BeginTrans();
 
-        //Get old value incase it changed, before we do the update.
+        //Get old value in case it changed, before we do the update.
         $query = "select value from $object_sections_table where id=" . $this->db->quote($object_section_id);
         $old_value = $this->db->GetOne($query);
 

@@ -26,8 +26,8 @@ final class SearchComparator
     public const STARTS_AFTER = "sa";
     public const ENDS_BEFORE = "eb";
 
-    // we have this here for reference but we are currently not supporting aproximation which has a recommended
-    // aproximation of 10%.
+    // we have this here for reference but we are currently not supporting approximation which has a recommended
+    // approximation of 10%.
     public const APROXIMATELY_SAME = "ap";
 
     public const ALL_COMPARATORS = [self::EQUALS, self::NOT_EQUALS, self::GREATER_THAN, self::LESS_THAN

@@ -1657,7 +1657,7 @@
       </table>
       <table catalog="openemr" name="erx_ttl_touch" remarks="Store records last update per patient data process" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="patient_id" nullable="false" remarks="Patient record Id" size="20" type="BIGINT UNSIGNED" typeCode="-5"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="process" nullable="false" remarks="NewCrop eRx SOAP process" size="11" type="enum('allergies', 'medications')" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="process" nullable="false" remarks="Ensora eRx SOAP process" size="11" type="enum('allergies', 'medications')" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="updated" nullable="false" remarks="Date and time of last process update for patient" size="19" type="DATETIME" typeCode="93"/>
          <primaryKey column="patient_id" sequenceNumberInPK="1"/>
          <primaryKey column="process" sequenceNumberInPK="2"/>
@@ -7023,7 +7023,7 @@
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="29" name="site" nullable="true" remarks="" size="50" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="30" name="prescriptionguid" nullable="true" remarks="" size="50" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="0" digits="0" id="31" name="erx_source" nullable="false" remarks="0-OpenEMR 1-External" size="3" type="TINYINT" typeCode="-6"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="32" name="erx_uploaded" nullable="false" remarks="0-Pending NewCrop upload 1-Uploaded to NewCrop" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="32" name="erx_uploaded" nullable="false" remarks="0-Pending Ensora upload 1-Uploaded to Ensora" size="3" type="TINYINT" typeCode="-6"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="33" name="drug_info_erx" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="34" name="external_id" nullable="true" remarks="" size="20" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="35" name="end_date" nullable="true" remarks="" size="10" type="DATE" typeCode="91"/>
@@ -8245,7 +8245,7 @@
          <column autoUpdated="false" defaultValue="''" digits="0" id="50" name="irnpool" nullable="false" remarks="IRN (Insurance Referral Network) pool for the user." size="31" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="51" name="state_license_number" nullable="true" remarks="State license number for the user." size="25" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="52" name="weno_prov_id" nullable="true" remarks="WENO Provider ID for the user. EMPTY for exports" size="15" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="NULL" digits="0" id="53" name="newcrop_user_role" nullable="true" remarks="NewCrop user role for the user.EMPTY for exports" size="30" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="53" name="newcrop_user_role" nullable="true" remarks="Ensora user role for the user.EMPTY for exports" size="30" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="54" name="cpoe" nullable="true" remarks="Indicates whether the user has CPOE (Computerized Physician Order Entry) capabilities." size="3" type="BOOLEAN" typeCode="16"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="55" name="physician_type" nullable="true" remarks="Type or designation of the physician (e.g., standard, specialist)." size="50" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'standard'" digits="0" id="56" name="main_menu_role" nullable="false" remarks="Main menu role for the user. EMPTY for exports" size="50" type="VARCHAR" typeCode="12"/>

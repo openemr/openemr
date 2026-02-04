@@ -19,10 +19,13 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $first_time = true;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @param $row
@@ -163,7 +166,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -245,7 +248,7 @@ $score_calculate = getDupScoreSQL();
             <h2><?php echo xlt('Duplicate Patient Management') ?></h2>
         </div>
         <form class="form" method='post' action='manage_dup_patients.php'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
@@ -326,8 +329,8 @@ $score_calculate = getDupScoreSQL();
     </div>
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
-        action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
         <input type='hidden' name='patientID' value='0' />
     </form>
 </body>

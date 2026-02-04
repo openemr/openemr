@@ -289,7 +289,7 @@ if (isset($ppid)) {
     while ($rsrec = sqlFetchArray($rs)) {
         $sftp_hosts[] = $rsrec;
     }
-} else { // fill in host detais from parameters
+} else { // fill in host details from parameters
     if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir))) {
         $sftp_hosts[] =  [
          'remote_host'  => $host
