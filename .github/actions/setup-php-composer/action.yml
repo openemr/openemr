@@ -9,10 +9,6 @@ inputs:
     description: Coverage driver (none, xdebug, pcov)
     required: false
     default: none
-  install:
-    description: Whether to run composer install
-    required: false
-    default: 'true'
 
 runs:
   using: composite
@@ -38,6 +34,5 @@ runs:
           ${{ runner.os }}-composer-
 
     - name: Install Composer dependencies
-      if: inputs.install == 'true'
       shell: bash
       run: composer install --prefer-dist --no-progress
