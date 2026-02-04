@@ -80,7 +80,7 @@ try {
         if (empty($form)) {
             throw new RuntimeException("Can not find encounter form.");
         }
-        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
+        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
         $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
         // if empty form will revert to the backup response stored with form.
         if (!empty($qr)) {

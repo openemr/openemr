@@ -240,7 +240,7 @@ class OneTimeAuth
         }
         // Use RFC3986 so + and / in base64-like tokens are encoded as %2B and %2F,
         // preventing query string parsing from turning + into space (issue #10517).
-        $enc_type = defined('PHP_QUERY_RFC3986') ? PHP_QUERY_RFC3986 : 2;
+        $enc_type = PHP_QUERY_RFC3986;
         if ($this->scope == 'register') {
             $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,

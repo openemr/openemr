@@ -53,7 +53,7 @@ $category = $_POST['category'] ?? null;
 unset($_POST['select_item']);
 // security
 if ($isPortal && $mode == 'update' && !empty($formid)) {
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
@@ -117,7 +117,7 @@ if (empty($formid)) {
     $formid = $newid;
 } elseif (!empty($formid)) {
     // just to be sure
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
     $success = formUpdate("form_questionnaire_assessments", $_POST, $formid, $userauthorized);
 }
 
