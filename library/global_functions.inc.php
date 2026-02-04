@@ -784,3 +784,37 @@ function cron_updateentry(string $type, $pid, $pc_eid): void
     $query .= " WHERE pc_pid = ? AND pc_eid = ?";
     sqlStatement($query, [$pid, $pc_eid]);
 }
+
+// ============================================================================
+// Layout Options Functions
+// ============================================================================
+
+/**
+ * Get layout options for the demographics form.
+ *
+ * @param bool $shortForm Whether to filter for short form mode (only required fields or those with 'N' edit option)
+ * @return ADORecordSet_mysqli
+ */
+function getLayoutRes(bool $shortForm)
+{
+    $sql = "SELECT * FROM layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != ''";
+    if ($shortForm) {
+        $sql .= " AND (uor > 1 OR edit_options LIKE '%N%')";
+    }
+    $sql .= " ORDER BY group_id, seq";
+    return sqlStatement($sql);
+}
+
+/**
+ * Get the UOR (Use, Optional, Required) value for a layout field.
+ *
+ * @param string $form_id The form ID
+ * @param string $field_id The field ID
+ * @return int The UOR value (0=unused, 1=optional, 2=required)
+ */
+function getLayoutUOR($form_id, $field_id)
+{
+    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
+        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
+    return 0 + $crow['uor'];
+}

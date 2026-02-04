@@ -44,15 +44,6 @@ getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_id, seq");
-}
-
 // Determine layout field search treatment from its data type:
 // 1 = text field
 // 2 = select list
@@ -69,7 +60,7 @@ function getSearchClass($data_type)
     };
 }
 
-$fres = getLayoutRes();
+$fres = getLayoutRes($SHORT_FORM);
 ?>
 <!DOCTYPE html>
 <html>
@@ -331,7 +322,7 @@ function searchme() {
  var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
 
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
@@ -906,7 +897,7 @@ $(function () {
 
 // Set onclick/onfocus handlers for toggling background color.
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
     if (str_starts_with((string) $field_id, 'em_')) {
