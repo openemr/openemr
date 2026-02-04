@@ -33,8 +33,13 @@ trait BaseTrait
             $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
             $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
             $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
-            // Configurable timeouts (higher when coverage is enabled due to performance impact)
-            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 30);
+            // Implicit wait must be 0 when using explicit waits (waitFor,
+            // waitForVisibility, wait()->until()). A non-zero implicit wait
+            // causes each findElement() call inside an explicit wait condition
+            // to block for the full implicit wait duration before throwing,
+            // consuming the entire explicit wait timeout in a single attempt
+            // instead of retrying.
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 0);
             $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
 
             $capabilities = DesiredCapabilities::chrome();
@@ -117,7 +122,6 @@ trait BaseTrait
 
     private function goToMainMenuLink(string $menuLink): void
     {
-        // wait for the main menu to be visible
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
         // Wait for the main menu to be populated by Knockout.js
