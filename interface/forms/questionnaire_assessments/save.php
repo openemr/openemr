@@ -17,6 +17,7 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -31,6 +32,8 @@ $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -50,7 +53,7 @@ $category = $_POST['category'] ?? null;
 unset($_POST['select_item']);
 // security
 if ($isPortal && $mode == 'update' && !empty($formid)) {
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
@@ -114,7 +117,7 @@ if (empty($formid)) {
     $formid = $newid;
 } elseif (!empty($formid)) {
     // just to be sure
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $session->get('pid'));
     $success = formUpdate("form_questionnaire_assessments", $_POST, $formid, $userauthorized);
 }
 
