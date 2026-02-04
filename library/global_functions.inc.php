@@ -706,3 +706,24 @@ function calcTaxes($row, $amount)
 
     return $total;
 }
+
+/**
+ * Mark the tax rates that are referenced in an invoice.
+ *
+ * @param string $taxrates Colon-separated tax rate IDs
+ * @return void
+ * @global array $taxes The taxes array (key=tax id, value=[description, rate, indicator])
+ */
+function markTaxes($taxrates): void
+{
+    global $taxes;
+    $arates = explode(':', (string) $taxrates);
+    if (empty($arates)) {
+        return;
+    }
+    foreach ($arates as $value) {
+        if (!empty($taxes[$value])) {
+            $taxes[$value][2] = '1';
+        }
+    }
+}
