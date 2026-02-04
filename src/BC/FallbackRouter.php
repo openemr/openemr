@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Sets up the application for "legacy" routing, i.e. as if the request was
  * being processed directly by the target file.
@@ -22,6 +24,7 @@ readonly class FallbackRouter
      */
     public function __construct(
         private string $installRoot,
+        private LoggerInterface $logger,
     ) {
         // Sidenote: $_SERVER['DOCUMENT_ROOT'] seems to be pretty reliably the
         // same as intended $installRoot, but better to avoid relying on it.
@@ -95,9 +98,7 @@ readonly class FallbackRouter
 
     private function debug(string $message): void
     {
-        // Future scope: Have a PSR-3 logger injected and make calls
-        // (debug-level?) to it instead.
-        error_log($message);
+        $this->logger->debug($message);
     }
 
     /**
