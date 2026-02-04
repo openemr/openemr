@@ -297,7 +297,7 @@ class C_Prescription extends Controller
 
     function lookup_action()
     {
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->do_lookup();
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_lookup.html");
     }
