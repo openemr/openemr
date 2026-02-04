@@ -16,13 +16,13 @@
 
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Access control - same permission required as edih_view.php
 if (!AclMain::aclCheckCore('acct', 'eob')) {
-    http_response_code(403);
-    die(xlt('Access denied'));
+    AccessDeniedHelper::deny('Unauthorized access to EDI history');
 }
 
 /**

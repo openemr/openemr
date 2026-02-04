@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -66,10 +69,10 @@ if ($patientid) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
     if (!$thisauth) {
-        die(xlt('Demographics not authorized'));
+        AccessDeniedHelper::deny('Demographics access not authorized');
     }
     if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-        die(xlt('You are not authorized to access this squad'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
   // $irow = getInsuranceProviders(); // needed?
 }

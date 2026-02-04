@@ -22,6 +22,7 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -30,7 +31,7 @@ if (!$pid) {
     die(xlt("Missing patient id.")); }
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH list');
 }
 
 // Pull rows newest first

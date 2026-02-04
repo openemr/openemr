@@ -14,6 +14,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use GuzzleHttp\Client as Client;
@@ -22,9 +24,7 @@ use GuzzleHttp\Exception\ConnectException;
 
 // Check authorization
 if (!AclMain::aclCheckCore('admin', 'practice')) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    AccessDeniedHelper::deny('Unauthorized access to NPI lookup', format: AccessDeniedResponseFormat::Json);
 }
 
 // Verify CSRF token for security

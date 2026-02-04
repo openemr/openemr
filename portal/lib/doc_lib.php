@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,9 +37,10 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
-        echo xlt("Not authorized");
-        SessionUtil::portalSessionCookieDestroy();
-        exit;
+        AccessDeniedHelper::deny(
+            'Unauthorized handler in patient portal document library',
+            beforeExit: SessionUtil::portalSessionCookieDestroy(...),
+        );
     }
 } else {
     SessionUtil::portalSessionCookieDestroy();

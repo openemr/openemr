@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -120,7 +121,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
-        die(xlt('Not authorized to edit template'));
+        AccessDeniedHelper::deny('Not authorized to edit template');
     }
     if ($_POST['docid']) {
         if (stripos((string)$_POST['content'], "<?php") === false) {
@@ -139,7 +140,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
-        die(xlt('Not authorized to delete template'));
+        AccessDeniedHelper::deny('Not authorized to delete template');
     }
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));

@@ -17,6 +17,7 @@
 require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -648,16 +649,8 @@ class C_Document extends Controller
         //  which could introduce xss vulnerabilities.
         if ($disable_exit == true) {
             if (!$this->isReturnRetrieveKey()) {
-                // Access to return the raw file has not been granted. Very likely bad actor, so die.
-                EventAuditLogger::getInstance()->newEvent(
-                    "security-access",
-                    $session->get('authUser') ?? '',
-                    $session->get('authProvider') ?? '',
-                    0,
-                    "Unauthorized attempt to return raw document file"
-                );
-                http_response_code(403);
-                die(xlt("Not authorized to return raw file."));
+                // Access to return the raw file has not been granted. Very likely bad actor, so deny.
+                AccessDeniedHelper::deny('Attempt to return raw file without retrieve key');
             }
         }
 
@@ -672,19 +665,7 @@ class C_Document extends Controller
             if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
                 $allowed_pid = $GLOBALS['pid'] ?? 0;
                 if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
-                    (new SystemLogger())->warning(
-                        "An attempt was made to retrieve a patient picture for an unauthorized patient",
-                        ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'session-pid' => $allowed_pid]
-                    );
-                    EventAuditLogger::getInstance()->newEvent(
-                        "security-access",
-                        $session->get('authUser') ?? '',
-                        $session->get('authProvider') ?? '',
-                        0,
-                        "Unauthorized attempt to retrieve patient picture for pid " . $patient_id
-                    );
-                    http_response_code(403);
-                    die(xlt("Not authorized to view requested file"));
+                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
                 }
             }
         }
@@ -695,48 +676,18 @@ class C_Document extends Controller
         if ($session->has('patient_portal_onsite_two') && $session->has('pid')) {
             // ensure patient has access (called from patient portal)
             if (!$d->can_patient_access($session->get('pid'))) {
-                (new SystemLogger())->warning("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $session->get('pid'), 'document-id' => $document_id]);
-                EventAuditLogger::getInstance()->newEvent(
-                    "security-access",
-                    $session->get('pid') ?? '',
-                    '',
-                    0,
-                    "Patient unauthorized to access document " . $document_id . " category"
-                );
-                http_response_code(403);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Patient unauthorized to access document $document_id category");
             }
         } else {
             // ensure user has access
             if (!$d->can_access()) {
-                (new SystemLogger())->warning("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'document-id' => $document_id]);
-                EventAuditLogger::getInstance()->newEvent(
-                    "security-access",
-                    $session->get('authUser') ?? '',
-                    $session->get('authProvider') ?? '',
-                    0,
-                    "Unauthorized attempt to access document " . $document_id . " from restricted category"
-                );
-                http_response_code(403);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Unauthorized attempt to access document $document_id from restricted category");
             }
 
             // Verify the document belongs to the requested patient to prevent IDOR.
             $doc_pid = $d->get_foreign_id();
             if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
-                (new SystemLogger())->warning(
-                    "An attempt was made to retrieve a document belonging to a different patient",
-                    ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'document-patient-id' => $doc_pid, 'document-id' => $document_id]
-                );
-                EventAuditLogger::getInstance()->newEvent(
-                    "security-access",
-                    $session->get('authUser') ?? '',
-                    $session->get('authProvider') ?? '',
-                    0,
-                    "Unauthorized attempt to retrieve document " . $document_id . " belonging to pid " . $doc_pid
-                );
-                http_response_code(403);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
 
