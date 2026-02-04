@@ -23,7 +23,7 @@ use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use MongoDB\Driver\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -68,7 +68,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     protected $adapter;
     protected $applicationTable;
-    private readonly SessionWrapperInterface $session;
+    private readonly SessionInterface $session;
 
     public function __construct(ApplicationTable $applicationTable)
     {
