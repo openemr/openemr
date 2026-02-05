@@ -61,7 +61,7 @@ jobs:
         echo "base=$(echo "$pr_json" | jq -r '.baseRefName')" >> "$GITHUB_OUTPUT"
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Run benchmark
       id: bench
@@ -70,7 +70,7 @@ jobs:
         HEAD_REF: ${{ steps.pr.outputs.head }}
         BASE_REF: ${{ steps.pr.outputs.base }}
       run: |
-        output=$(bash ci/benchmark-workflows.sh "$HEAD_REF" "$BASE_REF")
+        output=$(php .github/scripts/benchmark-workflows.php "$HEAD_REF" "$BASE_REF")
         {
           echo 'result<<BENCH_EOF'
           echo "$output"
