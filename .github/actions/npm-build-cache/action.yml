@@ -1,0 +1,29 @@
+name: npm build with caching
+description: Restores build outputs from cache, runs npm build if needed, saves cache
+
+inputs:
+  node-version:
+    description: Node.js version (used in cache key)
+    required: true
+
+outputs:
+  cache-hit:
+    description: Whether the build cache was an exact hit
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    - name: Cache build outputs
+      id: cache
+      uses: actions/cache@v5
+      with:
+        key: ${{ runner.os }}-build-outputs-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        path: |
+          public/assets/
+          public/themes/
+
+    - name: Build assets
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm run build

@@ -5,10 +5,6 @@ inputs:
   node-version:
     description: Node.js version to install
     required: true
-  run-install:
-    description: Whether to run npm ci
-    required: false
-    default: 'true'
 
 runs:
   using: composite
@@ -20,6 +16,5 @@ runs:
         cache: npm
 
     - name: Install dependencies
-      if: inputs.run-install == 'true'
       shell: bash
       run: npm ci
