@@ -87,61 +87,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthExpiredException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class libphonenumber\\\\PhoneNumberUtil\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/ValidationUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Caught class libphonenumber\\\\NumberParseException not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/ValidationUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to constant E164 on an unknown class libphonenumber\\\\PhoneNumberFormat\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to constant INTERNATIONAL on an unknown class libphonenumber\\\\PhoneNumberFormat\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to constant NATIONAL on an unknown class libphonenumber\\\\PhoneNumberFormat\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to constant RFC3966 on an unknown class libphonenumber\\\\PhoneNumberFormat\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class libphonenumber\\\\PhoneNumberUtil\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Caught class libphonenumber\\\\NumberParseException not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$phoneNumber of method OpenEMR\\\\Common\\\\ValueObjects\\\\PhoneNumber\\:\\:__construct\\(\\) has invalid type libphonenumber\\\\PhoneNumber\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\ValueObjects\\\\PhoneNumber\\:\\:\\$phoneNumber has unknown class libphonenumber\\\\PhoneNumber as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\ValueObjects\\\\PhoneNumber\\:\\:\\$util has unknown class libphonenumber\\\\PhoneNumberUtil as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ValueObjects/PhoneNumber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\Gacl\\\\Hashed_Cache_Lite not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
