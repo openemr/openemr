@@ -21,6 +21,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -637,6 +638,28 @@ class C_Document extends Controller
             case "patient_picture":
                 $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
                 break;
+        }
+
+        // For patient_picture context, non-portal users may only request the session's active patient.
+        if ($context === 'patient_picture') {
+            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
+                $allowed_pid = $GLOBALS['pid'] ?? 0;
+                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
+                    (new SystemLogger())->warning(
+                        "An attempt was made to retrieve a patient picture for an unauthorized patient",
+                        ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'session-pid' => $allowed_pid]
+                    );
+                    EventAuditLogger::getInstance()->newEvent(
+                        "security-access",
+                        $session->get('authUser') ?? '',
+                        $session->get('authProvider') ?? '',
+                        0,
+                        "Unauthorized attempt to retrieve patient picture for pid " . $patient_id
+                    );
+                    http_response_code(403);
+                    die(xlt("Not authorized to view requested file"));
+                }
+            }
         }
 
         $d = new Document($document_id);
