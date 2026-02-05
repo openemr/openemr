@@ -343,4 +343,3 @@ function cron_setmessage($prow, $db_email_msg)
 
     return $message;
 }
-
