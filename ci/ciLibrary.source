@@ -234,10 +234,16 @@ setup_e2e_bookends() {
 # Coverage is mainly enabled for E2E and API tests through ci/auto_prepend.php
 # However, E2E tests still need longer timeouts.
 enable_e2e_coverage() {
-    # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
-    export SELENIUM_IMPLICIT_WAIT=90
+    # Increase page-load timeout when coverage is enabled (coverage slows
+    # down page loads due to auto_prepend.php instrumentation overhead).
+    #
+    # Do NOT override SELENIUM_IMPLICIT_WAIT here. Implicit wait must stay
+    # at 0 when using explicit waits (wait()->until()). A non-zero implicit
+    # wait causes each findElement() inside an explicit wait condition to
+    # block for the full duration before throwing, consuming the entire
+    # explicit wait timeout in a single attempt instead of retrying.
     export SELENIUM_PAGE_LOAD_TIMEOUT=180
-    echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
+    echo "Selenium page_load_timeout increased to ${SELENIUM_PAGE_LOAD_TIMEOUT}s for coverage"
 }
 
 build_test_e2e() {

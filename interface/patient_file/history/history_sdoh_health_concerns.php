@@ -23,6 +23,7 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -47,8 +48,7 @@ if (!$pid || !$sdoh_id) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    $logger->errorLogCaller("Unauthorized access attempt to SDOH health concerns", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH health concerns');
 }
 
 $sdohService = new HistorySdohService();

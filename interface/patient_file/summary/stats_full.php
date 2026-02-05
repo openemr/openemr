@@ -17,6 +17,7 @@ require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -37,7 +38,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('Not authorized'));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 } else {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);

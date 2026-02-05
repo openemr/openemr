@@ -7,14 +7,17 @@
  * @link    http://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -129,7 +132,7 @@ if (!empty($_POST['form_import'])) {
     $olddata = getPatientData($pid);
 
     if ($olddata['squad'] && ! AclMain::aclCheckCore('squads', $olddata['squad'])) {
-        die("You are not authorized to access this squad.");
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 
     newPatientData(

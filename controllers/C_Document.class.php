@@ -7,18 +7,22 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -213,6 +217,8 @@ class C_Document extends Controller
         if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim((string) $_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            // Strip directory components to prevent path traversal (e.g. "../../evil" → "evil.zip").
+            $study_name = basename($study_name);
             $study_name =  preg_replace('/\s+/', '_', $study_name);
             $_POST['destination'] = "";
             $zipped = $this->zip_dicom_folder($study_name);
@@ -289,7 +295,8 @@ class C_Document extends Controller
                         }
                     }
                     if ($_POST['destination'] != '') {
-                        $fname = $_POST['destination'];
+                        // Strip directory components to prevent path traversal.
+                        $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
                     if (str_contains($filetext, 'DICM')) {
@@ -446,6 +453,25 @@ class C_Document extends Controller
         require_once(__DIR__ . "/../library/lists.inc.php");
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         $d = new Document($doc_id);
+
+        // Verify the document belongs to the requested patient to prevent IDOR.
+        $doc_pid = $d->get_foreign_id();
+        if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+            (new SystemLogger())->warning(
+                "An attempt was made to view a document belonging to a different patient",
+                ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'document-patient-id' => $doc_pid, 'document-id' => $doc_id]
+            );
+            EventAuditLogger::getInstance()->newEvent(
+                "security-access",
+                $session->get('authUser') ?? '',
+                $session->get('authProvider') ?? '',
+                0,
+                "Unauthorized attempt to view document " . $doc_id . " belonging to pid " . $doc_pid
+            );
+            http_response_code(403);
+            die(xlt("Not authorized to view requested file"));
+        }
+
         $notes = $d->get_notes();
 
         $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
@@ -623,8 +649,8 @@ class C_Document extends Controller
         //  which could introduce xss vulnerabilities.
         if ($disable_exit == true) {
             if (!$this->isReturnRetrieveKey()) {
-                // Access to return the raw file has not been granted. Very likely bad actor, so die.
-                die(xlt("Not authorized to return raw file."));
+                // Access to return the raw file has not been granted. Very likely bad actor, so deny.
+                AccessDeniedHelper::deny('Attempt to return raw file without retrieve key');
             }
         }
 
@@ -634,20 +660,34 @@ class C_Document extends Controller
                 break;
         }
 
+        // For patient_picture context, non-portal users may only request the session's active patient.
+        if ($context === 'patient_picture') {
+            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
+                $allowed_pid = $GLOBALS['pid'] ?? 0;
+                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
+                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
+                }
+            }
+        }
+
         $d = new Document($document_id);
 
         // ensure user/patient has access
         if ($session->has('patient_portal_onsite_two') && $session->has('pid')) {
             // ensure patient has access (called from patient portal)
             if (!$d->can_patient_access($session->get('pid'))) {
-                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $session->get('pid'), 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Patient unauthorized to access document $document_id category");
             }
         } else {
             // ensure user has access
             if (!$d->can_access()) {
-                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Unauthorized attempt to access document $document_id from restricted category");
+            }
+
+            // Verify the document belongs to the requested patient to prevent IDOR.
+            $doc_pid = $d->get_foreign_id();
+            if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+                AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
 

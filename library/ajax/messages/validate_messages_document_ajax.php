@@ -27,10 +27,9 @@ $format = in_array($format, ['json', 'html']) ? $format : "html";
 try {
     $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
-        http_response_code(403);
-        CsrfUtils::csrfNotVerified(true, true, false);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: function () use ($twig, $format): void {
+            echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
+        });
     }
 
 
