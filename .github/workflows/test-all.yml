@@ -18,6 +18,7 @@ on:
     branches:
     - master
     - rel-*
+    - 10577/setup-node-npm-action
   pull_request:
     branches:
     - master
