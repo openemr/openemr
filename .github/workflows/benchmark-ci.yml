@@ -1,0 +1,100 @@
+##
+# Benchmark CI workflow runtimes between a PR branch and its base.
+#
+# Triggered by posting `/benchmark-ci` as a PR comment, or manually
+# via workflow_dispatch with a PR number.
+
+name: Benchmark CI
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to benchmark
+        required: true
+        type: number
+
+permissions:
+  actions: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: benchmark-ci-pr-${{ github.event.issue.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    if: >-
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.issue.pull_request
+       && contains(github.event.comment.body, '/benchmark-ci')
+       && contains(fromJSON('["COLLABORATOR","MEMBER","OWNER"]'), github.event.comment.author_association))
+    runs-on: ubuntu-24.04
+    steps:
+    - name: React to comment
+      if: github.event_name == 'issue_comment'
+      env:
+        GH_TOKEN: ${{ github.token }}
+        COMMENT_ID: ${{ github.event.comment.id }}
+        REPO: ${{ github.repository }}
+      run: |
+        gh api "repos/$REPO/issues/comments/$COMMENT_ID/reactions" \
+          -f content='rocket' --silent
+
+    - name: Get PR details
+      id: pr
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ github.event.issue.number || inputs.pr_number }}
+        REPO: ${{ github.repository }}
+      run: |
+        pr_json=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefName,baseRefName,state)
+        state=$(echo "$pr_json" | jq -r '.state')
+        if [[ "$state" != "OPEN" ]]; then
+          echo "::error::PR #$PR_NUMBER is $state, not OPEN"
+          exit 1
+        fi
+        echo "head=$(echo "$pr_json" | jq -r '.headRefName')" >> "$GITHUB_OUTPUT"
+        echo "base=$(echo "$pr_json" | jq -r '.baseRefName')" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Run benchmark
+      id: bench
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HEAD_REF: ${{ steps.pr.outputs.head }}
+        BASE_REF: ${{ steps.pr.outputs.base }}
+      run: |
+        output=$(bash ci/benchmark-workflows.sh "$HEAD_REF" "$BASE_REF")
+        {
+          echo 'result<<BENCH_EOF'
+          echo "$output"
+          echo 'BENCH_EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Post results
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ github.event.issue.number || inputs.pr_number }}
+        REPO: ${{ github.repository }}
+        BENCH_OUTPUT: ${{ steps.bench.outputs.result }}
+      run: |
+        printf -v body '## Benchmark CI Results\n\n%s\n\n> **Note:** Runtimes are based on the most recent successful run of each\n> workflow and may vary due to runner availability and GitHub Actions load.' "$BENCH_OUTPUT"
+        gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$body"
+
+    - name: Post error comment
+      if: failure()
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ github.event.issue.number || inputs.pr_number }}
+        REPO: ${{ github.repository }}
+        RUN_ID: ${{ github.run_id }}
+        SERVER_URL: ${{ github.server_url }}
+      run: |
+        printf -v body '## Benchmark CI Failed\n\nSomething went wrong running the benchmark. See the [workflow run](%s/%s/actions/runs/%s) for details.' "$SERVER_URL" "$REPO" "$RUN_ID"
+        gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$body"
