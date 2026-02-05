@@ -32,6 +32,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
     # Hack: temporarily uninstall rector, which interferes with PHPStan
+    # (it bundles some type-incomplete polyfills which can throw off results)
     - name: Remove Rector
       run: composer remove --dev --optimize-autoloader rector/rector
     - name: PHPStan Cache
