@@ -52,7 +52,7 @@ jobs:
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+      run: composer phpcs
 
   css_styling:
     runs-on: ubuntu-24.04
