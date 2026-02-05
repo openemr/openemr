@@ -64,27 +64,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    - name: Install npm package
-      uses: actions/setup-node@v6
+    - name: Setup Node and npm
+      uses: ./.github/actions/setup-node-npm
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Get NPM Cache Directory
-      id: npm-cache-dir
-      run: |
-        {
-          printf 'dir='
-          npm config get cache
-        } >> "$GITHUB_OUTPUT"
-    - name: Cache node modules
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
-          ${{ runner.os }}-node-
-    - name: NPM CI
-      run: npm ci
     - name: Check CSS Styling
       run: npm run stylelint
 
@@ -98,26 +81,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    - name: Install npm package
-      uses: actions/setup-node@v6
+    - name: Setup Node and npm
+      uses: ./.github/actions/setup-node-npm
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Get NPM Cache Directory
-      id: npm-cache-dir
-      run: |
-        {
-          printf 'dir='
-          npm config get cache
-        } >> "$GITHUB_OUTPUT"
-    - name: Cache node modules
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
-          ${{ runner.os }}-node-
-    - name: NPM CI
-      run: npm ci
     - name: Check JS Linting
       run: npm run lint:js

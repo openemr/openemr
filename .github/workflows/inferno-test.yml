@@ -162,18 +162,13 @@ jobs:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
 
-    - name: Install npm package
-      uses: actions/setup-node@v6
+    - name: Setup Node
+      id: setup-node
+      uses: ./.github/actions/setup-node-npm
       with:
         node-version: ${{ matrix.node-version }}
-
-    - name: Get NPM Cache Directory
-      id: npm-cache-dir
-      run: |
-        {
-          printf 'dir='
-          npm config get cache
-        } >> "$GITHUB_OUTPUT"
+        run-cache: 'false'
+        run-install: 'false'
 
     ##
     # Update cache keys to include npm build artifacts
@@ -245,7 +240,7 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm }}
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        path: ${{ steps.setup-node.outputs.cache-dir }}
         restore-keys: |
           ${{ runner.os }}-node-${{ matrix.node-version }}-
           ${{ runner.os }}-node-
@@ -272,7 +267,7 @@ jobs:
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm }}
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        path: ${{ steps.setup-node.outputs.cache-dir }}
 
     - name: Save CCDA build artifacts
       if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}

@@ -1,0 +1,52 @@
+name: Setup Node and npm
+description: Installs Node.js, caches npm dependencies, and runs npm ci
+
+inputs:
+  node-version:
+    description: Node.js version to install
+    required: true
+  run-cache:
+    description: Whether to cache npm dependencies
+    required: false
+    default: 'true'
+  run-install:
+    description: Whether to run npm ci
+    required: false
+    default: 'true'
+
+outputs:
+  cache-dir:
+    description: npm cache directory path
+    value: ${{ steps.npm-cache-dir.outputs.dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Get npm cache directory
+      id: npm-cache-dir
+      shell: bash
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Cache npm
+      if: inputs.run-cache == 'true'
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.node-version }}-
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      if: inputs.run-install == 'true'
+      shell: bash
+      run: npm ci
