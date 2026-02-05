@@ -14,11 +14,21 @@ outputs:
 runs:
   using: composite
   steps:
+    # hashFiles() doesn't work reliably in composite actions due to path
+    # resolution issues. Compute hash manually instead.
+    # See: https://github.com/actions/runner/issues/3765
+    - name: Compute lockfile hash
+      id: hash
+      shell: bash
+      run: |
+        hash=$(cat package-lock.json | sha256sum | cut -d' ' -f1)
+        echo "lockfile=$hash" >> "$GITHUB_OUTPUT"
+
     - name: Cache build outputs
       id: cache
       uses: actions/cache@v5
       with:
-        key: ${{ runner.os }}-build-outputs-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-build-outputs-${{ inputs.node-version }}-${{ steps.hash.outputs.lockfile }}
         path: |
           public/assets/
           public/themes/
