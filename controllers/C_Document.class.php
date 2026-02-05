@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -213,6 +215,8 @@ class C_Document extends Controller
         if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim((string) $_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            // Strip directory components to prevent path traversal (e.g. "../../evil" → "evil.zip").
+            $study_name = basename($study_name);
             $study_name =  preg_replace('/\s+/', '_', $study_name);
             $_POST['destination'] = "";
             $zipped = $this->zip_dicom_folder($study_name);
@@ -289,7 +293,8 @@ class C_Document extends Controller
                         }
                     }
                     if ($_POST['destination'] != '') {
-                        $fname = $_POST['destination'];
+                        // Strip directory components to prevent path traversal.
+                        $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
                     if (str_contains($filetext, 'DICM')) {
