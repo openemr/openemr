@@ -16,10 +16,11 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('patients', 'lab')) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to order types');
 }
 
 $id = ($_GET['id'] ?? '') + 0;

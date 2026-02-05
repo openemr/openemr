@@ -16,6 +16,7 @@ require_once(__DIR__ . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -34,7 +35,7 @@ $finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
     if (!AclMain::aclCheckCore('patients', 'sign')) {
-        die(xlt('Not authorized to sign results'));
+        AccessDeniedHelper::deny('Not authorized to sign order results');
     }
 
   // When signing results we are careful to sign only those reports that were

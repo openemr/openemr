@@ -23,6 +23,7 @@ require_once("$srcdir/encounter.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -105,7 +106,7 @@ if (!empty($lobj['aco_spec'])) {
 }
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
-        die(xlt('Access denied'));
+        AccessDeniedHelper::deny('Unauthorized access to LBF printable form');
     }
 }
 
