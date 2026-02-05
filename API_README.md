@@ -40,13 +40,13 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
 ## 📖 Documentation
 
 ### Core Documentation
-- **[📘 Complete API Documentation](Documentation/api/README.md)** - Start here for overview
-- **[🔐 Authentication Guide](Documentation/api/AUTHENTICATION.md)** - OAuth2, tokens, and client registration
-- **[🔑 Authorization & Scopes](Documentation/api/AUTHORIZATION.md)** - Permissions and access control
-- **[🏥 FHIR API Reference](Documentation/api/FHIR_API.md)** - FHIR R4 endpoints and resources
-- **[⚡ SMART on FHIR](Documentation/api/SMART_ON_FHIR.md)** - App integration and launch flows
-- **[🛠️ Standard API Reference](Documentation/api/STANDARD_API.md)** - OpenEMR REST endpoints
-- **[👨‍💻 Developer Guide](Documentation/api/DEVELOPER_GUIDE.md)** - Internal usage and development
+- **📘 Complete API Documentation** - Overview and endpoint structure
+- **🔐 Authentication Guide** - How to register apps and use OAuth2
+- **🔑 Authorization & Scopes** - Permissions and access control
+- **🏥 FHIR API Reference** - Full FHIR R4 endpoint reference
+- **⚡ SMART on FHIR** - Integrating third-party apps
+- **🛠️ Standard API Reference** - OpenEMR REST endpoints for standard workflows
+- **👨‍💻 Developer Guide** - Tips for internal API usage and development
 
 ## 🎯 Common Tasks
 
