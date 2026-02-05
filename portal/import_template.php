@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,10 +18,9 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
 
 require_once("../interface/globals.php");
@@ -36,7 +35,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {
-    $profiles = json_decode((string) $_POST['profiles'], true);
+    $profiles = json_decode((string)$_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
         echo xlt("Profiles successfully saved.");
@@ -54,7 +53,8 @@ if (($_REQUEST['mode'] ?? null) === 'render_profile') {
 if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_REQUEST['docid']);
-        echo "data:application/pdf;base64," . base64_encode((string) $template['template_content']);
+        $dataUrl = 'data:application/pdf;base64,' . base64_encode((string)$template['template_content']);
+        echo attr($dataUrl);
         exit();
     }
     die(xlt('Invalid File'));
@@ -71,7 +71,7 @@ if (($_POST['mode'] ?? null) === 'get') {
 
 if (($_POST['mode'] ?? null) === 'send_profiles') {
     if (!empty($_POST['checked'])) {
-        $profiles = json_decode((string) $_POST['checked']) ?: [];
+        $profiles = json_decode((string)$_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
         if ($last_id) {
             echo xlt('Profile Templates Successfully set to Active in portal.');
@@ -85,9 +85,9 @@ if (($_POST['mode'] ?? null) === 'send_profiles') {
 
 if (($_POST['mode'] ?? null) === 'send') {
     if (!empty($_POST['docid'])) {
-        $pids_array = json_decode((string) $_POST['docid']) ?: ['0'];
+        $pids_array = json_decode((string)$_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
-        $ids = json_decode((string) $_POST['checked']) ?: [];
+        $ids = json_decode((string)$_POST['checked']) ?: [];
         $master_ids = [];
         foreach ($ids as $id) {
             if (is_array($id)) {
@@ -123,7 +123,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Not authorized to edit template'));
     }
     if ($_POST['docid']) {
-        if (stripos((string) $_POST['content'], "<?php") === false) {
+        if (stripos((string)$_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
             if ($_POST['service'] === 'window') {
                 echo "<script>if (typeof parent.dlgopen === 'undefined') window.close(); else parent.dlgclose();</script>";
@@ -168,7 +168,7 @@ if (isset($_POST['blank-nav-button'])) {
     $category = $_POST['template_category'] ?? '';
     $patient = '-1';
     if (!empty($upload_name)) {
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $upload_name);
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$upload_name);
         try {
             $content = "{ParseAsHTML}";
             $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
@@ -240,11 +240,11 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
             exit;
         }
         // parse out what we need
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $_FILES['template_files']['name'][$i]);
-        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string) $name) !== 0) {
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$_FILES['template_files']['name'][$i]);
+        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string)$name) !== 0) {
             die(xlt('Invalid file type.'));
         }
-        $parts = pathinfo((string) $name);
+        $parts = pathinfo((string)$name);
         $name = ucwords(strtolower($parts["filename"]));
         if (empty($patient)) {
             $patient = ['-1'];
@@ -312,7 +312,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
         $template_content = $content['template_content'];
         if ($content['mime'] === 'application/pdf') {
             $content = "<iframe width='100%' height='100%' src='data:application/pdf;base64, " .
-                attr(base64_encode((string) $template_content)) . "'></iframe>";
+                attr(base64_encode((string)$template_content)) . "'></iframe>";
             echo $content;
             exit;
         }
@@ -343,20 +343,20 @@ function renderEditorHtml($template_id, $content): void
         <?php Header::setupHeader(['summernote']); ?>
     </head>
     <style>
-        input:focus,
-        input:active {
-            outline: 0 !important;
-            -webkit-appearance: none;
-            box-shadow: none !important;
-        }
+      input:focus,
+      input:active {
+        outline: 0 !important;
+        -webkit-appearance: none;
+        box-shadow: none !important;
+      }
 
-        .list-group-item {
-            font-size: .9rem;
-        }
+      .list-group-item {
+        font-size: .9rem;
+      }
 
-        .note-editable {
-            height: 78vh !important;
-        }
+      .note-editable {
+        height: 78vh !important;
+      }
     </style>
     <body>
         <div class="container-fluid">
@@ -525,7 +525,7 @@ function renderEditorHtml($template_id, $content): void
         });
     </script>
 
-</html>
+    </html>
 <?php }
 
 /**
@@ -550,27 +550,27 @@ function renderProfileHtml(): void
         <?php } ?>
     </head>
     <style>
-        body {
-            overflow: hidden;
-        }
+      body {
+        overflow: hidden;
+      }
 
-        .list-group-item {
-            cursor: move;
-        }
+      .list-group-item {
+        cursor: move;
+      }
 
-        strong {
-            font-weight: 600;
-        }
+      strong {
+        font-weight: 600;
+      }
 
-        .col-height {
-            max-height: 95vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
+      .col-height {
+        max-height: 95vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
 
-        .note-editor.dragover .note-dropzone {
-            display: none
-        }
+      .note-editor.dragover .note-dropzone {
+        display: none
+      }
     </style>
     <script>
         const profiles = <?php echo js_escape($profile_list); ?>;

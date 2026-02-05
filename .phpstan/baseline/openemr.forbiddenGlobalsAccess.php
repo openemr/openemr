@@ -38,7 +38,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 43,
+    'count' => 44,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -3255,11 +3255,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',

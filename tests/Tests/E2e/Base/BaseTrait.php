@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -75,6 +76,51 @@ trait BaseTrait
         }
     }
 
+    /**
+     * Wait for the application to be fully initialized after login.
+     *
+     * Verifies Knockout.js has applied bindings by checking that the
+     * #mainMenu div has children (rendered by the menu template).
+     * Without this gate, tests that immediately navigate menus can
+     * fail because the page HTML loaded but the JS framework hasn't
+     * finished rendering.
+     *
+     * Note: a refresh-and-retry strategy won't work here because
+     * prevent_browser_refresh defaults to 2, which causes main.php
+     * to consume the session token after first validation. A refresh
+     * would fail token validation and destroy the session.
+     */
+    private function waitForAppReady(): void
+    {
+        try {
+            $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
+                'return document.getElementById("mainMenu")?.children.length > 0'
+            ));
+        } catch (TimeoutException) {
+            // Gather page state to help diagnose timeout failures.
+            // Knowing whether the page loaded, Knockout.js initialized,
+            // and whether #mainMenu exists narrows down root causes.
+            try {
+                $diagnostics = (string) $this->client->executeScript(<<<'JS_WRAP'
+                    return JSON.stringify({
+                        url: location.href,
+                        readyState: document.readyState,
+                        title: document.title,
+                        koAvailable: typeof ko !== 'undefined',
+                        mainMenuExists: document.getElementById('mainMenu') !== null,
+                        mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
+                        bodyLength: document.body?.innerHTML?.length ?? 0
+                    });
+                JS_WRAP);
+            } catch (\Throwable) {
+                $diagnostics = 'unable to gather diagnostics (executeScript failed)';
+            }
+            throw new TimeoutException(
+                "waitForAppReady() timed out after 30s. Page state: {$diagnostics}"
+            );
+        }
+    }
+
     private function switchToIFrame(string $xpath): void
     {
         $selector = WebDriverBy::xpath($xpath);
@@ -124,13 +170,6 @@ trait BaseTrait
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
-        // Wait for the page to be fully loaded. Catches pending resource
-        // loads that could prevent Knockout.js from applying bindings.
-        $this->client->wait(30)->until(
-            fn($driver) => $driver->executeScript('return document.readyState') === 'complete'
-        );
-        // Wait for the main menu to be populated by Knockout.js
-        $this->client->waitForVisibility('//div[@id="mainMenu"]/div', 30);
         // go to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;

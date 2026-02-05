@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -77,7 +79,7 @@ class MessageService
 
     public function update($pid, $mid, $data)
     {
-        $existingBody = sqlQuery("SELECT body FROM pnotes WHERE id = ?", $mid);
+        $existingBody = sqlQuery("SELECT body FROM pnotes WHERE pid = ? AND id = ?", [$pid, $mid]);
 
         $sql  = " UPDATE pnotes SET";
         $sql .= "     body=?,";
@@ -86,7 +88,7 @@ class MessageService
         $sql .= "     assigned_to=?,";
         $sql .= "     message_status=?,";
         $sql .= "     title=?";
-        $sql .= "     WHERE id=?";
+        $sql .= "     WHERE pid=? AND id=?";
 
         $results = sqlStatement(
             $sql,
@@ -97,6 +99,7 @@ class MessageService
                 $data['to'],
                 $data['message_status'],
                 $data['title'],
+                $pid,
                 $mid
             ]
         );
