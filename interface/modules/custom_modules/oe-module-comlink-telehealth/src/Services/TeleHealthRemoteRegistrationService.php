@@ -27,51 +27,47 @@ class TeleHealthRemoteRegistrationService
 {
     /**
      * API url endpoint to send registration requests to.
-     * @var string
      */
-    private $apiURL;
-
-    /*
-     * UserID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiId;
-
-    /*
-     * Password for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiPassword;
-
-    /*
-     * CMSID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiCMSID;
-
+    private readonly string $apiURL;
 
     /**
-     * Client
+     * UserID for api authentication needed for comlink video service
      */
-    private $httpClient;
+    private readonly string $apiId;
+
+    /**
+     * Password for api authentication needed for comlink video service
+     */
+    private readonly string $apiPassword;
+
+    /**
+     * CMSID for api authentication needed for comlink video service
+     */
+    private readonly string $apiCMSID;
+
+    /**
+     * HTTP client for API requests
+     */
+    private Client $httpClient;
 
     /**
      * Unique installation id of the OpenEMR Institution
-     * @var string
      */
-    private $institutionId;
+    private readonly string $institutionId;
 
     /**
      * Name of the OpenEMR institution
-     * @var string
      */
-    private $institutionName;
+    private readonly string $institutionName;
 
     /**
-     * @var SystemLogger
+     * System logger instance
      */
-    private $logger;
+    private readonly SystemLogger $logger;
 
+    /**
+     * User repository for managing telehealth users
+     */
     private TeleHealthUserRepository $userRepository;
 
     public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
@@ -338,10 +334,6 @@ class TeleHealthRemoteRegistrationService
 
     private function sendAPIRequest($endpointUrl, array $body)
     {
-        if (empty($this->httpClient)) {
-            throw new \BadMethodCallException("httpClient must be setup in order to send request");
-        }
-
         // because this could be an already existing event we've tried saving before we decode the json, even though
         // on the first event notification we may be doubling the work
         $client = $this->getHttpClient();

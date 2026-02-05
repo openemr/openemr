@@ -33,6 +33,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -1314,7 +1315,7 @@ class TeleconferenceRoomController
             ]
             , 'participantList' => $this->participantListService->getParticipantListWithInvitationsForAppointment($user, $session)
             , 'encounter' => $encounter
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
             , 'sessionId' => $session['id']
             , 'thirdPartyPatient' => $thirdPartyPatient
         ];
@@ -1389,7 +1390,7 @@ class TeleconferenceRoomController
                 'apptstatus' => $appt['pc_apptstatus']
             ]
             , 'participantList' => $this->getParticipantListForAppointment($user, $session)
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
         ];
         return $data;
     }
