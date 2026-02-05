@@ -163,22 +163,19 @@ jobs:
         path: vendor/
 
     - name: Setup Node
-      id: setup-node
       uses: ./.github/actions/setup-node-npm
       with:
         node-version: ${{ matrix.node-version }}
-        run-cache: 'false'
         run-install: 'false'
 
     ##
-    # Update cache keys to include npm build artifacts
-    - name: Add npm cache keys
+    # Collect cache keys for build artifacts
+    - name: Collect build cache keys
       id: npm-cache-keys
       run: |
         {
           echo 'npm-build=${{ runner.os }}-npm-build-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}'
           echo 'ccda-build=${{ runner.os }}-ccda-build-${{ matrix.node-version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
-          echo 'npm=${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
 
     ##
@@ -232,43 +229,12 @@ jobs:
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
 
-    ##
-    # Restore npm download cache (fallback if build caches miss)
-    - name: Restore npm cache
-      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      id: npm-cache-restore
-      uses: actions/cache/restore@v5
-      with:
-        key: ${{ steps.npm-cache-keys.outputs.npm }}
-        path: ${{ steps.setup-node.outputs.cache-dir }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
-          ${{ runner.os }}-node-
-
-    - name: Check npm cache
-      id: npm-cache-check
-      run: |
-        key='${{ steps.npm-cache-keys.outputs.npm }}'
-        matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = "$matched" ]]; then
-          echo hit=true
-        else
-          echo hit=false
-        fi >> "$GITHUB_OUTPUT"
-
     - name: NPM CI
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
       run: npm ci
 
     ##
-    # Save caches (base caches before derived caches)
-    - name: Save npm cache
-      if: ${{ (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
-      with:
-        key: ${{ steps.npm-cache-keys.outputs.npm }}
-        path: ${{ steps.setup-node.outputs.cache-dir }}
-
+    # Save build artifact caches
     - name: Save CCDA build artifacts
       if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v5
