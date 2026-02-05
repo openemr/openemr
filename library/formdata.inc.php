@@ -35,14 +35,12 @@ function add_escape_custom($s)
  * this is centralized to a function (in case need to upgrade this
  * function to support larger numbers in the future).
  *
- * @param   string $s  Limit variable to be escaped.
- * @return  string     Escaped limit variable.
+ * @param   string|int $limit  Limit variable to be escaped.
+ * @return  int     Escaped limit variable.
  */
-function escape_limit($s)
+function escape_limit($limit): int
 {
-    //prepare for safe mysql insertion
-    $s = (int)$s;
-    return $s;
+    return (int) $limit;
 }
 
 /**
@@ -163,15 +161,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  */
 function escape_table_name($s)
 {
-    $res = sqlStatementNoLog("SHOW TABLES");
-    $tables_array = [];
-    while ($row = sqlFetchArray($res)) {
-        $keys_return = array_keys($row);
-        $tables_array[] = $row[$keys_return[0]];
-    }
-
-    // Now can escape(via whitelisting) the sql table name
-    return escape_identifier($s, $tables_array, true, false);
+    return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
 }
 
 /**

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use ADORecordSet;
 use Throwable;
 
 class QueryUtils
@@ -27,7 +28,7 @@ class QueryUtils
      */
     public static function listTableFields($table)
     {
-        $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
+        $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
         $field_list = [];
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
@@ -39,7 +40,15 @@ class QueryUtils
 
     public static function escapeTableName($table)
     {
-        return \escape_table_name($table);
+        $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
+        $tables_array = [];
+        while ($row = self::fetchArrayFromResultSet($res)) {
+            $keys_return = array_keys($row);
+            $tables_array[] = $row[$keys_return[0]];
+        }
+
+        // Now can escape(via whitelisting) the sql table name
+        return \escape_identifier($table, $tables_array, true, false);
     }
 
     public static function escapeColumnName($columnName, $tables = [])
@@ -61,15 +70,15 @@ class QueryUtils
                 . getSqlLastError() . " Statement: " . $sqlStatement);
         }
         $list = [];
-        while ($record = sqlFetchArray($recordset)) {
+        while ($record = self::fetchArrayFromResultSet($recordset)) {
             $list[] = $record;
         }
         return $list;
     }
     /**
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
-     * @param $sqlStatement
-     * @param $column string column you want returned
+     * @param string $sqlStatement
+     * @param string $column column you want returned
      * @param array $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
@@ -78,7 +87,7 @@ class QueryUtils
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[] = $record[$column] ?? null;
         }
         return $list;
@@ -99,7 +108,7 @@ class QueryUtils
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
-        while ($record = \sqlFetchArray($result)) {
+        while ($record = self::fetchArrayFromResultSet($result)) {
             $list[] = $record;
         }
         return $list;
@@ -107,8 +116,8 @@ class QueryUtils
 
     /**
      * Executes the sql statement and returns an associative array for a single column of a table
-     * @param $sqlStatement The statement to run
-     * @param $column The column you want returned
+     * @param string $sqlStatement The statement to run
+     * @param string $column The column you want returned
      * @param array $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
@@ -117,7 +126,7 @@ class QueryUtils
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[$column] = $record[$column] ?? null;
         }
         return $list;
@@ -131,12 +140,20 @@ class QueryUtils
      * It will act upon the object returned from the
      * sqlStatement() function (and sqlQ() function).
      *
-     * @param recordset $resultSet
-     * @return array
+     * @param ADORecordSet|false $resultSet
+     * @return array|false
      */
     public static function fetchArrayFromResultSet($resultSet)
     {
-        return sqlFetchArray($resultSet);
+        if ($resultSet === false) {
+            return false;
+        }
+
+        if ($resultSet->EOF) {
+            return false;
+        }
+
+        return $resultSet->FetchRow();
     }
 
     /**
@@ -152,17 +169,30 @@ class QueryUtils
      *
      * @param  string  $statement  query
      * @param  array   $binds      binded variables array (optional)
-     * @param  noLog   boolean     if true the sql statement bypasses the database logger, false logs the sql statement
+     * @param  bool    $noLog      if true the sql statement bypasses the database logger, false logs the sql statement
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return recordset
+     * @return ADORecordSet
      */
     public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
-        if ($noLog) {
-            return \sqlStatementNoLog($statement, $binds, true);
-        } else {
-            return \sqlStatementThrowException($statement, $binds);
+        // Below line is to avoid a nasty bug in windows.
+        if (empty($binds)) {
+            $binds = false;
         }
+
+        //Run a adodb execute
+        // Note the auditSQLEvent function is embedded in the
+        //   Execute function.
+        if ($noLog) {
+            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
+        } else {
+            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+        }
+        if ($recordset === false) {
+            throw new SqlQueryException($statement, "Failed to execute statement. Error: "
+                . getSqlLastError() . " Statement: " . $statement);
+        }
+        return $recordset;
     }
 
     /**
@@ -182,11 +212,8 @@ class QueryUtils
             // thrown which doesn't help us at all.
 
             $query = "SELECT 1 as id FROM " . $tableName . " LIMIT 1";
-            $statement = \sqlStatementNoLog($query, [], true);
-            if ($statement !== false) {
-                unset($statement); // free the resource
-                return true;
-            }
+            self::sqlStatementThrowException($query, [], noLog: true);
+            return true;
         } catch (\Exception) {
             // do nothing as we know the table doesn't exist
         }
@@ -253,11 +280,11 @@ class QueryUtils
         $sql .= !empty($order) ? " " . $order       : "";
         $sql .= !empty($limit) ? " LIMIT " . $limit : "";
 
-        $multipleResults = sqlStatementThrowException($sql, $data);
+        $multipleResults = self::sqlStatementThrowException($sql, $data);
 
         $results = [];
 
-        while ($row = sqlFetchArray($multipleResults)) {
+        while ($row = self::fetchArrayFromResultSet($multipleResults)) {
             array_push($results, $row);
         }
 
@@ -270,29 +297,27 @@ class QueryUtils
 
     public static function generateId()
     {
-        // @phpstan-ignore openemr.deprecatedSqlFunction
-        return \generate_id();
+        return $GLOBALS['adodb']['db']->GenID("sequences");
     }
 
     public static function ediGenerateId()
     {
-        // @phpstan-ignore openemr.deprecatedSqlFunction
-        return \edi_generate_id();
+        return $GLOBALS['adodb']['db']->GenID("edi_sequences");
     }
 
     public static function startTransaction()
     {
-        \sqlBeginTrans();
+        $GLOBALS['adodb']['db']->BeginTrans();
     }
 
     public static function commitTransaction()
     {
-        \sqlCommitTrans();
+        $GLOBALS['adodb']['db']->CommitTrans();
     }
 
     public static function rollbackTransaction()
     {
-        \sqlRollbackTrans();
+        $GLOBALS['adodb']['db']->RollbackTrans();
     }
 
     /**
@@ -320,13 +345,24 @@ class QueryUtils
 
     public static function getLastInsertId()
     {
-        return \sqlGetLastInsertId();
+        // Return the correct last id generated using function
+        //   that is safe with the audit engine.
+        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
     }
 
-    public static function querySingleRow(string $sql, array $params = [])
+    /**
+     * Executes a query and returns the first row as an associative array.
+     *
+     * @param  string  $sql     query
+     * @param  array   $params  binded variables array (optional)
+     * @param  bool    $log     if true the sql statement is logged, false bypasses the database logger
+     * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+     * @return array|false
+     */
+    public static function querySingleRow($sql, $params = [], $log = true)
     {
-        $result = self::sqlStatementThrowException($sql, $params);
-        return \sqlFetchArray($result);
+        $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
+        return self::fetchArrayFromResultSet($result);
     }
 
     /**
@@ -338,10 +374,10 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
+     * @param   string|int $limit  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
-    public static function escapeLimit(string|int $limit)
+    public static function escapeLimit($limit)
     {
         return \escape_limit($limit);
     }

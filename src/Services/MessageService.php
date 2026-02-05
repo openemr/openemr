@@ -77,7 +77,7 @@ class MessageService
 
     public function update($pid, $mid, $data)
     {
-        $existingBody = sqlQuery("SELECT body FROM pnotes WHERE id = ?", $mid);
+        $existingBody = sqlQuery("SELECT body FROM pnotes WHERE id = ?", [$mid]);
 
         $sql  = " UPDATE pnotes SET";
         $sql .= "     body=?,";

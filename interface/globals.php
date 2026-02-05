@@ -751,7 +751,7 @@ $globalsBag->set('layout_search_color', '#ff9919');
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table
 try {
-    $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', false, true);
+    $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', [], true);
 } catch (\Exception $ex) {
     error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
 }
