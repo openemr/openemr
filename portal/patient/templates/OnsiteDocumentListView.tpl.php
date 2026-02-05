@@ -75,14 +75,14 @@ $templateService = new DocumentTemplateService();
 <html>
 <head>
     <title><?php
-        if ($is_dashboard) {
-            echo xlt("Portal Document Review");
-        } elseif (empty($is_module)) {
-            echo xlt("Patient Portal Documents");
-        } else {
-            echo xlt("Patient Document Templates");
-        }
-        ?>
+    if ($is_dashboard) {
+        echo xlt("Portal Document Review");
+    } elseif (empty($is_module)) {
+        echo xlt("Patient Portal Documents");
+    } else {
+        echo xlt("Patient Document Templates");
+    }
+    ?>
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
