@@ -63,23 +63,15 @@ jobs:
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     - name: PHPStan Analyze
-      id: phpstan-analyze
       run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
-      continue-on-error: true
-    # Generate baseline only if analyze step failed
     - name: PHPStan Baseline
-      if: steps.phpstan-analyze.outcome == 'failure'
+      if: failure()
       run: composer run phpstan-baseline
-      continue-on-error: true
     # Upload the resulting baseline as an artifact. This is intended mostly for
     # debugging and isn't actively used by GH workflows.
     - name: Upload PHPStan Baseline
-      if: steps.phpstan-analyze.outcome == 'failure'
+      if: failure()
       uses: actions/upload-artifact@v6
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
         path: .phpstan/baseline/*.php
-      continue-on-error: true
-    - name: Check PHPStan Results
-      if: steps.phpstan-analyze.outcome == 'failure'
-      run: false

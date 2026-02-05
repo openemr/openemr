@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,9 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Pdf\Config_Mpdf;
 
 // Font size in points for table cell data.
@@ -30,21 +35,42 @@ $FONTSIZE = 9;
 // The form name is passed to us as a GET parameter.
 $formname = $_GET['formname'] ?? '';
 
-$patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
-if ($patientid < 0) {
-    $patientid = (int) $pid; // -1 means current pid
-}
+// Use session patient/encounter for authorization — never trust request parameters for these.
+$patientid = (int) $pid;
 // PDF header information
 $patientname = getPatientName($patientid);
 $patientdob = getPatientData($patientid, "DOB");
 $dateofservice = fetchDateService($encounter);
 
-$visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
-if ($visitid < 0) {
-    $visitid = (int) $encounter; // -1 means current encounter
+$visitid = isset($_REQUEST['visitid']) ? (int) $_REQUEST['visitid'] : 0;
+if ($visitid <= 0) {
+    $visitid = (int) $encounter;
 }
 
-$formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
+$formid = isset($_REQUEST['formid']) ? (int) $_REQUEST['formid'] : 0;
+
+// Verify the requested form belongs to the session's active patient and encounter.
+if ($formid > 0) {
+    $formOwner = QueryUtils::querySingleRow(
+        "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir LIKE 'LBF%' AND deleted = 0",
+        [$formid]
+    );
+    if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
+        (new SystemLogger())->warning(
+            "An attempt was made to view an LBF form belonging to a different patient or encounter",
+            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
+        );
+        EventAuditLogger::getInstance()->newEvent(
+            "security-access",
+            $_SESSION['authUser'] ?? '',
+            $_SESSION['authProvider'] ?? '',
+            0,
+            "Unauthorized attempt to view LBF form " . $formid . " for pid " . $patientid
+        );
+        http_response_code(404);
+        die(xlt('Form not found'));
+    }
+}
 
 // True if to display as a form to complete, false to display as information.
 $isblankform = empty($_REQUEST['isform']) ? 0 : 1;

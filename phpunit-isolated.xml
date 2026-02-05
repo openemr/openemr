@@ -38,6 +38,7 @@ This file configures the kind that does not require initialization.
 
     <!-- Include existing unit tests that don't require database -->
     <testsuite name="unit-isolated">
+      <directory>tests/Tests/BC</directory>
       <directory>tests/Tests/Unit/Common/Utils</directory>
       <directory>tests/Tests/Unit/Common/Http</directory>
       <directory>tests/Tests/Unit/PaymentProcessing</directory>
