@@ -9,6 +9,10 @@ inputs:
     description: Coverage driver (none, xdebug, pcov)
     required: false
     default: none
+  extensions:
+    description: PHP extensions to install (comma-separated)
+    required: false
+    default: ''
   tools:
     description: Tools to install (comma-separated, e.g., cs2pr, phpcs)
     required: false
@@ -26,6 +30,7 @@ runs:
       with:
         php-version: ${{ inputs.php-version }}
         coverage: ${{ inputs.coverage }}
+        extensions: ${{ inputs.extensions }}
         tools: ${{ inputs.tools }}
 
     - name: Get composer cache directory
