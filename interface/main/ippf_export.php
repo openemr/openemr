@@ -73,12 +73,6 @@ function Sex($field)
     return mappedOption('sex', $field);
 }
 
-// Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
-}
-
 function xmlTime($str, $default = '9999-12-31T23:59:59')
 {
     if (empty($default)) {
