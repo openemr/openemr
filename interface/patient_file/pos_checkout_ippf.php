@@ -1446,21 +1446,6 @@ function write_old_payment_line($pay_type, $date, $method, $reference, $amount):
     ++$lino;
 }
 
-// Mark the tax rates that are referenced in this invoice.
-function markTaxes($taxrates): void
-{
-    global $taxes;
-    $arates = explode(':', (string) $taxrates);
-    if (empty($arates)) {
-        return;
-    }
-    foreach ($arates as $value) {
-        if (!empty($taxes[$value])) {
-            $taxes[$value][2] = '1';
-        }
-    }
-}
-
 // Create the taxes array.  Key is tax id, value is
 // (description, rate, indicator).  Indicator seems to be unused.
 $taxes = [];

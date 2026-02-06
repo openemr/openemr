@@ -329,12 +329,6 @@ function end_row(): void
     }
 }
 
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
-}
-
 $cell_count = 0;
 $item_count = 0;
 
@@ -614,7 +608,7 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 </form>
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     if (isset($_GET['return_content'])) {
         echo js_escape($content);
         exit();
