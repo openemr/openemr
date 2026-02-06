@@ -380,4 +380,14 @@ class QueryUtils
     {
         return \escape_limit($limit);
     }
+
+    /**
+     * Returns the number of rows affected by the last INSERT, UPDATE, or DELETE query.
+     *
+     * @return int|false
+     */
+    public static function affectedRows()
+    {
+        return $GLOBALS['adodb']['db']->Affected_Rows();
+    }
 }
