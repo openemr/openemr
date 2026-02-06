@@ -30,6 +30,12 @@
     </properties>
   </rule>
 
+  <!-- Stricter rules can be scoped to specific directories, e.g.:
+  <rule ref="PSR12">
+    <include-pattern>src/*</include-pattern>
+  </rule>
+  -->
+
   <!-- Default scan target (overridden when paths passed on CLI) -->
   <file>.</file>
 
