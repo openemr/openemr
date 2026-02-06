@@ -275,8 +275,8 @@
         "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
-        "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf",
-        "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs",
+        "phpcbf": "phpcbf",
+        "phpcs": "phpcs",
         "phpstan": "phpstan analyze --memory-limit=4G",
         "phpstan-baseline": [
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",

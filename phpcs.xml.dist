@@ -2,14 +2,18 @@
 <ruleset name="OpenEMR Standard">
   <description>PSR-12 (permissive)</description>
 
-  <!-- Default scan target (overridden when paths passed on CLI) -->
-  <file>.</file>
-
   <!-- Runtime settings -->
+  <ini name="memory_limit" value="4G" />
   <arg name="extensions" value="php,inc"/>
   <arg name="tab-width" value="4"/>
   <arg name="report-width" value="120"/>
-  <arg value="np"/>
+  <arg name="warning-severity" value="0" />
+  <!--
+      20 picked to max out most systems. Note that this will influence the
+      progressbar; it shows #jobs instead of #files when parallel is on.
+  -->
+  <arg name="parallel" value="20" />
+  <arg value="p" /> <!-- progressbar-->
 
   <!-- Checks that the opening PHP tag is the first content in a file. -->
   <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag"/>
@@ -25,6 +29,9 @@
       </property>
     </properties>
   </rule>
+
+  <!-- Default scan target (overridden when paths passed on CLI) -->
+  <file>.</file>
 
   <exclude-pattern>*/gacl/gacl.ini.php</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
