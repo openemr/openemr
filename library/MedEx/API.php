@@ -1935,7 +1935,7 @@ class Display extends Base
                                         "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                                         $ures = sqlStatement($query);
                                         $userauthorized = $session->get('userauthorized');
-                                        $authUserID = $session->get('authUserID'];
+                                        $authUserID = $session->get('authUserID');
                                         //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
