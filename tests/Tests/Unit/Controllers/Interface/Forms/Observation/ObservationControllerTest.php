@@ -18,6 +18,7 @@ use Monolog\Level;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -30,6 +31,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
 /**
@@ -52,7 +54,7 @@ class ObservationControllerTest extends TestCase
     private ?int $globalDateFormat;
     private ?Kernel $globalKernelBackup = null;
 
-    private array $sessionBackup = [];
+    private SessionInterface $session;
 
     /**
      * AI Generated: Set up test environment with mocked dependencies
@@ -62,17 +64,16 @@ class ObservationControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Backup and mock session data
-        $this->sessionBackup = $_SESSION ?? [];
-        $_SESSION = [
-            'pid' => 123,
-            'encounter' => 456,
-            'authUser' => 'testuser',
-            'authProvider' => 'testprovider',
-            'userauthorized' => 1
-        ];
+        // Initialize and populate Symfony session
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->session->set('pid', 123);
+        $this->session->set('encounter', 456);
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
+        $this->session->set('userauthorized', 1);
+
         // setup the csrf so we don't error out
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($this->session);
 
         // Mock global variables that may be used
         $globalsBag = OEGlobalsBag::getInstance();
@@ -103,7 +104,7 @@ class ObservationControllerTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $_SESSION = $this->sessionBackup;
+        $this->session->clear();
         $GLOBALS['webroot'] = $this->globalWebrootBackup;
         OEGlobalsBag::getInstance()->set('kernel', $this->globalKernelBackup);
         $GLOBALS['date_display_format'] = $this->globalDateFormat;
@@ -471,10 +472,10 @@ class ObservationControllerTest extends TestCase
      */
     public function testSaveActionErrorHandling(): void
     {
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($this->session);
         $request = new Request(
             ['id' => 1],
-            ['csrf_token_form' => CsrfUtils::collectCsrfToken()]
+            ['csrf_token_form' => CsrfUtils::collectCsrfToken('default', $this->session)]
         );
 
         $this->mockFormService
