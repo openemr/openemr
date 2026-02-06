@@ -77,51 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function tableExists_de may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upgradeFromSqlFile_de may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdFacilityTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdForms may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdInsuranceDataTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdUsersTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function truncateLogs may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function UpdateTable may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -7082,21 +7037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generic_sql_affected_rows may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generic_sql_insert_id may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generic_sql_select_db may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getPrivDB may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -7785,11 +7725,6 @@ $ignoreErrors[] = [
     'message' => '#^Function report_header_2 may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function check_code_set_filters may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oe_module_custom_patient_menu may not be defined in the global namespace\\.$#',

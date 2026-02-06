@@ -11,7 +11,6 @@ This file configures the kind that does not require initialization.
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          backupGlobals="false"
-         bootstrap="tests/bootstrap-isolated.php"
          colors="true"
          processIsolation="false"
          stopOnError="false"
