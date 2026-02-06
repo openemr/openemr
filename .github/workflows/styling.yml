@@ -51,8 +51,10 @@ jobs:
           ${{ runner.os }}-composer-
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
+    - name: Register PHPCS problem matcher
+      run: echo "::add-matcher::.github/problem-matchers/phpcs.json"
     - name: Check PHP Styling
-      run: composer phpcs
+      run: composer phpcs -- --report=full,emacs
 
   css_styling:
     runs-on: ubuntu-24.04
