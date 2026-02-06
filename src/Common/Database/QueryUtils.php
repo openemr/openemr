@@ -65,8 +65,12 @@ class QueryUtils
         $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($sqlStatement, $binds);
 
         if ($recordset === false) {
-            throw new SqlQueryException($sqlStatement, "Failed to execute statement. Error: "
-                . getSqlLastError() . " Statement: " . $sqlStatement);
+            $error = getSqlLastError();
+            throw new SqlQueryException(
+                sqlStatement: $sqlStatement,
+                message: "Failed to execute statement. Error: " . $error . " Statement: " . $sqlStatement,
+                sqlError: $error,
+            );
         }
         $list = [];
         while ($record = self::fetchArrayFromResultSet($recordset)) {
@@ -194,8 +198,12 @@ class QueryUtils
             $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
         }
         if ($recordset === false) {
-            throw new SqlQueryException($statement, "Failed to execute statement. Error: "
-                . getSqlLastError() . " Statement: " . $statement);
+            $error = getSqlLastError();
+            throw new SqlQueryException(
+                sqlStatement: $statement,
+                message: "Failed to execute statement. Error: " . $error . " Statement: " . $statement,
+                sqlError: $error,
+            );
         }
         return $recordset;
     }
@@ -257,7 +265,12 @@ class QueryUtils
         //   Execute function.
         $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
         if ($recordset === false) {
-            throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
+            $error = getSqlLastError();
+            throw new SqlQueryException(
+                sqlStatement: $statement,
+                message: "Insert failed. SQL error " . $error . " Query: " . $statement,
+                sqlError: $error,
+            );
         }
 
         // Return the correct last id generated using function
