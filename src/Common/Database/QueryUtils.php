@@ -65,7 +65,7 @@ class QueryUtils
         $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($sqlStatement, $binds);
 
         if ($recordset === false) {
-            $error = getSqlLastError();
+            $error = self::getLastError();
             throw new SqlQueryException(
                 sqlStatement: $sqlStatement,
                 message: "Failed to execute statement. Error: " . $error . " Statement: " . $sqlStatement,
@@ -198,7 +198,7 @@ class QueryUtils
             $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
         }
         if ($recordset === false) {
-            $error = getSqlLastError();
+            $error = self::getLastError();
             throw new SqlQueryException(
                 sqlStatement: $statement,
                 message: "Failed to execute statement. Error: " . $error . " Statement: " . $statement,
@@ -265,7 +265,7 @@ class QueryUtils
         //   Execute function.
         $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
         if ($recordset === false) {
-            $error = getSqlLastError();
+            $error = self::getLastError();
             throw new SqlQueryException(
                 sqlStatement: $statement,
                 message: "Insert failed. SQL error " . $error . " Query: " . $statement,

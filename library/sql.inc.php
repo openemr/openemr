@@ -97,7 +97,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         } else {
             echo "Check that you can ping the server " . text($host) . ".<p>";
         }
-        HelpfulDie("Could not connect to server!", getSqlLastError());
+        HelpfulDie("Could not connect to server!", QueryUtils::getLastError());
     }
 
 // Modified 5/2009 by BM for UTF-8 project ---------
@@ -105,12 +105,12 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
             $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
             if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
             }
         } else {
             $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
             if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
             }
         }
     }
@@ -118,7 +118,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 // Turn off STRICT SQL
     $sql_strict_set_success = $database->ExecuteNoLog("SET sql_mode = ''");
     if (!$sql_strict_set_success) {
-        error_log("Unable to set strict sql setting: " . errorLogEscape(getSqlLastError()), 0);
+        error_log("Unable to set strict sql setting: " . errorLogEscape(QueryUtils::getLastError()), 0);
     }
 
 // set up associations in adodb calls (not sure why above define
@@ -390,17 +390,6 @@ function sqlInsertClean_audit($statement, $binds = false): void
 }
 
 /**
-* Function that will safely return the last error,
-* and accounts for the audit engine.
-*
-* @return  string  last mysql error
-*/
-function getSqlLastError()
-{
-    return !empty($GLOBALS['last_mysql_error']) ? $GLOBALS['last_mysql_error'] : $GLOBALS['adodb']['db']->ErrorMsg();
-}
-
-/**
 * Function that will return an array listing
 * of columns that exist in a table.
 *
@@ -510,7 +499,7 @@ function sqlQ($statement, $binds = false)
     }
 
     $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds) or
-    HelpfulDie("query failed: $statement", getSqlLastError());
+    HelpfulDie("query failed: $statement", QueryUtils::getLastError());
     return $recordset;
 }
 
@@ -527,7 +516,7 @@ function sqlClose()
 {
   //----------Close our mysql connection
     $closed = $GLOBALS['adodb']['db']->close or
-    HelpfulDie("could not disconnect from mysql server link", getSqlLastError());
+    HelpfulDie("could not disconnect from mysql server link", QueryUtils::getLastError());
     return $closed;
 }
 
