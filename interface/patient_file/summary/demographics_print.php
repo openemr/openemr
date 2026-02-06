@@ -233,12 +233,6 @@ function end_group(): void
     }
 }
 
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
-}
-
 $last_group = '';
 $cell_count = 0;
 $item_count = 0;
@@ -367,7 +361,7 @@ if (strlen((string) $last_group) > 0) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $pdf->writeHTML($content);
     $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {
