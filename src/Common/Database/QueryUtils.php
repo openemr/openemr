@@ -412,4 +412,17 @@ class QueryUtils
     {
         return $GLOBALS['adodb']['db']->Affected_Rows();
     }
+
+    /**
+     * Returns the last SQL error message from the database connection.
+     *
+     * Checks the audit engine's error state first, then falls back to
+     * ADODB's ErrorMsg().
+     */
+    public static function getLastError(): string
+    {
+        return !empty($GLOBALS['last_mysql_error'])
+            ? (string) $GLOBALS['last_mysql_error']
+            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+    }
 }

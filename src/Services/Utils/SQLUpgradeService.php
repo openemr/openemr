@@ -799,13 +799,18 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
                     $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -1446,7 +1451,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } catch (SqlQueryException $e) {
             $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
