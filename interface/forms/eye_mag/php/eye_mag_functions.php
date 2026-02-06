@@ -4248,14 +4248,9 @@ function report_header($pid, $direction = 'shell')
     *******************************************************************/
     //$titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
-    $facility = null;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $pc_facility = $session->get('pc_facility');
-    if ($pc_facility) {
-        $facility = $facilityService->getById($pc_facility);
-    } else {
-        $facility = $facilityService->getPrimaryBillingLocation();
-    }
+    $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);
     /******************************************************************/

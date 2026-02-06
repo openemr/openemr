@@ -291,13 +291,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-        $facility = null;
         $pc_facility = $session->get('pc_facility');
-        if ($pc_facility) {
-            $facility = $facilityService->getById($pc_facility);
-        } else {
-            $facility = $facilityService->getPrimaryBillingLocation();
-        }
+        $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
     }
 
     ?><br /><br />
