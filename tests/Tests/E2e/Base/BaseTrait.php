@@ -85,40 +85,56 @@ trait BaseTrait
      * fail because the page HTML loaded but the JS framework hasn't
      * finished rendering.
      *
-     * Note: a refresh-and-retry strategy won't work here because
-     * prevent_browser_refresh defaults to 2, which causes main.php
-     * to consume the session token after first validation. A refresh
-     * would fail token validation and destroy the session.
+     * @param int $timeout Seconds to wait before giving up
+     * @return bool True if app initialized, false if timeout
      */
-    private function waitForAppReady(): void
+    private function waitForAppReady(int $timeout = 30): bool
     {
         try {
-            $this->client->wait(30)->until(fn($driver) => $driver->executeScript(
+            $this->client->wait($timeout)->until(fn($driver) => $driver->executeScript(
                 'return document.getElementById("mainMenu")?.children.length > 0'
             ));
+            // Log state on success to verify hypothesis that koAvailable
+            // is always true when the menu renders successfully
+            $state = $this->client->executeScript(<<<'JS_WRAP'
+                return JSON.stringify({
+                    koAvailable: typeof ko !== 'undefined',
+                    mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0
+                });
+            JS_WRAP);
+            fwrite(STDERR, "[E2E] waitForAppReady succeeded: {$state}\n");
+            return true;
         } catch (TimeoutException) {
-            // Gather page state to help diagnose timeout failures.
-            // Knowing whether the page loaded, Knockout.js initialized,
-            // and whether #mainMenu exists narrows down root causes.
-            try {
-                $diagnostics = (string) $this->client->executeScript(<<<'JS_WRAP'
-                    return JSON.stringify({
-                        url: location.href,
-                        readyState: document.readyState,
-                        title: document.title,
-                        koAvailable: typeof ko !== 'undefined',
-                        mainMenuExists: document.getElementById('mainMenu') !== null,
-                        mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
-                        bodyLength: document.body?.innerHTML?.length ?? 0
-                    });
-                JS_WRAP);
-            } catch (\Throwable) {
-                $diagnostics = 'unable to gather diagnostics (executeScript failed)';
-            }
-            throw new TimeoutException(
-                "waitForAppReady() timed out after 30s. Page state: {$diagnostics}"
-            );
+            return false;
         }
+    }
+
+    /**
+     * Create a TimeoutException with diagnostic information about the page state.
+     *
+     * Call this after waitForAppReady() returns false to get a detailed exception
+     * with information about why the app didn't initialize.
+     */
+    private function createAppReadyTimeoutException(): TimeoutException
+    {
+        try {
+            $diagnostics = (string) $this->client->executeScript(<<<'JS_WRAP'
+                return JSON.stringify({
+                    url: location.href,
+                    readyState: document.readyState,
+                    title: document.title,
+                    koAvailable: typeof ko !== 'undefined',
+                    mainMenuExists: document.getElementById('mainMenu') !== null,
+                    mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
+                    bodyLength: document.body?.innerHTML?.length ?? 0
+                });
+            JS_WRAP);
+        } catch (\Throwable) {
+            $diagnostics = 'unable to gather diagnostics (executeScript failed)';
+        }
+        return new TimeoutException(
+            "waitForAppReady() timed out after retry. Page state: {$diagnostics}"
+        );
     }
 
     private function switchToIFrame(string $xpath): void
