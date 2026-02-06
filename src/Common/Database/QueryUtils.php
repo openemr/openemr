@@ -191,7 +191,7 @@ class QueryUtils
         if ($noLog) {
             $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
         } else {
-            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
         }
         if ($recordset === false) {
             throw new SqlQueryException($statement, "Failed to execute statement. Error: "
