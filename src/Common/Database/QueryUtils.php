@@ -209,21 +209,21 @@ class QueryUtils
      *
      * @param  string  $statement  query
      * @param  array   $binds      binded variables array (optional)
-     * @param  bool    $noLog      if true the sql statement bypasses the database logger
+     * @param  bool    $log        if true the sql statement is logged, false bypasses the database logger
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return ADORecordSet
      */
-    public static function sqlStatement($statement, $binds = [], $noLog = false)
+    public static function sqlStatement($statement, $binds = [], $log = true)
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
             $binds = false;
         }
 
-        if ($noLog) {
-            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-        } else {
+        if ($log) {
             $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
+        } else {
+            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
         }
         if ($recordset === false) {
             throw new SqlQueryException($statement, "Failed to execute statement. Error: "
@@ -401,7 +401,7 @@ class QueryUtils
      */
     public static function querySingleRow(string $sql, array $params = [], bool $log = true)
     {
-        $result = self::sqlStatement($sql, $params, noLog: !$log);
+        $result = self::sqlStatement($sql, $params, log: $log);
         return self::fetchArrayFromResultSet($result);
     }
 

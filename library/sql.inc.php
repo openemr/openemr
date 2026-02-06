@@ -207,7 +207,7 @@ function sqlGetLastInsertId()
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     try {
-        return QueryUtils::sqlStatement($statement, $binds, noLog: true);
+        return QueryUtils::sqlStatement($statement, $binds, log: false);
     } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
             throw $e;
@@ -383,7 +383,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 function sqlInsertClean_audit($statement, $binds = false): void
 {
     try {
-        QueryUtils::sqlStatement($statement, $binds, noLog: true);
+        QueryUtils::sqlStatement($statement, $binds, log: false);
     } catch (SqlQueryException) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }
