@@ -401,17 +401,6 @@ function getSqlLastError()
 }
 
 /**
- * Function that will safely return the last error no,
- * and accounts for the audit engine.
- *
- * @return  string  last mysql error no
- */
-function getSqlLastErrorNo()
-{
-    return !empty($GLOBALS['last_mysql_error_no']) ? $GLOBALS['last_mysql_error_no'] : $GLOBALS['adodb']['db']->ErrorNo();
-}
-
-/**
 * Function that will return an array listing
 * of columns that exist in a table.
 *
