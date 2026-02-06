@@ -7892,11 +7892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function check_code_set_filters may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function oe_module_custom_patient_menu may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/eventdispatcher/oe-modify-patient-menu-example/openemr.bootstrap.php',
