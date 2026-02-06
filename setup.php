@@ -60,6 +60,7 @@ $allow_cloning_setup = false;
 require_once __DIR__ . "/vendor/autoload.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -122,7 +123,7 @@ function recursive_writable_directory_test($dir)
 }
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
-$installer = new Installer($_REQUEST);
+$installer = new Installer($_REQUEST, new SystemLogger());
 // Make this true for IPPF.
 $ippf_specific = false;
 

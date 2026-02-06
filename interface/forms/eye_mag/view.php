@@ -20,6 +20,9 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 include_once("../../forms/eye_mag/php/eye_mag_functions.php");
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 
 $form_name   = "eye_mag";
@@ -30,7 +33,10 @@ $form_id     = $id;
 $action      = $_REQUEST['action'] ?? null;
 $finalize    = $_REQUEST['finalize'] ?? null;
 $display     = $_REQUEST['display'] ?? null;
-$pid         = intval($_REQUEST['pid'] ?? 0);
+// $pid and $encounter are set by globals.php from the session.
+// Use them instead of request parameters to prevent IDOR.
+$pid = (int) $pid; // @phpstan-ignore variable.undefined (set by globals.php)
+$encounter = (int) $encounter; // @phpstan-ignore variable.undefined (set by globals.php)
 $refresh     = $_REQUEST['refresh'] ?? null;
 
 // Get user preferences, for this user
@@ -53,6 +59,33 @@ $setting_RETINA     = prevSetting($uspfx, 'setting_RETINA', 'setting_RETINA', '1
 $setting_SDRETINA   = prevSetting($uspfx, 'setting_SDRETINA', 'setting_SDRETINA', '1');
 $setting_NEURO      = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
 $setting_IMPPLAN    = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+
+// Verify the requested form exists and belongs to the session's active patient and encounter.
+if ($id > 0) {
+    $formOwner = QueryUtils::querySingleRow(
+        "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir = 'eye_mag' AND deleted != '1'",
+        [$id]
+    );
+    if ($formOwner === null) {
+        http_response_code(404);
+        die(xlt('Form not found'));
+    }
+    if ((int) $formOwner['pid'] !== $pid || (int) $formOwner['encounter'] !== $encounter) {
+        (new SystemLogger())->warning(
+            "An attempt was made to view an eye form belonging to a different patient or encounter",
+            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
+        );
+        EventAuditLogger::getInstance()->newEvent(
+            "security-access",
+            $_SESSION['authUser'] ?? '',
+            $_SESSION['authProvider'] ?? '',
+            0,
+            "Unauthorized attempt to view eye form " . $id . " for pid " . $pid
+        );
+        http_response_code(404);
+        die(xlt('Form not found'));
+    }
+}
 
 $query10 = "select  *,form_encounter.date as encounter_date
 
@@ -89,9 +122,11 @@ $query10 = "select  *,form_encounter.date as encounter_date
                     forms.pid=form_eye_postseg.pid and
                     forms.pid=form_eye_neuro.pid and
                     forms.pid=form_eye_locking.pid and
-                    forms.form_id =? ";
+                    forms.form_id =? and
+                    forms.pid =? and
+                    forms.encounter =? ";
 
-$encounter_data = sqlQuery($query10, [$id]);
+$encounter_data = sqlQuery($query10, [$id, $pid, $encounter]);
 @extract($encounter_data);
 $id = $form_id;
 
