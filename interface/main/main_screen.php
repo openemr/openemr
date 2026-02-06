@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -405,25 +407,38 @@ if ($GLOBALS['login_into_facility']) {
     }
 }
 
-// Fetch the password expiration date (note LDAP skips this)
+// Fetch the password expiration date and force_new_password flag (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
-    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
-    $current_date = date('Y-m-d');
-    if (!empty($result['last_update_password'])) {
-        $pwd_last_update = $result['last_update_password'];
-    } else {
-        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
-        $pwd_last_update = $current_date;
+$force_new_password = false;
+if (!AuthUtils::useActiveDirectory()) {
+    $result = privQuery(
+        "SELECT `last_update_password`, `force_new_password` FROM `users_secure` WHERE `id` = ?",
+        [$_SESSION['authUserID']]
+    );
+
+    // Check for forced password change
+    if (!empty($result['force_new_password'])) {
+        $force_new_password = true;
     }
 
-    // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
+    // Check for password expiration
+    if (($GLOBALS['password_expiration_days'] != 0) && check_integer($GLOBALS['password_expiration_days'])) {
+        $current_date = date('Y-m-d');
+        if (!empty($result['last_update_password'])) {
+            $pwd_last_update = $result['last_update_password'];
+        } else {
+            error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+            $pwd_last_update = $current_date;
+        }
 
-    if (empty(strtotime($pwd_alert_date))) {
-        error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
-    } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
-        $is_expired = true;
+        // Display the password expiration message (will show during the grace time)
+        $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
+
+        if (empty(strtotime($pwd_alert_date))) {
+            error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
+        } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
+            $is_expired = true;
+        }
     }
 }
 
@@ -431,11 +446,18 @@ $listSvc = new ListService();
 $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 
 if ($is_expired) {
-    //display the php file containing the password expiration message.
+    // Display the password expiration alert
     array_unshift($_tabs, [
         'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()),
         'id' => "adm",
         "label" => xl("Password Reset"),
+    ]);
+} elseif ($force_new_password) {
+    // Admin has required this user to change their password
+    array_unshift($_tabs, [
+        'notes' => "../usergroup/user_info.php",
+        'id' => "adm",
+        "label" => xl("Password Change Required"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end

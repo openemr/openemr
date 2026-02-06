@@ -11,12 +11,14 @@
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Robert DOwn <robertdown@live.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -235,6 +237,15 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if (!empty($_POST['clear_2fa'])) {
             sqlStatement("DELETE FROM login_mfa_registrations WHERE user_id = ?", [$_POST['id']]);
+        }
+
+        // Update force_new_password flag in users_secure (skip for LDAP users)
+        if (!AuthUtils::useActiveDirectory($user_data['username'])) {
+            $forceNewPassword = !empty($_POST['force_new_password']) ? 1 : 0;
+            privStatement(
+                "UPDATE `users_secure` SET `force_new_password` = ? WHERE `id` = ?",
+                [$forceNewPassword, $_POST['id']]
+            );
         }
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
