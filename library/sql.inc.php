@@ -544,39 +544,6 @@ function get_db()
     return $GLOBALS['adodb']['db'];
 }
 
-/**
- * Generic mysql select db function
- * Used when converted to mysqli to centralize special circumstances.
- * @param string $database
- */
-function generic_sql_select_db($database, $link = null): void
-{
-    if (is_null($link)) {
-        $link = $GLOBALS['dbh'];
-    }
-
-    mysqli_select_db($link, $database);
-}
-
-/**
- * Generic mysql affected rows function
- * Used when converted to mysqli to centralize special circumstances.
- *
- */
-function generic_sql_affected_rows()
-{
-    return $GLOBALS['adodb']['db']->affected_rows();
-}
-
-/**
- * Generic mysql insert id function
- * Used when converted to mysqli to centralize special circumstances.
- *
-                 */
-function generic_sql_insert_id()
-{
-    return mysqli_insert_id($GLOBALS['dbh']);
-}
 
 
 /**
