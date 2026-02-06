@@ -149,7 +149,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 function sqlStatement($statement, $binds = false)
 {
     try {
-        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
+        return QueryUtils::sqlStatement($statement, $binds);
     } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
@@ -207,7 +207,7 @@ function sqlGetLastInsertId()
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     try {
-        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
+        return QueryUtils::sqlStatement($statement, $binds, noLog: true);
     } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
             throw $e;
@@ -383,7 +383,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 function sqlInsertClean_audit($statement, $binds = false): void
 {
     try {
-        QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
+        QueryUtils::sqlStatement($statement, $binds, noLog: true);
     } catch (SqlQueryException) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }
