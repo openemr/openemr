@@ -48,7 +48,7 @@ class Database
      * Singleton instance. Future scope may have this removed in favor of some
      * sort of DI/service container.
      */
-    private static ?Database $instance = null;
+private static ?Database $instance = null;
 
     /**
      * Gets the singleton based on the "legacy" config system
