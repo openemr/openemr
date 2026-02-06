@@ -1,6 +1,6 @@
 # Isolated Testing Suite
 
-This directory contains an isolated testing setup that allows you to run PHPUnit tests without database or service dependencies.
+OpenEMR includes an isolated testing setup that allows you to run PHPUnit tests without database or service dependencies.
 
 ## Problem
 
@@ -13,10 +13,30 @@ This prevents running simple unit tests without a full OpenEMR environment.
 
 ## Solution
 
-The isolated testing suite provides:
-- `tests/bootstrap-isolated.php` - Minimal bootstrap with only Composer autoloader
-- `phpunit-isolated.xml` - PHPUnit configuration for isolated tests
-- `tests/Tests/Isolated/` - Directory for dependency-free tests
+New code written to fully follow SOLID design principles, and in particular (D)ependency Inversion, can be tested in complete isolation using mocks and stubs.
+
+The isolated test suite bypasses the main test suite's bootstrap process, and provides only the Composer autoloader.
+
+Key files:
+- `phpunit-isolated.xml` — PHPUnit configuration for isolated tests
+- `tests/Tests/Isolated/` — Directory for dependency-free tests
+
+## What's NOT Loaded
+
+- Database connections
+- OpenEMR session management
+- Configuration from `sqlconf.php`
+- Service containers and OEGlobalsBag
+- Authentication systems
+- Module system
+- Global variables set by the bootstrap (`$GLOBALS`)
+
+## Benefits
+
+- **Fast**: No database connection overhead
+- **Reliable**: No external service dependencies
+- **Portable**: Runs in any environment with PHP and Composer
+- **Isolated**: Tests don't affect each other through shared database state
 
 ## Usage
 
@@ -45,7 +65,9 @@ vendor/bin/phpunit -c phpunit-isolated.xml tests/Tests/Isolated/ExampleIsolatedT
 2. Use appropriate namespace: `OpenEMR\Tests\Isolated\{Module}`
 3. Extend `PHPUnit\Framework\TestCase`
 4. Avoid using OpenEMR classes that require database connections
-5. Use only pure PHP functions and Composer-loaded dependencies
+5. Only use classes that don't require the OpenEMR bootstrap
+6. Use dependency injection — classes under test should accept dependencies via
+   constructor parameters so tests can provide mocks or stubs
 
 ### Example Test Structure
 ```
@@ -62,50 +84,30 @@ tests/Tests/Isolated/
 ### Example Test
 ```php
 <?php
-namespace OpenEMR\Tests\Isolated\Validators;
+namespace OpenEMR\Tests\Isolated\Services;
 
-use OpenEMR\Validators\SomeValidator;
+use OpenEMR\Services\SomeService;
+use OpenEMR\Repositories\SomeRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 
-class SomeValidatorTest extends TestCase
+class SomeServiceTest extends TestCase
 {
-    public function testValidation(): void
+    public function testProcessReturnsTransformedData(): void
     {
-        $validator = new SomeValidatorStub();
-        $result = $validator->validate($data, 'context');
-        $this->assertTrue($result->isValid());
-    }
-}
+        // Create mock for the repository dependency
+        $repository = $this->createMock(SomeRepositoryInterface::class);
+        $repository->expects($this->once())
+            ->method('findById')
+            ->with(123)
+            ->willReturn(['id' => 123, 'name' => 'Test']);
 
-// Stub class to override database methods
-class SomeValidatorStub extends SomeValidator
-{
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
-    {
-        return true; // Mock database validation
+        // Inject mocked dependencies
+        $service = new SomeService($repository);
+
+        // Test the behavior
+        $result = $service->process(123);
+
+        $this->assertEquals('Test', $result->getName());
     }
 }
 ```
-
-## What's Loaded
-
-The isolated bootstrap only loads:
-- Composer autoloader (`vendor/autoload.php`)
-- Minimal global variables required by some classes
-- UTF-8 character encoding settings
-
-## What's NOT Loaded
-
-- Database connections
-- OpenEMR session management
-- Configuration from `sqlconf.php`
-- Service containers and dependency injection
-- Authentication systems
-- Module system
-
-## Benefits
-
-- **Fast**: No database connection overhead
-- **Reliable**: No external service dependencies
-- **Portable**: Runs in any environment with PHP and Composer
-- **Isolated**: Tests don't affect each other through shared database state

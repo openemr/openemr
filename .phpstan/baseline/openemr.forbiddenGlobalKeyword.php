@@ -2056,10 +2056,5 @@ $ignoreErrors[] = [
     'count' => 11,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormLocatorTest.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$code_types\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
