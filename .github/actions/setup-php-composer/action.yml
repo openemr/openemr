@@ -1,0 +1,55 @@
+name: Setup PHP and Composer
+description: Sets up PHP, configures Composer caching, and installs dependencies
+
+inputs:
+  php-version:
+    description: PHP version to install
+    required: true
+  coverage:
+    description: Coverage driver (none, xdebug, pcov)
+    required: false
+    default: none
+  extensions:
+    description: PHP extensions to install (comma-separated)
+    required: false
+    default: ''
+  tools:
+    description: Tools to install (comma-separated, e.g., cs2pr, phpcs)
+    required: false
+    default: ''
+  skip-composer-install:
+    description: Skip Composer cache and install steps
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: ${{ inputs.coverage }}
+        extensions: ${{ inputs.extensions }}
+        tools: ${{ inputs.tools }}
+
+    - name: Get composer cache directory
+      if: inputs.skip-composer-install != 'true'
+      id: composer-cache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Composer dependencies
+      if: inputs.skip-composer-install != 'true'
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ inputs.php-version }}-
+          ${{ runner.os }}-composer-
+
+    - name: Install Composer dependencies
+      if: inputs.skip-composer-install != 'true'
+      shell: bash
+      run: composer install --prefer-dist --no-progress

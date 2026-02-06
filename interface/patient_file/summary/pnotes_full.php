@@ -16,6 +16,7 @@ require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -50,12 +51,12 @@ if ($docid) {
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen

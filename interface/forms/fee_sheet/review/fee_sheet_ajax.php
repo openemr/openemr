@@ -15,15 +15,14 @@
 require_once("../../../globals.php");
 require_once("fee_sheet_queries.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 use OpenEMR\Forms\FeeSheet\Review\Procedure;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    header("HTTP/1.0 403 Forbidden");
-    echo "Not authorized for billing";
-    return false;
+    AccessDeniedHelper::deny('Unauthorized access to fee sheet');
 }
 
 if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {

@@ -9,10 +9,12 @@
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
@@ -98,7 +101,7 @@ if ($mode == 'new') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", [$id]);
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
-        die(xlt("You are not authorized to see this encounter."));
+        AccessDeniedHelper::deny('Unauthorized access to sensitive group encounter');
     }
 
     $encounter = $result['encounter'];

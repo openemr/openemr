@@ -18,6 +18,7 @@ require_once __DIR__ . '/../../../../../vendor/autoload.php';
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 class InstallerTest extends TestCase
 {
@@ -76,7 +77,7 @@ class InstallerTest extends TestCase
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }
@@ -101,7 +102,7 @@ class InstallerTest extends TestCase
             'source_site_id'           => 'default',
         ];
 
-        $this->installer = new Installer($installSettings);
+        $this->installer = new Installer($installSettings, new NullLogger());
     }
 
     public function testLoginIsValid(): void
@@ -788,7 +789,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
             ->getMock();
 
@@ -842,7 +843,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile'])
             ->getMock();
 
@@ -867,7 +868,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql'])
             ->getMock();
 
@@ -907,7 +908,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['execute_sql', 'escapeSql', 'mysqliError'])
             ->getMock();
 
@@ -2859,7 +2860,7 @@ class InstallerTest extends TestCase
         ];
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }
@@ -3070,7 +3071,7 @@ class InstallerTest extends TestCase
         ];
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }

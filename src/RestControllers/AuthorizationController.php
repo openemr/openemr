@@ -473,17 +473,6 @@ class AuthorizationController
         ))->fromGlobals();
     }
 
-    public function base64url_encode($data): string
-    {
-        return HttpUtils::base64url_encode($data);
-    }
-
-    public function base64url_decode($token): string
-    {
-        $b64 = strtr($token, '-_', '+/');
-        return base64_decode($b64);
-    }
-
     public function clientRegisteredDetails(HttpRestRequest $request): ResponseInterface
     {
         $response = $this->createServerResponse();
@@ -856,7 +845,7 @@ class AuthorizationController
         if ($request->request->has('user_role')) {
             if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $session)) {
                 $this->getSystemLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
-                CsrfUtils::csrfNotVerified(false, true, false);
+                CsrfUtils::csrfViolation(toScreen: false);
                 $request->request->replace(); // clear out username/password
                 $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
                 $invalid = "Sorry. Invalid CSRF!"; // todo: display error
@@ -1219,7 +1208,7 @@ class AuthorizationController
             // TODO: @adunsulag if the request is missing the key 'proceed' then we should error out here.
             if ($request->request->has('proceed') && !empty($code) && !empty($session_cache)) {
                 if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $this->session)) {
-                    CsrfUtils::csrfNotVerified(false, true, false);
+                    CsrfUtils::csrfViolation(toScreen: false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
                     if (!$this->saveTrustedUser(
@@ -1438,7 +1427,7 @@ class AuthorizationController
 
     public function decodeToken($token)
     {
-        return json_decode($this->base64url_decode($token), true);
+        return json_decode(HttpUtils::base64url_decode($token), true);
     }
 
     public function userSessionLogout(HttpRestRequest $request): ResponseInterface

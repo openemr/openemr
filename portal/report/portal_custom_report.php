@@ -109,12 +109,6 @@ $logger = new SystemLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
-}
-
 function postToGet($arin)
 {
     $getstring = "";
@@ -856,7 +850,7 @@ if ($printable) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $ptd = report_basename($pid);
     $fn = $ptd['base'] . ".pdf";
     $pdf->SetTitle(ucfirst((string) $ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
