@@ -29,28 +29,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    - name: Install PHP
-      uses: shivammathur/setup-php@v2
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        coverage: none
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: |
-        {
-          printf 'dir='
-          composer config cache-files-dir
-        } >> "$GITHUB_OUTPUT"
-    - name: Cache Composer
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
-    - name: Composer Install
-      run: composer install --prefer-dist --no-progress
     - name: Check PHP Styling
       run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
 

@@ -109,31 +109,31 @@ repos:
 
   - id: phpcbf
     name: PHP Code Beautifier and Fixer
-    entry: php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml
+    entry: composer phpcbf --
     language: system
     files: \.php$
 
   - id: phpcs
     name: PHP_CodeSniffer
-    entry: php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml
+    entry: composer phpcs --
     language: system
     files: \.php$
 
   - id: phpstan
     name: PHPStan Static Analysis
-    entry: php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist
+    entry: composer phpstan --
     language: system
     files: \.php$
 
   - id: rector
     name: Rector
-    entry: php -d memory_limit=1g ./vendor/bin/rector process
+    entry: composer rector-fix --
     language: system
     files: \.php$
 
   - id: composer-require-checker
     name: Composer Require Checker
-    entry: composer run-script require-checker
+    entry: composer require-checker
     language: system
     files: ^(composer\.json|.*\.php)$
     pass_filenames: false

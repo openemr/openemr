@@ -15,6 +15,7 @@
 require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 // This function is invoked from printPatientForms in report.inc.php
@@ -34,7 +35,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
-            die(xlt('Access denied'));
+            AccessDeniedHelper::deny('Unauthorized access to LBF report');
         }
     }
 

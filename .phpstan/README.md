@@ -214,10 +214,16 @@ $data = json_decode($response->getBody()->getContents(), true);
 
 ## Baseline
 
-Existing violations of these rules are recorded in `phpstan-database-baseline.neon` so they won't cause errors. However, new code should follow these patterns.
+Existing violations are recorded in `.phpstan/baseline/` as individual PHP files, organized by error type. The `loader.php` file includes all baseline files. New code should follow the patterns documented above.
+
+To regenerate the baseline after fixing violations:
+
+```bash
+composer phpstan-baseline
+```
 
 ## Running PHPStan
 
 ```bash
-vendor/bin/phpstan --memory-limit=8G analyze
+composer phpstan
 ```
