@@ -1,0 +1,20 @@
+{
+    "name": "openemr/oe-module-sso",
+    "description": "Multi-provider SSO authentication module for OpenEMR",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "A CTO, LLC",
+            "email": "info@a-cto.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\SSO\\": "src/"
+        }
+    }
+}

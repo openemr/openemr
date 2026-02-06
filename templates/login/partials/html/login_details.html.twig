@@ -50,3 +50,7 @@ A partial used to build out the login form.
     </div>
     {% endif %}
 </form>
+
+{% if sso_buttons_html is defined and sso_buttons_html %}
+    {{ sso_buttons_html|raw }}
+{% endif %}
