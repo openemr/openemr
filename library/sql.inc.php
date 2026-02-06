@@ -19,6 +19,8 @@
 
 require_once(__DIR__ . "/sqlconf.php");
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -179,19 +181,7 @@ function sqlStatement($statement, $binds = false)
  */
 function sqlStatementThrowException($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    //Run a adodb execute
-    // Note the auditSQLEvent function is embedded in the
-    //   Execute function.
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
-    if ($recordset === false) {
-        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
-    }
-    return $recordset;
+    return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
 }
 
 /**
@@ -200,9 +190,7 @@ function sqlStatementThrowException($statement, $binds = false)
  */
 function sqlGetLastInsertId()
 {
-    // Return the correct last id generated using function
-    //   that is safe with the audit engine.
-    return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+    return QueryUtils::getLastInsertId();
 }
 
 /**
@@ -225,19 +213,14 @@ function sqlGetLastInsertId()
 */
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    if ($throw_exception_on_error) {
+        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
     }
 
     // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($recordset === false) {
-        if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
-        } else {
-            HelpfulDie("query failed: $statement", getSqlLastError());
-        }
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
 
     return $recordset;
@@ -274,26 +257,12 @@ function sqlStatementCdrEngine($statement, $binds = false)
 * It will act upon the object returned from the
 * sqlStatement() function (and sqlQ() function).
 *
-* @param recordset $r
-* @return array
+* @param ADORecordSet|false $r
+* @return array|false
 */
 function sqlFetchArray($r)
 {
-    //treat as an adodb recordset
-    if ($r === false) {
-        return false;
-    }
-
-    if ($r->EOF ?? '') {
-        return false;
-    }
-
-    //ensure it's an object (ie. is set)
-    if (!is_object($r)) {
-        return false;
-    }
-
-    return $r->FetchRow();
+    return QueryUtils::fetchArrayFromResultSet($r);
 }
 
 
@@ -413,7 +382,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 
     if ($recordset === false) {
         if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+            throw new SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
         } else {
             HelpfulDie("query failed: $statement", getSqlLastError());
         }
@@ -622,9 +591,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 */
 function generate_id()
 {
-    $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
-    return $database->GenID("sequences");
+    return QueryUtils::generateId();
 }
 
 /**
@@ -725,7 +692,7 @@ function generic_sql_insert_id()
  */
 function sqlBeginTrans(): void
 {
-    $GLOBALS['adodb']['db']->BeginTrans();
+    QueryUtils::startTransaction();
 }
 
 
@@ -734,7 +701,7 @@ function sqlBeginTrans(): void
  */
 function sqlCommitTrans($ok = true): void
 {
-    $GLOBALS['adodb']['db']->CommitTrans();
+    QueryUtils::commitTransaction();
 }
 
 
@@ -743,7 +710,7 @@ function sqlCommitTrans($ok = true): void
  */
 function sqlRollbackTrans(): void
 {
-    $GLOBALS['adodb']['db']->RollbackTrans();
+    QueryUtils::rollbackTransaction();
 }
 
 /**
@@ -893,7 +860,5 @@ function privQuery($sql, $params = null)
 */
 function edi_generate_id()
 {
-    $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
-    return $database->GenID("edi_sequences");
+    return QueryUtils::ediGenerateId();
 }
