@@ -54,6 +54,8 @@ jobs:
     - name: Register PHPCS problem matcher
       run: echo "::add-matcher::.github/problem-matchers/phpcs.json"
     - name: Check PHP Styling
+      # emacs report format produces file:line:col output that the
+      # problem matcher converts into inline PR annotations.
       run: composer phpcs -- --report=full,emacs
 
   css_styling:
