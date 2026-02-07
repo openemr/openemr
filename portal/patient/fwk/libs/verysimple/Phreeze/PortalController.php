@@ -480,7 +480,7 @@ abstract class PortalController
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
-            } catch (exception $ex) {
+            } catch (\Throwable $ex) {
                 throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to suppress this error: " . $ex->getMessage());
             }
         }

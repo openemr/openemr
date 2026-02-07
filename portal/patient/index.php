@@ -68,7 +68,7 @@ try {
         $gc->GetContext(),
         $gc->GetRouter()
     );
-} catch (exception $ex) {
+} catch (\Throwable $ex) {
     // This is the global error handler which will be called in the event of
     // uncaught errors.  If the endpoint appears to be an API request then
     // render it as JSON, otherwise attempt to render a friendly HTML page
