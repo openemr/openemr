@@ -72,7 +72,7 @@ class DocumentTemplateService extends QuestionnaireService
      *
      * @param int    $pid
      * @param string $category
-     * @param false  $is_portal
+     * @param bool  $is_portal
      * @return array
      */
     public function getPortalAssignedTemplates($pid = 0, $category = '', $is_portal = false): array
@@ -380,7 +380,7 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param false $patients_only
+     * @param bool $patients_only
      * @return array|string[][]
      */
     public function fetchPortalAuthUsers($patients_only = false): array
