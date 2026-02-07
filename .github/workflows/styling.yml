@@ -34,7 +34,9 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+      # emacs report format produces file:line:col output that the
+      # problem matcher converts into inline PR annotations.
+      run: composer phpcs -- --report=full,emacs
 
   css_styling:
     runs-on: ubuntu-24.04

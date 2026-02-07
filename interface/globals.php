@@ -855,4 +855,10 @@ if (!empty($GLOBALS['translation_preload_cache'])) {
     xlWarmCache();
 }
 
+/**
+ * Marker constant indicating globals.php has fully loaded.
+ * Used by include files to guard against direct HTTP access.
+ */
+const OPENEMR_GLOBALS_LOADED = true;
+
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
