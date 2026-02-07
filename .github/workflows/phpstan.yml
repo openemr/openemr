@@ -45,7 +45,6 @@ jobs:
           phpstan-result-cache-
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
-    - run: vendor/bin/phpstan clear-result-cache
     - name: PHPStan Analyze
       run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
     - name: PHPStan Baseline
