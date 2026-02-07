@@ -12,6 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
 // menu strings
 $str_default = xl('Please select an answer');
 $str_not = xl('Not at all');

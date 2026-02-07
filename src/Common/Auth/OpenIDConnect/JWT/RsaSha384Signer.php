@@ -32,6 +32,7 @@ use InvalidArgumentException;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\HttpUtils;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use Psr\Log\LoggerInterface;
@@ -121,33 +122,17 @@ class RsaSha384Signer implements Signer
             throw new JWKValidatorException('Malformed key object');
         }
 
-        /* We already have base64url-encoded data, so re-encode it as
-           regular base64 and use the XML key format for simplicity.
-        */
-        $public_key_xml = "<RSAKeyValue>\r\n" .
-            '  <Modulus>' . $this->b64url2b64($jwk->n) . "</Modulus>\r\n" .
-            '  <Exponent>' . $this->b64url2b64($jwk->e) . "</Exponent>\r\n" .
-            '</RSAKeyValue>';
+        // Re-encode from base64url to standard base64 for the XML key format.
+        $modulus = base64_encode(HttpUtils::base64url_decode($jwk->n));
+        $exponent = base64_encode(HttpUtils::base64url_decode($jwk->e));
+        $public_key_xml = <<<XML
+        <RSAKeyValue>
+          <Modulus>{$modulus}</Modulus>
+          <Exponent>{$exponent}</Exponent>
+        </RSAKeyValue>
+        XML;
         $rsa = PublicKeyLoader::load($public_key_xml)->withPadding(RSA::SIGNATURE_PKCS1)->withHash(self::CRYPT_ALGORITHM);
 
         return $rsa->verify($payload, $expected);
-    }
-
-    /**
-     * Per RFC4648, "base64 encoding with URL-safe and filename-safe
-     * alphabet".  This just replaces characters 62 and 63.  None of the
-     * reference implementations seem to restore the padding if necessary,
-     * but we'll do it anyway.
-     * @param string $base64url
-     * @return string
-     */
-    private function b64url2b64($base64url)
-    {
-        // "Shouldn't" be necessary, but why not
-        $padding = strlen($base64url) % 4;
-        if ($padding > 0) {
-            $base64url .= str_repeat('=', 4 - $padding);
-        }
-        return strtr($base64url, '-_', '+/');
     }
 }

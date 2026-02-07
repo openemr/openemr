@@ -8,11 +8,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright  Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
- * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
@@ -22,6 +24,7 @@ require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -55,15 +58,15 @@ if ($pid) {
         !$updateEvent->authorized() ||
         !AclMain::aclCheckCore('patients', 'demo', '', 'write')
     ) {
-        die(xlt('Updating demographics is not authorized.'));
+        AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
 
     if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
-        die(xlt('Adding demographics is not authorized.'));
+        AccessDeniedHelper::deny('Adding demographics is not authorized');
     }
 }
 

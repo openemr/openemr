@@ -204,7 +204,7 @@ class Recorder
     // Note: even in a default-configured DB transaction, this still has
     // a potential race condition. It should either be done as a subquery in
     // the insert, or using a locking read (SELECT...FOR UPDATE may work?)
-    private function getNextSequenceNumber(string $patientId, string $encounterId): string
+    private function getNextSequenceNumber(int|string $patientId, int|string $encounterId): string
     {
         $result = QueryUtils::querySingleRow(<<<'SQL'
             SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment

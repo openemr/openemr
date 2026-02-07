@@ -47,9 +47,7 @@ if ($action == 'verify_email') {
         if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_POST['g-recaptcha-response'] ?? '');
@@ -108,9 +106,7 @@ if ($action == 'reset_password') {
         if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session->getSymfonySession())) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_GET['g-recaptcha-response'] ?? '');

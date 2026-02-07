@@ -10,6 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormROS.class.php");
 

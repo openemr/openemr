@@ -176,7 +176,7 @@ class UuidRegistry
             . " SELECT `uuid_mapping`.`uuid`,'uuid_mapping','id',1 FROM `uuid_mapping` LEFT JOIN `uuid_registry` registry2 ON `uuid_mapping`.`uuid` = registry2.uuid WHERE registry2.uuid IS NULL";
         $result = sqlStatementNoLog($sql, []);
         if ($result !== false) {
-            $createdRows = generic_sql_affected_rows();
+            $createdRows = QueryUtils::affectedRows();
         }
         return $createdRows;
     }

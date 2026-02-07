@@ -563,21 +563,6 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />";
     }
 
-    // Mark the tax rates that are referenced in this invoice.
-    function markTaxes($taxrates): void
-    {
-        global $taxes;
-        $arates = explode(':', (string) $taxrates);
-        if (empty($arates)) {
-            return;
-        }
-        foreach ($arates as $value) {
-            if (!empty($taxes[$value])) {
-                $taxes[$value][2] = '1';
-            }
-        }
-    }
-
     $payment_methods = [
         'Cash',
         'Check',

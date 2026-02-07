@@ -722,11 +722,6 @@ $globalsBag->set('backpic', $backpic ?? '');
 // else 0.
 $globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
 
-//set include_de_identification to enable De-identification (currently de-identification works fine only with linux machines)
-//Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
-//functions, tables for de-identification(Mysql root user and password is required for successful
-//execution of the de-identification upgrade script)
-$globalsBag->set('include_de_identification', 0);
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
@@ -859,5 +854,11 @@ if (empty($skipAuditLog)) {
 if (!empty($GLOBALS['translation_preload_cache'])) {
     xlWarmCache();
 }
+
+/**
+ * Marker constant indicating globals.php has fully loaded.
+ * Used by include files to guard against direct HTTP access.
+ */
+const OPENEMR_GLOBALS_LOADED = true;
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

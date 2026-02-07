@@ -12,6 +12,11 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;

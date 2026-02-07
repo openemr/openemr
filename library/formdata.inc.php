@@ -163,15 +163,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  */
 function escape_table_name($s)
 {
-    $res = sqlStatementNoLog("SHOW TABLES");
-    $tables_array = [];
-    while ($row = sqlFetchArray($res)) {
-        $keys_return = array_keys($row);
-        $tables_array[] = $row[$keys_return[0]];
-    }
-
-    // Now can escape(via whitelisting) the sql table name
-    return escape_identifier($s, $tables_array, true, false);
+    return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
 }
 
 /**

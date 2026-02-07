@@ -176,7 +176,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
                 $qResults = sqlStatement($sqlstmt, [$newvalue, $oldvalue]);
             }
 
-            $rowsupdated = generic_sql_affected_rows();
+            $rowsupdated = \OpenEMR\Common\Database\QueryUtils::affectedRows();
             echo "<li>";
             echo "" . text($tablename) . ": " . text($rowsupdated) . " row(s) updated<br />";
             echo "</li>";

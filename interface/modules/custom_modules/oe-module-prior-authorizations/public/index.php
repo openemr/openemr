@@ -34,7 +34,9 @@ if (!empty($_POST['token'])) {
     $endDate = isValid($postEndDate) === true ? $postEndDate : $_POST['end_date'];
 
     $postData = new AuthorizationService();
-    $postData->setId($_POST['id']);
+    $rawId = $_POST['id'] ?? null;
+    $rawId = (ctype_digit((string)$rawId)) ? (int)$rawId : null;
+    $postData->setId($rawId);
     $postData->setPid($pid);
     $postData->setAuthNum($_POST['authorization']);
     $postData->setInitUnits($_POST['units']);
@@ -55,13 +57,13 @@ const TABLE_TD = "</td><td>";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo xlt('Add Prior Auth'); ?></title>
-    <?php Header::setupHeader(['common', 'datetime-picker'])?>
+    <?php Header::setupHeader(['common', 'datetime-picker']) ?>
 
     <script>
-        $(function() {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -80,10 +82,10 @@ const TABLE_TD = "</td><td>";
 <body>
     <div class="container">
         <div class="m-4">
-                <span style="font-size: xx-large; padding-right: 20px"><?php echo xlt('Prior Authorization Manager'); ?></span>
-                <a href="../../../../patient_file/summary/demographics.php" onclick="top.restoreSession()"
-                   title="<?php echo xla('Go Back') ?>">
-                    <i id="advanced-tooltip" class="fa fa-undo fa-2x" aria-hidden="true"></i></a>
+            <span style="font-size: xx-large; padding-right: 20px"><?php echo xlt('Prior Authorization Manager'); ?></span>
+            <a href="../../../../patient_file/summary/demographics.php" onclick="top.restoreSession()"
+                title="<?php echo xla('Go Back') ?>">
+                <i id="advanced-tooltip" class="fa fa-undo fa-2x" aria-hidden="true"></i></a>
 
         </div>
         <div class="m-4">
@@ -165,29 +167,30 @@ const TABLE_TD = "</td><td>";
         </div>
         &copy; <?php echo date('Y') . " Juggernaut Systems Express" ?>
     </div>
-<script>
-    function getRowData(jsonData) {
-        let dataArray = document.getElementById(jsonData).value;
-        const obj = JSON.parse(dataArray);
+    <script>
+        function getRowData(jsonData) {
+            let dataArray = document.getElementById(jsonData).value;
+            const obj = JSON.parse(dataArray);
 
-        document.getElementById('id').value = obj.id;
-        document.getElementById('authorization').value = obj.auth_num;
-        document.getElementById('start_date').value = obj.start_date;
-        document.getElementById('end_date').value = obj.end_date;
-        document.getElementById('cpts').value = obj.cpt;
-        document.getElementById('units').value = obj.init_units;
-    }
+            document.getElementById('id').value = obj.id;
+            document.getElementById('authorization').value = obj.auth_num;
+            document.getElementById('start_date').value = obj.start_date;
+            document.getElementById('end_date').value = obj.end_date;
+            document.getElementById('cpts').value = obj.cpt;
+            document.getElementById('units').value = obj.init_units;
+        }
 
-    function removeEntry(id) {
-        let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;;
-        dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
-            buttons: [
-                {text: <?php echo xlj('Done') ?>, style: 'danger btn-sm', close: true}
-            ],
-            onClosed: 'refreshme'
-        })
-    }
-</script>
+        function removeEntry(id) {
+            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            ;
+            dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
+                buttons: [
+                    {text: <?php echo xlj('Done') ?>, style: 'danger btn-sm', close: true}
+                ],
+                onClosed: 'refreshme'
+            })
+        }
+    </script>
 
 </body>
 </html>

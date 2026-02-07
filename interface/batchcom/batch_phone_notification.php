@@ -45,7 +45,7 @@ $phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map
-$facilities = cron_getFacilitiesMap();
+$facilities = cron_getFacilitiesMap($facilityService);
 //print_r($facilities);
 $fac_phone_map = $facilities['phone_map'];
 $fac_msg_map = $facilities['msg_map'];
@@ -111,29 +111,6 @@ for ($p = 0; $p < count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } elseif ($type == 'Email') {
-        $query .= " pc_sendalertemail='YES' ";
-        //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    } elseif ($type == 'Phone') {
-        $query .= " pc_sendalertsms='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
-}
-
-////////////////////////////////////////////////////////////////////
 // Function:    cron_InsertNotificationLogEntry
 // Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
@@ -169,31 +146,4 @@ function WriteLog($data): void
             fclose($fp);
         }
     }
-}
-////////////////////////////////////////////////////////////////////
-// Function:    cron_getFacilities
-// Purpose: get facilities data once and store in map
-////////////////////////////////////////////////////////////////////
-function cron_getFacilitiesMap()
-{
-    global $facilityService;
-    //get the facility_name-message map from Globals
-    $message_map = $GLOBALS['phone_appt_message'];
-    //create a new array to store facility_id to message map
-    $facility_msg_map = [];
-    $facility_phone_map = [];
-    //get facilities from the database
-
-    $facilities = $facilityService->getAllFacility();
-    foreach ($facilities as $prow) {
-        $facility_msg_map[$prow['id']] = $message_map[$prow['name']];
-        $facility_phone_map[$prow['id']] = $prow['phone'];
-    }
-
-    $facility_map = [
-        'msg_map' => $facility_msg_map,
-        'phone_map' => $facility_phone_map
-    ];
-
-    return $facility_map;
 }
