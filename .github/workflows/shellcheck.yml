@@ -54,12 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - name: Setup PHP with cs2pr
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4'
-        # cs2pr enables us to convert checkstyle output to github annotations
-        tools: cs2pr
     - name: Get changed shell files
       id: changed-files
       # We run shellcheck on all unique shell files in the repo
