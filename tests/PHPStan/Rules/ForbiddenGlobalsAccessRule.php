@@ -44,7 +44,7 @@ class ForbiddenGlobalsAccessRule implements Rule
         }
 
         // Allow $GLOBALS access in the OEGlobalsBag class itself
-        if ($scope->isInClass() && $scope->getClassReflection()->getName() === 'OpenEMR\\Core\\OEGlobalsBag') {
+        if ($scope->isInClass() && $scope->getClassReflection()->getName() === \OpenEMR\\Core\\OEGlobalsBag::class) {
             return [];
         }
 
