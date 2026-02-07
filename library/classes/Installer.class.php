@@ -18,6 +18,7 @@
 
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Installer
 {
@@ -63,7 +64,7 @@ class Installer
      * @param array $cgi_variables Configuration array containing installation parameters
      * @param LoggerInterface $logger Logger instance for error reporting
      */
-    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
+    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger = new NullLogger())
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in

@@ -455,9 +455,9 @@ if ($is_expired) {
 } elseif ($force_new_password) {
     // Admin has required this user to change their password
     array_unshift($_tabs, [
-        'notes' => "../usergroup/user_info.php",
-        'id' => "adm",
-        "label" => xl("Password Change Required"),
+        'notes' => "interface/usergroup/user_info.php",
+        'option_id' => "adm",
+        "title" => xl("Password Change Required"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end

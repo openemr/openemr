@@ -34,3 +34,6 @@ coverage/js-unit
 
 # phpstan
 tmp-phpstan/*
+
+# docker compose override
+compose.override.yml
