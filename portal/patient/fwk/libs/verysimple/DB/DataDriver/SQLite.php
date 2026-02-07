@@ -53,7 +53,7 @@ class DataDriverSQLite implements IDataDriver
             foreach ($statements as $sql) {
                 try {
                     $this->Execute($connection, $sql);
-                } catch (Exception $ex) {
+                } catch (\Throwable $ex) {
                     throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }

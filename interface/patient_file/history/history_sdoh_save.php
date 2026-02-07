@@ -170,7 +170,7 @@ try {
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
     die(xlt("Error saving SDOH record."));
 }

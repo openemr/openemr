@@ -95,7 +95,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
         $invoice = $_POST['invValues'] ?? '';
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         return $ex->getMessage();
     }
 
@@ -132,7 +132,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['zip'] = $r->address_zip;
         $ccaudit = json_encode($cc);
         $invoice = $_POST['invValues'] ?? '';
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         echo $ex->getMessage();
     }
 
@@ -202,7 +202,7 @@ function SaveAudit($pid, $amts, $cc)
         } else {
             $appsql->portalAudit('insert', '', $audit);
         }
-    } catch (Exception $ex) {
+    } catch (\Throwable $ex) {
         return $ex;
     }
 
@@ -234,7 +234,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         if ($edata['id'] > 0) {
             $appsql->portalAudit('update', $edata['id'], $audit);
         }
-    } catch (Exception $ex) {
+    } catch (\Throwable $ex) {
         return $ex;
     }
 

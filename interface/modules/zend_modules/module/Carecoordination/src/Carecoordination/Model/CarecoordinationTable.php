@@ -231,7 +231,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new Exception($e->getMessage());
         }
         // Document various sectional components

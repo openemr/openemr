@@ -32,7 +32,7 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
         }
         $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt("Error") . " " . text($e->getMessage());
     }
 }

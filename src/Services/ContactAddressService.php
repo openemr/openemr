@@ -214,7 +214,7 @@ class ContactAddressService extends BaseService
             ]);
 
             return $savedRecords;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving addresses for contact", [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
@@ -260,7 +260,7 @@ class ContactAddressService extends BaseService
     {
         try {
             return $contactAddress->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving contact address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -416,7 +416,7 @@ class ContactAddressService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactAddressId, $contactId]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error setting primary address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -441,7 +441,7 @@ class ContactAddressService extends BaseService
             }
 
             return $contactAddress->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -472,7 +472,7 @@ class ContactAddressService extends BaseService
             $this->cleanupOrphanedContact($contactId);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting contact address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -677,7 +677,7 @@ class ContactAddressService extends BaseService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error copying address", ['error' => $e->getMessage()]);
             return null;
         }

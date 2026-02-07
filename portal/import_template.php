@@ -178,7 +178,7 @@ if (isset($_POST['blank-nav-button'])) {
                 echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -204,7 +204,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
         $service = new QuestionnaireService();
         try {
             $id = $service->saveQuestionnaireResource($q, null, null, null, $l);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -257,7 +257,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
                 echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -296,7 +296,7 @@ if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
                 echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';

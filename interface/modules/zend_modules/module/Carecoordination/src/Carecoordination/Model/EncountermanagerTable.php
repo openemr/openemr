@@ -304,7 +304,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     }
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
             return ("Delivery failed to send");
         }

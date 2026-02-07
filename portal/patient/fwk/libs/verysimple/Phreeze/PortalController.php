@@ -895,7 +895,7 @@ abstract class PortalController
 
         try {
             $output = json_encode($obj);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {

@@ -81,7 +81,7 @@ class DataDriverMySQL implements IDataDriver
             foreach ($statements as $sql) {
                 try {
                     $this->Execute($connection, $sql);
-                } catch (Exception $ex) {
+                } catch (\Throwable $ex) {
                     throw new DatabaseException("Connection Bootstrap Error: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }

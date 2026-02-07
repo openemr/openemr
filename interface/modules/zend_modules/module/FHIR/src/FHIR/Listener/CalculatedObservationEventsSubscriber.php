@@ -53,7 +53,7 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
             $vitalRecord['encounter'] = intval($vitalRecord['eid'] ?? 0);
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller("Failed to save calculated record ", ['exception' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(), 'form_vitals.id' => $vitalRecord['id']]);
         }

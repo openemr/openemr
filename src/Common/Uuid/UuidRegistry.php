@@ -272,7 +272,7 @@ class UuidRegistry
             }
             QueryUtils::commitTransaction();
             return $counter;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             QueryUtils::rollbackTransaction();
             throw $exception;
         }

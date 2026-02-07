@@ -13717,11 +13717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$from_file_tmp_name might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$insurance_data_array might not be defined\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',

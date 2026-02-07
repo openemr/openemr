@@ -249,7 +249,7 @@ class ConditionFixtureManager
                     QueryUtils::sqlStatementThrowException($sql, [$user['id']]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log error but don't throw - cleanup should be best effort
             error_log("Error cleaning up test fixtures: " . $e->getMessage());
         }

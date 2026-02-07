@@ -486,7 +486,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $relatedPersons[] = $relatedPerson;
                 }
             }
-        } catch (\Exception) {
+        } catch (\Throwable) {
             error_log("fail related person");
             return '';
         }
@@ -4006,7 +4006,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $document->persist(); // save the updated references here.
             \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             \sqlRollbackTrans();
             // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
             throw $exception;

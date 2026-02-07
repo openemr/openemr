@@ -91,7 +91,7 @@ try {
 
         try {
             $gc->GetRenderEngine()->display("DefaultErrorFatal.tpl");
-        } catch (Exception $ex2) {
+        } catch (\Throwable $ex2) {
             // this means there is an error with the template, in which case we can't display it nicely
             echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
             echo "<h1>Fatal Error:</h1>\n";

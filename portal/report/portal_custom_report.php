@@ -866,14 +866,14 @@ if ($PDF_OUTPUT) {
 
     try {
         $pdf->writeHTML($content); // convert html
-    } catch (Exception $exception) {
+    } catch (\Throwable $exception) {
         die(text($exception));
     }
 
     if ($PDF_OUTPUT == 1) {
         try {
             $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             die(text($exception));
         }
     }
