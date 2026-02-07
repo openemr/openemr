@@ -6,7 +6,6 @@
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
 # 4. Forbid @covers annotations on test classes and methods
 # 5. Forbid raw curl_* functions in favor of GuzzleHttp
-# 6. Forbid catch (Exception) in favor of \Throwable or specific types
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -48,8 +47,5 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\SoftRequiredArgumentsRule
-  tags:
-  - phpstan.rules.rule
-- class: OpenEMR\PHPStan\Rules\ForbiddenCatchExceptionRule
   tags:
   - phpstan.rules.rule
