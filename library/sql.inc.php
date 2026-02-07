@@ -173,6 +173,7 @@ function sqlStatement($statement, $binds = false)
  */
 function sqlStatementThrowException($statement, $binds = false)
 {
+    // execute/true
     return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
 }
 
@@ -291,6 +292,7 @@ function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols =
 */
 function sqlInsert($statement, $binds = false)
 {
+    // execute/true
     try {
         return QueryUtils::sqlInsert($statement, $binds);
     } catch (SqlQueryException) {

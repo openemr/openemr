@@ -279,6 +279,7 @@ class QueryUtils
      */
     public static function sqlInsert($statement, $binds = [])
     {
+        // execute/true
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
             $binds = false;
