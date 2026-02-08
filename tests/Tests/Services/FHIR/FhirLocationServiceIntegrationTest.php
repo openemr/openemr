@@ -9,8 +9,8 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    [Your Name]
- * @copyright Copyright (c) 2024 [Your Name]
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -411,7 +411,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM `{$table}` WHERE uuid = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$uuid]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log error but don't fail test cleanup
                 error_log("Failed to cleanup test data from {$table}: " . $e->getMessage());
             }
@@ -422,7 +422,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM facility WHERE id = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$facilityId]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup facility {$facilityId}: " . $e->getMessage());
             }
         }

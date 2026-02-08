@@ -14,8 +14,9 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -159,11 +160,13 @@ class ContactTelecomService extends BaseService
                 }
 
                 // Set value and metadata
+                $contactTelecom->set_status($telecom['status'] ?? '');
                 $contactTelecom->set_value($telecom['value'] ?? '');
                 $contactTelecom->set_notes($telecom['notes'] ?? '');
                 $contactTelecom->set_rank($telecom['rank'] ?? 1);
                 $contactTelecom->set_inactivated_reason($telecom['inactivated_reason'] ?? '');
                 $contactTelecom->set_contact_id($contactId);
+                $contactTelecom->set_is_primary($telecom['is_primary'] ?? '');
 
                 // Save the record
                 if ($contactTelecom->persist()) {
@@ -183,7 +186,7 @@ class ContactTelecomService extends BaseService
             ]);
 
             return $savedRecords;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving telecoms for contact", [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
@@ -261,7 +264,7 @@ class ContactTelecomService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error setting primary telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -289,7 +292,7 @@ class ContactTelecomService extends BaseService
             }
 
             return $contactTelecom->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -308,7 +311,7 @@ class ContactTelecomService extends BaseService
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -403,20 +406,19 @@ class ContactTelecomService extends BaseService
         switch ($system) {
             case 'phone':
             case 'mobile':
-                // Basic phone validation (digits, spaces, dashes, parentheses, plus sign)
-                if (!preg_match('/^[\d\s\-\(\)\+\.]+$/', $value)) {
+                if (!ValidationUtils::isValidPhoneNumber($value, 'US', strict: false)) {
                     $errors['value'] = "Invalid phone number format";
                 }
                 break;
 
             case 'email':
-                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if (!ValidationUtils::isValidEmail($value)) {
                     $errors['value'] = "Invalid email address format";
                 }
                 break;
 
             case 'url':
-                if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                if (!ValidationUtils::isValidUrl($value)) {
                     $errors['value'] = "Invalid URL format";
                 }
                 break;
@@ -511,7 +513,7 @@ class ContactTelecomService extends BaseService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error copying telecom", ['error' => $e->getMessage()]);
             return null;
         }

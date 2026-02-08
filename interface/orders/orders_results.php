@@ -19,6 +19,7 @@ require_once("$srcdir/lab.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PhoneNumberService;
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -190,7 +191,11 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 varname = 'form_proc_type';
             }
             ptvarname = varname;
-            dlgopen('types.php?popup=1&order=' + encodeURIComponent(f[ptvarname].value), '_blank', 800, 500);
+            const params = new URLSearchParams({
+                order: f[ptvarname].value,
+                popup: '1'
+            });
+            dlgopen('types.php?' + params, '_blank', 800, 500);
         }
 
         // This is for callback by the find-procedure-type popup.
@@ -345,7 +350,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             <?php
                         } // end header for batch option
                         ?>
-                        <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
+                        <!-- removed by jcw -- check/submit sequence too tedious.  This is a quick fix -->
                         <!--   <input type='checkbox' name='form_all' value='1' <?php if (!empty($_POST['form_all'])) {
                             echo " checked";
                                                                                 } ?>><?php echo xlt('Include Completed') ?>&nbsp;-->
@@ -406,7 +411,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     "po.date_ordered, po.procedure_order_id, " .
                     "pc.procedure_order_seq, pr.procedure_report_id";
 
-                // removed by jcw -- check/submit sequece too tedious.  This is a quick fix
+                // removed by jcw -- check/submit sequence too tedious.  This is a quick fix
                 //$where = empty($_POST['form_all']) ?
                 //  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
                 //  "1 = 1";
@@ -731,7 +736,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                                     "<tr><td>" . text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['organization']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['street']) . " " . text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
-                                    "<tr><td>" . text(formatPhone($facility_array['phone'])) . "</td></tr>";
+                                    "<tr><td>" . text(PhoneNumberService::tryFormatPhone($facility_array['phone'] ?? '')) . "</td></tr>";
                             }
                         }
                     }

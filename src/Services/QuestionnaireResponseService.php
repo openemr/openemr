@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -686,7 +688,7 @@ class QuestionnaireResponseService extends BaseService
         // Render answer if it exists
         if (isset($item['answer']) && is_array($item['answer'])) {
             foreach ($item['answer'] as $answer) {
-                $answerValue = $this->extractAnswerValue($answer);
+                $answerValue = text($this->extractAnswerValue($answer));
                 $html .= "<span style='font-size: 1.1rem; font-weight: 500;'>{$answerValue}</span>\n";
                 // Recursively render any nested items within the answer
                 if (isset($answer['item']) && is_array($answer['item'])) {

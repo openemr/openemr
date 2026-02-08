@@ -15,6 +15,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -45,7 +46,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
-    public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
+    public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?LoggerInterface $logger = null)
     {
         if ($logger) {
             $this->setSystemLogger($logger);
@@ -344,7 +345,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         } catch (OAuthServerException $exception) {
             $this->getSystemLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
             throw new HttpException(401, $exception->getMessage(), $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($exception instanceof LogicException) {
                 $this->getSystemLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() LogicException, likely oauth2 public key is missing, corrupted, or misconfigured",
@@ -399,17 +400,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public static function is_api_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/api/") !== false;
+        return str_contains((string) $resource, "/api/");
     }
 
     public static function is_portal_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/portal/") !== false;
+        return str_contains((string) $resource, "/portal/");
     }
 
     public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/fhir/") !== false;
+        return str_contains((string) $resource, "/fhir/");
     }
 
     public function setUserService(UserService $userService)
@@ -464,7 +465,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $context = $token['context'] ?? "{}"; // if there is no populated context we just return an empty return
         try {
             return json_decode($context, true);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }

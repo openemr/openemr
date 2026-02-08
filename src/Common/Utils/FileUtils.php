@@ -133,12 +133,16 @@ class FileUtils
      * Retrieves the file extension based on the MIME type.
      *
      * @param string $mimeType
+     * @param string|null $fallback Fallback extension if MIME type not found
      * @return string
      */
-    public static function getExtensionFromMimeType($mimeType): string
+    public static function getExtensionFromMimeType($mimeType, ?string $fallback = null): string
     {
         $extension = array_search(strtolower($mimeType), self::$mimeTypes);
-        return $extension !== false ? $extension : '';
+        if ($extension !== false) {
+            return $extension;
+        }
+        return $fallback ?? '';
     }
 
     /**

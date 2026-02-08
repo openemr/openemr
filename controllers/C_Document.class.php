@@ -7,19 +7,25 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -45,6 +51,7 @@ class C_Document extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
@@ -54,7 +61,7 @@ class C_Document extends Controller
 
         if (php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
-            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
         }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
@@ -156,7 +163,7 @@ class C_Document extends Controller
     //Upload multiple files on single click
     public function upload_action_process()
     {
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Collect a manually set owner if this has been set
         // Used when want to manually assign the owning user/service such as the Direct mechanism
         $non_HTTP_owner = false;
@@ -203,13 +210,15 @@ class C_Document extends Controller
             if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
                 $error = xl("Not authorized to upload to the selected category.\n");
                 $skipUpload = true;
-                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'category-id' => $category_id]);
+                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'category-id' => $category_id]);
             }
         }
 
         if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim((string) $_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            // Strip directory components to prevent path traversal (e.g. "../../evil" → "evil.zip").
+            $study_name = basename($study_name);
             $study_name =  preg_replace('/\s+/', '_', $study_name);
             $_POST['destination'] = "";
             $zipped = $this->zip_dicom_folder($study_name);
@@ -286,7 +295,8 @@ class C_Document extends Controller
                         }
                     }
                     if ($_POST['destination'] != '') {
-                        $fname = $_POST['destination'];
+                        // Strip directory components to prevent path traversal.
+                        $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
                     if (str_contains($filetext, 'DICM')) {
@@ -334,7 +344,7 @@ class C_Document extends Controller
                 }
                 $upload_plugin_pp = 'documentUploadPostProcess';
                 if (function_exists($upload_plugin_pp)) {
-                    $tmp = call_user_func($upload_plugin_pp, $value, $d);
+                    $tmp = $upload_plugin_pp($value, $d);
                     if ($tmp) {
                         $error = $tmp;
                     }
@@ -367,9 +377,9 @@ class C_Document extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $n = new Note();
-        $n->set_owner($_SESSION['authUserID']);
+        $n->set_owner($session->get('authUserID'));
         parent::populate_object($n);
         if ($_POST['identifier'] == "no") {
             // associate a note with a document
@@ -415,7 +425,7 @@ class C_Document extends Controller
                 $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
             }
             if (!file_exists($temp_url)) {
-                echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $temp_url;
+                echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.') . ' ' . text($temp_url);
             }
             $url = $temp_url;
             $pdetails = getPatientData($patient_id);
@@ -441,11 +451,30 @@ class C_Document extends Controller
         global $ISSUE_TYPES;
 
         require_once(__DIR__ . "/../library/lists.inc.php");
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $d = new Document($doc_id);
+
+        // Verify the document belongs to the requested patient to prevent IDOR.
+        $doc_pid = $d->get_foreign_id();
+        if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+            (new SystemLogger())->warning(
+                "An attempt was made to view a document belonging to a different patient",
+                ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'document-patient-id' => $doc_pid, 'document-id' => $doc_id]
+            );
+            EventAuditLogger::getInstance()->newEvent(
+                "security-access",
+                $session->get('authUser') ?? '',
+                $session->get('authProvider') ?? '',
+                0,
+                "Unauthorized attempt to view document " . $doc_id . " belonging to pid " . $doc_pid
+            );
+            http_response_code(403);
+            die(xlt("Not authorized to view requested file"));
+        }
+
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken());
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
@@ -582,6 +611,7 @@ class C_Document extends Controller
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
@@ -619,8 +649,8 @@ class C_Document extends Controller
         //  which could introduce xss vulnerabilities.
         if ($disable_exit == true) {
             if (!$this->isReturnRetrieveKey()) {
-                // Access to return the raw file has not been granted. Very likely bad actor, so die.
-                die(xlt("Not authorized to return raw file."));
+                // Access to return the raw file has not been granted. Very likely bad actor, so deny.
+                AccessDeniedHelper::deny('Attempt to return raw file without retrieve key');
             }
         }
 
@@ -630,20 +660,34 @@ class C_Document extends Controller
                 break;
         }
 
+        // For patient_picture context, non-portal users may only request the session's active patient.
+        if ($context === 'patient_picture') {
+            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
+                $allowed_pid = $GLOBALS['pid'] ?? 0;
+                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
+                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
+                }
+            }
+        }
+
         $d = new Document($document_id);
 
         // ensure user/patient has access
-        if (isset($_SESSION['patient_portal_onsite_two']) && isset($_SESSION['pid'])) {
+        if ($session->has('patient_portal_onsite_two') && $session->has('pid')) {
             // ensure patient has access (called from patient portal)
-            if (!$d->can_patient_access($_SESSION['pid'])) {
-                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $_SESSION['pid'], 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+            if (!$d->can_patient_access($session->get('pid'))) {
+                AccessDeniedHelper::deny("Patient unauthorized to access document $document_id category");
             }
         } else {
             // ensure user has access
             if (!$d->can_access()) {
-                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Unauthorized attempt to access document $document_id from restricted category");
+            }
+
+            // Verify the document belongs to the requested patient to prevent IDOR.
+            $doc_pid = $d->get_foreign_id();
+            if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+                AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
 
@@ -695,7 +739,7 @@ class C_Document extends Controller
                 header("Content-Length: " . strlen($filetext));
                 echo $filetext;
             }
-            exit;//exits only if file download from CouchDB is successfull.
+            exit; // exits only if file download from CouchDB is successful.
         }
         if ($couch_docid && $couch_revid) {
             //special case when retrieving a document from couchdb that has been converted to a jpg and not directly referenced in openemr documents table
@@ -946,7 +990,7 @@ class C_Document extends Controller
         //move to new category
         if (is_numeric($new_category_id) && is_numeric($document_id)) {
             $sql = "UPDATE categories_to_documents set category_id = ? where document_id = ?";
-            $messages .= xl('Document moved to new category', '', '', ' \'') . $this->tree->_id_name[$new_category_id]['name']  . xl('successfully.', '', '\' ') . "\n";
+            $messages .= sprintf("%s '%s' %s\n", xl('Document moved to new category'), $this->tree->_id_name[$new_category_id]['name'], xl('successfully.'));
             //echo $sql;
             $this->tree->_db->Execute($sql, [$new_category_id, $document_id]);
         }
@@ -959,16 +1003,12 @@ class C_Document extends Controller
 
             if (!$result || $result->EOF) {
                 //patient id does not exist
-                $messages .= xl('Document could not be moved to patient id', '', '', ' \'') . $new_patient_id  . xl('because that id does not exist.', '', '\' ') . "\n";
+                $messages .= sprintf("%s '%s' %s\n", xl('Document could not be moved to patient id'), $new_patient_id, xl('because that id does not exist.'));
             } else {
                 $changefailed = !$d->change_patient($new_patient_id);
 
                 $this->_state = false;
-                if (!$changefailed) {
-                    $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('successfully.', '', '\' ') . "\n";
-                } else {
-                    $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('Failed.', '', '\' ') . "\n";
-                }
+                $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl($changefailed ? 'Failed.' : 'successfully.'));
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
@@ -1108,6 +1148,7 @@ class C_Document extends Controller
 
     public function list_action($patient_id = "")
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
@@ -1150,7 +1191,7 @@ class C_Document extends Controller
         $this->assign('place_hld', $place_hld);
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
-        $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
+        $this->assign('demo_pid', $session->get('pid'));
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
 
@@ -1305,7 +1346,7 @@ class C_Document extends Controller
             die("process is '" . text($_POST['process']) . "', expected 'true'");
             return;
         }
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Create Encounter and Tag it.
         $event_date = date('Y-m-d H:i:s');
         $encounter_id = $_POST['encounter_id'];
@@ -1322,7 +1363,7 @@ class C_Document extends Controller
 
             $encounter_check = ( $encounter_check == 'on') ? 1 : 0;
             if ($encounter_check) {
-                $provider_id = $_SESSION['authUserID'] ;
+                $provider_id = $session->get('authUserID');
 
                 // Get the logged in user's facility
                 $facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", ["$provider_id"]);
@@ -1333,8 +1374,7 @@ class C_Document extends Controller
                 $billingFacility = $this->facilityService->getPrimaryBusinessEntity();
                 $billingFacilityID = $billingFacility['id'] ?: $facility_id;
 
-                $conn = $GLOBALS['adodb']['db'];
-                $encounter = $conn->GenID("sequences");
+                $encounter = QueryUtils::generateId();
                 $query = "INSERT INTO form_encounter SET
 						date = ?,
 						reason = ?,
@@ -1415,6 +1455,7 @@ class C_Document extends Controller
 
     public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", [$doc_id]);
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
@@ -1424,11 +1465,11 @@ class C_Document extends Controller
         } elseif ($image_procedure_id != 0) {
             $ep = sqlQuery("select u.username as assigned_to from procedure_order inner join users u on u.id = provider_id where procedure_order_id = ?", [$image_procedure_id]);
         } else {
-            $ep = ['assigned_to' => $_SESSION['authUser']];
+            $ep = ['assigned_to' => $session->get('authUser')];
         }
 
-        $encounter_provider = $ep['assigned_to'] ?? $_SESSION['authUser'];
-        $noteid = addPnote($_SESSION['pid'], 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
+        $encounter_provider = $ep['assigned_to'] ?? $session->get('authUser');
+        $noteid = addPnote($session->get('pid'), 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
         setGpRelation(1, $doc_id, 6, $noteid);
     }
 

@@ -13,23 +13,28 @@ namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+use function array_key_exists;
+
 class OEGlobalsBag extends ParameterBag
 {
     private static ?OEGlobalsBag $instance = null;
 
+    /**
+     * Get the singleton instance of OEGlobalsBag
+     *
+     * @return OEGlobalsBag
+     */
     public static function getInstance(): OEGlobalsBag
     {
         if (null === self::$instance) {
-            self::$instance = new OEGlobalsBag();
+            self::$instance = new OEGlobalsBag($GLOBALS);
         }
 
         return self::$instance;
     }
 
-    public function __construct(
-        array $parameters = [],
-        private readonly bool $compatabilityMode = false,
-    ) {
+    public function __construct(array $parameters = [])
+    {
         parent::__construct($parameters);
     }
 
@@ -37,9 +42,26 @@ class OEGlobalsBag extends ParameterBag
     {
         parent::set($key, $value);
 
-        if ($this->compatabilityMode) {
-            // In compatibility mode, also set the value in the global $_GLOBALS array
-            $GLOBALS[$key] = $value;
+        // Push the value into GLOBALS for backwards compatibility. Eventually
+        // this should be removed.
+        $GLOBALS[$key] = $value;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
+            return $GLOBALS[$key];
         }
+
+        return parent::get($key, $default);
+    }
+
+    public function has(string $key): bool
+    {
+        if (parent::has($key)) {
+            return true;
+        }
+
+        return array_key_exists($key, $GLOBALS);
     }
 }

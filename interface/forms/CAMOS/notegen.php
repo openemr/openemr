@@ -148,7 +148,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
      font-size: 130%;
     }
     </style>
-    <title><?php xl('Patient Notes', 'e'); ?></title>
+    <title><?php echo xl('Patient Notes'); ?></title>
     </head>
         <body>
     <div class='paddingdiv'>

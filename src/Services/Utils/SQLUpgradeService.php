@@ -545,7 +545,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n");
+                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>');
                         $this->flush_echo();
                     }
                     if (!empty($item['column_comment'])) {
@@ -587,7 +587,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>', "\n");
+                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>');
                         $this->flush_echo();
                     }
 
@@ -673,7 +673,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     try {
                         QueryUtils::startTransaction();
                         foreach ($pidChunks as $chunk) {
-                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map('intval', $chunk)) . ")";
+                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map(intval(...), $chunk)) . ")";
                             $encounters = sqlStatementNoLog($encStatement);
 
                             while ($row = sqlFetchArray($encounters)) {
@@ -689,7 +689,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
@@ -747,7 +747,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
-                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
@@ -1483,7 +1483,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $this->flush_echo();
 
         // we need to grab all of the uuid mappings for care team and join them with patient_data
-        $commited = false;
+        $committed = false;
         try {
             QueryUtils::startTransaction();
             $fromClause = "FROM patient_data pd
@@ -1495,8 +1495,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                 um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
-            $uuidRecords = QueryUtils::fetchRecords("Select * from uuid_mapping WHERE resource='CareTeam'", [], true);
+            $this->cleanupCareTeamUUIDMappingsForPatientData();
+
             // now do patient history
             $fromClause = "FROM patient_history ph
                 LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
@@ -1507,9 +1507,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
+            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
             QueryUtils::commitTransaction();
-            $commited = true;
+            $committed = true;
         } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
@@ -1519,7 +1519,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             }
         } // we let errors percolate up
         finally {
-            if (!$commited) {
+            if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
         }
@@ -1540,15 +1540,15 @@ class SQLUpgradeService implements ISQLUpgradeService
         ];
         $providers = explode("|", $record['care_team_provider'] ?? '');
         $facilities = explode("|", $record['care_team_facility'] ?? '');
-        $facilitiesIds = array_filter(array_map('intval', $facilities));
+        $facilitiesIds = array_filter(array_map(intval(...), $facilities));
         foreach ($providers as $providerId) {
             // skip invalid provider ids
             if (intval($providerId) <= 0) {
                 continue;
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
-                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE fui.field_id='provider_id' AND u.id = ? ", [$providerId]);
-            $userRoleFacilityIds = array_map(fn($item) => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
+                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE (fui.id IS NULL OR fui.field_id='provider_id') AND u.id = ? ", [$providerId]);
+            $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
             if (!empty($facilitiesIds)) {
                 // intersect user role facilities with care team facilities
                 $facilitiesIds = array_values(array_intersect($facilitiesIds, $userRoleFacilityIds));
@@ -1616,14 +1616,31 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
     }
 
-    protected function cleanupCareTeamUUidMappings(string $fromClause)
-    {
-        $uuidUpdates = "UPDATE uuid_registry SET mapped=0 WHERE uuid IN (select um.uuid " . $fromClause . ")";
-        QueryUtils::sqlStatementThrowException($uuidUpdates, [], true);
-        // we're going to keep the uuid mappings for care teams for historical reference
-        // or if we ever need to recover the data.  Fortunately with uuid_registry.mapped = 0 there won't be
-        // any impact on normal operations.
-//        $uuidDeletes = "DELETE FROM uuid_mapping WHERE uuid IN (select um.uuid " . $fromClause . ")";
-//        QueryUtils::sqlStatementThrowException($uuidDeletes, [], true);
+    private function cleanupCareTeamUUIDMappingsForPatientData() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_data pd ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL)
+            OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientHistory() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_history ph ON um.target_uuid = ph.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL)
+            OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
     }
 }

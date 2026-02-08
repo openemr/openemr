@@ -16,8 +16,9 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\Predis\PredisSessionHandler;
+use Psr\Log\LoggerInterface;
 use Predis\Client;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 
 class SentinelUtil
 {
@@ -44,13 +45,8 @@ class SentinelUtil
     private readonly ?string $masterCertFile;
     private readonly ?string $masterKeyFile;
 
-    private readonly SystemLogger $logger;
-
-    public function __construct(private readonly int $ttl, ?SystemLogger $logger = null)
+    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
     {
-        // Initialize the logger
-        $this->logger = $logger ?? new SystemLogger();
-
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;
         if ($this->sessionStorageMode !== 'predis-sentinel') {
@@ -147,7 +143,12 @@ class SentinelUtil
         ]);
     }
 
-    public function configure(): \SessionHandlerInterface
+    public static function getRedisSessionStorage(): RedisSessionHandler
+    {
+        return new RedisSessionHandler((new self())->configureClient());
+    }
+
+    public function configureClient(): Client
     {
         $useTls = $this->predisTls;
         $useClientCert = $this->predisX509;
@@ -216,16 +217,11 @@ class SentinelUtil
         }
 
         // Create a new Predis client instance
-        $redis = new Client($sentinelParameters, $options);
+        return new Client($sentinelParameters, $options);
+    }
 
-        // Initialize and register the session handler
-        $handler = new PredisSessionHandler($redis, $this->ttl, 60, 70, 150000);
-        $success = session_set_save_handler($handler, true);
-        if (!$success) {
-            $this->logger->errorLogCaller("Failed to set session handler for Predis Sentinel.");
-            throw new \Exception("Failed to set session handler for Predis Sentinel.");
-        }
-        $this->logger->debug("Successfully set session handler for Predis Sentinel.");
-        return $handler;
+    public function configure(int $ttl): \SessionHandlerInterface {
+        $redis = self::configureClient();
+        return new RedisSessionHandler($redis, ['ttl' => $ttl]);
     }
 }

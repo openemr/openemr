@@ -16,7 +16,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 
 class QueryPagination implements \JsonSerializable
 {
-    // TODO: @adunsulag do we want to maintain backwards compatability and let ALL data be retrieved with 0? or should we impose a limit which will break backwards compatability?
+    // TODO: @adunsulag do we want to maintain backwards compatibility and let ALL data be retrieved with 0? or should we impose a limit which will break backwards compatibility?
     const DEFAULT_LIMIT = 0;
 
     const MAX_LIMIT = 200;

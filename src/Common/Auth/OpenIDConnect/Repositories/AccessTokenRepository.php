@@ -66,7 +66,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     {
         $token = $this->getTokenByToken($accessTokenEntity->getIdentifier());
         if (!empty($token)) {
-            throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
+            throw UniqueTokenIdentifierConstraintViolationException::create();
         }
 
         $access_token = (string) $accessTokenEntity;
@@ -161,7 +161,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     }
 
     /**
-     * Sets the context array that will be saved to the database for new acess tokens.
+     * Sets the context array that will be saved to the database for new access tokens.
      * @param $context The array of context variables.  If this is not an array the context is set to null;
      */
     public function setContextForNewTokens($context)

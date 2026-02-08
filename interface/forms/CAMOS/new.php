@@ -812,7 +812,7 @@ function click_item() {
   var sel = f2["select_item[]"].options[item_index].value;
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
-      //diplay text in content box
+      //display text in content box
       f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
     }
   }
@@ -903,13 +903,10 @@ function processajax (serverPage, obj, getOrPost, str){
 
 function setformvalues(form_array){
 
-  //Run through a list of all objects
-  var str = '';
-  for(key in form_array) {
-    str += key + "=" + encodeURIComponent(form_array[key]) + "&";
-  }
+  //Run through a list of all objects and build query string
+  const params = new URLSearchParams(form_array);
   //Then return the string values.
-  return str;
+  return params.toString();
 }
 
 //END OF AJAX RELATED FUNCTIONS

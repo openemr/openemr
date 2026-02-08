@@ -56,6 +56,7 @@ class ResourceConstraintFiltererTest extends TestCase {
         }
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function observationAccessProvider() : array {
         return [
             ['social-history', 'user/Observation.s', true, ['social-history', 'survey']],
@@ -92,6 +93,7 @@ class ResourceConstraintFiltererTest extends TestCase {
             , "Access should be " .$shouldBeClause . " for Observation with categories " . implode(',', $observationCategories));
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function conditionAccessProvider() : array {
         return [
             ['encounter-diagnosis', 'user/Condition.s', true, 'encounter-diagnosis'],

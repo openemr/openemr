@@ -98,7 +98,7 @@ class PatientAdvanceDirectiveService extends BaseService
     }
 
     public function getAdvancedDirectiveCodes() : array {
-        $codes = array_map(fn($codeMap) => FhirCodeSystemConstants::LOINC . "|" . $codeMap['code'], self::LOINC_CODES);
+        $codes = array_map(static fn($codeMap): string => FhirCodeSystemConstants::LOINC . "|" . $codeMap['code'], self::LOINC_CODES);
         return $codes;
 
     }
@@ -821,12 +821,12 @@ class PatientAdvanceDirectiveService extends BaseService
         try {
             $dateTime = new \DateTime($date);
             return $dateTime->format('Y-m-d\TH:i:s\Z');
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // If it's just a date, format as date only
             try {
                 $dateTime = new \DateTime($date);
                 return $dateTime->format('Y-m-d');
-            } catch (\Exception) {
+            } catch (\Throwable) {
                 return $date; // Return as-is if can't parse
             }
         }

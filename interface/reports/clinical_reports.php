@@ -219,7 +219,7 @@ $communication = trim($_POST["communication"] ?? '');
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <span class='title'>
-<?php echo htmlspecialchars((string) xl('Report - Clinical'), ENT_NOQUOTES); ?>
+<?php echo htmlspecialchars(xl('Report - Clinical'), ENT_NOQUOTES); ?>
 </span>
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.

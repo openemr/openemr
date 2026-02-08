@@ -282,7 +282,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
             }
         }
     }
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "edit_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -307,7 +307,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         // send error and continue.
         echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
     }
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "add_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -319,7 +319,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", [$_POST['list_id']]);
     // delete the list from the master list-of-lists
     sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", [$_POST['list_id']]);
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "delete_list",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

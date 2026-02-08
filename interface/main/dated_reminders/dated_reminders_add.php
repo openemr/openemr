@@ -79,14 +79,14 @@ if ($_POST) {
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
-  // for incase of data error, this allows the previously entered data to re-populate the boxes
+  // in case of a data error, this allows the previously entered data to re-populate the boxes
     $this_message['message'] = ($_POST['message'] ?? '');
     $this_message['priority'] = ($_POST['priority'] ?? '');
     $this_message['dueDate'] = ($_POST['dueDate'] ?? '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
-// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
+// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handler
     if (
 // ------- check sendTo is not empty
         !empty($sendTo) and
@@ -124,7 +124,7 @@ if ($_POST) {
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("' . xls('Reminder Sent') . '");';
+            echo '   alert(' . xlj('Reminder Sent') . ');';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';

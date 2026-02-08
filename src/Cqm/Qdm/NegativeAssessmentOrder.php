@@ -26,4 +26,3 @@ class NegativeAssessmentOrder extends AssessmentOrder
 
     public $_type = 'QDM::NegativeAssessmentOrder';
 }
-

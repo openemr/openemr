@@ -26,4 +26,3 @@ class NegativeDeviceRecommended extends DeviceRecommended
 
     public $_type = 'QDM::NegativeDeviceRecommended';
 }
-

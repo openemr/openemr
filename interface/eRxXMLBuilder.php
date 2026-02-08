@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxXMLBuilder.php Functions for building NewCrop XML.
+ * interface/eRxXMLBuilder.php Functions for building Ensora eRx XML.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -94,6 +94,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];
@@ -101,7 +102,7 @@ class eRxXMLBuilder
         curl_setopt($curlHandler, CURLOPT_URL, $this->getGlobals()->getPath());
         curl_setopt($curlHandler, CURLOPT_POST, 1);
         curl_setopt($curlHandler, CURLOPT_POSTFIELDS, 'RxInput=' . $xml);
-        curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curlHandler, CURLOPT_COOKIESESSION, true);
         curl_setopt($curlHandler, CURLOPT_COOKIEFILE, $sitePath . '/newcrop-cookiefile');
@@ -267,9 +268,9 @@ class eRxXMLBuilder
             ->getCredentials();
 
         $element = $this->getDocument()->createElement('Credentials');
-        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('NewCrop eRx Partner Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('NewCrop eRx Account Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('NewCrop eRx Password')));
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('Ensora eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('Ensora eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
         $element->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
 
@@ -283,7 +284,7 @@ class eRxXMLBuilder
 
         $eRxUserRole = $eRxUserRole['newcrop_user_role'];
 
-        $this->fieldEmpty($eRxUserRole, xl('NewCrop eRx User Role'));
+        $this->fieldEmpty($eRxUserRole, xl('Ensora eRx User Role'));
         if (!$eRxUserRole) {
             echo xlt('Unauthorized access to ePrescription');
             die;
@@ -300,7 +301,7 @@ class eRxXMLBuilder
         };
 
         $element = $this->getDocument()->createElement('UserRole');
-        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('NewCrop eRx User Role * invalid selection *')));
+        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('Ensora eRx User Role * invalid selection *')));
         $element->appendChild($this->createElementText('role', $eRxUserRole));
 
         return $element;
@@ -368,7 +369,7 @@ class eRxXMLBuilder
         $element = $this->getDocument()->createElement('Account');
         $element->setAttribute('ID', $this->getGlobals()->getAccountId());
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter($facility['name']), 35), xl('Facility Name')));
-        $element->appendChild($this->createElementText('siteID', $facility['federal_ein'], 'Site ID'));
+        $element->appendChild($this->createElementText('siteID', $facility['federal_ein']));
         $element->appendChild($this->getAccountAddress($facility));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', preg_replace('/[^0-9]/', '', (string) $facility['phone']), xl('Facility Phone')));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', preg_replace('/[^0-9]/', '', (string) $facility['fax']), xl('Facility Fax')));

@@ -28,7 +28,7 @@ use Laminas\View\Model\ViewModel;
  * Class HtmlTemplatesController
  * Here you can add custom html template for print prescription.
  * How to -
- * 1. create new action function (syntax <VIEW_NAME>Action) in ths controller that load custom view
+ * 1. create new action function (syntax <VIEW_NAME>Action) in this controller that load custom view
  * 2. in the 'globals settings' screen go to 'Rx' tab and save your action in the 'Name of zend template for html print' label
  * @package PrescriptionTemplates\Controller
  */

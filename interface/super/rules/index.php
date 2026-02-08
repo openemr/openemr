@@ -35,7 +35,7 @@ try {
     $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
     $contents =  (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/general_http_error.html.twig');

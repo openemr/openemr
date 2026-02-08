@@ -292,15 +292,17 @@ class Events extends Base
         $count_clinical_reminders = 0;
         $count_gogreen = 0;
 
-        $sqlQuery = "SELECT * FROM medex_icons";
+        $sqlQuery = "SELECT msg_type, msg_status, i_html FROM medex_icons";
         $result = sqlStatement($sqlQuery);
+        $matches = [];
         while ($icons = sqlFetchArray($result)) {
-            $title = preg_match('/title=\"(.*)\"/', (string) $icons['i_html']);
+            preg_match('/title="([^"]*)"/', (string) $icons['i_html'], $matches);
+            $title = $matches[1] ?? '';
             $xl_title = xla($title);
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
-        $sql2 = "SELECT * FROM medex_prefs";
+        $sql2 = "SELECT ME_facilities, ME_providers FROM medex_prefs";
         $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
@@ -898,7 +900,7 @@ class Events extends Base
                                 ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
-                } catch (\Exception) {
+                } catch (\Throwable) {
                     $this->MedEx->logging->log_this($sql_GOGREEN);
                     exit;
                 }
@@ -1156,34 +1158,34 @@ class Events extends Base
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
                 [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
-                $occurence = $event['pc_eventDate'];
+                $occurrence = $event['pc_eventDate'];
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime((string) $occurence) < strtotime((string) $start_date)) {
+                while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 //now we are cooking...
-                while ($occurence <= $stop_date) {
+                while ($occurrence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
                             // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", (string) $occurence) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                 $excluded = true;
                             }
                         }
                     }
 
                     if ($excluded == false) {
-                        $data[] = $occurence;
+                        $data[] = $occurrence;
                     }
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
 
@@ -1222,23 +1224,23 @@ class Events extends Base
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurence === -1);
+                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurrence === -1);
 
-                    if ($occurence >= $start_date && $occurence <= $stop_date) {
+                    if ($occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurence) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
                         }
 
                         if ($excluded == false) {
-                            $event['pc_eventDate'] = $occurence;
+                            $event['pc_eventDate'] = $occurrence;
                             $event['pc_endDate'] = '0000-00-00';
                             $events2[] = $event;
                             $data[] = $event['pc_eventDate'];
@@ -1451,7 +1453,7 @@ class Callback extends Base
     }
 }
 
-class Logging extends base
+class Logging extends Base
 {
     public function log_this($data)
     {
@@ -1470,7 +1472,7 @@ class Logging extends base
             } else {
                 fwrite($std_log, "\nDATA= " . $data . "\n");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             fwrite($std_log, $e->getMessage() . "\n");
         }
         fclose($std_log);
@@ -1478,7 +1480,7 @@ class Logging extends base
     }
 }
 
-class Display extends base
+class Display extends Base
 {
     public function navigation($logged_in)
     {

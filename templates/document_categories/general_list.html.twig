@@ -47,7 +47,7 @@
             {% if add_node %}
             {{ "This new category will be a sub-category of "|xlt }} {{ parent_name|xlt }}
             {% endif %}
-            <form method="post" action="{{ FORM_ACTION }}" onsubmit="return top.restoreSession()">
+            <form method="post" action="{{ FORM_ACTION|attr }}" onsubmit="return top.restoreSession()">
 
                 <table>
                     <tr>

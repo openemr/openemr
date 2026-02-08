@@ -1,0 +1,74 @@
+##
+# Fan-in workflow that sends CodeCov notifications after all
+# coverage-uploading workflows complete. This prevents CodeCov
+# from reporting partial coverage while slow tests are still running.
+#
+# codecov.yml sets notify.manual_trigger: true, so CodeCov will not
+# send any PR comments or status checks until this workflow calls
+# send-notifications.
+
+name: CodeCov Notify
+
+on:
+  workflow_run:
+    workflows:
+    - Test All Configurations
+    - Isolated Tests
+    - Inferno Certification Test
+    - Test (Scheduled)
+    types: [completed]
+
+permissions:
+  actions: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Check if all coverage workflows completed
+      id: check
+      env:
+        GH_TOKEN: ${{ github.token }}
+        SHA: ${{ github.event.workflow_run.head_sha }}
+        REPO: ${{ github.repository }}
+      run: |
+        # Check each coverage-uploading workflow. If a workflow didn't
+        # run for this commit, skip it. If any is still running, exit
+        # early -- the next workflow_run event will re-trigger us.
+        workflows=(
+          'Test All Configurations'
+          'Isolated Tests'
+          'Inferno Certification Test'
+          'Test (Scheduled)'
+        )
+
+        for workflow in "${workflows[@]}"; do
+          printf -v jq_filter '[.workflow_runs[] | select(.name == "%s")] | first | .status' "$workflow"
+          status=$(
+            gh api "repos/$REPO/actions/runs?head_sha=$SHA" --jq "$jq_filter"
+          )
+
+          if [[ -z "$status" || "$status" = 'null' ]]; then
+            echo "$workflow: did not run for this commit -- skipping"
+            continue
+          fi
+
+          if [[ "$status" != 'completed' ]]; then
+            echo "$workflow: still $status -- exiting"
+            echo 'all_done=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "$workflow: completed"
+        done
+
+        echo 'All coverage workflows complete'
+        echo 'all_done=true' >> "$GITHUB_OUTPUT"
+
+    - name: Send CodeCov notifications
+      if: steps.check.outputs.all_done == 'true'
+      uses: codecov/codecov-action@v5
+      with:
+        run_command: send-notifications
+        token: ${{ secrets.CODECOV_TOKEN }}
+        override_commit: ${{ github.event.workflow_run.head_sha }}

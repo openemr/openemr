@@ -233,7 +233,7 @@ CREATE TABLE `care_teams` (
 #IfTable care_teams_v1
 INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
 SELECT
-    `uuid`,
+    MIN(`uuid`) AS `uuid`,
     `pid`,
     `status`,
     `team_name`,
@@ -2092,146 +2092,141 @@ INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value
 
 -- Spouse/Partner
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SPS','spouse',10,0,1),
-    ('related_person_relationship','HUSB','husband',20,0,1),
-    ('related_person_relationship','WIFE','wife',30,0,1),
-    ('related_person_relationship','DOMPART','domestic partner',40,0,1),
-    ('related_person_relationship','SIGOTHR','significant other',50,0,1),
-    ('related_person_relationship','FMRSPS','former spouse',60,0,1);
+    ('related_person_relationship','SPS','Spouse',10,0,1),
+    ('related_person_relationship','HUSB','Husband',20,0,1),
+    ('related_person_relationship','WIFE','Wife',30,0,1),
+    ('related_person_relationship','DOMPART','Domestic Partner',40,0,1),
+    ('related_person_relationship','SIGOTHR','Significant Other',50,0,1),
+    ('related_person_relationship','FMRSPS','Former Spouse',60,0,1);
 
-    -- Parents
+-- Parents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','PRN','parent',70,0,1),
-    ('related_person_relationship','NPRN','natural parent',80,0,1),
-    ('related_person_relationship','FTH','father',90,0,1),
-    ('related_person_relationship','NFTH','natural father',100,0,1),
-    ('related_person_relationship','MTH','mother',110,0,1),
-    ('related_person_relationship','NMTH','natural mother',120,0,1),
-    ('related_person_relationship','ADOPTF','adoptive father',130,0,1),
-    ('related_person_relationship','ADOPTM','adoptive mother',140,0,1),
-    ('related_person_relationship','ADOPTP','adoptive parent',150,0,1),
-    ('related_person_relationship','FTHFOST','foster father',160,0,1),
-    ('related_person_relationship','MTHFOST','foster mother',170,0,1),
-    ('related_person_relationship','PRNFOST','foster parent',180,0,1),
-    ('related_person_relationship','STPFTH','stepfather',190,0,1),
-    ('related_person_relationship','STPMTH','stepmother',200,0,1),
-    ('related_person_relationship','STPPRN','step parent',210,0,1),
-    ('related_person_relationship','GESTM','gestational mother',220,0,1);
+    ('related_person_relationship','PRN','Parent',70,0,1),
+    ('related_person_relationship','NPRN','Parent Natural',80,0,1),
+    ('related_person_relationship','FTH','Father',90,0,1),
+    ('related_person_relationship','NFTH','Father Natural',100,0,1),
+    ('related_person_relationship','MTH','Mother',110,0,1),
+    ('related_person_relationship','NMTH','Mother Natural',120,0,1),
+    ('related_person_relationship','ADOPTF','Father Adoptive',130,0,1),
+    ('related_person_relationship','ADOPTM','Mother Adoptive',140,0,1),
+    ('related_person_relationship','ADOPTP','Parent Adoptive',150,0,1),
+    ('related_person_relationship','FTHFOST','Father Foster',160,0,1),
+    ('related_person_relationship','MTHFOST','Mother Foster',170,0,1),
+    ('related_person_relationship','PRNFOST','Parent Foster',180,0,1),
+    ('related_person_relationship','STPFTH','Stepfather',190,0,1),
+    ('related_person_relationship','STPMTH','Stepmother',200,0,1),
+    ('related_person_relationship','STPPRN','Step Parent',210,0,1),
+    ('related_person_relationship','GESTM','Mother Gestational',220,0,1);
 
-    -- Children
+-- Children
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','CHILD','Child',230,0,1),
-    ('related_person_relationship','NCHILD','natural child',240,0,1),
-    ('related_person_relationship','DAUC','daughter',250,0,1),
-    ('related_person_relationship','DAU','natural daughter',260,0,1),
-    ('related_person_relationship','SONC','son',270,0,1),
-    ('related_person_relationship','SON','natural son',280,0,1),
-    ('related_person_relationship','CHLDADOPT','Adopted Child',290,0,1),
-    ('related_person_relationship','DAUADOPT','Adopted Daughter',300,0,1),
-    ('related_person_relationship','SONADOPT','Adopted Son',310,0,1),
-    ('related_person_relationship','CHLDFOST','Foster Child',320,0,1),
-    ('related_person_relationship','DAUFOST','foster daughter',330,0,1),
-    ('related_person_relationship','SONFOST','foster son',340,0,1),
-    ('related_person_relationship','STPCHLD','step child',350,0,1),
-    ('related_person_relationship','STPDAU','stepdaughter',360,0,1),
-    ('related_person_relationship','STPSON','stepson',370,0,1);
+    ('related_person_relationship','NCHILD','Child Natural',240,0,1),
+    ('related_person_relationship','DAUC','Daughter',250,0,1),
+    ('related_person_relationship','DAU','Daughter Natural',260,0,1),
+    ('related_person_relationship','SONC','Son',270,0,1),
+    ('related_person_relationship','SON','Son Natural',280,0,1),
+    ('related_person_relationship','CHLDADOPT','Child Adopted',290,0,1),
+    ('related_person_relationship','DAUADOPT','Daughter Adopted',300,0,1),
+    ('related_person_relationship','SONADOPT','Son Adopted',310,0,1),
+    ('related_person_relationship','CHLDFOST','Child Foster',320,0,1),
+    ('related_person_relationship','DAUFOST','Daughter Foster',330,0,1),
+    ('related_person_relationship','SONFOST','Son Foster',340,0,1),
+    ('related_person_relationship','STPCHLD','Step Child',350,0,1),
+    ('related_person_relationship','STPDAU','Stepdaughter',360,0,1),
+    ('related_person_relationship','STPSON','Stepson',370,0,1);
 
-    -- Siblings
+-- Siblings
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SIB','sibling',380,0,1),
-    ('related_person_relationship','NSIB','natural sibling',390,0,1),
-    ('related_person_relationship','BRO','brother',400,0,1),
-    ('related_person_relationship','NBRO','natural brother',410,0,1),
-    ('related_person_relationship','SIS','sister',420,0,1),
-    ('related_person_relationship','NSIS','natural sister',430,0,1),
-    ('related_person_relationship','HBRO','half-brother',440,0,1),
-    ('related_person_relationship','HSIS','half-sister',450,0,1),
-    ('related_person_relationship','HSIB','half-sibling',460,0,1),
-    ('related_person_relationship','STPBRO','stepbrother',470,0,1),
-    ('related_person_relationship','STPSIS','stepsister',480,0,1),
-    ('related_person_relationship','STPSIB','step sibling',490,0,1),
-    ('related_person_relationship','TWIN','twin',500,0,1),
-    ('related_person_relationship','TWINBRO','twin brother',510,0,1),
-    ('related_person_relationship','TWINSIS','twin sister',520,0,1),
-    ('related_person_relationship','FTWIN','fraternal twin',530,0,1),
-    ('related_person_relationship','FTWINBRO','fraternal twin brother',540,0,1),
-    ('related_person_relationship','FTWINSIS','fraternal twin sister',550,0,1),
-    ('related_person_relationship','ITWIN','identical twin',560,0,1),
-    ('related_person_relationship','ITWINBRO','identical twin brother',570,0,1),
-    ('related_person_relationship','ITWINSIS','identical twin sister',580,0,1);
+    ('related_person_relationship','SIB','Sibling',380,0,1),
+    ('related_person_relationship','NSIB','Sibling Natural',390,0,1),
+    ('related_person_relationship','BRO','Brother',400,0,1),
+    ('related_person_relationship','NBRO','Brother Natural',410,0,1),
+    ('related_person_relationship','SIS','Sister',420,0,1),
+    ('related_person_relationship','NSIS','Sister Natural',430,0,1),
+    ('related_person_relationship','HBRO','Half-Brother',440,0,1),
+    ('related_person_relationship','HSIS','Half-Sister',450,0,1),
+    ('related_person_relationship','HSIB','Half-Sibling',460,0,1),
+    ('related_person_relationship','STPBRO','Stepbrother',470,0,1),
+    ('related_person_relationship','STPSIS','Stepsister',480,0,1),
+    ('related_person_relationship','STPSIB','Step Sibling',490,0,1),
+    ('related_person_relationship','TWIN','Twin',500,0,1),
+    ('related_person_relationship','TWINBRO','Brother Twin',510,0,1),
+    ('related_person_relationship','TWINSIS','Sister Twin',520,0,1),
+    ('related_person_relationship','FTWIN','Twin Fraternal',530,0,1),
+    ('related_person_relationship','FTWINBRO','Brother Twin Fraternal',540,0,1),
+    ('related_person_relationship','FTWINSIS','Sister Twin Fraternal',550,0,1),
+    ('related_person_relationship','ITWIN','Twin Identical',560,0,1),
+    ('related_person_relationship','ITWINBRO','Brother Identical Twin',570,0,1),
+    ('related_person_relationship','ITWINSIS','Sister Identical Twin',580,0,1);
 
-    -- Grandparents
+-- Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRPRN','grandparent',590,0,1),
-    ('related_person_relationship','GRFTH','grandfather',600,0,1),
-    ('related_person_relationship','GRMTH','grandmother',610,0,1),
-    ('related_person_relationship','MGRPRN','maternal grandparent',620,0,1),
-    ('related_person_relationship','MGRFTH','maternal grandfather',630,0,1),
-    ('related_person_relationship','MGRMTH','maternal grandmother',640,0,1),
-    ('related_person_relationship','PGRPRN','paternal grandparent',650,0,1),
-    ('related_person_relationship','PGRFTH','paternal grandfather',660,0,1),
-    ('related_person_relationship','PGRMTH','paternal grandmother',670,0,1);
+    ('related_person_relationship','GRPRN','Grandparent',590,0,1),
+    ('related_person_relationship','GRFTH','Grandfather',600,0,1),
+    ('related_person_relationship','GRMTH','Grandmother',610,0,1),
+    ('related_person_relationship','MGRPRN','Grandparent Maternal',620,0,1),
+    ('related_person_relationship','MGRFTH','Grandfather Maternal',630,0,1),
+    ('related_person_relationship','MGRMTH','Grandmother Maternal',640,0,1),
+    ('related_person_relationship','PGRPRN','Grandparent Paternal',650,0,1),
+    ('related_person_relationship','PGRFTH','Grandfather Paternal',660,0,1),
+    ('related_person_relationship','PGRMTH','Grandmother Paternal',670,0,1);
 
-    -- Great Grandparents
+-- Great Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GGRPRN','great grandparent',680,0,1),
-    ('related_person_relationship','GGRFTH','great grandfather',690,0,1),
-    ('related_person_relationship','GGRMTH','great grandmother',700,0,1),
-    ('related_person_relationship','MGGRPRN','maternal great-grandparent',710,0,1),
-    ('related_person_relationship','MGGRFTH','maternal great-grandfather',720,0,1),
-    ('related_person_relationship','MGGRMTH','maternal great-grandmother',730,0,1),
-    ('related_person_relationship','PGGRPRN','paternal great-grandparent',740,0,1),
-    ('related_person_relationship','PGGRFTH','paternal great-grandfather',750,0,1),
-    ('related_person_relationship','PGGRMTH','paternal great-grandmother',760,0,1);
+    ('related_person_relationship','GGRPRN','Great-Grandparent',680,0,1),
+    ('related_person_relationship','GGRFTH','Great-Grandfather',690,0,1),
+    ('related_person_relationship','GGRMTH','Great-Grandmother',700,0,1),
+    ('related_person_relationship','MGGRPRN','Great-Grandparent Maternal',710,0,1),
+    ('related_person_relationship','MGGRFTH','Great-Grandfather Maternal',720,0,1),
+    ('related_person_relationship','MGGRMTH','Great-Grandmother Maternal',730,0,1),
+    ('related_person_relationship','PGGRPRN','Great-Grandparent Paternal',740,0,1),
+    ('related_person_relationship','PGGRFTH','Great-Grandfather Paternal',750,0,1),
+    ('related_person_relationship','PGGRMTH','Great-Grandmother Paternal',760,0,1);
 
-    -- Grandchildren
+-- Grandchildren
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRNDCHILD','grandchild',770,0,1),
-    ('related_person_relationship','GRNDDAU','granddaughter',780,0,1),
-    ('related_person_relationship','GRNDSON','grandson',790,0,1);
+    ('related_person_relationship','GRNDCHILD','Grandchild',770,0,1),
+    ('related_person_relationship','GRNDDAU','Granddaughter',780,0,1),
+    ('related_person_relationship','GRNDSON','Grandson',790,0,1);
 
-    -- Extended Family
+-- Extended Family
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
-    ('related_person_relationship','EXT','extended family member',810,0,1),
-    ('related_person_relationship','AUNT','aunt',820,0,1),
-    ('related_person_relationship','MAUNT','maternal aunt',830,0,1),
-    ('related_person_relationship','PAUNT','paternal aunt',840,0,1),
-    ('related_person_relationship','UNCLE','uncle',850,0,1),
-    ('related_person_relationship','MUNCLE','maternal uncle',860,0,1),
-    ('related_person_relationship','PUNCLE','paternal uncle',870,0,1),
-    ('related_person_relationship','COUSN','maternal cousin',880,0,1),
-    ('related_person_relationship','MCOUSN','maternal cousin',890,0,1),
-    ('related_person_relationship','PCOUSN','paternal cousin',900,0,1),
-    ('related_person_relationship','NEPHEW','nephew',910,0,1),
-    ('related_person_relationship','NIECE','niece',920,0,1);
+    ('related_person_relationship','EXT','Family Member Extended',810,0,1),
+    ('related_person_relationship','AUNT','Aunt',820,0,1),
+    ('related_person_relationship','MAUNT','Aunt Maternal',830,0,1),
+    ('related_person_relationship','PAUNT','Aunt Paternal',840,0,1),
+    ('related_person_relationship','UNCLE','Uncle',850,0,1),
+    ('related_person_relationship','MUNCLE','Uncle Maternal',860,0,1),
+    ('related_person_relationship','PUNCLE','Uncle Paternal',870,0,1),
+    ('related_person_relationship','COUSN','Cousin Maternal',880,0,1),
+    ('related_person_relationship','MCOUSN','Cousin Maternal',890,0,1),
+    ('related_person_relationship','PCOUSN','Cousin Paternal',900,0,1),
+    ('related_person_relationship','NEPHEW','Nephew',910,0,1),
+    ('related_person_relationship','NIECE','Niece',920,0,1);
 
-    -- In-Laws
+ -- In-Laws
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','INLAW','inlaw',930,0,1),
-    ('related_person_relationship','PRNINLAW','parent in-law',940,0,1),
-    ('related_person_relationship','FTHINLAW','father-in-law',950,0,1),
-    ('related_person_relationship','MTHINLAW','mother-in-law',960,0,1),
-    ('related_person_relationship','SIBINLAW','sibling in-law',970,0,1),
-    ('related_person_relationship','BROINLAW','brother-in-law',980,0,1),
-    ('related_person_relationship','SISINLAW','sister-in-law',990,0,1),
-    ('related_person_relationship','DAUINLAW','daughter in-law',1000,0,1),
-    ('related_person_relationship','SONINLAW','son in-law',1010,0,1);
+    ('related_person_relationship','INLAW','Inlaw',930,0,1),
+    ('related_person_relationship','PRNINLAW','Parent-In-Law',940,0,1),
+    ('related_person_relationship','FTHINLAW','Father-In-Law',950,0,1),
+    ('related_person_relationship','MTHINLAW','Mother-In-Law',960,0,1),
+    ('related_person_relationship','SIBINLAW','Sibling-In-Law',970,0,1),
+    ('related_person_relationship','BROINLAW','Brother-In-Law',980,0,1),
+    ('related_person_relationship','SISINLAW','Sister-In-Law',990,0,1),
+    ('related_person_relationship','DAUINLAW','Daughter-In-Law',1000,0,1),
+    ('related_person_relationship','SONINLAW','Son-In-Law',1010,0,1);
 
-    -- Legal/Guardian Relationships
-    -- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    -- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
-    -- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
-
-    -- Other Relationships
+-- Other Relationships
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','FRND','unrelated friend',1070,0,1),
-    ('related_person_relationship','NBOR','neighbor',1080,0,1),
+    ('related_person_relationship','FRND','Friend Unrelated',1070,0,1),
+    ('related_person_relationship','NBOR','Neighbor',1080,0,1),
     ('related_person_relationship','ROOM','Roommate',1090,0,1);
 
-    -- Self
+-- Self
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','ONESELF','self',1100,0,1);
+    ('related_person_relationship','ONESELF','Self',1100,0,1);
 #EndIf
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------

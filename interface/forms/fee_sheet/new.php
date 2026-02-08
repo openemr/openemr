@@ -23,6 +23,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -32,6 +33,8 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     <?php
     formJump();
 }
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -53,13 +56,6 @@ $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pri
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {
@@ -113,7 +109,7 @@ function echoServiceLines(): void
         echo " <tr>\n";
 
         echo "  <td class='billcell'>$strike1" . ($codetype == 'COPAY' ? xlt('COPAY') : text($codetype)) . $strike2;
-        // if the line to ouput is copay, show the date here passed as $ndc_info,
+        // if the line to output is copay, show the date here passed as $ndc_info,
         // since this variable is not applicable in the case of copay.
         if ($codetype == 'COPAY') {
             if (!empty($ndc_info)) {
@@ -514,10 +510,10 @@ if (isset($_POST['form_checksum'])) {
     if ($_POST['form_checksum'] != $current_checksum) {
         $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "checksum",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             $comment,
             $pid,
@@ -1064,7 +1060,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     endFSCategory();
                                     $last_category = $fs_category;
                                     ++$i;
-                                    // can cleave either one or two spaces from fs_category, fs_option to accomodate more than 9 custom categories
+                                    // can cleave either one or two spaces from fs_category, fs_option to accommodate more than 9 custom categories
                                     $cleave_cat = is_numeric(substr((string) $fs_category, 0, 2)) ? 2 : 1;
                                     $cleave_opt = is_numeric(substr((string) $fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
@@ -1671,20 +1667,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if (empty($GLOBALS['default_rendering_provider'])) {
                                         $default_rid = $fs->provider_id ?: 0;
                                         if (!$default_rid && $userauthorized) {
-                                            $default_rid = $_SESSION['authUserID'];
+                                            $default_rid = $session->get('authUserID');
                                         }
                                     } elseif ($GLOBALS['default_rendering_provider'] == '1') {
                                         $default_rid = $fs->provider_id;
                                     } else {
-                                        $default_rid = $_SESSION['authUserID'] ?? $fs->provider_id;
+                                        $default_rid = $session->get('authUserID') ?? $fs->provider_id;
                                     }
                                     echo $fs->genProviderSelect(
                                         'ProviderID',
                                         '-- ' . xl("Please Select") . ' --',
                                         $default_rid,
                                         $isBilled,
-                                        false,
-                                        xl('This provider will be used as the default for services not specifying a provider.')
+                                        false
                                     );
                                     ?>
                                 </div>

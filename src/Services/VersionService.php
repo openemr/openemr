@@ -31,7 +31,7 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * Return the compounded major, minor, patch and tag verions as a string
+     * Return the compounded major, minor, patch and tag versions as a string
      *
      * @var $includeTag bool Include the tag
      * @var $includeRealpatch bool Include the realpatch

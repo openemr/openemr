@@ -34,7 +34,7 @@ var oemr_scp_lifetime = <?php echo js_escape($scparams['lifetime']); ?>;
 var oemr_scp_path = <?php echo js_escape($scparams['path']); ?>;
 var oemr_scp_domain = <?php echo js_escape($scparams['domain']); ?>;
 var oemr_scp_secure = <?php echo js_escape($scparams['secure']); ?>;
-var oemr_scp_samesite = <?php echo empty($scparams['samesite']) ? '' : js_escape($scparams['samesite']); ?>;
+var oemr_scp_samesite = <?php echo empty($scparams['samesite']) ? 'false' : js_escape($scparams['samesite']); ?>;
 var oemr_cookie = '';
 var oemr_change_count = 0; // debugging
 

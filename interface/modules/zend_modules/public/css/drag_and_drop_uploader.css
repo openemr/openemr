@@ -4,25 +4,25 @@
     width           : 200px;
     height          : 22px;
     border          : 1px solid #ddd;
-    border-radius   : 5px;	
+    border-radius   : 5px;
     overflow        : hidden;
     display         :inline-block;
     margin          :0px 10px 5px 5px;
     vertical-align  :top;
-}  
+}
 .progressBar div {
     /*height          : 100%;*/
     color           : #fff;
     text-align      : right;
     line-height     : 22px; /* same as #progressBar height if we want text middle aligned */
     width           : 0;
-    background-color: #0ba1b5; border-radius: 3px; 
+    background-color: #0ba1b5; border-radius: 3px;
 }
 .statusbar{
     border-top    :1px solid #A9CCD1;
     min-height    :25px;
     padding       :10px 10px 0px 10px;
-    vertical-align:top;    
+    vertical-align:top;
 }
 #status1{
     -moz-box-shadow     : 1px 4px 4px 1px #8B8B8B;

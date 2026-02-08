@@ -66,6 +66,7 @@ use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -1644,7 +1645,7 @@ return [
     },
 
     /**
-     *  @OA\POST(
+     *  @OA\Post(
      *      path="/fhir/DocumentReference/$docref",
      *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.",
      *      tags={"fhir"},
@@ -3032,7 +3033,7 @@ return [
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirMedicationRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = (new FhirMedicationRestController())->getOne($uuid);
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRestController())->getOne($uuid);
@@ -5384,7 +5385,7 @@ return [
             $return = (new FhirPersonRestController())->getOne($uuid);
         } else {
             // if we are a patient bound request we need to make sure we are only bound to the patient
-            $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = (new FhirPersonRestController())->getOne($uuid);
         }
 
 
@@ -6170,15 +6171,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/RelatedPerson" => function (HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "demo");
-            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams());
-        }
-        return $return;
+    "GET /fhir/RelatedPerson" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->getAll();
     },
 
     /**
@@ -6211,11 +6207,11 @@ return [
      *                       "meta": {
      *                           "versionId": "1",
      *                           "lastUpdated": "2025-10-25T21:15:11-04:00",
-     *                           "profile": [
+     *                           "profile": {
      *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson",
      *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|7.0.0",
      *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|8.0.0"
-     *                           ]
+     *                           }
      *                       },
      *                       "resourceType": "RelatedPerson",
      *                       "active": true,
@@ -6223,27 +6219,27 @@ return [
      *                           "reference": "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
      *                           "type": "Patient"
      *                       },
-     *                       "relationship": [
+     *                       "relationship": {
      *                           {
-     *                               "coding": [
+     *                               "coding": {
      *                                   {
      *                                       "system": "http://terminology.hl7.org/CodeSystem/role-code",
      *                                       "code": "FAMMEMB",
      *                                       "display": "Family Member"
      *                                   }
-     *                               ]
+     *                               }
      *                           }
-     *                       ],
-     *                       "name": [
+     *                       },
+     *                       "name": {
      *                           {
      *                               "use": "official",
      *                               "family": "Doe",
-     *                               "given": [
+     *                               "given": {
      *                                   "John"
-     *                               ]
+     *                               }
      *                           }
-     *                       ],
-     *                       "telecom": [
+     *                       },
+     *                       "telecom": {
      *                           {
      *                               "system": "phone",
      *                               "value": "(555) 555-5555",
@@ -6259,19 +6255,19 @@ return [
      *                               "value": "example@open-emr.org",
      *                               "use": "home"
      *                           }
-     *                       ],
-     *                       "address": [
+     *                       },
+     *                       "address": {
      *                           {
-     *                               "line": [
+     *                               "line": {
      *                                   "123 example street"
-     *                               ],
+     *                               },
      *                               "city": "Somewhere",
      *                               "state": "CA",
      *                               "period": {
      *                                   "start": "2024-10-25T21:15:11.737-04:00"
      *                               }
      *                           }
-     *                       ]
+     *                       }
      *                   }
      *              )
      *          )
@@ -6291,15 +6287,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // resource is part of the patient compartment so will be bound to patient anyways
-            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "demo");
-            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
-        }
-        return $return;
+    "GET /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->getOne($uuid);
     },
 
     /**

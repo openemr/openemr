@@ -27,6 +27,7 @@ require_once($GLOBALS['srcdir'] . "/forms.inc.php");
 require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib3\Net\SFTP;
 
@@ -72,7 +73,7 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "lab-results-error",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -551,8 +552,7 @@ function lookupTestCode($labid, $procedure_code)
 function create_encounter($pid, $provider_id, $order_date, $lab_name)
 {
     global $orphanLog;
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "Auto Generated Lab Encounter",
@@ -674,18 +674,6 @@ function match_provider($arr)
     }
 
     return false;
-}
-
-function ucname($string)
-{
-    $string = ucwords(strtolower((string) $string));
-
-    foreach (['-', '\''] as $delimiter) {
-        if (str_contains($string, $delimiter)) {
-            $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
-        }
-    }
-    return $string;
 }
 
 /**
@@ -1364,7 +1352,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $ares['result_text'] = $result_text;
             $ares['date'] = rhl7DateTime($a[14] ?? '');
             //$ares['facility'] = rhl7Text($a[15]);
-            // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
+            // Ensoftek: Units may have multiple segments(as seen in MU2 samples), parse and take just first segment.
             $tmp = explode($d2, ($a[6] ?? ''));
             $ares['units'] = rhl7Text($tmp[0]);
             $ares['range'] = rhl7Text($a[7] ?? '');

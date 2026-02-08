@@ -54,6 +54,7 @@ class TwigContainerIsolatedTest extends TestCase
         $this->assertEquals($expectedRenderedHtml, $template->render());
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function renderDataProvider(): iterable
     {
         yield [

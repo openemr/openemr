@@ -22,7 +22,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
         CsrfUtils::csrfNotVerified();
     }
 
-    EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
+    EventAuditLogger::getInstance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update forms set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update pnotes set authorized=1 where pid=?", [$_GET["pid"]]);

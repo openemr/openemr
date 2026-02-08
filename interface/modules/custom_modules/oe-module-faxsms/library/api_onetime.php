@@ -23,7 +23,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'contact-form')) {
 if (isset($_REQUEST['sendOneTime'])) {
     try {
         doOnetimeDocumentRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -31,7 +31,7 @@ if (isset($_REQUEST['sendOneTime'])) {
 if (isset($_REQUEST['sendInvoiceOneTime'])) {
     try {
         doOnetimeInvoiceRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -74,7 +74,7 @@ function doOnetimeInvoiceRequest(): void
     try {
         $rtn = $GLOBALS["kernel"]->getEventDispatcher()
             ->dispatch(new SendNotificationEvent($data['pid'], $data, 'email'), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -114,7 +114,7 @@ function doOnetimeDocumentRequest(): void
     ];
     try {
         $rtn = $service->dispatchPortalOneTimeDocumentRequest($ot_pid, $data, $content);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
     echo js_escape($rtn);

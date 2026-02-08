@@ -29,8 +29,7 @@ use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -91,7 +90,7 @@ class Bootstrap
         $this->logger = new SystemLogger();
     }
 
-    public static function instantiate(EventDispatcher $eventDispatcher, Kernel $kernel): self
+    public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
     {
         if (!isset(self::$instance)) {
             self::$instance = new Bootstrap($eventDispatcher, $kernel);

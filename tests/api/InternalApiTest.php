@@ -128,7 +128,7 @@ try {
     echo "<b>api via route handler call returning json:</b><br />";
     $contents = $response->getBody()->getContents();
     echo $contents;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     echo "<b>api via route handler call returned error:</b><br />";
     echo "Error Message: " . $e->getMessage() . "<br />";
 }

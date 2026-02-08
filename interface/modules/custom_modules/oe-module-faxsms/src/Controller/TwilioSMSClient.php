@@ -64,7 +64,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
-        return $this->_getPending($uiDateRangeFlag);
+        return $this->_getPending();
     }
 
     /**
@@ -101,23 +101,11 @@ class TwilioSMSClient extends AppDispatch
                     "from" => attr($from)
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return text('Error: ' . $message);
         }
         return text($message->sid);
-    }
-
-    /**
-     * @return string
-     */
-
-    public function formatPhone($number): string
-    {
-        // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', (string) $number);
-        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
-        return $n;
     }
 
     /**
@@ -161,7 +149,7 @@ class TwilioSMSClient extends AppDispatch
                     "dateSentAfter" => $dateFrom,
                     "dateSentBefore" => $dateTo
                 ], 100);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $message = $e->getMessage();
                 $emsg = xlt('Report to Administration');
                 return json_encode(['error' => $message . " : " . $emsg]);
@@ -200,7 +188,7 @@ class TwilioSMSClient extends AppDispatch
                     $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
             echo json_encode(['error' => $responseMsgs]);
@@ -257,7 +245,7 @@ class TwilioSMSClient extends AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return 'Error: ' . text($message) . PHP_EOL;
         }

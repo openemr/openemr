@@ -72,7 +72,7 @@ class ExportUtility
 
                 // these are the columns we'll use for enumeration from here on
                 $columns = array_keys($fields);
-            } catch (Exception) {
+            } catch (\Throwable) {
                 // no fieldmaps exist, so use the reflection class instead
                 $reflect = new ReflectionClass($objects [0]);
                 $publicAttributes = $reflect->getProperties(ReflectionProperty::IS_PUBLIC);
@@ -145,7 +145,7 @@ class ExportUtility
     }
 
     /**
-     * Given a zero-based column number, the approriate Excel column letter is
+     * Given a zero-based column number, the appropriate Excel column letter is
      * returned, ie A, B, AB, CJ, etc.
      * max supported is ZZ, higher than that will
      * throw an exception.

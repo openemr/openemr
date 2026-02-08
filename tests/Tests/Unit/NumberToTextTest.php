@@ -17,6 +17,7 @@ class NumberToTextTest extends TestCase
         $ntt = new NumberToText($numeral);
         $this->assertEquals($text, $ntt->convert(), "'$numeral' converts to '$text'");
     }
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function cases()
     {
         return [ [ 0,     'zero'],
@@ -36,7 +37,7 @@ terms of the GNU General Public License as publish by the Free Software
 Foundation.
 This file is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */

@@ -46,7 +46,7 @@ try {
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
 
         // Filter to only person targets
-        $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+        $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
 
         // For each relationship, get addresses and telecoms
         foreach ($relatedPersonRecords as $record) {
@@ -63,6 +63,7 @@ try {
                 'target_id' => $targetId,
                 'target_contact_id' => $targetContactId,
                 'first_name' => $record['first_name'] ?? '',
+                'middle_name' => $record['middle_name'] ?? '',
                 'last_name' => $record['last_name'] ?? '',
                 'gender' => $record['gender'] ?? '',
                 'birth_date' => $record['birth_date'] ?? '',
@@ -121,7 +122,7 @@ try {
             $relatedPersons[] = $relatedPerson;
         }
     }
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Error loading relations for display", [
         'foreign_table' => $foreign_table,
         'foreign_id' => $foreign_id,

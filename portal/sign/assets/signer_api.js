@@ -231,11 +231,11 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-        const backdrop = document.querySelector('.modal-backdrop');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
         $("#openSignModal").modal('hide');
-        if (backdrop) {
+        backdrops.forEach(function (backdrop) {
             backdrop.remove();
-        }
+        });
     }).catch(error => signerAlertMsg(error));
 
     return true;
@@ -254,7 +254,10 @@ var bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
+    const params = new URLSearchParams({
+        isPortal: isPortal
+    });
+    url += "/portal/sign/assets/signer_modal.php?" + params;
     fetch(url, {
         credentials: 'include'
     }).then(jsonTemplate => jsonTemplate.json()).then(jsonTemplate => {

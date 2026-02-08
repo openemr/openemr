@@ -202,7 +202,7 @@ $help_icon = '';
                             <?php
                             $sensitivities = AclExtended::aclGetSensitivities();
                             if ($sensitivities && count($sensitivities)) {
-                                usort($sensitivities, "sensitivity_compare");
+                                usort($sensitivities, sensitivity_compare(...));
                                 ?>
                             <label for="pc_catid" class="col-form-label col-sm-2"><?php echo xlt('Sensitivity'); ?>:</label>
                             <div class="col-sm-3">

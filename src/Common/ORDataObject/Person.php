@@ -16,9 +16,13 @@ namespace OpenEMR\Common\ORDataObject;
 
 use DateTime;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {
+    /**
+     * @var null
+     */
     private $uuid;
     private $title;
     private $first_name;
@@ -51,6 +55,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     public function __construct(private $id = "")
     {
         parent::__construct("person");
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->setThrowExceptionOnError(true);
         $this->uuid = null;
         $this->title = "";
@@ -72,7 +77,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         $this->inactive_date = null;
         $this->notes = "";
         $this->created_date = new DateTime();
-        $this->created_by = $_SESSION['authUserID'] ?? null;
+        $this->created_by = $session->get('authUserID');
         $this->updated_date = null;
         $this->updated_by = null;
 
@@ -127,12 +132,13 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
      */
     public function persist()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Generate UUID if creating new record
         if (empty($this->id) && empty($this->uuid)) {
             try {
                 // createUuid() returns bytes directly - no uuidToBytes() needed!
                 $this->uuid = (new UuidRegistry(['table_name' => 'person']))->createUuid();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail - UUID is optional
                 error_log("Failed to generate UUID for person: " . $e->getMessage());
             }
@@ -140,7 +146,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
         // Set updated timestamp and user
         $this->updated_date = new DateTime();
-        $this->updated_by = $_SESSION['authUserID'] ?? $this->created_by;
+        $this->updated_by = $session->get('authUserID') ?? $this->created_by;
 
         return parent::persist();
     }
@@ -159,14 +165,55 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         return $this;
     }
 
+    /**
+     * Get UUID - returns BINARY for database operations, STRING for API/display
+     *
+     * CRITICAL FIX: This method must return the raw binary value so that
+     * ORDataObject::persist() can save it correctly to the BINARY(16) column.
+     * The conversion to string happens in get_uuid_string() or toArray().
+     *
+     * @return string|null Binary UUID (16 bytes) or null
+     */
     public function get_uuid(): ?string
+    {
+        // Return the raw binary value for database storage
+        // This is what ORDataObject::persist() expects
+        return $this->uuid;
+    }
+
+    /**
+     * Get UUID as human-readable string (36 characters with hyphens)
+     * Use this for API responses, logging, and display purposes
+     *
+     * @return string|null UUID string like "550e8400-e29b-41d4-a716-446655440000"
+     */
+    public function get_uuid_string(): ?string
     {
         return $this->uuid ? UuidRegistry::uuidToString($this->uuid) : null;
     }
 
+    /**
+     * Set UUID - accepts either binary (16 bytes) or string (36 chars)
+     *
+     * @param string|null $uuid Either binary (16 bytes) or string format
+     * @return self
+     */
     public function set_uuid(?string $uuid): self
     {
-        $this->uuid = $uuid ? UuidRegistry::uuidToBytes($uuid) : null;
+        if ($uuid === null) {
+            $this->uuid = null;
+        } elseif (strlen($uuid) === 16) {
+            // Already in binary format
+            $this->uuid = $uuid;
+        } elseif (strlen($uuid) === 36 && str_contains($uuid, '-')) {
+            // String format with hyphens - convert to binary
+            $this->uuid = UuidRegistry::uuidToBytes($uuid);
+        } else {
+            // Invalid format
+            error_log("Person::set_uuid() - Invalid UUID format: length=" . strlen($uuid));
+            $this->uuid = null;
+        }
+
         $this->setIsObjectModified(true);
         return $this;
     }
@@ -200,9 +247,9 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         return $this->middle_name ?? "";
     }
 
-    public function set_middle_name(string $middlename): self
+    public function set_middle_name(string $middle_name): self
     {
-        $this->middle_name = $middlename;
+        $this->middle_name = $middle_name;
         $this->setIsObjectModified(true);
         return $this;
     }
@@ -549,7 +596,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     {
         return [
             'id' => $this->id,
-            'uuid' => $this->get_uuid(),
+            'uuid' => $this->get_uuid_string(), // USE STRING VERSION FOR API/DISPLAY
             'title' => $this->title,
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,

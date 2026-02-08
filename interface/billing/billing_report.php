@@ -371,15 +371,25 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+            const params = new URLSearchParams({
+                set_encounterid: enc,
+                set_pid: newpid
+            });
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         function popMBO(pid, enc, mboid) {
             if (!window.focus) return true;
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
-            let qstring = "&pid=" + encodeURIComponent(pid) + "&enc=" + encodeURIComponent(enc) + "&id=" + encodeURIComponent(mboid);
-            let href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?formname=misc_billing_options&isBilling=1" + qstring;
+            const params = new URLSearchParams({
+                enc: enc,
+                formname: 'misc_billing_options',
+                id: mboid,
+                isBilling: '1',
+                pid: pid
+            });
+            const href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -390,7 +400,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!window.focus) return true;
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
-            let href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?pid=" + encodeURIComponent(pid) + "&enc=" + encodeURIComponent(enc);
+            const params = new URLSearchParams({
+                enc: enc,
+                pid: pid
+            });
+            const href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -608,7 +622,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     <?php
                         // TPS = This Page Search
                         // The following are the search criteria per page.All the following variable which ends with 'Master' need to be filled properly.
-                        // Each item is seperated by a comma(,).
+                        // Each item is separated by a comma(,).
                         // $TPSCriteriaDisplayMaster ==>It is the display on screen for the set of criteria.
                         // $TPSCriteriaKeyMaster ==>Corresponding database fields in the same order.
                         // $TPSCriteriaDataTypeMaster ==>Corresponding data type in the same order.
@@ -706,7 +720,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $TPSCriteriaQueryDropDownMasterDefaultKey[1] = "all"; // Only one item will be here
                         // The below section is needed if there is any 'include' type in the $TPSCriteriaDataTypeMaster
                         // Function name is added here.Corresponding include files need to be included in the respective pages as done in this page.
-                        // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
+                        // It is labeled(Included for Insurance ajax criteria)(Line:-279-299).
                         $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
                             $_REQUEST['final_this_page_criteria'][0] = "form_encounter.date|between|" . date("Y-m-d 00:00:00") . "|" . date("Y-m-d 23:59:59");
@@ -1018,7 +1032,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
                                 $lhtml .= "<span class='font-weight-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
-                                // Encounter details are stored to javacript as array.
+                                // Encounter details are stored to javascript as array.
                                 $result4 = sqlStatement(
                                     "SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                                     " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC",

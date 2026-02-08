@@ -178,7 +178,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -286,7 +286,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -343,7 +343,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -421,7 +421,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -485,7 +485,7 @@ class TeleconferenceRoomController
             header("Content-type: application/json");
             echo json_encode(['error' => xlt($exception->getMessage())]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             http_response_code(500);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         }
@@ -499,7 +499,7 @@ class TeleconferenceRoomController
     {
         $patientService = new PatientService();
         $listService = new ListService();
-        // wierd that it goes off the option title instead of the option id here
+        // weird that it goes off the option title instead of the option id here
         $sexOption = $listService->getListOption('sex', 'UNK');
         $yesOption = $listService->getListOption('yesno', 'YES');
         // the validator will scream if we are sending the wrong data
@@ -653,7 +653,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(403);
             echo json_encode(['error' => 'Access denied to patient telehealth information.']);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -689,7 +689,7 @@ class TeleconferenceRoomController
             http_response_code(500);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Telehealth Provisioning Failed', 'code' => $exception->getCode()]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -748,7 +748,7 @@ class TeleconferenceRoomController
             $participants = $this->participantListService->getSparseParticipantListFromSession($session);
             $escapedParticipants = textArray($participants);
             echo json_encode(['status' => 'success', 'participantList' => $escapedParticipants]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -832,7 +832,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(401);
             echo json_encode(['error' => 'Access Denied']);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -867,7 +867,7 @@ class TeleconferenceRoomController
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo $jsonSettings;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -1047,7 +1047,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -1148,7 +1148,7 @@ class TeleconferenceRoomController
         if (empty($appointment)) {
             throw new InvalidArgumentException("appointment eid could not be found for " . $pc_eid);
         } else {
-            // TODO: so wierd... why is appointment returning an array list?
+            // TODO: so weird... why is appointment returning an array list?
             $appointment = $appointment[0];
         }
         if ($this->isPendingAppointment($appointment)) { // pending status

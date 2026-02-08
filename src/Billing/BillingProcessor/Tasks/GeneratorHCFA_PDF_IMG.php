@@ -37,7 +37,7 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
      * claim form.
      *
      * Whether this action is available is configured in Globals > Billing
-     * withe checkbox "Prints the CMS 1500 on the Preprinted form"
+     * with checkbox "Prints the CMS 1500 on the Preprinted form"
      *
      * @param BillingClaim $claim
      */

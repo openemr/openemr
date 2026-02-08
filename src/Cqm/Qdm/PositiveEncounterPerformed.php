@@ -26,4 +26,3 @@ class PositiveEncounterPerformed extends EncounterPerformed
 
     public $_type = 'QDM::PositiveEncounterPerformed';
 }
-

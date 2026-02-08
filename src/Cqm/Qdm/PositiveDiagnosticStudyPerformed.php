@@ -26,4 +26,3 @@ class PositiveDiagnosticStudyPerformed extends DiagnosticStudyPerformed
 
     public $_type = 'QDM::PositiveDiagnosticStudyPerformed';
 }
-

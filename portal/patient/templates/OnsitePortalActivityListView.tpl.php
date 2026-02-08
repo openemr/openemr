@@ -10,6 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+    use OpenEMR\Core\OEGlobalsBag;
+    $globalsBag = OEGlobalsBag::getInstance();
+
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
     $this->assign('nav', 'onsiteportalactivities');
 
@@ -17,7 +20,7 @@
 ?>
 
 <script>
-    $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+    $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             page.init();
         });

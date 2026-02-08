@@ -518,25 +518,13 @@ if ($form_step == 1) {
 
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
 
-    if ($GLOBALS['include_de_identification'] == 1) {
-        //include routines during backup when de-identification is enabled
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --routines" .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    } else {
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    }
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
+    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+    " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+    escapeshellarg((string) $sqlconf["dbase"]);
 
     $auto_continue = true;
 }
@@ -600,7 +588,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     chdir($cur_dir);
     /* To log the backup event */
     if ($GLOBALS['audit_events_backup']) {
-        EventAuditLogger::instance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
+        EventAuditLogger::getInstance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
 
     $auto_continue = true;
@@ -771,7 +759,7 @@ if ($form_step == 102) {
         }
         if (!empty($form_sel_lists)) {
             foreach ($form_sel_lists as $listid) {
-                // skip if have backtic(s)
+                // skip if have backtick(s)
                 if (str_contains((string) $listid, '`')) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
                     continue;
@@ -810,7 +798,7 @@ if ($form_step == 102) {
             $do_history_repair = false;
             $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
-                // skip if have backtic(s)
+                // skip if have backtick(s)
                 if (str_contains((string) $layoutid, '`')) {
                     echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
                     continue;

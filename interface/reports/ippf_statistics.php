@@ -157,46 +157,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $arr_titles[$fid] = [];
 }
 
-// Compute age in years given a DOB and "as of" date.
-//
-function getAge($dob, $asof = '')
-{
-    if (empty($asof)) {
-        $asof = date('Y-m-d');
-    }
-
-    $a1 = explode('-', substr((string) $dob, 0, 10));
-    $a2 = explode('-', substr((string) $asof, 0, 10));
-    $age = $a2[0] - $a1[0];
-    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
-        --$age;
-    }
-
-  // echo "<!-- $dob $asof $age -->\n"; // debugging
-    return $age;
-}
-
 $cellcount = 0;
-
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
 
 function getListTitle($list, $option)
 {
@@ -246,7 +207,7 @@ function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
 
 function genHeadCell($data, $right = false, $colspan = 1): void
 {
-    genAnyCell($data, $right, 'dehead', $colspan);
+    genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
@@ -888,8 +849,8 @@ function process_visit($row): void
       $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
       while ($drow = sqlFetchArray($dres)) {
         $a = explode('|', $drow['field_value']);
-        foreach ($a as $methid) {
-        if (empty($methid)) continue;
+        foreach ($a as $method) {
+        if (empty($method)) continue;
         $crow = sqlQuery("SELECT title FROM list_options WHERE " .
           "list_id = 'contrameth' AND option_id = '$methid'");
         $key = $crow['title'];
@@ -1551,13 +1512,13 @@ if ($_POST['form_submit']) {
         if ($value == '.total') { // Total Services
             genHeadCell('');
         } elseif ($value == '.age2') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 2);
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif ($value == '.age9') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 9);
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif ($arr_show[$value]['list_id']) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif (!empty($arr_titles[$value])) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            genHeadCell($arr_show[$value]['title'], false);
         }
     }
 

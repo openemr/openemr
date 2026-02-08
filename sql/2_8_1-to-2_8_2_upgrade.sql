@@ -83,9 +83,9 @@ INSERT INTO `lang_constants` VALUES (56, 'until');
 # Generation Time: Feb 14, 2006 at 09:21 AM
 # Server version: 4.1.12
 # PHP Version: 4.4.0-3ubuntu1
-# 
+#
 # Database : `openemr`
-# 
+#
 
 #
 # Dumping data for table `lang_definitions`
@@ -265,7 +265,7 @@ INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 #EndIf
 
 #IfMissingColumn registry priority
-## alters to categorize forms / per Mark 
+## alters to categorize forms / per Mark
 ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;

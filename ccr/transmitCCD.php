@@ -108,7 +108,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -120,11 +120,11 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::instance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::instance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
+    EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
         "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
@@ -290,7 +290,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -302,11 +302,11 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::instance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
+    EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";

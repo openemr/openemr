@@ -227,7 +227,7 @@ function edih_disp_sftp_upload()
 
 
 if (php_sapi_name() == 'cli') {
-    parse_str(implode('&', array_slice($argv, 1)), $_GET);
+    parse_str(implode('&', array_slice($argv ?? [], 1)), $_GET);
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
     $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
@@ -289,7 +289,7 @@ if (isset($ppid)) {
     while ($rsrec = sqlFetchArray($rs)) {
         $sftp_hosts[] = $rsrec;
     }
-} else { // fill in host detais from parameters
+} else { // fill in host details from parameters
     if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir))) {
         $sftp_hosts[] =  [
          'remote_host'  => $host

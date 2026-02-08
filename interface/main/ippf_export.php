@@ -62,51 +62,6 @@ function AddIfPresent($tag, $text): void
     }
 }
 
-function OpenTag($tag): void
-{
-    global $out, $indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    ++$indent;
-    $out .= "<$tag>\n";
-}
-
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
-}
-
-// Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", (string) $field);
-}
-
-// Translate sex.
-function Sex($field)
-{
-  /*******************************************************************
-  $sex = strtoupper(substr(trim($field), 0, 1));
-  if ($sex != "M" && $sex != "F") $sex = "U";
-  return $sex;
-  *******************************************************************/
-    return mappedOption('sex', $field);
-}
-
-// Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
-}
-
 function xmlTime($str, $default = '9999-12-31T23:59:59')
 {
     if (empty($default)) {
@@ -599,7 +554,7 @@ if (!empty($form_submit)) {
         Add('Children', 0 + getTextListValue($hrow['genobshist'], 'nlc'));   // number of living children
         Add('Abortions', 0 + getTextListValue($hrow['genabohist'], 'nia'));   // number of induced abortions
         Add('Education', $education);
-        Add('Demo5', Sex($row['sex']));
+        Add('Demo5', mappedOption('sex', $row['sex']));
 
         // Things included if they are present (July 2010)
         AddIfPresent('City', $row['city']);

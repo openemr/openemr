@@ -37,7 +37,7 @@ try {
         default:
             $response['error'] = 'Invalid action';
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $response['error'] = $e->getMessage();
 }
 
@@ -62,14 +62,14 @@ function deleteProcedure()
     try {
         // Delete procedure answers (QOE)
         sqlStatement(
-            "DELETE FROM procedure_answers 
+            "DELETE FROM procedure_answers
              WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [$orderId, $orderSeq]
         );
 
         // Soft delete specimens (set deleted = 1)
         sqlStatement(
-            "UPDATE procedure_specimen 
+            "UPDATE procedure_specimen
              SET deleted = 1, updated_by = ?
              WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [($_SESSION['authUserID'] ?? null), $orderId, $orderSeq]
@@ -77,7 +77,7 @@ function deleteProcedure()
 
         // Hard delete the procedure order code
         sqlStatement(
-            "DELETE FROM procedure_order_code 
+            "DELETE FROM procedure_order_code
              WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [$orderId, $orderSeq]
         );
@@ -102,7 +102,7 @@ function deleteProcedure()
             'success' => true,
             'orderEmpty' => ($remaining['cnt'] == 0)
         ];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         sqlRollbackTrans();
         throw $e;
     }
@@ -121,14 +121,14 @@ function deleteSpecimen()
 
     try {
         sqlStatement(
-            "UPDATE procedure_specimen 
+            "UPDATE procedure_specimen
              SET deleted = 1, updated_by = ?
              WHERE procedure_specimen_id = ?",
             [($_SESSION['authUserID'] ?? null), $specimenId]
         );
 
         return ['success' => true];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }

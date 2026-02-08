@@ -91,4 +91,3 @@ class SubstanceOrder extends QDMBaseType
 
     public $_type = 'QDM::SubstanceOrder';
 }
-

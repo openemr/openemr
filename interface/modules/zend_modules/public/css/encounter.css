@@ -1,7 +1,7 @@
 	/**
    * encounter.css
    */
-  
+
   ul,li {
 		list-style-type: none;
 	}
@@ -13,11 +13,11 @@
     transition: text-shadow 0.2s linear;
 	}
 	.selection:hover {
-    color: #0E2D5F; 
+    color: #0E2D5F;
     padding: 1px;
     text-shadow: 0 0 10px #079FB3;
 	}
-	
+
 	#diloagMin {
 		position: fixed;
 		bottom: 0px;
@@ -25,4 +25,3 @@
 		width: auto;
 		/*background: #0068A4;*/
 	}
-	

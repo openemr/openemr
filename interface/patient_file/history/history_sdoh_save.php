@@ -12,19 +12,23 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$pid = (int)$_SESSION['pid'];
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+$pid = (int)$session->get('pid');
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
 
 if (empty($pid)) {
@@ -58,7 +62,7 @@ $data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
-$uid = $_SESSION['authUserID'] ?? null;
+$uid = $session->get('authUserID') ?? null;
 
 $clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {
@@ -166,7 +170,7 @@ try {
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
     die(xlt("Error saving SDOH record."));
 }

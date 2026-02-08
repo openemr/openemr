@@ -924,7 +924,7 @@ margin: 2px 0 2px 2px;">
                             <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?></td>
                         </tr>
                         <tr>
-                            <td class="right"><span title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?>:</span></td>
+                            <td class="right"><span title="<?php echo xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?>:</span></td>
                             <td><input disabled type="text" id="PRIOR_ODNPA" style="width:70%;" name="PRIOR_ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
                             <td><input disabled type="text" id="PRIOR_OSNPA" style="width:70%;" name="PRIOR_OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
                         </tr>
@@ -1989,7 +1989,7 @@ function build_PMSFH($pid)
     $PMSFH['FH']['other']['short_title'] = xlt("Other");
 
     // Thinking this might be a good place to put in last_retinal exam and last_HbA1C?
-    // I don't know enough about the reporting parameters - it is probably some alreay in openEMR?
+    // I don't know enough about the reporting parameters - it is probably something already in OpenEMR?
     // Pull it in if it is and put it where?
     // $PMSFH['SOCH'][$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue,ENT_NOQUOTES));
 
@@ -1997,7 +1997,7 @@ function build_PMSFH($pid)
     // ROS is not static and is directly linked to each encounter
     // True it could be a separate table, but it is currently in form_eye_mag for each visit
     // To use this for any other forms, we should consider making this its own separate table with id,pid and ?encounter link,
-    // just like we are doing for Impression Plan.  Mybe we can piggybak onto one of the ROS tables already in OpenEMR?
+    // just like we are doing for Impression Plan.  Maybe we can piggyback onto one of the ROS tables already in OpenEMR?
 
     //define the ROS area to include = $given
     $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
@@ -2929,7 +2929,7 @@ function show_PMSFH_report($PMSFH): void
 /**
  *  This function returns the Provider-specific Quick Pick selections for a zone (2 input values)
  *
- *  These selctions are draw from an openEMR list, Eye_QP_$zone_$provider_id.
+ *  These selections are drawn from an OpenEMR list, Eye_QP_$zone_$provider_id.
  *  This list is created from Eye_QP_$zone_defaults when a new provider opens the form.
  *  Because it is a "list", the end-user can modify it.
  *  A link to the list "the pencil icon" is provided to allow customization - displayed in RTop frame.
@@ -3052,7 +3052,7 @@ function canvas_select($zone, $encounter, $pid)
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.
-     * Will need to do a lot of thinking to create this.  Jist is ajax call to server for image retrieval.
+     * Will need to do a lot of thinking to create this.  Gist is ajax call to server for image retrieval.
      * To get this to work we need a way to select an old image to work from, use current or return to baseline.
      * This will require a global BACK button like above (BUTTON_BACK_<?php echo attr($zone); ?>).
      * The Undo Redo buttons are currently javascript client side.
@@ -3984,8 +3984,9 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                             if ($display !== "fullscreen") { ?>
                                     <li class="divider"></li>
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                        <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
                                         <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&display=fullscreen&encounter=' + <?php echo attr_js(urlencode((string) $encounter)); ?>);"
+                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
                                            href="JavaScript:void(0);"
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>
@@ -4436,7 +4437,7 @@ function start_your_engines($FIELDS)
                     // 'option_values' contains pertinent DXs separated by '|', eg. CSME has option values='DM|IOL|RVO'
                     // Need to see if any of these DX apply and builder Codes_found based on the currently installed list of codes
                     // Currently for most users this is ICD10 but it is built to allow extension to any code sets in openEMR,
-                    // including foreign laguage code sets.
+                    // including foreign language code sets.
                     $options = explode("|", $option_values);
                     $hit_here = "0";
 
@@ -4742,8 +4743,8 @@ function coding_carburetor($term, $field)
  *  @param $location is the descriptive name of the clinical field in question
  *  @param $side is optional.  Used as the descriptive text for finding in the Builder
  *      and IMP/Plan if selected from the Builder
- *  @return $subterm,$newdata.  $subterm is used to link items in IMP/PLAN back to its orgin.
- *          $newdata is the array of newly found items to include in the Builder.
+ *  @return array{0: string, 1: array} First element (subterm) links IMP/PLAN items to origin;
+ *          second element (newdata) is array of found items to include in Builder.
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
@@ -4798,10 +4799,11 @@ function cmp($a, $b)
  *
  * @param int    $pid
  * @param string $bywhat == byday or byhour
- * @return void
+ * @return string
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 {
+    ob_start();
     global $PMSFH;
     global $form_folder;
     global $priors;
@@ -4984,9 +4986,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     }
 
     $date_OU = array_unique($list);
-    usort($date_OU, "cmp");
+    usort($date_OU, cmp(...));
     $times_OU = $time_OU;
-    usort($times_OU, "cmp");
+    usort($times_OU, cmp(...));
 
     for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {
@@ -5606,12 +5608,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
             } ?>
         </div>
     </div>
-            <?php
+    <?php
+    return ob_get_clean();
 }
 
 
 /**
- *
  * This function displays today + historical visual acuity measurements
  * I imagined this as a condensed table with top row = types of acuities
  *   Date | sc | CC | Ph | AR | MR | CR | CTL | comments
@@ -5621,11 +5623,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
  * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
  *
  * @param int $pid
- * @return void
- *
-*/
-function display_VisualAcuities($pid = 0): void
+ * @return string
+ */
+function display_VisualAcuities($pid = 0): string
 {
+    ob_start();
     global $priors;
     global $visit_date;
     global $dated;
@@ -6081,6 +6083,7 @@ function display_VisualAcuities($pid = 0): void
             </table>
         </div>
     <?php
+    return ob_get_clean();
 }
 
 

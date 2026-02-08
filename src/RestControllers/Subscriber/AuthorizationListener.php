@@ -19,6 +19,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
@@ -35,7 +36,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class AuthorizationListener implements EventSubscriberInterface
 {
-    private SystemLogger $logger;
+    private LoggerInterface $logger;
     public static function getSubscribedEvents(): array
     {
         return [
@@ -65,13 +66,13 @@ class AuthorizationListener implements EventSubscriberInterface
         return $this->globalsBag;
     }
 
-    public function setLogger(SystemLogger $logger): void
+    public function setLogger(LoggerInterface $logger): void
     {
         // This method is intended to set the logger for the authorization listener.
         // Implementation details would depend on the specific requirements of the application.
         $this->logger = $logger;
     }
-    public function getLogger(): SystemLogger
+    public function getLogger(): LoggerInterface
     {
         // This method is intended to return the logger for the authorization listener.
         // Implementation details would depend on the specific requirements of the application.
@@ -99,7 +100,7 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
-            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getGlobalsBag(), EventAuditLogger::instance(), $this->getLogger());
+            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getGlobalsBag(), EventAuditLogger::getInstance(), $this->getLogger());
             $bearerTokenAuthorizationStrategy->setPublicKey($serverConfig->getPublicRestKey());
             $this->addAuthorizationStrategy($bearerTokenAuthorizationStrategy);
         }

@@ -175,4 +175,3 @@ while ($row = sqlFetchArray($res)) {
 
 </body>
 </html>
-

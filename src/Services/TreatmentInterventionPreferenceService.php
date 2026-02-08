@@ -33,11 +33,11 @@ class TreatmentInterventionPreferenceService extends BaseService
      */
     public function getAvailableLoincCodes()
     {
-        $sql = "SELECT option_id as loinc_code, 
+        $sql = "SELECT option_id as loinc_code,
                        title as display_name,
                        notes as answer_list_id,
                        codes
-                FROM list_options 
+                FROM list_options
                 WHERE list_id = ? AND activity = 1
                 ORDER BY seq, title";
 
@@ -92,7 +92,7 @@ class TreatmentInterventionPreferenceService extends BaseService
     public function insert($data)
     {
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_NAME)->createUuid();
-        $sql = "INSERT INTO " . escape_table_name(self::TABLE_NAME) . " 
+        $sql = "INSERT INTO " . escape_table_name(self::TABLE_NAME) . "
                 SET patient_id = ?,
                     uuid = ?,
                     observation_code = ?,

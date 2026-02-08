@@ -67,11 +67,11 @@ class ORDataObject
             $func = "get_" . $field;
             //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
             if (is_callable([$this, $func])) {
-                $val = call_user_func([$this, $func]);
+                $val = $this->$func();
 
                 if (in_array($field, $pkeys) && empty($val)) {
-                    $last_id = generate_id();
-                    call_user_func([&$this, "set_" . $field], $last_id);
+                    $last_id = QueryUtils::generateId();
+                    $this->{"set_" . $field}($last_id);
                     $val = $last_id;
                 }
                 // Normalize before deciding to persist
@@ -107,7 +107,7 @@ class ORDataObject
         if ($this->_throwExceptionOnError) {
             QueryUtils::sqlStatementThrowException($sql, []);
         } else {
-            sqlQuery($sql);
+            sqlStatement($sql);
         }
         return true;
     }
@@ -128,7 +128,7 @@ class ORDataObject
                 if (is_callable([$this, $func])) {
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func([&$this, $func], $field);
+                        $this->$func($field);
                     }
                 }
             }
@@ -141,7 +141,7 @@ class ORDataObject
         foreach ($fields as $field) {
             $func = "get_" . $field;
             if (is_callable([$this, $func])) {
-                $val = call_user_func([$this, $func]);
+                $val = $this->$func();
                 $values[$field] = $val;
             }
         }
@@ -160,7 +160,7 @@ class ORDataObject
 
     /**
      * Helper function that loads enumerations from the data as an array, this is also efficient
-     * because it uses psuedo-class variables so that it doesnt have to do database work for each instance
+     * because it uses pseudo-class variables so that it doesn't have to do database work for each instance
      *
      * @param string  $field_name name of the enumeration in this objects table
      * @param boolean $blank      optional value to include a empty element at position 0, default is true

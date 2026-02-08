@@ -7,6 +7,9 @@
  * when enabled in the environment. It supports coverage collection for
  * both E2E (browser-based) and API (HTTP request) tests.
  *
+ * Supports both pcov and xdebug coverage drivers.
+ * pcov is faster, but xdebug supports path coverage.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -41,19 +44,34 @@ define('TEST_TYPE', $testType);
 define('COVERAGE_SUBDIR', COVERAGE_DIR . '/' . $testType);
 define('COVERAGE_ENABLED', getenv('ENABLE_COVERAGE') === 'true');
 
+// Detect which coverage driver is available (check pcov first, then xdebug)
+if (function_exists('pcov\\start')) {
+    define('COVERAGE_DRIVER', 'pcov');
+} elseif (function_exists('xdebug_start_code_coverage')) {
+    define('COVERAGE_DRIVER', 'xdebug');
+} else {
+    define('COVERAGE_DRIVER', 'none');
+}
+
 // Write marker to prove this file executes (only once)
 if (!file_exists(PREPEND_MARKER)) {
-    $data = date('Y-m-d H:i:s') . " - prepend executed\n";
+    $data = date('Y-m-d H:i:s') . " - prepend executed (driver: " . COVERAGE_DRIVER . ")\n";
     if (file_put_contents(PREPEND_MARKER, $data, LOCK_EX) === false) {
         error_log('CI DEBUG: Failed to write prepend marker to ' . PREPEND_MARKER);
     }
 }
 
 if (COVERAGE_ENABLED) {
-    if (function_exists('xdebug_start_code_coverage')) {
-        xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
-    } else {
-        error_log("Prepend: Required function xdebug_start_code_coverage is missing");
+    switch (COVERAGE_DRIVER) {
+        case 'pcov':
+            \pcov\start();
+            break;
+        case 'xdebug':
+            xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
+            break;
+        default:
+            error_log("Prepend: No coverage driver available (need pcov or xdebug)");
+            break;
     }
 }
 
@@ -77,13 +95,30 @@ function coverage_shutdown_handler(): void
         return;
     }
 
-    if (!function_exists('xdebug_get_code_coverage')) {
-        error_log("Shutdown: Required function xdebug_get_code_coverage is missing");
-        return;
+    // Collect coverage data based on the driver
+    switch (COVERAGE_DRIVER) {
+        case 'pcov':
+            \pcov\stop();
+            $waiting = \pcov\waiting();
+            if ($waiting) {
+                $coverage = \pcov\collect(\pcov\inclusive, $waiting);
+                \pcov\clear();
+            } else {
+                $coverage = [];
+            }
+            break;
+        case 'xdebug':
+            $coverage = xdebug_get_code_coverage();
+            xdebug_stop_code_coverage();
+            break;
+        default:
+            error_log("Shutdown: No coverage driver available");
+            return;
     }
 
-    $coverage = xdebug_get_code_coverage();
-    xdebug_stop_code_coverage();
+    if (empty($coverage)) {
+        return;
+    }
 
     if (!is_dir(COVERAGE_SUBDIR)) {
         mkdir(COVERAGE_SUBDIR, 0777, true);
@@ -98,9 +133,9 @@ function coverage_shutdown_handler(): void
         bin2hex(random_bytes(8))
     );
 
-    // Save the raw Xdebug coverage data directly to avoid memory exhaustion
+    // Save the raw coverage data directly to avoid memory exhaustion
     // This will be processed later when merging coverage files
-    // Format: just the raw array from xdebug_get_code_coverage()
+    // Format: just the raw array from the coverage driver
     $exported = var_export($coverage, true);
     file_put_contents($filename, "<?php\nreturn " . $exported . ";\n");
 }

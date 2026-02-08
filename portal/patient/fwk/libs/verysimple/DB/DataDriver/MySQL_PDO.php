@@ -83,7 +83,7 @@ class DataDriverMySQL_PDO implements IDataDriver
             }
 
             $connection = new PDO($dsn, $username, $password);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new DatabaseException("Error connecting to database: " . $e->getMessage(), DatabaseException::$CONNECTION_ERROR);
         }
 
@@ -92,7 +92,7 @@ class DataDriverMySQL_PDO implements IDataDriver
             foreach ($statements as $sql) {
                 try {
                     $this->Execute($connection, $sql);
-                } catch (Exception $ex) {
+                } catch (\Throwable $ex) {
                     throw new DatabaseException("Connection Bootstrap Error: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }

@@ -58,7 +58,7 @@ function get_history_codes($pid)
         }
     }
     // make unique
-    $dxcodes = array_intersect_key($dxcodes, array_unique(array_map('serialize', $dxcodes)));
+    $dxcodes = array_intersect_key($dxcodes, array_unique(array_map(serialize(...), $dxcodes)));
     // the king of sort
     array_multisort(
         array_column($dxcodes, 'procedure'),

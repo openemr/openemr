@@ -19,6 +19,8 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
@@ -26,7 +28,6 @@ use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentRestController
@@ -41,7 +42,7 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly SessionInterface $session;
 
@@ -92,7 +93,7 @@ class FhirDocumentRestController
                 if (!$document->is_deleted()) {
                     $document->process_deleted();
                 }
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 // we just continue as we still wanto to reject the response
                 $this->logger->error(
                     "FhirDocumentRestController->downloadDocument() Failed to delete document with id",
@@ -136,7 +137,7 @@ class FhirDocumentRestController
 
     private function findDocumentForDocumentId(string $documentId)
     {
-        if (Uuid::isValid($documentId)) {
+        if (ValidationUtils::isValidUuid($documentId)) {
             $document = \Document::getDocumentForUuid($documentId);
         } else {
             // use our integer values

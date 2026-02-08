@@ -46,9 +46,70 @@ $apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 
 ### ForbiddenFunctionsRule
 
-**Purpose:** Prevents use of legacy `sql.inc.php` functions in the `src/` directory.
+**Purpose:** Prevents use of legacy functions:
+- Legacy `sql.inc.php` functions in the `src/` directory
+- `call_user_func()` and `call_user_func_array()` functions (use modern PHP syntax instead)
+- `error_log()` function (use `SystemLogger` instead)
 
-**Rationale:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
+**Rationale for SQL functions:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
+
+**Rationale for call_user_func:**
+- Modern PHP supports **uniform variable syntax** for dynamic function calls
+- The **argument unpacking operator** (`...`) provides cleaner syntax
+- Variadic functions with `...$args` are more readable than array-based arguments
+- Better static analysis and IDE support with modern syntax
+
+**Before (❌ Forbidden):**
+```php
+// Legacy dynamic function calls
+$result = call_user_func('myFunction', $arg1, $arg2);
+$result = call_user_func_array('myFunction', [$arg1, $arg2]);
+$result = call_user_func([$object, 'method'], $arg1);
+$result = call_user_func_array([$object, 'method'], $args);
+```
+
+**After (✅ Recommended):**
+```php
+// Modern PHP 7+ syntax
+$result = myFunction($arg1, $arg2);
+
+// Dynamic function name
+$functionName = 'myFunction';
+$result = $functionName($arg1, $arg2);
+
+// With argument unpacking
+$args = [$arg1, $arg2];
+$result = $functionName(...$args);
+
+// Object method calls
+$result = $object->method($arg1);
+// or with callable syntax
+$callable = [$object, 'method'];
+$result = $callable($arg1, $arg2);
+// or with argument unpacking
+$result = $callable(...$args);
+```
+
+**Rationale for error_log:**
+- **Structured logging** - `SystemLogger` supports PSR-3 log levels and context arrays
+- **Centralized configuration** - Log destinations and formats can be configured globally
+- **Testability** - `SystemLogger` can be mocked in unit tests
+- **Consistency** - Uniform logging pattern across the codebase
+
+**Before (❌ Forbidden):**
+```php
+error_log("Something went wrong: " . $error);
+error_log("User {$userId} logged in");
+```
+
+**After (✅ Recommended):**
+```php
+use OpenEMR\Common\Logging\SystemLogger;
+
+$logger = new SystemLogger();
+$logger->error("Something went wrong", ['error' => $error]);
+$logger->info("User logged in", ['userId' => $userId]);
+```
 
 ### ForbiddenClassesRule
 
@@ -106,12 +167,85 @@ class SomeServiceTest extends TestCase
 }
 ```
 
+### ForbiddenCurlFunctionsRule
+
+**Purpose:** Prevents use of raw `curl_*` functions throughout the codebase.
+
+**What it catches:**
+- `curl_init()` - Initialize a cURL session
+- `curl_setopt()` - Set an option for a cURL transfer
+- `curl_exec()` - Execute a cURL session
+- `curl_close()` - Close a cURL session
+- Any other `curl_*` function calls
+
+**Rationale:**
+- **Testability** - GuzzleHttp can be easily mocked in unit tests
+- **PSR-7 Compliance** - Standard HTTP message interfaces
+- **Error Handling** - Better exception handling and error messages
+- **Maintainability** - Consistent HTTP client usage across the codebase
+- **Features** - Built-in middleware, authentication, retries, and more
+
+**Before (❌ Forbidden):**
+```php
+$ch = curl_init('https://api.example.com/data');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer token']);
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($httpCode !== 200) {
+    // handle error
+}
+
+$data = json_decode($response, true);
+```
+
+**After (✅ Recommended):**
+```php
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
+try {
+    $client = new Client();
+    $response = $client->request('GET', 'https://api.example.com/data', [
+        'headers' => [
+            'Authorization' => 'Bearer token'
+        ]
+    ]);
+
+    $data = json_decode($response->getBody()->getContents(), true);
+} catch (GuzzleException $e) {
+    // handle error with proper exception
+    (new SystemLogger())->error('API request failed', ['exception' => $e]);
+}
+```
+
+**Or using OpenEMR's oeHttp wrapper:**
+```php
+use OpenEMR\Common\Http\oeHttp;
+
+$response = oeHttp::get('https://api.example.com/data', [
+    'headers' => [
+        'Authorization' => 'Bearer token'
+    ]
+]);
+
+$data = json_decode($response->getBody()->getContents(), true);
+```
+
 ## Baseline
 
-Existing violations of these rules are recorded in `phpstan-database-baseline.neon` so they won't cause errors. However, new code should follow these patterns.
+Existing violations are recorded in `.phpstan/baseline/` as individual PHP files, organized by error type. The `loader.php` file includes all baseline files. New code should follow the patterns documented above.
+
+To regenerate the baseline after fixing violations:
+
+```bash
+composer phpstan-baseline
+```
 
 ## Running PHPStan
 
 ```bash
-vendor/bin/phpstan --memory-limit=8G analyze
+composer phpstan
 ```

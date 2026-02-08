@@ -116,40 +116,6 @@ function get_lab_name($id): string
     return $gbl_lab;
 }
 
-if (!function_exists('ucname')) {
-    function ucname($string): string
-    {
-        $string = ucwords(strtolower((string) $string));
-        foreach (['-', '\''] as $delimiter) {
-            if (str_contains($string, $delimiter)) {
-                $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
-            }
-        }
-        return $string;
-    }
-}
-
-function cbvalue($cbname): string
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
-}
-
 function QuotedOrNull($fld)
 {
     if (empty($fld)) {
@@ -441,8 +407,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     }
                     if ($gbl_lab === 'quest' && $isDorn === false) {
                         $order_log .= xlt("Transmitting order to Quest");
-                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT, 10);
-                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD, 10);
+                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT);
+                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD);
                     }
 
                     if ($_POST['form_order_psc']) {
@@ -749,11 +715,13 @@ if (!empty($row['lab_id'])) {
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
             // This replaces the previous search for an easier/faster order picker tool.
-            dlgopen('../../orders/find_order_popup.php' +
-                '?labid=' + encodeURIComponent(f.form_lab_id.value) +
-                '&order=' + encodeURIComponent(f[ptvarname].value) +
-                '&formid=' + <?php echo js_url($formid); ?> +
-                    '&formseq=' + encodeURIComponent(formseq),
+            const params = new URLSearchParams({
+                formid: <?php echo js_escape($formid); ?>,
+                formseq: formseq,
+                labid: f.form_lab_id.value,
+                order: f[ptvarname].value
+            });
+            dlgopen('../../orders/find_order_popup.php?' + params,
                 '_blank', 850, 500, '', title);
         }
 
@@ -870,7 +838,7 @@ if (!empty($row['lab_id'])) {
             let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
-            // wierdly all of our mapped ids use array indexes as part of the id.
+            // weirdly all of our mapped ids use array indexes as part of the id.
             let remapIds = function (node) {
                 node.id = remapArrayIndex(node.id);
             };
@@ -910,13 +878,13 @@ if (!empty($row['lab_id'])) {
             nullableFunction('.itemTransport', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 getDetails(event, boundLineCount);
             });
             nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 selectProcedureCode(boundLineCount);
             });
             nullableFunction('.search-current-diagnoses', 'click', function (event) {
@@ -932,7 +900,7 @@ if (!empty($row['lab_id'])) {
             });
 
             nullableFunction('.sel-proc-type', 'click', function (event) {
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 sel_proc_type(boundLineCount);
             });
             nullableFunction('.sel-proc-type', 'focus', function (event) {
@@ -1124,8 +1092,12 @@ if (!empty($row['lab_id'])) {
             let codetitle = 'form_proc_type_desc[' + id + ']';
             let code = f[codeattr].value;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-            url += "?action=code_detail)&code=" + encodeURIComponent(code) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                action: 'code_detail)',
+                code: code,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
             dlgopen(url, 'details', 'modal-md', 200, '', title, {
                 buttons: [
@@ -1183,10 +1155,18 @@ if (!empty($row['lab_id'])) {
             let pid = <?php echo js_escape($patient['pid']);  ?>;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
             // this escapes above
-            let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
-                "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
-                "&dob=" + encodeURIComponent(dob) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                acctid: acctid,
+                action: 'print_labels',
+                count: count,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                dob: dob,
+                order: order,
+                patient: patient,
+                pid: pid,
+                specimen: tarray
+            });
+            const uri = "?" + params;
 
             // retrieve the labels
             dlgopen(url + uri, 'pdf', 'modal-md', 750, '');

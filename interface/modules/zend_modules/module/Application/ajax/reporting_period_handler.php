@@ -31,7 +31,7 @@ try {
         'get_measures_for_period' => handleGetMeasuresForPeriod(),
         default => ['success' => false, 'message' => 'Unknown action: ' . $action],
     };
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     error_log("Reporting period AJAX error: " . $e->getMessage());
     $response = ['success' => false, 'message' => 'Server error occurred'];
 }
@@ -51,9 +51,9 @@ function handleUpdateReportingPeriod()
     }
 
     // Validate the period exists in list_options
-    $sql = "SELECT COUNT(*) as count FROM list_options 
-            WHERE list_id = 'ecqm_reporting_period' 
-                AND option_id = ? 
+    $sql = "SELECT COUNT(*) as count FROM list_options
+            WHERE list_id = 'ecqm_reporting_period'
+                AND option_id = ?
                 AND activity = 1";
 
     $result = sqlQuery($sql, [$period]);
@@ -80,7 +80,7 @@ function handleUpdateReportingPeriod()
                     [$period]
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Log error but don't fail the request
             error_log("Could not update global setting: " . $e->getMessage());
         }
@@ -129,7 +129,7 @@ function handleGetMeasuresForPeriod()
                         'description' => $measure['description'] ?? ''
                     ];
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Could not load measures from QrdaReportController: " . $e->getMessage());
             }
         }
@@ -140,7 +140,7 @@ function handleGetMeasuresForPeriod()
             'period' => $period,
             'count' => count($measures)
         ];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         // Restore original period on error
         if ($originalPeriod !== null) {
             $GLOBALS['cqm_performance_period'] = $originalPeriod;

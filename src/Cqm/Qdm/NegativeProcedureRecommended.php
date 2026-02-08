@@ -26,4 +26,3 @@ class NegativeProcedureRecommended extends ProcedureRecommended
 
     public $_type = 'QDM::NegativeProcedureRecommended';
 }
-

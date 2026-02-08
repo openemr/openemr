@@ -78,6 +78,11 @@ class UuidRegistry
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
 
+    /**
+     * Maximum number of records to process in a single transaction when populating missing UUIDs
+     */
+    const UUID_TRANSACTION_MAX_RECORDS = 10000;
+
     private $table_name;      // table to check if uuid has already been used in
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
     private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
@@ -148,7 +153,7 @@ class UuidRegistry
 
         // log it
         if ($log && !empty($logEntryComment)) {
-            EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+            EventAuditLogger::getInstance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
         }
 
         // return it
@@ -171,7 +176,7 @@ class UuidRegistry
             . " SELECT `uuid_mapping`.`uuid`,'uuid_mapping','id',1 FROM `uuid_mapping` LEFT JOIN `uuid_registry` registry2 ON `uuid_mapping`.`uuid` = registry2.uuid WHERE registry2.uuid IS NULL";
         $result = sqlStatementNoLog($sql, []);
         if ($result !== false) {
-            $createdRows = generic_sql_affected_rows();
+            $createdRows = QueryUtils::affectedRows();
         }
         return $createdRows;
     }
@@ -241,7 +246,7 @@ class UuidRegistry
     private function createMissingUuids()
     {
         try {
-            sqlBeginTrans();
+            QueryUtils::startTransaction();
             $counter = 0;
 
             // we split the loop so we aren't doing a condition inside each one.
@@ -258,12 +263,17 @@ class UuidRegistry
                 do {
                     $count = $this->createMissingUuidsForTableWithId();
                     $counter += $count;
+                    if ($counter % self::UUID_TRANSACTION_MAX_RECORDS == 0 && $counter > 0) {
+                        // commit every 10k to not have a massive transaction
+                        QueryUtils::commitTransaction();
+                        QueryUtils::startTransaction();
+                    }
                 } while ($count > 0);
             }
-            sqlCommitTrans();
+            QueryUtils::commitTransaction();
             return $counter;
-        } catch (Exception $exception) {
-            sqlRollbackTrans();
+        } catch (\Throwable $exception) {
+            QueryUtils::rollbackTransaction();
             throw $exception;
         }
     }
@@ -292,7 +302,7 @@ class UuidRegistry
      */
     public static function isValidStringUUID($uuidString)
     {
-        return (Uuid::isValid($uuidString));
+        return Uuid::isValid($uuidString);
     }
 
     /**
