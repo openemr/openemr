@@ -569,7 +569,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             }
         });
 
-        $('#openPayModal').on('show.bs.modal', function () {
+        document.getElementById('openPayModal').addEventListener('show.bs.modal', function () {
             let total = $("#form_paytotal").val();
             if(Number(total) < 1) {
                 let error = <?php echo json_encode("Please enter a payment amount"); ?>;

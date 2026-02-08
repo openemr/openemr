@@ -325,7 +325,15 @@
 
             $('body').append($alert);
             setTimeout(function () {
-                $alert.alert('close');
+                var alertEl = $alert[0];
+                if (alertEl) {
+                    var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                    if (bsAlert) {
+                        bsAlert.close();
+                    } else {
+                        $alert.remove();
+                    }
+                }
             }, 3000);
         },
 

@@ -424,11 +424,11 @@ function getAuthPortalUsers()
                     return true; // okay to submit
                 }
 
-                $('#modalCompose').on('hidden.bs.modal', function (e) {
+                document.getElementById('modalCompose').addEventListener('hidden.bs.modal', function (e) {
                     window.location.reload();
                 });
 
-                $('#modalCompose').on('show.bs.modal', function (e) {
+                document.getElementById('modalCompose').addEventListener('show.bs.modal', function (e) {
                     // Sets up the compose modal before we show it
                     $scope.compose = [];
                     $('#inputBody').summernote('destroy');

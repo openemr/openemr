@@ -27,12 +27,14 @@ const ContextAdmin = {
     bindEvents: function() {
         const self = this;
 
-        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
-            const target = $(e.target).attr('href');
-            if (target === '#users') self.loadUsers();
-            else if (target === '#roles') self.loadRoleDefaults();
-            else if (target === '#stats') self.loadStats();
-            else if (target === '#audit') self.loadAuditLog();
+        document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function(el) {
+            el.addEventListener('shown.bs.tab', function(e) {
+                const target = $(e.target).attr('href');
+                if (target === '#users') self.loadUsers();
+                else if (target === '#roles') self.loadRoleDefaults();
+                else if (target === '#stats') self.loadStats();
+                else if (target === '#audit') self.loadAuditLog();
+            });
         });
 
         $('#btnCreateContext').on('click', () => self.showContextModal());
@@ -593,7 +595,17 @@ const ContextAdmin = {
             </div>
         `);
         $('body').append($alert);
-        setTimeout(() => $alert.alert('close'), 3000);
+        setTimeout(() => {
+            var alertEl = $alert[0];
+            if (alertEl) {
+                var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                if (bsAlert) {
+                    bsAlert.close();
+                } else {
+                    $alert.remove();
+                }
+            }
+        }, 3000);
     },
 
     escapeHtml: function(text) {

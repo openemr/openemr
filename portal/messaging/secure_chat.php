@@ -385,9 +385,9 @@ $msgApp = new ChatController();
                 $scope.pidMessages = window.setInterval($scope.listMessages, 3000);
                 $scope.pidPingServer = window.setInterval($scope.pingServer, 5000);
                 $scope.getAuthUsers();
-                $("#popeditor").on("show.bs.modal", function () {
+                document.getElementById('popeditor').addEventListener('show.bs.modal', function (e) {
                     var height = $(window).height() - 200;
-                    $(this).find(".modal-body").css("max-height", height);
+                    $(e.currentTarget).find(".modal-body").css("max-height", height);
                 });
             };
 

@@ -186,7 +186,7 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
     const dbList = ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET'];
 
     dbList.forEach((dbName) => {
-        $(`#collapse${dbName}`).on('show.bs.collapse', function () {
+        document.getElementById(`collapse${dbName}`).addEventListener('show.bs.collapse', function () {
             const parm = `db=${dbName}`;
             const inst_dets_id = `#${dbName}_install_details`;
             const stg_dets_id = `#${dbName}_stage_details`;

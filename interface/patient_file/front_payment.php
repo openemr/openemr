@@ -692,7 +692,7 @@ function toencounter(enc, datestr, topframe) {
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
     var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
 $(function() {
-    $('#openPayModal').on('show.bs.modal', function () {
+    document.getElementById('openPayModal').addEventListener('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
         let prepay = $("#form_prepayment").val();
         if (Number(total) < 1) {

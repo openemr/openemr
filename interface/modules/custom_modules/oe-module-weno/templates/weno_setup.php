@@ -186,10 +186,13 @@ $vendors = $boot->getVendorGlobals();
             $(".collapse.show").each(function () {
                 $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-expand");
             });
-            $(".collapse").on('show.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-expand").addClass("fa-minus");
-            }).on('hide.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
+            document.querySelectorAll('.collapse').forEach(function(el) {
+                el.addEventListener('show.bs.collapse', function () {
+                    $(this).prev(".card-header").find(".fa").removeClass("fa-expand").addClass("fa-minus");
+                });
+                el.addEventListener('hide.bs.collapse', function () {
+                    $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
+                });
             });
         });
     </script>

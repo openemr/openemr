@@ -951,34 +951,36 @@ $(function () {
     // this will allow user to enter popover report view and scroll if report
     // height is overflowed. Popover will either close when mouse leaves view
     // or user clicks anywhere in view.
-    $('[data-bs-toggle="PopOverReport"]').on('show.bs.popover', function () {
-        let elements = $('[aria-describedby^="popover"]');
-        let thisOne = this.dataset.formid;
-        let thisTitle = this.dataset.formdir;
-        for (i = 0; i < elements.length; ++i) {
-            if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
-                continue;
-            }
-            var popInst = bootstrap.Popover.getInstance(elements[i]);
-            if (popInst) popInst.hide();
-        }
-    });
-
-    $('[data-bs-toggle="PopOverReport"]').on('shown.bs.popover', function () {
-
-        // set event listeners
-        $('.popover').click(function (e) {
-            document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
-                var popInst = bootstrap.Popover.getInstance(el);
+    document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+        el.addEventListener('show.bs.popover', function () {
+            let elements = $('[aria-describedby^="popover"]');
+            let thisOne = this.dataset.formid;
+            let thisTitle = this.dataset.formdir;
+            for (i = 0; i < elements.length; ++i) {
+                if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
+                    continue;
+                }
+                var popInst = bootstrap.Popover.getInstance(elements[i]);
                 if (popInst) popInst.hide();
-            });
-        }).mouseleave(function (e) {
-            timeoutObj = setTimeout(function () {
+            }
+        });
+
+        el.addEventListener('shown.bs.popover', function () {
+
+            // set event listeners
+            $('.popover').click(function (e) {
                 document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
                     var popInst = bootstrap.Popover.getInstance(el);
                     if (popInst) popInst.hide();
                 });
-            }, 100);
+            }).mouseleave(function (e) {
+                timeoutObj = setTimeout(function () {
+                    document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+                        var popInst = bootstrap.Popover.getInstance(el);
+                        if (popInst) popInst.hide();
+                    });
+                }, 100);
+            });
         });
     });
 });

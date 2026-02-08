@@ -265,10 +265,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 $('input:checkbox[name=send]').addClass('d-none');
             });
 
-            $('#upload-nav').on('hidden.bs.collapse', function () {
+            document.getElementById('upload-nav').addEventListener('hidden.bs.collapse', function () {
                 $('#upload-nav-value').val('collapse');
             });
-            $('#upload-nav').on('show.bs.collapse', function () {
+            document.getElementById('upload-nav').addEventListener('show.bs.collapse', function () {
                 $('#upload-nav-value').val('show');
                 //$('#edit_form').submit();
             });
@@ -277,14 +277,14 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 $('#edit_form').submit();
             });
 
-            $('#template-collapse').on('show.bs.collapse', function () {
+            document.getElementById('template-collapse').addEventListener('show.bs.collapse', function () {
                 $('#edit_form #all_state').val('show');
             });
-            $('#template-collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('template-collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #all_state').val('collapse');
             });
 
-            $('#assigned_collapse').on('show.bs.collapse', function () {
+            document.getElementById('assigned_collapse').addEventListener('show.bs.collapse', function () {
                 if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
                     var repositoryEl = document.getElementById('repository-collapse');
                     var templateEl = document.getElementById('template-collapse');
@@ -299,14 +299,14 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 }
                 $('#edit_form #assigned_state').val('show');
             });
-            $('#assigned_collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('assigned_collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #assigned_state').val('collapse');
             });
 
-            $('#repository-collapse').on('show.bs.collapse', function () {
+            document.getElementById('repository-collapse').addEventListener('show.bs.collapse', function () {
                 $('#edit_form #repository_send_state').val('show');
             });
-            $('#repository-collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('repository-collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #repository_send_state').val('collapse');
             });
 

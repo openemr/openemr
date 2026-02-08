@@ -64,7 +64,15 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 
     const AlertMsg = setTimeout(function () {
         $('#alertMessage').fadeOut(950, function () {
-            $('#alertMessage').alert('close');
+            var alertEl = document.getElementById('alertMessage');
+            if (alertEl) {
+                var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                if (bsAlert) {
+                    bsAlert.close();
+                } else {
+                    alertEl.remove();
+                }
+            }
         });
     }, timer);
 }
@@ -416,7 +424,7 @@ function initSignerApi() {
         if (typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
             placeSignatureButton = wrapper.querySelector("[data-action=place]");
         }
-        $("#openSignModal").on('show.bs.modal', function (e) {
+        document.getElementById('openSignModal').addEventListener('show.bs.modal', function (e) {
             let type = $('#openSignModal #signatureModal').data('type');
             if (type === 'admin-signature' && isPortal) {
                 signerAlertMsg('Signer Pad not available for this signature type!', 2000);
@@ -429,7 +437,7 @@ function initSignerApi() {
             }
         });
         // for our dynamically added modal
-        $("#openSignModal").on('shown.bs.modal', function (e) {
+        document.getElementById('openSignModal').addEventListener('shown.bs.modal', function (e) {
             let type = $('#openSignModal #signatureModal').data('type');
             if (type) {
                 if (type === "admin-signature") {
@@ -453,27 +461,30 @@ function initSignerApi() {
             $('html').css({
                 'overflow': 'hidden'
             });
-            $(this).css({
+            $(e.currentTarget).css({
                 'padding-right': '0px'
             });
             $('body').bind('selectstart', function () {
                 return false;
             });
             if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                var modalInstance = bootstrap.Modal.getInstance(this);
+                var modalInstance = bootstrap.Modal.getInstance(e.currentTarget);
                 if (modalInstance) { modalInstance.handleUpdate(); }
             }
-        }).on('shown.bs.modal', function (e) { // yes two shown events
+        });
+        document.getElementById('openSignModal').addEventListener('shown.bs.modal', function (e) { // yes two shown events
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();
-        }).on('hide.bs.modal', function () {
+        });
+        document.getElementById('openSignModal').addEventListener('hide.bs.modal', function () {
             if ((typeof $lastEl !== 'undefined' || !$lastEl) && typeof event === "undefined") {
                 if (!signaturePad.isEmpty()) {
                     let dataURL = signaturePad.toDataURL();
                     placeSignature(dataURL, $lastEl);
                 }
             }
-        }).on('hidden.bs.modal', function () {
+        });
+        document.getElementById('openSignModal').addEventListener('hidden.bs.modal', function () {
             $('html').css({
                 'overflow': 'inherit'
             });

@@ -1028,8 +1028,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             i.classList.replace(o, n);
         }
 
-        $('.form-detail div').on('show.bs.collapse', toggleChevron);
-        $('.form-detail div').on('hide.bs.collapse', toggleChevron);
+        document.querySelectorAll('.form-detail div').forEach(function(el) {
+            el.addEventListener('show.bs.collapse', toggleChevron);
+            el.addEventListener('hide.bs.collapse', toggleChevron);
+        });
     </script>
 </body>
 </html>
