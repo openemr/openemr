@@ -618,7 +618,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="dialog">' +
             '<div class="modal-content %resize-action%" %contentStyles%>' + '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body px-1 overflow-hidden" style="flex: 1 1 auto; min-height: 200px; height: 100%;"></div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles);
+            '<div class="modal-body px-1" style="flex: 1 1 auto; min-height: 0; overflow-y: auto;"></div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles);
 
     // Write modal template.
     dlgContainer = where.jQuery(mhtml);
@@ -746,15 +746,24 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                         modalInstance.handleUpdate();
                     }
                 }
+                // Ensure modal is accessible when visible (remove stale aria-hidden/inert)
+                this.removeAttribute('aria-hidden');
+                this.removeAttribute('inert');
 
                 if (opts.resolvePromiseOn === 'shown') {
                     resolve(dlgContainer);
                 }
             }).on('hide.bs.modal', function (e) {
-                console.log("Dialog is closing...");
+                // Blur active element and use inert to prevent aria-hidden focus conflict (BS5.3)
+                var activeEl = where.document.activeElement;
+                if (activeEl && e.currentTarget.contains(activeEl)) {
+                    activeEl.blur();
+                }
+                // Set inert before Bootstrap adds aria-hidden — safely removes focus and interaction
+                e.currentTarget.inert = true;
+                e.currentTarget.removeAttribute('aria-hidden');
                 e.currentTarget.style.cursor = "auto";
             }).on('hidden.bs.modal', function (e) {
-                console.log("Dialog is closed...");
                 // clear cursor
                 e.currentTarget.style.cursor = "auto";
                 // remove our dialog
@@ -765,21 +774,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
                 // now we can run functions in our window.
                 if (opts.onClosed) {
-                    console.log('Doing onClosed:[' + opts.onClosed + ']');
                     if (opts.onClosed === 'reload') {
                         window.location.reload();
-                    } else {
+                    } else if (typeof opts.onClosed === 'function') {
+                        opts.onClosed();
+                    } else if (typeof window[opts.onClosed] === 'function') {
                         window[opts.onClosed]();
+                    } else {
+                        console.error('Dialog: onClosed callback "' + opts.onClosed + '" is not a function on window');
                     }
                 }
                 if (opts.callBack.call) {
-                    console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
                     if (opts.callBack.call === 'reload') {
                         window.location.reload();
-                    } else if (typeof opts.callBack.call == 'string') {
+                    } else if (typeof opts.callBack.call === 'function') {
+                        opts.callBack.call(opts.callBack.args);
+                    } else if (typeof opts.callBack.call === 'string' && typeof window[opts.callBack.call] === 'function') {
                         window[opts.callBack.call](opts.callBack.args);
                     } else {
-                        opts.callBack.call(opts.callBack.args);
+                        console.error('Dialog: callBack "' + opts.callBack.call + '" is not a function on window');
                     }
                 }
 
