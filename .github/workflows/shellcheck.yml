@@ -10,8 +10,8 @@ on:
     paths:
     - '**.sh'
     - '**.source'
-    - .github/workflows/shellcheck.yml
-    - .shellcheckrc
+    - '.github/workflows/shellcheck.yml'
+    - '.shellcheckrc'
     - contrib/util/restore
     - contrib/util/ubuntu_package_scripts/production/config
     - contrib/util/ubuntu_package_scripts/production/postinst
@@ -30,8 +30,8 @@ on:
     paths:
     - '**.sh'
     - '**.source'
-    - .github/workflows/shellcheck.yml
-    - .shellcheckrc
+    - '.github/workflows/shellcheck.yml'
+    - '.shellcheckrc'
     - contrib/util/restore
     - contrib/util/ubuntu_package_scripts/production/config
     - contrib/util/ubuntu_package_scripts/production/postinst
