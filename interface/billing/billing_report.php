@@ -10,11 +10,14 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    sjiang20 <sjiang086@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2021-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -633,104 +636,74 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $TPSCriteriaQueryDropDownMasterDefaultKey = [];
                         $TPSCriteriaIncludeMaster = [];
 
-                    if ($daysheet) {
-                        $TPSCriteriaDisplayMaster = [
-                            xl("Date of Service"),
-                            xl("Date of Entry"),
-                            xl("Date of Billing"),
-                            xl("Claim Type"),
-                            xl("Patient Name"),
-                            xl("Patient Id"),
-                            xl("Insurance Company"),
-                            xl("Encounter"),
-                            xl("Whether Insured"),
-                            xl("Charge Coded"),
-                            xl("Billing Status"),
-                            xl("Authorization Status"),
-                            xl("Last Level Billed"),
-                            xl("X12 Partner"),
-                            xl("User")
+                        // Define radio options keyed by their database field.
+                        // These must be associated with the correct criteria after sorting.
+                        $radioOptions = [
+                            'claims.target' => [
+                                'display' => [xl("All"), xl("eClaims"), xl("Paper")],
+                                'keys' => "all,standard,hcfa"
+                            ],
+                            'insurance_data.provider' => [
+                                'display' => [xl("All"), xl("Insured"), xl("Non-Insured")],
+                                'keys' => "all,1,0"
+                            ],
+                            'billing.id' => [
+                                'display' => [xl("All"), xl("Coded"), xl("Not Coded")],
+                                'keys' => "all,not null,null"
+                            ],
+                            'billing.billed' => [
+                                'display' => [xl("All"), xl("Unbilled"), xl("Billed"), xl("Denied")],
+                                'keys' => "all,0,1,7"
+                            ],
+                            'billing.authorized' => [
+                                'display' => [xl("All"), xl("Authorized"), xl("Unauthorized")],
+                                'keys' => "%,1,0"
+                            ],
+                            'form_encounter.last_level_billed' => [
+                                'display' => [xl("All"), xl("None{{Insurance}}"), xl("Ins 1"), xl("Ins 2 or Ins 3")],
+                                'keys' => "all,0,1,2"
+                            ],
                         ];
-                        $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
-                        $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
-                        $combined = array_map(null, $TPSCriteriaDisplayMaster, explode(",", $TPSCriteriaKeyMaster), explode(",", $TPSCriteriaDataTypeMaster));
-usort($combined, function($a, $b) {
-    return strcmp($a[0], $b[0]);
-});
-$TPSCriteriaDisplayMaster = array_column($combined, 0);
-$TPSCriteriaKeyMaster = implode(",", array_column($combined, 1));
-$TPSCriteriaDataTypeMaster = implode(",", array_column($combined, 2));
-                   
-                   
-                   
-                    } else {
-                        $TPSCriteriaDisplayMaster = [
-                            xl("Date of Service"),
-                            xl("Date of Entry"),
-                            xl("Date of Billing"),
-                            xl("Claim Type"),
-                            xl("Patient Name"),
-                            xl("Patient Id"),
-                            xl("Insurance Company"),
-                            xl("Encounter"),
-                            xl("Whether Insured"),
-                            xl("Charge Coded"),
-                            xl("Billing Status"),
-                            xl("Authorization Status"),
-                            xl("Last Level Billed"),
-                            xl("X12 Partner")
+
+                        // Build criteria as an array of associative arrays for sorting.
+                        $criteriaList = [
+                            ['display' => xl("Date of Service"), 'key' => 'form_encounter.date', 'type' => 'datetime'],
+                            ['display' => xl("Date of Entry"), 'key' => 'billing.date', 'type' => 'datetime'],
+                            ['display' => xl("Date of Billing"), 'key' => 'claims.process_time', 'type' => 'datetime'],
+                            ['display' => xl("Claim Type"), 'key' => 'claims.target', 'type' => 'radio'],
+                            ['display' => xl("Patient Name"), 'key' => 'patient_data.fname', 'type' => 'text_like'],
+                            ['display' => xl("Patient Id"), 'key' => 'form_encounter.pid', 'type' => 'text'],
+                            ['display' => xl("Insurance Company"), 'key' => 'claims.payer_id', 'type' => 'include'],
+                            ['display' => xl("Encounter"), 'key' => 'form_encounter.encounter', 'type' => 'text'],
+                            ['display' => xl("Whether Insured"), 'key' => 'insurance_data.provider', 'type' => 'radio'],
+                            ['display' => xl("Charge Coded"), 'key' => 'billing.id', 'type' => 'radio'],
+                            ['display' => xl("Billing Status"), 'key' => 'billing.billed', 'type' => 'radio'],
+                            ['display' => xl("Authorization Status"), 'key' => 'billing.authorized', 'type' => 'radio_like'],
+                            ['display' => xl("Last Level Billed"), 'key' => 'form_encounter.last_level_billed', 'type' => 'radio'],
+                            ['display' => xl("X12 Partner"), 'key' => 'billing.x12_partner_id', 'type' => 'query_drop_down'],
                         ];
-                        $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
-                        $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down";
-                        $combined = array_map(null, $TPSCriteriaDisplayMaster, explode(",", $TPSCriteriaKeyMaster), explode(",", $TPSCriteriaDataTypeMaster));
-usort($combined, function($a, $b) {
-    return strcmp($a[0], $b[0]);
-});
-$TPSCriteriaDisplayMaster = array_column($combined, 0);
-$TPSCriteriaKeyMaster = implode(",", array_column($combined, 1));
-$TPSCriteriaDataTypeMaster = implode(",", array_column($combined, 2));
-                    }
-                        // The below section is needed if there is any 'radio' or 'radio_like' type in the $TPSCriteriaDataTypeMaster
-                        // $TPSCriteriaDisplayRadioMaster,$TPSCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
-                        // The key value 'all' indicates that no action need to be taken based on this.For that the key must be 'all'.Display value can be any thing.
-                        $TPSCriteriaDisplayRadioMaster[1] = [
-                            xl("All"),
-                            xl("eClaims"),
-                            xl("Paper")
-                        ]; // Display Value
-                        $TPSCriteriaRadioKeyMaster[1] = "all,standard,hcfa"; // Key
-                        $TPSCriteriaDisplayRadioMaster[2] = [
-                            xl("All"),
-                            xl("Insured"),
-                            xl("Non-Insured")
-                        ]; // Display Value
-                        $TPSCriteriaRadioKeyMaster[2] = "all,1,0"; // Key
-                        $TPSCriteriaDisplayRadioMaster[3] = [
-                            xl("All"),
-                            xl("Coded"),
-                            xl("Not Coded")
-                        ]; // Display Value
-                        $TPSCriteriaRadioKeyMaster[3] = "all,not null,null"; // Key
-                        $TPSCriteriaDisplayRadioMaster[4] = [
-                            xl("All"),
-                            xl("Unbilled"),
-                            xl("Billed"),
-                            xl("Denied")
-                        ]; // Display Value
-                        $TPSCriteriaRadioKeyMaster[4] = "all,0,1,7"; // Key
-                        $TPSCriteriaDisplayRadioMaster[5] = [
-                            xl("All"),
-                            xl("Authorized"),
-                            xl("Unauthorized")
-                        ];
-                        $TPSCriteriaRadioKeyMaster[5] = "%,1,0";
-                        $TPSCriteriaDisplayRadioMaster[6] = [
-                            xl("All"),
-                            xl("None{{Insurance}}"),
-                            xl("Ins 1"),
-                            xl("Ins 2 or Ins 3")
-                        ];
-                        $TPSCriteriaRadioKeyMaster[6] = "all,0,1,2";
+                        if ($daysheet) {
+                            $criteriaList[] = ['display' => xl("User"), 'key' => 'billing.user', 'type' => 'text'];
+                        }
+
+                        // Sort criteria alphabetically by display name.
+                        usort($criteriaList, fn($a, $b) => strcmp($a['display'], $b['display']));
+
+                        // Rebuild the master arrays from the sorted criteria.
+                        $TPSCriteriaDisplayMaster = array_column($criteriaList, 'display');
+                        $TPSCriteriaKeyMaster = implode(',', array_column($criteriaList, 'key'));
+                        $TPSCriteriaDataTypeMaster = implode(',', array_column($criteriaList, 'type'));
+
+                        // Rebuild radio master arrays in sorted order.
+                        // The 1-based index corresponds to the nth radio/radio_like type encountered.
+                        $radioIndex = 1;
+                        foreach ($criteriaList as $criterion) {
+                            if ($criterion['type'] === 'radio' || $criterion['type'] === 'radio_like') {
+                                $TPSCriteriaDisplayRadioMaster[$radioIndex] = $radioOptions[$criterion['key']]['display'];
+                                $TPSCriteriaRadioKeyMaster[$radioIndex] = $radioOptions[$criterion['key']]['keys'];
+                                $radioIndex++;
+                            }
+                        }
                         // The below section is needed if there is any 'query_drop_down' type in the $TPSCriteriaDataTypeMaster
                         $TPSCriteriaQueryDropDownMaster[1] = "SELECT name,id FROM x12_partners;";
                         $TPSCriteriaQueryDropDownMasterDefault[1] = xl("All"); // Only one item will be here
