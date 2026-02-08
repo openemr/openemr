@@ -12,9 +12,12 @@
     color: $white;
   }
 
+  #mainBox > nav,
   .navbar-light {
     background-color: $dark !important;
+  }
 
+  .navbar-light {
     .navbar-nav > .active > a,
     .navbar-nav > .active > a:focus,
     .navbar-nav > .active > a:hover {
