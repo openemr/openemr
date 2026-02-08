@@ -79,7 +79,7 @@ $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
     'credMessage' => $credMessage
-    , 'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
+    , 'csrfToken' => text(CsrfUtils::collectCsrfToken(session: $session))
     , 'fname' => $credentials['fname']
     , 'portal_username' => $credentials['portal_username']
     , 'id' => $credentials['id']
