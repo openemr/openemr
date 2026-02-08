@@ -729,6 +729,21 @@ jobs:
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
       run: mv coverage.e2e.clover.xml e2e.saved-cov-data
 
+    # E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # This verifies the e2e test code itself is executing, separate from
+    # the server-side application coverage collected via auto_prepend.php.
+    - name: Upload e2e test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.e2e-tests.clover.xml
+        flags: e2e-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide e2e test file coverage from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      run: mv coverage.e2e-tests.clover.xml e2e-tests.saved-cov-data
+
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v6

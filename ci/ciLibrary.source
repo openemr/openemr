@@ -252,10 +252,18 @@ build_test_e2e() {
     # Fix permissions for video recording
     actions_chmod 777 selenium-videos
 
-    # Enable E2E coverage collection if coverage is enabled
+    # Build coverage args for e2e test files (not server-side coverage).
+    # Server-side coverage is collected via auto_prepend.php; this captures
+    # the test file execution itself to verify tests actually ran.
+    local -a e2e_coverage_args=()
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         echo 'Enabling E2E coverage collection…'
         enable_e2e_coverage
+        e2e_coverage_args=(
+            --coverage-clover coverage.e2e-tests.clover.xml
+            --coverage-filter tests/Tests/E2e
+            --coverage-text
+        )
     fi
 
     selenium_video_start
@@ -286,7 +294,11 @@ build_test_e2e() {
 
     echo 'Running E2E tests…'
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit \
+        --log-junit junit-e2e.xml \
+        --testsuite e2e \
+        --testdox \
+        "${e2e_coverage_args[@]}"
     status=$?
     set -e
 
