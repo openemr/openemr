@@ -230,7 +230,7 @@ function getStatusReportDatabase($report_id)
   // Collect the pertinent rows of data
     $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", [$report_id]);
 
-  // If empty, then just return Pending, since stil haven't likely created the entries yet
+  // If empty, then just return Pending, since still haven't likely created the entries yet
     if (sqlNumRows($res) < 1) {
         return "PENDING";
     }
@@ -468,7 +468,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  */
 function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode((string) $data, true) ?? [];
+    $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {

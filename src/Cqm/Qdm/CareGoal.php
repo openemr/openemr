@@ -28,7 +28,7 @@ class CareGoal extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -68,4 +68,3 @@ class CareGoal extends QDMBaseType
 
     public $_type = 'QDM::CareGoal';
 }
-

@@ -30,6 +30,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientService;
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
@@ -89,10 +91,15 @@ if ($formid) {
     ];
 }
 
+$patientService = new PatientService();
+$patient = $patientService->findByPid($_SESSION['pid']);
+$listService = new ListService();
+$resultCategories = $listService->getOptionsByListName('Observation_Types');
 $twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
 $t = $twig->getTwig();
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
+    ,'patientUuid' => UuidRegistry::uuidToString($patient['uuid'])
     ,'clinical_notes_category' => $clinical_notes_category
     ,'oemrUiSettings' =>  [
         'heading_title' => xl('Clinical Notes Form'),
@@ -111,6 +118,8 @@ $viewArgs = [
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
+    ,'csrfToken' => CsrfUtils::collectCsrfToken('api')
+    ,'resultCategories' => $resultCategories ?? []
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',

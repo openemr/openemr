@@ -61,12 +61,12 @@ function escape_sort_order($s)
 }
 
 /**
- * If parameter string contains comma(,) delimeter
- * Splits parameter string into an array, using comma(,) as delimeter
+ * If parameter string contains comma(,) delimiter
+ * Splits parameter string into an array, using comma(,) as delimiter
  * else it returns original string
  *
  * @param   string       $s  string to be processed
- * @return  array        $columns   an array formed by spliting $s with comma(,) delimeter
+ * @return  array        $columns   an array formed by splitting $s with comma(,) delimiter
  */
 
 function process_cols_escape($s)
@@ -92,7 +92,7 @@ function process_cols_escape($s)
  * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
- * @param   boolean       $throwException Whether to throw a SQL exception instead of dieing
+ * @param   boolean       $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
 function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
@@ -163,15 +163,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  */
 function escape_table_name($s)
 {
-    $res = sqlStatementNoLog("SHOW TABLES");
-    $tables_array = [];
-    while ($row = sqlFetchArray($res)) {
-        $keys_return = array_keys($row);
-        $tables_array[] = $row[$keys_return[0]];
-    }
-
-    // Now can escape(via whitelisting) the sql table name
-    return escape_identifier($s, $tables_array, true, false);
+    return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
 }
 
 /**
@@ -226,7 +218,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
             // No match
             if (!$case_sens_match) {
                 // Attempt a case insensitive match
-                $ok_UPPER = array_map("strtoupper", $ok);
+                $ok_UPPER = array_map(strtoupper(...), $ok);
                 $key = array_search(strtoupper($s), $ok_UPPER);
             }
 
@@ -234,7 +226,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 // Still no match
                 if ($die_if_no_match) {
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
-                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
+                    error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                     die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
                 } else if ($throw_exception_if_no_match) {
                     throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
@@ -250,7 +242,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
         if ($die_if_no_match) {
             if (preg_match('/[^' . $whitelist_items . ']/', $s)) {
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
-                error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
+                error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                 die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
             } else if ($throw_exception_if_no_match) {
                 throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));

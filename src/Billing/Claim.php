@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,7 +16,9 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
@@ -623,7 +625,7 @@ class Claim
       * In most cases, the ISA08 and GS03 are the same. However
       *
       * In some clearing houses ISA08 and GS03 are different
-      * Therefore if the x12_gs03 segement is explicitly specified we use that value,
+      * Therefore if the x12_gs03 segment is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
         if (!empty($this->x12_partner['x12_gs03'])) {
@@ -746,6 +748,11 @@ class Claim
     public function billingFacilityNPI()
     {
         return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+    }
+
+    public function billingFacilityTaxonomy()
+    {
+        return $this->x12Clean(trim($this->billing_facility['facility_taxonomy'] ?? ''));
     }
 
     public function federalIdType()
@@ -1190,11 +1197,7 @@ class Claim
             $ptphone = $this->patient_data['phone_cell'];
         }
 
-        if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
-            return $tmp[1] . $tmp[2] . $tmp[3];
-        }
-
-        return '';
+        return PhoneNumberService::toNationalDigits((string) $ptphone) ?? '';
     }
 
     public function patientDOB()
@@ -1614,20 +1617,7 @@ class Claim
 
     public function NPIValid($npi)
     {
-        // A NPI MUST be a 10 digit number
-        if ($npi === '') {
-            return false;
-        }
-
-        if (strlen((string) $npi) != 10) {
-            return false;
-        }
-
-        if (!preg_match("/[0-9]*/", (string) $npi)) {
-            return false;
-        }
-
-        return true;
+        return ValidationUtils::isValidNPI((string) $npi);
     }
     public function providerNPIValid($prockey = -1)
     {

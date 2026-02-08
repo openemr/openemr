@@ -33,7 +33,9 @@ $error = '';
 $runtime = [];
 
 // Check for other arguments and perform your script logic
-if (($argc ?? null) > 1) {
+$argc ??= 0;
+$argv ??= [];
+if ($argc > 1) {
     foreach ($argv as $k => $v) {
         if ($k == 0) {
             continue;
@@ -407,19 +409,6 @@ function cron_SetMessage($prow, $db_sms_msg): string
     $message = text($message);
 
     return $message;
-}
-
-/**
- * Get Notification Settings
- *
- * @return array|false
- */
-function cron_GetNotificationSettings(): bool|array
-{
-    $strQuery = "SELECT * FROM notification_settings WHERE type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return ($vectNotificationSettings);
 }
 
 function displayHelp(): void

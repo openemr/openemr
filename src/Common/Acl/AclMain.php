@@ -86,7 +86,7 @@
  *   portal     Patient Portal
  *
  * Section "menus" (Menus):
- *   modle      Module
+ *   module     Module
  *
  * Section "groups" (Groups):
  *   gadd       View/Add/Update groups
@@ -118,6 +118,7 @@
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Gacl\Gacl;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class AclMain
 {
@@ -162,8 +163,9 @@ class AclMain
      */
     public static function aclCheckCore($section, $value, $user = '', $return_value = ''): bool
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (! $user) {
-            $user = $_SESSION['authUser'] ?? '';
+            $user = $session->get('authUser') ?? '';
         }
 
         // Superuser always gets access to everything.

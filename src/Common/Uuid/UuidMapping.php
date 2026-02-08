@@ -26,7 +26,6 @@ use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 class UuidMapping
 {
     private const UUID_MAPPING_DEFINITIONS = [
-        ['resource' => 'CareTeam', 'table' => 'patient_data'],
         ['resource' => 'Location', 'table' => 'patient_data'],
         ['resource' => 'Location', 'table' => 'users'],
         ['resource' => 'Location', 'table' => 'facility'],
@@ -121,7 +120,7 @@ class UuidMapping
             } while ($count > 0);
             sqlCommitTrans();
             return $counter;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             sqlRollbackTrans();
             throw $exception;
         }

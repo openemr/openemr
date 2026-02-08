@@ -70,7 +70,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM form_history_sdoh WHERE id = ?",
                     [$recordId]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail cleanup
                 error_log("Failed to cleanup SDOH record {$recordId}: " . $e->getMessage());
             }
@@ -143,7 +143,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -154,7 +154,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test user: " . $e->getMessage());
             }
         }
@@ -202,9 +202,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         // Insert SDOH record with pregnancy status
         $recordId = $this->insertSdohRecord([
             'pregnancy_status' => 'pregnant', // Maps to SNOMED-CT:77386006 from list_options
-            'pregnancy_edd' => '2025-09-01',
-            'pregnancy_gravida' => 2,
-            'pregnancy_para' => 1
+            'pregnancy_edd' => '2025-09-01'
         ]);
 
         // Retrieve observations using the FHIR service
@@ -257,7 +255,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         foreach ($categories as $category) {
             $categoryCoding = $category->getCoding();
             foreach ($categoryCoding as $coding) {
-                if ($coding->getCode()->getValue() === 'social-history') {
+                if ($coding->getCode() === 'social-history') {
                     $socialHistoryFound = true;
                     break 2;
                 }
@@ -329,7 +327,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         foreach ($categories as $category) {
             $categoryCoding = $category->getCoding();
             foreach ($categoryCoding as $coding) {
-                if ($coding->getCode()->getValue() === 'social-history') {
+                if ($coding->getCode() === 'social-history') {
                     $socialHistoryFound = true;
                     break 2;
                 }
@@ -412,7 +410,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
             foreach ($categories as $category) {
                 $categoryCoding = $category->getCoding();
                 foreach ($categoryCoding as $coding) {
-                    if ($coding->getCode()->getValue() === 'survey') {
+                    if ($coding->getCode() === 'survey') {
                         $surveyFound = true;
                         break 2;
                     }

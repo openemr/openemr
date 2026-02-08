@@ -1,6 +1,6 @@
 [
   {
-    "foreign_table_name": "patient_data"
+    "foreign_table": "patient_data"
     ,"foreign_id": {
       "table": "patient_data"
       ,"columnSearch": "pubpid"
@@ -9,7 +9,7 @@
     }
   }
   ,{
-    "foreign_table_name": "patient_data"
+    "foreign_table": "patient_data"
     ,"foreign_id": {
       "table": "patient_data"
       ,"columnSearch": "pubpid"

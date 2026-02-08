@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -413,8 +415,9 @@ class Prescription extends ORDataObject
                     "select l.id from lists l join lists_medication lm on "
                     . " l.id = lm.list_id where l.type = 'medication' and (l.enddate is null or cast(now() as date) < l.enddate) "
                     . " and lm.prescription_id = ? and l.pid = ? limit 1",
-                    [$this->id],
-                    $this->patient->id
+                    [
+                        $this->id, $this->patient->id
+                    ]
                 );
                 $dataRow = $dataRow[0] ?? [];
             }
@@ -424,8 +427,7 @@ class Prescription extends ORDataObject
                 $dataRow = QueryUtils::fetchRecords(
                     "select id from lists where type = 'medication' and "
                     . "(enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1",
-                    [$this->original_drug],
-                    $this->patient->id
+                    [$this->original_drug, $this->patient->id]
                 );
                 $dataRow = $dataRow[0] ?? [];
             }
@@ -1137,17 +1139,88 @@ class Prescription extends ORDataObject
         return $string;
     }
 
+    private const SORTABLE_COLUMNS = [
+        'active',
+        'created_by',
+        'date_added',
+        'date_modified',
+        'datetime',
+        'diagnosis',
+        'dosage',
+        'drug',
+        'drug_dosage_instructions',
+        'drug_id',
+        'encounter',
+        'end_date',
+        'erx_source',
+        'erx_uploaded',
+        'external_id',
+        'filled_by_id',
+        'filled_date',
+        'form',
+        'id',
+        'indication',
+        'interval',
+        'medication',
+        'note',
+        'ntx',
+        'patient_id',
+        'per_refill',
+        'pharmacy_id',
+        'prescriptionguid',
+        'prn',
+        'provider_id',
+        'quantity',
+        'refills',
+        'request_intent',
+        'request_intent_title',
+        'route',
+        'rtx',
+        'rxnorm_drugcode',
+        'site',
+        'size',
+        'start_date',
+        'substitute',
+        'txDate',
+        'unit',
+        'updated_by',
+        'usage_category',
+        'usage_category_title',
+        'user',
+    ];
+
     static function prescriptions_factory(
         $patient_id,
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ) {
+        $default_order = 'active DESC, date_modified DESC, date_added DESC';
+
+        // Validate each comma-separated ORDER BY part against the allowlist.
+        $sanitized_parts = [];
+        foreach (explode(',', (string) $order_by) as $part) {
+            $tokens = preg_split('/\s+/', trim($part), -1, PREG_SPLIT_NO_EMPTY);
+            if ($tokens === []) {
+                continue;
+            }
+            $column = strtolower($tokens[0]);
+            if (!in_array($column, self::SORTABLE_COLUMNS, true)) {
+                continue;
+            }
+            $direction = 'DESC';
+            if (isset($tokens[1]) && strtoupper($tokens[1]) === 'ASC') {
+                $direction = 'ASC';
+            }
+            $sanitized_parts[] = $column . ' ' . $direction;
+        }
+
+        $sanitized_order = $sanitized_parts !== [] ? implode(', ', $sanitized_parts) : $default_order;
 
         $prescriptions = [];
         $p = new Prescription();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE patient_id = ? " .
-                "ORDER BY " . add_escape_custom($order_by);
-        $results = sqlQ($sql, [$patient_id]);
-        while ($row = sqlFetchArray($results)) {
+                "ORDER BY " . $sanitized_order;
+        $records = QueryUtils::fetchRecords($sql, [$patient_id]);
+        foreach ($records as $row) {
             $prescriptions[] = new Prescription($row['id']);
         }
 

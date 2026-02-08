@@ -304,7 +304,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = new CryptoGen();
 
@@ -316,7 +316,7 @@ if (!empty($_GET)) {
 
                                                 //translate comments
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
-                                                $replace = [xl('success'), xl('failure'), xl('encounter', '', ' ')];
+                                                $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
@@ -355,12 +355,8 @@ if (!empty($_GET)) {
                                                             $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                                                         }
                                                     } else { //$encryptVersion == 0
-                                                        // Use old mcrypt method
-                                                        if (extension_loaded('mcrypt')) {
-                                                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
-                                                        }
+                                                        // The old mcrypt method is no longer supported
+                                                        $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     }
                                                 } else {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
@@ -399,7 +395,7 @@ if (!empty($_GET)) {
 
                                         if (($eventname == "disclosure") || ($gev == "")) {
                                             $eventname = "disclosure";
-                                            if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
+                                            if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>

@@ -6,6 +6,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class CORSListener implements EventSubscriberInterface
@@ -16,7 +17,8 @@ class CORSListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 25]]
+            KernelEvents::REQUEST => [['onKernelRequest', 25]],
+            KernelEvents::RESPONSE => [['onKernelResponse', 0]]
         ];
     }
     public function onKernelRequest(RequestEvent $event)
@@ -31,12 +33,29 @@ class CORSListener implements EventSubscriberInterface
             return; // No CORS headers if no Origin header is present
         }
         $request = $event->getRequest();
-        if ($request->getRequestMethod() === 'OPTIONS') {
+        if ($request->getMethod() === 'OPTIONS') {
             // If the request is an OPTIONS request, we can return an initial response.
             $response = $this->getInitialResponse($request);
             $event->setResponse($response);
             return;
         }
+    }
+
+    public function onKernelResponse(ResponseEvent $event)
+    {
+        $response = $event->getResponse();
+        $request = $event->getRequest();
+
+        if (!$request->headers->has('Origin')) {
+            return; // No CORS headers if no Origin header is present
+        }
+
+        // we have to allow public API clients to have CROSS ORIGIN access
+        // we could tighten things up by restricting confidential clients to not have CORS, but that limits us
+        // @TODO: review security implications if we need to tighten this up
+        $origins = $request->getHeader('Origin');
+        $response->headers->set("Access-Control-Allow-Origin", $origins[0]);
+        $event->setResponse($response);
     }
 
     private function getInitialResponse(HttpRestRequest $request): Response

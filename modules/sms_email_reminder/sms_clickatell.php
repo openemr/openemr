@@ -35,7 +35,7 @@
  * @package sms_api
  */
 
-class sms
+class sms_clickatell implements sms_interface
 {
     /**
     * Clickatell API-ID
@@ -145,7 +145,7 @@ class sms
     }
 
     /**
-    * Query SMS credis balance
+    * Query SMS credits balance
     * @return integer  number of SMS credits
     * @access public
     */
@@ -175,14 +175,14 @@ class sms
         if ($this->unicode == true) {
             $this->_chk_mbstring();
             if (mb_strlen((string) $text) > 210) {
-                die("Your unicode message is too long! (Current lenght=" . mb_strlen((string) $text) . ")");
+                die("Your unicode message is too long! (Current length=" . mb_strlen((string) $text) . ")");
             }
 
             /* Does message need to be concatenate */
             $concat = mb_strlen((string) $text) > 70 ? "&concat=3" : "";
         } else {
             if (strlen((string) $text) > 459) {
-                die("Your message is too long! (Current lenght=" . strlen((string) $text) . ")");
+                die("Your message is too long! (Current length=" . strlen((string) $text) . ")");
             }
 
             /* Does message need to be concatenate */
@@ -324,10 +324,11 @@ class sms
     function _curl($command)
     {
         $this->_chk_curl();
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($command);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         if ($this->curl_use_proxy) {
             curl_setopt($ch, CURLOPT_PROXY, $this->curl_proxy);
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);

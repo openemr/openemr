@@ -255,14 +255,20 @@ $(function () {
     });
 });
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Open the add-event dialog.
 function newEvt(pid, pc_eid) {
     var f = document.forms[0];
-    var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
+    const params = new URLSearchParams({
+        patientid: pid,
+        eid: pc_eid
+    });
+    const url = '../../main/calendar/add_edit_event.php?' + params.toString();
     top.restoreSession();
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
+// AI-generated code end
 
 function delete_Recall(pid, r_ID) {
     if (confirm('Are you sure you want to delete this Recall?')) {
@@ -420,4 +426,3 @@ $(function () {
     });
 
 });
-

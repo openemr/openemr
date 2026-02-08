@@ -130,18 +130,18 @@ function smarty_function_html_radios($params, &$smarty)
 function smarty_function_html_radios_output($name, $value, $output, $selected, $extra, $separator, $labels, $label_ids) {
     $_output = '';
     if ($labels) {
-      if($label_ids) {
-          $_id = smarty_function_escape_special_chars(preg_replace('![^\w\-\.]!', '_', $name . '_' . $value));
-          $_output .= '<label for="' . $_id . '">';
-      } else {
-          $_output .= '<label>';
-      }
-   }
-   $_output .= '<input type="radio" name="'
+        if($label_ids) {
+            $_id = smarty_function_escape_special_chars(preg_replace('![^\w\-\.]!', '_', $name . '_' . $value));
+            $_output .= '<label for="' . $_id . '">';
+        } else {
+            $_output .= '<label>';
+        }
+    }
+    $_output .= '<input type="radio" name="'
         . smarty_function_escape_special_chars($name) . '" value="'
         . smarty_function_escape_special_chars($value) . '"';
 
-   if ($labels && $label_ids) $_output .= ' id="' . $_id . '"';
+    if ($labels && $label_ids) $_output .= ' id="' . $_id . '"';
 
     if ((string)$value==$selected) {
         $_output .= ' checked="checked"';

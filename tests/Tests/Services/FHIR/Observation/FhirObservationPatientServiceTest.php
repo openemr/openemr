@@ -174,7 +174,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -185,7 +185,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
             }
         }
@@ -272,7 +272,7 @@ class FhirObservationPatientServiceTest extends TestCase
         foreach ($categories as $category) {
             $categoryCoding = $category->getCoding();
             foreach ($categoryCoding as $coding) {
-                if ($coding->getCode()->getValue() === 'social-history') {
+                if ($coding->getCode() === 'social-history') {
                     $socialHistoryFound = true;
                     break 2;
                 }
@@ -482,7 +482,7 @@ class FhirObservationPatientServiceTest extends TestCase
                 foreach ($categories as $category) {
                     $categoryCoding = $category->getCoding();
                     foreach ($categoryCoding as $coding) {
-                        if ($coding->getCode()->getValue() === 'social-history') {
+                        if ($coding->getCode() === 'social-history') {
                             $socialHistoryFound = true;
                             break 2;
                         }

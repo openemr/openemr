@@ -255,8 +255,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             foreach ($this->_plugins['prefilter'] as $filter_name => $prefilter) {
                 if ($prefilter === false) continue;
                 if ($prefilter[3] || is_callable($prefilter[0])) {
-                    $source_content = call_user_func_array($prefilter[0],
-                                                            [$source_content, &$this]);
+                    $source_content = ($prefilter[0])($source_content, $this);
                     $this->_plugins['prefilter'][$filter_name][3] = true;
                 } else {
                     $this->_trigger_fatal_error("[plugin] prefilter '$filter_name' is not implemented");
@@ -286,7 +285,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             if (preg_match_all('~(<\?(?:\w+|=)?|\?>|language\s*=\s*[\"\']?\s*php\s*[\"\']?)~is', $text_blocks[$curr_tb], $sp_match)) {
                 /* replace tags with placeholders to prevent recursive replacements */
                 $sp_match[1] = array_unique($sp_match[1]);
-                usort($sp_match[1], '_smarty_sort_length');
+                usort($sp_match[1], _smarty_sort_length(...));
                 for ($curr_sp = 0, $for_max2 = count($sp_match[1]); $curr_sp < $for_max2; $curr_sp++) {
                     $text_blocks[$curr_tb] = str_replace($sp_match[1][$curr_sp],'%%%SMARTYSP'.$curr_sp.'%%%',$text_blocks[$curr_tb]);
                 }
@@ -392,8 +391,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             foreach ($this->_plugins['postfilter'] as $filter_name => $postfilter) {
                 if ($postfilter === false) continue;
                 if ($postfilter[3] || is_callable($postfilter[0])) {
-                    $compiled_content = call_user_func_array($postfilter[0],
-                                                              [$compiled_content, &$this]);
+                    $compiled_content = ($postfilter[0])($compiled_content, $this);
                     $this->_plugins['postfilter'][$filter_name][3] = true;
                 } else {
                     $this->_trigger_fatal_error("Smarty plugin error: postfilter '$filter_name' is not implemented");
@@ -564,7 +562,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 $block = array_shift($this->_folded_blocks);
                 $this->_current_line_no += substr_count((string) $block[0], "\n");
                 /* the number of matched elements in the regexp in _compile_file()
-                   determins the type of folded tag that was found */
+                   determines the type of folded tag that was found */
                 switch (count($block)) {
                     case 2: /* comment */
                         return '';
@@ -651,9 +649,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
          */
         if ($found) {
             if ($have_function) {
-                $output = call_user_func_array($plugin_func, [$tag_args, &$this]);
+                $output = $plugin_func($tag_args, $this);
                 if($output != '') {
-                $output = '<?php ' . $this->_push_cacheable_state('compiler', $tag_command)
+                    $output = '<?php ' . $this->_push_cacheable_state('compiler', $tag_command)
                                    . $output
                                    . $this->_pop_cacheable_state('compiler', $tag_command) . ' ?>';
                 }
@@ -760,7 +758,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     }
 
     function _preg_callback ($matches) {
-    return $this->_quote_replace($this->left_delimiter)
+        return $this->_quote_replace($this->left_delimiter)
            . 'php'
            . str_repeat("\n", substr_count((string) $matches[1], "\n"))
            . $this->_quote_replace($this->right_delimiter);
@@ -1396,10 +1394,10 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 default:
                     if(preg_match('~^' . $this->_func_regexp . '$~', (string) $token) ) {
                             // function call
-                            if($this->security &&
+                        if($this->security &&
                                !in_array($token, $this->security_settings['IF_FUNCS'])) {
-                                $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
-                            }
+                            $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
+                        }
                     } elseif(preg_match('~^' . $this->_var_regexp . '$~', (string) $token) && (!str_contains('+-*/^%&|', substr((string) $token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
                         // variable function call
                         $this->_syntax_error("variable function call '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
@@ -1642,35 +1640,35 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 // double quoted text
                 preg_match('~^(' . $this->_db_qstr_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
                 $return = $this->_expand_quoted_text($match[1]);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($return, $match[2]);
-                }
-                return $return;
+            if($match[2] != '') {
+                $this->_parse_modifiers($return, $match[2]);
             }
+                return $return;
+        }
         elseif(preg_match('~^' . $this->_num_const_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // numerical constant
                 preg_match('~^(' . $this->_num_const_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($match[1], $match[2]);
-                    return $match[1];
-                }
+            if($match[2] != '') {
+                $this->_parse_modifiers($match[1], $match[2]);
+                return $match[1];
             }
+        }
         elseif(preg_match('~^' . $this->_si_qstr_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // single quoted text
                 preg_match('~^(' . $this->_si_qstr_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($match[1], $match[2]);
-                    return $match[1];
-                }
+            if($match[2] != '') {
+                $this->_parse_modifiers($match[1], $match[2]);
+                return $match[1];
             }
+        }
         elseif(preg_match('~^' . $this->_cvar_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // config var
                 return $this->_parse_conf_var($val);
-            }
+        }
         elseif(preg_match('~^' . $this->_svar_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // section var
                 return $this->_parse_section_prop($val);
-            }
+        }
         elseif(!in_array($val, $this->_permitted_tokens) && !is_numeric($val)) {
             // literal string
             return $this->_expand_quoted_text('"' . strtr($val, ['\\' => '\\\\', '"' => '\\"']) .'"');
@@ -1942,7 +1940,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $this->_parse_vars_props($_modifier_args);
 
             if($_modifier_name == 'default') {
-                // supress notifications of default modifier vars and args
+                // suppress notifications of default modifier vars and args
                 if(str_starts_with($output, '$')) {
                     $output = '@' . $output;
                 }

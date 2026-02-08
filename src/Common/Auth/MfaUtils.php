@@ -203,8 +203,9 @@ class MfaUtils
                 return true;
             } else {
                 error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
+                return false;
             }
-        } catch (u2flib_server\Error $e) {
+        } catch (\u2flib_server\Error $e) {
             // Authentication failed so we will build the U2F form again.
             $form_response = '';
             $this->errorMsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();

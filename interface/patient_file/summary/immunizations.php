@@ -17,12 +17,21 @@ require_once("$srcdir/immunization_helper.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+/**
+ * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
+ */
+// @phpstan-ignore nullCoalesce.variable
+$pid ??= $session->get('pid') ?? null;
 
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -59,7 +68,8 @@ if (isset($_GET['mode'])) {
             refusal_reason = ?,
             reason_code = ?,
             reason_description = ?,
-            ordering_provider = ?";
+            ordering_provider = ?,
+            encounter_id = ?";
         $sqlBindArray = [
             trim((string) $_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
@@ -74,8 +84,8 @@ if (isset($_GET['mode'])) {
             trim((string) $_GET['vis_date']), trim((string) $_GET['vis_date']),
             trim((string) $_GET['note']),
             $pid,
-            $_SESSION['authUserID'],
-            $_SESSION['authUserID'],
+            $session->get('authUserID'),
+            $session->get('authUserID'),
             trim((string) $_GET['immuniz_amt_adminstrd']),
             trim((string) $_GET['form_drug_units']),
             trim((string) $_GET['immuniz_exp_date']), trim((string) $_GET['immuniz_exp_date']),
@@ -86,7 +96,8 @@ if (isset($_GET['mode'])) {
             trim((string) $_GET['immunization_refusal_reason']),
             trim((string) $_GET['reason_code']),
             trim($_GET['reason_description'] ?? ''),
-            trim((string) $_GET['ordered_by_id'])
+            trim((string) $_GET['ordered_by_id']),
+            trim((string) $_GET['encounter_id'])
         ];
         $newid = sqlInsert($sql, $sqlBindArray);
         $administered_date = date('Y-m-d H:i');
@@ -99,7 +110,7 @@ if (isset($_GET['mode'])) {
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
+        EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
         $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
         sqlStatement($sql, [$_GET['id']]);
@@ -169,6 +180,7 @@ if (isset($_GET['mode'])) {
         //set id for page
         $id = $_GET['id'];
 
+        $immunizationEncounter = $result['encounter_id'];
         $imm_obs_data = getImmunizationObservationResults();
     }
 }
@@ -199,7 +211,7 @@ if (empty($administered_by) && empty($administered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, [$_SESSION['authUserID']]);
+    $row = sqlQuery($stmt, [$session->get('authUserID')]);
     $administered_by = $row['full_name'];
 }
 
@@ -213,7 +225,7 @@ if (!empty($entered_by_id)) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria = getImmunizationObservationLists('1');
@@ -222,7 +234,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria_value = getImmunizationObservationLists('2');
@@ -255,13 +267,14 @@ function getImmunizationObservationLists($k)
 
 function getImmunizationObservationResults()
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $obs_res_q = "SELECT
                   *
                 FROM
                   immunization_observation
                 WHERE imo_pid = ?
                   AND imo_im_id = ?";
-    $res = sqlStatement($obs_res_q, [$_SESSION["pid"],$_GET['id']]);
+    $res = sqlStatement($obs_res_q, [$session->get("pid"),$_GET['id']]);
     $imm_obs_data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $imm_obs_data[$iter] = $row;
@@ -272,6 +285,7 @@ function getImmunizationObservationResults()
 
 function saveImmunizationObservationResults($id, $immunizationdata): void
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $imm_obs_data = getImmunizationObservationResults();
     if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
         foreach ($imm_obs_data as $val) {
@@ -325,7 +339,7 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
                                         )
                                         VALUES
                                           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $res                      = sqlQuery($sql, [$id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
+            $res                      = sqlQuery($sql, [$id,$session->get("pid"),$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$session->get('authUserID'),$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
         }
     }
 
@@ -364,7 +378,7 @@ tr.selected {
             </div>
             <div class="col-12">
                 <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />
                     <input type="hidden" name="id" id="id" value="<?php echo attr($id ?? ''); ?>" />
@@ -445,7 +459,7 @@ tr.selected {
                                         $result = sqlStatement($sql);
                                         while ($row = sqlFetchArray($result)) {
                                             echo '<OPTION VALUE=' . attr($row['id']);
-                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                             echo text($row['full_name']) . '</OPTION>';
                                         }
                                         ?>
@@ -512,13 +526,25 @@ tr.selected {
                                 $result = sqlStatement($sql);
                                 while ($row = sqlFetchArray($result)) {
                                     echo '<OPTION VALUE=' . attr($row['id']);
-                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                     echo text($row['full_name']) . '</OPTION>';
                                 }
                                 ?>
                         </select>
                     </div>
 
+                    <?php
+                    // need to add the encounter linkage using the TwigExtension function encounterSelectList
+                    ?>
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Encounter'); ?></label>
+                        <?php
+                        $encounterType = new EncounterListOptionType($pid);
+                        echo $encounterType->render('encounter_id', $immunizationEncounter ?? '');
+                        ?>
+
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-12 text-center">
                             <?php
@@ -533,7 +559,6 @@ tr.selected {
                             <?php } ?>
                         </div>
                     </div>
-
                     <div class="observation_results" style="display:none;">
                         <fieldset class="obs_res_head">
                             <legend><?php echo xlt('Observation Results'); ?></legend>
@@ -894,19 +919,19 @@ var SaveForm = function() {
 
 var EditImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
 }
 
 var DeleteImm = function(imm) {
     if (confirm(<?php echo xlj('This action cannot be undone.'); ?> + "\n" + <?php echo xlj('Do you wish to PERMANENTLY delete this immunization record?'); ?>)) {
         top.restoreSession();
-        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
     }
 }
 
 var ErrorImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
 }
 
 //This is for callback by the find-code popup.
@@ -1060,7 +1085,7 @@ function selectCriteria(id,value)
                 dataType: "json",
                 data: {
                     type : 'duplicate_row_2',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 },
                 success: function(thedata){
                     $.each(thedata,function(i,item) {
@@ -1181,7 +1206,7 @@ function addNewRow()
         dataType: "json",
         data: {
             type : 'duplicate_row',
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         },
         success: function(thedata){
             $.each(thedata,function(i,item) {
@@ -1211,7 +1236,7 @@ $(function () {
             dataType: 'json',
             data: function(params) {
                 return {
-                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                   term: params.term
                 };
             },

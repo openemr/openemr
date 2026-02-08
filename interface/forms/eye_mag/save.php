@@ -386,7 +386,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         <?php
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
-        call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
+        ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
         }
@@ -1271,7 +1271,7 @@ function row_delete($table, $where): void
             $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -1279,24 +1279,6 @@ function row_delete($table, $where): void
         $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         sqlStatement($query);
     }
-}
-
-// Given an issue type as a string, compute its index.
-// Not sure of the value of this sub given transition to array $PMSFH
-// Can I use it to find out which PMSFH item we are looking for?  YES
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-
-        ++$i;
-    }
-
-    return $i;
 }
 
 exit;

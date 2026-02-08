@@ -126,7 +126,7 @@ class CarecoordinationTable extends AbstractTableGateway
     }
 
     /*
-     * List the documents uploaded by the user alogn with the matched data
+     * List the documents uploaded by the user along with the matched data
      *
      * @param    cat_title   Text    Category Name
      * @return   records     Array   List of CCDA imported to the system, pending approval
@@ -231,7 +231,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new Exception($e->getMessage());
         }
         // Document various sectional components
@@ -638,7 +638,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", [$uuid])['pid'] ?? '';
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
                         // We did so let check the type. If encounters then a CDA
-                        $enc_exist = sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", [(int)$pid_exist])['cnt'] ?? 0;
+                        $enc_exist = (sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", [(int)$pid_exist])['cnt']) ?? 0;
                         // If not CDA and not unstructured means unstructured already created a new PID
                         // otherwise merge one or the other to each other.
                         if ((!$this->is_unstructured_import && empty($enc_exist)) || $this->is_unstructured_import) {
@@ -985,7 +985,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
-        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
+        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master

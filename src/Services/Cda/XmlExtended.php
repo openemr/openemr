@@ -12,10 +12,10 @@
 
 namespace OpenEMR\Services\Cda;
 
+use Laminas\Config\Exception\RuntimeException;
 use Laminas\Config\Reader\ReaderInterface;
 use Laminas\Config\Reader\Xml;
 use XMLReader;
-use Laminas\Config\Reader\Exception\RuntimeException;
 
 class XmlExtended extends Xml implements ReaderInterface
 {

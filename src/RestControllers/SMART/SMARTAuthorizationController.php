@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -38,9 +39,9 @@ use Twig\Environment;
 class SMARTAuthorizationController
 {
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var EventDispatcherInterface
@@ -211,7 +212,7 @@ class SMARTAuthorizationController
 
         // set our patient information up in our pid so we can handle our code property...
         try {
-            $patient_id = $request->request->get('patient_id'); // this patient_id is actually a uuid.. wierd
+            $patient_id = $request->request->get('patient_id'); // this patient_id is actually a uuid.. weird
             $searchController = $this->getPatientContextSearchController();
             // throws access denied if user doesn't have access
             // TODO: @adunsulag we should rename this method if it throws an AccessDeniedException
@@ -232,7 +233,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (Exception $error) {
+        } catch (\Throwable $error) {
             // error occurred, no patients found just display the screen with an error message
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
             $errorMessage = "There was a server error in loading patients.  Contact your system administrator for assistance";
@@ -296,7 +297,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (Exception $error) {
+        } catch (\Throwable $error) {
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", [
@@ -337,7 +338,7 @@ class SMARTAuthorizationController
                 ->withStatus(Response::HTTP_OK)
                 ->withHeader('Content-Type', 'text/html; charset=UTF-8')
                 ->withBody((new Psr17Factory())->createStream($twig->render($template, $vars)));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return (new Psr17Factory())->createResponse()
                 ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
@@ -360,7 +361,7 @@ class SMARTAuthorizationController
             }
             $resolvedTemplate = $twig->resolveTemplate($templates);
             $response = new JsonResponse($resolvedTemplate->render($vars));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $response = new JsonResponse($twig->render("error/general_http_error.json.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

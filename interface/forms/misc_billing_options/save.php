@@ -51,7 +51,7 @@ if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalizati
     $_POST["is_hospitalized"] = "1";
 }
 
-$id = formData('id', 'G') + 0;
+$id = (int)($_GET['id'] ?? '');
 
 $sets = "pid = ?,
     groupname = ?,

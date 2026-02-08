@@ -27,7 +27,7 @@ class AllPatientsTest extends TestCase
         $models = [];
         try {
             $models = $builder->build(new QdmRequestAll());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
         }
 

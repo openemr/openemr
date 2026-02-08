@@ -287,7 +287,7 @@ class InstallerController extends AbstractActionController
             try {
                 $classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
                 $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log('Error loading namespace: ' . $e->getMessage());
             }
         }
@@ -300,8 +300,8 @@ class InstallerController extends AbstractActionController
                 // Call the module manager action method and return the result
                 // This method is expected to return the current status of the module unless module wishes to override it.
                 // In that case, new text of result will display as alert in UI.
-                return call_user_func($instance->moduleManagerAction(...), $methodName, $modId, $currentStatus);
-            } catch (Exception $e) {
+                return ($instance->moduleManagerAction(...))($methodName, $modId, $currentStatus);
+            } catch (\Throwable $e) {
                 error_log('Error calling module manager action: ' . $e->getMessage());
                 return $currentStatus;
             }
@@ -573,7 +573,7 @@ class InstallerController extends AbstractActionController
             }
         }
         $arrayKeys = array_keys($versions);
-        usort($arrayKeys, 'version_compare');
+        usort($arrayKeys, version_compare(...));
         $sortVersions = [];
         foreach ($arrayKeys as $key) {
             $sortVersions[$key] = $versions[$key];
@@ -846,7 +846,7 @@ class InstallerController extends AbstractActionController
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
-                // TODO: This is a wierd error... why is it written like this?
+                // TODO: This is a weird error... why is it written like this?
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
             }
         } elseif ($modType == InstModuleTable::MODULE_TYPE_ZEND) {

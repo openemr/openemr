@@ -20,7 +20,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  *
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
- * for creating a `<head>` element, but for now it sufficently handles the
+ * for creating a `<head>` element, but for now it sufficiently handles the
  * `setupHeader()`
  *
  * @package OpenEMR
@@ -126,9 +126,8 @@ class Header
 
         if ($echoOutput) {
             echo $output;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public static function getFavIcon()
@@ -183,6 +182,9 @@ class Header
             $assets = [$assets];
         }
 
+        // Filter out any empty strings in case assets array contains them
+        $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
+
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
         self::$scripts = [];
@@ -212,19 +214,18 @@ class Header
     {
         $foundAssets = [];
         $excludedCount = 0;
+
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
-            $allowNoLoad = $opts['allowNoLoad'] ?? false;
             $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
             $loadInFile = $opts['loadInFile'] ?? false;
             $rtl = $opts['rtl'] ?? false;
 
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
-                if ($allowNoLoad === true) {
-                    if (in_array("no_" . $k, $selectedAssets)) {
-                        $excludedCount++;
-                        continue;
-                    }
+                // Skip loading if exclusion token (no_<asset>) is present in selectedAssets
+                if (in_array("no_" . $k, $selectedAssets)) {
+                    $excludedCount++;
+                    continue;
                 }
                 $foundAssets[] = $k;
 
@@ -238,7 +239,7 @@ class Header
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
                     $t = '';
-                } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
+                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {
@@ -265,7 +266,8 @@ class Header
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
                 (new SystemLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
-            }}
+            }
+        }
     }
 
     /**
@@ -299,7 +301,7 @@ class Header
             foreach ($script as $k) {
                 if (is_string($k)) {
                     $k = ['src' => $k, 'type' => 'text/javascript'];
-                } else if (empty($k['src'])) {
+                } elseif (empty($k['src'])) {
                     throw new \InvalidArgumentException("Script must be of type string or object with src property");
                 }
                 $k['src'] = self::parsePlaceholders($k['src']);
@@ -333,7 +335,7 @@ class Header
      *
      * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
+     * array, will replace the occurrence with the value of that key.
      *
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
@@ -363,7 +365,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
-        // make sure we clear out any attributes we don't want overriden
+        // make sure we clear out any attributes we don't want overridden
         if (isset($nodeAttributes['src'])) {
             unset($nodeAttributes['src']);
         }
@@ -418,6 +420,7 @@ class Header
         } catch (ParseException $e) {
             error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
+            return [];
         }
     }
 

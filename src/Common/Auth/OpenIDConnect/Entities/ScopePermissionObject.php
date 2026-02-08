@@ -148,6 +148,8 @@ class ScopePermissionObject
     {
         foreach ($constraints as $key => $value) {
             if (!empty($this->constraints[$key])) {
+                // TODO: This looks odd where we have a string in one instance and an array in another
+                // We should probably standardize on always using arrays for constraint values
                 if (is_string($this->constraints[$key])) {
                     $this->constraints[$key] = [$this->constraints[$key]];
                     $this->constraints[$key][] = $value;

@@ -1,9 +1,10 @@
 includes:
-  - phpstan.github.neon
+  - .phpstan/phpstan.github.neon
 
 parameters:
   bootstrapFiles:
-  - phpstan_panther_alias.php
+  - .phpstan/phpstan_panther_alias.php
+  - .phpstan/phpstan_include_paths.php
   level: 1
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
@@ -36,7 +37,6 @@ parameters:
   - templates
   - tests
   - version.php
-  scanDirectories:
-  - ./vendor
   scanFiles:
   - library/sql.inc.php
+  - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php

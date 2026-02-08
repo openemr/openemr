@@ -11,9 +11,11 @@
  * @authorRod Roark <rod@sunsetsystems.com>
  * @authorRay Magauran <magauran@MedFetch.com>
  * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -52,7 +55,7 @@ $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
 if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    die(xlt("Edit is not authorized!"));
+    AccessDeniedHelper::deny('Editing eye exam issue is not authorized');
 }
 
 if (
@@ -61,7 +64,7 @@ if (
     'addonly'
     ])
 ) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
 }
 
 $PMSFH = build_PMSFH($pid);
@@ -107,7 +110,7 @@ foreach (explode(',', $given) as $item) {
         var aitypes = new Array(); // issue type attributes
         var aopts = new Array(); // Option objects
         <?php
-//This builds the litle quick pick list in this section.
+//This builds the little quick pick list in this section.
 // If the provider has more 2 items already defined in the last month, they are collated
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
@@ -491,12 +494,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes((string) xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes((string) xl('Please enter a title!')); ?>");
+                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
                     return false;
                 }
             }
@@ -552,10 +555,10 @@ foreach (explode(',', $given) as $item) {
                 $("#smoke_code").html("");
         }
 
-        function setSelectBoxByText(eid, etxt) {
+        function setSelectBoxByText(eid, text) {
             var eid = document.getElementById(eid);
             for (var i = 0; i < eid.options.length; ++i) {
-                if (eid.options[i].text === etxt)
+                if (eid.options[i].text === text)
                     eid.options[i].selected = true;
             }
         }

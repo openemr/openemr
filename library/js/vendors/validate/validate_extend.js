@@ -232,6 +232,3 @@ validate.validators.luhn = function(value, options) {
         }
     }
 }
-
-
-

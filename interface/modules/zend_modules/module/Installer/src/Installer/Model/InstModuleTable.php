@@ -87,7 +87,7 @@ class InstModuleTable
     public function installSQL($modId, $mod_type, $dir)
     {
         // TODO: we will leave zend modules alone for now until we can come up with a mechanism to allow them to have
-        // backwards compatability to fix the sql line bug.
+        // backwards compatibility to fix the sql line bug.
         $installScript = $this->getInstallScript($dir);
         if (empty($installScript)) {
             error_log("install script does not exist. skipping InstModuleTable->installSQL for module");
@@ -133,7 +133,7 @@ class InstModuleTable
                 $specialPattern = '/#SpecialSql[\w\W]*#EndSpecialSql/sU';
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
-                //separate spacial sql and clean sql string
+                //separate special sql and clean sql string
                 $sql = preg_replace($specialPattern, $specialReplacement, $sql);
                 // Note: this fails if there are any semicolon(;) characters in a string constant
                 // this is why we migrated to installSQLWithUpgradeService
@@ -183,11 +183,12 @@ class InstModuleTable
                 $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
-            } catch (SqlQueryException | \Exception $exception) {
-                (new SystemLogger())->errorLogCaller(
-                    "Error: " . $exception->getMessage(),
-                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
-                );
+            } catch (\Throwable $exception) {
+                $context = ['trace' => $exception->getTraceAsString()];
+                if ($exception instanceof SqlQueryException) {
+                    $context['statement'] = $exception->getSqlStatement();
+                }
+                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {
@@ -355,7 +356,7 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return Ambigous <boolean, unknown>
+     * @return InstModule
      */
     function getRegistryEntry($id, $cols = "")
     {

@@ -6,19 +6,26 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -29,7 +36,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {
-    $profiles = json_decode((string) $_POST['profiles'], true);
+    $profiles = json_decode((string)$_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
         echo xlt("Profiles successfully saved.");
@@ -47,7 +54,8 @@ if (($_REQUEST['mode'] ?? null) === 'render_profile') {
 if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_REQUEST['docid']);
-        echo "data:application/pdf;base64," . base64_encode((string) $template['template_content']);
+        $dataUrl = 'data:application/pdf;base64,' . base64_encode((string)$template['template_content']);
+        echo attr($dataUrl);
         exit();
     }
     die(xlt('Invalid File'));
@@ -64,7 +72,7 @@ if (($_POST['mode'] ?? null) === 'get') {
 
 if (($_POST['mode'] ?? null) === 'send_profiles') {
     if (!empty($_POST['checked'])) {
-        $profiles = json_decode((string) $_POST['checked']) ?: [];
+        $profiles = json_decode((string)$_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
         if ($last_id) {
             echo xlt('Profile Templates Successfully set to Active in portal.');
@@ -78,9 +86,9 @@ if (($_POST['mode'] ?? null) === 'send_profiles') {
 
 if (($_POST['mode'] ?? null) === 'send') {
     if (!empty($_POST['docid'])) {
-        $pids_array = json_decode((string) $_POST['docid']) ?: ['0'];
+        $pids_array = json_decode((string)$_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
-        $ids = json_decode((string) $_POST['checked']) ?: [];
+        $ids = json_decode((string)$_POST['checked']) ?: [];
         $master_ids = [];
         foreach ($ids as $id) {
             if (is_array($id)) {
@@ -109,14 +117,14 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
-        die(xlt('Not authorized to edit template'));
+        AccessDeniedHelper::deny('Not authorized to edit template');
     }
     if ($_POST['docid']) {
-        if (stripos((string) $_POST['content'], "<?php") === false) {
+        if (stripos((string)$_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
             if ($_POST['service'] === 'window') {
                 echo "<script>if (typeof parent.dlgopen === 'undefined') window.close(); else parent.dlgclose();</script>";
@@ -128,11 +136,11 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
-        die(xlt('Not authorized to delete template'));
+        AccessDeniedHelper::deny('Not authorized to delete template');
     }
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));
@@ -149,7 +157,7 @@ if (($_POST['mode'] ?? null) === 'save') {
 }
 
 if (isset($_POST['blank-nav-button'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -161,7 +169,7 @@ if (isset($_POST['blank-nav-button'])) {
     $category = $_POST['template_category'] ?? '';
     $patient = '-1';
     if (!empty($upload_name)) {
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $upload_name);
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$upload_name);
         try {
             $content = "{ParseAsHTML}";
             $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
@@ -170,7 +178,7 @@ if (isset($_POST['blank-nav-button'])) {
                 echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -182,7 +190,7 @@ if (isset($_POST['blank-nav-button'])) {
 }
 
 if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -196,7 +204,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
         $service = new QuestionnaireService();
         try {
             $id = $service->saveQuestionnaireResource($q, null, null, null, $l);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -215,7 +223,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
 
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -233,11 +241,11 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
             exit;
         }
         // parse out what we need
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $_FILES['template_files']['name'][$i]);
-        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string) $name) !== 0) {
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$_FILES['template_files']['name'][$i]);
+        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string)$name) !== 0) {
             die(xlt('Invalid file type.'));
         }
-        $parts = pathinfo((string) $name);
+        $parts = pathinfo((string)$name);
         $name = ucwords(strtolower($parts["filename"]));
         if (empty($patient)) {
             $patient = ['-1'];
@@ -249,7 +257,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
                 echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -261,7 +269,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
 }
 
 if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     if (!$authUploadTemplates) {
@@ -288,7 +296,7 @@ if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
                 echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             header('refresh:3;url= import_template_ui.php');
             echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 text($e->getMessage()) . '</h4>';
@@ -305,7 +313,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
         $template_content = $content['template_content'];
         if ($content['mime'] === 'application/pdf') {
             $content = "<iframe width='100%' height='100%' src='data:application/pdf;base64, " .
-                attr(base64_encode((string) $template_content)) . "'></iframe>";
+                attr(base64_encode((string)$template_content)) . "'></iframe>";
             echo $content;
             exit;
         }
@@ -324,6 +332,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
 function renderEditorHtml($template_id, $content): void
 {
     global $authUploadTemplates;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $lists = [
         '{ParseAsHTML}', '{ParseAsText}', '{styleBlockStart}', '{styleBlockEnd}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{RadioGroup:option1_many...}', '{RadioGroupInline:option1_many...}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
@@ -335,27 +344,27 @@ function renderEditorHtml($template_id, $content): void
         <?php Header::setupHeader(['summernote']); ?>
     </head>
     <style>
-        input:focus,
-        input:active {
-            outline: 0 !important;
-            -webkit-appearance: none;
-            box-shadow: none !important;
-        }
+      input:focus,
+      input:active {
+        outline: 0 !important;
+        -webkit-appearance: none;
+        box-shadow: none !important;
+      }
 
-        .list-group-item {
-            font-size: .9rem;
-        }
+      .list-group-item {
+        font-size: .9rem;
+      }
 
-        .note-editable {
-            height: 78vh !important;
-        }
+      .note-editable {
+        height: 78vh !important;
+      }
     </style>
     <body>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save')); ?>" />
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save', $session->getSymfonySession())); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
@@ -377,11 +386,17 @@ function renderEditorHtml($template_id, $content): void
                     <ul class='list-group list-group-flush pl-1 mb-5'>
                         <?php
                         foreach ($lists as $list) {
-                            echo '<input class="list-group-item p-1" value="' . attr($list) . '">';
+                            // list item is both clickable and draggable
+                            echo '<li class="list-group-item p-1 directive-item"'
+                                . ' draggable="true"'
+                                . ' data-directive="' . attr($list) . '">'
+                                . text($list)
+                                . '</li>';
                         }
                         ?>
                     </ul>
                 </div>
+
             </div>
         </div>
     </body>
@@ -420,7 +435,97 @@ function renderEditorHtml($template_id, $content): void
         });
     </script>
     <script>
+        // … your existing JS (dialogs, Summernote init, etc.) …
+
+        function initDirectiveHelpers() {
+            var $template = $('#templateContent');
+
+            if (!$template.length) {
+                return;
+            }
+
+            /**
+             * Insert a directive string at the current caret position.
+             * Uses Summernote if active, else falls back to plain textarea insertion.
+             */
+            function insertDirective(text) {
+                if (!text) {
+                    return;
+                }
+
+                // Summernote active: use its editor API
+                if ($template.next('.note-editor').length && $template.data('summernote')) {
+                    $template.summernote('focus');
+                    $template.summernote('editor.insertText', text);
+                    return;
+                }
+
+                // Fallback: plain textarea
+                var el = $template.get(0);
+                if (!el) {
+                    return;
+                }
+
+                var start = el.selectionStart || 0;
+                var end = el.selectionEnd || 0;
+                var value = el.value || '';
+
+                el.value = value.substring(0, start) + text + value.substring(end);
+                var caret = start + text.length;
+                el.selectionStart = el.selectionEnd = caret;
+                el.focus();
+            }
+
+            // CLICK: insert on click for accessibility / speed
+            $(document).on('click', '.directive-item', function (e) {
+                e.preventDefault();
+                var text = $(this).data('directive') || '';
+                insertDirective(text);
+            });
+
+            // DRAG: start dragging directive text
+            $(document).on('dragstart', '.directive-item', function (e) {
+                var text = $(this).data('directive') || '';
+                if (!text) {
+                    return;
+                }
+
+                var dt = e.originalEvent.dataTransfer;
+                dt.setData('text/plain', text);
+                dt.effectAllowed = 'copy';
+            });
+
+            // Fallback: drop directly on the underlying textarea (if visible)
+            $template.on('dragover', function (e) {
+                e.preventDefault();
+            }).on('drop', function (e) {
+                e.preventDefault();
+                var dt = e.originalEvent.dataTransfer;
+                var text = dt.getData('text/plain');
+                insertDirective(text);
+            });
+
+            // Summernote editor surface: accept drops on the content area
+            $template.on('summernote.init', function () {
+                var $editable = $(this).next('.note-editor').find('.note-editable');
+
+                $editable.on('dragover', function (e) {
+                    e.preventDefault();
+                }).on('drop', function (e) {
+                    e.preventDefault();
+                    var dt = e.originalEvent.dataTransfer;
+                    var text = dt.getData('text/plain');
+                    insertDirective(text);
+                });
+            });
+        }
+
+        $(function () {
+            // Ensure this runs after Summernote init code
+            initDirectiveHelpers();
+        });
     </script>
+
     </html>
 <?php }
 
@@ -429,7 +534,7 @@ function renderEditorHtml($template_id, $content): void
  */
 function renderProfileHtml(): void
 {
-    global $templateService;
+    global $templateService, $globalsBag;
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -438,35 +543,35 @@ function renderProfileHtml(): void
     <html>
     <head>
         <?php
-        if (empty($GLOBALS['openemr_version'] ?? null)) {
+        if (empty($globalsBag->get('openemr_version'))) {
             Header::setupHeader(['opener', 'sortablejs']);
         } else {
             Header::setupHeader(['opener']); ?>
-            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+            <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
         <?php } ?>
     </head>
     <style>
-        body {
-            overflow: hidden;
-        }
+      body {
+        overflow: hidden;
+      }
 
-        .list-group-item {
-            cursor: move;
-        }
+      .list-group-item {
+        cursor: move;
+      }
 
-        strong {
-            font-weight: 600;
-        }
+      strong {
+        font-weight: 600;
+      }
 
-        .col-height {
-            max-height: 95vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
+      .col-height {
+        max-height: 95vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
 
-        .note-editor.dragover .note-dropzone {
-            display: none
-        }
+      .note-editor.dragover .note-dropzone {
+        display: none
+      }
     </style>
     <script>
         const profiles = <?php echo js_escape($profile_list); ?>;

@@ -32,7 +32,7 @@ use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Exception;
 
 class TeleHealthVideoRegistrationController
@@ -54,7 +54,7 @@ class TeleHealthVideoRegistrationController
         $this->logger = new SystemLogger();
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
         $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, $this->onPatientCreatedEvent(...));
         $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, $this->onPatientUpdatedEvent(...));
@@ -80,7 +80,7 @@ class TeleHealthVideoRegistrationController
         try {
             $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // convert uuid to a string value
             $this->createPatientRegistration($patient);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid']]);
         }
@@ -103,7 +103,7 @@ class TeleHealthVideoRegistrationController
             if (empty($apiUser)) {
                 $this->createPatientRegistration($patient);
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid'] ?? '']);
         }
@@ -135,7 +135,7 @@ class TeleHealthVideoRegistrationController
                     ['username' => $event->getUsername(), 'userWithUuid' => $userWithUuid, 'uuid' => $userWithUuid['uuid'] ?? null]
                 );
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user['uuid']]);
         }
@@ -197,7 +197,7 @@ class TeleHealthVideoRegistrationController
                     $this->suspendUser($apiUser->getUsername(), $apiUser->getAuthToken());
                 }
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user]);
         }

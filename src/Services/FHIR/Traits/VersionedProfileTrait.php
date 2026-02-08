@@ -12,12 +12,15 @@
 namespace OpenEMR\Services\FHIR\Traits;
 
 use InvalidArgumentException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 
 trait VersionedProfileTrait
 {
     // TODO: @adunsulag consider making this an enum
-    protected string $highestUSCoreProfileVersion;
+    protected string $highestUSCoreProfileVersion = self::PROFILE_VERSION_8_0_0;
     const PROFILE_VERSION_NONE = '';
 
     const PROFILE_VERSION_3_1_1 = '3.1.1';
@@ -59,6 +62,13 @@ trait VersionedProfileTrait
         return $meta;
     }
 
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void
+    {
+        // set the highest supported US Core profile version in our Globals
+        $defaultVersion = $globalsBag->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value
+            , self::PROFILE_VERSION_8_0_0);
+        $this->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
+    }
 
     public function getHighestCompatibleUSCoreProfileVersion(): string
     {

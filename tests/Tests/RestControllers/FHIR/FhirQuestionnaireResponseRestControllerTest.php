@@ -60,7 +60,7 @@ class FhirQuestionnaireResponseRestControllerTest extends TestCase
             ->method('getAll')
             ->willReturn($processingResult);
         $controller = new FhirQuestionnaireResponseRestController($fhirService);
-        $response = $controller->list($restRequest, $fhirResponse->getId()->getValue());
+        $response = $controller->list($restRequest);
 
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());

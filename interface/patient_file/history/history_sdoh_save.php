@@ -12,19 +12,23 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$pid = (int)$_SESSION['pid'];
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+$pid = (int)$session->get('pid');
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
 
 if (empty($pid)) {
@@ -54,11 +58,11 @@ $data['instrument_score'] = $instrument_score;
 $data['declined_flag'] = $declined_flag;
 
 // Optional convenience metric for reporting dashboards
-$data['positive_domain_count'] = \OpenEMR\Services\SDOH\HistorySdohService::countPositiveDomains($_POST);
+$data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST);
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
-$uid = $_SESSION['authUserID'] ?? null;
+$uid = $session->get('authUserID') ?? null;
 
 $clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {
@@ -117,8 +121,6 @@ $data = [
     // Pregnancy
     'pregnancy_status' => $clean('pregnancy_status'),
     'pregnancy_edd' => $dateOrNull('pregnancy_edd'),
-    'pregnancy_gravida' => $intOrNull('pregnancy_gravida'),
-    'pregnancy_para' => $intOrNull('pregnancy_para'),
     'postpartum_status' => $clean('postpartum_status'),
     'postpartum_end' => $dateOrNull('postpartum_end'),
     'pregnancy_intent' => $clean('pregnancy_intent'),
@@ -138,29 +140,39 @@ $data = [
     'updated_by' => $uid,
 ];
 
-$sdohService = new HistorySdohService();
-if ($rec_id) {
-    $data['updated_by'] = $uid;
-    $result = $sdohService->update($rec_id, $data);
-    if (!$result->isValid()) {
-        $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
-    }
-    $id = $rec_id;
-} else {
-    // we only set encounter on new records.
-    $data['encounter'] = $encounter ?? null;
-    $data['created_by'] = $uid;
-    $result = $sdohService->insert($data);
-    if (!$result->isValid()) {
-        // TODO: we need to do error handling here....
-        $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+try {
+    $sdohService = new HistorySdohService();
+    if ($rec_id) {
+        $data['updated_by'] = $uid;
+        $result = $sdohService->update($rec_id, $data);
+        if (!$result->isValid()) {
+            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+        }
+        $id = $rec_id;
     } else {
-        $id = $result->getFirstDataResult()['id'];
+        // we only set encounter on new records.
+        $data['encounter'] = $encounter ?? null;
+        $data['created_by'] = $uid;
+        $result = $sdohService->insert($data);
+        if (!$result->isValid()) {
+            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            throw new Exception("Failed to insert sdoh record.");
+        } else {
+            $id = $result->getFirstDataResult()['id'];
+        }
     }
+    // TODO: not sure we need to do this here but it doesn't hurt.
+    UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
+    // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
+    // Return to demographics (or wherever you prefer)
+    // Redirect to health concerns selection page
+    $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_health_concerns.php"
+        . "?pid=" . urlencode((string) $pid)
+        . "&sdoh_id=" . urlencode((string) $id);
+    header("Location: $redirectUrl");
+} catch (\Throwable $e) {
+    $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
+    die(xlt("Error saving SDOH record."));
 }
-// TODO: not sure we need to do this here but it doesn't hurt.
-UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
-// TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
-// Return to demographics (or wherever you prefer)
-header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));
+//header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));
 exit;

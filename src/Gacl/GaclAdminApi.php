@@ -23,42 +23,42 @@ namespace OpenEMR\Gacl;
 
 class GaclAdminApi extends GaclApi {
 
-	/*
-	 * Administration interface settings
-	 */
- 	/** @var int Number of items to display per page in the phpGACL interface. */
-	public $_items_per_page = 100;
- 	/** @var int Maximum number of items to display in a select box. Override to manage large collections via ACL Admin */
-	public $_max_select_box_items = 100;
- 	/** @var int Maximum number of items to return in an ACL Search. */
-	public $_max_search_return_items = 100;
+    /*
+     * Administration interface settings
+     */
+    /** @var int Number of items to display per page in the phpGACL interface. */
+    public $_items_per_page = 100;
+    /** @var int Maximum number of items to display in a select box. Override to manage large collections via ACL Admin */
+    public $_max_select_box_items = 100;
+    /** @var int Maximum number of items to return in an ACL Search. */
+    public $_max_search_return_items = 100;
 
-	/*
-	 *
-	 * Misc admin functions.
-	 *
-	 */
+    /*
+     *
+     * Misc admin functions.
+     *
+     */
 
-	/**
-	 * return_page()
-	 *
-	 * Sends the user back to a passed URL
-	 * @param string URL to return to.
-	 */
-	function return_page($url=""): never {
+    /**
+     * return_page()
+     *
+     * Sends the user back to a passed URL
+     * @param string URL to return to.
+     */
+    function return_page($url=""): never {
         $return_page = basename((string) $url);
         header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
         exit;
-	}
+    }
 
-	/**
-	 * get_paging_data()
-	 *
-	 * Creates a basic array for Smarty to deal with paging large recordsets.
-	 *
-	 * @param ADORecordSet ADODB recordset.
-	 */
-	function get_paging_data($rs) {
+    /**
+     * get_paging_data()
+     *
+     * Creates a basic array for Smarty to deal with paging large recordsets.
+     *
+     * @param ADORecordSet ADODB recordset.
+     */
+    function get_paging_data($rs) {
                 return [
                                 'prevpage' => $rs->absolutepage() - 1,
                                 'currentpage' => $rs->absolutepage(),
@@ -67,7 +67,7 @@ class GaclAdminApi extends GaclApi {
                                 'atlastpage' => $rs->atlastpage(),
                                 'lastpageno' => $rs->lastpageno()
                         ];
-	}
+    }
 
 }
 ?>

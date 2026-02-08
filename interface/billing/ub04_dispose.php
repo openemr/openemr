@@ -42,7 +42,7 @@ function ub04_dispose(): void
         } elseif ($dispose == "reset_claim") {
             $pid = $_POST['pid'] ?? $_GET['pid'];
             $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            // clear claim first otherwise get ub04 returns cuurent version.
+            // clear claim first otherwise get ub04 returns current version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
             if ($flg === true) {
@@ -169,7 +169,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
             header("Content-Description: File Transfer");
             echo $pdfwkout;
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt($e->getMessage());
     }
     return true;

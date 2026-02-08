@@ -22,27 +22,27 @@ require_once("gacl_admin.inc.php");
 
 //GET takes precedence.
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
-	$object_type = $_GET['object_type'];
+    $object_type = $_GET['object_type'];
 } else {
-	$object_type = $_POST['object_type'];
+    $object_type = $_POST['object_type'];
 }
 
 switch(strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
         break;
     case 'aro':
         $object_type = 'aro';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
         break;
     case 'axo':
         $object_type = 'axo';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
         break;
     case 'acl':
         $object_type = 'acl';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'acl_sections';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'acl_sections';
         break;
     default:
         echo "ERROR: Must select an object type<br />\n";

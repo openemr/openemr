@@ -91,7 +91,7 @@ function graphsGetValues($name)
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
-        $values = SqlStatement("SELECT " .
+        $values = sqlStatement("SELECT " .
             escape_sql_column_name($name, [$table]) . ", " .
         "date " .
         "FROM " . escape_table_name($table) . " " .

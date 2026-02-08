@@ -299,7 +299,7 @@ class PatientTransactionService extends BaseService
     {
         try {
             return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
     }

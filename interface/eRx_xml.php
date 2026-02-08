@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRx_xml.php Functions for interacting with NewCrop communications.
+ * interface/eRx_xml.php Functions for interacting with Ensora eRx communications.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -193,7 +193,7 @@ function account($doc, $r): void
     global $msg, $facilityService;
     $erxSiteID = $facilityService->getPrimaryBusinessEntity();
     if (!$erxSiteID['federal_ein']) {
-        echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.");
+        echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.");
         die;
     }
 
@@ -940,6 +940,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
 
 function checkError($xml)
 {
+    $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
     $ch = curl_init($xml);
 
     $data = ['RxInput' => $xml];
@@ -947,7 +948,7 @@ function checkError($xml)
     curl_setopt($ch, CURLOPT_URL, getErxPath());
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "RxInput=" . $xml);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($ch, CURLOPT_COOKIESESSION, true);
     //curl_setopt($ch, CURLOPT_HEADER, 0);

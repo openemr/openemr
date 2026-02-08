@@ -73,6 +73,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     {
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);
+        $accessToken->setIssuer(self::ISSUER);
         $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
         $accessToken->setClient($testClient);
         $accessToken->setExpiryDateTime(new \DateTimeImmutable('+1 hour'));

@@ -227,7 +227,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['bill_date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['sale_date']);
     }
 
     /**

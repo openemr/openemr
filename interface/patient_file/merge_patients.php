@@ -22,8 +22,11 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -287,10 +290,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            EventAuditLogger::instance()->newEvent(
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 $log_message,
                 $target_pid
@@ -334,6 +338,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         function resolveDuplicateEncounters($targets): void
         {
             global $PRODUCTION;
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
 
             $target_pid = $targets[0]['pid'];
             $target = $targets[0]['encounter'];
@@ -391,7 +396,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -604,7 +609,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         <p>
         </p>
         <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="table-responsive">
                 <table class="table w-100">
                     <tr>

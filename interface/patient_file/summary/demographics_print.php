@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,8 +31,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
@@ -45,7 +51,7 @@ $PDF_OUTPUT = ($patientid && $isform) ? false : true;
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -63,10 +69,10 @@ if ($patientid) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
     if (!$thisauth) {
-        die(xlt('Demographics not authorized'));
+        AccessDeniedHelper::deny('Demographics access not authorized');
     }
     if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-        die(xlt('You are not authorized to access this squad'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
   // $irow = getInsuranceProviders(); // needed?
 }
@@ -187,7 +193,7 @@ td.dcols3 { width: 80%; }
 <?php
 // Generate header with optional logo.
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }
@@ -225,12 +231,6 @@ function end_group(): void
         echo " </table>\n";
         echo "</div>\n";
     }
-}
-
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
 }
 
 $last_group = '';
@@ -361,7 +361,7 @@ if (strlen((string) $last_group) > 0) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $pdf->writeHTML($content);
     $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {

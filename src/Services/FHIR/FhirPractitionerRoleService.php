@@ -51,7 +51,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     {
         return  [
             'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
-            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name']),
+            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::REFERENCE, [new ServiceField('provider_uuid', ServiceField::TYPE_UUID)]),
             '_id' => new FhirSearchParameterDefinition(
                 '_id',
                 SearchFieldType::TOKEN,
@@ -122,6 +122,17 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             $reason->addCoding($dataRecord['specialty_code']);
             $reason->setText($dataRecord['specialty_title']);
             $practitionerRoleResource->addCode($reason);
+        }
+
+        if (!empty($dataRecord['location_uuid'])) {
+            $practitionerRoleResource->addLocation(UtilsService::createRelativeReference("Location", $dataRecord['location_uuid']));
+        }
+        // now let's handle the telecom pieces
+        $telecoms = ['work_phone', 'fax', 'email', 'url'];
+        foreach ($telecoms as $telecom) {
+            if (!empty($dataRecord[$telecom])) {
+                $practitionerRoleResource->addTelecom(UtilsService::createContactPoint($dataRecord[$telecom], $dataRecord[$telecom . '_system'], $dataRecord[$telecom . '_use']));
+            }
         }
 
         if ($encode) {

@@ -70,7 +70,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement;
 class FHIRValueSetExpansion extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may re-use the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
+     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may reuse the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
     public $identifier = null;
@@ -111,7 +111,7 @@ class FHIRValueSetExpansion extends FHIRBackboneElement implements \JsonSerializ
     private $_fhirElementName = 'ValueSet.Expansion';
 
     /**
-     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may re-use the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
+     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may reuse the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
     public function getIdentifier()
@@ -120,7 +120,7 @@ class FHIRValueSetExpansion extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may re-use the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
+     * An identifier that uniquely identifies this expansion of the valueset, based on a unique combination of the provided parameters, the system default parameters, and the underlying system code system versions etc. Systems may reuse the same identifier as long as those factors remain the same, and the expansion is the same, but are not required to do so. This is a business identifier.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $identifier
      * @return $this
      */

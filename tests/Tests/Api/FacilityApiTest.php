@@ -5,7 +5,6 @@ namespace OpenEMR\Tests\Api;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -20,7 +19,6 @@ use PHPUnit\Framework\Attributes\Test;
  *
  */
 
-#[CoversClass(FacilityRestController::class)]
 class FacilityApiTest extends TestCase
 {
     const FACILITY_API_ENDPOINT = "/apis/default/api/facility";

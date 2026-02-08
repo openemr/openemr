@@ -16,9 +16,9 @@
  */
 function smarty_core_assign_smarty_interface($params, &$smarty): void
 {
-        if (isset($smarty->_smarty_vars) && isset($smarty->_smarty_vars['request'])) {
-            return;
-        }
+    if (isset($smarty->_smarty_vars) && isset($smarty->_smarty_vars['request'])) {
+        return;
+    }
 
         $_globals_map = ['g'  => 'HTTP_GET_VARS',
                              'p'  => 'HTTP_POST_VARS',

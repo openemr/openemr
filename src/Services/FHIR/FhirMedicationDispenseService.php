@@ -106,7 +106,7 @@ class FhirMedicationDispenseService extends FhirServiceBase implements
                 $category = $fhirSearchParameters['type'];
 
                 $catServices = $this->getServiceListForCategory(
-                    new TokenSearchField('type', $category)
+                    new TokenSearchField('type', explode(",",$category))
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;

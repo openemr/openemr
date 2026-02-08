@@ -5,10 +5,12 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,14 +28,11 @@ use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\ExpectationFailedException;
 
 trait UserAddTrait
 {
     use BaseTrait;
     use LoginTrait;
-
-    private int $userAddAttemptCounter = 1;
 
     #[Depends('testLoginAuthorized')]
     #[Test]
@@ -69,9 +68,14 @@ trait UserAddTrait
         // add the user
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use elementToBeClickable + direct WebDriver click instead of
+        // Panther's refreshCrawler/filterXPath/click pattern
+        $addUserBtn = $this->client->wait(30)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $addUserBtn->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
@@ -83,92 +87,107 @@ trait UserAddTrait
             )
         );
 
-        sleep(2); // wait for the form to be ready
+        // Wait for the form's submitform() JS function to be defined
+        $this->client->wait(10)->until(fn($driver) => $driver->executeScript('return typeof submitform === "function";'));
 
         $this->populateUserFormReliably($username);
 
-        sleep(2); // wait for the populated form to be ready
+        // Use direct WebDriver click instead of Panther's crawler click,
+        // which can fail with stale DOM references
+        $createBtn = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $createBtn->click();
 
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // Switch to default content to properly detect modal state changes
+        $this->client->switchTo()->defaultContent();
 
-        sleep(2); // wait for the form submission to be complete
+        // Wait for the modal iframe to disappear (dialog closes on successful user creation)
+        // The dialog calls dlgclose('reload', false) on success, which closes the modal
+        // and triggers a reload of the admin iframe
+        $this->client->wait(30)->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+            )
+        );
 
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
 
-        // assert the new user can be seen in the gui
-        $this->client->switchTo()->defaultContent();
+        // Wait for the admin iframe to be ready (it reloads after dialog closes)
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        // below line will throw a timeout exception and fail if the new user is not listed
+
+        // Wait for the Add User button to be visible again (indicates the iframe has fully reloaded)
+        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
+
+        // Now wait for the new user to appear in the table
+        // This will throw a timeout exception and fail if the new user is not listed
         $this->client->waitFor("//table//a[text()='$username']");
     }
 
     private function assertUserInDatabase(string $username): void
     {
-        // assert the new user is in the database (check 3 times with 5 second delay prior each check to
-        // ensure allow enough time)
-        $userExistDatabase = false;
-        $counter = 0;
-        while (!$userExistDatabase && $counter < 3) {
-            if ($counter > 0) {
-                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
-            }
-            sleep(2);
-            if ($this->isUserExist($username)) {
-                $userExistDatabase = true;
-            }
-            $counter++;
-        }
-        $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
+        // Poll the database for the new user (up to 10s, checking every 500ms)
+        $this->client->wait(10, 500)->until(fn() => $this->isUserExist($username));
     }
 
-    private function populateUserFormReliably($username): void
+    private function populateUserFormReliably(string $username): void
     {
-        // Simple but effective approach - wait for page to be ready
+        // Wait for password field and Create User button to be ready
         $this->client->waitFor('//input[@name="stiltskin"]');
-        $this->client->wait(1000000); // 1 second for all JS to initialize
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
 
-        $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
+        // Populate form fields using JavaScript value assignment (see
+        // clearAndType). Panther's Form API and WebDriver sendKeys() both
+        // have reliability issues under CI resource pressure.
+        $this->clearAndType('fname', UserTestData::FIRSTNAME);
+        $this->clearAndType('lname', UserTestData::LASTNAME);
+        $this->clearAndType('adminPass', LoginTestData::password);
+        $this->clearAndType('stiltskin', UserTestData::PASSWORD);
+        // Set username last to ensure earlier field handlers cannot overwrite it
+        $this->clearAndType('rumple', $username);
 
-        $newUser['rumple'] = $username;
-        $newUser['fname'] = UserTestData::FIRSTNAME;
-        $newUser['lname'] = UserTestData::LASTNAME;
-        $newUser['adminPass'] = LoginTestData::password;
-
-        // Retry logic for password field
-        $this->setPasswordWithRetry($newUser);
+        // Verify all form fields accepted their values. If a field was
+        // silently cleared by JavaScript, the form submission will fail
+        // server-side and the modal won't close, causing a timeout.
+        $this->client->wait(10)->until(function ($driver) use ($username) {
+            $rumple = $driver->findElement(WebDriverBy::name('rumple'));
+            $stiltskin = $driver->findElement(WebDriverBy::name('stiltskin'));
+            $fname = $driver->findElement(WebDriverBy::name('fname'));
+            $lname = $driver->findElement(WebDriverBy::name('lname'));
+            return $rumple->getAttribute('value') === $username
+                && $stiltskin->getAttribute('value') === UserTestData::PASSWORD
+                && $fname->getAttribute('value') === UserTestData::FIRSTNAME
+                && $lname->getAttribute('value') === UserTestData::LASTNAME;
+        });
 
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
     }
 
-    private function setPasswordWithRetry($newUser): void
+    /**
+     * Set a form field's value using JavaScript instead of WebDriver
+     * sendKeys(). Under CI resource pressure, sendKeys() dispatches key
+     * events one-by-one and Chrome can drop keystrokes. JavaScript
+     * value assignment is atomic and reliable. Input and change events
+     * are dispatched so any listeners (e.g. password strength meter)
+     * still fire.
+     */
+    private function clearAndType(string $fieldName, string $value): void
     {
-        for ($attempt = 1; $attempt <= 3; $attempt++) {
-            // Set password
-            $newUser['stiltskin'] = UserTestData::PASSWORD;
-            $this->client->wait(300000); // 0.3 seconds
-
-            // Verify it worked
-            try {
-                $passwordField = $this->client->findElement(WebDriverBy::name('stiltskin'));
-                $value = $passwordField->getAttribute('value');
-
-                if ($value === UserTestData::PASSWORD) {
-                    return; // Success!
-                }
-            } catch (Exception) {
-                // Field not found or other error
-            }
-
-            if ($attempt === 3) {
-                throw new Exception("Failed to populate password field after 3 attempts");
-            }
-
-            // Wait before retry
-            $this->client->wait(500000); // 0.5 seconds
-        }
+        $this->client->executeScript(
+            'var f = document.getElementsByName(arguments[0])[0];'
+            . 'f.value = "";'
+            . 'f.value = arguments[1];'
+            . 'f.dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'f.dispatchEvent(new Event("change", {bubbles: true}));',
+            [$fieldName, $value]
+        );
     }
 }

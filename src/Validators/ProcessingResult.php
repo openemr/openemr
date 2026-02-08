@@ -10,7 +10,7 @@ use OpenEMR\Common\Database\QueryPagination;
  * Data contained within a processing result includes:
  * - isValid: indicates if the data provided to the service was valid
  * - validatiomMessages: validation errors, if any, which occurred during processing
- * - internalErrors: system related errors, if any, which occured during processing
+ * - internalErrors: system related errors, if any, which occurred during processing
  * - data: the return value of the operation/process (array)
  *
  * @package   OpenEMR
@@ -164,7 +164,7 @@ class ProcessingResult
         $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
         $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
         if (!empty($other->getPagination())) {
-            $this->pagination->copy($other->getPagination());
+            $this->pagination->copy();
         }
         // make sure to handle our pagination properly by using the setData method
         $this->setData(array_merge($this->data, $other->data));

@@ -45,11 +45,13 @@ class oeOAuth
 
     public function __construct()
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+
         // for refresh/accecc token client.
         $this->auth_options = [
             'base_uri' => '',
             'http_errors' => false,
-            'verify' => false,
+            'verify' => $httpVerifySsl,
         ];
         $this->password_config = [
             "username" => "dummy",

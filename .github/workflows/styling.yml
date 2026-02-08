@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
 
   php_styling:
@@ -24,31 +28,15 @@ jobs:
         php-version: ['8.4']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
-    - name: Install PHP
-      uses: shivammathur/setup-php@v2
+      uses: actions/checkout@v6
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        coverage: none
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: |
-        {
-          printf 'dir='
-          composer config cache-files-dir
-        } >> "$GITHUB_OUTPUT"
-    - name: Cache Composer
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
-    - name: Composer Install
-      run: composer install --prefer-dist --no-progress
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+      # emacs report format produces file:line:col output that the
+      # problem matcher converts into inline PR annotations.
+      run: composer phpcs -- --report=full,emacs
 
   css_styling:
     runs-on: ubuntu-24.04
@@ -59,7 +47,7 @@ jobs:
         node-version: ['22']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Install npm package
       uses: actions/setup-node@v6
       with:
@@ -72,7 +60,7 @@ jobs:
           npm config get cache
         } >> "$GITHUB_OUTPUT"
     - name: Cache node modules
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
@@ -93,7 +81,7 @@ jobs:
         node-version: ['22']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Install npm package
       uses: actions/setup-node@v6
       with:
@@ -106,7 +94,7 @@ jobs:
           npm config get cache
         } >> "$GITHUB_OUTPUT"
     - name: Cache node modules
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}

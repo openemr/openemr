@@ -5,7 +5,7 @@
  *
  * This script may be executed by a suitable Ajax request, by a cron job, or both.
  *
- * When called from cron, optinal args are [site] [service] [force]
+ * When called from cron, optional args are [site] [service] [force]
  * @param site to specify a specific site, 'default' used if omitted
  * @param service to specify a specific service, 'all' used if omitted
  * @param force '1' to ignore specified wait interval, '0' to honor wait interval
@@ -131,7 +131,7 @@ function execute_background_service_calls(): void
             continue;
         }
 
-        $acquiredLock =  generic_sql_affected_rows();
+        $acquiredLock =  \OpenEMR\Common\Database\QueryUtils::affectedRows();
         if ($acquiredLock < 1) {
             continue; //service is already running or not due yet
         }
@@ -147,7 +147,7 @@ function execute_background_service_calls(): void
         //use try/catch in case service functions throw an unexpected Exception
         try {
             $service['function']();
-        } catch (Exception) {
+        } catch (\Throwable) {
           //do nothing
         }
 
@@ -173,6 +173,6 @@ function background_shutdown(): void
     }
 }
 
-register_shutdown_function('background_shutdown');
+register_shutdown_function(background_shutdown(...));
 execute_background_service_calls();
 unset($service_name);

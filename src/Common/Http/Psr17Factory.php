@@ -95,11 +95,6 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
     public function createUploadedFile(StreamInterface $stream, ?int $size = null, int $error = \UPLOAD_ERR_OK, ?string $clientFilename = null, ?string $clientMediaType = null): UploadedFileInterface
     {
         return (new NyholmPsr17Factory())->createUploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
-        if (null === $size) {
-            $size = $stream->getSize();
-        }
-
-        return new UploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
     }
 
     /**

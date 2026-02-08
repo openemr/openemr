@@ -38,6 +38,7 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
 use Exception;
 
@@ -266,7 +267,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 // put our exception information here
                 $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
                 return $processingResult;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 $systemLogger = new SystemLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
                 $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
@@ -277,9 +278,12 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $processingResult;
     }
 
-    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null)
+    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, IResourceReadableService $service, array $searchParams, $puuidBind = null): void
     {
         $searchParams['_revinclude'] = 'Provenance:target';
+        if ($service instanceof SessionAwareInterface) {
+            $service->setSession($this->getSession());
+        }
         $serviceResult = $service->getAll($searchParams, $puuidBind);
         // now loop through and grab all of our provenance resources
         if ($serviceResult->hasData()) {
@@ -311,6 +315,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
         try {
             $newServiceClass = new $className();
+            if ($newServiceClass instanceof SessionAwareInterface) {
+                $newServiceClass->setSession($this->getSession());
+            }
             if ($newServiceClass instanceof IResourceReadableService) {
                 $searchParams = [
                     '_id' => $innerId
@@ -327,7 +334,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     $processingResult->addProcessingResult($results);
                 }
             }
-        } catch (Exception) {
+        } catch (\Throwable) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
         }
         return $processingResult;
@@ -434,6 +441,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $searchParams['_revinclude'] = 'Provenance:target';
             if ($resource != "Provenance" && isset($servicesByResource[$resource]) && $servicesByResource[$resource] instanceof IResourceReadableService) {
                 $service = $servicesByResource[$resource];
+                if ($service instanceof SessionAwareInterface) {
+                    $service->setSession($this->getSession());
+                }
                 if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
                     // service supports filtering by patients so let's do that
                     if ($service instanceof IPatientCompartmentResourceService) {

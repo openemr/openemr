@@ -208,7 +208,7 @@ function create_and_download_certificates(): void
         $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
-    /* Create the Certficate Authority (CA) */
+    /* Create the Certificate Authority (CA) */
     $arr = create_csr(
         "OpenEMR CA for " . $commonName,
         $emailAddress,
@@ -321,7 +321,7 @@ function create_and_download_certificates(): void
         if (ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
-    } catch (Exception) {
+    } catch (\Throwable) {
         SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
         return;
     }

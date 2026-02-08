@@ -16,11 +16,15 @@ require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!empty($_GET['set_pid'])) {
     require_once($GLOBALS['srcdir'] . '/pid.inc.php');
@@ -47,12 +51,12 @@ if ($docid) {
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen
@@ -102,7 +106,7 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -153,7 +157,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $noteid);
+            EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -164,7 +168,7 @@ if (isset($mode)) {
 }
 
 $title = '';
-$assigned_to = $_SESSION['authUser'];
+$assigned_to = $session->get('authUser');
 if ($noteid) {
     $prow = getPnoteById($noteid, 'title,assigned_to,body');
     $title = $prow['title'];
@@ -227,13 +231,13 @@ $(function () {
     // I can't find a reason to load this!
     /*$("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         }
     );*/
 
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         }
     );
 
@@ -281,7 +285,7 @@ function restoreSession() {
 <div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
     <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
         <?php
         $title_docname = "";
@@ -399,7 +403,7 @@ function restoreSession() {
         <div id='inbox_div' class="table-responsive">
             <form method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">
@@ -481,7 +485,7 @@ function restoreSession() {
 
                                 // display, or not, a button to delete the note
                                 // if the user is an admin or if they are the author of the note, they can delete it
-                                if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                                if (($iter['user'] == $session->get('authUser')) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
                                     echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
                                     "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'>" .
                                     xlt('Delete') . "</a>\n";
@@ -641,7 +645,7 @@ function restoreSession() {
 
                         // display, or not, a button to delete the note
                         // if the user is an admin or if they are the author of the note, they can delete it
-                        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                        if (($iter['user'] == $session->get('authUser')) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
                             echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
                             "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
                             xlt('Delete') . "</span>\n";

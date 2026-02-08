@@ -138,16 +138,16 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $surveyCategory = $categories[0];
         $this->assertInstanceOf(FHIRCodeableConcept::class, $surveyCategory);
         $coding = $surveyCategory->getCoding()[0];
-        $this->assertEquals('http://terminology.hl7.org/CodeSystem/observation-category', $coding->getSystem()->getValue());
-        $this->assertEquals('survey', $coding->getCode()->getValue());
+        $this->assertEquals('http://terminology.hl7.org/CodeSystem/observation-category', $coding->getSystem());
+        $this->assertEquals('survey', $coding->getCode());
 
         // Test additional screening-assessment category if present
         if (isset($record['screening_category_code'])) {
             $this->assertCount(2, $categories);
             $screeningCategory = $categories[1];
             $screeningCoding = $screeningCategory->getCoding()[0];
-            $this->assertEquals($record['screening_category_system'], $screeningCoding->getSystem()->getValue());
-            $this->assertEquals($record['screening_category_code'], $screeningCoding->getCode()->getValue());
+            $this->assertEquals($record['screening_category_system'], $screeningCoding->getSystem());
+            $this->assertEquals($record['screening_category_code'], $screeningCoding->getCode());
         }
 
         $this->assertEquals($record['uuid'], $observation->getId()->getValue(), "Uuid should be populated");

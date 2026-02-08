@@ -29,12 +29,13 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -221,10 +222,10 @@ class ClientAdminController
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      * @throws Exception
      */
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->kernel->getEventDispatcher();
     }
@@ -239,18 +240,17 @@ class ClientAdminController
     private function renderTwigPage(string $pageName, string $template, array $templateVars, int $statusCode = Response::HTTP_OK): Response
     {
         try {
-            $twig = $this->getTwig();
             $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
             $dispatcher = $this->getEventDispatcher();
             $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
             $template = $updatedTemplatePageEvent->getTwigTemplate();
             $vars = $updatedTemplatePageEvent->getTwigVariables();
-            $responseBody = $twig->render($template, $vars);
-        } catch (Exception $e) {
+            $responseBody = $this->twig->render($template, $vars);
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             try {
-                $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
-            } catch (Exception $e) {
+                $responseBody = $this->twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("caught exception rendering error template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
                 $responseBody = "Error rendering template";
             }
@@ -303,7 +303,7 @@ class ClientAdminController
     private function getAccessTokenRepository(): AccessTokenRepository
     {
         if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
+            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
         }
         return $this->accessTokenRepository;
     }
@@ -393,7 +393,7 @@ class ClientAdminController
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             return $this->returnFailedToSaveClientResponse($ex, $client);
         }
     }
@@ -797,7 +797,7 @@ class ClientAdminController
                     $parts = [];
                 }
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->errorLogCaller("caught exception parsing token", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
             $message = xl('Failed to parse token. Check system logs');
             $parts = [];
@@ -876,7 +876,7 @@ class ClientAdminController
             $this->clientRepo->saveSkipEHRLaunchFlow($client, $skipFlow);
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             return $this->returnFailedToSaveClientResponse($ex, $client);
         }
     }

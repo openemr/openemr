@@ -17,11 +17,11 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($isPortal) {
@@ -32,6 +32,8 @@ $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -46,11 +48,12 @@ $lform_response = $_POST['lform_response'] ?? '';
 $lform = $_POST['lform'] ?? '';
 $qid = null;
 $qrid = null;
+$category = $_POST['category'] ?? null;
 // so form save will work
 unset($_POST['select_item']);
 // security
 if ($isPortal && $mode == 'update' && !empty($formid)) {
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
@@ -70,7 +73,7 @@ if ($mode !== 'new' && $mode !== 'new_repository_form') {
             $_POST['response_meta'] = $responseService->extractResponseMetaData($saved['questionnaire_response'], true);
             $_POST['response_id'] = $saved['response_id'];
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         // allow exception to pass onward with echoed notification to user.
         // The form has a backup copy of response and will save with the form.
         echo("<p>" . xlt("Questionnaire Response save failed because") . '<br />' . text($e->getMessage()) . '<br /><h3>' . xlt("Will attempt to save using backed up answers.") . "</h3></p>");
@@ -83,8 +86,8 @@ if (isset($_POST['save_registry'])) {
     if (empty($check['id'])) {
         $service = new QuestionnaireService();
         try {
-            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter');
-        } catch (Exception $e) {
+            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter', $category);
+        } catch (\Throwable $e) {
             die(xlt("New Questionnaire insert failed") . '<br />' . text($e->getMessage()));
         }
         $rtn = sqlInsert("Insert Into `registry` Set
@@ -114,7 +117,7 @@ if (empty($formid)) {
     $formid = $newid;
 } elseif (!empty($formid)) {
     // just to be sure
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
     $success = formUpdate("form_questionnaire_assessments", $_POST, $formid, $userauthorized);
 }
 

@@ -23,9 +23,10 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
@@ -52,9 +53,14 @@ class BaseService implements BaseServiceInterface
     ];
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
+    /**
+     * @var ?SessionInterface For handling session data in the service
+     */
+    private ?SessionInterface $session = null;
 
     /**
      * Default constructor.
@@ -69,12 +75,22 @@ class BaseService implements BaseServiceInterface
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
+    }
+
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
     }
@@ -364,7 +380,7 @@ class BaseService implements BaseServiceInterface
      * Fetch ID by UUID of Resource
      *
      * @param string $uuid              - UUID of Resource
-     * @param string $table             - Table reffering to the ID field
+     * @param string $table             - Table referring to the ID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return ID
      */
@@ -379,7 +395,7 @@ class BaseService implements BaseServiceInterface
      * Fetch UUID by ID of Resource
      *
      * @param string $id                - ID of Resource
-     * @param string $table             - Table reffering to the UUID field
+     * @param string $table             - Table referring to the UUID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return UUID string
      */
@@ -558,7 +574,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $fields                    - All IDs separated with | sign
      * @param string $table                     - Name of the table of targeted ID
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs

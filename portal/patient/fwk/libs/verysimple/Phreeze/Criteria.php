@@ -10,7 +10,7 @@ require_once("CriteriaFilter.php");
 require_once("verysimple/IO/Includer.php");
 
 /**
- * Criteria is a base object that is passed into Phreeze->Query for retreiving
+ * Criteria is a base object that is passed into Phreeze->Query for retrieving
  * records based on specific criteria
  *
  * @package verysimple::Phreeze
@@ -168,7 +168,7 @@ class Criteria
     }
 
     /**
-     * Reset the Criteria for re-use.
+     * Reset the Criteria for reuse.
      * This is called by querybuilder after the criteria has been used
      * to generate SQL. It can be called manually as well.
      */
@@ -416,14 +416,8 @@ class Criteria
             $mapname = $this->_map_object_class;
             $this->IncludeMap($mapname);
 
-            $this->_fieldmaps = call_user_func([
-                    $mapname,
-                    "GetFieldMaps"
-            ]);
-            $this->_keymaps = call_user_func([
-                    $mapname,
-                    "GetKeyMaps"
-            ]);
+            $this->_fieldmaps = $mapname::GetFieldMaps();
+            $this->_keymaps = $mapname::GetKeyMaps();
         }
     }
 

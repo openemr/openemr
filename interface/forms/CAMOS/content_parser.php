@@ -33,7 +33,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
     $c = new C_FormVitals();
-    echo $c->default_action_process($_POST);
+    echo $c->default_action_process();
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
@@ -44,7 +44,7 @@ function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifie
     }
     $justify_string = '';
     if ($justify) {
-        //trim eahc entry
+        //trim each entry
         foreach ($justify as $temp_justify) {
             $justify_trimmed[] = trim((string) $temp_justify);
         }

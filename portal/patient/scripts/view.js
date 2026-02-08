@@ -194,7 +194,7 @@ var view = {
 		 *
 		 * <input id="[prop]_[id]"  ... />
 		 *
-		 * where [prop] is the name of the model propery and [id] is the
+		 * where [prop] is the name of the model property and [id] is the
 		 * id (unique id) of the model
 		 */
 		handleViewChange: function(ev) {

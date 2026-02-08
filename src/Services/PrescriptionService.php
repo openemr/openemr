@@ -132,6 +132,10 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.medication_adherence_information_source
                 ,med_adherence_source.medication_adherence_information_source_title
                 ,med_adherence_source.medication_adherence_information_source_codes
+                ,combined_prescriptions.reporting_source_record_id
+                ,reporting_source.reporting_source_uuid
+                ,reporting_source.reporting_source_type
+                ,reporting_source.reporting_source_abook_type
                 FROM (
                       SELECT
                              prescriptions.uuid
@@ -145,7 +149,7 @@ class PrescriptionService extends BaseService
                             ,COALESCE(prescriptions.usage_category_title, 'Home/Community') as category_title
                             ,IF(prescriptions.rxnorm_drugcode!=''
                                 ,prescriptions.rxnorm_drugcode
-                                ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
+                                ,IF(drugs.drug_code IS NULL, '', drugs.drug_code)
                             ) AS 'rxnorm_drugcode'
                             ,date_added
                             ,date_modified
@@ -160,9 +164,9 @@ class PrescriptionService extends BaseService
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
                             ,prescriptions.quantity
-                            ,NULL AS medication_adherence_date_asserted
-                            ,NULL AS medication_adherence
-                            ,NULL AS medication_adherence_information_source
+                            ,meds.medication_adherence_date_asserted
+                            ,meds.medication_adherence
+                            ,meds.medication_adherence_information_source
                             ,CASE
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
@@ -170,7 +174,8 @@ class PrescriptionService extends BaseService
                             END as 'status'
                             ,prescriptions.dosage
                             ,diagnosis
-
+                            ,meds.is_primary_record
+                            ,meds.reporting_source_record_id
                     FROM
                         prescriptions
                     LEFT JOIN
@@ -182,7 +187,9 @@ class PrescriptionService extends BaseService
                             medication_adherence_information_source,
                             medication_adherence,
                             medication_adherence_date_asserted,
-                            prescription_id AS meds_prescription_id
+                            prescription_id AS meds_prescription_id,
+                            is_primary_record,
+                            reporting_source_record_id
                         FROM lists_medication
                     ) meds ON prescriptions.id = meds.meds_prescription_id
                     UNION
@@ -221,6 +228,8 @@ class PrescriptionService extends BaseService
                         END as 'status'
                         ,NULL as dosage
                         ,diagnosis
+                        ,is_primary_record
+                        ,reporting_source_record_id
                     FROM
                         lists
                     LEFT JOIN
@@ -306,7 +315,16 @@ class PrescriptionService extends BaseService
                     FROM users
                     WHERE users.npi IS NOT NULL AND users.npi != ''
                 ) practitioner
-                ON practitioner.practitioner_id = combined_prescriptions.provider_id";
+                ON practitioner.practitioner_id = combined_prescriptions.provider_id
+                LEFT JOIN (
+                    SELECT
+                    uuid AS reporting_source_uuid
+                    ,'user' AS reporting_source_type
+                    ,id AS reporting_source_user_id
+                    ,abook_type AS reporting_source_abook_type
+                    FROM users
+                    WHERE npi IS NOT NULL AND npi != ''
+                ) reporting_source ON reporting_source.reporting_source_user_id = combined_prescriptions.reporting_source_record_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -324,7 +342,7 @@ class PrescriptionService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
+        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid', 'reporting_source_uuid'];
     }
 
     protected function createResultRecordFromDatabaseResult($row)

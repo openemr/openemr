@@ -19,7 +19,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode((string) $data, true) ?? [];
+    $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
@@ -98,7 +98,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
                 if (empty($ruleObjectHash[$ruleId])) {
                     $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
                 }
-                $data = json_decode((string) $row['item_details'], true) ?? null;
+                $data = (json_decode((string) $row['item_details'], true)) ?? null;
                 if (!empty($data)) {
                     $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
 
@@ -128,7 +128,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
     }
 
     // now grab all the patients and let's populate here
-    $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
+    $sanitizedPids = array_map(intval(...), array_keys($reportDataByPid));
     $totalPids = count($sanitizedPids);
     $aggregatedPatientRecords = [];
     if (!empty($sanitizedPids)) {
@@ -173,7 +173,7 @@ function getRuleObjectForId($ruleId)
         $rule = ReportTypes::getClassName($ruleId);
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         (new SystemLogger())->errorLogCaller("Failed to instantiate rule class for rule", ['rule_id' => $ruleId
             , 'message' => $error->getTraceAsString()]);
     }
@@ -195,7 +195,7 @@ if (!empty($report_view)) {
 
 // See if showing an old report or creating a new report
     // now we are going to create our report
-    $dataSheet = formatPatientReportData($report_id, $report_view['data'], true, false, $type_report, $amc_report_data);
+    $dataSheet = formatPatientReportData($report_id, $report_view['data'], true, false);
     $form_provider = $_POST['form_provider'] ?? '';
 
     $subTitle = '';

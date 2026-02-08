@@ -23,6 +23,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 use RuntimeException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
@@ -50,6 +51,7 @@ class DocumentTemplateRender
     private readonly mixed $encounter;
     public $version;
     private readonly DocumentTemplateService $templateService;
+    private readonly SystemLogger $logger;
 
     public function __construct(private $pid, $user, $encounter = null)
     {
@@ -57,6 +59,7 @@ class DocumentTemplateRender
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
+        $this->logger = new SystemLogger();
     }
 
     /**
@@ -108,16 +111,15 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
-            !file_exists($purifyTempFile) &&
-            !is_dir($purifyTempFile)
+            !is_dir($purifyTempDir)
         ) {
-            if (!mkdir($purifyTempFile)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempFile]);
+            if (!mkdir($purifyTempDir, 0700, true)) {
+                $this->logger->error("Could not create directory ", [$purifyTempDir]);
             }
         }
-        $config->set('Cache.SerializerPath', $purifyTempFile);
+        $config->set('Cache.SerializerPath', $purifyTempDir);
         $config->set('Core.Encoding', 'UTF-8');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
@@ -128,7 +130,7 @@ class DocumentTemplateRender
         // do the substitutions (ie. magic)
         $edata = $this->doSubs($edata, $formData);
         if (!$isLegacy) {
-            // ony inserts when a new template is fetched.
+            // only inserts when a new template is fetched.
             $edata .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
         }
         if ($this->html_flag) { // return raw minified html template
@@ -197,7 +199,7 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content_fetch = $this->templateService->fetchTemplate($form_id, $formname)['template_content'];
+                $content_fetch = $this->templateService->fetchTemplate($form_id)['template_content'];
                 $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";
@@ -361,20 +363,14 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{Zip}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->ptrow['postal_code'], xl('Postal Code')));
             } elseif ($this->keySearch($s, '{PatientPhone}')) {
-                $ptphone = $this->ptrow['phone_contact'];
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_home'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_cell'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_biz'];
-                }
-                if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
-                    $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-                }
-                $s = $this->keyReplace($s, $this->dataFixup($ptphone, xl('Phone')));
+                $ptphone = (string) (
+                    $this->ptrow['phone_contact']
+                    ?: $this->ptrow['phone_home']
+                    ?: $this->ptrow['phone_cell']
+                    ?: $this->ptrow['phone_biz']
+                    ?: ''
+                );
+                $s = $this->keyReplace($s, $this->dataFixup(PhoneNumberService::tryFormatPhone($ptphone), xl('Phone')));
             } elseif ($this->keySearch($s, '{PatientDOB}')) {
                 $s = $this->keyReplace($s, $this->dataFixup(oeFormatShortDate($this->ptrow['DOB']), xl('Birth Date')));
             } elseif ($this->keySearch($s, '{PatientSex}')) {
@@ -510,7 +506,7 @@ class DocumentTemplateRender
                     /* use global setting */
                     $currentdate = oeFormatShortDate(date('Y-m-d'), true);
                 } elseif (
-                    /* there's an overiding format */
+                    /* there's an overriding format */
                     preg_match('/YYYY-MM-DD/i', $matched, $matches)
                 ) {
                     /* nothing to do here as this is the default format */

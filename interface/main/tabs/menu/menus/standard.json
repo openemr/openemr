@@ -672,7 +672,7 @@
     "requirement": 0
   },
   {
-    "label": "New Crop",
+    "label": "Ensora eRx",
     "menu_id": "feeimg",
     "children": [
       {
@@ -1195,32 +1195,6 @@
         ]
       },
       {
-        "label": "De Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/de_identification_screen1.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
-        "label": "Re Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/re_identification_input_screen.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
         "label": "Export",
         "menu_id": "adm0",
         "target": "adm",
@@ -1436,10 +1410,10 @@
             "global_req": "enable_amc"
           },
           {
-            "label": "2025 Real World Testing Report",
+            "label": "2026 Real World Testing Report",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/rwt_2025_report.php",
+            "url": "/interface/reports/rwt_2026_report.php",
             "children": [],
             "requirement": 0,
             "acl_req": [

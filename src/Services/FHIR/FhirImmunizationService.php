@@ -113,7 +113,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
                 $display = "patient objection";
 
                 // we are leaving these here just to document these values as PATOBJ corresponds to both patient or
-                // guardian objection.  Other doesn't have a correspondance, and patient decision is already handled.
+                // guardian objection.  Other doesn't have a correspondence, and patient decision is already handled.
                 switch ($dataRecord['refusal_reason_cdc_nip_code']) {
                     case '00': // Parental exemption
                         break;
@@ -204,6 +204,18 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $performer = new FHIRImmunizationPerformer();
             $performer->setActor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
             $immunizationResource->addPerformer($performer);
+        }
+
+        if (!empty($dataRecord['euuid'])) {
+            $encounterReference = new FHIRReference();
+            $encounterReference->setReference('Encounter/' . $dataRecord['euuid']);
+            $immunizationResource->setEncounter($encounterReference);
+        }
+
+        if (!empty($dataRecord['facility_location_uuid'])) {
+            $locationReference = new FHIRReference();
+            $locationReference->setReference('Location/' . $dataRecord['facility_location_uuid']);
+            $immunizationResource->setLocation($locationReference);
         }
 
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
