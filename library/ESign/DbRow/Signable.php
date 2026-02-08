@@ -4,24 +4,14 @@
  * Abstract implementation of SignableIF which represents a signable row
  * in the database.
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
- **/
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
+ * @copyright Copyright (c) 2013 OEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace ESign;
 
@@ -31,27 +21,23 @@ require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
-    private $_signatures = array();
-    protected $_tableId = null;
-    protected $_tableName = null;
+    private $_signatures = [];
     private $_verification = null;
 
-    public function __construct($tableId, $tableName)
+    public function __construct(protected $_tableId, protected $_tableName)
     {
-        $this->_tableId = $tableId;
-        $this->_tableName = $tableName;
         $this->_verification = new Utils_Verification();
     }
 
     public function getSignatures()
     {
-        $this->_signatures = array();
+        $this->_signatures = [];
 
         $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, U.suffix, U.valedictory, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
         $statement .= "JOIN users U ON E.uid = U.id ";
         $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
-        $result = sqlStatement($statement, array( $this->_tableId, $this->_tableName ));
+        $result = sqlStatement($statement, [ $this->_tableId, $this->_tableName ]);
 
         while ($row = sqlFetchArray($result)) {
             $signature = new Signature(
@@ -88,7 +74,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
+        $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         $hash = null;
         if ($row && isset($row['hash'])) {
             $hash = $row['hash'];
@@ -112,7 +98,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1 ";
-        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
+        $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
             return true;
         }
@@ -135,13 +121,13 @@ abstract class DbRow_Signable implements SignableIF
         $hash = $this->_verification->hash($this->getData());
 
         // Crate a hash of the signature data itself. This is the same data as Signature::getData() method
-        $signature = array(
+        $signature = [
             $this->_tableId,
             $this->_tableName,
             $userId,
             $isLock,
             $hash,
-            $amendment );
+            $amendment ];
         $signatureHash = $this->_verification->hash($signature);
 
         // Append the hash of the signature data to the insert array before we insert
@@ -149,7 +135,7 @@ abstract class DbRow_Signable implements SignableIF
         $id = sqlInsert($statement, $signature);
 
         if ($id === false) {
-            throw new \Exception("Error occured while attempting to insert a signature into the database.");
+            throw new \Exception("Error occurred while attempting to insert a signature into the database.");
         }
 
         return $id;

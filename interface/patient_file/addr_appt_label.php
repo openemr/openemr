@@ -18,12 +18,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 require_once("../globals.php");
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 # This is based on session array.
-$pid_list = array();
-$pid_list = $_SESSION['pidList'];
+$pid_list = [];
+$pid_list = $session->get('pidList');
 
 #get label type and number of labels on sheet
 #
@@ -65,7 +67,7 @@ foreach ($pid_list as $pid) {
     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
     "p.street, p.city, p.state, p.postal_code, p.pid " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($pid));
+    "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 # sprintf to print data
     $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);

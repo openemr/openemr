@@ -23,10 +23,7 @@ class CalendarEventCategoryRepository
     public function getEventCategoryForId($id)
     {
         $categoryEvents = $this->getEventCategories();
-        if (isset($categoryEvents[$id])) {
-            return $categoryEvents[$id];
-        }
-        return null;
+        return $categoryEvents[$id] ?? null;
     }
 
     public function getEventCategories($skipCache = false)

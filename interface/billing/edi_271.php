@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__file__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
@@ -36,7 +36,7 @@ $target = $GLOBALS['edi_271_file_path'];
 $batch_log = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
-    $target = $target . time() . basename($_FILES['uploaded']['name']);
+    $target = $target . time() . basename((string) $_FILES['uploaded']['name']);
 
     if ($_FILES['uploaded']['size'] > 350000) {
         $message .=  xlt('Your file is too large') . "<br />";
@@ -44,7 +44,7 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (mime_content_type($_FILES['uploaded']['tmp_name']) != "text/plain") {
         $message .= xlt('You may only upload .txt files') . "<br />";
     }
-    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", $_FILES['uploaded']['name']) !== 0) {
+    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", (string) $_FILES['uploaded']['name']) !== 0) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
@@ -54,7 +54,7 @@ if (isset($_FILES) && !empty($_FILES)) {
             $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');
         }
         if (file_put_contents($target, $uploadedFile)) {
-            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
             $Response271 = file_get_contents($target);
             if ($cryptoGen->cryptCheckStandard($Response271)) {
                 $Response271 = $cryptoGen->decryptStandard($Response271, null, 'database');
@@ -62,10 +62,10 @@ if (isset($_FILES) && !empty($_FILES)) {
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {
-                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
             }
         } else {
-            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
         }
     } else {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br /><br />";

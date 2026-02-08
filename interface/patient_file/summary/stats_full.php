@@ -17,6 +17,7 @@ require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -37,7 +38,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('Not authorized'));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 } else {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
@@ -53,7 +54,7 @@ $language = $tmp['language'];
 ?>
 <html>
 <head>
-<?php Header::setupHeader('popper'); ?>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Patient Issues'); ?></title>
 <script>
 
@@ -105,6 +106,7 @@ function headerSelectionChanged(groupBox, issueType) {
     rowSelectionChanged(issueType);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function deleteSelectedIssues(tableName) {
     var selBoxes = getSelectionCheckBoxes(tableName);
     var ids = ""
@@ -119,20 +121,29 @@ function deleteSelectedIssues(tableName) {
         }
     }
 
-    dlgopen('../deleter.php?issue=' + ids + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+    const params = new URLSearchParams({
+        issue: ids,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
+// AI-generated code end
 
 // Called by the deleter.php window on a successful delete.
 function imdeleted() {
     refreshIssue('', '')
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
   top.restoreSession();
-  dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
-    '&code=' + encodeURIComponent(codevalue) +
-    '&language=' + <?php echo js_url($language); ?>,
+  const params = new URLSearchParams({
+    type: codetype,
+    code: codevalue,
+    language: <?php echo js_escape($language); ?>
+  });
+  dlgopen('../education.php?' + params.toString(),
     '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
@@ -140,8 +151,13 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
     var f = document.forms[0];
     top.restoreSession();
-    location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
+    location.href='../../forms/newpatient/new.php?' + params.toString();
 }
+// AI-generated code end
 
 </script>
 <script>
@@ -150,17 +166,17 @@ require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery 
 ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Medical Issues'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
+    'expandable_files' => ["stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "issues_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
@@ -237,7 +253,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="bg-light w-100 p-3 d-flex sticky-top justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <?php if (!($noIssues || $nothingRecorded)) : ?>
-                                <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);"/>
+                                <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);" />
                                 <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo attr($t); ?>" data-action="toggle" data-expanded="false" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
                             <?php endif; ?>
                             <h4 class="d-inline-block p-0 m-0"><?php echo text($focustitles[0]); ?></h4>
@@ -250,7 +266,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php endif; ?>
 
                             <?php if ($btnDelete) : ?>
-                            <button type="button" id="<?php echo attr($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues(<?php echo attr_js($t); ?>)"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></a>
+                            <button type="button" id="<?php echo attr($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues(<?php echo attr_js($t); ?>)"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></button>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -260,7 +276,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php elseif (!$noIssues && $nothingRecorded) : ?>
                             <div class="list-group-item">
                                 <div class="form-check">
-                                    <input class="form-check-input noneCheck" value="none" <?php echo (!AclMain::aclCheckIssue($t, '', 'write')) ? " disabled" : ""; ?> type="checkbox" name="<?php echo attr($t); ?>" id="<?php echo attr($t); ?>">
+                                    <input class="form-check-input noneCheck" value="none" <?php echo (!AclMain::aclCheckIssue($t, '', 'write')) ? " disabled" : ""; ?> type="checkbox" name="<?php echo attr($t); ?>" id="<?php echo attr($t); ?>" />
                                     <label class="form-check-label" for="<?php echo attr($t); ?>"><?php echo xlt("None{{Issue}}"); ?></label>
                                 </div>
                             </div>
@@ -272,9 +288,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
 
-                            $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+                            $disptitle = trim((string) $row['title']) ? $row['title'] : "[Missing Title]";
 
-                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", array($rowid));
+                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", [$rowid]);
 
                             // encount is used to toggle the color of the table-row output below
                             ++$encount;
@@ -285,10 +301,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // look up the diag codes
                             $codetext = "";
                             if ($row['diagnosis'] != "") {
-                                $diags = explode(";", $row['diagnosis']);
+                                $diags = explode(";", (string) $row['diagnosis']);
                                 foreach ($diags as $diag) {
                                     $codedesc = lookup_code_descriptions($diag);
-                                    list($codetype, $code) = explode(':', $diag);
+                                    [$codetype, $code] = explode(':', $diag);
                                     if ($codetext) {
                                         $codetext .= "<br>";
                                     }
@@ -303,7 +319,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['outcome'] == "1" && $row['enddate'] != null) {
                                 // Resolved
                                 $resolved = true;
-                                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+                                $statusCompute = generate_display_field(['data_type' => '1','list_id' => 'outcome'], $row['outcome']);
                             } elseif ($row['enddate'] == null) {
                                 $statusCompute = xlt("Active");
                             } else {
@@ -331,7 +347,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="list-group-item p-1">
                             <div class="summary m-0 p-0 d-flex w-100 justify-content-end align-content-center">
                                 <?php if ($canSelect) : ?>
-                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo attr($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>">
+                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo attr($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>" />
                                 <?php endif; ?>
                                 <div class="flex-fill pl-2">
                                     <div class="btn-group" role="group">
@@ -343,7 +359,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
                                     if ($focustitles[0] == "Allergies") :
-                                        echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
+                                        echo generate_display_field(['data_type' => '1','list_id' => 'reaction'], $row['reaction']);
                                     endif;
                                     ?>
                                 </div>
@@ -386,7 +402,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <div>
                                                 <?php
                                                     $codeListName = (!empty($thistype) && ($thistype == 'medical_problem')) ? 'condition-verification' : 'allergyintolerance-verification';
-                                                    echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                                                    echo generate_display_field(['data_type' => '1','list_id' => $codeListName], $row['verification']);
                                                 ?>
                                                 </div>
                                             </div>

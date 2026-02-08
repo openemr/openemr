@@ -21,25 +21,58 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 
-use Esign\Api;
+use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\ProductRegistrationService;
+use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\Filesystem\Path;
+
+const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
+// Registration status and options.
+$productRegistration = new ProductRegistrationService();
+$product_row = $productRegistration->getProductDialogStatus();
+$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
+$allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
+$allowEmail = $product_row['allowEmail'] ?? null; // for dialog
+
+// Check if telemetry is disabled via environment variable
+// Telemetry disable flag (set env var to: 1/true)
+$val = getenv(ENV_DISABLE_TELEMETRY);
+if ($val === false || $val === '') {
+    $val = $_ENV[ENV_DISABLE_TELEMETRY] ?? $_SERVER[ENV_DISABLE_TELEMETRY] ?? null;
+}
+$disableTelemetry = ($val !== null) && filter_var($val, FILTER_VALIDATE_BOOLEAN);
+if ($disableTelemetry) {
+    $allowRegisterDialog = false;
+    $allowTelemetry = false;
+}
+
+// If running unit tests, then disable the registration dialog
+if ($_SESSION['testing_mode'] ?? false) {
+    $allowRegisterDialog = false;
+}
+// If the user is not a super admin, then disable the registration dialog
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    $allowRegisterDialog = false;
+}
 
 // Ensure token_main matches so this script can not be run by itself
-//  If do not match, then destroy the session and go back to login screen
+//  If tokens do not match, then destroy the session and go back to log in screen
 if (
     (empty($_SESSION['token_main_php'])) ||
     (empty($_GET['token_main'])) ||
     ($_GET['token_main'] != $_SESSION['token_main_php'])
 ) {
-    // Below functions are from auth.inc, which is included in globals.php
+// Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
     authLoginScreen(false);
 }
@@ -50,6 +83,8 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
+$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -61,11 +96,11 @@ $esignApi = new Api();
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
         //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
         <?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
-            window.addEventListener('beforeunload', (event) => {
-                if (!timed_out) {
-                    event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
-                }
-            });
+        window.addEventListener('beforeunload', (event) => {
+            if (!timed_out) {
+                event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
+            }
+        });
         <?php } ?>
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -88,19 +123,22 @@ $esignApi = new Api();
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
         var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> || 'ltr';
-        var jsGlobals = {}; // this should go away and replace with just global_enable_group_therapy
+        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> ||
+        'ltr';
+        var jsGlobals = {};
         // used in tabs_view_model.js.
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
         jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
+        jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
         jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
-        var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
+        var WindowTitleAddPatient = <?php echo($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false'); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
         const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
         const isServicesOther = (isSms || isFax);
+        var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
 
         /**
          * Async function to get session value from the server
@@ -114,7 +152,7 @@ $esignApi = new Api();
          * });
          * console.log('session pid', sessionPid);
          * console.log('auth User', authUser);
-        */
+         */
         async function getSessionValue(key) {
             restoreSession();
             let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
@@ -199,14 +237,14 @@ $esignApi = new Api();
                 }
                 // Always send reminder count text to model
                 app_view_model.application_data.user().messages(data.reminderText);
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.log('Request failed', error);
             });
 
             // run background-services
             // delay 10 seconds to prevent both utility trigger at close to same time.
             // Both call globals so that is my concern.
-            setTimeout(function() {
+            setTimeout(function () {
                 restoreSession();
                 request = new FormData;
                 request.append("skip_timeout_reset", "1");
@@ -220,7 +258,7 @@ $esignApi = new Api();
                     if (response.status !== 200) {
                         console.log('Background Service start failed. Status Code: ' + response.status);
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log('HTML Background Service start Request failed: ', error);
                 });
             }, 10000);
@@ -231,38 +269,38 @@ $esignApi = new Api();
 
         function isEncounterLocked(encounterId) {
             <?php if ($esignApi->lockEncounters()) { ?>
-                // If encounter locking is enabled, make a syncronous call (async=false) to check the
-                // DB to see if the encounter is locked.
-                // Call restore session, just in case
-                // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
-                restoreSession();
-                let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
-                $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: {
-                        encounterId: encounterId
-                    },
-                    success: function(data) {
-                        encounter_locked = data;
-                    },
-                    dataType: 'json',
-                    async: false
-                });
-                return encounter_locked;
+            // If encounter locking is enabled, make a synchronous call (async=false) to check the
+            // DB to see if the encounter is locked.
+            // Call restore session, just in case
+            // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
+            restoreSession();
+            let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    encounterId: encounterId
+                },
+                success: function (data) {
+                    encounter_locked = data;
+                },
+                dataType: 'json',
+                async: false
+            });
+            return encounter_locked;
             <?php } else { ?>
-                // If encounter locking isn't enabled then always return false
-                return false;
+            // If encounter locking isn't enabled then always return false
+            return false;
             <?php } ?>
         }
     </script>
 
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys']); ?>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys', 'i18formatting']); ?>
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
-            return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+            return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
             }).then((response) => {
@@ -273,6 +311,7 @@ $esignApi = new Api();
                 return response.json();
             })
         }
+
         setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
             i18next.init({
                 lng: 'selected',
@@ -315,10 +354,9 @@ $esignApi = new Api();
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
-    //
-    // prepare newcrop globals that are used in creating the menu
+    // prepare Ensora eRx globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
+        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
         if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
             $GLOBALS['newcrop_user_role_erxadmin'] = 1;
@@ -329,17 +367,30 @@ $esignApi = new Api();
     $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
     $GLOBALS['track_anything_state'] = ($track_anything_sql['state'] ?? 0);
     // prepare Issues popup link global that is used in creating the menu
-    $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
-        AclMain::aclCheckCore('patients', 'med', '', 'write'));
-    ?>
+    $GLOBALS['allow_issue_menu_link'] = (
+        (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
+        || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
+        && AclMain::aclCheckCore('patients', 'med', '', 'write')
+    );
 
-    <?php require_once("templates/tabs_template.php"); ?>
-    <?php require_once("templates/menu_template.php"); ?>
+    // we use twig templates here so modules can customize some of these files
+    // at some point we will twigify all of main.php so we can extend it.
+    echo $twig->render("interface/main/tabs/tabs_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/menu_template.html.twig", []);
+    // TODO: patient_data_template.php is a more extensive refactor that could be done in a future feature request but to not jeopardize 7.0.3 release we will hold off.
+    ?>
     <?php require_once("templates/patient_data_template.php"); ?>
-    <?php require_once("templates/therapy_group_template.php"); ?>
-    <?php require_once("templates/user_data_template.php"); ?>
-    <?php require_once("menu/menu_json.php"); ?>
-    <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
+    <?php
+    echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
+        'openemr_name' => $GLOBALS['openemr_name']
+    ]);
+    // Collect the menu then build it
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menu_restrictions = $menuMain->getMenu();
+    echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
+    ?>
+    <?php $userQuery = sqlQuery("select * from users where username = ?", [$_SESSION['authUser']]); ?>
 
     <script>
         <?php
@@ -348,7 +399,7 @@ $esignApi = new Api();
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || strpos($_unsafe_url, $fileroot) !== 0) {
+                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, (string) $fileroot)) {
                     unset($_SESSION['default_open_tabs'][$i]);
                     continue;
                 }
@@ -363,31 +414,32 @@ $esignApi = new Api();
         ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
-                                                                            . ',' . json_encode($userQuery['fname'])
-                                                                            . ',' . json_encode($userQuery['lname'])
-                                                                            . ',' . json_encode($_SESSION['authProvider']); ?>));
+            . ',' . json_encode($userQuery['fname'])
+            . ',' . json_encode($userQuery['lname'])
+            . ',' . json_encode($_SESSION['authProvider']); ?>));
     </script>
     <style>
-        html,
-        body {
-            width: max-content;
-            min-height: 100% !important;
-            height: 100% !important;
-        }
+      html,
+      body {
+        width: max-content;
+        min-height: 100% !important;
+        height: 100% !important;
+      }
+      #userdropdown.dropdown-menu {
+        white-space: nowrap;        /* prevents multi-line wrapping */
+        min-width: max-content;     /* expands to fit the widest item */
+      }
     </style>
 </head>
 
 <body class="min-vw-100">
-<?php
+    <?php
     // fire off an event here
-if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-    /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
-     */
-    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
-}
-?>
+    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
+    }
+    ?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
@@ -395,11 +447,11 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     if (isset($_SESSION['app1'])) {
         $rs = sqlquery(
             "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-            array('apps', $_SESSION['app1'])
+            ['apps', $_SESSION['app1']]
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
-    			style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
+            style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
             $disp_mainBox = 'style="display: none;"';
         }
     }
@@ -408,7 +460,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
                 <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo;?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo');?>">
+                    <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
                 </a>
             <?php endif; ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -416,42 +468,52 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
             <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
-            <form name="frm_search_globals" class="form-inline">
-                <div class="input-group">
-                    <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                    <div class="input-group-append">
-                        <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"><i class="fa fa-search">&nbsp;</i></button>
+                <form name="frm_search_globals" class="form-inline">
+                    <div class="input-group">
+                        <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                        <div class="input-group-append">
+                            <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                                <i class="fa fa-search">&nbsp;</i></button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
             <?php endif; ?>
+            <!--Below is the user data section that contains the user information and the attendant data-->
             <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data}"></span>
+            <?php
+            // fire off a nav event
+            $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_NAV);
+            ?>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
-        <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
+        <div class="body_title pt-1" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
+        <?php echo $twig->render("product_registration/product_registration_modal.html.twig", [
+            'webroot' => $webroot,
+            'allowEmail' => $allowEmail ?? false,
+            'allowTelemetry' => $allowTelemetry ?? false]); ?>
     </div>
     <script>
         ko.applyBindings(app_view_model);
 
-        $(function() {
+        $(function () {
             $('.dropdown-toggle').dropdown();
-            $('#patient_caret').click(function() {
+            $('#patient_caret').click(function () {
                 $('#attendantData').slideToggle();
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
             });
             if ($('body').css('direction') == "rtl") {
-                $('.dropdown-menu-right').each(function() {
+                $('.dropdown-menu-right').each(function () {
                     $(this).removeClass('dropdown-menu-right');
                 });
             }
         });
-        $(function() {
+        $(function () {
             $('#logo_menu').focus();
         });
-        $('#anySearchBox').keypress(function(event) {
+        $('#anySearchBox').keypress(function (event) {
             if (event.which === 13 || event.keyCode === 13) {
                 event.preventDefault();
                 $('#search_globals').mousedown();
@@ -459,20 +521,21 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
         <?php if (($_ENV['OPENEMR__NO_BACKGROUND_TASKS'] ?? 'false') !== 'true') { ?>
-            $(function () {
-                goRepeaterServices();
-            });
+        $(function () {
+            goRepeaterServices();
+        });
         <?php } ?>
     </script>
     <?php
+
     // fire off an event here
-    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-        /**
-         * @var \Symfony\Component\EventDispatcher\EventDispatcher
-         */
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+
+    if (!empty($allowRegisterDialog)) { // disable if running unit tests.
+        // Include the product registration js, telemetry and usage data reporting dialog
+        echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => $webroot]);
     }
+
     ?>
 </body>
 

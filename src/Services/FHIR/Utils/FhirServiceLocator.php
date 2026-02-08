@@ -13,24 +13,20 @@
 
 namespace OpenEMR\Services\FHIR\Utils;
 
+use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 
+// TODO: @adunsulag this class relies on restConfig but we need to refactor this to use the FHIRRouteFinder
 class FhirServiceLocator
 {
     /**
-     * @var $restConfig
-     */
-    private $restConfig;
-
-    /**
      * FhirExportServiceLocator constructor.
-     * @param \RestConfig $restConfig
+     * @param array $routes
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
-    public function __construct($restConfig)
+    public function __construct(private readonly array $routes = [])
     {
-        $this->restConfig = $restConfig;
     }
 
     /**
@@ -46,8 +42,7 @@ class FhirServiceLocator
 
         $resourceRegistry = [];
         $restHelper = new RestControllerHelper();
-        $restConfig = $this->restConfig;
-        $restCapability = $restHelper->getCapabilityRESTObject($restConfig::$FHIR_ROUTE_MAP);
+        $restCapability = $restHelper->getCapabilityRESTObject($this->routes);
         $resources = $restCapability->getResource();
         foreach ($resources as $resource) {
             $resourceName = $resource->getType()->getValue();

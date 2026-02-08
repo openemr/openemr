@@ -21,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ($_GET["set_pid"] ?? '' && ($_GET["set_pid"] != $_SESSION["pid"])) {
+if (in_array("set_pid", $_GET, true) && !empty($_GET["set_pid"]) && ($_GET["set_pid"] != $_SESSION["pid"])) {
     setpid($_GET["set_pid"]);
 }
 

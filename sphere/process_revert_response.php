@@ -15,6 +15,7 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -30,7 +31,7 @@ if ($GLOBALS['payment_gateway'] != 'Sphere') {
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    die(xlt("Unauthorized access."));
+    AccessDeniedHelper::deny('Unauthorized access to Sphere revert');
 }
 ?>
 

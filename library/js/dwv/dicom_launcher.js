@@ -31,8 +31,7 @@ function startApp() {
 
     // initialise the application
     const loaderList = [
-        "File",
-        "Url"
+        "File"
     ];
 
     const filterList = [
@@ -222,7 +221,7 @@ function startApp() {
             if (nReceivedError > 1) {
                 message = nReceivedError + " load errors have ";
             }
-            message += "occured. See log for details.";
+            message += "occurred. See log for details.";
             alert(message);
         }
         // console warn for aborts

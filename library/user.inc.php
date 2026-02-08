@@ -35,7 +35,7 @@ function effectiveUser($user)
  */
 function getUserSetting($label, $user = null, $defaultUser = 0)
 {
-    return UserSettingsService::effectiveUser($label, $user, $defaultUser);
+    return UserSettingsService::getUserSetting($label, $user, $defaultUser);
 }
 
 /**
@@ -110,7 +110,7 @@ function prevSetting($uspfx, $postvar, $label, $initval)
  * @deprecated 7.0.3 see UserSettingsService::collectAndOrganizeExpandSetting
  * @return the current state of the file after updating table user_settings
  */
-function collectAndOrganizeExpandSetting($filenames = array())
+function collectAndOrganizeExpandSetting($filenames = [])
 {
     return UserSettingsService::collectAndOrganizeExpandSetting($filenames);
 }

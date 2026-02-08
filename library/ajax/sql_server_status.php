@@ -38,7 +38,7 @@ strQuery;
 if (isset($_POST['poll'])) {
     $cur_date = date("m/d H:i:s");
     $db_in_question = $GLOBALS ['dbase'];
-    $stat_result = sqlStatementNoLog($trans_query, array($db_in_question));
+    $stat_result = sqlStatementNoLog($trans_query, [$db_in_question]);
     $q_msg = '';
     while ($stat_row = sqlFetchArray($stat_result)) {
         // Convert binary characters to a ? character

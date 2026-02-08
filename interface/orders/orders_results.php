@@ -19,6 +19,7 @@ require_once("$srcdir/lab.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PhoneNumberService;
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -60,14 +61,14 @@ if (!$form_batch && !$pid && !$form_review) {
 
 function oresRawData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
-    return trim($s);
+    $s = $_POST[$name][$index] ?? '';
+    return trim((string) $s);
 }
 
 function oresData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
-    return add_escape_custom(trim($s));
+    $s = $_POST[$name][$index] ?? '';
+    return add_escape_custom(trim((string) $s));
 }
 
 function QuotedOrNull($fld)
@@ -83,7 +84,7 @@ $current_report_id = 0;
 
 if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
-        list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
+        [$order_id, $order_seq, $report_id, $result_id] = explode(':', (string) $line_value);
 
 // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {
@@ -190,7 +191,11 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 varname = 'form_proc_type';
             }
             ptvarname = varname;
-            dlgopen('types.php?popup=1&order=' + encodeURIComponent(f[ptvarname].value), '_blank', 800, 500);
+            const params = new URLSearchParams({
+                order: f[ptvarname].value,
+                popup: '1'
+            });
+            dlgopen('types.php?' + params, '_blank', 800, 500);
         }
 
         // This is for callback by the find-procedure-type popup.
@@ -307,8 +312,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     <td class='text form-inline'>
                         <?php
                         if ($form_batch) {
-                            $form_from_date = isset($_POST['form_from_date']) ? trim($_POST['form_from_date']) : '';
-                            $form_to_date = isset($_POST['form_to_date']) ? trim($_POST['form_to_date']) : '';
+                            $form_from_date = isset($_POST['form_from_date']) ? trim((string) $_POST['form_from_date']) : '';
+                            $form_to_date = isset($_POST['form_to_date']) ? trim((string) $_POST['form_to_date']) : '';
                             if (empty($form_to_date)) {
                                 $form_to_date = $form_from_date;
                             }
@@ -345,7 +350,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             <?php
                         } // end header for batch option
                         ?>
-                        <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
+                        <!-- removed by jcw -- check/submit sequence too tedious.  This is a quick fix -->
                         <!--   <input type='checkbox' name='form_all' value='1' <?php if (!empty($_POST['form_all'])) {
                             echo " checked";
                                                                                 } ?>><?php echo xlt('Include Completed') ?>&nbsp;-->
@@ -388,7 +393,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 </tr>
 
                 <?php
-                $sqlBindArray = array();
+                $sqlBindArray = [];
 
                 $selects =
                     "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
@@ -406,7 +411,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     "po.date_ordered, po.procedure_order_id, " .
                     "pc.procedure_order_seq, pr.procedure_report_id";
 
-                // removed by jcw -- check/submit sequece too tedious.  This is a quick fix
+                // removed by jcw -- check/submit sequence too tedious.  This is a quick fix
                 //$where = empty($_POST['form_all']) ?
                 //  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
                 //  "1 = 1";
@@ -441,15 +446,15 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 $lino = 0;
                 $extra_html = '';
                 $lastrcn = '';
-                $facilities = array();
+                $facilities = [];
 
                 while ($row = sqlFetchArray($res)) {
                     $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);
                     $order_id = empty($row['procedure_order_id']) ? 0 : ($row['procedure_order_id'] + 0);
                     $order_seq = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
                     $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-                    $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
-                    $date_collected = empty($row['date_collected']) ? '' : substr($row['date_collected'], 0, 16);
+                    $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
+                    $date_collected = empty($row['date_collected']) ? '' : substr((string) $row['date_collected'], 0, 16);
                     $specimen_num = empty($row['specimen_num']) ? '' : $row['specimen_num'];
                     $report_status = empty($row['report_status']) ? '' : $row['report_status'];
                     $review_status = empty($row['review_status']) ? 'received' : $row['review_status'];
@@ -465,7 +470,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         }
                     }
 
-                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
+                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", [$order_id]));
                     // skip the procedure that has been deleted from the encounter form
                     if ($query_test['deleted'] == 1) {
                         continue;
@@ -523,13 +528,13 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
 
                         // If there is more than one line of comments, everything after that is "notes".
                         $result_notes = '';
-                        $i = strpos($result_comments, "\n");
+                        $i = strpos((string) $result_comments, "\n");
                         if ($i !== false) {
-                            $result_notes = trim(substr($result_comments, $i + 1));
-                            $result_comments = substr($result_comments, 0, $i);
+                            $result_notes = trim(substr((string) $result_comments, $i + 1));
+                            $result_comments = substr((string) $result_comments, 0, $i);
                         }
 
-                        $result_comments = trim($result_comments);
+                        $result_comments = trim((string) $result_comments);
 
                         if ($result_facility <> "" && !in_array($result_facility, $facilities)) {
                             $facilities[] = $result_facility;
@@ -723,7 +728,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     $extra_html .= "<table class='table'>";
                     $extra_html .= "<tr><th>" . xlt('Performing Laboratory Facility') . "</th></tr>";
                     foreach ($facilities as $facilityID) {
-                        foreach (explode(":", $facilityID) as $lab_facility) {
+                        foreach (explode(":", (string) $facilityID) as $lab_facility) {
                             $facility_array = getFacilityInfo($lab_facility);
                             if ($facility_array) {
                                 $extra_html .=
@@ -731,7 +736,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                                     "<tr><td>" . text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['organization']) . "</td></tr>" .
                                     "<tr><td>" . text($facility_array['street']) . " " . text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
-                                    "<tr><td>" . text(formatPhone($facility_array['phone'])) . "</td></tr>";
+                                    "<tr><td>" . text(PhoneNumberService::tryFormatPhone($facility_array['phone'] ?? '')) . "</td></tr>";
                             }
                         }
                     }

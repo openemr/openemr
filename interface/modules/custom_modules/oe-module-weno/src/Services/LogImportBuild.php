@@ -31,7 +31,7 @@ class LogImportBuild
     public function getUserIdByWenoId($external_provider_id)
     {
         // This is important so a user is set in prescription table.
-        $provider = sqlQuery("SELECT id FROM users WHERE weno_prov_id = ? ", array($external_provider_id));
+        $provider = sqlQuery("SELECT id FROM users WHERE weno_prov_id = ? ", [$external_provider_id]);
         if ($provider) {
             return $provider['id'];
         } else {
@@ -102,9 +102,16 @@ class LogImportBuild
                     $windate = $this->convertToUTC($windate);
                     $ida = $this->convertToUTC($line[0] ?? '');
                     $p = $line[1] ?? '';
-                    $pid_and_encounter = explode(":", $p);
-                    $pid = intval($pid_and_encounter[0]);
-                    $uid = intval($pid_and_encounter[1]);
+                    $pid_and_userId = explode(":", $p);
+                    // weno added the ID: to patientID in report thus the check.
+                    if ($pid_and_userId[0] == 'ID') {
+                        $pid = intval($pid_and_userId[1]);
+                        $uid = intval($pid_and_userId[2]);
+                    } else {
+                        $pid = intval($pid_and_userId[0]);
+                        $uid = intval($pid_and_userId[1]);
+                    }
+
                     $locId = ($provider[1] ?? '');
                     $r = $line[22] ?? '';
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
@@ -134,7 +141,7 @@ class LogImportBuild
                     $loginsert = new LogDataInsert();
                     if ($is_saved > 0) {
                         $loginsert->updatePrescriptions($insertdata);
-                        if (trim($line[7] ?? '') == 'True') {
+                        if (trim((string) ($line[7] ?? '')) == 'True') {
                             ++$updateCnt;
                         }
                     } else {

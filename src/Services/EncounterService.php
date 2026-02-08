@@ -8,9 +8,11 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,8 +36,8 @@ use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-require_once dirname(__FILE__) . "/../../library/forms.inc.php";
-require_once dirname(__FILE__) . "/../../library/encounter.inc.php";
+require_once __DIR__ . "/../../library/forms.inc.php";
+require_once __DIR__ . "/../../library/encounter.inc.php";
 
 class EncounterService extends BaseService
 {
@@ -147,10 +149,10 @@ class EncounterService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '', $options = array())
+    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = [])
     {
         $limit = $options['limit'] ?? null;
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $processingResult = new ProcessingResult();
 
         // Validating and Converting _id to UUID byte
@@ -367,7 +369,7 @@ class EncounterService extends BaseService
             return $processingResult;
         }
 
-        $encounter = generate_id();
+        $encounter = QueryUtils::generateId();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         if (empty($data['date'])) {
@@ -397,7 +399,6 @@ class EncounterService extends BaseService
             $data['user'],
             $data['group']
         );
-        $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
 
         if ($results) {
             $processingResult = $this->getEncounter(UuidRegistry::uuidToString($data['uuid']), $puuid);
@@ -445,7 +446,7 @@ class EncounterService extends BaseService
         $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
         $facility = $facilityresult['name'];
-        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($encounter));
+        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$encounter]);
         if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             return "You are not authorized to see this encounter.";
         }
@@ -497,13 +498,13 @@ class EncounterService extends BaseService
 
         $soapResults = sqlInsert(
             $soapSql,
-            array(
+            [
                 $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"]
-            )
+            ]
         );
 
         if (!$soapResults) {
@@ -521,14 +522,14 @@ class EncounterService extends BaseService
 
         $formResults = sqlInsert(
             $formSql,
-            array(
+            [
                 $eid,
                 $soapResults,
                 $pid
-            )
+            ]
         );
 
-        return array($soapResults, $formResults);
+        return [$soapResults, $formResults];
     }
 
     public function updateSoapNote($pid, $eid, $sid, $data)
@@ -545,14 +546,14 @@ class EncounterService extends BaseService
 
         return sqlStatement(
             $sql,
-            array(
+            [
                 $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
                 $sid
-            )
+            ]
         );
     }
 
@@ -571,6 +572,9 @@ class EncounterService extends BaseService
 
     public function insertVital($pid, $eid, $data)
     {
+        // Strip any user-supplied id to prevent IDOR — insert must always
+        // create a new record, never update an existing one.
+        unset($data['id']);
         $data['eid'] = $eid;
         $data['authorized'] = '1';
         $data['pid'] = $pid;
@@ -609,9 +613,9 @@ class EncounterService extends BaseService
         $sql .= "  WHERE fo.encounter = ?";
         $sql .= "    AND fs.pid = ?";
 
-        $statementResults = sqlStatement($sql, array($eid, $pid));
+        $statementResults = sqlStatement($sql, [$eid, $pid]);
 
-        $results = array();
+        $results = [];
         while ($row = sqlFetchArray($statementResults)) {
             array_push($results, $row);
         }
@@ -628,7 +632,7 @@ class EncounterService extends BaseService
         $sql .= "    AND fs.id = ?";
         $sql .= "    AND fs.pid = ?";
 
-        return sqlQuery($sql, array($eid, $sid, $pid));
+        return sqlQuery($sql, [$eid, $sid, $pid]);
     }
 
     public function validateSoapNote($soapNote)
@@ -690,7 +694,7 @@ class EncounterService extends BaseService
         ];
         foreach ($encounters as $index => $encounter) {
             $encounterList['ids'][$index] = $encounter['eid'];
-            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime((string) $encounter['date']));
             $encounterList['categories'][$index] = $encounter['pc_catname'];
         }
         return $encounterList;

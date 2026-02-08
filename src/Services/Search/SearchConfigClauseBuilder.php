@@ -5,7 +5,9 @@
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,16 +18,34 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class SearchConfigClauseBuilder
 {
-    public static function buildSortOrderClauseFromConfig(SearchQueryConfig $config)
-    {
+    /**
+     * Build an ORDER BY clause from the search config.
+     *
+     * @param SearchQueryConfig $config The search configuration
+     * @param array $allowedColumns Whitelist of allowed column names for sorting.
+     *                              Only columns in this list are allowed.
+     * @return string The ORDER BY clause, or empty string if no valid sort fields
+     */
+    public static function buildSortOrderClauseFromConfig(
+        SearchQueryConfig $config,
+        array $allowedColumns
+    ): string {
         $searchOrders = $config->getSearchFieldOrders();
-        if (empty($searchOrders)) {
+        if ($searchOrders === []) {
             return "";
         }
 
         $clauses = [];
         foreach ($searchOrders as $search) {
-            $clauses[] = $search->getField() . " " . ($search->isAscending() ? "ASC" : "DESC");
+            $field = $search->getField();
+            if (!in_array($field, $allowedColumns, true)) {
+                continue;
+            }
+            $clauses[] = $field . " " . ($search->isAscending() ? "ASC" : "DESC");
+        }
+
+        if ($clauses === []) {
+            return "";
         }
         return "ORDER BY " . implode(", ", $clauses);
     }

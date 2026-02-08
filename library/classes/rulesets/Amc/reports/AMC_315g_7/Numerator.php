@@ -51,7 +51,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
      * @param $endDate
      * @return bool
      */
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
 
         // essentially we need to check for each referral whether a CCD record was sent electronically.
@@ -110,6 +110,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
             // required elements.
             return true;
         }
+        return false;
     }
 
     /**

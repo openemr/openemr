@@ -19,28 +19,18 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
  */
 class RuleCriteriaDatabaseBucket extends RuleCriteria
 {
-    var $category;
-    var $item;
-    var $categoryLbl;
-    var $itemLbl;
-    var $completed;
-    var $frequencyComparator;
-    var $frequency;
+    public $categoryLbl;
+    public $itemLbl;
 
     function __construct(
-        $category,
-        $item,
-        $completed,
-        $frequencyComparator,
-        $frequency
+        public $category,
+        public $item,
+        public $completed,
+        public $frequencyComparator,
+        public $frequency
     ) {
-        $this->category = $category;
         $this->categoryLbl = $this->getLabel($this->category, 'rule_action_category');
-        $this->item = $item;
         $this->itemLbl = $this->getLabel($this->item, 'rule_action');
-        $this->completed = $completed;
-        $this->frequencyComparator = $frequencyComparator;
-        $this->frequency = $frequency;
     }
 
     function getRequirements()
@@ -111,17 +101,17 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         $dbLbl = RuleTemplateExtension::getLabel($category, 'rule_action_category');
         if ($category && $dbLbl != $categoryLbl) {
             // update
-            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
+            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", [
                 $categoryLbl,
-                $category));
+                $category]);
         }
 
         $dbLbl = RuleTemplateExtension::getLabel($item, 'rule_action');
         if ($item && $dbLbl != $itemLbl) {
             // update
-            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
+            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", [
                 $itemLbl,
-                $item));
+                $item]);
         }
 
         $this->category = $category;

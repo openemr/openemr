@@ -10,13 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../verify_session.php");
-require_once("$srcdir/documents.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '')) {
+require_once(__DIR__ . "/../../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
+require_once("../verify_session.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
+
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -26,26 +31,26 @@ if (empty($_POST['documents'])) {
 }
 
 // Get the temporary folder
-$tmp = $GLOBALS['temporary_files_dir'];
+$tmp = $globalsBag->getString('temporary_files_dir');
 $documentIds = $_POST['documents'];
-$pid = $_SESSION['pid'];
+$pid = $session->get('pid');
 
 // Process each selected document
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
-    $file = sqlQuery($sql, array($documentId));
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
+    $file = sqlQuery($sql, [$documentId]);
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
-    $cat = sqlQuery($sql, array($file['id']));
+    $cat = sqlQuery($sql, [$file['id']]);
 
     // Find the tree of the document's category
     $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, array($cat['lft'], $cat['rght']));
+    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";
@@ -63,9 +68,10 @@ foreach ($documentIds as $documentId) {
 
     // Copy the document
     $obj = new C_Document();
+    $obj->onReturnRetrieveKey();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
-        $pos = strpos(substr($file['name'], -5), '.');
+        $pos = strpos(substr((string) $file['name'], -5), '.');
         // Check if has an extension or find it from the mimetype
         if ($pos === false) {
             $file['name'] .= get_extension($file['mimetype']);
@@ -100,8 +106,8 @@ unlink($tmp . "/" . $pid . '.zip');
 
 function recursive_remove_directory($directory, $empty = false)
 {
-    if (substr($directory, -1) == '/') {
-        $directory = substr($directory, 0, -1);
+    if (str_ends_with((string) $directory, '/')) {
+        $directory = substr((string) $directory, 0, -1);
     }
 
     if (!file_exists($directory) || !is_dir($directory)) {

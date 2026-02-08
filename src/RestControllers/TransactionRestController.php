@@ -28,9 +28,9 @@ class TransactionRestController
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         'pid'
-    );
+    ];
 
     public function __construct()
     {

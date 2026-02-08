@@ -15,7 +15,7 @@
     function vitalsFormSubmitted() {
         var invalid = "";
 
-        var elementsToValidate = ['weight_input', 'weight_input_metric', 'height_input', 'height_input_metric', 'bps_input', 'bpd_input'];
+        var elementsToValidate = ['weight_input_usa', 'weight_input_metric', 'height_input_usa', 'height_input_metric', 'bps_input', 'bpd_input'];
 
         for (var i = 0; i < elementsToValidate.length; i++) {
             var current_elem_id = elementsToValidate[i];
@@ -84,7 +84,7 @@
             inputConv.value = "";
         }
 
-        if (targetSaveUnit == "weight_input" || targetSaveUnit == "height_input") {
+        if (targetSaveUnit == "weight_input_usa" || targetSaveUnit == "height_input_usa") {
             calculateBMI();
         }
     }
@@ -95,7 +95,16 @@
             console.error("Failed to find vitalsForm DOM Node");
             return;
         }
-        vitalsForm.addEventListener('submit', vitalsFormSubmitted);
+        document.getElementById('vitalsForm').addEventListener('submit', function(event) {
+            if (!vitalsFormSubmitted()) {
+                event.preventDefault(); // stop the form from submitting
+                let firstErrorElement = document.querySelector('.error');
+                if (firstErrorElement) {
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+        });
 
         // we want to setup our reason code widgets
         if (oeUI.reasonCodeWidget) {
@@ -276,14 +285,14 @@ function calculateBMI() {
 
     let precision = vitalsGetPrecision(bmiNode, 2);
 
-    let heightNode = document.getElementById("height_input");
+    let heightNode = document.getElementById("height_input_usa");
     if (!heightNode) {
-        console.error("Failed to find node with id height_input");
+        console.error("Failed to find node with id height_input_usa");
         return;
     }
-    let weightNode = document.getElementById("weight_input");
+    let weightNode = document.getElementById("weight_input_usa");
     if (!weightNode) {
-        console.error("Failed to find node with id weight_input");
+        console.error("Failed to find node with id weight_input_usa");
         return;
     }
     var height = parseFloat(heightNode.value);

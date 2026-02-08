@@ -39,7 +39,7 @@ class AMC_314g_1_2_14_Numerator implements AmcFilterIF
                 // AMC MU2 TODO :
                 // This needs to be converted to the Z&H offsite portal solution.
 
-                $check = sqlQuery('select count(id) as count from ccda where pid = ? and (view = 1 or emr_transfer = 1) and user_id is null and updated_date >= ? and updated_date <= ?', array($patient->id,$beginDate,$endDate));
+                $check = sqlQuery('select count(id) as count from ccda where pid = ? and (view = 1 or emr_transfer = 1) and user_id is null and updated_date >= ? and updated_date <= ?', [$patient->id,$beginDate,$endDate]);
         if ($check['count'] > 0) {
             return true;
         } else {

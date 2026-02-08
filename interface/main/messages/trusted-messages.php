@@ -40,11 +40,7 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
-if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
-    $verifyMessageReceivedChecked = "checked";
-} else {
-    $verifyMessageReceivedChecked = '';
-}
+$verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,17 +51,17 @@ if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
 
     <?php
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xlt('Messages, Reminders, Recalls'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
 //        'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
     echo "<title>" .  xlt('Messages, Reminders, Recalls') . "</title>";

@@ -15,25 +15,45 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use PHPMailer\PHPMailer\Exception;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
-    /**
-     * @var int|mixed
-     */
-    private bool $isSmsEnabled;
-    private mixed $isEmailEnabled;
-    private bool $isFaxEnabled;
+    private readonly bool $isSmsEnabled;
+    private readonly bool $isEmailEnabled;
+    private readonly bool $isFaxEnabled;
+    private readonly bool $isVoiceEnabled;
 
-    public function __construct()
+    /**
+     * @var \Twig\Environment The twig rendering environment
+     */
+    private $twig;
+
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
         $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
+        $this->isVoiceEnabled = !empty($GLOBALS['oe_enable_voice'] ?? 0);
+
+        if (empty($kernel)) {
+            $kernel = new Kernel();
+        }
+        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
+        $twigEnv = $twig->getTwig();
+        $this->twig = $twigEnv;
+    }
+
+    public function getTemplatePath(): string
+    {
+        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -44,19 +64,56 @@ class NotificationEventListener implements EventSubscriberInterface
         return [
             SendNotificationEvent::SEND_NOTIFICATION_BY_SERVICE => 'onNotifyEvent',
             SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME => 'onNotifyDocumentRenderOneTime',
+            SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME => 'onNotifyPortalPaymentOneTime',
         ];
     }
 
-    /**
-     * @param EventDispatcher $eventDispatcher
-     * @return void
-     */
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(): void
     {
-        $eventDispatcher->addListener('sendNotification.send', [$this, 'onNotifySendEvent']);
-        $eventDispatcher->addListener('sendNotification.service.onetime', [$this, 'onNotifyDocumentRenderOneTime']);
-        $eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, [$this, 'notificationButton']);
-        $eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, [$this, 'notificationDialogFunction']);
+        $this->eventDispatcher->addListener('sendNotification.send', $this->onNotifySendEvent(...));
+        $this->eventDispatcher->addListener('sendNotification.service.onetime', $this->onNotifyDocumentRenderOneTime(...));
+        $this->eventDispatcher->addListener('sendNotification.service.universal.onetime', $this->onNotifyUniversalOneTime(...));
+        $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, $this->notificationButton(...));
+        $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, $this->notificationDialogFunction(...));
+        if ($this->isVoiceEnabled) {
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_NAV, $this->renderPhoneButton(...));
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderPhoneWidget(...));
+        }
+    }
+
+    public function renderPhoneButton()
+    {
+        $loginCred = $this->getRCCredentials('voice');
+        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt'] && $GLOBALS['oe_enable_voice'] ?? false) {
+            echo '
+            <button id="rc-toggle-exe" class="btn btn-outline-danger btn-sm" onclick="toggleRCWidget()">
+                <span id="btn-text"><i id="rc-toggle-btn" class="fa-solid fa-phone"></i></span>
+            </button>';
+        }
+    }
+
+    public function renderPhoneWidget(RenderEvent $event): void
+    {
+        $serviceType = 'voice';
+        $loginCred = $this->getRCCredentials($serviceType);
+        $moduleBaseUrl = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-faxsms";
+        $context = [
+            'clientId' => $loginCred['appKey'],
+            'clientSecret' => $loginCred['appSecret'],
+            'jwt' => $loginCred['jwt'],
+        ];
+        // Render using Twig
+        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt']) {
+            echo $this->twig->render('phone_widget.html.twig', $context);
+        }
+    }
+
+    private function getRCCredentials($serviceType = 'voice'): array
+    {
+        // Set the module type for AppDispatch i.e. voice, fax, sms, email
+        AppDispatch::setModuleType($serviceType);
+        $clientApp = AppDispatch::getApiService($serviceType);
+        return $clientApp->getCredentials();
     }
 
     /**
@@ -66,7 +123,7 @@ class NotificationEventListener implements EventSubscriberInterface
      * @return string
      * @throws \Exception
      */
-    public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event)
+    public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event): string
     {
         $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
@@ -87,7 +144,7 @@ class NotificationEventListener implements EventSubscriberInterface
             'pid' => $pid,
             'redirect_link' => $GLOBALS['web_root'] . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
-                "&audit_render_id=" . urlencode($audit_id) . "&site=" . urlencode($site_id),
+                "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
         ];
@@ -105,7 +162,7 @@ class NotificationEventListener implements EventSubscriberInterface
         }
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
-            $status .= "Sending SMS to " .  text($recipientPhone) . ': ';
+            $status .= "Sending SMS to " . text($recipientPhone) . ': ';
             $clientApp = AppDispatch::getApiService('sms');
             $status_api = $clientApp->sendSMS(
                 $recipientPhone,
@@ -129,6 +186,111 @@ class NotificationEventListener implements EventSubscriberInterface
             $status .= text($this->emailNotification($recipientEmail, $html_message));
         }
         $status .= "\n";
+        echo(nl2br($status)); //preserve html for alert status
+        return 'okay';
+    }
+
+    /**
+     * Send a token for universal onetime/token.
+     * Example: Payment link.
+     * $data = [
+     *   'pid' => $e_pid,
+     *   'expiry_interval' => "P2D", // valid for 2 days.
+     *   'text_message' => "Please make a payment for your appointment.",
+     *   'html_message' => "",
+     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+     *   'actions' => [
+     *      'enforce_onetime_use' => true,
+     *      'enforce_auth_pin' => true,
+     *     ]
+     * ];
+     * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
+     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
+     *
+     * @param SendNotificationEvent $event
+     * @return string
+     * @throws \Exception
+     */
+    public function onNotifyUniversalOneTime(SendNotificationEvent $event): string
+    {
+        // TODO: Move Implement onNotifyUniversalOneTime() method
+        $status = 'Starting request.' . ' ';
+        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $pid = $event->getPid();
+        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $redirectURL = $data['redirect_url'] ?? $defaultUrl;
+        $data = $event->getEventData() ?? [];
+        $patient = $event->fetchPatientDetails($pid);
+
+        $recipientEmail = $data['email'] ?? $patient['email'];
+        $recipientPhone = $patient['phone'];
+        $sendMethod = $event->getSendNotificationMethod();
+        $includeSMS = ($sendMethod == 'sms' || $sendMethod == 'both') && $this->isSmsEnabled;
+        $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
+        // default actions.
+        $actionDefaults = [
+            'enforce_onetime_use' => false, // Enforces the onetime token to be used only once.
+            'extend_portal_visit' => true, // Extends the portal visit by not forcing logout redirect.
+            'enforce_auth_pin' => false, // Requires the pin to be entered.
+            'max_access_count' => 0, // 0 = unlimited.
+        ];
+        $actions = array_merge($actionDefaults, $data['actions'] ?? []); // from event data.
+
+        $text_message = $data['text_message'] ?? xl("Click link to run application.");
+        $html_message = $data['html_message'] ?? '';
+
+        $parameters = [
+            'pid' => $pid,
+            'redirect_link' => $redirectURL,
+            'email' => '',
+            'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
+            'actions' => $actions,
+        ];
+        // get token.
+        $service = new OneTimeAuth();
+        $oneTime = $service->createPortalOneTime($parameters); // create the token.
+
+        if (!isset($oneTime['encoded_link'])) {
+            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            return 'Failed! Redirect link.';
+        }
+
+        $status .= "Send Method: $sendMethod\n";
+
+        $canned = "\n\n" . xlt("PIN") . ": " . $oneTime['pin'] ?? '';
+        $canned .= "\n" . xlt("Link") . ": " . $oneTime['encoded_link'];
+        $canned .= "\n" . xlt("If you are not automatically redirected after clicking, please copy and then paste the link into your browser's address bar.");
+        $canned .= "\n" . xlt("Thank you for your attention.");
+        $text_message .= $canned;
+        if (empty($html_message)) {
+            $html_message = "<html><body><div class='wrapper'><p>" . nl2br($text_message) . "</p></div></body></html>";
+        }
+
+        if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
+            $status .= "Sending SMS to " . text($recipientPhone) . ': ';
+            $clientApp = AppDispatch::getApiService('sms');
+            $status_api = $clientApp->sendSMS(
+                $recipientPhone,
+                "",
+                $text_message,
+                $recipientPhone
+            );
+            if ($status_api !== true) {
+                $status .= text($status_api);
+            } else {
+                $status .= xlt("Message sent.");
+            }
+        }
+        $status .= "\n";
+        if (
+            !empty($recipientEmail)
+            && ($includeEmail)
+            && ($patient['hipaa_allowemail'] == 'YES')
+        ) {
+            $status .= "Sending email to " . text($recipientEmail) . ': ';
+            $status .= text($this->emailNotification($recipientEmail, $html_message)); // TODO use mail client
+        }
+        $status .= "\n";
         echo (nl2br($status)); //preserve html for alert status
         return 'okay';
     }
@@ -144,7 +306,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($id);
-        $data['recipient_phone'] = $data['recipient_phone'] ?? null;
+        $data['recipient_phone'] ??= null;
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
@@ -169,11 +331,7 @@ class NotificationEventListener implements EventSubscriberInterface
             }
         }
 
-        if (
-            !empty($patient['email'])
-            && ($data['include_email'] ?? false)
-            && ($patient['hipaa_allowemail'] == 'YES')
-        ) {
+        if (!empty($patient['email']) && ($data['include_email'] ?? false) && ($patient['hipaa_allowemail'] == 'YES')) {
             $status .= $this->emailNotification($patient['email'], $message);
         }
         return $status;
@@ -187,33 +345,39 @@ class NotificationEventListener implements EventSubscriberInterface
      */
     public function emailNotification($email, $content, $file = null): string
     {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $mail = new MyMailer(true);
-        $smtpEnabled = $mail::isConfigured();
-        if (!$smtpEnabled) {
-            return 'Error: ' . xlt("Mail was not sent. A SMTP client is not set up in Config Notifications!.");
+        $send = '';
+        try {
+            $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
+            $mail = new MyMailer(true);
+            $smtpEnabled = $mail::isConfigured();
+            if (!$smtpEnabled) {
+                return 'Error: ' . xlt("Mail was not sent. A SMTP client is not set up in Config Notifications!.");
+            }
+            $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
+            $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
+            $from_name = text($from_name);
+            $from = $GLOBALS["practice_return_email_path"];
+            $mail->addReplyTo($from, $from_name);
+            $mail->setFrom($from, $from);
+            $to = $email;
+            $to_name = $email;
+            $mail->addAddress($to, $to_name);
+            $subject = xl("Your clinic asks for your attention.");
+            $mail->Subject = $subject;
+            $mail->msgHTML($html);
+            $mail->isHTML(true);
+            if (!empty($file)) {
+                $mail->addAttachment($file);
+            }
+            $send = $mail->Send();
+            $mail->smtpClose();
+            if (!$send) {
+                error_log("Failed to send email: " . $mail->ErrorInfo);
+            }
+        } catch (\Throwable $e) {
+            error_log("Failed to send email: " . $e->getMessage());
         }
-        $isHtml = (stripos($content, '<html') !== false) || (stripos($content, '<body') !== false);
-        if (!$isHtml) {
-            $html = "<html><body><div class='wrapper'>" . nl2br($content) . "</div></body></html>";
-        } else {
-            $html = $content;
-        }
-        $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $to = $email;
-        $to_name = $email;
-        $mail->AddAddress($to, $to_name);
-        $subject = xl("Your clinic asks for your attention.");
-        $mail->Subject = $subject;
-        $mail->MsgHTML($html);
-        $mail->IsHTML(true);
-        if (!empty($file)) {
-            $mail->AddAttachment($file);
-        }
-        return $mail->Send();
+        return $send ? xlt("Email sent.") : xlt("Email failed to send.");
     }
 
     /**
@@ -239,6 +403,22 @@ class NotificationEventListener implements EventSubscriberInterface
     <?php }
 
     /**
+     * Available button to use.
+     *
+     * @param SendNotificationEvent $notificationEvent
+     * @return void
+     */
+    public function universalSubmitButton(SendNotificationEvent $notificationEvent): void
+    {
+        $e_pid = $notificationEvent->getPid();
+        $p_data = $notificationEvent->fetchPatientDetails($e_pid);
+        $eData = $notificationEvent->getEventData();
+        $buttonName = $eData['button_name'] ?? xlt('Submit');
+        ?>
+        <button type="button" class="btn btn-success btn-sm btn-send-msg" onclick="sendUniversalNotification(<?php echo attr_js($e_pid) ?>)"><?php echo $buttonName; ?></button>
+    <?php }
+
+    /**
      * @param SendNotificationEvent $event
      * @return void
      */
@@ -248,7 +428,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $baseUrl = "/interface/modules/custom_modules/oe-module-faxsms/contact.php?";
         $type = $_REQUEST['type'] ?? 'sms';
         $queryParams = [];
-        $queryParams['xmitMode'] = (($this->isSmsEnabled ?? false) && ($this->isEmailEnabled ?? false)) ? 'both' : 'sms';
+        $queryParams['xmitMode'] = (($this->isSmsEnabled) && ($this->isEmailEnabled)) ? 'both' : 'sms';
         $queryParams['isSMS'] = $this->isSmsEnabled;
         $queryParams['isEmail'] = $this->isEmailEnabled;
         $queryParams['isFax'] = $this->isFaxEnabled;
@@ -266,21 +446,20 @@ class NotificationEventListener implements EventSubscriberInterface
         $queryParams['pid'] = '';
         $url_part = $baseUrl . http_build_query($queryParams);
         $modal = $e['modal_size'] ?? 'modal-md';
-        $modal_height = $e['modal_height'] ?? '775';
+        $modal_height = $e['modal_height'] ?? '675';
         $modal_size_height = $e['modal_size_height'] ?? '';
         ?>
         function sendNotification(pid, docName, docId, details) {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send Message"); ?>;
-            let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) +
-                '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) +
-                '&details=' + encodeURIComponent(details);
+            let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) +
+            '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
             dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
-                buttons: [{text: btnClose, close: true, style: 'secondary'}],
-                sizeHeight: '<?php echo attr($modal_size_height); ?>',
-                allowDrag: true,
-                allowResize: true,
-            });
+            buttons: [{text: btnClose, close: true, style: 'secondary'}],
+            sizeHeight: '<?php echo attr($modal_size_height); ?>',
+            allowDrag: true,
+            allowResize: true,
+        });
         }
     <?php }
 }

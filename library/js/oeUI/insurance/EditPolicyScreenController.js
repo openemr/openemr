@@ -391,13 +391,15 @@ export class EditPolicyScreenController
 
     #verifyAddress(evt, address) {
         window.top.restoreSession();
-        dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(address.street) +
-            '&address2=' + encodeURIComponent(address.street_line_2) +
-            '&city=' + encodeURIComponent(address.city) +
-            '&state=' + encodeURIComponent(address.state) +
-            '&zip5=' + encodeURIComponent(address.postal_code.substring(0,5)) +
-            '&zip4=' + encodeURIComponent(address.postal_code.substring(5,9))
-            , '_blank', 400, 150, '', xl('Address Verify'));
+        const params = new URLSearchParams({
+            address1: address.street,
+            address2: address.street_line_2,
+            city: address.city,
+            state: address.state,
+            zip4: address.postal_code.substring(5, 9),
+            zip5: address.postal_code.substring(0, 5)
+        });
+        dlgopen('../../practice/address_verify.php?' + params, '_blank', 400, 150, '', xl('Address Verify'));
 
         return false;
     }
@@ -478,7 +480,6 @@ export class EditPolicyScreenController
         }
     }
 
-
     #setupInsuranceTypeNavigation() {
         // grab nav-link-insurance-type elements and setup click handlers for them
         // when the user clicks on one of them we need to hide all the tabs and show the one they clicked on
@@ -490,6 +491,17 @@ export class EditPolicyScreenController
                     // cancel the evt so we don't navigate to a new page
                     evt.preventDefault();
                     evt.stopPropagation();
+
+                    // Check if there are unsaved changes
+                    if (this.hasDataToSave()) {
+                        // If there are unsaved changes, show a confirmation dialog
+                        if (!confirm(window.top.xl("You have unsaved changes. Do you want to proceed without saving?"))) {
+                            // User clicked cancel, so don't change tabs
+                            return;
+                        }
+                        // If user confirmed, continue with tab change but reset any changes
+                        this.resetSaveData();
+                    }
 
                     this.__selectedInsuranceTypeTab = evt.target.dataset.type;
                     // need to default to the top insurance in the list

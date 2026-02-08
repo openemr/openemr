@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,23 +25,24 @@ use Carecoordination\Model\ProgressnoteTable;
 use Carecoordination\Model\Continuitycaredocument;
 use Carecoordination\Model\ContinuitycaredocumentTable;
 use Carecoordination\Listener\CCDAEventsSubscriber;
+use OpenEMR\Common\Acl\AclMain;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
-            'Laminas\Loader\ClassMapAutoloader' => array(
+        return [
+            \Laminas\Loader\ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
-            ),
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()
@@ -50,14 +53,27 @@ class Module
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
+            // Enforce ACL for the Care Coordination module.
+            // Skip for patient portal sessions which have their own authorization.
+            if (($_SESSION['sessionUser'] ?? '') !== '-patient-') {
+                $userId = $_SESSION['authUserID'] ?? '';
+                if (
+                    !AclMain::zhAclCheck($userId, 'send_to_hie')
+                    && !AclMain::aclCheckCore('admin', 'super')
+                ) {
+                    echo xlt('Not Authorized');
+                    exit;
+                }
+            }
+
             $controller = $e->getTarget();
             $controller->layout('carecoordination/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();
-                $controller->getEvent()->getViewModel()->setVariables(array(
+                $controller->getEvent()->getViewModel()->setVariables([
                     'current_controller' => $route->getParam('controller'),
                     'current_action' => $route->getParam('action'),
-                ));
+                ]);
         }, 100);
     }
 

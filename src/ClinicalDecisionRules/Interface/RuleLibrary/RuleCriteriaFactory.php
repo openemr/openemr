@@ -22,7 +22,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
  */
 abstract class RuleCriteriaFactory
 {
-    var $strategyMap;
+    public $strategyMap;
 
     function __construct()
     {
@@ -45,7 +45,7 @@ abstract class RuleCriteriaFactory
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
-        foreach ($strategyMap as $key => $value) {
+        foreach ($strategyMap as $value) {
             $criteriaType = $value->resolveRuleCriteriaType($method, $methodDetail, $ruleValue);
             if ($criteriaType != null) {
                 return $criteriaType;
@@ -77,7 +77,7 @@ abstract class RuleCriteriaFactory
 
         $builder = $this->getBuilderFor($criteriaType);
         if (is_null($builder)) {
-            // if no builder, then its an unrecognized critiera
+            // if no builder, then its an unrecognized criteria
             return null;
         }
 
@@ -105,7 +105,7 @@ abstract class RuleCriteriaFactory
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor($criteriaType);
         if (is_null($builder)) {
-            // if no builder, then its an unrecognized critiera
+            // if no builder, then its an unrecognized criteria
             return null;
         }
 

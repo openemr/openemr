@@ -17,7 +17,10 @@ require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
@@ -25,20 +28,20 @@ $cryptoGen = new CryptoGen();
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 // array of field name tags to allow internationalization
 //  of templates
-$FIELD_TAG = array(
+$FIELD_TAG = [
     'DATE'             => xl('DATE'),
     'FROM_TITLE'       => xl('FROM_TITLE'),
     'FROM_FNAME'       => xl('FROM_FNAME'),
@@ -78,13 +81,13 @@ $FIELD_TAG = array(
     'PT_EMAIL'         => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
 
-);
+];
 
 $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.phone_home, p.phone_cell, p.ss, p.email, p.postal_code " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+  "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -98,8 +101,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $form_format   = $_POST['form_format'];
     $form_body     = $_POST['form_body'];
 
-    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
-    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
+    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_from]);
+    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_to]);
 
     $datestr = $form_date;
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
@@ -214,7 +217,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -372,7 +375,7 @@ while ($urow = sqlFetchArray($ures)) {
     $tmp1 = " <option value='" . attr($urow['id']) . "'";
     $tmp2 = ">" . text($uname) . "</option>\n";
     $optto .= $tmp1 . $tmp2;
-    if ($urow['id'] == $_SESSION['authUserID']) {
+    if ($urow['id'] == $session->get('authUserID')) {
         $tmp1 .= " selected";
     }
 
@@ -478,7 +481,7 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 

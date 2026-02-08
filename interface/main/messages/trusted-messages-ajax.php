@@ -13,10 +13,11 @@
 require_once("../../globals.php");
 require_once("../../../ccr/transmitCCD.php");
 
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Common\Acl\AccessDeniedException;
 
 $result = ['success' => false];
 
@@ -36,9 +37,8 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
     $document = null;
 
     try {
-        $pid = $_REQUEST['pid'] ?? null;
-
-        if (empty($pid) || intval($pid) <= 0) {
+        $pid = ValidationUtils::validateInt($_REQUEST['pid'] ?? null, min: 1);
+        if ($pid === false) {
             throw new InvalidArgumentException("pid is required and must be a valid patient id");
         }
         $patientService = new PatientService();
@@ -57,13 +57,13 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
             throw new InvalidArgumentException("trusted_email is required and must be a valid Direct email address");
         }
 
-        $documentId = $_REQUEST['documentId'] ?? null;
+        $documentId = ValidationUtils::validateInt($_REQUEST['documentId'] ?? null, min: 1);
         $message = $_REQUEST['message'] ?? '';
-        if ((empty($documentId) || intval($documentId) <= 0) && empty($message)) {
+        if ($documentId === false && empty($message)) {
             throw new InvalidArgumentException("document_id is required if no message is sent and must be a valid document id");
         }
 
-        if (!empty($documentId) && intval($documentId) > 0) {
+        if ($documentId !== false) {
             // now we need to lookup the document
             $document = new \Document($documentId);
 
@@ -74,12 +74,12 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
         }
         $verifyMessageReceived = intval($_REQUEST['verifyMessageReceived'] ?? 0) == 1;
         $isValid = true;
-    } catch (AccessDeniedException $exception) {
+    } catch (AccessDeniedException) {
         http_response_code(401);
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;
         (new SystemLogger())->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         $result['errorCode'] = 'invalidRequest';
         (new SystemLogger())->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
         $isValid = false;
@@ -121,7 +121,7 @@ if ($isValid) {
             ]
         );
         $result['errorCode'] = 'invalidDocumentFormat';
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         (new SystemLogger())->error(
             "trusted-messages-ajax.php threw an exception when attempting to send",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
@@ -135,7 +135,7 @@ if ($isValid) {
 try {
     (new SystemLogger())->debug("trusted-messages-ajax.php result object", $result);
     echo json_encode($result, JSON_THROW_ON_ERROR);
-} catch (\Exception $error) {
+} catch (\Throwable $error) {
     (new SystemLogger())->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
     http_response_code(500);
 }

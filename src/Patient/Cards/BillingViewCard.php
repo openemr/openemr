@@ -21,20 +21,8 @@ class BillingViewCard extends CardModel
 
     private const CARD_ID = 'billing';
 
-    private $pid;
-
-    private $insco_name;
-
-    private $primaryInsurance;
-
-    private $billingNote;
-
-    public function __construct($pid, $insco_name, $billingNote, $primaryInsurance, array $opts = [])
+    public function __construct(private $pid, private $insco_name, private $billingNote, private $primaryInsurance, array $opts = [])
     {
-        $this->pid = $pid;
-        $this->insco_name = $insco_name;
-        $this->primaryInsurance = $primaryInsurance;
-        $this->billingNote = $billingNote;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }

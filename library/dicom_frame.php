@@ -31,7 +31,7 @@ if (!AclMain::aclCheckCore('patients', 'docs')) {
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
     $patid = $_REQUEST['patient_id'] ?? null;
-    $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : ($_REQUEST['doc_id'] ?? null);
+    $docid = $_REQUEST['document_id'] ?? $_REQUEST['doc_id'] ?? null;
     $d = new Document(attr($docid));
     $type = '.dcm';
     if ($d->get_mimetype() == 'application/dicom+zip') {
@@ -44,6 +44,7 @@ if ($web_path) {
 $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => $GLOBALS['assets_static_relative']
+    ,'web_root' => $web_root
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null
     ,'docid' => $docid ?? null

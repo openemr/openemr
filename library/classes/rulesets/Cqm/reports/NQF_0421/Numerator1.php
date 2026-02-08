@@ -19,7 +19,7 @@ class NQF_0421_Numerator1 implements CqmFilterIF
         // Flow of control loop
         $return = false;
         do {
-            // See if BMI has been recorded between >=22kg/m2 and <30kg/m2 6 months before, or simultanious to the encounter
+            // See if BMI has been recorded between >=22kg/m2 and <30kg/m2 6 months before, or simultaneous to the encounter
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
                      "LEFT JOIN `form_encounter` " .
@@ -32,14 +32,14 @@ class NQF_0421_Numerator1 implements CqmFilterIF
                      "AND DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) " .
                      "AND DATE( form_vitals.date ) <= DATE( form_encounter.date ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement($query, array( $patient->id ));
+            $res = sqlStatement($query, [ $patient->id ]);
             $number = sqlNumRows($res);
             if ($number >= 1) {
                 $return = true;
                 break;
             }
 
-            // See if BMI has been recorded >=30kg/m2 6 months before, or simultanious to the encounter
+            // See if BMI has been recorded >=30kg/m2 6 months before, or simultaneous to the encounter
             // AND 'Care goal: follow-up plan BMI management' OR 'Communication provider to provider: dietary consultation order'
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
@@ -53,7 +53,7 @@ class NQF_0421_Numerator1 implements CqmFilterIF
                      "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement($query, array( $patient->id ));
+            $res = sqlStatement($query, [ $patient->id ]);
             $number = sqlNumRows($res);
             if (
                 $number >= 1 &&
@@ -64,7 +64,7 @@ class NQF_0421_Numerator1 implements CqmFilterIF
                 break;
             }
 
-            // See if BMI has been recorded <22kg/m2 6 months before, or simultanious to the encounter
+            // See if BMI has been recorded <22kg/m2 6 months before, or simultaneous to the encounter
             // AND 'Care goal: follow-up plan BMI management' OR 'Communication provider to provider: dietary consultation order'
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
@@ -78,7 +78,7 @@ class NQF_0421_Numerator1 implements CqmFilterIF
                      "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement($query, array( $patient->id ));
+            $res = sqlStatement($query, [ $patient->id ]);
             $number = sqlNumRows($res);
             if (
                 $number >= 1 &&

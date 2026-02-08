@@ -25,24 +25,24 @@ $sql = "SELECT primary_ncpdp, alternate_ncpdp, is_history, search_persist FROM w
 $result = sqlQuery($sql, [$pid]);
 
 if (!$result) {
-    $persist = array(
+    $persist = [
         'all_day' => '',
         'weno_only' => '',
         'weno_coverage' => 'Local',
         'weno_zipcode' => '',
         'weno_city' => '',
         'weno_state' => '',
-    );
+    ];
     $persist = json_encode($persist);
 } else {
     $persist = $result['search_persist'] ?? '';
 }
 
-$updateData = array(
+$updateData = [
     "primary_pharmacy" => $data['primary'] ?? '',
     "alternate_pharmacy" => $data['alternate'] ?? '',
     "search_persist" => $persist
-);
+];
 
 $pharmacyService->updatePatientWenoPharmacy($data['pid'], $updateData);
 // TODO: query weno_assigned_pharmacy if $result is now unique for primary_ncpdp or alternate_ncpdp and add back as history

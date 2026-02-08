@@ -19,20 +19,14 @@ require_once("IObserver.php");
  */
 class ObserveToSmarty implements IObserver
 {
-    private $_smarty = null;
     private $_counter = 0;
-    public function __construct($smarty)
+    public function __construct(private $_smarty)
     {
-        $this->_smarty = $smarty;
         $this->_smarty->debugging = true;
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        if (is_object($obj) || is_array($obj)) {
-            $msg = "<pre>" . print_r($obj, 1) . "</pre>";
-        } else {
-            $msg = $obj;
-        }
+        $msg = is_object($obj) || is_array($obj) ? "<pre>" . print_r($obj, 1) . "</pre>" : $obj;
 
         $desc = "";
 
@@ -55,6 +49,6 @@ class ObserveToSmarty implements IObserver
                 break;
         }
 
-        $this->_smarty->assign(str_pad($this->_counter++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
+        $this->_smarty->assign(str_pad((string) $this->_counter++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
     }
 }

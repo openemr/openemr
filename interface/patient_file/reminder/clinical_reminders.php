@@ -19,7 +19,11 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 ?>
 
 <html>
@@ -28,7 +32,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
+$patient_id = $_GET['patient_id'] ?: "";
 ?>
 
 <body class='body_top'>
@@ -52,7 +56,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <?php
   // collect the pertinent plans and rules
   $plans_default = resolve_plans_sql('', '0', true);
-  $rules_default = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
+  $rules_default = resolve_rules_sql('', '0', true, '', $session->get('authUser'));
 ?>
 
 <ul class="tabNav">
@@ -64,13 +68,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <div class="tabContainer">
   <div class="tab current text h-auto" style="width: 97%;">
     <?php
-      clinical_summary_widget($pid, "reminders-all", '', 'default', $_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', 'default', $session->get('authUser'));
     ?>
   </div>
 
   <div class="tab text h-auto" style="width: 97%;">
     <?php
-      clinical_summary_widget($pid, "reminders-all", '', "plans", $_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', "plans", $session->get('authUser'));
     ?>
   </div>
 
@@ -89,13 +93,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         <?php foreach ($plans_default as $plan) { ?>
             <?php
           //only show the plan if there are any rules in it that the user has access to
-            $plan_check = resolve_rules_sql('', '0', true, $plan['id'], $_SESSION['authUser']);
+            $plan_check = resolve_rules_sql('', '0', true, $plan['id'], $session->get('authUser'));
             if (empty($plan_check)) {
                 continue;
             }
             ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $plan['id']); ?></td>
+            <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'clinical_plans'], $plan['id']); ?></td>
             <td align="center">
                 <?php
 
@@ -151,7 +155,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $rule['id']); ?></td>
+            <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $rule['id']); ?></td>
             <td align="center">
                 <?php
                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -235,7 +239,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'passive_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
       });
     });
 
@@ -246,7 +250,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'active_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
       });
     });
 
@@ -257,7 +261,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'normal',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
       });
     });
 
@@ -286,4 +290,3 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
 </body>
 </html>
-

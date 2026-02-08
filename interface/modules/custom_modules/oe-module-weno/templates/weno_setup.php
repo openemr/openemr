@@ -128,7 +128,7 @@ $vendors = $boot->getVendorGlobals();
 
                 if (isPersistEvent) {
                     const successMsg = <?php echo xlj('Auto Saved!'); ?>;
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                     isPersistEvent = false;
                     event.preventDefault();
                 }
@@ -162,23 +162,23 @@ $vendors = $boot->getVendorGlobals();
 
             if (isValidKey === 998 || isValidKey === 999) {
                 const warnMsg = "<?php echo xlt('Internet Connection Problem. Are you connected?'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === false) {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php echo xlt('The Encryption key did not pass validation. Clicking Reset button will reset your account encryption key.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === 900) {
                 $('#form_reset_key').addClass('d-none');
                 const warnMsg = "<?php echo xlt('Primary Admin Username and or Primary Admin Password is invalid. Try to reenter or correct in your Weno Dashboard.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else {
                 if (saveAction) {
                     const successMsg = "<?php echo xlt('Admin Settings Successfully Validated and Saved!'); ?>";
-                    syncAlertMsg(successMsg, 3000, 'success', 'lg');
+                    asyncAlertMsg(successMsg, 3000, 'success', 'lg');
                 }
                 if (saveActionPersist) {
                     const successMsg = "<?php echo xlt('Auto Saved!'); ?>";
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                 }
                 $('#form_reset_key').addClass('d-none');
             }
@@ -218,7 +218,7 @@ $vendors = $boot->getVendorGlobals();
 *** The Weno Primary Admin Section.
 - All values must be entered and validated.
 - If validation fails because either email and/or password are invalid an alert will be shown stating such.
-- If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader. 
+- If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader.
 - The optional User Setting Credentials Subsection is a short cut to save time by entering the Weno User credentials for the user. This is the same as the Weno User ID in the Config Users Settings.\n
 *** The Map Weno User Id`s (Required)  Section.
 - This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.

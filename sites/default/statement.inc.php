@@ -71,7 +71,7 @@ function report_header_2($stmt, $providerID = '1')
     //We get the service facility from the encounter.  In cases with multiple service facilities
     //OpenEMR sends the correct facility
 
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $facility = sqlFetchArray($service_query);
 
     $DOB = oeFormatShortDate($titleres['DOB']);
@@ -139,7 +139,7 @@ function create_HTML_statement($stmt)
     }
 
 // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -147,7 +147,7 @@ function create_HTML_statement($stmt)
 
 
 // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -158,7 +158,7 @@ function create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -229,7 +229,7 @@ function create_HTML_statement($stmt)
     $count = 5;
 
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -238,14 +238,10 @@ function create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -260,7 +256,7 @@ function create_HTML_statement($stmt)
         $prev_ddate = '';
         $last_activity_date = $dos;
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -273,14 +269,14 @@ function create_HTML_statement($stmt)
 
             if (!empty($ddata['pmt'])) {
                 $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-                $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                    substr(oeFormatShortDate($ddate), 8, 2) .
+                $desc = xl('Paid') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                    substr((string) oeFormatShortDate($ddate), 8, 2) .
                     ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                 // $ddata['plv'] is the 'payer_type' field in `ar_activity`, passed in via InvoiceSummary
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
-                    $desc = xl('Pt paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                    substr(oeFormatShortDate($ddate), 8, 2);
+                    $desc = xl('Pt paid') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                    substr((string) oeFormatShortDate($ddate), 8, 2);
                 }
             } elseif (!empty($ddata['rsn'])) {
                 if ($ddata['chg']) {
@@ -292,8 +288,8 @@ function create_HTML_statement($stmt)
                             // only 1 note per item or results in too much detail
                             continue;
                         } else {
-                            $desc = xl('Note') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                                substr(oeFormatShortDate($ddate), 8, 2) .
+                            $desc = xl('Note') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                                substr((string) oeFormatShortDate($ddate), 8, 2) .
                                 ': ' . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                             $note_flag = true;
                         }
@@ -336,9 +332,9 @@ function create_HTML_statement($stmt)
         // If first bill then make the amount due current and reset aging date
         if ($stmt['dun_count'] == '0') {
             $last_activity_date = date('Y-m-d');
-            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $row['pid'], $row['encounter']));
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", [date('Y-m-d'), $row['pid'], $row['encounter']]);
         }
-        $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $last_activity_date)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
@@ -374,7 +370,7 @@ function create_HTML_statement($stmt)
 
     // This is the top portion of the page.
     $out .= "\n\n\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
@@ -428,8 +424,8 @@ function create_HTML_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
@@ -589,7 +585,7 @@ function create_statement($stmt)
     // TBD: read this from the facility table
 
     // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -597,7 +593,7 @@ function create_statement($stmt)
 
 
     // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -708,7 +704,7 @@ function create_statement($stmt)
     //
     $count = 25;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -721,14 +717,10 @@ function create_statement($stmt)
 
 
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -738,13 +730,13 @@ function create_statement($stmt)
         ksort($line['detail']);
         # Compute the aging bucket index and accumulate into that bucket.
         #
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
 
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -804,7 +796,7 @@ function create_statement($stmt)
 
     // This is the bottom portion of the page.
     $out .= "\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
     }
 
@@ -854,8 +846,8 @@ function create_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
                     ' ' .  $events[$j]['ulname'];
             } else {
@@ -892,7 +884,7 @@ function osp_create_HTML_statement($stmt)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-    " where  service_location=1", array($stmt['pid']));
+    " where  service_location=1", [$stmt['pid']]);
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -910,7 +902,7 @@ function osp_create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -981,7 +973,7 @@ function osp_create_HTML_statement($stmt)
     //
     $count = 6;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -990,14 +982,10 @@ function osp_create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -1006,13 +994,13 @@ function osp_create_HTML_statement($stmt)
         $dos = $line['dos'];
         ksort($line['detail']);
         # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
 
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -1070,7 +1058,7 @@ function osp_create_HTML_statement($stmt)
 
     // This is the top portion of the page.
     $out .= "\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
@@ -1124,8 +1112,8 @@ function osp_create_HTML_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];

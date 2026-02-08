@@ -23,20 +23,20 @@ $labid = (int) ($_GET['labid'] ?? null);
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.
 if (isset($_GET['typeid'])) {
-    $grporders = array();
+    $grporders = [];
     $typeid = (int) $_GET['typeid'];
     $name = '';
     if ($typeid) {
-        $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", array($typeid));
+        $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", [$typeid]);
         $name = $ptrow['name'];
-        $proctype = trim($ptrow['procedure_type']);
+        $proctype = trim((string) $ptrow['procedure_type']);
         $codes = ($proctype === 'pro') ? '' : $ptrow['related_code'];
         $transport = trim($ptrow['transport'] ?? '');
-        $testid = trim($ptrow['procedure_code']);
-        $proctype_name = trim($ptrow['procedure_type_name']);
+        $testid = trim((string) $ptrow['procedure_code']);
+        $proctype_name = trim((string) $ptrow['procedure_type_name']);
 
         if ($ptrow['procedure_type'] == 'fgp') {
-            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", array($typeid));
+            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", [$typeid]);
             while ($row = sqlFetchArray($res)) {
                 $grporders[] = $row;
             }
@@ -64,9 +64,9 @@ if (isset($_GET['typeid'])) {
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
                     $name = ($grporders[$i]['name']);
                     $codes = ($grporders[$i]['related_code']);
-                    $transport = trim($ptrow['transport']);
-                    $testid = trim($ptrow['procedure_code']);
-                    $proctype_name = trim($ptrow['procedure_type_name']);
+                    $transport = trim((string) $ptrow['transport']);
+                    $testid = trim((string) $ptrow['procedure_code']);
+                    $proctype_name = trim((string) $ptrow['procedure_type_name']);
                     echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($proctype_name) . ", " . js_escape($testid) . ", " . js_escape($t) . ");\n";
                 }
                 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
@@ -103,21 +103,30 @@ if (isset($_GET['typeid'])) {
     <title><?php echo xlt('Procedure Picker'); ?></title>
 
     <script>
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);
+            <?php
+            echo "const params = new URLSearchParams({";
+            echo "order: " . js_escape($order) . ", ";
+            echo "labid: " . js_escape($labid);
             if (isset($_GET['addfav'])) {
-                echo " + '&addfav=' + " . js_url($_GET['addfav']);
+                echo ", addfav: " . js_escape($_GET['addfav']);
             }
             if (isset($_GET['formid'])) {
-                echo " + '&formid=' + " . js_url($_GET['formid']);
+                echo ", formid: " . js_escape($_GET['formid']);
             }
             if (isset($_GET['formseq'])) {
-                echo " + '&formseq=' + " . js_url($_GET['formseq']);
+                echo ", formseq: " . js_escape($_GET['formseq']);
             }
-            ?> + '&typeid=' + encodeURIComponent(typeid);
+            echo ", typeid: typeid";
+            echo "});";
+            ?>
+
+            location.href = 'find_order_popup.php?' + params.toString();
             return false;
         }
+        // AI-generated code end
     </script>
 </head>
 <body>
@@ -169,13 +178,13 @@ if (isset($_GET['typeid'])) {
                         "activity = 1 AND " .
                         "(procedure_code LIKE ? OR name LIKE ?) " .
                         "ORDER BY seq, procedure_code";
-                    $res = sqlStatement($query, array($labid, $ord, $search_term, $search_term));
+                    $res = sqlStatement($query, [$labid, $ord, $search_term, $search_term]);
 
                     while ($row = sqlFetchArray($res)) {
                         $itertypeid = $row['procedure_type_id'];
-                        $itertype = strtoupper($row['procedure_type']);
+                        $itertype = strtoupper((string) $row['procedure_type']);
                         $itercode = $row['procedure_code'];
-                        $itertext = trim($row['name']);
+                        $itertext = trim((string) $row['name']);
                         $anchor = "<a href='' onclick='return selcode(" . attr_js($itertypeid) . ")'>";
                         echo " <tr>";
                         echo "  <td>$anchor" . text($itertype) . "</a></td>\n";

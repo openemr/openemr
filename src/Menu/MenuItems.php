@@ -41,7 +41,7 @@ class MenuItems extends \ArrayObject
             }
         } else {
             if (!($entry instanceof MenuItemInterface)) {
-                $type = (gettype($entry) === "object") ? get_class($entry) : gettype($entry);
+                $type = (gettype($entry) === "object") ? $entry::class : gettype($entry);
                 throw new \InvalidArgumentException("All MenuItems must implement MenuItemInterface, {$type} found.");
             }
         }
@@ -49,7 +49,7 @@ class MenuItems extends \ArrayObject
 
     public function offsetSet($key, $value): void
     {
-        $this->validateEntry($value);
+        static::validateEntry($value);
 
         parent::offsetSet($key, $value);
     }

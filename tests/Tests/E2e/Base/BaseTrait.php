@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,16 +16,125 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
+use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
     private function base(): void
     {
-        $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
-        $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
-        $this->client->manage()->window()->maximize();
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+
+        if ($useGrid === "true") {
+            // Use Selenium Grid (consistent testing environment with goal of stability)
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            // Implicit wait must be 0 when using explicit waits (waitFor,
+            // waitForVisibility, wait()->until()). A non-zero implicit wait
+            // causes each findElement() call inside an explicit wait condition
+            // to block for the full implicit wait duration before throwing,
+            // consuming the entire explicit wait timeout in a single attempt
+            // instead of retrying.
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 0);
+            $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
+
+            $capabilities = DesiredCapabilities::chrome();
+
+            $chromeArgs = [
+                '--window-size=1920,1080',  // Matches SE_SCREEN_WIDTH/HEIGHT
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ];
+
+            // Add headless if forced (but VNC won't work in headless mode)
+            if ($forceHeadless === "true") {
+                $chromeArgs[] = '--headless';
+            }
+
+            $capabilities->setCapability('goog:chromeOptions', [
+                'args' => $chromeArgs
+            ]);
+
+            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            $capabilities->setCapability('pageLoadStrategy', 'normal');
+
+            $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
+            $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
+
+            $this->client->manage()->timeouts()->implicitlyWait($implicitWait);
+            $this->client->manage()->timeouts()->pageLoadTimeout($pageLoadTimeout);
+        } else {
+            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
+            $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
+            $this->client->manage()->window()->maximize();
+        }
+    }
+
+    /**
+     * Wait for the application to be fully initialized after login.
+     *
+     * Verifies Knockout.js has applied bindings by checking that the
+     * #mainMenu div has children (rendered by the menu template).
+     * Without this gate, tests that immediately navigate menus can
+     * fail because the page HTML loaded but the JS framework hasn't
+     * finished rendering.
+     *
+     * @param int $timeout Seconds to wait before giving up
+     * @return bool True if app initialized, false if timeout
+     */
+    private function waitForAppReady(int $timeout = 30): bool
+    {
+        try {
+            $this->client->wait($timeout)->until(fn($driver) => $driver->executeScript(
+                'return document.getElementById("mainMenu")?.children.length > 0'
+            ));
+            // Log state on success to verify hypothesis that koAvailable
+            // is always true when the menu renders successfully
+            $state = $this->client->executeScript(<<<'JS_WRAP'
+                return JSON.stringify({
+                    koAvailable: typeof ko !== 'undefined',
+                    mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0
+                });
+            JS_WRAP);
+            fwrite(STDERR, "[E2E] waitForAppReady succeeded: {$state}\n");
+            return true;
+        } catch (TimeoutException) {
+            return false;
+        }
+    }
+
+    /**
+     * Create a TimeoutException with diagnostic information about the page state.
+     *
+     * Call this after waitForAppReady() returns false to get a detailed exception
+     * with information about why the app didn't initialize.
+     */
+    private function createAppReadyTimeoutException(): TimeoutException
+    {
+        try {
+            $diagnostics = (string) $this->client->executeScript(<<<'JS_WRAP'
+                return JSON.stringify({
+                    url: location.href,
+                    readyState: document.readyState,
+                    title: document.title,
+                    koAvailable: typeof ko !== 'undefined',
+                    mainMenuExists: document.getElementById('mainMenu') !== null,
+                    mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
+                    bodyLength: document.body?.innerHTML?.length ?? 0
+                });
+            JS_WRAP);
+        } catch (\Throwable) {
+            $diagnostics = 'unable to gather diagnostics (executeScript failed)';
+        }
+        return new TimeoutException(
+            "waitForAppReady() timed out after retry. Page state: {$diagnostics}"
+        );
     }
 
     private function switchToIFrame(string $xpath): void
@@ -37,39 +148,32 @@ trait BaseTrait
     private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false, bool $clearAlert = false): void
     {
         if ($clearAlert) {
-            // ok the alert (example case of this is when open the Create Visit link since there is already an encounter on same day)
-            $this->client->wait(10)->until(function ($driver) {
-                try {
-                    $alert = $driver->switchTo()->alert();
-                    $alert->accept();
-                    return true; // Alert is present and has been cleared
-                } catch (\Exception $e) {
-                    return false; // Alert is not present
-                }
-            });
+            // Accept an alert if present (e.g., duplicate encounter warning when
+            // creating a visit on the same day as an existing encounter). The alert
+            // may not appear if no encounter exists, so don't fail if none shows.
+            try {
+                $this->client->wait(2)->until(function ($driver) {
+                    try {
+                        $alert = $driver->switchTo()->alert();
+                        $alert->accept();
+                        return true;
+                    } catch (\Throwable) {
+                        return false;
+                    }
+                });
+            } catch (TimeoutException) {
+                // No alert appeared within the window, which is fine
+            }
         }
-        $startTime = (int) (microtime(true) * 1000);
-        if (str_contains($loading, "||")) {
-            // have 2 $loading to check
-            $loading = explode("||", $loading);
-            while (
-                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
-                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
-            ) {
-                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
-                    $this->fail("Timeout waiting for tab [$text]");
-                }
-                usleep(100);
+        // Wait for each loading indicator to disappear from the live DOM
+        if (str_contains($loading, '||')) {
+            foreach (explode('||', $loading) as $loadingText) {
+                $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
             }
         } else {
-            // only have 1 $loading to check
-            while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
-                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
-                    $this->fail("Timeout waiting for tab [$text]");
-                }
-                usleep(100);
-            }
+            $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loading);
         }
+        $this->crawler = $this->client->refreshCrawler();
         if ($looseTabTitle) {
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");
         } else {
@@ -79,15 +183,8 @@ trait BaseTrait
 
     private function assertActivePopup(string $text): void
     {
-        $this->client->waitFor(XpathsConstants::MODAL_TITLE);
+        $this->client->waitForElementToContain(XpathsConstants::MODAL_TITLE, $text);
         $this->crawler = $this->client->refreshCrawler();
-        $startTime = (int) (microtime(true) * 1000);
-        while (empty($this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text())) {
-            if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
-                $this->fail("Timeout waiting for popup [$text]");
-            }
-            usleep(100);
-        }
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
@@ -95,7 +192,7 @@ trait BaseTrait
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
-        // got to and click the menu link
+        // go to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;
         foreach ($menuLinkSequenceArray as $menuLinkItem) {
@@ -120,9 +217,16 @@ trait BaseTrait
                 $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
             }
 
-            $this->client->waitFor($menuLink);
-            $this->crawler = $this->client->refreshCrawler();
-            $this->crawler->filterXPath($menuLink)->click();
+            // Use elementToBeClickable + direct WebDriver click instead of
+            // Panther's refreshCrawler/filterXPath/click, which can fail
+            // with stale DOM references if the page updates between the
+            // crawler snapshot and the click
+            $element = $this->client->wait(30)->until(
+                WebDriverExpectedCondition::elementToBeClickable(
+                    WebDriverBy::xpath($menuLink)
+                )
+            );
+            $element->click();
             $counter++;
         }
     }
@@ -131,12 +235,18 @@ trait BaseTrait
     {
         $menuLink = XpathsConstants::USER_MENU_ICON;
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
-        $this->client->waitFor($menuLink);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath($menuLink)->click();
-        $this->client->waitFor($menuLink2);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath($menuLink2)->click();
+        $element = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($menuLink)
+            )
+        );
+        $element->click();
+        $element2 = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($menuLink2)
+            )
+        );
+        $element2->click();
     }
 
     private function isUserExist(string $username): bool

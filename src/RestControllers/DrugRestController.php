@@ -42,7 +42,7 @@ class DrugRestController
     /**
      * Returns drug resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $processingResult = $this->drugService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);

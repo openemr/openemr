@@ -18,11 +18,9 @@ use DOMXPath;
 class CdaTextParser
 {
     private $xml;
-    private mixed $title;
 
-    public function __construct($xmlContent, $title = "Imported CarePlan Notes.")
+    public function __construct($xmlContent, private readonly mixed $title = "Imported CarePlan Notes.")
     {
-        $this->title = $title;
         $dom = new DOMDocument();
         $dom->loadXML($xmlContent);
         $this->xml = $dom;
@@ -53,8 +51,8 @@ class CdaTextParser
             $list = $xpath->query(".//ns:list | .//list", $section)->item(0);
             if ($list) {
                 foreach ($list->getElementsByTagName("item") as $item) {
-                    $id = $item->getAttribute("ID") ?: "No ID";
-                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "No Caption";
+                    $id = $item->getAttribute("ID") ?: "";
+                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "";
                     $content = $this->extractItemContent($item);
 
                     $notes[] = [
@@ -82,7 +80,7 @@ class CdaTextParser
 
         foreach ($item->childNodes as $child) {
             if ($child->nodeType === XML_TEXT_NODE) {
-                $text = trim(preg_replace('/\s+/', ' ', $child->nodeValue)); // Normalize spaces
+                $text = trim((string) preg_replace('/\s+/', ' ', (string) $child->nodeValue)); // Normalize spaces
                 if ($text !== '') {
                     $contentLines[] = $indent . $text;
                 }
@@ -96,7 +94,7 @@ class CdaTextParser
                         }
                     }
                 } else {
-                    $text = trim(preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
+                    $text = trim((string) preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
                     if ($text !== '') {
                         $contentLines[] = $indent . $text;
                     }

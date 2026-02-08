@@ -26,7 +26,7 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) ($_GET['id'] ?? '');
 
 $sets = "pid = ?,
   groupname = ?,
@@ -52,7 +52,7 @@ if (empty($id)) {
             $_SESSION["authProvider"],
             $_SESSION["authUser"],
             $userauthorized,
-            $_POST["provider"],
+            $_POST["provider"] ?? '',
             $_POST["client_name"],
             $_POST["transfer_to"],
             $_POST["transfer_date"],
@@ -71,7 +71,7 @@ if (empty($id)) {
             $_SESSION["authProvider"],
             $_SESSION["authUser"],
             $userauthorized,
-            $_POST["provider"],
+            $_POST["provider"] ?? '',
             $_POST["client_name"],
             $_POST["transfer_to"],
             $_POST["transfer_date"],

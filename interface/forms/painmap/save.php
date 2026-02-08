@@ -10,7 +10,7 @@
  */
 
 /* include globals.php, required. */
-require_once('../../globals.php');
+require_once(__DIR__ . "/../../globals.php");
 
 /* include api.inc.php. also required. */
 require_once($GLOBALS['srcdir'] . '/api.inc.php');
@@ -22,7 +22,7 @@ require('C_FormPainMap.class.php');
 $c = new C_FormPainMap();
 
 /* Save the form contents .*/
-echo $c->default_action_process($_POST);
+echo $c->default_action_process();
 
 /* return to the encounter. */
 @formJump();

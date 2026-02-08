@@ -42,7 +42,7 @@ if (isset($_POST['mode'])) {
 
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
-            if (str_starts_with($var, 'act')) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 $val == "true" ? $oNoteService->enableNoteById($id) : $oNoteService->disableNoteById($id);
             }

@@ -292,7 +292,7 @@ export class InsurancePolicyService
         // this ends up being 3 updates in order to deal with the server side validation
         // I ended up doing this because I didn't want to introduce a flag on the request
         // or a new REST operation endpoint to handle the swap
-        // this is less eficient and more chatty but it is a lot less code
+        // this is less efficient and more chatty but it is a lot less code
         let getData = new URLSearchParams();
         getData.append('type', targetType);
         getData.append('uuid', insurancePolicy.uuid);

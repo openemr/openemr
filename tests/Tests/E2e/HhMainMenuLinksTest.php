@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,8 +19,10 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class HhMainMenuLinksTest extends PantherTestCase
 {
@@ -28,54 +32,44 @@ class HhMainMenuLinksTest extends PantherTestCase
     private $client;
     private $crawler;
 
-    /**
-     * @dataProvider menuLinkProvider
-     * @depends testLoginAuthorized
-     */
-    public function testMainMenuLink(string $menuLink, string $expectedTabTitle): void
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testLoginAuthorized')]
+    #[Test]
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading = ''): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
-        $counter = 0;
-        $threwSomething = true;
-        // below will basically allow 3 timeouts
-        while ($threwSomething) {
-            $threwSomething = false;
-            $counter++;
-            if ($counter > 1) {
-                echo "\n" . "RE-attempt (" . $menuLink . ") number " . $counter . " of 3" . "\n";
-            }
-            $this->base();
-            try {
-                $this->login(LoginTestData::username, LoginTestData::password);
-                $this->goToMainMenuLink($menuLink);
-                $this->assertActiveTab($expectedTabTitle);
-            } catch (\Throwable $e) {
-                // Close client
-                $this->client->quit();
-                if ($counter > 2) {
-                    // re-throw since have failed 3 tries
-                    throw $e;
-                } else {
-                    // try again since not yet 3 tries
-                    $threwSomething = true;
-                }
-            }
+
+        if (empty($loading)) {
+            $loading = "Loading";
+        }
+
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->goToMainMenuLink($menuLink);
+            $this->assertActiveTab($expectedTabTitle, $loading);
+        } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
+            // re-throw the exception
+            throw $e;
         }
+        // Close client
+        $this->client->quit();
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function menuLinkProvider()
     {
         return [
             'Calendar menu link' => ['Calendar', 'Calendar'],
-            'Finder menu link' => ['Finder', 'Patient Finder'],
-            'Flow menu link' => ['Flow', 'Flow Board'],
-            'Recalls menu link' => ['Recalls', 'Recall Board'],
+            'Finder menu link' => ['Finder', 'Patient Finder', 'undefined...||Loading'],
+            'Flow menu link' => ['Flow', 'Flow Board', 'undefined...||Loading'],
+            'Recalls menu link' => ['Recalls', 'Recall Board', 'undefined...||Loading'],
             'Messages menu link' => ['Messages', 'Message Center'],
             'Patient -> New/Search menu link' => ['Patient||New/Search', 'Search or Add Patient'],
             'Fees -> Billing Manager menu link' => ['Fees||Billing Manager', 'Billing Manager'],
@@ -128,7 +122,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Clinic -> Report Results menu link' => ['Reports||Clinic||Report Results', 'Report Results/History'],
             'Reports -> Clinic -> Standard Measures menu link' => ['Reports||Clinic||Standard Measures', 'Standard Measures'],
             'Reports -> Clinic -> Automated Measures (AMC) menu link' => ['Reports||Clinic||Automated Measures (AMC)', 'Automated Measure Calculations (AMC)'],
-            'Reports -> Clinic -> 2025 Real World Testing Report menu link' => ['Reports||Clinic||2025 Real World Testing Report', '2025 Real World Testing Report'],
+            'Reports -> Clinic -> 2026 Real World Testing Report menu link' => ['Reports||Clinic||2026 Real World Testing Report', '2026 Real World Testing Report'],
             'Reports -> Clinic -> Alerts Log menu link' => ['Reports||Clinic||Alerts Log', 'Alerts Log'],
             'Reports -> Visits -> Daily Report menu link' => ['Reports||Visits||Daily Report', 'Daily Summary Report'],
             'Reports -> Visits -> Patient Flow Board menu link' => ['Reports||Visits||Patient Flow Board', 'Patient Flow Board Report'],

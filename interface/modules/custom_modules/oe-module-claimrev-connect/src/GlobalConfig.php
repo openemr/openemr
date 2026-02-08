@@ -36,16 +36,14 @@ class GlobalConfig
     public const CONFIG_ENABLE_RESULTS_ELIGIBILITY = "oe_claimrev_eligibility_results_age";
     public const CONFIG_ENABLE_AUTO_SEND_ELIGIBILITY = "oe_claimrev_send_eligibility";
     public const CONFIG_X12_PARTNER_NAME = "oe_claimrev_x12_partner_name";
-    private $globalsArray;
 
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
 
-    public function __construct(array $globalsArray)
+    public function __construct(private array $globalsArray)
     {
-        $this->globalsArray = $globalsArray;
         $this->cryptoGen = new CryptoGen();
     }
 

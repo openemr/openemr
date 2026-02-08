@@ -16,7 +16,11 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -31,20 +35,20 @@ $insurance_company = $_REQUEST['insurance_company'];
 $target = '_parent';
 
 // Possible units of measure for NDC drug quantities.
-$ndc_uom_choices = array(
+$ndc_uom_choices = [
   'ML' => 'ML',
   'GR' => 'Grams',
   'ME' => 'Milligrams',
   'F2' => 'I.U.',
   'UN' => 'Units'
-);
+];
 
 if ($payment_method == "insurance") {
     $payment_method = "insurance: " . $insurance_company;
 }
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -54,10 +58,10 @@ if (isset($mode)) {
         $tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
             "forms.pid = ? AND forms.encounter = ? AND " .
             "forms.formdir='newpatient' AND users.username = forms.user AND " .
-            "users.authorized = 1", array($pid, $encounter));
-        $provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
+            "users.authorized = 1", [$pid, $encounter]);
+        $provid = $tmp['id'] ?: $session->get("authUserID");
 
-        if (strtolower($type) == "copay") {
+        if (strtolower((string) $type) == "copay") {
             BillingUtilities::addBilling(
                 $encounter,
                 $type,
@@ -70,7 +74,7 @@ if (isset($mode)) {
                 $units,
                 sprintf("%01.2f", 0 - $code)
             );
-        } elseif (strtolower($type) == "other") {
+        } elseif (strtolower((string) $type) == "other") {
             BillingUtilities::addBilling(
                 $encounter,
                 $type,
@@ -86,10 +90,10 @@ if (isset($mode)) {
         } else {
             $ndc_info = '';
       // If HCPCS, get and save default NDC data.
-            if (strtolower($type) == "hcpcs") {
+            if (strtolower((string) $type) == "hcpcs") {
                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                 "code_type = 'HCPCS' AND code = ? AND ndc_info LIKE 'N4%' " .
-                "ORDER BY date DESC LIMIT 1", array($code));
+                "ORDER BY date DESC LIMIT 1", [$code]);
                 if (!empty($tmp)) {
                     $ndc_info = $tmp['ndc_info'];
                 }
@@ -112,9 +116,9 @@ if (isset($mode)) {
     } elseif ($mode == "justify") {
         $diags = $_POST['code']['diag'];
         $procs = $_POST['code']['proc'];
-        $sql = array();
+        $sql = [];
         if (!empty($procs) && !empty($diags)) {
-            $sql = array();
+            $sql = [];
             foreach ($procs as $proc) {
                 $justify_string = "";
                 foreach ($diags as $diag) {
@@ -127,7 +131,7 @@ if (isset($mode)) {
 
         if (!empty($sql)) {
             foreach ($sql as $q) {
-                $results = sqlQ($q);
+                QueryUtils::sqlStatementThrowException($q);
             }
         }
 
@@ -137,14 +141,14 @@ if (isset($mode)) {
               $ndc = $ndcarr["$lino"];
               $ndc_info = '';
             if ($ndc['ndcnum']) {
-                $ndc_info = 'N4' . trim($ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
-                trim($ndc['ndcqty']);
+                $ndc_info = 'N4' . trim((string) $ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
+                trim((string) $ndc['ndcqty']);
             }
 
               sqlStatement("UPDATE billing SET ndc_info = ? WHERE " .
                 "encounter = ? AND " .
                 "pid = ? AND " .
-                "code = ?", array($ndc_info, $_POST['encounter_id'], $_POST['patient_id'], $ndc['code']));
+                "code = ?", [$ndc_info, $_POST['encounter_id'], $_POST['patient_id'], $ndc['code']]);
         }
     }
 }
@@ -209,8 +213,8 @@ function validate(f) {
  $thisauth = AclMain::aclCheckCore('encounters', 'coding_a');
 if (!$thisauth) {
     $erow = sqlQuery("SELECT user FROM forms WHERE " .
-    "encounter = ? AND formdir = 'newpatient' LIMIT 1", array($encounter));
-    if ($erow['user'] == $_SESSION['authUser']) {
+    "encounter = ? AND formdir = 'newpatient' LIMIT 1", [$encounter]);
+    if ($erow['user'] == $session->get('authUser')) {
         $thisauth = AclMain::aclCheckCore('encounters', 'coding');
     }
 }
@@ -229,7 +233,7 @@ if (!$thisauth) {
 }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
  onsubmit="return validate(this)">
 <table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
@@ -255,13 +259,13 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 </dt>
 </dl>
 
-<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
 <table class="table-borderless">
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
-    $billing_html = array();
+    $billing_html = [];
     $total = 0.0;
     $ndclino = 0;
     foreach ($result as $iter) {
@@ -281,9 +285,9 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 "<tr><td></td><td><a target='" . attr($target) . "' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 text(oeFormatMoney($iter['code'])) . "</b> " .
-                text(ucwords(strtolower($iter['code_text']))) .
+                text(ucwords(strtolower((string) $iter['code_text']))) .
                 ' ' . xlt('payment entered on') . ' ' .
-                text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . "</a></td></tr>\n";
+                text(oeFormatShortDate(substr((string) $iter['date'], 0, 10))) . text(substr((string) $iter['date'], 10, 6)) . "</a></td></tr>\n";
         } else {
             $billing_html[$iter["code_type"]] .=
                 "<tr><td>" . '<input  style="width: 11px; height: 11px;" name="code[proc][' .
@@ -291,10 +295,10 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 "</td><td><a target='$target' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 text($iter["code"]) . ' ' . text($iter['modifier']) . "</b> " .
-                text(ucwords(strtolower($iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
+                text(ucwords(strtolower((string) $iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
                 "</a><span class=\"small\">";
             $total += $iter['fee'];
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {
@@ -316,7 +320,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                     $ndcnum = '';
                 $ndcuom = '';
                 $ndcqty = '';
-                if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $iter['ndc_info'], $tmp)) {
+                if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', (string) $iter['ndc_info'], $tmp)) {
                     $ndcnum = $tmp[1];
                     $ndcuom = $tmp[2];
                     $ndcqty = $tmp[3];

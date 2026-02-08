@@ -7,17 +7,18 @@
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 require_once('./../../interface/globals.php');
-require_once("$srcdir/patient.inc.php");
-
-use OpenEMR\Core\Header;
-use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+$globalsBag = OEGlobalsBag::getInstance();
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 
 $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();
 $profile_list = $templateService->fetchDefaultProfiles();
-$_POST['mode'] = $_POST['mode'] ?? null;
+$_POST['mode'] ??= null;
 
 if ($_POST['mode'] === 'save_profile_groups') {
     $groups = json_decode(($_POST['patient_groups'] ?? ''), true, 512, JSON_THROW_ON_ERROR);
@@ -96,11 +97,11 @@ if (!isset($_GET['render_group_assignments'])) {
 <html>
 <head>
     <?php
-    if (empty($GLOBALS['openemr_version'] ?? null)) {
+    if (empty($globalsBag->get('openemr_version') ?? null)) {
         Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
     } else {
         Header::setupHeader(['opener','datetime-picker']); ?>
-        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
     <?php } ?>
 </head>
 <style>
@@ -191,7 +192,7 @@ if (!isset($_GET['render_group_assignments'])) {
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 });
             } else {
                 $('#searchparm').datetimepicker("destroy");
@@ -313,7 +314,7 @@ if (!isset($_GET['render_group_assignments'])) {
                 <div id="edit-groups" class='control-group mx-1 border-left border-right'>
                     <?php
                     $result = $templateService->getPatientsByAllGroups();
-                    foreach ($group_list as $group => $groups) {
+                    foreach ($group_list as $groups) {
                         $group_esc = attr($groups['option_id']);
                         $groups_esc = attr($groups['option_id']);
                         echo "<h5 class='bg-dark text-light text-center' data-toggle='collapse' data-target='#$group_esc' role='button'><i class='fa fa-eye mr-1'></i>" . text($groups['title']) . "</h5>\n";
@@ -348,11 +349,11 @@ if (!isset($_GET['render_group_assignments'])) {
 <html>
 <head>
     <?php
-    if (empty($GLOBALS['openemr_version'] ?? null)) {
+    if (empty($globalsBag->get('openemr_version') ?? null)) {
         Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
     } else {
         Header::setupHeader(['opener','datetime-picker']); ?>
-        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
     <?php } ?>
 </head>
 <style>
@@ -540,16 +541,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     $profile_items_list = $templateService->getPatientGroupsByProfile($profile);
                     $active = $templateService->getProfileActiveStatus($profile);
                     $active_esc = attr($active);
-                    if (!empty($active)) {
-                        $active_text = '<span class="small float-left">' . xlt('Active') . '</span>';
-                    } else {
-                        $active_text = '';
-                    }
+                    $active_text = !empty($active) ? '<span class="small float-left">' . xlt('Active') . '</span>' : '';
                     $profile_esc = attr($profile);
                     echo "<h5 class='text-center bg-dark text-light p-1 mt-1 mb-0'>" . $active_text . text($profiles['title']) .
                         "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
                     echo "<ul id='$profile_esc' class='list-group-flush m-1 p-1 show' data-profile='$profile_esc' data-active='$active_esc'>\n";
-                    foreach ($profile_items_list as $grp_profile => $groups) {
+                    foreach ($profile_items_list as $groups) {
                         foreach ($groups as $group) {
                             $group_esc = attr($group['member_of']);
                             $title = $group_list[$group['member_of']]['title'] ?: $group['member_of'];

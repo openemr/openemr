@@ -27,11 +27,11 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "age_max")) {
+        if (strpos((string) $method, "age_max")) {
             return RuleCriteriaType::from(RuleCriteriaType::ageMax);
         }
 
-        if (strpos($method, "age_min")) {
+        if (strpos((string) $method, "age_min")) {
             return RuleCriteriaType::from(RuleCriteriaType::ageMin);
         }
 

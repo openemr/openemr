@@ -24,7 +24,7 @@ function care_plan_report($pid, $encounter, $cols, $id): void
     $pid = !empty($pid) ? $pid : $_SESSION["pid"] ?? 0;
 
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($id, $pid, $encounter));
+    $res = sqlStatement($sql, [$id, $pid, $encounter]);
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
@@ -44,7 +44,7 @@ function care_plan_report($pid, $encounter, $cols, $id): void
             </thead>
             <tbody>
             <?php
-            foreach ($data as $key => $value) { ?>
+            foreach ($data as $value) { ?>
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
                     <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>

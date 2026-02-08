@@ -93,7 +93,7 @@ class PortalCard extends CardModel
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),
-                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal($pid)
+                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal()
             ],
         ];
     }
@@ -105,12 +105,12 @@ class PortalCard extends CardModel
 
     private function addListener()
     {
-        $this->ed->addListener(SectionEvent::EVENT_HANDLE, [$this, 'addPatientCardToSection']);
+        $this->ed->addListener(SectionEvent::EVENT_HANDLE, $this->addPatientCardToSection(...));
     }
 
     public function addPatientCardToSection(SectionEvent $e)
     {
-        if ($e->getSection('secondary')) {
+        if ($e->getSection()) {
             $card = new CardModel($this->getOpts());
             $e->addCard($card);
         }

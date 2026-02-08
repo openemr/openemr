@@ -70,7 +70,7 @@ class X12RemoteTracker extends BaseService
             }
 
             // Make sure local claim file exists and can we have permission to read it
-            // We try both the SFTP directory and the edi root directry
+            // We try both the SFTP directory and the edi root directory
             $claim_file = $x12_remote['x12_sftp_local_dir'] . $x12_remote['x12_filename'];
             if (!file_exists($claim_file)) {
                 $claim_file = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/" . $x12_remote['x12_filename'];
@@ -139,8 +139,8 @@ class X12RemoteTracker extends BaseService
 
     public static function create($fields)
     {
-        $fields['created_at'] = date('Y-m-d h:i:s');
-        $fields['updated_at'] = date('Y-m-d h:i:s');
+        $fields['created_at'] = date('Y-m-d H:i:s');
+        $fields['updated_at'] = date('Y-m-d H:i:s');
         $remoteTracker = new X12RemoteTracker();
         return $remoteTracker->insert($fields);
     }

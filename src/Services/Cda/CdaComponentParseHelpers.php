@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Cda;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use OpenEMR\Services\PhoneNumberService;
 
 class CdaComponentParseHelpers
 {
@@ -87,9 +88,14 @@ class CdaComponentParseHelpers
     {
         $patientData = [];
 
+        $content = file_get_contents($xmlFilePath);
         // too me the most reliable way to parse an HL7 CDA is to use DOMXPath
+        if (empty($content)) {
+            return $patientData;
+        }
+
         $dom = new DOMDocument();
-        $dom->loadXML(file_get_contents($xmlFilePath));
+        $dom->loadXML($content);
         $xpath = new DOMXPath($dom);
 
         //  a gotcha, HL7 uses a default namespace without a prefix
@@ -166,19 +172,20 @@ class CdaComponentParseHelpers
         // Pretty strict duplicate check
         $firstName = $patientData['names'][0]['given'][0];
         $lastName = $patientData['names'][0]['family'];
-        $dob = date("Y-m-d", strtotime($patientData['dob']));
-        $phone = preg_replace('/\D/', '', $patientData['phones'][0]);
-        $address = implode(" ", $patientData['address']['street']);
+        $dob = date("Y-m-d", strtotime((string) $patientData['dob']));
+        $rawPhone = (string) ($patientData['phones'][0] ?? '');
+        $phone = PhoneNumberService::toNationalDigits($rawPhone) ?? preg_replace('/\D/', '', $rawPhone);
+        $address = trim($patientData['address']['street'][0] ?? '');
 
         $sql = "SELECT pid, fname, lname, DOB, phone_home, phone_cell, phone_biz, street, city, state, postal_code
             FROM patient_data
-            WHERE lname = ? 
-            AND fname = ? 
-            AND DOB = ? 
+            WHERE lname = ?
+            AND fname = ?
+            AND DOB = ?
             AND (phone_home = ? OR phone_cell = ? OR phone_biz = ?)
-            AND street LIKE ? 
-            AND city = ? 
-            AND state = ? 
+            AND street LIKE ?
+            AND city = ?
+            AND state = ?
             AND postal_code = ?";
         $sqlBindArray = [$lastName, $firstName, $dob, $phone, $phone, $phone, "%$address%",
             $patientData['address']['city'], $patientData['address']['state'], $patientData['address']['zip']];
@@ -213,8 +220,8 @@ class CdaComponentParseHelpers
             mkdir($duplicateDir, 0777, true);
         }
 
-        $fileName = basename($sourceFile);
-        $destinationFilePath = rtrim($duplicateDir, '/') . '/' . $fileName;
+        $fileName = basename((string) $sourceFile);
+        $destinationFilePath = rtrim((string) $duplicateDir, '/') . '/' . $fileName;
         // Move
         if (!rename($sourceFile, $destinationFilePath)) {
             throw new Exception("Failed to move file to: $destinationFilePath");

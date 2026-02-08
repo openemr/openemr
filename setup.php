@@ -12,7 +12,7 @@
  *        2 - Step 2: Enter in database and openemr user information
  *        3 - Step 3: Create database
  *        4 - Step 4: Instructions on configuring PHP
- *        5 - Step 5: Instructions on configuring Apache
+ *        5 - Step 5: Instructions on configuring the web server
  *        6 - Step 6: Select a theme
  *        7 - Final step: Several miscellaneous instruction, login credentials, and link to OpenEMR
  *
@@ -22,21 +22,26 @@
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
 }
 
-// Set the maximum excution time and time limit to unlimited.
+// Capture the maximum execution time and display errors setting before changing them.
+$original_ini_max_execution_time = ini_get('max_execution_time');
+$original_ini_display_errors = ini_get('display_errors');
+// Then set the max execution time limit to unlimited, and turn off display errors.
 ini_set('max_execution_time', 0);
 ini_set('display_errors', 0);
 set_time_limit(0);
@@ -50,10 +55,18 @@ $allow_multisite_setup = false;
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
 $allow_cloning_setup = false;
+
+// Include standard libraries/classes
+require_once __DIR__ . "/vendor/autoload.php";
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
-    require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionStart();
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionCookieDestroy();
+    SessionUtil::setupScriptSessionStart();
+    SessionUtil::setupScriptSessionCookieDestroy();
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
@@ -109,15 +122,8 @@ function recursive_writable_directory_test($dir)
     }
 }
 
-// Include standard libraries/classes
-require_once dirname(__FILE__) . "/vendor/autoload.php";
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Utils\RandomGenUtils;
-
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
-$installer = new Installer($_REQUEST);
+$installer = new Installer($_REQUEST, new SystemLogger());
 // Make this true for IPPF.
 $ippf_specific = false;
 
@@ -761,7 +767,7 @@ STP2TBLTOP1;
                                     <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
-                                    <select name='collate' id=='collate' class='form-control'>
+                                    <select name='collate' id='collate' class='form-control'>
                                         <option selected value='utf8mb4_general_ci'>
                                             General (Recommended)
                                         </option>
@@ -1123,6 +1129,8 @@ STP2TBLBOT;
                         $error_step2_message .= "$error - A database name is required <br />\n";
                     }
 
+                    // Default collate value when using pre-created database (collate field not in form)
+                    $_REQUEST['collate'] ??= 'utf8mb4_general_ci';
                     if (! $installer->collateNameIsValid($_REQUEST['collate'])) {
                         $pass_step2_validation = false;
                         $error_step2_message .= "$error - A collation name is required <br />\n";
@@ -1378,7 +1386,6 @@ STP2TBLBOT;
                     $mfa = $installer->get_initial_user_mfa_totp();
                     if ($mfa !== false) {
                         $qr = $mfa->generateQrCode();
-                        $qr_esc = attr($qr);
                         $sharedSecret = text($mfa->getSecret());
                         $qrDisplay = <<<TOTP
                                     <br />
@@ -1387,7 +1394,7 @@ STP2TBLBOT;
                                             <td>
                                                 <strong class='text-danger'>IMPORTANT!!</strong>
                                                 <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
-                                                <img src='$qr_esc' width="150" />
+                                                <img src='$qr' width="150" />
                                                 <p>Or paste in the following code into your authenticator app</p>
                                                 <p>$sharedSecret</p>
                                             </td>
@@ -1480,20 +1487,39 @@ STP4TOP;
 
                     $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
                     $short_tag_style = (strcmp($short_tag, 'Off') === 0) ? '' : 'text-danger';
-                    $display_errors = ini_get('display_errors') ? 'On' : 'Off';
+                    $display_errors = $original_ini_display_errors ? 'On' : 'Off';
                     $display_errors_style = (strcmp($display_errors, "Off")  === 0) ? '' : 'text-danger';
                     $register_globals = ini_get('register_globals') ? 'On' : 'Off';
                     $register_globals_style = (strcmp($register_globals, 'Off')  === 0) ? '' : 'text-danger';
                     $max_input_vars = ini_get('max_input_vars');
                     $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
-                    $max_execution_time = (int)ini_get('max_execution_time');
+                    $max_execution_time = (int)$original_ini_max_execution_time;
                     $max_execution_time_style = $max_execution_time >= 60 || $max_execution_time === 0 ? '' : 'text-danger';
                     $max_input_time = ini_get('max_input_time');
                     $max_input_time_style = (strcmp($max_input_time, '-1')  === 0) ? '' : 'text-danger';
                     $post_max_size = ini_get('post_max_size');
                     $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
                     $memory_limit = ini_get('memory_limit');
-                    $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
+                    // Convert from shorthand to M
+                    if (preg_match('/^(\d+)([KMG]?)$/', $memory_limit, $matches)) {
+                        switch ($matches[2]) {
+                            case 'K':
+                                $memory_limit_mb = intdiv($matches[1], 1024);
+                                break;
+                            case 'M':
+                                $memory_limit_mb = (int)$matches[1];
+                                break;
+                            case 'G':
+                                $memory_limit_mb = $matches[1] * 1024;
+                                break;
+                            case '':
+                                $memory_limit_mb = intdiv($matches[1], 1024 * 1024);
+                                break;
+                        }
+                    } else {
+                        $memory_limit_mb = intdiv($memory_limit, 1024 * 1024);
+                    }
+                    $memory_limit_style = $memory_limit_mb < 512 ? 'text-danger' : '';
                     $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
                     $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
@@ -1541,7 +1567,7 @@ STP4TOP;
                                 </tr>
                                 <tr>
                                     <td>memory_limit</td>
-                                    <td>at least 256M</td>
+                                    <td>at least 512M</td>
                                     <td class='" . attr($memory_limit_style) . "'>" . text($memory_limit) . "</td>
                                 </tr>
                                 <tr>
@@ -1590,25 +1616,95 @@ STP4TOP;
 
                 case 5:
                     $_SESSION['bootstrapStateInSetup'] = 6;
-                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Apache Web Server</h3>";
+                    $isFpm = in_array(PHP_SAPI, ['fpm-fcgi', 'cgi-fcgi'], true);
+                    $isCliServer = PHP_SAPI === 'cli-server';
+                    $defaultWs = $isFpm ? 'fpm' : ($isCliServer ? 'cli' : 'apache');
+                    $docsDirectoryGlob = text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory)));
+                    $openemrDirectory = text(realpath(__DIR__));
+                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Web Server</h3>";
                     echo "<div class='jumbotron p-5'>";
-                    echo "<p>Configuration of Apache web server...</p><br />\n";
-                    echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
-                    it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
-                    &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "/sites\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />";
+                    echo "<p>Select your web server configuration to see the required setup instructions.</p>";
+
+                    echo "
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_apache' value='apache'" . ($defaultWs === 'apache' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_apache'>Apache (mod_php)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_fpm' value='fpm'" . ($defaultWs === 'fpm' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_fpm'>PHP-FPM (nginx, etc.)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_cli' value='cli'" . ($defaultWs === 'cli' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_cli'>PHP built-in server</label>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_apache'" . ($defaultWs === 'apache' ? '' : " style='display:none'") . ">
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contain patient information, and
+                        it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:</p>
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $openemrDirectory . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
+                        &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;&lt;Directory \"" . $openemrDirectory . "/sites\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $docsDirectoryGlob . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />
+                        <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_fpm'" . ($defaultWs === 'fpm' ? '' : " style='display:none'") . ">
+                        <h5>1. Deny access to sensitive directories</h5>
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information. Block all direct web access to it:</p>
+                        <pre><code>"
+                            . text("location ~* ^/sites/*/documents {") . "\n"
+                            . text("    deny all;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>2. URL rewriting</h5>
+                        <p>These rewrite rules are required for Zend modules, the patient portal, the REST API/FHIR, OAuth2, and health check probes:</p>
+                        <pre><code>"
+                            . text("if (!\$request_filename) {") . "\n"
+                            . text("    rewrite ^(.*/zend_modules/public)(.*) \$1/index.php?\$is_args\$args last;") . "\n"
+                            . text("    rewrite ^(.*/portal/patient)(.*) \$1/index.php?_REWRITE_COMMAND=\$1\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/apis/)(.*) \$1/dispatch.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/oauth2/)(.*) \$1/authorize.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/meta/health/)(.*) \$1/index.php last;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>3. Pass the Authorization header to PHP-FPM</h5>
+                        <p>Required for the REST API and FHIR to authenticate requests:</p>
+                        <pre><code>"
+                            . text("fastcgi_param HTTP_AUTHORIZATION \$http_authorization;")
+                        . "</code></pre>
+                        <p class='mt-3'><strong>Note:</strong> These examples use nginx syntax. If you use a different web server (Apache with php-fpm, LiteSpeed, Caddy, etc.), consult your web server's documentation for equivalent directives.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_cli'" . ($defaultWs === 'cli' ? '' : " style='display:none'") . ">
+                        <p>The PHP built-in server (<code>php -S</code>) is intended for development and testing only. It does not require web server configuration.</p>
+                        <p><strong>Do not use the built-in server in production.</strong> For production deployments, select one of the other options above to see the required configuration.</p>
+                    </div>";
+
+                    echo "
+                    <script>
+                        document.querySelectorAll('input[name=\"webserver\"]').forEach(function(radio) {
+                            radio.addEventListener('change', function() {
+                                document.getElementById('instructions_apache').style.display = this.value === 'apache' ? '' : 'none';
+                                document.getElementById('instructions_fpm').style.display = this.value === 'fpm' ? '' : 'none';
+                                document.getElementById('instructions_cli').style.display = this.value === 'cli' ? '' : 'none';
+                            });
+                        });
+                    </script>";
 
                     $btn_text = 'Proceed to Select a Theme';
-                    echo "<p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
-                    <p>We recommend you print these instructions for future reference.</p>
+                    echo "<p>We recommend you print these instructions for future reference.</p>
                     <p class='mark'>Click <strong>'" . text($btn_text) . "'</strong> to select a theme.</p>
                     <br />
                     <form method='post'>
@@ -1783,7 +1879,7 @@ FRM;
                         $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
                         $form = <<<FRM
                                     <br />
-                                    <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
+                                    <p class='p-1 bg-warning'>$caution: Permissions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
                                     <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                     <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
                                     <br />
@@ -1794,7 +1890,8 @@ FRM;
                                         <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                     </form>
 FRM;
-                        echo $form . "\r\n";                        }
+                        echo $form . "\r\n";
+                    }
             }
                         $bot = <<<BOT
                                     </div>

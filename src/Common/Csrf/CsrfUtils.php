@@ -15,24 +15,36 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Csrf;
 
 use OpenEMR\Common\Utils\RandomGenUtils;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
 {
     // Function to create a private csrf key and store as a session variable
     //  Note this key always remains private and never leaves server session. It is used to create
     //  the csrf tokens.
-    public static function setupCsrfKey()
+    public static function setupCsrfKey(?SessionInterface $session = null)
     {
-        $_SESSION['csrf_private_key'] = RandomGenUtils::produceRandomBytes(32);
-        if (empty($_SESSION['csrf_private_key'])) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
+        $privateKey = RandomGenUtils::produceRandomBytes(32);
+        if (!empty($session)) {
+            $session->set('csrf_private_key', $privateKey);
+            if (empty($session->get('csrf_private_key', null))) {
+                error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
+            }
+        } else {
+            // If session is not available, we will use the global $_SESSION variable
+            $_SESSION['csrf_private_key'] = $privateKey;
+            if (empty($_SESSION['csrf_private_key'])) {
+                error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
+            }
         }
     }
 
@@ -41,19 +53,20 @@ class CsrfUtils
     //  $subject allows creation of different csrf tokens:
     //    Using 'api' for the internal api csrf token
     //    Using 'default' for everything else (for now)
-    public static function collectCsrfToken($subject = 'default')
+    public static function collectCsrfToken($subject = 'default', ?SessionInterface $session = null)
     {
-        if (empty($_SESSION['csrf_private_key'])) {
+        $privateKey = !empty($session) ? $session->get('csrf_private_key', null) : $_SESSION['csrf_private_key'] ?? null;
+        if (empty($privateKey)) {
             error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
             return false;
         }
-        return substr(hash_hmac('sha256', $subject, $_SESSION['csrf_private_key']), 0, 40);
+        return substr(hash_hmac('sha256', (string) $subject, (string) $privateKey), 0, 40);
     }
 
     // Function to verify a csrf_token
-    public static function verifyCsrfToken($token, $subject = 'default')
+    public static function verifyCsrfToken($token, $subject = 'default', ?SessionInterface $session = null)
     {
-        $currentToken = self::collectCsrfToken($subject);
+        $currentToken = self::collectCsrfToken($subject, $session);
 
         if (empty($currentToken)) {
             error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
@@ -67,17 +80,38 @@ class CsrfUtils
         }
     }
 
-    // Function to manage when a csrf token is not verified
-    public static function csrfNotVerified($toScreen = true, $toLog = true, $die = true)
+    /**
+     * Record a CSRF violation: set HTTP 403, optionally echo and log.
+     *
+     * Use this when you need to record the failure but handle the
+     * response yourself (e.g. return a Response object or throw).
+     */
+    public static function csrfViolation(bool $toScreen = true, bool $toLog = true): void
     {
+        http_response_code(403);
         if ($toScreen) {
             echo xlt('Authentication Error');
         }
         if ($toLog) {
             error_log("OpenEMR CSRF token authentication error");
         }
-        if ($die) {
-            die;
+    }
+
+    /**
+     * Record a CSRF violation and terminate the request.
+     *
+     * @param ?(callable(): void) $beforeExit Optional callback to run before exiting
+     *                                         (e.g. render a template, clean up session)
+     */
+    public static function csrfNotVerified(
+        bool $toScreen = true,
+        bool $toLog = true,
+        ?callable $beforeExit = null,
+    ): never {
+        self::csrfViolation($toScreen, $toLog);
+        if ($beforeExit !== null) {
+            $beforeExit();
         }
+        exit;
     }
 }

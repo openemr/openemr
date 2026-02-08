@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -26,10 +27,10 @@ if (!empty($_REQUEST)) {
     }
 }
 
-$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
+$fstart = $_REQUEST['fstart'] ?? 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
-$message = isset($_GET['message']) ? $_GET['message'] : "";
-$from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
+$message = $_GET['message'] ?? "";
+$from_page = $_REQUEST['from_page'] ?? "";
 
 ?>
 <!DOCTYPE html>
@@ -134,17 +135,6 @@ form {
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
-// This is called when forward or backward paging is done.
-//
-function submitList(offset) {
- var f = document.forms[0];
- var i = parseInt(f.fstart.value) + offset;
- if (i < 0) i = 0;
- f.fstart.value = i;
- top.restoreSession();
- f.submit();
-}
-
 </script>
 
 </head>
@@ -171,32 +161,32 @@ if ($popup) {
     echo "<input type='hidden' name='popup' value='1' />\n";
 
   // Construct WHERE clause and save search parameters as form fields.
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $where = "1 = 1";
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
-        if (strpos($field_id, 'em_') === 0) {
+        if (str_starts_with((string) $field_id, 'em_')) {
             continue;
         }
 
         $data_type = $frow['data_type'];
         if (!empty($_REQUEST[$field_id])) {
-            $value = trim($_REQUEST[$field_id]);
+            $value = trim((string) $_REQUEST[$field_id]);
             if ($field_id == 'pid') {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " = ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " = ?";
                 array_push($sqlBindArray, $value);
             } elseif ($field_id == 'pubpid') {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, $value);
                 //for 'date' field
             } elseif ($data_type == 4) {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, DateToYYYYMMDD($value));
             } else {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, $value . "%");
             }
 
@@ -226,17 +216,13 @@ if ($popup) {
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
 
-    if (empty($where)) {
-        $where = $customWhere;
-    } else {
-        $where = "$customWhere AND $where";
-    }
+    $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     $rez = sqlStatement($sql, $sqlBindArray);
-    $result = array();
+    $result = [];
     while ($row = sqlFetchArray($rez)) {
         $result[] = $row;
     }
@@ -245,15 +231,15 @@ if ($popup) {
 } elseif ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";
-    $report_id = isset($_REQUEST['report_id']) ? $_REQUEST['report_id'] : 0;
+    $report_id = $_REQUEST['report_id'] ?? 0;
     echo "<input type='hidden' name='report_id' value='" . attr($report_id) . "' />\n";
-    $itemized_test_id = isset($_REQUEST['itemized_test_id']) ? $_REQUEST['itemized_test_id'] : 0;
+    $itemized_test_id = $_REQUEST['itemized_test_id'] ?? 0;
     echo "<input type='hidden' name='itemized_test_id' value='" . attr($itemized_test_id) . "' />\n";
-    $numerator_label = isset($_REQUEST['numerator_label']) ? $_REQUEST['numerator_label'] : '';
+    $numerator_label = $_REQUEST['numerator_label'] ?? '';
     echo "<input type='hidden' name='numerator_label' value='" . attr($numerator_label) . "' />\n";
-    $pass_id = isset($_REQUEST['pass_id']) ? $_REQUEST['pass_id'] : "all";
+    $pass_id = $_REQUEST['pass_id'] ?? "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
-    $print_patients = isset($_REQUEST['print_patients']) ? $_REQUEST['print_patients'] : 0;
+    $print_patients = $_REQUEST['print_patients'] ?? 0;
     echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
 
   // Collect patient listing from cdr report
@@ -276,20 +262,14 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    if ($findBy == "Last") {
-        $result = getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "ID") {
-        $result = getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "DOB") {
-        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "SSN") {
-        $result = getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Any") {
-        $result = getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Filter") {
-        $result = getByPatientDemographicsFilter(
+    $result = match($findBy) {
+        "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
+        "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
+        "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),
+        "SSN" => getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart),
+        "Phone" => getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart),
+        "Any" => getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart),
+        "Filter" => getByPatientDemographicsFilter(
             $searchFields,
             $patient,
             $given,
@@ -297,8 +277,9 @@ if ($popup) {
             $sqllimit,
             $fstart,
             $search_service_code
-        );
-    }
+        ),
+        default => [],
+    };
 }
 ?>
 
@@ -323,55 +304,31 @@ if ($popup) {
         <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
-  <td class='text' align='right'>
-<?php
-// Show start and end row number, and number of rows, with paging links.
-//
-// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
-$count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = $fstart + $MAXSHOW;
-if ($fend > $count) {
-    $fend = $count;
-}
-?>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-    <?php
-    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-    echo ($fstart + 1) . text($countStatement);
-    ?>
-<?php if ($count > $fend) { ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &gt;&gt;
-   </a>
-<?php } ?>
-  </td>
- </tr>
- <tr>
-    <?php if ($from_page == "cdr_report") {
+  <td class='text' align='right'><?php
+    $paginator = new PaginationUtils();
+    echo $paginator->render(
+        offset: $fstart,
+        pageSize: $MAXSHOW,
+        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        filename: basename(__FILE__),
+        onclick: 'top.restoreSession()'
+    );
+    echo '</td></tr><tr>';
+    if ($from_page === "cdr_report") {
         echo "<td colspan='6' class='text'>";
         echo "<strong>";
-        if ($pass_id == "fail") {
-             echo xlt("Failed Patients");
-        } elseif ($pass_id == "pass") {
-             echo xlt("Passed Patients");
-        } elseif ($pass_id == "exclude") {
-             echo xlt("Excluded Patients");
-        } else { // $pass_id == "all"
-             echo xlt("All Patients");
-        }
-
+        $passMap = [
+            "fail" => "Failed Patients",
+            "pass" => "Passed Patients",
+            "exclude" => "Excluded Patients",
+        ];
+        echo xlt($passMap[$pass_id] ?? "All Patients");
         echo "</strong>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
     } ?>
- </tr>
+  </tr>
 </table>
 
 <div id="searchResultsHeader" class="head">
@@ -404,7 +361,7 @@ if ($fend > $count) {
 } else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.
-    $extracols = array();
+    $extracols = [];
     $tres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND ( uor > 1 AND field_id != '' " .
     "OR uor > 0 AND field_id = 'street' ) AND " .
@@ -492,7 +449,7 @@ if ($result) {
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
                   "billing.code_type not like 'COPAY' where " .
                   "form_encounter.pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -508,7 +465,7 @@ if ($result) {
                   escape_limit($add_days) .
                   " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -521,7 +478,7 @@ if ($result) {
                    " from billing " .
                    " where code_type not like 'COPAY' and activity = 1 " .
                    " and pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count_billed = $results['encounter_count'];
             }
@@ -530,7 +487,7 @@ if ($result) {
             $query = "select count(date) as encounter_count " .
                       " from form_encounter where " .
                       " pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count = $results['encounter_count'];
             }
@@ -575,11 +532,11 @@ var SelectPatient = function (eObj) {
 // will set the pid and load all the other frames.
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) { ?>
+    <?php if ($popup) { ?>
+        dlgclose("srchDone", parts[0]);
+    <?php } else { ?>
         top.restoreSession();
         document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
-    <?php } elseif ($popup) { ?>
-        dlgclose("srchDone", parts[0]);
     <?php } ?>
 
     return true;

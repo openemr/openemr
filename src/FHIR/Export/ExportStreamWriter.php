@@ -25,11 +25,6 @@ class ExportStreamWriter
     private $hasWrittenBytes = false;
 
     /**
-     * @var resource
-     */
-    private $stream;
-
-    /**
      * The last resource identifier that was processed by this export writer.  This allows callers to resume / retry
      * @var string
      */
@@ -45,9 +40,11 @@ class ExportStreamWriter
      */
     private $recordsWritten;
 
-    public function __construct($stream, \DateTime $shutdownTime)
+    /**
+     * @param resource $stream
+     */
+    public function __construct(private $stream, \DateTime $shutdownTime)
     {
-        $this->stream = $stream;
         $this->shutdownTime = $shutdownTime->getTimestamp();
         $this->recordsWritten = 0;
     }
@@ -71,10 +68,10 @@ class ExportStreamWriter
 
             // need to make sure we don't have a newline on the last record
             if ($this->hasWrittenBytes) {
-                fputs($this->stream, "\n");
-                fputs($this->stream, $data);
+                fwrite($this->stream, "\n");
+                fwrite($this->stream, $data);
             } else {
-                fputs($this->stream, $data);
+                fwrite($this->stream, $data);
                 $this->hasWrittenBytes = true;
             }
 
@@ -91,7 +88,7 @@ class ExportStreamWriter
             }
         } catch (\JsonException $exception) {
             throw new ExportCannotEncodeException("Failed to encode resource for export", 0, $this->lastProcessedId, $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw new ExportException("Unknown error in writing to stream", 0, $this->lastProcessedId, $exception);
         }
     }

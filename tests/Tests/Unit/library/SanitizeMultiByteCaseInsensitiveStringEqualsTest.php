@@ -16,23 +16,23 @@ use PHPUnit\Framework\TestCase;
 
 class SanitizeMultiByteCaseInsensitiveStringEqualsTest extends TestCase
 {
-    public function testIdenticalStrings()
+    public function testIdenticalStrings(): void
     {
         $this->assertTrue(mb_is_string_equal_ci('Hello', 'Hello'));
     }
 
-    public function testComposedCharacters()
+    public function testComposedCharacters(): void
     {
         // Composed characters that normalize to the same form under NFKC
         $this->assertTrue(mb_is_string_equal_ci('é', 'é')); // e + combining acute accent vs é
         $this->assertTrue(mb_is_string_equal_ci('ö', 'ö')); // o + combining diaeresis vs ö
     }
-    public function testDecomposedCharacters()
+    public function testDecomposedCharacters(): void
     {
         // Decomposed form of Ä: A + combining diaeresis (U+00C4 -> U+0041 U+0308)
         $this->assertTrue(mb_is_string_equal_ci('Ä', 'Ä'));
     }
-    public function testCaseInsensitivity()
+    public function testCaseInsensitivity(): void
     {
         // Characters that are different in case but should be equal after case folding
         $this->assertTrue(mb_is_string_equal_ci('abc', 'ABC'));
@@ -40,17 +40,17 @@ class SanitizeMultiByteCaseInsensitiveStringEqualsTest extends TestCase
         $this->assertTrue(mb_is_string_equal_ci('Ä', 'ä'));
     }
 
-    public function testDifferentStrings()
+    public function testDifferentStrings(): void
     {
         $this->assertFalse(mb_is_string_equal_ci('hello', 'world'));
     }
 
-    public function testEmptyStrings()
+    public function testEmptyStrings(): void
     {
         $this->assertTrue(mb_is_string_equal_ci('', ''));
     }
 
-    public function testLargeStrings()
+    public function testLargeStrings(): void
     {
         // Generate a large string
         $string1 = str_repeat('a', 100000);

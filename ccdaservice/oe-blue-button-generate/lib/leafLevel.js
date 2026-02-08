@@ -116,6 +116,45 @@ exports.deepInputProperty = function (deepProperty, defaultValue, plus = "") {
     };
 };
 
+exports.deepInputPropertyDisplay = function (deepProperty, defaultValue, plus = "") {
+    return function (input) {
+        let value = bbuo.deepValue(input, deepProperty);
+        value = bbuo.exists(value) ? value : defaultValue;
+
+        if (value === null || value === undefined) {
+            return defaultValue;
+        }
+        if (typeof value !== 'string') {
+            value = value.toString();
+        }
+        if (value === '' || value === 'NaN') {
+            return defaultValue;
+        }
+
+        // Add secondary field (e.g., first + last name)
+        if (plus) {
+            let valuePlus = bbuo.deepValue(input, plus);
+            valuePlus = valuePlus ? valuePlus : defaultValue;
+            if (typeof valuePlus !== 'string') {
+                valuePlus = valuePlus.toString();
+            }
+            if (valuePlus !== '' && valuePlus !== 'NaN') {
+                value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value;
+            }
+        }
+
+        // ---- Format for display ----
+        // Replace underscores with spaces
+        value = value.replace(/_/g, ' ');
+        // Capitalize each word
+        value = value.replace(/\w\S*/g, (txt) => {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+
+        return value.trim();
+    };
+};
+
 exports.deepInputDate = function (deepProperty, defaultValue) {
     return function (input) {
         var value = bbuo.deepValue(input, deepProperty);

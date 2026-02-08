@@ -30,7 +30,7 @@ class NQF_0059_InitialPatientPopulation implements CqmFilterIF
     {
         $age = $patient->calculateAgeOnDate($beginDate);
         if ($age >= 18 && $age < 75 && Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate)) {
-            $diabetes_codes = array();
+            $diabetes_codes = [];
             foreach (Codes::lookup(Diagnosis::DIABETES, 'SNOMED-CT') as $code) {
                 $diabetes_codes[] = "SNOMED-CT:" . $code;
             }
@@ -42,7 +42,7 @@ class NQF_0059_InitialPatientPopulation implements CqmFilterIF
                      "where fe.pid = ? and fe.date between ? and ? " .
                      "and l.diagnosis in ($diabetes_codes) and (l.begdate < ? or (l.begdate between ? and ? )) and (l.enddate is null or l.enddate > ? )";
 
-            $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$beginDate,$endDate,$endDate));
+            $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$beginDate,$beginDate,$endDate,$endDate]);
             if ($sql['cnt'] > 0) {
                 return true;
             }

@@ -56,7 +56,7 @@ class DrugService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
         foreach ($search as $key => $value) {
@@ -184,7 +184,7 @@ class DrugService extends BaseService
             // removed the RXCUI concatenation out of the db query and into the code here
             // some parts of OpenEMR adds the RXCUI designation in the drug_code such as the inventory/dispensary module
             // and this causes the FHIR medication resource to not get the actual RXCUI code.
-            if ($row['drug_code'] == $record['rxnorm_drugcode'] && strpos($row['drug_code'], ':') === false) {
+            if ($row['drug_code'] == $record['rxnorm_drugcode'] && !str_contains((string) $row['drug_code'], ':')) {
                 $codes = $this->addCoding("RXCUI:" . $row['drug_code']);
             } else {
                 $codes = $this->addCoding($row['rxnorm_drugcode']);

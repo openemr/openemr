@@ -17,7 +17,7 @@ require_once("$srcdir/dated_reminder_functions.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$dateRanges = array();
+$dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
 // eg. $dateRanges['4_week'] = '4 Weeks From Now';
 $dateRanges['1_day'] =  xl('1 Day From Now');
@@ -47,7 +47,7 @@ $dateRanges['2_year'] = xl('2 Years From Now');
 // --- need to add a check to ensure the post is being sent from the correct location ???
 
 // default values for $this_message
-$this_message = array('message' => '','message_priority' => 3,'dueDate' => '');
+$this_message = ['message' => '','message_priority' => 3,'dueDate' => ''];
 $forwarding = false;
 
 // default values for Max words to input in a reminder
@@ -79,19 +79,19 @@ if ($_POST) {
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
-  // for incase of data error, this allows the previously entered data to re-populate the boxes
-    $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');
-    $this_message['priority'] = (isset($_POST['priority']) ? $_POST['priority'] : '');
-    $this_message['dueDate'] = (isset($_POST['dueDate']) ? $_POST['dueDate'] : '');
+  // in case of a data error, this allows the previously entered data to re-populate the boxes
+    $this_message['message'] = ($_POST['message'] ?? '');
+    $this_message['priority'] = ($_POST['priority'] ?? '');
+    $this_message['dueDate'] = ($_POST['dueDate'] ?? '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
-// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
+// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handler
     if (
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
+        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
         isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
@@ -106,7 +106,7 @@ if ($_POST) {
         $patID = $_POST['PatientID'];
         if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
             foreach ($sendTo as $st) {
-                $ReminderSent = sendReminder(array($st), $fromID, $message, $dueDate, $patID, $priority);
+                $ReminderSent = sendReminder([$st], $fromID, $message, $dueDate, $patID, $priority);
             }
         } else {
       // -------- Send the reminder
@@ -124,7 +124,7 @@ if ($_POST) {
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("' . xls('Reminder Sent') . '");';
+            echo '   alert(' . xlj('Reminder Sent') . ');';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';
@@ -146,10 +146,10 @@ if ($_POST) {
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
 if (isset($this_message['pid'])) {
-    $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
+    $patientID = ($this_message['pid'] ?? 0);
     $reminder_title = xl("Forward this Reminder");
 } else {
-    $patientID = (isset($pid) ? $pid : 0);
+    $patientID = ($pid ?? 0);
     $reminder_title = xl("Send a Reminder");
 }
 ?>
@@ -211,7 +211,7 @@ if (isset($this_message['pid'])) {
           // todo : check if they are all numeric , no rush as this is checked in the php after the post
 
           if (!$("#sendTo option:selected").length){
-             errorMessage = errorMessage + '* <?php echo xla('Please Select A Recipient') ?><br />';
+             errorMessage = errorMessage + '* <?php echo xla('Please select a recipient') ?><br />';
           }
 
 
@@ -306,138 +306,196 @@ if (isset($this_message['pid'])) {
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
     <div class="container">
-        <h4><?php echo attr($reminder_title) ?></h4>
-        <form id="addDR"  class="form-horizontal" id="newMessage" method="post" onsubmit="return top.restoreSession()">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <div class="row">
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><?php echo attr($reminder_title) ?></h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addDR" class="form-horizontal" method="post" onsubmit="return top.restoreSession()">
+                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            <fieldset id='error-info' class='oe-error-modal' style="display: none">
-                <div class="text-center" id="errorMessage"></div>
-            </fieldset>
+                            <fieldset id='error-info' class='oe-error-modal' style="display: none">
+                                <div class="text-center" id="errorMessage"></div>
+                            </fieldset>
 
+                            <div class="section-header mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                <h6 class="text-muted"><?php echo xlt('Message Recipients');?></h6>
+                            </div>
 
-            <div class="form-group mt-3">
-                <label for="patientName"><?php echo xlt('Link To Patient') ?>: <i id="link-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i></label>
-                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
-                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
-                <button type="button" class="btn btn-secondary btn-undo mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button>
-            </div>
+                            <div class="form-group">
+                                <label for="patientName">
+                                    <?php echo xlt('Link To Patient') ?>:
+                                    <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
+                                </label>
+                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
+                                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
+                                    <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>
+                                </button>
+                            </div>
 
-            <div class="form-group mt-3">
-                <label for="patientName">
-                    <?php echo xlt('Send to') ?>:
-                    <br />
-                    <?php echo xlt('([ctrl] + click to select multiple recipients)'); ?>
-                </label>
-                <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
-                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
-                        <?php //
-                        $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
-                        for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
-                            echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
-                        }
-                        ?>
-                </select>
-                <a class="btn btn-secondary btn-save mt-2" style="cursor: pointer" onclick="selectAll();"><?php echo xlt('Select all') ?></a>
-            </div>
+                            <div class="form-group mt-3">
+                                <label for="sendTo">
+                                    <?php echo xlt('Send To') ?>:
+                                    <small class="text-muted">
+                                        <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
+                                    </small>
+                                </label>
+                                <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
+                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <?php //
+                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
+                                    for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
+                                        echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="selectAll();">
+                                    <i class="fa fa-users mr-1"></i><?php echo xlt('Select All') ?>
+                                </button>
+                            </div>
 
-            <div class="form-group mt-3">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
-                    </label>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />
+                                    <label class="custom-control-label" for="sendSeperately">
+                                        <?php echo xlt('Each recipient must set their own messages as completed.') ?>
+                                        <i id="select-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="section-header mt-4 mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                <h6 class="text-muted"><?php echo xlt('Due Date & Priority');?></h6>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-12 col-md-5">
+                                    <label for="dueDate"><?php echo xlt('Due Date') ?>:</label>
+                                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="d-none d-md-block">&nbsp;</label>
+                                    <div class="text-center mt-md-2"><?php echo xlt('OR') ?></div>
+                                </div>
+                                <div class="col-12 col-md-5">
+                                    <label for="timeSpan"><?php echo xlt('Select a Time Span') ?>:</label>
+                                    <select id="timeSpan" class="form-control">
+                                        <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
+                                        <?php
+                                        $optionTxt = '';
+                                        foreach ($dateRanges as $val => $txt) {
+                                            $optionTxt .= '<option value="' . attr($val) . '">' . text($txt) . '</option>';
+                                        }
+                                        echo $optionTxt;
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="priority"><?php echo xlt('Priority') ?>:</label>
+                                <div class="mt-2">
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_3" value='3'>
+                                        <label class="custom-control-label" for="priority_3"><strong><?php echo xlt('Low{{Priority}}') ?></strong></label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_2" value='2'>
+                                        <label class="custom-control-label" for="priority_2"><strong><?php echo xlt('Medium{{Priority}}') ?></strong></label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_1" value='1'>
+                                        <label class="custom-control-label" for="priority_1"><strong><?php echo xlt('High{{Priority}}') ?></strong></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section-header mt-4 mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                <h6 class="text-muted"><?php echo xlt('Message Content');?></h6>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message"><?php echo xlt('Type Your Message Here');?>:</label>
+                                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr_js($max_reminder_words); ?>);"
+                                        onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr_js($max_reminder_words); ?>);"
+                                        class="form-control" rows="5" name="message" id="message"
+                                        placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text'] ?? '');?></textarea>
+
+                                <div class="form-row mt-2">
+                                    <label class="col-form-label" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
+                                    <div class="col-2">
+                                        <input class="form-control form-control-sm" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type='submit' class='btn btn-primary' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>" onclick='return this.clicked = true;'>
+                                <i class="fa fa-paper-plane mr-1"></i><?php echo xlt('Send This Message'); ?>
+                            </button>
+                            <button type="reset" class="btn btn-secondary ml-1">
+                                <i class="fa fa-eraser mr-1"></i><?php echo xlt('Reset') ?>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <div class="form-group row mt-3">
-                <div class="col-5">
-                    <label for="dueDate"><?php echo xlt('Due Date') ?>:</label>
-                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
-                </div>
-                <div class="col-2">
-                    <label for="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-                    <div class="text-center"><?php echo xlt('OR') ?></div>
-                </div>
-                <div class="col-5">
-                    <label for="timeSpan"><?php echo xlt('Select a Time Span') ?>:</label>
-                    <select id="timeSpan" class="form-control">
-                        <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
+            <div class="col-12 mt-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><?php echo xlt('Messages Sent Today') ?></h5>
+                    </div>
+                    <div class="card-body p-0">
                         <?php
-                        $optionTxt = '';
-                        foreach ($dateRanges as $val => $txt) {
-                            $optionTxt .= '<option value="' . attr($val) . '">' . text($txt) . '</option>';
+                        $_GET['sentBy'] = [$_SESSION['authUserID']];
+                        $_GET['sd'] = oeFormatShortDate();
+                        $TempRemindersArray = logRemindersArray();
+                        $remindersArray = [];
+                        foreach ($TempRemindersArray as $RA) {
+                            $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
+                            $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));
+                            $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
+                            $remindersArray[$RA['messageID']]['message'] = $RA['message'];
+                            $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
                         }
-                        echo $optionTxt;
+
+                        if (empty($remindersArray)) {
+                            echo '<div class="alert alert-info text-center m-3">' . xlt('No Messages Found') . '</div>';
+                        } else {
+                            echo '<div class="table-responsive">
+                                <table class="table table-striped table-hover" id="logTable">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th>' . xlt('ID') . '</th>
+                                        <th>' . xlt('To{{Destination}}') . '</th>
+                                        <th>' . xlt('Patient') . '</th>
+                                        <th>' . xlt('Message') . '</th>
+                                        <th>' . xlt('Due Date') . '</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>';
+
+                            foreach ($remindersArray as $RA) {
+                                echo '<tr>
+                                    <td>' . text($RA['messageID']) . '</td>
+                                    <td>' . text($RA['ToName']) . '</td>
+                                    <td>' . text($RA['PatientName']) . '</td>
+                                    <td>' . text($RA['message']) . '</td>
+                                    <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
+                                    </tr>';
+                            }
+
+                            echo '</tbody></table></div>';
+                        }
                         ?>
-                    </select>
+                    </div>
                 </div>
             </div>
-
-            <div class="form-group row mt-3">
-                <div class="col-2 text-right">
-                    <label for="priority"><?php echo xlt('Priority') ?>:</label>
-                </div>
-                <div class="col-10">
-                    <label class="radio-inline"><input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low{{Priority}}') ?></strong>
-                    </label>
-                    <label class="radio-inline"><input type="radio" name="optradio" class="d-none" /><input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium{{Priority}}') ?></strong>
-                    </label>
-                    <label class="radio-inline"><input type="radio" name="optradio" class="d-none" /><input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High{{Priority}}') ?></strong>
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group mt-3">
-                <label class="text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
-                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" class="form-control text-left" rows="5" name="message" id="message" placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text'] ?? '');?></textarea>
-            </div>
-
-            <div class="form-row mt-3">
-                <label class="col-form-label col" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
-                <div class="col-2">
-                    <input class="form-control" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>" />
-                </div>
-            </div>
-            <button type='submit' class='btn btn-primary btn-send-msg' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>"  onclick='return this.clicked = true;'><?php echo xlt('Send This Message'); ?></button>
-        </form>
-    <div class="table-responsive">
-    <?php
-        $_GET['sentBy'] = array($_SESSION['authUserID']);
-        $_GET['sd'] = oeFormatShortDate();
-        $TempRemindersArray = logRemindersArray();
-        $remindersArray = array();
-    foreach ($TempRemindersArray as $RA) {
-        $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));
-        $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
-        $remindersArray[$RA['messageID']]['message'] = $RA['message'];
-        $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
-    }
-
-        echo '<h4>' . xlt('Messages You have sent Today') . '</h4>';
-        echo '<table class="table table-bordered table-hover" id="logTable">
-                <thead>
-                  <tr>
-                    <th>' . xlt('ID') . '</th>
-                    <th>' . xlt('To{{Destination}}') . '</th>
-                    <th>' . xlt('Patient') . '</th>
-                    <th>' . xlt('Message') . '</th>
-                    <th>' . xlt('Due Date') . '</th>
-                  </tr>
-                </thead>
-                <tbody>';
-
-    foreach ($remindersArray as $RA) {
-        echo '<tr class="heading">
-                  <td>' . text($RA['messageID']) . '</td>
-                  <td>' . text($RA['ToName']) . '</td>
-                  <td>' . text($RA['PatientName']) . '</td>
-                  <td>' . text($RA['message']) . '</td>
-                  <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
-                </tr>';
-    }
-
-        echo '</tbody></table></fieldset><div>';
-    ?>
+        </div>
     </div><!--end of container div-->
   <script>
     $(function () {

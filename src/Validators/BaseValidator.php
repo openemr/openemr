@@ -110,7 +110,7 @@ abstract class BaseValidator
         if ($isUuid) {
             try {
                 $lookupId = UuidRegistry::uuidToBytes($lookupId);
-            } catch (InvalidUuidStringException $e) {
+            } catch (InvalidUuidStringException) {
                 return $validationResult;
             }
         } elseif (!is_int(intval($lookupId))) {
@@ -119,7 +119,7 @@ abstract class BaseValidator
 
         $result = sqlQuery(
             "SELECT $field FROM $table WHERE $field = ?",
-            array($lookupId)
+            [$lookupId]
         );
         if (!empty($result[$field])) {
             return true;
@@ -141,7 +141,7 @@ abstract class BaseValidator
         $sql = "SELECT option_id FROM $table WHERE list_id = ? AND option_id = ?";
         $result = sqlQuery(
             $sql,
-            array($valueset, $code)
+            [$valueset, $code]
         );
         return $result['option_id'] ? true : false;
     }

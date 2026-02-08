@@ -18,21 +18,19 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Patient extends ORDataObject
 {
-    var $id;
-    var $pubpid;
-    var $lname;
-    var $mname;
-    var $fname;
-    var $date_of_birth;
-    var $dob;
-    var $provider;
+    public $pubpid;
+    public $lname;
+    public $mname;
+    public $fname;
+    public $date_of_birth;
+    public $dob;
+    public $provider;
 
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct($id = "")
+    function __construct(public $id = "")
     {
-        $this->id = $id;
         $this->_table = "patient_data";
         $this->pubpid = "";
         $this->lname = "";

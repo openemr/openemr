@@ -40,7 +40,7 @@ class FaxState
     public static function getFaxState($result): int|string|null
     {
         if (self::$_constants == null) {
-            $c = new ReflectionClass('OpenEMR\Modules\FaxSMS\EtherFax\FaxState');
+            $c = new ReflectionClass(\OpenEMR\Modules\FaxSMS\EtherFax\FaxState::class);
             self::$_constants = $c->getConstants();
         }
 

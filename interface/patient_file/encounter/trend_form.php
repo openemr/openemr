@@ -15,10 +15,13 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 $formname = $_GET["formname"];
-$is_lbf = substr($formname, 0, 3) === 'LBF';
+$is_lbf = str_starts_with((string) $formname, 'LBF');
 
 if ($is_lbf) {
   // Determine the default field ID and its title for graphing.
@@ -27,7 +30,7 @@ if ($is_lbf) {
         "SELECT field_id, title FROM layout_options WHERE " .
         "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
         "ORDER BY group_id DESC, seq DESC, title DESC LIMIT 1",
-        array($formname)
+        [$formname]
     );
 }
 
@@ -87,7 +90,7 @@ function show_graph(table_graph, name_graph, title_graph)
             table: table_graph,
             name: name_graph,
             title: title_graph,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         }),
         dataType: "json",
         success: function(returnData){
@@ -135,7 +138,7 @@ $(function () {
   // For LBF the <td> has an id of label_id_$fieldid
   $(".graph").on("click", function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
 <?php } else { ?>
-  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, '$(this).text()') });
+  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, $(this).text()) });
 <?php } ?>
 
   // Show hovering effects for the .graph links

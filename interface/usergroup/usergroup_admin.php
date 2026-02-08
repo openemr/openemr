@@ -75,11 +75,11 @@ $show_message = 0;
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
-    $mail_id = explode(".", $SMTP_HOST);
+    $mail_id = explode(".", (string) $SMTP_HOST);
     for ($i = 0; $i < $bg_count; $i++) {
         if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
             if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
-                $res = sqlStatement("select username from users where id= ? ", array($_POST["id"]));
+                $res = sqlStatement("select username from users where id= ? ", [$_POST["id"]]);
                 $row = sqlFetchArray($res);
                 $uname = $row['username'];
                 $mail = new MyMailer();
@@ -99,90 +99,90 @@ if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
 /* To refresh and save variables in mail frame */
 if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
     if ($_POST["mode"] == "update") {
-        $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
+        $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", [$_POST["id"]]));
 
         if (isset($_POST["username"])) {
-            sqlStatement("update users set username=? where id= ? ", array(trim($_POST["username"]), $_POST["id"]));
-            sqlStatement("update `groups` set user=? where user= ?", array(trim($_POST["username"]), $user_data["username"]));
+            sqlStatement("update users set username=? where id= ? ", [trim($_POST["username"]), $_POST["id"]]);
+            sqlStatement("update `groups` set user=? where user= ?", [trim($_POST["username"]), $user_data["username"]]);
         }
 
         if ($_POST["taxid"]) {
-            sqlStatement("update users set federaltaxid=? where id= ? ", array($_POST["taxid"], $_POST["id"]));
+            sqlStatement("update users set federaltaxid=? where id= ? ", [$_POST["taxid"], $_POST["id"]]);
         }
 
         if ($_POST["state_license_number"]) {
-            sqlStatement("update users set state_license_number=? where id= ? ", array($_POST["state_license_number"], $_POST["id"]));
+            sqlStatement("update users set state_license_number=? where id= ? ", [$_POST["state_license_number"], $_POST["id"]]);
         }
 
         if ($_POST["drugid"]) {
-            sqlStatement("update users set federaldrugid=? where id= ? ", array($_POST["drugid"], $_POST["id"]));
+            sqlStatement("update users set federaldrugid=? where id= ? ", [$_POST["drugid"], $_POST["id"]]);
         }
 
         if ($_POST["upin"]) {
-            sqlStatement("update users set upin=? where id= ? ", array($_POST["upin"], $_POST["id"]));
+            sqlStatement("update users set upin=? where id= ? ", [$_POST["upin"], $_POST["id"]]);
         }
 
         if ($_POST["npi"]) {
-            sqlStatement("update users set npi=? where id= ? ", array($_POST["npi"], $_POST["id"]));
+            sqlStatement("update users set npi=? where id= ? ", [$_POST["npi"], $_POST["id"]]);
         }
 
         if ($_POST["taxonomy"]) {
-            sqlStatement("update users set taxonomy = ? where id= ? ", array($_POST["taxonomy"], $_POST["id"]));
+            sqlStatement("update users set taxonomy = ? where id= ? ", [$_POST["taxonomy"], $_POST["id"]]);
         }
 
         if ($_POST["lname"]) {
-            sqlStatement("update users set lname=? where id= ? ", array($_POST["lname"], $_POST["id"]));
+            sqlStatement("update users set lname=? where id= ? ", [$_POST["lname"], $_POST["id"]]);
         }
 
         if ($_POST["suffix"]) {
-            sqlStatement("update users set suffix=? where id= ? ", array($_POST["suffix"], $_POST["id"]));
+            sqlStatement("update users set suffix=? where id= ? ", [$_POST["suffix"], $_POST["id"]]);
         }
 
         if ($_POST["valedictory"]) {
-            sqlStatement("update users set valedictory=? where id= ? ", array($_POST["valedictory"], $_POST["id"]));
+            sqlStatement("update users set valedictory=? where id= ? ", [$_POST["valedictory"], $_POST["id"]]);
         }
 
         if ($_POST["job"]) {
-            sqlStatement("update users set specialty=? where id= ? ", array($_POST["job"], $_POST["id"]));
+            sqlStatement("update users set specialty=? where id= ? ", [$_POST["job"], $_POST["id"]]);
         }
 
         if ($_POST["mname"]) {
-            sqlStatement("update users set mname=? where id= ? ", array($_POST["mname"], $_POST["id"]));
+            sqlStatement("update users set mname=? where id= ? ", [$_POST["mname"], $_POST["id"]]);
         }
 
         if ($_POST["facility_id"]) {
-            sqlStatement("update users set facility_id = ? where id = ? ", array($_POST["facility_id"], $_POST["id"]));
+            sqlStatement("update users set facility_id = ? where id = ? ", [$_POST["facility_id"], $_POST["id"]]);
             //(CHEMED) Update facility name when changing the id
-            sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.id = ?", array($_POST["facility_id"], $_POST["id"]));
+            sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.id = ?", [$_POST["facility_id"], $_POST["id"]]);
             //END (CHEMED)
         }
 
         if ($_POST["billing_facility_id"]) {
-            sqlStatement("update users set billing_facility_id = ? where id = ? ", array($_POST["billing_facility_id"], $_POST["id"]));
+            sqlStatement("update users set billing_facility_id = ? where id = ? ", [$_POST["billing_facility_id"], $_POST["id"]]);
             //(CHEMED) Update facility name when changing the id
-            sqlStatement("UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.id = ?", array($_POST["billing_facility_id"], $_POST["id"]));
+            sqlStatement("UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.id = ?", [$_POST["billing_facility_id"], $_POST["id"]]);
             //END (CHEMED)
         }
 
         if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) {
             if (empty($_POST["schedule_facility"])) {
-                $_POST["schedule_facility"] = array();
+                $_POST["schedule_facility"] = [];
             }
             $tmpres = sqlStatement(
                 "SELECT * FROM users_facility WHERE " .
                 "tablename = ? AND table_id = ?",
-                array('users', $_POST["id"])
+                ['users', $_POST["id"]]
             );
             // $olduf will become an array of entries to delete.
-            $olduf = array();
+            $olduf = [];
             while ($tmprow = sqlFetchArray($tmpres)) {
                 $olduf[$tmprow['facility_id'] . '/' . $tmprow['warehouse_id']] = true;
             }
             // Now process the selection of facilities and warehouses.
             foreach ($_POST["schedule_facility"] as $tqvar) {
-                if (($i = strpos($tqvar, '/')) !== false) {
-                    $facid = substr($tqvar, 0, $i);
-                    $whid = substr($tqvar, $i + 1);
+                if (($i = strpos((string) $tqvar, '/')) !== false) {
+                    $facid = substr((string) $tqvar, 0, $i);
+                    $whid = substr((string) $tqvar, $i + 1);
                     // If there was also a facility-only selection for this warehouse then remove it.
                     if (isset($olduf["$facid/"])) {
                         $olduf["$facid/"] = true;
@@ -195,7 +195,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     sqlStatement(
                         "INSERT INTO users_facility SET tablename = ?, table_id = ?, " .
                         "facility_id = ?, warehouse_id = ?",
-                        array('users', $_POST["id"], $facid, $whid)
+                        ['users', $_POST["id"], $facid, $whid]
                     );
                 }
                 $olduf["$facid/$whid"] = false;
@@ -208,7 +208,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     sqlStatement(
                         "DELETE FROM users_facility WHERE " .
                         "tablename = ? AND table_id = ? AND facility_id = ? AND warehouse_id = ?",
-                        array('users', $_POST["id"], $facid, $whid)
+                        ['users', $_POST["id"], $facid, $whid]
                         // At one time binding here screwed up by matching all warehouse_id values
                         // when it's an empty string, and so the code below was used.
                         /**********************************************
@@ -222,19 +222,19 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["fname"]) {
-            sqlStatement("update users set fname=? where id= ? ", array($_POST["fname"], $_POST["id"]));
+            sqlStatement("update users set fname=? where id= ? ", [$_POST["fname"], $_POST["id"]]);
         }
 
         if (isset($_POST['default_warehouse'])) {
-            sqlStatement("UPDATE users SET default_warehouse = ? WHERE id = ?", array($_POST['default_warehouse'], $_POST["id"]));
+            sqlStatement("UPDATE users SET default_warehouse = ? WHERE id = ?", [$_POST['default_warehouse'], $_POST["id"]]);
         }
 
         if (isset($_POST['irnpool'])) {
-            sqlStatement("UPDATE users SET irnpool = ? WHERE id = ?", array($_POST['irnpool'], $_POST["id"]));
+            sqlStatement("UPDATE users SET irnpool = ? WHERE id = ?", [$_POST['irnpool'], $_POST["id"]]);
         }
 
         if (!empty($_POST['clear_2fa'])) {
-            sqlStatement("DELETE FROM login_mfa_registrations WHERE user_id = ?", array($_POST['id']));
+            sqlStatement("DELETE FROM login_mfa_registrations WHERE user_id = ?", [$_POST['id']]);
         }
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
@@ -253,7 +253,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
-        "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
+        "id = ? ", [$tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]]);
         //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
             $bg_count = count($_POST['access_group']);
@@ -273,50 +273,46 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if (isset($_POST["comments"])) {
-            sqlStatement("update users set info = ? where id = ? ", array($_POST["comments"], $_POST["id"]));
+            sqlStatement("update users set info = ? where id = ? ", [$_POST["comments"], $_POST["id"]]);
         }
 
         $erxrole = $_POST['erxrole'] ?? '';
-        sqlStatement("update users set newcrop_user_role = ? where id = ? ", array($erxrole, $_POST["id"]));
+        sqlStatement("update users set newcrop_user_role = ? where id = ? ", [$erxrole, $_POST["id"]]);
 
         if (isset($_POST["physician_type"])) {
-            sqlStatement("update users set physician_type = ? where id = ? ", array($_POST["physician_type"], $_POST["id"]));
+            sqlStatement("update users set physician_type = ? where id = ? ", [$_POST["physician_type"], $_POST["id"]]);
         }
 
         if (isset($_POST["main_menu_role"])) {
               $mainMenuRole = filter_input(INPUT_POST, 'main_menu_role');
-              sqlStatement("update `users` set `main_menu_role` = ? where `id` = ? ", array($mainMenuRole, $_POST["id"]));
+              sqlStatement("update `users` set `main_menu_role` = ? where `id` = ? ", [$mainMenuRole, $_POST["id"]]);
         }
 
         if (isset($_POST["patient_menu_role"])) {
             $patientMenuRole = filter_input(INPUT_POST, 'patient_menu_role');
-            sqlStatement("update `users` set `patient_menu_role` = ? where `id` = ? ", array($patientMenuRole, $_POST["id"]));
+            sqlStatement("update `users` set `patient_menu_role` = ? where `id` = ? ", [$patientMenuRole, $_POST["id"]]);
         }
 
         if (isset($_POST["erxprid"])) {
-            sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
+            sqlStatement("update users set weno_prov_id = ? where id = ? ", [$_POST["erxprid"], $_POST["id"]]);
         }
 
         if (isset($_POST["supervisor_id"])) {
-            sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
+            sqlStatement("update users set supervisor_id = ? where id = ? ", [(int)$_POST["supervisor_id"], $_POST["id"]]);
         }
         if (isset($_POST["google_signin_email"])) {
-            if (empty($_POST["google_signin_email"])) {
-                $googleSigninEmail = null;
-            } else {
-                $googleSigninEmail = $_POST["google_signin_email"];
-            }
-            sqlStatement("update users set google_signin_email = ? where id = ? ", array($googleSigninEmail, $_POST["id"]));
+            $googleSigninEmail = empty($_POST["google_signin_email"]) ? null : $_POST["google_signin_email"];
+            sqlStatement("update users set google_signin_email = ? where id = ? ", [$googleSigninEmail, $_POST["id"]]);
         }
 
         // Set the access control group of user
-        $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
+        $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", [$_POST["id"]]));
         AclExtended::setUserAro(
             $_POST['access_group'],
             $user_data["username"],
-            (isset($_POST['fname']) ? $_POST['fname'] : ''),
-            (isset($_POST['mname']) ? $_POST['mname'] : ''),
-            (isset($_POST['lname']) ? $_POST['lname'] : '')
+            ($_POST['fname'] ?? ''),
+            ($_POST['mname'] ?? ''),
+            ($_POST['lname'] ?? '')
         );
 
         // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
@@ -336,7 +332,7 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
+        $res = sqlQuery("select username from users where username = ?", [trim((string) $_POST['rumple'])]);
         $doit = true;
         if (!empty($res['username'])) {
             $doit = false;
@@ -349,38 +345,38 @@ if (isset($_POST["mode"])) {
                 if (empty($_POST["google_signin_email"])) {
                     $googleSigninEmail = "NULL";
                 } else {
-                    $googleSigninEmail = "'" . add_escape_custom(trim($_POST["google_signin_email"])) . "'";
+                    $googleSigninEmail = "'" . add_escape_custom(trim((string) $_POST["google_signin_email"])) . "'";
                 }
             }
             $insertUserSQL =
             "insert into users set " .
-            "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
+            "username = '"         . add_escape_custom(trim(($_POST['rumple'] ?? ''))) .
             "', password = '"      . 'NoLongerUsed'                  .
-            "', fname = '"         . add_escape_custom(trim((isset($_POST['fname']) ? $_POST['fname'] : ''))) .
-            "', mname = '"         . add_escape_custom(trim((isset($_POST['mname']) ? $_POST['mname'] : ''))) .
-            "', lname = '"         . add_escape_custom(trim((isset($_POST['lname']) ? $_POST['lname'] : ''))) .
-            "', suffix = '"         . add_escape_custom(trim((isset($_POST['suffix']) ? $_POST['suffix'] : ''))) .
+            "', fname = '"         . add_escape_custom(trim(($_POST['fname'] ?? ''))) .
+            "', mname = '"         . add_escape_custom(trim(($_POST['mname'] ?? ''))) .
+            "', lname = '"         . add_escape_custom(trim(($_POST['lname'] ?? ''))) .
+            "', suffix = '"         . add_escape_custom(trim(($_POST['suffix'] ?? ''))) .
             "', google_signin_email = " . $googleSigninEmail .
-            ", valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
-            "', federaltaxid = '"  . add_escape_custom(trim((isset($_POST['federaltaxid']) ? $_POST['federaltaxid'] : ''))) .
-            "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
-            "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
-            "', physician_type = '"  . add_escape_custom(trim((isset($_POST['physician_type']) ? $_POST['physician_type'] : ''))) .
-            "', main_menu_role = '"  . add_escape_custom(trim((isset($_POST['main_menu_role']) ? $_POST['main_menu_role'] : ''))) .
-            "', patient_menu_role = '"  . add_escape_custom(trim((isset($_POST['patient_menu_role']) ? $_POST['patient_menu_role'] : ''))) .
-            "', weno_prov_id = '"  . add_escape_custom(trim((isset($_POST['erxprid']) ? $_POST['erxprid'] : ''))) .
-            "', authorized = '"    . add_escape_custom(trim((isset($_POST['authorized']) ? $_POST['authorized'] : ''))) .
-            "', info = '"          . add_escape_custom(trim((isset($_POST['info']) ? $_POST['info'] : ''))) .
-            "', federaldrugid = '" . add_escape_custom(trim((isset($_POST['federaldrugid']) ? $_POST['federaldrugid'] : ''))) .
-            "', upin = '"          . add_escape_custom(trim((isset($_POST['upin']) ? $_POST['upin'] : ''))) .
-            "', npi  = '"          . add_escape_custom(trim((isset($_POST['npi']) ? $_POST['npi'] : ''))) .
-            "', taxonomy = '"      . add_escape_custom(trim((isset($_POST['taxonomy']) ? $_POST['taxonomy'] : ''))) .
-            "', facility_id = '"   . add_escape_custom(trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : ''))) .
-            "', billing_facility_id = '"   . add_escape_custom(trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : ''))) .
-            "', specialty = '"     . add_escape_custom(trim((isset($_POST['specialty']) ? $_POST['specialty'] : ''))) .
-            "', see_auth = '"      . add_escape_custom(trim((isset($_POST['see_auth']) ? $_POST['see_auth'] : ''))) .
-            "', default_warehouse = '" . add_escape_custom(trim((isset($_POST['default_warehouse']) ? $_POST['default_warehouse'] : ''))) .
-            "', irnpool = '"       . add_escape_custom(trim((isset($_POST['irnpool']) ? $_POST['irnpool'] : ''))) .
+            ", valedictory = '"         . add_escape_custom(trim(($_POST['valedictory'] ?? ''))) .
+            "', federaltaxid = '"  . add_escape_custom(trim(($_POST['federaltaxid'] ?? ''))) .
+            "', state_license_number = '"  . add_escape_custom(trim(($_POST['state_license_number'] ?? ''))) .
+            "', newcrop_user_role = '"  . add_escape_custom(trim(($_POST['erxrole'] ?? ''))) .
+            "', physician_type = '"  . add_escape_custom(trim(($_POST['physician_type'] ?? ''))) .
+            "', main_menu_role = '"  . add_escape_custom(trim(($_POST['main_menu_role'] ?? ''))) .
+            "', patient_menu_role = '"  . add_escape_custom(trim(($_POST['patient_menu_role'] ?? ''))) .
+            "', weno_prov_id = '"  . add_escape_custom(trim(($_POST['erxprid'] ?? ''))) .
+            "', authorized = '"    . add_escape_custom(trim(($_POST['authorized'] ?? ''))) .
+            "', info = '"          . add_escape_custom(trim(($_POST['info'] ?? ''))) .
+            "', federaldrugid = '" . add_escape_custom(trim(($_POST['federaldrugid'] ?? ''))) .
+            "', upin = '"          . add_escape_custom(trim(($_POST['upin'] ?? ''))) .
+            "', npi  = '"          . add_escape_custom(trim(($_POST['npi'] ?? ''))) .
+            "', taxonomy = '"      . add_escape_custom(trim(($_POST['taxonomy'] ?? ''))) .
+            "', facility_id = '"   . add_escape_custom(trim(($_POST['facility_id'] ?? ''))) .
+            "', billing_facility_id = '"   . add_escape_custom(trim(($_POST['billing_facility_id'] ?? ''))) .
+            "', specialty = '"     . add_escape_custom(trim(($_POST['specialty'] ?? ''))) .
+            "', see_auth = '"      . add_escape_custom(trim(($_POST['see_auth'] ?? ''))) .
+            "', default_warehouse = '" . add_escape_custom(trim(($_POST['default_warehouse'] ?? ''))) .
+            "', irnpool = '"       . add_escape_custom(trim(($_POST['irnpool'] ?? ''))) .
             "', calendar = '"      . add_escape_custom($calvar) .
             "', portal_user = '"   . add_escape_custom($portalvar) .
             "', supervisor_id = '" . add_escape_custom((isset($_POST['supervisor_id']) ? (int)$_POST['supervisor_id'] : 0)) .
@@ -394,7 +390,7 @@ if (isset($_POST["mode"])) {
                 $_POST['stiltskin'],
                 true,
                 $insertUserSQL,
-                trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                trim(($_POST['rumple'] ?? ''))
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();
@@ -405,44 +401,44 @@ if (isset($_POST["mode"])) {
                 //set the facility name from the selected facility_id
                 sqlStatement(
                     "UPDATE users, facility SET users.facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
-                    array(
+                    [
                         $uuid,
-                        trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
-                    )
+                        trim(($_POST['facility_id'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
+                    ]
                 );
 
                 //set the billing facility name from the selected billing_facility_id
                 sqlStatement(
                     "UPDATE users, facility SET users.billing_facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
-                    array(
+                    [
                         $uuid,
-                        trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
-                    )
+                        trim(($_POST['billing_facility_id'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
+                    ]
                 );
 
                 sqlStatement(
                     "insert into `groups` set name = ?, user = ?",
-                    array(
-                        trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
-                    )
+                    [
+                        trim(($_POST['groupname'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
+                    ]
                 );
 
-                if (trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) {
+                if (trim(($_POST['rumple'] ?? ''))) {
                               // Set the access control group of user
                               AclExtended::setUserAro(
                                   $_POST['access_group'],
-                                  trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')),
-                                  trim((isset($_POST['fname']) ? $_POST['fname'] : '')),
-                                  trim((isset($_POST['mname']) ? $_POST['mname'] : '')),
-                                  trim((isset($_POST['lname']) ? $_POST['lname'] : ''))
+                                  trim(($_POST['rumple'] ?? '')),
+                                  trim(($_POST['fname'] ?? '')),
+                                  trim(($_POST['mname'] ?? '')),
+                                  trim(($_POST['lname'] ?? ''))
                               );
                 }
             }
         } else {
-            $alertmsg .= xl('User') . ' ' . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) . ' ' . xl('already exists.');
+            $alertmsg .= xl('User') . ' ' . trim(($_POST['rumple'] ?? '')) . ' ' . xl('already exists.');
         }
 
         if ($_POST['access_group']) {
@@ -472,7 +468,7 @@ if (isset($_POST["mode"])) {
 
         $doit = 1;
         foreach ($result as $iter) {
-            if ($doit == 1 && $iter["name"] == (trim((isset($_POST['groupname']) ? $_POST['groupname'] : ''))) && $iter["user"] == (trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')))) {
+            if ($doit == 1 && $iter["name"] == (trim(($_POST['groupname'] ?? ''))) && $iter["user"] == (trim(($_POST['rumple'] ?? '')))) {
                 $doit--;
             }
         }
@@ -480,14 +476,14 @@ if (isset($_POST["mode"])) {
         if ($doit == 1) {
             sqlStatement(
                 "insert into `groups` set name = ?, user = ?",
-                array(
-                    trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')),
-                    trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
-                )
+                [
+                    trim(($_POST['groupname'] ?? '')),
+                    trim(($_POST['rumple'] ?? ''))
+                ]
             );
         } else {
-            $alertmsg .= "User " . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) .
-            " is already a member of group " . trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')) . ". ";
+            $alertmsg .= "User " . trim(($_POST['rumple'] ?? '')) .
+            " is already a member of group " . trim(($_POST['groupname'] ?? '')) . ". ";
         }
     }
 }
@@ -514,7 +510,7 @@ if (isset($_GET["mode"])) {
   *******************************************************************/
 
     if ($_GET["mode"] == "delete_group") {
-        $res = sqlStatement("select distinct user from `groups` where id = ?", array($_GET["id"]));
+        $res = sqlStatement("select distinct user from `groups` where id = ?", [$_GET["id"]]);
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
@@ -524,12 +520,12 @@ if (isset($_GET["mode"])) {
         }
 
         $res = sqlStatement("select name, user from `groups` where user = ? " .
-        "and id != ?", array($un, $_GET["id"]));
+        "and id != ?", [$un, $_GET["id"]]);
 
         // Remove the user only if they are also in some other group.  I.e. every
         // user must be a member of at least one group.
         if (sqlFetchArray($res) != false) {
-              sqlStatement("delete from `groups` where id = ?", array($_GET["id"]));
+              sqlStatement("delete from `groups` where id = ?", [$_GET["id"]]);
         } else {
               $alertmsg .= "You must add this user to some other group before " .
                 "removing them from this group. ";
@@ -669,22 +665,14 @@ function resetCounter(username) {
                                 continue;
                             }
 
-                            if ($iter["authorized"]) {
-                                $iter["authorized"] = xl('yes');
-                            } else {
-                                $iter["authorized"] = xl('no');
-                            }
+                            $iter["authorized"] = $iter["authorized"] ? xl('yes') : xl('no');
 
                             $mfa = sqlQuery(
                                 "SELECT `method` FROM `login_mfa_registrations` " .
                                 "WHERE `user_id` = ? AND (`method` = 'TOTP' OR `method` = 'U2F')",
                                 [$iter['id']]
                             );
-                            if (!empty($mfa['method'])) {
-                                $isMfa = xl('yes');
-                            } else {
-                                $isMfa = xl('no');
-                            }
+                            $isMfa = !empty($mfa['method']) ? xl('yes') : xl('no');
 
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
@@ -705,10 +693,10 @@ function resetCounter(username) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<td>';
                                     echo xlt('Not Applicable');
-                                } elseif (strtotime($current_date) > strtotime($grace_time)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $grace_time)) {
                                     echo '<td class="bg-danger text-light">';
                                     echo xlt('Expired');
-                                } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $pwd_expires)) {
                                     echo '<td class="bg-warning text-dark">';
                                     echo xlt('Grace Period');
                                 } else {
@@ -773,7 +761,7 @@ function resetCounter(username) {
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
+                        substr((string) $list, 0, strlen((string) $list) - 2) . "</span><br />\n";
                 }
             }
             ?>

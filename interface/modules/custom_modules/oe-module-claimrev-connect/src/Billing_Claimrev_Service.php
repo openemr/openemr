@@ -23,7 +23,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
  * files to x12 partners that are in the 'waiting'
  * status.
  */
-function start_X12_Claimrev_send_files()
+function start_X12_Claimrev_send_files(): void
 {
     $autoSend = $GLOBALS['oe_claimrev_config_auto_send_claim_files'] ?? null;
 
@@ -32,7 +32,7 @@ function start_X12_Claimrev_send_files()
     }
 }
 
-function start_X12_Claimrev_get_reports()
+function start_X12_Claimrev_get_reports(): void
 {
 
     $autoSend = $GLOBALS['oe_claimrev_config_auto_send_claim_files'] ?? null;

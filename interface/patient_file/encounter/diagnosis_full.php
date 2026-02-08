@@ -14,18 +14,21 @@ require_once("../../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $mode = $_GET['mode'];
 $id   = $_GET['id'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "add") {
-        BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID']);
+        BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $session->get('authUserID'));
     } elseif ($mode == "delete") {
         BillingUtilities::deleteBilling($id);
     } elseif ($mode == "clear") {
@@ -49,27 +52,27 @@ if (isset($mode)) {
 
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
-    $billing_html = array();
+    $billing_html = [];
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
             $html = "<tr>";
             $html .= "<td class='align-middle'></td>" .
                 "<td><div><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a></div></td>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $counter++;
         } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a></td>\n";
         } else {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a><span class=\"small\">";
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {
@@ -86,13 +89,13 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $billing_html[$iter["code_type"]] .= "</span></td>";
             $billing_html[$iter["code_type"]] .= "<td>" .
                 "<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-                attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
+                attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
                 "]</a></td>";
         }
 
         $billing_html[$iter["code_type"]] .= "<td>" .
             "<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-            attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
+            attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
         $billing_html[$iter["code_type"]] .= "</tr>\n";
     }
 

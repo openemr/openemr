@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services;
 
-require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
+require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
@@ -51,7 +51,7 @@ class DocumentService extends BaseService
 
     public function isValidPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
 
         unset($docPathParts[0]);
 
@@ -82,7 +82,7 @@ class DocumentService extends BaseService
 
     public function getLastIdOfPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
         $lastInPath = end($docPathParts);
 
         $sql  = "  SELECT id";
@@ -101,30 +101,31 @@ class DocumentService extends BaseService
 
         $categoryId = $this->getLastIdOfPath($path);
 
-        $documentsSql  = " SELECT doc.url, doc.id, doc.mimetype, doc.docdate";
+        $documentsSql  = " SELECT doc.id, doc.mimetype, doc.docdate, doc.name, doc.hash";
         $documentsSql .= " FROM documents doc";
         $documentsSql .= " JOIN categories_to_documents ctd on ctd.document_id = doc.id";
         $documentsSql .= " WHERE ctd.category_id = ? and doc.foreign_id = ? and doc.deleted = 0";
 
-        $documentResults = sqlStatement($documentsSql, array($categoryId, $pid));
+        $documentResults = sqlStatement($documentsSql, [$categoryId, $pid]);
 
-        $fileResults = array();
+        $fileResults = [];
         while ($row = sqlFetchArray($documentResults)) {
-            array_push($fileResults, array(
-                "filename" => basename($row["url"]),
+            array_push($fileResults, [
+                "filename" => $row["name"],
+                "hash" => $row["hash"],
                 "id" =>  $row["id"],
                 "mimetype" =>  $row["mimetype"],
                 "docdate" =>  $row["docdate"]
-            ));
+            ]);
         }
         return $fileResults;
     }
 
-    public function insertAtPath($pid, $path, $fileData)
+    public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
         if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
-            error_log("OpenEMR API Error: Attempt to upload unsecure patient document was declined");
+            error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }
 
@@ -146,7 +147,7 @@ class DocumentService extends BaseService
 
         // Store the document in OpenEMR
         $doc = new \Document();
-        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file);
+        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file, eid: $eid);
         if (!empty($ret)) {
             error_log("OpenEMR API Error: There was an error in attempt to upload a patient document");
             return false;
@@ -157,15 +158,12 @@ class DocumentService extends BaseService
 
     public function getFile($pid, $did)
     {
-        $filenameSql = sqlQuery("SELECT `url`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
+        $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty(basename($filenameSql['url']))) {
-            $filename = "unknownName";
-        } else {
-            $filename = basename($filenameSql['url']);
-        }
+        $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
 
         $obj = new \C_Document();
+        $obj->onReturnRetrieveKey();
         $document = $obj->retrieve_action($pid, $did, true, true, true);
         if (empty($document)) {
             error_log("OpenEMR API Error: Requested patient document was empty, so declined request");
@@ -186,7 +184,7 @@ class DocumentService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search, $isAndCondition = true, $options = array())
+    public function search($search, $isAndCondition = true, $options = [])
     {
         $processingResult = new ProcessingResult();
 
@@ -275,12 +273,12 @@ class DocumentService extends BaseService
             if (is_int($limit) && $limit > 0) {
                 $sql .= " LIMIT " . $limit;
             }
-
+            $username = $this->getSession()?->get('authUser');
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
             while ($row = sqlFetchArray($statementResults)) {
                 // if the current user cannot access the document we do not allow it be passed back as a reference.
                 $document = new \Document($row['id']);
-                if (!$document->can_access()) {
+                if (!$document->can_access($username)) {
                     continue;
                 }
                 $resultRecord = $this->createResultRecordFromDatabaseResult($row);

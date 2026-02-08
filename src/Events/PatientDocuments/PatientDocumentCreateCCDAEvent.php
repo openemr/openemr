@@ -14,8 +14,9 @@ namespace OpenEMR\Events\PatientDocuments;
 
 use OpenEMR\Services\Search\DateSearchField;
 use DateTime;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class PatientDocumentCreateCCDAEvent
+class PatientDocumentCreateCCDAEvent extends Event
 {
     const EVENT_NAME_CCDA_CREATE = "patient.ccda.create";
 
@@ -79,7 +80,7 @@ class PatientDocumentCreateCCDAEvent
     public function __construct($pid)
     {
         $this->setPid($pid);
-        $this->setComponents(array());
+        $this->setComponents([]);
         $this->setFormat("xml");
         $this->setRecipient("self");
         $this->dateFrom = null;
@@ -127,7 +128,7 @@ class PatientDocumentCreateCCDAEvent
      */
     public function setComponents(array $components): PatientDocumentCreateCCDAEvent
     {
-        $this->components = array_filter($components, 'is_string');
+        $this->components = array_filter($components, is_string(...));
         return $this;
     }
 

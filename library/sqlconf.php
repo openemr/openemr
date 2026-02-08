@@ -13,8 +13,18 @@
 
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\SqlConfigEvent;
+use OpenEMR\Common\System\MissingSiteException;
 
-require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
+$siteDir = $GLOBALS['OE_SITE_DIR'] ?? '';
+if (empty($siteDir)) {
+    if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
+        throw new MissingSiteException();
+    }
+    // GLOBALS may not be defined consistently during static analysis.
+    $siteDir = __DIR__ . '/../sites/default';
+}
+
+require_once $siteDir . "/sqlconf.php";
 
 if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel) {
     $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();

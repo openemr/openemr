@@ -16,11 +16,15 @@ require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!empty($_GET['set_pid'])) {
     require_once($GLOBALS['srcdir'] . '/pid.inc.php');
@@ -38,21 +42,21 @@ $patient_id = $pid;
 $userService = new UserService();
 
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
-    die(xlt('Not authorized'));
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen
@@ -102,13 +106,13 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (strncmp($var, 'act', 3) == 0) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -153,7 +157,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $noteid);
+            EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -164,7 +168,7 @@ if (isset($mode)) {
 }
 
 $title = '';
-$assigned_to = $_SESSION['authUser'];
+$assigned_to = $session->get('authUser');
 if ($noteid) {
     $prow = getPnoteById($noteid, 'title,assigned_to,body');
     $title = $prow['title'];
@@ -227,13 +231,13 @@ $(function () {
     // I can't find a reason to load this!
     /*$("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         }
     );*/
 
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         }
     );
 
@@ -281,7 +285,7 @@ function restoreSession() {
 <div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
     <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
         <?php
         $title_docname = "";
@@ -399,7 +403,7 @@ function restoreSession() {
         <div id='inbox_div' class="table-responsive">
             <form method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">
@@ -457,20 +461,16 @@ function restoreSession() {
                                 }
 
                                 $body = $iter['body'];
-                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
+                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', (string) $body);
+                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                                     $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 } else {
-                                    $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                                    $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                                     ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 }
 
-                                if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                                    $checked = "checked";
-                                } else {
-                                    $checked = "";
-                                }
+                                $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                                 // highlight the row if it's been selected for updating
                                 if (!empty($_REQUEST['noteid']) && ($_REQUEST['noteid'] == $row_note_id)) {
@@ -485,7 +485,7 @@ function restoreSession() {
 
                                 // display, or not, a button to delete the note
                                 // if the user is an admin or if they are the author of the note, they can delete it
-                                if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                                if (($iter['user'] == $session->get('authUser')) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
                                     echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
                                     "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'>" .
                                     xlt('Delete') . "</a>\n";
@@ -509,7 +509,7 @@ function restoreSession() {
                                 echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                                 "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                                echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                                 echo "  </a></td>\n";
 
                                 echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -623,19 +623,15 @@ function restoreSession() {
                         }
 
                         $body = $iter['body'];
-                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         } else {
-                            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                            $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                             ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         }
 
-                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                            $checked = "checked";
-                        } else {
-                            $checked = "";
-                        }
+                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', (string) $body);
+                        $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                         // highlight the row if it's been selected for updating
                         if ($_REQUEST['noteid'] == $row_note_id) {
@@ -649,7 +645,7 @@ function restoreSession() {
 
                         // display, or not, a button to delete the note
                         // if the user is an admin or if they are the author of the note, they can delete it
-                        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                        if (($iter['user'] == $session->get('authUser')) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
                             echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
                             "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
                             xlt('Delete') . "</span>\n";
@@ -673,7 +669,7 @@ function restoreSession() {
                         echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                        echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                         echo "  </a></td>\n";
 
                         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -743,7 +739,7 @@ if (!empty($_GET['set_pid'])) {
 //
 if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
-    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', (string) $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>

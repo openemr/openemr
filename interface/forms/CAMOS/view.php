@@ -96,7 +96,7 @@ $query = "select t1.id, t1.content from " . mitigateSqlTableUpperCase("form_CAMO
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .
   "and t2.encounter like ? and t2.pid = ?";
 
-$statement = sqlStatement($query, array($encounter, $pid));
+$statement = sqlStatement($query, [$encounter, $pid]);
 while ($result = sqlFetchArray($statement)) {
     print "<input type=button value='" . xla('Edit') . "' onClick='show_edit(" . attr_js('id_textarea_' . $result['id']) . ")'>";
     print "<input type=checkbox name='ch_" . attr($result['id']) . "'> " . text($result['content']) . "<br/>";

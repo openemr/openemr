@@ -2,19 +2,26 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationCareExperiencePreferenceService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationTreatmentInterventionPreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ObservationLabService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -25,7 +32,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Observation Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirObservationService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
@@ -39,6 +45,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     use PatientSearchTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var ObservationLabService
@@ -50,11 +57,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      */
     private $innerServices;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct()
     {
         parent::__construct();
@@ -62,7 +64,13 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationSocialHistoryService());
         $this->addMappedService(new FhirObservationVitalsService());
         $this->addMappedService(new FhirObservationLaboratoryService());
-        $this->logger = new SystemLogger();
+        $this->addMappedService(new FhirObservationObservationFormService());
+        $this->addMappedService(new FhirObservationHistorySdohService());
+        $this->addMappedService(new FhirObservationPatientService());
+        $this->addMappedService(new FhirObservationEmployerService());
+        $this->addMappedService(new FhirObservationAdvanceDirectiveService());
+        $this->addMappedService(new FhirObservationTreatmentInterventionPreferenceService());
+        $this->addMappedService(new FhirObservationCareExperiencePreferenceService());
     }
 
     /**
@@ -107,31 +115,43 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 $fhirSearchParameters[$field->getName()] = $puuidBind;
             }
 
+            $servicesMap = [];
+            $services = [];
             if (isset($fhirSearchParameters['category'])) {
                 /**
                  * @var TokenSearchField
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $service = $this->getServiceForCategory(
-                    new TokenSearchField('category', $fhirSearchParameters['category']),
-                    'vital-signs'
+                $catServices = $this->getServiceListForCategory(
+                    new TokenSearchField('category', explode(",",$category))
                 );
-                $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['code'])) {
-                $service = $this->getServiceForCode(
-                    new TokenSearchField('code', $fhirSearchParameters['code']),
-                    FhirObservationVitalsService::VITALS_PANEL_LOINC_CODE
-                );
-                // if we have a service let's search on that
-                if (isset($service)) {
-                    $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-                } else {
-                    $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
+                foreach ($catServices as $service) {
+                    $servicesMap[$service::class] = $service;
                 }
-            } else {
-                $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
+                $services = $servicesMap;
             }
+            $codeMap = [];
+            if (isset($fhirSearchParameters['code'])) {
+                // we narrow our services down by code
+                $codeServices = $this->getServiceListForCode(
+                    new TokenSearchField('code', $fhirSearchParameters['code']),
+                );
+                $codeMap = [];
+                foreach ($codeServices as $service) {
+                    $codeMap[$service::class] = $service;
+                }
+                if (isset($fhirSearchParameters['category'])) {
+                    // we have both category and code so we need to intersect the two maps
+                    $services = array_intersect_key($servicesMap, $codeMap);
+                } else {
+                    $services = $codeMap;
+                }
+            }
+            if (empty($services)) {
+                $services = $this->getMappedServices();
+            }
+            $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
             $systemLogger->error("FhirObservationService->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -147,7 +167,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      * @param $fhirResourceId The uuid search field with the 1..* values to search on
      * @param $search Hashmap of search operators
      */
-    private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search)
+    private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search): ?ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
@@ -156,19 +176,22 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $registryRecord = UuidRegistry::getRegistryRecordForUuid($fhirResourceId);
 
         if (empty($registryRecord)) {
-            $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
+            // not found need to return 404 which is an empty response
+            $this->getSystemLogger()->debug("FhirObservationService->populateSurrogateSearchFieldsForUUID() - uuid not found in registry", ['_id' => $fhirResourceId]);
             return $processingResult;
         }
 
         // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
+        // TODO: @adunsulag we could optimize this to go directly to the service that has the uuid but for now we'll just let it go through the normal search process
         if ($registryRecord['mapped'] != '1') {
-            return;
+            return null;
         }
 
         // we are going to get our
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
 
         if (empty($mapping)) {
+            $this->getSystemLogger()->debug("FhirObservationService->populateSurrogateSearchFieldsForUUID() - uuid mapping not found in registry", ['_id' => $fhirResourceId]);
             $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
             return $processingResult;
         }
@@ -177,43 +200,69 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         if ($mapping['resource'] !== 'Observation') {
             // we have a problem here
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
-            $this->logger->error("Requested observation resource for uuid that exists for a different resource", ['_id' => $fhirResourceId, 'mappingResource' => $mapping['resource']]);
+            $this->getSystemLogger()->error("Requested observation resource for uuid that exists for a different resource", ['_id' => $fhirResourceId, 'mappingResource' => $mapping['resource']]);
             return $processingResult;
         }
 
         // grab category and code
         $query_vars = [];
-        parse_str($mapping['resource_path'], $query_vars);
+        parse_str((string) $mapping['resource_path'], $query_vars);
         if (empty($query_vars['category'])) {
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
-            $this->logger->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
+            $this->getSystemLogger()->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
             return $processingResult;
         }
-
+        // if the search params already have code or category we need to check and make sure they match
+        $category = new TokenSearchField('category', explode(",", $query_vars['category']));
+        if (isset($search['category'])) {
+            $searchCategory = new TokenSearchField('category', explode(",", $search['category']));
+            if (!$searchCategory->containsSearchToken($category)) {
+                // category does not match so return an empty result set
+                $this->getSystemLogger()->error("Search categories did not not match the mapping, this could be a scope restriction, or a bad query"
+                    , ['uuid' => $fhirResourceId, 'mappingCategory' => $query_vars['category'], 'searchCategory' => $search['category']]);
+                return $processingResult;
+            }
+        }
         $code = empty($search['code']) ? $query_vars['code'] : $search['code'] . "," . $query_vars['code'];
         $search['code'] = $code;
         $search['category'] = $query_vars['category'];
 
         // we only want a single search value for now... not supporting combined uuids
         $search['_id'] = UuidRegistry::uuidToString($mapping['target_uuid']);
+        return null;
     }
 
     public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/R4/observation-vitalsigns'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus'
-            ,'http://hl7.org/fhir/StructureDefinition/bp'
-            ,'http://hl7.org/fhir/StructureDefinition/bodyheight'
-            ,'http://hl7.org/fhir/StructureDefinition/bodyweight'
-            ,'http://hl7.org/fhir/StructureDefinition/heartrate'
-            ,'http://hl7.org/fhir/StructureDefinition/resprate'
-            ,'http://hl7.org/fhir/StructureDefinition/bodytemp'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile'
+        $profileSets = [];
+        foreach ($this->getMappedServices() as $service) {
+            if ($service instanceof IResourceUSCIGProfileService) {
+                $profileSets[] = $service->getProfileURIs();
+            }
+        }
+
+        // TODO: @adunsulag As we implement more profiles and sub-resource mappings we'll push them down to the sub-services
+        $latestVersions = [
+            'us-core-care-experience-preference'
+            ,'us-core-medicationdispense'
+            ,'us-core-observation-clinical-result'
+            ,'us-core-observation-occupation'
+            ,'us-core-observation-pregnancyintent'
+            ,'us-core-observation-pregnancystatus'
+            ,'us-core-observation-sexual-orientation'
+            ,'us-core-treatment-intervention-preference'
         ];
+        $v8Versions = [
+            'us-core-observation-adi-documentation'
+        ];
+        foreach ($latestVersions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, ['', '7.0.0', '8.0.0']);
+        }
+        foreach ($v8Versions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, ['8.0.0']);
+        }
+
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
     }
 }

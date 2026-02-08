@@ -27,7 +27,7 @@ class InsuranceCompanyValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required('name')->lengthBetween(2, 255);
                 $context->optional('attn')->lengthBetween(2, 255);
                 $context->optional('cms_id')->lengthBetween(2, 15);
@@ -41,19 +41,17 @@ class InsuranceCompanyValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }
                 );
                 // additional uuid validation
-                $context->required("uuid", "Insurance UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_companies", $value, true);
-                })->uuid();
+                $context->required("uuid", "Insurance UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_companies", $value, true))->uuid();
             }
         );
     }

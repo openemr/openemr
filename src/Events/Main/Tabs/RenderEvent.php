@@ -18,5 +18,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 class RenderEvent extends Event
 {
     const EVENT_BODY_RENDER_PRE = "main.body.render.pre";
+    const EVENT_BODY_RENDER_NAV = "main.body.render.nav";
     const EVENT_BODY_RENDER_POST = "main.body.render.post";
 }

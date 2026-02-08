@@ -10,21 +10,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-$is_portal = (isset($_SESSION['patient_portal_onsite_two']) && $_SESSION['authUser'] == 'portal-user') ? 1 : $_GET['isPortal'];
+// this script is used by both the patient portal and main openemr; below does authorization.
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+$is_portal = ($session->isSymfonySession() && $session->has('patient_portal_onsite_two') && $session->get('authUser') === 'portal-user') ? 1 : $_GET['isPortal'];
 
 if (empty($is_portal)) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
 } else {
-    //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
-    //
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $pid = $_SESSION['pid'];
+    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+        $pid = $session->get('pid');
     } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        //landing page definition -- where to go if something goes wrong
+        $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id', null));
+        //
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');
         exit;
     }
@@ -37,9 +44,9 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 
 $aud = "admin-signature";
-$cuser = attr($_SESSION['authUserID'] ?? "-patient-");
-$cpid = attr($_SESSION['pid'] ?? "0");
-$api_id = $_SESSION['api_csrf_token'] ?? ''; // portal doesn't do remote
+$cuser = attr($session->get('authUserID', null) ?? "-patient-");
+$cpid = attr($session->get('pid', null) ?? "0");
+$api_id = $session->get('api_csrf_token', ''); // portal doesn't do remote
 
 $twigVars = [
     'is_portal' => $is_portal
@@ -47,10 +54,10 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     // we want the json to fail
     die(json_encode(['error' => 'Server died']));

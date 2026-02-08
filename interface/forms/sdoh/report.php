@@ -10,9 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../../library/api.inc.php');
+require_once(__DIR__ . '/../../../library/api.inc.php');
 
-function sdoh_report($pid, $encounter, $cols, $id)
+function sdoh_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_sdoh", $id);
@@ -21,7 +21,7 @@ function sdoh_report($pid, $encounter, $cols, $id)
 
         $sdohData = [];
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $value == "0000-00-00 00:00:00") {
                 continue;
             }
             $sdohData[$key] = $value;
@@ -446,11 +446,7 @@ function sdoh_report($pid, $encounter, $cols, $id)
             }
 
             if (
-                ($sdohData['housing'] ?? '') == 'housetemporary'
-                || ($sdohData['housing'] ?? '') == 'houseunsafe'
-                || ($sdohData['housing'] ?? '') == 'housecar'
-                || ($sdohData['housing'] ?? '') == 'houseunshelter'
-                || ($sdohData['housing'] ?? '') == 'houseother'
+                in_array($sdohData['housing'] ?? '', ['housetemporary', 'houseunsafe', 'housecar', 'houseunshelter', 'houseother'])
                 || ($sdohData['debtrent'] ?? '') == 'on'
                 || ($sdohData['moneyrent'] ?? '') == 'on'
             ) {
@@ -502,17 +498,13 @@ function sdoh_report($pid, $encounter, $cols, $id)
             }
 
             if (
-                ($sdohData['social'] ?? '') == 'sociallessthan1'
-                || ($sdohData['social'] ?? '') == 'social1'
-                || ($sdohData['social'] ?? '') == 'social2to3'
+                in_array($sdohData['social'] ?? '', ['sociallessthan1', 'social1', 'social2to3'])
             ) {
                 echo "<tr><td><span class=text>" . xlt("Social Isolation") . "</span></td></tr>";
             }
 
             if (
-                ($sdohData['stress'] ?? '') == 'stresslevelsomewhat'
-                || ($sdohData['stress'] ?? '') == 'stresslevelalot'
-                || ($sdohData['stress'] ?? '') == 'stresslevelverymuch'
+                in_array($sdohData['stress'] ?? '', ['stresslevelsomewhat', 'stresslevelalot', 'stresslevelverymuch'])
                 || ($sdohData['stressdeath'] ?? '') == 'on'
                 || ($sdohData['stressdivorce'] ?? '') == 'on'
                 || ($sdohData['stressjob'] ?? '') == 'on'

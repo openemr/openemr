@@ -30,9 +30,6 @@ class PatientBeforeCreatedAuxEvent extends Event
      */
     const EVENT_HANDLE = 'patient.before-created-aux';
 
-    private $patientData;
-    private $pid;
-
     /**
      * BeforePatientUpdatedEvent constructor takes an array
      * of key/value pairs that represent fields of the patient_data
@@ -40,10 +37,8 @@ class PatientBeforeCreatedAuxEvent extends Event
      *
      * @param array $patientData
      */
-    public function __construct($pid, array $patientData)
+    public function __construct(private $pid, private array $patientData)
     {
-        $this->patientData = $patientData;
-        $this->pid = $pid;
     }
 
     /**
@@ -51,7 +46,7 @@ class PatientBeforeCreatedAuxEvent extends Event
      */
     public function getPatientData()
     {
-        $pid = array('pid' => $this->pid);
+        $pid = ['pid' => $this->pid];
         $this->patientData = array_merge($pid, $this->patientData);
 
         return $this->patientData;

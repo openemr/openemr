@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Core;
 
+use Exception;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Events\Core\ModuleLoadEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -47,7 +48,7 @@ class ModulesApplication
         // Prepare the service manager
         // We customize this and skip using the static Laminas\Mvc\Application::init in order to inject the
         // Symfony Kernel's EventListener that way we can bridge the two frameworks.
-        $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : [];
+        $smConfig = $configuration['service_manager'] ?? [];
         $smConfig = new ServiceManagerConfig($smConfig);
 
         $serviceManager = new ServiceManager();
@@ -59,9 +60,9 @@ class ModulesApplication
         $serviceManager->get('ModuleManager')->loadModules();
 
         // Prepare list of listeners to bootstrap
-        $listenersFromAppConfig = isset($configuration['listeners']) ? $configuration['listeners'] : [];
+        $listenersFromAppConfig = $configuration['listeners'] ?? [];
         $config = $serviceManager->get('config');
-        $listenersFromConfigService = isset($config['listeners']) ? $config['listeners'] : [];
+        $listenersFromConfigService = $config['listeners'] ?? [];
 
         $listeners = array_unique(array_merge($listenersFromConfigService, $listenersFromAppConfig));
 
@@ -77,9 +78,9 @@ class ModulesApplication
      * It relies on the $_SERVER['SCRIPT_NAME'] path which is established by the server not the calling client. It
      * checks against both laminas and custom modules. If the script is not allowed it throws an AccessDeniedException
      *
-     * @param $modType The type of module this is (laminas or custom)
+     * @param $modType     The type of module this is (laminas or custom)
      * @param $webRootPath The root filepath for the directory where OpenEMR is installed
-     * @param $modulePath The path for the module folder location (laminas or custom)
+     * @param $modulePath  The path for the module folder location (laminas or custom)
      * @throws AccessDeniedException Thrown if this is a file in a module script directory and the module is not enabled.
      */
     public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath)
@@ -87,15 +88,15 @@ class ModulesApplication
         // as we do this we are going to do a security check against the current script name
         // if we are in a module
         $scriptName = $webRootPath . $_SERVER['SCRIPT_NAME'];
-        if (str_starts_with($scriptName, $modulePath)) {
+        if (str_starts_with($scriptName, (string) $modulePath)) {
             // the script being called is a custom module directory.
             $type = $modType == self::MODULE_TYPE_LAMINAS ? self::MODULE_TYPE_LAMINAS : '';
 
-            $truncatedPath = substr($scriptName, strlen($modulePath));
+            $truncatedPath = substr($scriptName, strlen((string) $modulePath));
             $folderName = strtok($truncatedPath, '/');
             if ($folderName !== false) {
                 $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules "
-                . " WHERE (mod_active = 1 OR mod_ui_active = 1) AND type = ? AND mod_directory = ? ", [$type, $folderName]);
+                    . " WHERE (mod_active = 1 OR mod_ui_active = 1) AND type = ? AND mod_directory = ? ", [$type, $folderName]);
                 $row = sqlFetchArray($resultSet);
                 if (empty($row)) {
                     throw new AccessDeniedException("admin", "super", "Access to module path for disabled module is denied");
@@ -140,8 +141,10 @@ class ModulesApplication
                 // Can't include a missing bootstrap. Notify user and log the error.
                 error_log("Custom module " . errorLogEscape($customModulePath . $row['mod_directory'])
                     . '/' . self::CUSTOM_MODULE_BOOSTRAP_NAME
-                    . " is enabled but after 3 tries can not read the bootstrap.php script. Uninstall and or disable in module manager.");
+                    . " is enabled but after 3 tries can not read the bootstrap script. System will force disable module.");
                 $failed_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory'], "available" => false, "error" => "Module is missing bootstrap."];
+                // disable
+                sqlStatementNoLog("UPDATE modules SET mod_active = 0 WHERE mod_directory = ? AND type != 1", [$row['mod_directory']]);
             }
         }
         foreach ($db_modules as $module) {
@@ -172,7 +175,7 @@ class ModulesApplication
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
             // here and then inject the EventDispatcher or even possibly the Symfony Kernel here?
             include $module['path'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             error_log(errorLogEscape($exception->getMessage()));
         }
     }
@@ -189,6 +192,7 @@ class ModulesApplication
 
     /**
      * Checks to make sure the file originates in a module directory and is safe to include.
+     *
      * @param $file
      * @return bool
      */
@@ -198,7 +202,7 @@ class ModulesApplication
         $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
         // make sure we haven't left our root path ie interface folder
-        if (strpos($realpath, $moduleRootLocation) === 0 && file_exists($realpath) && strpos($realpath, ".php") !== false) {
+        if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
             return true;
         }
         return false;
@@ -209,6 +213,7 @@ class ModulesApplication
      * folder.  The intent is to prevent module writers from including files outside the modules installation directory.
      * If the file exists and is inside the modules installation path it will be returned.  Otherwise it is filtered out
      * of the array list
+     *
      * @param $files The list of files to safely filter
      * @return array
      */
@@ -221,9 +226,9 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
                 if ($pos !== false) {
-                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($GLOBALS['web_root']));
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) $GLOBALS['web_root']));
                 } else {
                     $scriptSrcPathWithoutWebroot = $scriptSrcPath;
                 }
@@ -231,13 +236,11 @@ class ModulesApplication
                 $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
                 // make sure we haven't left our root path ie interface folder
-                if (strpos($realPath, $moduleRootLocation) === 0 && file_exists($realPath)) {
+                if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {
                     return $scriptSrc;
                 }
                 return null;
-            }, $files), function ($script) {
-                return !empty($script);
-            });
+            }, $files), fn($script): bool => !empty($script));
         } else {
             $filteredFiles = [];
         }

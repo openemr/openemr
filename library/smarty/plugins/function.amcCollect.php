@@ -25,9 +25,9 @@
  * @param Smarty
  */
 
-require_once(dirname(__FILE__) . '/../../amc.php');
+require_once(__DIR__ . '/../../amc.php');
 
-function smarty_function_amcCollect($params, &$smarty)
+function smarty_function_amcCollect($params, &$smarty): void
 {
     $amc_id = $params['amc_id'];
         $patient_id = $params['patient_id'];

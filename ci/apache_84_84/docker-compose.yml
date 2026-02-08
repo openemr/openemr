@@ -1,0 +1,11 @@
+x-includes:
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mysql.yml"
+  mailpit-template: "compose-shared-mailpit.yml"
+
+services:
+  mysql:
+    image: mysql:8.4
+  openemr:
+    image: openemr/openemr:flex-3.22-php-8.4

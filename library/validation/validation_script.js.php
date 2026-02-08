@@ -33,6 +33,22 @@ if ($use_validate_js) {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
     <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
     <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+
+    <style type="text/css">
+    .error-message {
+        position: absolute;
+        z-index: 1000;
+        background-color: #fff;
+        border: 1px solid var(--danger);
+        border-radius: 4px;
+        padding: 6px 12px;
+        max-width: 250px;
+        white-space: normal;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        color: var(--danger);
+        margin-top: 5px;
+    }
+    </style>
     <?php
 }
 ?>
@@ -91,7 +107,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
-            //get the input value after romoving hide fields
+            //get the input value after removing hide fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
@@ -117,7 +133,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 }
             }
 
-            //error conatins an list of the elements and their errors
+            //error contains an list of the elements and their errors
             //set false full message because the name of the input not can be translated
             var errors = validate(elements, constraints, {fullMessages: false});
             if (typeof  errors !== 'undefined') {
@@ -190,6 +206,15 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
+                $(input).hover(
+                    function() {
+                        var $errorMsg = $("#error_" + id);
+                        $errorMsg.show();
+                    },
+                    function() {
+                        $("#error_" + id).hide();
+                    }
+                );
 
                 //bind hide function on focus/select again
                 $(input).on('click focus select', function(){
@@ -203,6 +228,8 @@ function submitme(new_validate,e,form_id, constraints) {
                     });
                 }
 
+                $("#error_" + id).hide();
+
             }
             /*
             * hide error message
@@ -210,7 +237,7 @@ function submitme(new_validate,e,form_id, constraints) {
             **/
             function hideErrors(input, id){
                 $(input).removeClass('error-border');
-                $("#error_" + id).text('');
+                $("#error_" + id).remove();
 
                 var parent_div = $(input).parents('div.tab');
                 if($(parent_div).is('div')) {
@@ -247,6 +274,18 @@ function submitme(new_validate,e,form_id, constraints) {
                         return <?php echo xlj('Must be future date');?>;
                     case 'Recipient required unless status is Done':
                         return <?php echo xlj('Recipient required unless status is Done');?>;
+                    case 'must have a valid hour (0-23)':
+                        return <?php echo xlj('must have a valid hour (0-23)');?>;
+                    case 'Hour is required':
+                        return <?php echo xlj('Hour is required');?>;
+                    case 'must have a valid minute (0-59)':
+                        return <?php echo xlj('must have a valid minute (0-59)');?>;
+                    case 'Minute is required':
+                        return <?php echo xlj('Minute is required');?>;
+                    case 'Must be a positive number':
+                        return <?php echo xlj('Must be a positive number');?>;
+                    case 'Duration is required':
+                        return <?php echo xlj('Duration is required');?>;
                     default:
                        return <?php echo xlj('is not valid');?>;
                 }

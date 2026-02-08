@@ -32,14 +32,14 @@ class PatientPortalPDFDocumentCreator
         }
 
         // snatch style tags content to insert after content purified
-        $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $htmlIn, $style_matches);
+        $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', (string) $htmlIn, $style_matches);
         $style = str_replace('<style type="text/css">', '<style>', $style_matches);
-        $pos = stripos($htmlIn, "<style>");
-        $pos1 = stripos($htmlIn, "</style>");
+        $pos = stripos((string) $htmlIn, "<style>");
+        $pos1 = stripos((string) $htmlIn, "</style>");
 
         // purify html
         $config = HTMLPurifier_Config::createDefault();
-        $config->set('URI.AllowedSchemes', array('data' => true, 'http' => true, 'https' => true));
+        $config->set('URI.AllowedSchemes', ['data' => true, 'http' => true, 'https' => true]);
         $purify = new \HTMLPurifier($config);
         $htmlIn = $purify->purify($htmlIn);
         // need to create custom stylesheet for templates

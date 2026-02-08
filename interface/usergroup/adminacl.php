@@ -503,17 +503,17 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
         });
     </script>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Access Control List Administration'),
         'include_patient_name' => false,//include only if appropriate
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "link",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "../../gacl/admin/acl_admin.php",//only for actions - reset, link or back
         'show_help_icon' => true,
         'help_file_name' => "adminacl_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

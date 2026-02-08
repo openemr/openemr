@@ -29,7 +29,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Services\CareTeamService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
@@ -43,17 +44,9 @@ use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {
-    private Environment $twig;
-    private array $issueTypes;
+    private readonly Environment $twig;
 
-    private string $rootdir;
-
-    /**
-     * @var string $pageName The name to use when firing off any events for this page
-     */
-    private string $pageName;
-
-    private EventDispatcher $eventDispatcher;
+    private readonly EventDispatcherInterface $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;
@@ -61,21 +54,24 @@ class C_EncounterVisitForm
     /**
      * @param $templatePath
      * @param Kernel $kernel
-     * @param $issueTypes
-     * @param $rootdir
+     * @param array $issueTypes
+     * @param string $rootdir
+     * @param string $pageName The name to use when firing off any events for this page
      * @throws \Exception
      */
-    public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
-    {
+    public function __construct(
+        $templatePath,
+        Kernel $kernel,
+        private array $issueTypes,
+        private readonly string $rootdir,
+        private readonly string $pageName = 'newpatient/common.php'
+    ) {
         // Initialize Twig
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->issueTypes = $issueTypes;
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
-        $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
+        $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
         $this->eventDispatcher = $kernel->getEventDispatcher();
-        $this->rootdir = $rootdir;
-        $this->pageName = $pageName;
         $this->viewmode = false;
         $this->mode = 'edit';
     }
@@ -98,10 +94,15 @@ class C_EncounterVisitForm
 
     function getCareTeamFacilityForPatient($pid)
     {
-        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($pid));
+        // TODO: We should put helper methods into CareTeamService for this.
+        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", [$pid]);
         // TODO: @adunsulag right now care facility is an array... the original code in common.php treats this as a single value
         // we need to look at fixing this if there is multiple facilities
-        return $care_team_facility['care_team_facility'] ?? null;
+        if (!empty($care_team_facility['care_team_facility'])) {
+            $facilities = explode("|", (string) $care_team_facility['care_team_facility']);
+            return $facilities[0] ?? null;
+        }
+        return null;
     }
 
 
@@ -120,11 +121,15 @@ class C_EncounterVisitForm
                 } else {
                     continue;
                 }
+            } else {
+                // user is authorized (aka is a provider) then if the provider hasn't been set default to user
+                $provider_id = !empty($provider_id) ? $provider_id : $_SESSION['authUserID'];
             }
 
             $name = $user['fname'] . ' ' . ($user['mname'] ? $user['mname'] . ' ' : '') .
                 $user['lname'] . ($user['suffix'] ? ', ' . $user['suffix'] : '') .
                 ($user['valedictory'] ? ', ' . $user['valedictory'] : '');
+
             $providers[] = [
                 'id' => $user['id'],
                 'name' => $name . $flag_it,
@@ -210,7 +215,7 @@ class C_EncounterVisitForm
             // Check ACL
             $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($row['pc_catid']);
             if ($postCalendarCategoryACO) {
-                $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                 if (!AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write')) {
                     continue;
                 }
@@ -244,7 +249,7 @@ class C_EncounterVisitForm
             return [];
         }
 
-        usort($sensitivities, [$this, "sensitivity_compare"]);
+        usort($sensitivities, $this->sensitivity_compare(...));
 
         $options = [];
         foreach ($sensitivities as $value) {
@@ -276,7 +281,7 @@ class C_EncounterVisitForm
         $issues = [];
         $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             "pid = ? AND enddate IS NULL " .
-            "ORDER BY type, begdate", array($pid));
+            "ORDER BY type, begdate", [$pid]);
 
         while ($irow = sqlFetchArray($ires)) {
             $tcode = $irow['type'];
@@ -289,7 +294,7 @@ class C_EncounterVisitForm
                 $perow = sqlQuery(
                     "SELECT count(*) AS count FROM issue_encounter WHERE " .
                     "pid = ? AND encounter = ? AND list_id = ?",
-                    array($pid, $encounter_id, $irow['id'])
+                    [$pid, $encounter_id, $irow['id']]
                 );
                 $selected = ($perow['count'] > 0);
                 // NOTE: This issue is not used anywhere in the codebase.  Appears to have been added to support squads but cannot find examples of usage in the codebase
@@ -444,10 +449,10 @@ class C_EncounterVisitForm
                 " AND fe.date <= ? " .
                 " AND " .
                 "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
-                "ORDER BY fe.encounter DESC LIMIT 1", array($pid, date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')));
+                "ORDER BY fe.encounter DESC LIMIT 1", [$pid, date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')]);
 
             if (!empty($erow['encounter'])) {
-                $duplicate = ['isDuplicate' => true, 'encounter' => $erow['encounter'], 'date' => oeFormatShortDate(substr($erow['date'], 0, 10))];
+                $duplicate = ['isDuplicate' => true, 'encounter' => $erow['encounter'], 'date' => oeFormatShortDate(substr((string) $erow['date'], 0, 10))];
             }
         }
         return $duplicate;
@@ -492,8 +497,8 @@ class C_EncounterVisitForm
         $encounter_followup_id = null;
         $followup_date = null;
         if ($viewmode) {
-            $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
-            $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
+            $id = $_REQUEST['id'] ?? '';
+            $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.
             $encounter['uuid'] = UuidRegistry::uuidToString($result['uuid']);
@@ -502,13 +507,13 @@ class C_EncounterVisitForm
                 $q = "SELECT fe.date as date, fe.encounter as encounter FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                     "WHERE fe.id = ? AND f.deleted = 0 ";
-                $followup_enc = sqlQuery($q, array($encounter_followup_id));
-                $followup_date = date("m/d/Y", strtotime($followup_enc['date']));
+                $followup_enc = sqlQuery($q, [$encounter_followup_id]);
+                $followup_date = date("m/d/Y", strtotime((string) $followup_enc['date']));
                 $encounter_followup = $followup_enc['encounter'];
             }
             // @todo why is this here?
             if ($mode === "followup") {
-                $followup_date = date("m/d/Y", strtotime($encounter['date']));
+                $followup_date = date("m/d/Y", strtotime((string) $encounter['date']));
                 $encounter_followup = $encounter['encounter'];
                 $encounter['reason'] = '';
                 $encounter['date'] = date('Y-m-d H:i:s');
@@ -538,17 +543,17 @@ class C_EncounterVisitForm
         $headingTitle = $viewmode ? xl('Patient Encounter Form') : xl('New Encounter Form');
 
 // UI settings
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
             'heading_title' => $headingTitle,
             'include_patient_name' => true,
             'expandable' => false,
-            'expandable_files' => array(),
+            'expandable_files' => [],
             'action' => "",
             'action_title' => "",
             'action_href' => "",
             'show_help_icon' => true,
             'help_file_name' => "common_help.php"
-        );
+        ];
 
 
 //Gets validation rules from Page Validation list.
@@ -558,7 +563,7 @@ class C_EncounterVisitForm
             $validationConstraints = [];
         } else {
             // grab our validation constraints
-            $validationConstraints = json_decode($validationConstraints["new_encounter"]["rules"], true);
+            $validationConstraints = json_decode((string) $validationConstraints["new_encounter"]["rules"], true);
             if ($validationConstraints === false) {
                 $validationConstraints = [];
                 (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Error decoding validation constraints for encounter form");
@@ -569,21 +574,23 @@ class C_EncounterVisitForm
          * @global $userauthorized
          * @global $pid
          */
-        $provider_id = $userauthorized ? $_SESSION['authUserID'] : null;
-        $default_fac_override = $encounter['facility_id'] ?? $this->getCareTeamFacilityForPatient($pid);
+        $provider_id = ($userauthorized ?? '') ? $_SESSION['authUserID'] : null;
+        $facilityService = new FacilityService();
+        $default_fac_override = $encounter['facility_id'] ?? $this->getDefaultFacilityForNewEncounters($pid, $facilityService);
         if (!$viewmode) {
+            //
             $now = date('Y-m-d');
             $encnow = date('Y-m-d 00:00:00');
             $time = date("H:i:00");
             $q = "SELECT pc_aid, pc_facility, pc_billing_location, pc_catid, pc_startTime" .
                 " FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=?" .
                 " ORDER BY pc_startTime ASC";
-            $q_events = sqlStatement($q, array($pid, $now));
+            $q_events = sqlStatement($q, [$pid, $now]);
             while ($override = sqlFetchArray($q_events)) {
                 $q = "SELECT fe.encounter as encounter FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                     "WHERE fe.pid=? AND fe.date=? AND fe.provider_id=? AND f.deleted=0";
-                $q_enc = sqlQuery($q, array($pid, $encnow, $override['pc_aid']));
+                $q_enc = sqlQuery($q, [$pid, $encnow, $override['pc_aid']]);
                 if (!empty($override) && is_array($override) && empty($q_enc['encounter'])) {
                     $provider_id = $override['pc_aid'];
                     $default_bill_fac_override = $override['pc_billing_location'];
@@ -596,7 +603,7 @@ class C_EncounterVisitForm
                 'provider_id' => $provider_id
                 // no encounter or anything
                 ,'facility_id' => $default_fac_override
-                ,'billing_facility_id' => $default_bill_fac_override ?? ''
+                ,'billing_facility' => $default_bill_fac_override ?? ''
                 ,'pc_catid' => $default_catid_override ?? ''
                 ,'date' => date('Y-m-d H:i:00')
                 ,'in_collection' => 0
@@ -609,27 +616,27 @@ class C_EncounterVisitForm
 
 
         $MBO = new MiscBillingOptions();
-        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
+        $refProviderId = QueryUtils::fetchSingleValue(
+            "SELECT ref_providerID FROM patient_data WHERE pid = ?",
+            'ref_ProviderID',
+            [$pid]
+        );
+        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $refProviderId) {
             if (!$viewmode || empty($encounter['referring_provider_id'])) {
-                $refProviderId = QueryUtils::fetchSingleValue(
-                    "SELECT ref_providerID FROM patient_data WHERE pid = ?",
-                    'ref_ProviderID',
-                    [$pid]
-                );
                 $encounter["referring_provider_id"] = $refProviderId ?? 0;
             }
-            if ($viewmode && !empty($encouter["referring_provider_id"])) {
-                $provider['selected'] = $provider['id'] == $encouter['referring_provider_id'];
+            if ($viewmode && !empty($encounter["referring_provider_id"])) {
+                $provider['selected'] = $provider['id'] == $encounter['referring_provider_id'];
             }
             return $provider;
         }, $MBO->getReferringProviders());
 
-        $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
-            $provider['selected'] = $provider['id'] == ($encouter['ordering_provider_id'] ?? 0);
+        $orderingProviders = array_map(function ($provider) use ($encounter) {
+            $provider['selected'] = $provider['id'] == ($encounter['ordering_provider_id'] ?? 0);
             return $provider;
         }, $MBO->getOrderingProviders());
 
-        $facilityService = new FacilityService();
+
         $facilities = $this->getFacilitiesForTemplate($facilityService, $default_fac_override);
         $posCode = '';
         foreach ($facilities as $facility) {
@@ -643,12 +650,8 @@ class C_EncounterVisitForm
         }
 // START AI GENERATED CODE
 // If viewing an existing encounter, use its POS code instead of facility default
-        if ($viewmode && !empty($encounter['pos_code'])) {
-            $facilityPosCode = $encounter['pos_code'];
-        } else {
-            $facilityPosCode = null;
-        }
-        $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility_id'] ?? null);
+        $facilityPosCode = $viewmode && !empty($encounter['pos_code']) ? $encounter['pos_code'] : null;
+        $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility'] ?? null);
         $inCollectionOptions = $this->getInCollectionOptionsForTemplate($encounter);
         $dischargeDispositions = $this->getDischargeDispositionsForTemplate($viewmode ? $encounter : null);
         $groupData = $this->getGroupDataForTemplate($viewmode ? $encounter : null);
@@ -669,7 +672,7 @@ class C_EncounterVisitForm
             'viewmode' => $viewmode,
             'mode' => $mode,
             'saveMode' => $viewmode && $mode !== "followup" ? "update" : "new",
-            'rootdir' => $rootdir,
+            'rootdir' => $rootdir ?? '',
             'encounter' => $encounter,
             'encounter_followup' => $encounter_followup,
             'followup_date' => $followup_date,
@@ -690,7 +693,6 @@ class C_EncounterVisitForm
             'formAction' => '/interface/forms/newpatient/save.php',
             'language_direction' => $_SESSION['language_direction'] ?? 'ltr',
             'validationConstraints' => $validationConstraints ?? [],
-            'isPosEnabled' => $GLOBALS['set_pos_code_encounter'] === "1",
             'selectedFacilityId' => $default_fac_override,
             'defaultClassCodeValue' => $viewmode ?  $encounter['class_code'] : '',
             'defaultEncounterTypeValue' => $viewmode ? $this->getDefaultEncounterType($viewmode, $encounter) : '',
@@ -722,5 +724,19 @@ class C_EncounterVisitForm
         }
 // Render template
         echo $this->twig->render($event->getTwigTemplate(), $event->getTwigVariables());
+    }
+
+
+    function getDefaultFacilityForNewEncounters($pid, FacilityService $facilityService)
+    {
+        $default_fac_override = null;
+        if (!empty($GLOBALS['set_service_facility_encounter'])) {
+            $default_fac_override = $this->getCareTeamFacilityForPatient($pid);
+        }
+        if (empty($default_fac_override)) {
+            $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $default_fac_override = $user_facility['id'] ?? null;
+        }
+        return $default_fac_override;
     }
 }

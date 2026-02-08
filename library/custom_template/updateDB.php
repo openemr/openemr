@@ -30,6 +30,8 @@
 
 require_once("../../interface/globals.php");
 
+// TODO: @adunsulag should this be locked down to a specific ACL?
+
 $action         = $_POST['action'];
 $updateRecordsArray     = $_POST['clorder'];
 
@@ -37,7 +39,7 @@ if ($action == "updateRecordsListings") {
     $listingCounter = 1;
     foreach ($updateRecordsArray as $recordIDValue) {
         $query = "UPDATE template_users SET tu_template_order = ? WHERE tu_template_id = ? AND tu_user_id=?";
-        sqlStatement($query, array($listingCounter,$recordIDValue,$_SESSION['authUserID']));
-        $listingCounter = $listingCounter + 1;
+        sqlStatement($query, [$listingCounter,$recordIDValue,$_SESSION['authUserID']]);
+        $listingCounter += 1;
     }
 }

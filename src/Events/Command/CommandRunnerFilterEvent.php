@@ -17,8 +17,9 @@
 namespace OpenEMR\Events\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class CommandRunnerFilterEvent
+class CommandRunnerFilterEvent extends Event
 {
     const EVENT_NAME = "openemr.command-runner.filter";
     private $commands = [];

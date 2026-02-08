@@ -32,7 +32,7 @@ function smarty_function_assetsTemplate($params, &$smarty)
 {
     $assets = [];
     if (!empty($params['assets'])) {
-        $assets = explode('|', $params['assets']);
+        $assets = explode('|', (string) $params['assets']);
     }
 
     return Header::setupAssets($assets);

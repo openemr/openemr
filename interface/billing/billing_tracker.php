@@ -36,7 +36,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'i18formatting']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
     <title><?php echo xlt("Claim File Tracker"); ?></title>
     <style>
         table.dataTable td.details-control:before {
@@ -94,18 +94,20 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                         "render": function(data, type, row, meta) {
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
-                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' +
-                                    'key=' + encodeURIComponent(data) +
-                                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?> +
-                                    '&partner=' + encodeURIComponent(row.x12_partner_id);
+                                const params = new URLSearchParams({
+                                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                    key: data,
+                                    partner: row.x12_partner_id
+                                });
+                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' + params;
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 
                             return data;
                         }
                     },
-                    { 
-                        "data": "created_at", 
+                    {
+                        "data": "created_at",
                         "render": function(data, type, row, meta) {
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
@@ -115,7 +117,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                             return data;
                         }
                     },
-                    { 
+                    {
                         "data": "updated_at",
                         "render": function(data, type, row, meta) {
                             // Build the URL so the user can download the claim batch file

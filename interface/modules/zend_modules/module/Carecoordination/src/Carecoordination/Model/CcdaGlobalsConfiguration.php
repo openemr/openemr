@@ -109,11 +109,11 @@ class CcdaGlobalsConfiguration
     private function getSectionDisplayOrderForType($key = self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER)
     {
         $codeService = new CodeTypesService();
-        $sortOrder = array();
+        $sortOrder = [];
         $sortOrderIndexesByKeys = [];
         if (!empty($GLOBALS[$key])) {
             $sortString = $GLOBALS[$key] ?? "";
-            $sortOrder = explode(";", $sortString);
+            $sortOrder = explode(";", (string) $sortString);
             $sortOrderIndexesByKeys = array_combine($sortOrder, array_keys($sortOrder));
         }
         if (!empty($sortOrder)) {

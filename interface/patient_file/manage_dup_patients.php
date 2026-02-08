@@ -19,10 +19,13 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $first_time = true;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @param $row
@@ -54,15 +57,15 @@ function displayRow($row, $pid = ''): void
 
     $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
-    $phones = array();
-    if (trim($row['phone_home'])) {
-        $phones[] = trim($row['phone_home']);
+    $phones = [];
+    if (trim((string) $row['phone_home'])) {
+        $phones[] = trim((string) $row['phone_home']);
     }
-    if (trim($row['phone_biz'])) {
-        $phones[] = trim($row['phone_biz']);
+    if (trim((string) $row['phone_biz'])) {
+        $phones[] = trim((string) $row['phone_biz']);
     }
-    if (trim($row['phone_cell'])) {
-        $phones[] = trim($row['phone_cell']);
+    if (trim((string) $row['phone_cell'])) {
+        $phones[] = trim((string) $row['phone_cell']);
     }
     $phones = implode(', ', $phones);
     $fac_name = '';
@@ -138,7 +141,7 @@ function calculateScores(): int
     $finished = false;
 
     while (!$finished && time() < $endtime) {
-        $scores = array();
+        $scores = [];
         $query = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
             " FROM patient_data AS p1, patient_data AS p2" .
             " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
@@ -150,7 +153,7 @@ function calculateScores(): int
         foreach ($scores as $pid => $score) {
             sqlStatementNoLog(
                 "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
-                array($score, $pid)
+                [$score, $pid]
             );
             ++$count;
         }
@@ -163,7 +166,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -218,9 +221,17 @@ $score_calculate = getDupScoreSQL();
             }
             top.restoreSession();
             if (select.value == 'MK') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(rowpid) + '&pid2=' + encodeURIComponent(toppid);
+                const params = new URLSearchParams({
+                    pid1: rowpid,
+                    pid2: toppid
+                });
+                window.location = 'merge_patients.php?' + params;
             } else if (select.value == 'MD') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(toppid) + '&pid2=' + encodeURIComponent(rowpid);
+                const params = new URLSearchParams({
+                    pid1: toppid,
+                    pid2: rowpid
+                });
+                window.location = 'merge_patients.php?' + params;
             } else {
                 // Currently 'U' and 'R' actions are supported and rowpid is meaningless.
                 form.form_action.value = select.value;
@@ -237,7 +248,7 @@ $score_calculate = getDupScoreSQL();
             <h2><?php echo xlt('Duplicate Patient Management') ?></h2>
         </div>
         <form class="form" method='post' action='manage_dup_patients.php'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
@@ -289,7 +300,7 @@ $score_calculate = getDupScoreSQL();
                 if ($form_action == 'U') {
                     sqlStatement(
                         "UPDATE patient_data SET dupscore = -1 WHERE pid = ?",
-                        array($_POST['form_toppid'])
+                        [$_POST['form_toppid']]
                     );
                 } elseif ($form_action == 'R') {
                     updateDupScore($_POST['form_toppid']);
@@ -303,7 +314,7 @@ $score_calculate = getDupScoreSQL();
                         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
                         "p1.pid = ? AND p2.pid < p1.pid AND ($score_calculate) > 12 " .
                         "ORDER BY myscore DESC, p2.pid DESC";
-                    $res2 = sqlStatement($query, array($row1['pid']));
+                    $res2 = sqlStatement($query, [$row1['pid']]);
                     while ($row2 = sqlFetchArray($res2)) {
                         displayRow($row2, $row1['pid']);
                     }
@@ -318,8 +329,8 @@ $score_calculate = getDupScoreSQL();
     </div>
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
-        action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
         <input type='hidden' name='patientID' value='0' />
     </form>
 </body>

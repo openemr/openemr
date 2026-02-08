@@ -17,7 +17,10 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
@@ -36,22 +39,21 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 <body>
     <?php
     if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 
-        $fenote = trim($_POST['form_note']);
+        $fenote = trim((string) $_POST['form_note']);
         if ($_POST['form_submit']) {
             sqlStatement("UPDATE form_encounter " .
-            "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
+            "SET billing_note = ? WHERE id = ?", [$fenote,$feid]);
         } else {
             $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-            " WHERE id = ?", array($feid));
+            " WHERE id = ?", [$feid]);
             $fenote = $tmp['billing_note'];
         }
 
         // escape and format note for viewing
-        $fenote = $fenote;
         $fenote = str_replace("\r\n", "<br />", $fenote);
         $fenote = str_replace("\n", "<br />", $fenote);
 
@@ -63,7 +65,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     }
 
     $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-    " WHERE id = ?", array($feid));
+    " WHERE id = ?", [$feid]);
     $fenote = $tmp['billing_note'];
     ?>
 
@@ -71,7 +73,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         <h2><?php echo xlt('Billing Note'); ?></h2>
         <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                 <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
             </div>
             <div class="form-group">

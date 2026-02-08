@@ -94,14 +94,14 @@ if (!empty($_POST['bn_upload'])) {
             $form_dest_filename = $_FILES['form_file']['name'];
         }
 
-        $form_dest_filename = convert_safe_file_dir_name(basename($form_dest_filename));
+        $form_dest_filename = convert_safe_file_dir_name(basename((string) $form_dest_filename));
         if ($form_dest_filename == '') {
             die(xlt('Cannot determine a destination filename'));
         }
-        $path_parts = pathinfo($form_dest_filename);
+        $path_parts = pathinfo((string) $form_dest_filename);
         $extension = strtolower($path_parts['extension'] ?? '');
 
-        if (!in_array($extension, array('odt', 'txt', 'docx', 'zip'))) {
+        if (!in_array($extension, ['odt', 'txt', 'docx', 'zip'])) {
             die(text($extension) . ' ' . xlt('filetype is not accepted'));
         }
 
@@ -142,11 +142,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        if ($GLOBALS['drive_encryption']) {
-            $storedData = $cryptoGen->encryptStandard($fileData, null, 'database');
-        } else {
-            $storedData = $fileData;
-        }
+        $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($fileData, null, 'database') : $fileData;
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {
@@ -211,15 +207,11 @@ if (!empty($_POST['bn_upload'])) {
                         <select class="form-control" name='form_filename'>
                         <?php
                         // Generate an <option> for each existing file.
-                        if (file_exists($templatedir)) {
-                            $dh = opendir($templatedir);
-                        } else {
-                            $dh = false;
-                        }
+                        $dh = file_exists($templatedir) ? opendir($templatedir) : false;
                         if ($dh) {
-                            $templateslist = array();
+                            $templateslist = [];
                             while (false !== ($sfname = readdir($dh))) {
-                                if (substr($sfname, 0, 1) == '.') {
+                                if (str_starts_with($sfname, '.')) {
                                     continue;
                                 }
 

@@ -9,7 +9,7 @@ trait ServiceEventTrait
     /**
      *
      * @param string $type The type of save event to dispatch
-     * @param $saveData The history data to send in the event
+     * @param array $saveData The history data to send in the event
      * @return array
      */
     private function dispatchSaveEvent(string $type, $saveData)

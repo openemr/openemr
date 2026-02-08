@@ -7,7 +7,7 @@ The Patient Portal card for the Medical Record Dashboard
 #}
 
 {% block erx %}
-    <a href="{{ webroot|attr }}/interface/eRx.php?page=medentry" class="btn btn-secondary btn-sm btn-add erx" onclick="top.restoreSession();">{{ "NewCrop MedEntry"|xlt }}</a>
-    <a href="{{ webroot|attr }}/interface/soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()" class="btn btn-secondary btn-sm btn save iframe1">{{ "NewCrop Account Status"|xlt }}</a>
+    <a href="{{ webroot|attr }}/interface/eRx.php?page=medentry" class="btn btn-secondary btn-sm btn-add erx" onclick="top.restoreSession();">{{ "Ensora MedEntry"|xlt }}</a>
+    <a href="{{ webroot|attr }}/interface/soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()" class="btn btn-secondary btn-sm btn save iframe1">{{ "Ensora Account Status"|xlt }}</a>
     <div id="accountstatus"></div>
 {% endblock %}

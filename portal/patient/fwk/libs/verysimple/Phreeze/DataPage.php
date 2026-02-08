@@ -17,7 +17,7 @@
 class DataPage implements Iterator
 {
     /**
-     * The Rows property is an array of objects retreived from the data store
+     * The Rows property is an array of objects retrieved from the data store
      */
     public $Rows = null;
 
@@ -96,7 +96,7 @@ class DataPage implements Iterator
         $arr = null;
 
         if ($asSimpleObject) {
-            $arr = array ();
+            $arr =  [];
             foreach ($this->Rows as $row) {
                 $arr [] = $row->ToObject($options);
             }

@@ -30,7 +30,7 @@ use OpenEMR\Services\PatientAccessOnsiteService;
 
 function displayLogin($patient_id, $message, $emailFlag)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     if ($emailFlag) {
         $message = xlt("Email was sent to following address") . ": " .
             text($patientData['email']) . "\n\n" .
@@ -61,19 +61,15 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    if ($option == '2') {
-        $forced_reset_disable = $_POST['forced_reset_disable'] ?? 0;
-    } else {
-        $forced_reset_disable = $option;
-    }
+    $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
         if ($emailResult['success']) {
-            $credMessage = nl2br(displayLogin($pid, $emailResult['plainMessage'], true));
+            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], true));
         } else {
-            $credMessage = nl2br(displayLogin($pid, $emailResult['plainMessage'], false));
+            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], false));
         }
     }
 }
@@ -90,7 +86,7 @@ echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_l
     , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
     , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
     , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
-    , 'email_direct' => trim($trustedEmail['email_direct'])
+    , 'email_direct' => trim((string) $trustedEmail['email_direct'])
     , 'forced_reset_disable' => $forced_reset_disable
     , 'forced_reset_option' => $option
     // if someone wants to add additional data fields they can add this in as a

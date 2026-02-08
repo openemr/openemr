@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -39,7 +39,7 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 $location = $_GET['location'] ?? '';
 $claim_file_found = false;
 if ($location === 'tmp') {
-    $claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $claim_file_dir = rtrim((string) $GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (file_exists($claim_file_dir . $fname)) {
         $claim_file_found = true;
     }

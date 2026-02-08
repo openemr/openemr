@@ -19,19 +19,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
  */
 class RuleCriteriaAge extends RuleCriteria
 {
-    var $type;
-    var $value;
-    var $timeUnit;
-
     /**
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct($type, $value = null, $timeUnit = null)
+    function __construct(public $type, public $value = null, public $timeUnit = null)
     {
-        $this->type = $type;
-        $this->value = $value;
-        $this->timeUnit = $timeUnit;
     }
 
     function getRequirements()

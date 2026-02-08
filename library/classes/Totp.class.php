@@ -25,21 +25,17 @@ class Totp
     private $_secret = false;
     /** @var string - issuer mentioned in the QR App  */
     private $_issuer = "OpenEMR";
-    /** @var  string - user name of user stored in QR App */
-    private $_username;
 
     /**
      * @param bool $secret - user secret or false to generate
-     * @param string $username - username to store in QR App
+     * @param string $_username - username to store in QR App
      */
-    public function __construct($secret = false, $username = '')
+    public function __construct($secret = false, private $_username = '')
     {
-        $this->_username = $username;
-
         if (!empty($secret)) {
             $this->_secret = $secret;
         } else {
-            $tfa = new TwoFactorAuth();
+            $tfa = new TwoFactorAuth($this->getQrProvider());
             // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
             //   be 32 characters in base32 (below line does all this)
             $this->_secret = $tfa->createSecret(160);
@@ -60,8 +56,7 @@ class Totp
             return false;
         }
 
-        $qrCodeProvider = new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg');
-        $tfa = new TwoFactorAuth($this->_issuer, 6, 30, Algorithm::Sha1, $qrCodeProvider);
+        $tfa = new TwoFactorAuth($this->getQrProvider(), $this->_issuer, 6, 30, Algorithm::Sha1);
         $qr = $tfa->getQRCodeImageAsDataUri($this->_username, $this->_secret);
         if (empty($qr)) {
             return false;
@@ -79,7 +74,7 @@ class Totp
         if (empty($totp) || empty($this->_secret)) {
             return false;
         }
-        $tfa = new TwoFactorAuth();
+        $tfa = new TwoFactorAuth($this->getQrProvider());
         return $tfa->verifyCode($this->_secret, $totp);
     }
 
@@ -90,5 +85,10 @@ class Totp
     public function getSecret()
     {
         return $this->_secret;
+    }
+
+    private function getQrProvider(): BaconQrCodeProvider
+    {
+        return new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg');
     }
 }

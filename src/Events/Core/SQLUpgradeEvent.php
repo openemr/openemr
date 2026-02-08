@@ -15,9 +15,10 @@
 
 namespace OpenEMR\Events\Core;
 
-use OpenEMR\Services\Utils\SQLUpgradeService;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class SQLUpgradeEvent
+class SQLUpgradeEvent extends Event
 {
     /**
      * This event is triggered just before the upgrade starts processing the upgrade file
@@ -30,25 +31,15 @@ class SQLUpgradeEvent
     const EVENT_UPGRADE_POST = 'core.upgrade.sql.post';
 
     /**
-     * @var string The filename that was executed to upgrade the database
+     * @param string $filename The filename that was executed to upgrade the database
+     * @param string $path The path to the filename that was executed.
+     * @param ISQLUpgradeService $sqlUpgradeService The sql upgrade service object
      */
-    private $filename;
-
-    /**
-     * @var string The path to the filename that was executed.
-     */
-    private $path;
-
-    /**
-     * @var SQLUpgradeService The sql upgrade service object
-     */
-    private $sqlUpgradeService;
-
-    public function __construct($filename, $path, SQLUpgradeService $upgradeService)
-    {
-        $this->filename = $filename;
-        $this->path = $path;
-        $this->sqlUpgradeService = $upgradeService;
+    public function __construct(
+        private $filename,
+        private $path,
+        private ISQLUpgradeService $sqlUpgradeService
+    ) {
     }
 
     /**
@@ -88,18 +79,18 @@ class SQLUpgradeEvent
     }
 
     /**
-     * @return SQLUpgradeService
+     * @return ISQLUpgradeService
      */
-    public function getSqlUpgradeService(): SQLUpgradeService
+    public function getSqlUpgradeService(): ISQLUpgradeService
     {
         return $this->sqlUpgradeService;
     }
 
     /**
-     * @param SQLUpgradeService $sqlUpgradeService
+     * @param ISQLUpgradeService $sqlUpgradeService
      * @return SQLUpgradeEvent
      */
-    public function setSqlUpgradeService(SQLUpgradeService $sqlUpgradeService): SQLUpgradeEvent
+    public function setSqlUpgradeService(ISQLUpgradeService $sqlUpgradeService): SQLUpgradeEvent
     {
         $this->sqlUpgradeService = $sqlUpgradeService;
         return $this;

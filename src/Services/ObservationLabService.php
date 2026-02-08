@@ -161,7 +161,7 @@ class ObservationLabService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['range'])) {
-            $highlow = preg_split("/[\s,-\--]+/", $record['range']);
+            $highlow = preg_split("/[\s,-\--]+/", (string) $record['range']);
             $low = $highlow[0];
             $high = $highlow[1];
             $record['range_low'] = $low;
@@ -181,7 +181,7 @@ class ObservationLabService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         $searchArgs = [];
         if (isset($puuidBind)) {

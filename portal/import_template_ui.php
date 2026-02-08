@@ -1,7 +1,7 @@
 <?php
 
 /**
- * import_template_ui.php
+ * import_template_ui.php - Patient Portal Template Maintenance
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -12,23 +12,30 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 // Service
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
@@ -45,7 +52,7 @@ $group_list = $templateService->fetchDefaultGroups();
 // for empty lists
 $none_message = xlt("Nothing to show for current actions.");
 // init status array
-$audit_status_blank = array(
+$audit_status_blank = [
     'audit_id' => null,
     'pid' => null,
     'create_date' => null,
@@ -80,7 +87,7 @@ $audit_status_blank = array(
     'action_user' => null,
     'action_taken_time' => null,
     'checksum' => null,
-);
+];
 
 $searchTerm = '';
 if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
@@ -190,7 +197,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
@@ -343,16 +350,11 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             return false;
         };
 
-        let templateSave = function () {
-            let markup = CKEDITOR.instances.templateContent.getData();
-            handleTemplate(currentEdit, 'save', markup);
-        };
-
         let templateDelete = function (id, template = '') {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete')); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session->getSymfonySession())); ?>)
             }
             return false;
         };
@@ -396,6 +398,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(2000).then(rtn => {
@@ -422,6 +425,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -444,6 +448,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -588,7 +593,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                     foreach ($category_list as $option_category) {
-                        if (stripos($option_category['option_id'], 'repository') !== false) {
+                        if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                             continue;
                         }
                         if ($category === $option_category['option_id']) {
@@ -619,10 +624,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
-                        $ppt = array(
+                        $ppt = [
                             ['pid' => '0', 'ptname' => 'All Patients'],
                             ['pid' => '-1', 'ptname' => 'Repository'],
-                        );
+                        ];
                         if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $searchTerm = $_GET['search_term'] ?? $_GET['search'];
                         }
@@ -631,7 +636,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         }
                         $auth = '';
                         if (!empty($_REQUEST['persist_checks'])) {
-                            $persist_checks = json_decode($_REQUEST['persist_checks'], true);
+                            $persist_checks = json_decode((string) $_REQUEST['persist_checks'], true);
                             if (is_array($persist_checks)) {
                                 foreach ($persist_checks as $pt) {
                                     foreach ($ppt as $k => $pc) {
@@ -676,7 +681,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session->getSymfonySession())); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>
@@ -733,8 +738,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <!-- Repository -->
             <div class='row'>
-                <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse' role='button'>
+                    <div class="h5"><i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
                         <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
                             <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
@@ -772,7 +777,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $notify_flag = false;
                             $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                             foreach ($category_list as $option_category) {
-                                if (stripos($option_category['option_id'], 'repository') !== false) {
+                                if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                                     continue;
                                 }
                                 if ($this_cat === $option_category['option_id']) {
@@ -804,7 +809,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                             echo "</td>";
                             echo "<td>" . text($file['size']) . "</td>";
-                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . "</td>";
+                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . "</td>";
                             echo "</tr>";
                             ?>
                             <?php
@@ -837,7 +842,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 continue;
                             }
                             $total = 0;
-                            foreach ($profile_items_list as $key => $files) {
+                            foreach ($profile_items_list as $files) {
                                 $total += count($files ?? []);
                                 foreach ($files as $file) {
                                     if (is_array($file)) {
@@ -847,7 +852,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                             $template_list = substr($template_list, 0, -2);
                             $profile_esc = attr($profile);
-                            foreach ($group_items_list as $key => $groups) {
+                            foreach ($group_items_list as $groups) {
                                 foreach ($groups as $group) {
                                     if (is_array($group)) {
                                         $group_list_text .= $group_list[$group['member_of']]['title'] . ', ';
@@ -913,7 +918,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $template_id = $file['id'];
                             echo '<tr>';
                             /*echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";*/
-                            echo '<td>' . text(ucwords($cat)) . '</td><td>';
+                            echo '<td>' . text(ucwords((string) $cat)) . '</td><td>';
                             echo '<button id="templateEdit' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . '</button>';
                             if ($authUploadTemplates) {
@@ -921,7 +926,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                     '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt('Delete') . '</button>';
                             }
                             echo '<td>' . text($file['size']) . '</td>';
-                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . '</td>';
+                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . '</td>';
                             echo '</tr>';
                             ?>
                             <?php
@@ -938,8 +943,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <div class='row'>
                 <div class='col col-12'>
-                    <div class='h5'>
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                    <div class='h5' data-toggle='collapse' data-target='#assigned_collapse' role='button'>
+                        <i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->
@@ -959,7 +964,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     foreach ($patient_templates as $name => $templates) {
                         $count = 0;
                         $fetched_groups = $fetch_pid = null;
-                        foreach ($templates as $c => $t) {
+                        foreach ($templates as $t) {
                             if (is_array($t)) {
                                 $fetch_pid = $t[0]['pid'];
                                 if (empty($fetched_groups)) {
@@ -1003,18 +1008,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 $action_status = '';
                                 if ($next_due > 1) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('Scheduled but Needs Review');
-                                    } else {
-                                        $action_status = xl('Scheduled');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('Scheduled but Needs Review') : xl('Scheduled');
                                     $next_due = date('m/d/Y', $next_due);
                                 } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('In audit. Needs Review');
-                                    } else {
-                                        $action_status = xl('Recurring');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('In audit. Needs Review') : xl('Recurring');
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {
                                     $action_status = xl('Completed');
@@ -1022,7 +1019,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
                                 }
-                                echo '<tr><td>' . text(ucwords($cat)) . '</td>';
+                                echo '<tr><td>' . text(ucwords((string) $cat)) . '</td>';
                                 echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
                                     '<button type="button" id="patientEdit' . attr($template_id) .

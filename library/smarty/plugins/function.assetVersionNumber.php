@@ -32,7 +32,7 @@
  */
 
 
-function smarty_function_assetVersionNumber($params, &$smarty)
+function smarty_function_assetVersionNumber($params, &$smarty): void
 {
     echo $GLOBALS['v_js_includes'] ?? 1; // if for some reason we don't have a version we just return one
 }
