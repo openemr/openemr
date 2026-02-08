@@ -18,6 +18,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

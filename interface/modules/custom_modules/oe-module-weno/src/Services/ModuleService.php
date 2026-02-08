@@ -130,13 +130,13 @@ class ModuleService
             }
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $authUserID = $session->get('authUserID');
+        $authUserID = $session->get('authUserID', '');
         if ($which !== 'global' && !empty($authUserID ?? '')) {
             foreach ($userSettings as $key => $vendor) {
                 $GLOBALS[$key] = $vendor;
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-                    ['global:' . $key, $vendor, $authUserID, $vendor, $authUserID ?? '']
+                    ['global:' . $key, $vendor, $authUserID, $vendor, $authUserID]
                 );
             }
         }

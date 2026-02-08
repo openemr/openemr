@@ -11947,11 +11947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$error might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$message might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
