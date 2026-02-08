@@ -378,7 +378,15 @@ build_test() {
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in
-        api) # API tests collect coverage via auto_prepend.php
+        api) # API tests collect server-side coverage via auto_prepend.php.
+             # Also collect test file coverage to verify tests actually ran.
+             if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+                 args+=(
+                     --coverage-clover coverage.api-tests.clover.xml
+                     --coverage-filter tests/Tests/Api
+                     --coverage-text
+                 )
+             fi
              phpunit "${args[@]}" "$@"
              return
              ;;
