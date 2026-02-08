@@ -1554,6 +1554,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, ['severity_ccda', 'allergy', $pid]);
 
+        $site_id = $this->session->get('site_id');
         $allergies = "<allergies>";
         foreach ($res as $row) {
             $split_codes = explode(';', (string)$row['code']);
@@ -1652,6 +1653,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, ['drug_units', 'drug_form', 'drug_route', 'drug_interval', $pid]);
 
+        $site_id = $this->session->get('site_id');
         $medications = "<medications>";
         foreach ($res as $row) {
             if (!$row['rxnorm_drugcode']) {

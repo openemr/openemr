@@ -20,6 +20,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {

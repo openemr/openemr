@@ -1304,6 +1304,7 @@ function eye_mag_row_delete(string $table, string $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";

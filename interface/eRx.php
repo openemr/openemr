@@ -22,6 +22,8 @@ require_once($GLOBALS['fileroot'] . '/interface/eRxPage.php');
 
 set_time_limit(0);
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function array_key_exists_default($key, $search, $default = null)
