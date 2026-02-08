@@ -4472,16 +4472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/CAMOS/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$BS_COL_CLASS$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$BS_COL_CLASS might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$code_types might not be defined\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
