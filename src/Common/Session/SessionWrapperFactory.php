@@ -33,15 +33,21 @@ class SessionWrapperFactory
 
     public function isSessionActive(): bool
     {
+        // TODO @zmilan: this should be switched to checking only activeSession
         return $this->portalSession !== null || $this->coreSession !== null;
+    }
+
+    public function setActiveSession(SessionInterface $session): void
+    {
+        $this->activeSession = $session;
     }
 
     public function getActiveSession(): SessionInterface
     {
         // TODO @zmilan: this is just for testing, see how to approach it differently
-//        if ($this->isSessionActive()) {
-//            return $this->activeSession;
-//        }
+        if ($this->isSessionActive()) {
+            return $this->activeSession;
+        }
 //        TODO @zmilan: Let's hope that we do not need this
         $app = SessionUtil::getAppCookie();
         if ($app === SessionUtil::PORTAL_SESSION_ID) {
