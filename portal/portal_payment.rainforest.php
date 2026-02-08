@@ -14,8 +14,8 @@ use OpenEMR\PaymentProcessing\Rainforest\Apis\GetPayinComponentParameters;
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
 $csrfToken = $req->getHeaderLine('X-CSRF-TOKEN');
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-if (!CsrfUtils::verifyCsrfToken($csrfToken, 'rainforest', $session->getSymfonySession())) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($csrfToken, 'rainforest', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 $ignoreAuth_onsite_portal = true;

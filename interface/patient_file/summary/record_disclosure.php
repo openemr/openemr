@@ -18,6 +18,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Control access
@@ -27,6 +28,7 @@ if (!$authWrite && !$authAddonly) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/disclosure: Edit/Record Disclosure", xl("Edit/Record Disclosure"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
     if (!$authWrite) {
@@ -105,7 +107,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="btn-group">
                         <button class='btn btn-primary btn-save' name='form_save' id='form_save'>
                             <?php echo xlt('Save'); ?>

@@ -18,11 +18,13 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -93,7 +95,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 </head>
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='fstart' value='<?php echo attr($fstart); ?>' />
         <?php
         $MAXSHOW = 100; // maximum number of results to display at once

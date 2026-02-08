@@ -32,7 +32,7 @@ $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
 $addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
 
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -179,7 +179,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Requested Date'); ?></label>

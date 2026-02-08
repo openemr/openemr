@@ -38,11 +38,11 @@ class SessionWrapperFactory
 
     public function getActiveSession(): SessionInterface
     {
-        // TODO this is just for testing, see how to approach it differently
+        // TODO @zmilan: this is just for testing, see how to approach it differently
 //        if ($this->isSessionActive()) {
 //            return $this->activeSession;
 //        }
-//        TODO Let's hope that we do not need this
+//        TODO @zmilan: Let's hope that we do not need this
         $app = SessionUtil::getAppCookie();
         if ($app === SessionUtil::PORTAL_SESSION_ID) {
             return $this->getPortalSession();
@@ -85,7 +85,7 @@ class SessionWrapperFactory
                 session_write_close();
             }
             $this->portalSession = null;
-            $this->activeSession = null; // TODO this can get messy a lot easily
+            $this->activeSession = null; // TODO @zmilan: this can get messy a lot easily
         }
     }
 

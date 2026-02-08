@@ -350,7 +350,7 @@ if ($exclude_policy != "") {
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <input type="hidden" name="removedrows" id="removedrows" value="">
             <div id="report_parameters">
                 <table>

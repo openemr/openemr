@@ -58,7 +58,7 @@ $financial_reporting = 0;
 $revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -469,7 +469,7 @@ if ($fend > ($count ?? null)) {
 <body class="body_top">
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>"/>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
 
     <input type='hidden' name='mode' value=''/>
 

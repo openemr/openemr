@@ -41,7 +41,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -197,7 +197,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -767,7 +767,7 @@ function getCodeText($code)
                     <div class="container-fluid">
                         <div class="row">
                             <div class='col-sm-6'>
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.

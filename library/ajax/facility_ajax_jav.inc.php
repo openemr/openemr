@@ -15,7 +15,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <script>
 function ajax_bill_loc(pid,date,facility){
@@ -28,7 +30,7 @@ data: {
 pid: pid,
 date: date,
 facility: facility,
-csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
 },
 success: function(thedata){//alert(thedata)
 $("#ajaxdiv").html(thedata);

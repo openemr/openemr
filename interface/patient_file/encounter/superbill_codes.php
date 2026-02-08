@@ -32,7 +32,7 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -114,7 +114,7 @@ while ($index < $numlines) {
                 "&fee="      . attr_url($code["fee"]) .
                 "&code="     . attr_url($code["code"]) .
                 "&text="     . attr_url($code["code_text"]) .
-                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session)) .
+                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) .
             "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";

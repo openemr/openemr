@@ -31,7 +31,7 @@ $this->display('_FormsHeader.tpl.php');
 echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script>
-    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>;
+    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     $LAB.script("<?php echo $globalsBag->getString('web_root'); ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             actpage.init();

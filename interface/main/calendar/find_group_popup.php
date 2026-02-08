@@ -21,10 +21,12 @@ require_once("$srcdir/group.inc.php");
 require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -183,7 +185,7 @@ if ($searchby && $searchparm) {
 
 <div id="searchCriteria">
     <form method='post' name='theform' id="theform" action='find_group_popup.php'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <?php echo xlt('Search by') . ':'; ?>
         <select name='searchby'>
             <option value="Name"><?php echo xlt('Name'); ?></option>

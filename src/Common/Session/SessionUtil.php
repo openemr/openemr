@@ -119,7 +119,7 @@ class SessionUtil
 
     public static function setSession($session_key_or_array, $session_value = null): void
     {
-        // TODO rethink this, since last one will be active session and it could be wrong one for App in use
+        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
         $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
 
@@ -142,7 +142,7 @@ class SessionUtil
 
     public static function unsetSession($session_key_or_array): void
     {
-        // TODO rethink this, since last one will be active session and it could be wrong one for App in use
+        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
         $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
 
@@ -163,7 +163,7 @@ class SessionUtil
 
     public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
-        // TODO rethink this, since last one will be active session and it could be wrong one for App in use
+        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
         $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
         foreach ($setArray as $key => $value) {
