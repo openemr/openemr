@@ -346,6 +346,7 @@ function edih_claim_history($encounter)
         $f997ar = csv_file_by_enctr($e, $tp);
         //
         if (is_array($f997ar) && count($f997ar)) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $ch_html .= "<tr class='ch997'><td colspan=4>Ack 997/999 " . text(count($f997ar)) . "</td></tr>" . PHP_EOL;
             $ch_html .= "<tr class='chhead'>" . PHP_EOL;
             $ch_html .= "<td colspan=3>Acknowledgement File</td><td>Notes</td>" . PHP_EOL;
