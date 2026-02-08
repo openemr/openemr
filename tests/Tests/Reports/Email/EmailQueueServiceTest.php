@@ -165,12 +165,12 @@ class EmailQueueServiceTest extends TestCase
         $this->assertArrayHasKey('sent', $stats);
         $this->assertArrayHasKey('pending', $stats);
         $this->assertArrayHasKey('failed', $stats);
-        
+
         $this->assertIsInt($stats['total']);
         $this->assertIsInt($stats['sent']);
         $this->assertIsInt($stats['pending']);
         $this->assertIsInt($stats['failed']);
-        
+
         $this->assertGreaterThanOrEqual(0, $stats['total']);
         $this->assertGreaterThanOrEqual(0, $stats['sent']);
         $this->assertGreaterThanOrEqual(0, $stats['pending']);
@@ -184,7 +184,7 @@ class EmailQueueServiceTest extends TestCase
     {
         $templates = $this->service->getTemplateNames();
         $this->assertIsArray($templates);
-        
+
         foreach ($templates as $template) {
             $this->assertIsString($template);
             $this->assertNotEmpty($template);
@@ -208,11 +208,11 @@ class EmailQueueServiceTest extends TestCase
         // This test requires a valid ID from the database
         // We can't hardcode an ID, so we'll get one from the queue first
         $emails = $this->service->getEmailQueue([], 1, 0);
-        
+
         if (!empty($emails)) {
             $firstEmail = $emails[0];
             $result = $this->service->getEmailById((int)$firstEmail['id']);
-            
+
             if ($result !== null) {
                 $this->assertIsArray($result);
                 $this->assertArrayHasKey('id', $result);
