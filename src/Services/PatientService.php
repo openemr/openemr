@@ -934,7 +934,7 @@ class PatientService extends BaseService
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $row = sqlQuery($query, $curUser['id']);
+        $row = sqlQuery($query, [$curUser['id']]);
         $rp = ($row) ? unserialize($row['patients']) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
