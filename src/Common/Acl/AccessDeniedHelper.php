@@ -45,7 +45,7 @@ class AccessDeniedHelper
         AccessDeniedResponseFormat $format = AccessDeniedResponseFormat::Text,
         ?callable $beforeExit = null,
     ): never {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
