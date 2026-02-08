@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * import supporting libraries
  */
@@ -45,9 +47,10 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $user = 0;
-        if (isset($_SESSION['authUser'])) {
-            $user = $_SESSION['authUser'];
+        if ($session->has('authUser')) {
+            $user = $session->get('authUser');
         } else {
             header("refresh:5;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.';
@@ -76,7 +79,7 @@ class OnsiteActivityViewController extends AppBasePortalController
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
-                $prop_normal = ucfirst($prop);
+                $prop_normal = ucfirst((string) $prop);
                 $prop_equals = $prop_normal . '_Equals';
 
                 if (property_exists($criteria, $prop_normal)) {
@@ -119,7 +122,7 @@ class OnsiteActivityViewController extends AppBasePortalController
             }
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -133,7 +136,7 @@ class OnsiteActivityViewController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
             $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -189,7 +192,7 @@ class OnsiteActivityViewController extends AppBasePortalController
   users On patient_data.providerID = users.id ";
         try {
             $this->Phreezer->DataAdapter->Execute($sql);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

@@ -24,7 +24,7 @@ class AMC_302h_Numerator implements AmcFilterIF
                 "INNER JOIN procedure_order po ON po.procedure_order_id = pr.procedure_order_id " .
                 "WHERE r.result !=  '' " .
                 "AND po.procedure_order_id = ?";
-        $check = sqlQuery($sql, array($procedure_order_id));
+        $check = sqlQuery($sql, [$procedure_order_id]);
         return $check['cnt'];
     }
 }

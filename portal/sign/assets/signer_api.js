@@ -35,23 +35,37 @@ if (typeof cuser === 'undefined') {
 }
 
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
+    // Remove any existing alert box
     $('#signerAlertBox').remove();
-    size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
-    let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:1020;z-index:5000";
-    $("body").prepend("<div class='container text-center' id='signerAlertBox' style='" + style + "'></div>");
-    let mHtml = '<div id="alertMessage" class="alert alert-' + type + ' alert-dismissable">' +
-        '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>' +
-        '<h5 class="alert-heading text-center">Alert!</h5><hr>' +
-        '<p>' + message + '</p>' +
-        '</div>';
-    $('#signerAlertBox').append(mHtml);
+
+    // Set width and positioning based on size lg parameter
+    const alertWidth = size === 'lg' ? '50%' : '30%';
+    const alertLeft = size === 'lg' ? '25%' : '35%';
+    const style = `position:fixed;left:${alertLeft};width:${alertWidth};z-index:5000;`;
+
+    if (type === 'alert-error') {
+        type = 'danger';
+    }
+    $("body").prepend(`
+        <div class="container text-center" id="signerAlertBox" style="${style}">
+            <div id="alertMessage" class="alert alert-${type} border border-dark alert-dismissible fade show" role="alert">
+                <div class="alert-heading bg-dark text-light text-center"><h5 class="p-0 pb-2 ">` + jsText('Alert Message!') + `</h5></div>
+                <p>${message}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    `);
+
     $('#alertMessage').on('closed.bs.alert', function () {
         clearTimeout(AlertMsg);
         $('#signerAlertBox').remove();
     });
-    let AlertMsg = setTimeout(function () {
-        $('#alertMessage').fadeOut(800, function () {
-            $('#signerAlertBox').remove();
+
+    const AlertMsg = setTimeout(function () {
+        $('#alertMessage').fadeOut(950, function () {
+            $('#alertMessage').alert('close');
         });
     }, timer);
 }
@@ -66,9 +80,9 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 return;
             }
             if (typeof webRoot !== 'undefined' && webRoot !== null) {
-                libUrl = webRoot + '/portal/';
+                libUrl = webRoot + '/portal';
             } else {
-                libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
+                libUrl = top.webroot_url ? (top.webroot_url + '/portal') : "./";
             }
 
             if (typeof cpid === 'undefined' && typeof cuser === 'undefined') {
@@ -105,7 +119,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 type: signerType
             };
 
-            let url = libUrl + "sign/lib/show-signature.php";
+            let url = libUrl + "/sign/lib/show-signature.php";
             fetch(url, {
                 credentials: 'include',
                 method: 'POST',
@@ -217,9 +231,12 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-            $("#openSignModal").modal("hide");
-        }
-    ).catch(error => signerAlertMsg(error));
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        $("#openSignModal").modal('hide');
+        backdrops.forEach(function (backdrop) {
+            backdrop.remove();
+        });
+    }).catch(error => signerAlertMsg(error));
 
     return true;
 }
@@ -237,7 +254,10 @@ var bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
+    const params = new URLSearchParams({
+        isPortal: isPortal
+    });
+    url += "/portal/sign/assets/signer_modal.php?" + params;
     fetch(url, {
         credentials: 'include'
     }).then(jsonTemplate => jsonTemplate.json()).then(jsonTemplate => {

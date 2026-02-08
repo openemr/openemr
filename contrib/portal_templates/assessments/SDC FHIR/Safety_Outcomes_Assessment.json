@@ -1,0 +1,1008 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "Safety Outcomes Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/SO",
+            "prefix": "Safety Outcomes",
+            "text": "The next eight questions help evaluate results of treatment.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS13aFollow",
+                            "display": "Are you currently using opioid pain killers? (prescription medications such as Vicodin, Lortab, Norco, hydrocodone, codeine, Tylenol #3 or #4, Fentanyl, Duragesic, MS Contin, Percocet, Tylox, OxyContin, oxycodone, methadone, tramadol, Ultram, Dilaudi",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS13aFollow",
+                    "text": "Are you currently using opioid pain killers? (prescription medications such as Vicodin, Lortab, Norco, hydrocodone, codeine, Tylenol #3 or #4, Fentanyl, Duragesic, MS Contin, Percocet, Tylox, OxyContin, oxycodone, methadone, tramadol, Ultram, Dilaudi",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS13aFollow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ERvisitFollow",
+                            "display": "Have you had to go to an Emergency Room for any reason?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/ERvisitFollow",
+                    "text": "Have you had to go to an Emergency Room for any reason?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "ERV_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ERV_2",
+                                "display": "Yes, one visit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ERV_3",
+                                "display": "Yes, more than one visit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/ERvisitFollow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS06Follow",
+                            "display": "Have you had a low-back operation?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS06Follow",
+                    "text": "Have you had a low-back operation?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BSY_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BSY_2",
+                                "display": "Yes, one operation"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BSY_3",
+                                "display": "Yes, more than one operation"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS06Follow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS13bFollow",
+                            "display": "Have you had low back injection (such as epidural steroid injection, facet injection)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS13bFollow",
+                    "text": "Have you had low back injection (such as epidural steroid injection, facet injection)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BIN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BIN_2",
+                                "display": "Yes, one injection"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BIN_3",
+                                "display": "Yes, more than one injection"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS13bFollow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS13cFollow",
+                            "display": "Have you had physical therapy?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS13cFollow",
+                    "text": "Have you had physical therapy?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "NIH_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NIH_2",
+                                "display": "Yes, one series of treatments"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NIH_3",
+                                "display": "Yes, more than one series of treatments"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS13cFollow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS13dFollow",
+                            "display": "Have you had psychological counseling for pain coping skills, such as cognitive-behavioral therapy (CBT)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS13dFollow",
+                    "text": "Have you had psychological counseling for pain coping skills, such as cognitive-behavioral therapy (CBT)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS13dFollow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS14Follow",
+                            "display": "Have you had to take time off work?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS14Follow",
+                    "text": "Have you had to take time off work?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "TOF_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TOF_2",
+                                "display": "Yes, less than a month"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TOF_3",
+                                "display": "Yes, more than a month"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TOF_4",
+                                "display": "Does not apply"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS14Follow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS15Follow",
+                            "display": "Have you applied for disability?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/SO/MDS15Follow",
+                    "text": "Have you applied for disability?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "RTF_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "RTF_2",
+                                "display": "Yes, workers compensation"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "RTF_3",
+                                "display": "Yes, Social Security"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "RTF_4",
+                                "display": "Yes, both workers comp and social security"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "RTF_5",
+                                "display": "Does not apply"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "Since <DATE_OF_LAST_ASSESSMENT>",
+                    "enableWhen": "",
+                    "item": [
+                        {
+                            "text": "This question helps measure results of back pain treatment.",
+                            "type": "display",
+                            "linkId": "/SO/MDS15Follow-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "SO-score",
+                            "display": "Safety Outcomes Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so1_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13aFollow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13aFollow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so2_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/ERvisitFollow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/ERvisitFollow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so3_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS06Follow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS06Follow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so4_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13bFollow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13bFollow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so5_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13cFollow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13cFollow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so6_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13dFollow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS13dFollow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so7_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS14Follow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS14Follow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "so8_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS15Follow').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/SO').item.where(linkId = '/SO/MDS15Follow').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%so1_value.exists() or %so2_value.exists() or %so3_value.exists() or %so4_value.exists() or %so5_value.exists() or %so6_value.exists() or %so7_value.exists() or %so8_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%so1_value.exists(), %so1_value, 0) + iif(%so2_value.exists(), %so2_value, 0) + iif(%so3_value.exists(), %so3_value, 0) + iif(%so4_value.exists(), %so4_value, 0) + iif(%so5_value.exists(), %so5_value, 0) + iif(%so6_value.exists(), %so6_value, 0) + iif(%so7_value.exists(), %so7_value, 0) + iif(%so8_value.exists(), %so8_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/SO/SO-score",
+                    "text": "Safety Outcomes Score"
+                }
+            ]
+        }
+    ],
+    "name": "Safety_Outcomes_Assessment"
+}

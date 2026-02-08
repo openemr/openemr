@@ -15,9 +15,15 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
 
 $pid = $this->cpid;
+$doc_edit = $this->doc_edit;
 $recid = $this->recid;
 $docid = $this->docid;
 $help_id = $this->help_id;
@@ -26,15 +32,20 @@ $is_portal = $this->is_portal;
 $is_dashboard = (empty($is_module) && empty($is_portal));
 $category = $this->save_catid;
 $new_filename = $this->new_filename;
-$webroot = $GLOBALS['web_root'];
+$webroot = $globalsBag->getString('web_root');
 $encounter = '';
 $include_auth = true;
 $auto_render = $this->auto_render ?? 0;
 $audit_render = $this->audit_render ?? 0;
 $auto_render_name = $this->auto_render_name ?? '';
+$referer_flag = $this->referer_flag ?? 0;
+$assets_static_relative = $globalsBag->get('assets_static_relative');
+$v_js_includes = $globalsBag->get('v_js_includes');
+$allow_portal_uploads = $globalsBag->get('allow_portal_uploads');
+
 // for location assign
-$referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
-$referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+$referer = "$webroot/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
+$referer_portal = "../home.php?site=" . (urlencode((string)$session->get('site_id', null) ?: 'default'));
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -45,7 +56,7 @@ $this->assign('nav', 'onsitedocuments');
 
 $catname = '';
 if ($category) {
-    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", array($category));
+    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", [$category]);
     $catname = $result['name'] ?: '';
 }
 $catname = $catname ?: xlt("Onsite Portal Reviewed");
@@ -55,8 +66,8 @@ if (!$docid) {
 }
 
 $isnew = false;
-$ptName = $_SESSION['ptName'] ?? $pid;
-$cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+$ptName = $session->get('ptName', $pid);
+$cuser = $session->get('sessionUser') ?? $session->get('authUserID');
 
 $templateService = new DocumentTemplateService();
 ?>
@@ -75,14 +86,16 @@ $templateService = new DocumentTemplateService();
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
-    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib'));
-    $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
+    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
+    $urlAjax = "$webroot/library/ajax/upload.php?parent_id=Patient&patient_id=" . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
-    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) .
+        ";var help_id=" . js_escape($help_id) . ";</script>";
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var isDashboard=" . js_escape($is_dashboard) .
+        ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
     echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
@@ -92,25 +105,38 @@ $templateService = new DocumentTemplateService();
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
     if ($is_portal) {
-        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'i18next']);
     } else {
-        Header::setupHeader(['datetime-picker']);
+        Header::setupHeader(['datetime-picker', 'i18next']);
     }
     ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>">
+    <link rel="stylesheet" href="<?php echo $assets_static_relative; ?>/dropzone/dist/dropzone.css?v=<?php echo $v_js_includes; ?>">
+    <script src="<?php echo $assets_static_relative; ?>/dropzone/dist/dropzone.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $webroot; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $webroot; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $webroot; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
     <script>
         $LAB.setGlobalDefaults({
             BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"
         });
-        $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js").script(
-            "<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").script(
-            "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
-            "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+        $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").script("<?php echo $assets_static_relative; ?>/moment/moment.js").script(
+            "<?php echo $assets_static_relative; ?>/backbone/backbone-min.js").script("<?php echo $webroot; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>").script(
+            "<?php echo $webroot; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait().script(
+            "<?php echo $webroot; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait();
+        i18next.init({
+            lng: 'selected',
+            debug: false,
+            nsSeparator: false,
+            keySeparator: false,
+            resources: {
+                selected: {
+                    translation: <?php echo js_escape($this->language_defs ?? []); ?>
+                }
+            }
+        }).catch(error => {
+            console.log(error.message);
+        });
     </script>
     <style>
       @media print {
@@ -134,16 +160,17 @@ $templateService = new DocumentTemplateService();
       }
     </style>
 </head>
-
-<body class="p-0 m-0">
+<body class="p-0 m-0 mt-1">
     <script>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
-        $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
-            "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").
+        <?php require($globalsBag->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
+        $LAB.script("<?php echo $webroot; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $v_js_includes; ?>").wait().script(
+            "<?php echo $webroot; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $v_js_includes; ?>").
         wait(function () {
             page.init();
             pageAudit.init();
-            if (isPortal) {
+            if ((isPortal || !newFilename) && !isDashboard) {
+                $(".template-body").addClass("bg-light");
+                $(".template-body").addClass("text-dark");
                 $('#Help').on('click', function (e) {
                     e.preventDefault();
                     $(".helpHide").addClass("d-none");
@@ -163,11 +190,11 @@ $templateService = new DocumentTemplateService();
                     }
                 }
                 if (isPortal) {
-                    /* Render may start as a new document onetime request however for the sake
-                    *  of allowing patient to stay in portal after doc edit or patient uses
-                    *  same onetime that started as a new doc to come back and
-                    *  continue an edit of a saved/submitted doc.
-                    *  auditRender is a history doc.
+                    /* Render may start a new document onetime request however, for the sake
+                    *  of allowing the patient to stay in portal when finished of edit or the patient uses
+                    *  same onetime access code that started as a new doc and saved as draft to come back and
+                    *  continue the form edit and then submit for review. i.e. persisting the docid.
+                    *  auditRender is the history doc id for a previous edit or submission.
                     *
                     *  CONFUSED! Welcome.
                     * */
@@ -186,8 +213,24 @@ $templateService = new DocumentTemplateService();
                         page.editHistoryDocument(auditRender);
                         console.log('Onetime history template init');
                     }
-                    // init upload drop box
-                    page.initFileDrop();
+                    if (!newFilename) { // autoload new on init. once only.
+                        page.initFileDrop();
+                    }
+                }
+                if (newFilename) {
+                    console.log('Call template from module');
+                    if ((doc_edit === '0' || doc_edit === '1') && recid > 0) {
+                        // is it in menu?
+                        if ($("#" + recid).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + recid).data('history_id');
+                            console.log('Module history template id = ' + newFilename);
+                            page.editHistoryDocument(historyId);
+                        } else {
+                            console.log('Module new template init id = ' + newFilename);
+                            page.newDocument(cpid, "-patient-", newFilename, recid);
+                        }
+                    }
                 }
             }, 1000);
         }).wait(function () {
@@ -235,7 +278,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function fetchPdf(divName, docid, printContents = null) {
-            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib')); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
             top.restoreSession();
             if (document.getElementById('tempFrame')) {
                 let killFrame = document.getElementById('tempFrame');
@@ -423,6 +466,12 @@ $templateService = new DocumentTemplateService();
                 let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
+
+            $('.fcuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
         }
 
         function formReplaceTextInputs() {
@@ -462,8 +511,12 @@ $templateService = new DocumentTemplateService();
         }
     </script>
     <div class="container-xl px-1">
+        <div class="text-center"><span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
+            <?php if (!empty($is_portal)) { ?>
+                <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
+            <?php } ?>
+        </div>
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
-            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("Document Actions") ?></h3></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -472,11 +525,9 @@ $templateService = new DocumentTemplateService();
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="#" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit Document'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
@@ -485,49 +536,48 @@ $templateService = new DocumentTemplateService();
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
                             <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <?php echo xlt('Select Documents') ?>
+                                <?php echo xlt('Select Form') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
                             </div>
                         </div>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save as Draft'); ?></a></li>
                     <?php } ?>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit Completed'); ?></a>
+                    </li>
                     <li class='nav-item mb-1'>
                         <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
-                            <?php echo xlt('History') ?>
-                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
+                            <?php echo xlt('Activities') ?>
                         </a>
                     </li>
-                    <?php if (empty($is_module)) { ?>
+                    <?php if (empty($is_dashboard)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
-                    <?php } else { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                        </li>
                     <?php } ?>
-                    <?php if (!empty($is_portal) && empty($auto_render)) { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
-                        </li>
-                    <?php } else {
-                        $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
-                        ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
-                        </li>
-                    <?php } ?>
-                    <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
-                    </li>
                 </ul>
-                <a id="idShow" class="btn btn-outline-primary float-right m-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
+                <?php if ($allow_portal_uploads ?? 1) { ?>
+                    <!--Infeg : Added event.preventDefault to prevent page reload on click.-->
+                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='#' onclick="event.preventDefault();$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <?php } ?>
+                <?php if (!empty($is_portal) && empty($auto_render)) { ?>
+                    <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
+                <?php } elseif (!$is_module && !$is_dashboard) {
+                    $referer_portal = "../home.php?site=" . (urlencode((string)$session->get('site_id')) ?? null) ?: 'default';
+                    ?>
+                    <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
+                <?php }
+                if (!empty($is_module)) { ?>
+                    <a class="text-danger btn btn-outline-secondary mb-1" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                <?php } ?>
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-center">
             <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
-            <div class="clearfix" id="topnav">
+            <div class="clearfix" id="topNav">
                 <div id="collectionAlert"></div>
             </div>
             <!-- Right editor container -->
@@ -540,29 +590,31 @@ $templateService = new DocumentTemplateService();
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- File upload -->
-                        <div class="card col-12 col-lg-5 col-md-3">
-                            <div id="hideUpload" class="card-body" style="display: none;">
-                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('My Uploads') ?></h4>
-                                <div class="row">
-                                    <div class="container-fluid h-25" id="file-queue-container">
-                                        <div id="file-queue">
-                                            <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
-                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                                            </form>
-                                            <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                        <?php if ($allow_portal_uploads ?? 1) { ?>
+                            <div class="card col-12 col-lg-5 col-md-3">
+                                <div id="hideUpload" class="card-body" style="display: none;">
+                                    <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
+                                    <div class="row">
+                                        <div class="container-fluid h-25" id="file-queue-container">
+                                            <div id="file-queue">
+                                                <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
+                                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                                                </form>
+                                                <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php } ?>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
-                                <div id="templatecontent" class="template-body">
+                                <div id="templatecontent" class="template-body bg-light">
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />
@@ -599,26 +651,26 @@ $templateService = new DocumentTemplateService();
                 </div>
             </div><!-- close flex right-->
         </div><!-- close flex row -->
-
         <!-- Now history table container template -->
         <script type="text/template" id="onsiteDocumentCollectionTemplate">
             <div class="table-responsive pt-3">
-                <h4 class="text-sm-center"><?php echo xlt('Your Document History') ?><small> (Click on label to sort.)</small></h4>
+                <h4 class="text-sm-center"><?php echo xlt('Document and Forms Activity') ?></h4><small><%= view.getPaginationHtml(page, true) %></small><cite><%= view.sortTableWithActiveFilterHtml(false) %></cite>
+
                 <table class="collection table table-sm table-hover">
                     <thead class='thead-dark'>
-                    <tr class='cursor-pointer'>
+                    <tr class='cursor-pointer' role="button">
                         <th scope="col" id="header_Id"><?php echo xlt('Id'); ?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_DocType"><?php echo xlt('Document'); ?><% if (page.orderBy == 'DocType') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_CreateDate"><?php echo xlt('Create Date'); ?><% if (page.orderBy == 'CreateDate') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_ReviewDate"><?php echo xlt('Reviewed Date'); ?><% if (page.orderBy == 'ReviewDate') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
-                        <th scope="col" id="header_DenialReason"><?php echo xlt('Review Status'); ?><% if (page.orderBy == 'DenialReason') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
+                        <th scope="col" id="header_DenialReason"><?php echo xlt('Status'); ?><% if (page.orderBy == 'DenialReason') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_PatientSignedStatus"><?php echo xlt('Signed'); ?><% if (page.orderBy == 'PatientSignedStatus') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_PatientSignedTime"><?php echo xlt('Signed Date'); ?><% if (page.orderBy == 'PatientSignedTime') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                     </tr>
                     </thead>
                     <tbody>
                     <% items.each(function(item) { %>
-                    <tr id="<%= _.escape(item.get('id')) %>">
+                    <tr id="<%= _.escape(item.get('id')) %>" role="button">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
                             <button type="button" class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
@@ -633,7 +685,6 @@ $templateService = new DocumentTemplateService();
                     </tbody>
                 </table>
                 <%= view.getPaginationHtml(page) %>
-            </div>
             </div>
         </script>
         <div class="container-lg px-3 pt-3 historyHide d-none" id="historyTable">

@@ -1,0 +1,19 @@
+{# Ordering Provider #}
+<div class="col-sm {{ displayOptionClass('enc_enable_ordering_provider') }}">
+    <div class="form-group">
+        <label for='ordering_provider_id' class="text-right">{{ 'Ordering Provider'|xlt  }}:</label>
+        {% if orderingProviders|length > 0 %}
+            <select name="ordering_provider_id" id="ordering_provider_id" class="form-control">
+                <option value="">-- {{ "Please Select"|xlt }} --</option>
+                {% for provider in orderingProviders %}
+                    <option value="{{ provider.id|attr }}" {{ provider.selected ? 'selected' : '' }}>
+                        {{ provider.lname|text }}, {{ provider.fname|text }}
+                    </option>
+                {% endfor %}
+            </select>
+        {% else %}
+            <input type="hidden" name="ordering_provider_id" value="" />
+            <input type="text" class="form-control" value="{{ "No available providers"|xla }}" disabled />
+        {% endif %}
+    </div>
+</div>

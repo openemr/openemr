@@ -1,0 +1,18 @@
+<head>
+    {% include "newpatient/partials/common/_head-before.html.twig" %}
+    <title>{{ pageTitle|text }}</title>
+    {# datetimepicker used for encounter date pickers #}
+    {# moment(moment.js) & validation_script used for script validation, with moment needed for date validators #}
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'common', 'moment', 'validation_script']) }}
+    <script src="{{ webroot|attr }}/interface/forms/newpatient/newpatient.js?v={{ assetVersion|attr_url }}"></script>
+    <style>
+        @media only screen and (max-width: 1024px) {
+            #visit-details [class*="col-"],
+            #visit-issues [class*="col-"] {
+                width: 100%;
+                text-align: {{ language_direction == 'rtl' ? 'right ' : 'left '}} !important;
+            %}
+        }
+    </style>
+    {% include "newpatient/partials/common/_head-after.html.twig" %}
+</head>

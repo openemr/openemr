@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025      Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -47,21 +49,25 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = false;
 }
 
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
-}
-
-function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transdate, $qty, $amount, $irnumber = '')
+/**
+ * Render a line item for the sales by item html table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $rowcat
+ * @param string $description
+ * @param string $transdate
+ * @param int $qty
+ * @param float $amount
+ * @param string $irnumber
+ * @return void
+ */
+function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
 {
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
 
-    $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
+    $invnumber = $irnumber ?: "$patient_id.$encounter_id";
     $rowamount = sprintf('%01.2f', $amount);
 
     $patdata = sqlQuery("SELECT " .
@@ -70,7 +76,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     "p.ss, p.sex, p.status, p.phone_home, " .
     "p.phone_biz, p.phone_cell, p.hipaa_notice " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($patient_id));
+    "WHERE p.pid = ? LIMIT 1", [$patient_id]);
 
     $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
 
@@ -103,7 +109,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   </td>
   <td class="detail" colspan="3">
                 <?php
-                if ($_POST['form_details']) {
+                if ($_POST['form_details'] ?? '') {
                     echo xlt('Total for') . ' ';
                 }
 
@@ -114,13 +120,13 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text($productqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -144,7 +150,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         <td class="detail">
          &nbsp;
         </td>
-        <td class="detail" colspan="3">
+        <td class="detail font-weight-bold" colspan="3">
                 <?php echo xlt('Total for category') . ' ';
                 echo text(display_desc($category)); ?>
   </td>
@@ -153,13 +159,13 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right font-weight-bold">
                 <?php echo text($catqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right font-weight-bold">
                 <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </td>
  </tr>
@@ -221,7 +227,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         <?php } ?>
   <td class="detail">
             <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
-   <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter_id); ?>'>
+   <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter_id); ?>' target='_blank' rel='noopener'>
                 <?php echo text($invnumber); ?></a>
     <?php }
 
@@ -235,10 +241,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    &nbsp;
   </td>
         <?php } ?>
-      <td align="right">
+      <td class="text-right">
             <?php echo text($qty); ?>
       </td>
-      <td align="right">
+      <td class="text-right">
             <?php echo text(FormatMoney::getBucks($rowamount)); ?>
       </td>
      </tr>
@@ -515,10 +521,10 @@ if (!empty($_POST['form_csvexport'])) {
         }
         ?>
   </th>
-  <th align="right">
+  <th scope="col" class="text-right">
         <?php echo xlt('Qty'); ?>
   </th>
-  <th align="right">
+  <th scope="col" class="text-right">
         <?php echo xlt('Amount'); ?>
   </th>
  </thead>
@@ -541,7 +547,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $grandtotal = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno, lo.title " .
     "FROM billing AS b " .
@@ -567,20 +573,20 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['title'],
+            $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
-            $row['units'],
+            substr((string) $row['date'], 0, 10),
+            $row['units'] ?? 1,
             $row['fee'],
             $row['invoice_refno']
         );
     }
 
     //
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT s.sale_date, s.fee, s.quantity, s.pid, s.encounter, " .
     "d.name, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno " .
     "FROM drug_sales AS s " .
@@ -605,12 +611,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
             xl('Products'),
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['fee'],
             $row['invoice_refno']
@@ -645,13 +651,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right">
         <?php echo text($productqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right">
         <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -660,44 +666,44 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="detail">
    &nbsp;
   </td>
-  <td class="detail" colspan="3"><strong>
+  <td class="detail font-weight-bold" colspan="3">
         <?php echo xlt('Total for category') . ' ';
         echo text(display_desc($category)); ?>
-  </strong></td>
+  </td>
         <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right"><strong>
+  <td class="text-right font-weight-bold">
         <?php echo text($catqty); ?>
-  </strong></td>
-  <td align="right"><strong>
+  </td>
+  <td class="text-right font-weight-bold">
         <?php echo text(FormatMoney::getBucks($cattotal)); ?>
-  </strong></td>
+  </td>
  </tr>
 
  <tr>
-  <td class="detail" colspan="4"><strong>
+  <td class="detail font-weight-bold" colspan="4">
         <?php echo xlt('Grand Total'); ?>
-  </strong></td>
+  </td>
         <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right"><strong>
+  <td class="text-right font-weight-bold">
         <?php echo text($grandqty); ?>
-  </strong></td>
-  <td align="right"><strong>
+  </td>
+  <td class="text-right font-weight-bold">
         <?php echo text(FormatMoney::getBucks($grandtotal)); ?>
-  </strong></td>
+  </td>
  </tr>
         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
         $report_to_date = oeFormatShortDate($form_to_date)  ;

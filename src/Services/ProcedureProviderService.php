@@ -40,7 +40,7 @@ class ProcedureProviderService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = "SELECT  prov.ppid
                         ,prov.uuid
                         ,prov.name
@@ -58,6 +58,8 @@ class ProcedureProviderService extends BaseService
                         ,prov.lab_director
                         ,prov.active
                         ,prov.type
+                        ,prov.last_updated
+                        ,prov.date_created
                         FROM procedure_providers prov
                         ";
 

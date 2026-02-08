@@ -1,5 +1,5 @@
-@import url("../../../../public/assets/bootstrap/dist/css/bootstrap.min.css");
-@import url("../../../../public/assets/@fortawesome/fontawesome-free/css/all.min.css");
+@import url('../../../../public/assets/bootstrap/dist/css/bootstrap.min.css');
+@import url('../../../../public/assets/@fortawesome/fontawesome-free/css/all.min.css');
 
 a:hover,
 a:active,
@@ -291,7 +291,7 @@ a img {
 
 /* Syntax highlighting */
 
-*[class="src-code"] {
+*[class='src-code'] {
   line-height: 0.5em;
 }
 
@@ -422,7 +422,7 @@ a img {
   padding: 0.5em;
 }
 
-*[class="example"] {
+*[class='example'] {
   line-height: 0.5em;
 }
 
@@ -433,7 +433,7 @@ a img {
   white-space: nowrap;
 }
 
-*[class="listing"] {
+*[class='listing'] {
   line-height: 0.5em;
 }
 

@@ -16,12 +16,17 @@ require_once("../../globals.php");
 require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Telemetry\TelemetryService;
 
-if (substr($_GET["formname"], 0, 3) === 'LBF') {
-    // Use the List Based Forms engine for all LBFxxxxx forms.
-    include_once("$incdir/forms/LBF/new.php");
-} else {
+/**
+ * @gloal $incdir the include directory
+ */
+$incdir ??= "";
+
+$pageName = "new.php";
+if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
@@ -37,10 +42,21 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
         echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
         exit;
     }
+}
+$formLocator = new FormLocator();
+$file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
+require_once($file);
 
-    include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
+$telemetryService = new TelemetryService();
+if ($telemetryService->isTelemetryEnabled()) {
+    $telemetryService->reportClickEvent([
+        'eventType' => 'encounterForm',
+        'eventLabel' => $_GET['formname'] ?? 'Unknown',
+        'eventUrl' => str_replace($GLOBALS['fileroot'], '', $file),
+        'eventTarget' => $pageName,
+    ]);
 }
 
-if (!empty($GLOBALS['text_templates_enabled'])) { ?>
+if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
     <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

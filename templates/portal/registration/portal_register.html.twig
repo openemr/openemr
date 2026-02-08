@@ -1,0 +1,389 @@
+{# Portal Registration Wizard #}
+
+{#
+ * Portal Registration Wizard Twig Template
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ 'New Patient'|xlt }} | {{ 'Register'|xlt }}</title>
+    <meta name="description" content="Developed By sjpadgett@gmail.com" />
+
+    {{ setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']) }}
+
+    <script>
+        const webRoot = {{ global.web_root|json_encode|raw }};
+        top.webroot_url = webRoot;
+        let provider = 0;
+
+        function restoreSession() {
+            return true;
+        }
+
+        $(function () {
+            const navListItems = $('div.setup-panel div a'),
+                allWells = $('.setup-content'),
+                allNextBtn = $('.nextBtn'),
+                allPrevBtn = $('.prevBtn');
+
+            allWells.hide();
+
+            navListItems.click(function (e) {
+                e.preventDefault();
+                if (!$(this).hasClass('disabled')) {
+                    navListItems.removeClass('btn-primary').addClass('btn-light');
+                    $(this).addClass('btn-primary').removeClass('btn-light');
+                    allWells.hide();
+                    $($(this).attr('href')).show();
+                    $($(this).attr('href')).find('input:eq(0)').focus();
+                }
+            });
+
+            allPrevBtn.click(function () {
+                const curStep = $(this).closest(".setup-content"),
+                    curStepBtn = curStep.attr("id"),
+                    prevstepwiz = $(`div.setup-panel div a[href="#${curStepBtn}"]`).parent().prev().children("a");
+                prevstepwiz.removeClass('disabled').trigger('click');
+            });
+
+            allNextBtn.click(function () {
+                const profile = $("#profileFrame").contents();
+
+                window.addEventListener('message', function (e) {
+                    const scrollHeight = e.data;
+                    document.getElementById('profileFrame').style.height = `${scrollHeight}px`;
+                }, false);
+
+                const curStep = $(this).closest(".setup-content"),
+                    curStepBtn = curStep.attr("id"),
+                    nextstepwiz = $(`div.setup-panel div a[href="#${curStepBtn}"]`).parent().next().children("a"),
+                    curInputs = curStep.find("input[type='text'],input[type='email'],select"),
+                    isValid = validateInputs(curInputs);
+
+                if (isValid) {
+                    if (curStepBtn === 'step-1') {
+                        setupProfileFrame(profile);
+                    }
+                    nextstepwiz.removeClass('disabled').trigger('click');
+                }
+            });
+
+            $("#profileNext").click(function () {
+                const profile = $("#profileFrame").contents(),
+                    curStep = $(this).closest(".setup-content"),
+                    curStepBtn = curStep.attr("id"),
+                    nextstepwiz = $(`div.setup-panel div a[href="#${curStepBtn}"]`).parent().next().children("a"),
+                    curInputs = profile.find("input[type='text'],input[type='email'],select"),
+                    isValid = validateInputs(curInputs);
+
+                if (isValid) {
+                    provider = profile.find('select#providerid').val();
+                    nextstepwiz.removeClass('disabled').trigger('click');
+                }
+            });
+
+            $("#submitPatient").click(function () {
+                if (checkRegistration()) {
+                    submitProfileForm();
+                    delayPromise(1000).then(() => $("#insuranceForm").submit());
+                }
+            });
+
+            $('div.setup-panel div a.btn-primary').trigger('click');
+
+            setupDateTimePicker();
+
+            $("#insuranceForm").submit(function (e) {
+                e.preventDefault();
+                submitInsuranceForm();
+            });
+
+            $('#inscompany').on('change', function () {
+                handleInsuranceChange();
+            });
+
+            $("#dob").on('blur', function () {
+                validateDOB($(this));
+            });
+
+        });
+
+        function validateInputs(inputs) {
+            let isValid = true;
+            $(".form-group").removeClass("has-error");
+            inputs.each(function () {
+                if (!this.validity.valid) {
+                    isValid = false;
+                    $(this).closest(".form-group").addClass("has-error");
+                }
+            });
+            return isValid;
+        }
+
+        function setupProfileFrame(profile) {
+            const fname = $("#fname").val().replace(/^./, $("#fname").val()[0].toUpperCase()),
+                  lname = $("#lname").val().replace(/^./, $("#lname").val()[0].toUpperCase());
+            profile.find('input#fname').val(fname).prop("disabled", true);
+            profile.find('input#mname').val($("#mname").val()).prop("disabled", true);
+            profile.find('input#lname').val(lname).prop("disabled", true);
+            profile.find('input#dob').val($("#dob").val()).prop("disabled", true);
+            profile.find('input#email').val($("#emailInput").val()).prop("disabled", true);
+            profile.find('input#emailDirect').prop("disabled", true);
+            profile.find('input#pid').prop('disabled', true).val('');
+            profile.find('input[name=allowPatientPortal]').val(['YES']);
+            profile.find('input[name=hipaaAllowemail]').val(['YES']);
+            profile.find('select#providerid option:contains("Unassigned")').val('');
+            profile.find('select#sex option:contains("Unassigned")').val('').attr('required', true);
+        }
+
+        function setupDateTimePicker() {
+            {{ jqueryDateTimePicker('.datepicker',true,true,true) }}
+        }
+
+        function submitInsuranceForm() {
+            const url = "account/account.php?action=new_insurance";
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: $("#insuranceForm").serialize()
+            }).done(function () {
+                doCredentials(provider);
+            });
+        }
+
+        function handleInsuranceChange() {
+            if ($('#inscompany').val().toUpperCase() === 'SELF') {
+                $("#insuranceForm input").removeAttr("required");
+                alert('{{ "You have chosen to be self insured or currently do not have insurance. Click next to continue registration."|xlj }}');
+            }
+        }
+
+        function validateDOB(dobInput) {
+            const bday = dobInput.val() ?? '',
+                age = Math.round(Math.abs((new Date().getTime() - new Date(bday).getTime())) / (1000 * 60 * 60 * 24));
+            if (age < 30) {
+                alert('{{ "Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar."|xlj }}');
+                dobInput.val('').prop('placeholder', 'Invalid Date');
+                return false;
+            }
+        }
+
+        function delayPromise(time) {
+            return new Promise(resolve => setTimeout(resolve, time));
+        }
+
+        function doCredentials(provider) {
+            window.location.href = `account/account.php?action=do_signup&provider=${encodeURIComponent(provider)}`;
+        }
+
+        function checkRegistration() {
+            const profile = $("#profileFrame").contents(),
+                curInputs = profile.find("input[type='text'],input[type='email'],select"),
+                isValid = validateInputs(curInputs);
+            return isValid;
+        }
+
+        function submitProfileForm() {
+            const profileFrame = document.getElementById('profileFrame').contentWindow;
+            profileFrame.postMessage({submitForm: true}, window.location.origin);
+        }
+    </script>
+</head>
+<style>
+  body {
+    margin-top: 20px;
+  }
+  .btn-circle {
+    border-radius: .9375rem !important;
+  }
+  .embedded-content {
+    border: 0;
+    width: 100% !important;
+  }
+  .reg-email {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
+  @media (max-width: 1024px) {
+    .reg-email {
+      width: 100%;
+    }
+  }
+  .stepwiz-row {
+    display: table-row;
+  }
+  .stepwiz-row::before {
+    background-color: var(--gray400);
+    bottom: 0;
+    content: " ";
+    height: 1px;
+    position: absolute;
+    top: 14px;
+    width: 100%;
+  }
+  .stepwiz {
+    display: table;
+    margin-top: 20px;
+    position: relative;
+    width: 100%;
+  }
+  .stepwiz-step {
+    display: table-cell;
+    position: relative;
+    text-align: center;
+  }
+  .stepwiz-step p {
+    margin-top: 10px;
+  }
+  .stepwiz-step button[disabled] {
+    filter: alpha(opacity=100) !important;
+    opacity: 1 !important;
+  }
+  .btn-circle {
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    height: 35px;
+    line-height: 1.428571429;
+    padding: 6px 0;
+    text-align: center;
+    width: 35px;
+  }
+  fieldset, input[type=date], input[type=email], input[type=text], select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+  }
+  input:focus:invalid, input:required:invalid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC);
+    background-position: right top;
+    background-repeat: no-repeat;
+    box-shadow: none;
+  }
+  input:required:valid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=);
+    background-position: right top;
+    background-repeat: no-repeat;
+  }
+</style>
+<body class="mt-4 skin-blue">
+    <div class="container-lg">
+        <h1 class="text-center">{{ 'Account Registration'|xlt }}</h1>
+        <div class="stepwiz">
+            <div class="stepwiz-row setup-panel">
+                <div class="stepwiz-step">
+                    <a href="#step-1" class="btn btn-primary btn-circle">1</a>
+                    <p>{{ 'Verify Email'|xlt }}</p>
+                </div>
+                <div class="stepwiz-step">
+                    <a href="#step-2" class="btn btn-light btn-circle disabled">2</a>
+                    <p>{{ 'Profile'|xlt }}</p>
+                </div>
+                <div class="stepwiz-step">
+                    <a href="#step-3" class="btn btn-light btn-circle disabled">3</a>
+                    <p>{{ 'Insurance'|xlt }}</p>
+                </div>
+                <div class="stepwiz-step">
+                    <a href="#step-4" class="btn btn-light btn-circle disabled">4</a>
+                    <p>{{ 'Register'|xlt }}</p>
+                </div>
+            </div>
+        </div>
+        <form id="startForm" role="form">
+            <div class="text-center setup-content" id="step-1">
+                <div class="jumbotron">
+                    <input type="hidden" name="languageChoice" value="{{ languageRegistration|attr }}" />
+                    <input type="hidden" id="fname" name="fname" value="{{ fnameRegistration|attr }}" />
+                    <input type="hidden" id="mname" name="mname" value="{{ mnameRegistration|attr }}" />
+                    <input type="hidden" id="lname" name="lname" value="{{ lnameRegistration|attr }}" />
+                    <input type="hidden" id="dob" name="dob" value="{{ dobRegistration|attr }}" />
+                    <input type="hidden" id="emailInput" name="email" value="{{ emailRegistration|attr }}" />
+                    <div class="alert alert-success" role="alert">{{ "Your email has been verified. Click Next."|xlt }}</div>
+                </div>
+                <button class="btn btn-primary nextBtn pull-right" type="button">{{ 'Next'|xlt }}</button>
+            </div>
+        </form>
+        <form id="profileForm" role="form" action="account/account.php" method="post">
+            <div class="text-center setup-content" id="step-2" style="display: none">
+                <legend class="bg-primary text-white">{{ 'Profile'|xlt }}</legend>
+                <div class="jumbotron">
+                    <iframe class="embedded-content" src="patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
+                </div>
+                <button class="btn btn-primary pull-right" type="button" id="profileNext">{{ 'Next'|xlt }}</button>
+            </div>
+        </form>
+        <form id="insuranceForm" role="form" action="" method="post">
+            <div class="text-center setup-content" id="step-3" style="display: none">
+                <legend class="bg-primary text-white">{{ 'Insurance'|xlt }}</legend>
+                <div class="jumbotron">
+                    <div class="form-row">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="provider">{{ 'Insurance Company'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="{{ 'Enter Self if None'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="plan_name">{{ 'Plan Name'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="plan_name" required placeholder="{{ 'required'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="policy_number">{{ 'Policy Number'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="policy_number" required placeholder="{{ 'required'|xla }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="group_number">{{ 'Group Number'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="group_number" required placeholder="{{ 'required'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="date">{{ 'Policy Begin Date'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control datepicker" name="date" placeholder="{{ 'Policy effective date'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                            <label for="copay">{{ 'Co-Payment'|xlt }}</label>
+                            <div class="controls inline-inputs">
+                                <input type="number" class="form-control" name="copay" placeholder="{{ 'Plan copay if known'|xla }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary prevBtn btn-sm pull-left" type="button">{{ 'Previous'|xlt }}</button>
+                <button class="btn btn-primary nextBtn btn-sm pull-right" type="button">{{ 'Next'|xlt }}</button>
+            </div>
+        </form>
+        <!-- End Insurance. Next what we've been striving towards..the end-->
+        <div class="text-center setup-content" id="step-4" style="display: none">
+            <legend class="bg-success text-white">{{ 'Register'|xlt }}</legend>
+            <div class="jumbotron">
+                <h4 class='bg-success'>{{ "All set. Click Send Request below to finish registration."|xlt }}</h4>
+                <hr />
+                <p>{{ "An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. If after receiving credentials and you have trouble with access to the portal, please contact administration."|xlt }}</p>
+            </div>
+            <hr />
+            <button class="btn btn-primary prevBtn float-left" type="button">{{ 'Previous'|xlt }}</button>
+            <button class="btn btn-success float-right" type="button" id="submitPatient">{{ 'Send Request'|xlt }}</button>
+        </div>
+    </div>
+</body>
+</html>

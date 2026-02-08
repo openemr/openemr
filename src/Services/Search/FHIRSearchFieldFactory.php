@@ -24,24 +24,18 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 class FHIRSearchFieldFactory
 {
     /**
-     * @var FhirSearchParameterDefinition[];
-     */
-    private $resourceSearchParameters;
-
-    /**
      * @var FhirUrlResolver
      */
     private $fhirUrlResolver;
 
     /**
      * FHIRSearchFieldFactory constructor.
-     * @param FhirSearchParameterDefinition[] $searchFieldDefinitions
+     * @param FhirSearchParameterDefinition[] $resourceSearchParameters
      * @throws \InvalidArgumentException if $searchFieldDefinitions are not an instance of FhirSearchParameterDefinition
      */
-    public function __construct(array $searchFieldDefinitions)
+    public function __construct(private array $resourceSearchParameters)
     {
-        $this->resourceSearchParameters = $searchFieldDefinitions;
-        foreach ($searchFieldDefinitions as $key => $definition) {
+        foreach ($this->resourceSearchParameters as $key => $definition) {
             if (!$definition instanceof FhirSearchParameterDefinition) {
                 throw new \InvalidArgumentException("Search parameter contains invalid class definition " . $key);
             }
@@ -56,6 +50,16 @@ class FHIRSearchFieldFactory
     public function getFhirUrlResolver(): FhirUrlResolver
     {
         return $this->fhirUrlResolver;
+    }
+
+    /**
+     * @param $fhirSearchField
+     * @param FhirSearchParameterDefinition $definition
+     * @return void
+     */
+    public function setSearchFieldDefinition(string $fhirSearchField, FhirSearchParameterDefinition $definition)
+    {
+        $this->resourceSearchParameters[$fhirSearchField] = $definition;
     }
 
     /**
@@ -76,8 +80,8 @@ class FHIRSearchFieldFactory
 
     /**
      * Factory method to build a search field using the factory's search field definitions.
-     * @param $fhirSearchField The passed in parameter name for the search field the user agent sent.  Can contain search modifiers
-     * @param $fhirSearchValues The array of search values the user agent sent for the $fhirSearchField
+     * @param $fhirSearchField string The passed in parameter name for the search field the user agent sent.  Can contain search modifiers
+     * @param $fhirSearchValues array The array of search values the user agent sent for the $fhirSearchField
      * @throws \InvalidArgumentException If the factory does not have a search definition for $fhirSearchField
      * @return CompositeSearchField|DateSearchField|StringSearchField|TokenSearchField
      */
@@ -116,7 +120,7 @@ class FHIRSearchFieldFactory
      */
     private function extractSearchFieldName($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         return $fieldName;
     }
@@ -135,7 +139,7 @@ class FHIRSearchFieldFactory
         $modifier = is_array($modifiers) ? array_pop($modifiers) : null;
 
         // need to handle the fact that we can have multiple OR values that are separated in CSV format.
-        if (is_string($fhirSearchValues) && strpos($fhirSearchValues, ',') !== false) {
+        if (is_string($fhirSearchValues) && str_contains($fhirSearchValues, ',')) {
             $fhirSearchValues = explode(',', $fhirSearchValues);
         }
 
@@ -182,7 +186,7 @@ class FHIRSearchFieldFactory
 
         $normalizedValues = [];
         foreach ($values as $searchValue) {
-            if (strpos($searchValue, '://') !== false) {
+            if (str_contains((string) $searchValue, '://')) {
                 $url = $this->resolveReferenceRelativeUrl($searchValue);
                 $normalizedValues[] = $url;
             } else {
@@ -226,7 +230,7 @@ class FHIRSearchFieldFactory
         // the logical AND of everything.
         $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues, $isAnd);
         $modifiers = $this->extractFieldModifiers($fhirSearchField);
-        foreach ($definition->getMappedFields() as $key => $field) {
+        foreach ($definition->getMappedFields() as $field) {
             // for token types we want to make if we have a system we are only going to the key
 
             // for now let's treat everything as a string...
@@ -245,7 +249,7 @@ class FHIRSearchFieldFactory
      */
     private function extractFieldModifiers($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         array_shift($fieldNameWithModifiers); // grab our modifiers
         return $fieldNameWithModifiers;
@@ -269,7 +273,7 @@ class FHIRSearchFieldFactory
                 // for now let's treat everything as a string...
                 // we won't give any modifier here for now
                 // not sure how we handle modifiers here...
-                $childField = $this->buildSearchField($childDefinition, $fieldName, $fhirSearchValues);
+                $childField = $this->buildSearchField($childDefinition, $fieldName);
                 $composite->addChild($childField);
             }
         }

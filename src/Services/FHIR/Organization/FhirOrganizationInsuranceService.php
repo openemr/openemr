@@ -23,6 +23,7 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -59,10 +60,20 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ["zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
 
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
+    }
+
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         if (!isset($openEMRSearchParameters['name'])) {
@@ -87,22 +98,26 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $organizationResource = new FHIROrganization();
 
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $organizationResource->setMeta($fhirMeta);
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $organizationResource->setMeta($meta);
         $organizationResource->setActive($dataRecord['inactive'] == '0');
 
         $narrativeText = trim($dataRecord['name'] ?? "");
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $organizationResource->setText($text);
         }
 
@@ -161,14 +176,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
         }
 
-        $data = array();
+        $data = [];
 
         $data['uuid'] = $fhirResource->getId() ?? null;
         $data['name'] = !empty($fhirResource->getName()) ? $fhirResource->getName()->getValue() : null;
@@ -188,16 +203,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return $val->getValue();
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val) => $val->getValue(), $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = !empty($activeAddress->getPostalCode()) ? $activeAddress->getPostalCode()->getValue() : null;
             $data['city'] = !empty($activeAddress->getCity()) ? $activeAddress->getCity()->getValue() : null;
             $data['state'] = !empty($activeAddress->getState()) ? $activeAddress->getState()->getValue() : null;
         }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
+        foreach ($fhirResource['identifier'] as $identifier) {
             if ($identifier['system'] == FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
                 if (empty($data['cms_id'])) {
                     $data['cms_id'] = $identifier['value'];

@@ -41,6 +41,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Services\Utils\DateFormatterUtils;
+
 ?>
     i18n:{
         en: {
@@ -56,7 +58,7 @@
     },
     <?php if (($_SESSION['language_direction'] ?? '') == 'rtl') { ?>
     /**
-     * In RTL languages a datepicker popup is opened in left and it's cutted by the edge of the window
+     * In RTL languages a datepicker popup is opened on the left and cut by the edge of the window
      * This patch resolves that and moves a datepicker popup to right side.
      */
     onGenerate:function(current_time,$input){
@@ -85,22 +87,27 @@
     <?php } ?>
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>
-            <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i:s',
+            <?php if ($datetimepicker_formatInput) {
+                $time_format_with_secs = DateFormatterUtils::getTimeFormat(true); ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_with_secs; ?>',
+                formatTime: '<?php echo $time_format_with_secs; ?>',
+                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i:s',
+                formatTime: 'H:i:s',
             <?php } ?>
         <?php } else { ?>
-            <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> g:i a',
-                formatTime:'g:i a',
+            <?php if ($datetimepicker_formatInput) {
+                $time_format_without_secs =  DateFormatterUtils::getTimeFormat(); ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_without_secs; ?>',
+                formatTime: '<?php echo $time_format_without_secs; ?>',
                 validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
             <?php } ?>
         <?php } ?>
         timepicker:true,
-        step: '30'
+        step: 30
     <?php } else { ?>
         <?php if ($datetimepicker_formatInput) { ?>
             format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?>',

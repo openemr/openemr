@@ -24,7 +24,7 @@
  *
  *
  */
-class Savant3_Error
+class Savant3_Error implements \Stringable
 {
     /**
      *
@@ -46,7 +46,7 @@ class Savant3_Error
      * @var array
      *
      */
-    public $info = array ();
+    public $info =  [];
 
     /**
      *
@@ -82,7 +82,7 @@ class Savant3_Error
      *          property.
      *
      */
-    public function __construct($conf = array())
+    public function __construct($conf = [])
     {
         // set public properties
         foreach ($conf as $key => $val) {
@@ -103,11 +103,11 @@ class Savant3_Error
      *
      * @return void
      */
-    public function __toString()
+    public function __toString(): string
     {
         ob_start();
-        echo get_class($this) . ': ';
+        echo static::class . ': ';
         print_r(get_object_vars($this));
-        return ob_get_clean();
+        return (string) ob_get_clean();
     }
 }

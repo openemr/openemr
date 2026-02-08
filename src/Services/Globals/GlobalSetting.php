@@ -42,6 +42,9 @@ class GlobalSetting
     // multiple select language selector
     const DATA_TYPE_MULTI_LANGUAGE_SELECT = "m_lang";
 
+    // multiple select dashboard cards
+    const DATA_TYPE_MULTI_DASHBOARD_CARDS = "m_dashboard_cards";
+
     // list of default visits in OpenEMR
     const DATA_TYPE_DEFAULT_VISIT_CATEGORY = "default_visit_category";
     // CSS Theme selector
@@ -86,28 +89,25 @@ class GlobalSetting
 
     const DATA_TYPE_ADDRESS_BOOK = 'address_book';
 
-    protected $label = null;
-    /**
-     * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',
-     */
-    protected $dataType = null;
-    protected $default = null;
-    protected $description = null;
-    protected $isUserSetting = false;
-
     /**
      * @var array Any specific field options such as
      */
     protected $fieldOptions = [];
 
-    public function __construct($label, $dataType, $default, $description, $isUserSetting = false)
-    {
-        $this->label = $label;
-        // TODO: do we want to validate the data type here?  Could slow down modules and anyone modifying globals...
-        $this->dataType = $dataType;
-        $this->default = $default;
-        $this->description = $description;
-        $this->isUserSetting = $isUserSetting;
+    /**
+     * @param mixed $label
+     * @param string $dataType The field type that this value can be.  Valid options include 'bool', 'color_code',
+     * @param mixed $default
+     * @param mixed $description
+     * @param bool $isUserSetting
+     */
+    public function __construct(
+        protected $label,
+        protected $dataType,
+        protected $default,
+        protected $description,
+        protected $isUserSetting = false
+    ) {
     }
 
     public function format()

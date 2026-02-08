@@ -106,6 +106,23 @@ left_nav.loadFrame=function(id,name,url)
     });
 };
 
+// Promise-based loadFrame function
+function asyncLoadFrame(id, name, url) {
+    return new Promise((resolve, reject) => {
+        try {
+            if (name === "") {
+                name = 'enc';
+            }
+            navigateTab(webroot_url + "/interface/" + url, name, function () {
+                activateTabByName(name, true);
+                resolve(); // Resolve the Promise after successful tab activation
+            });
+        } catch (error) {
+            reject(error); // Reject the Promise on error
+        }
+    });
+}
+
 left_nav.syncRadios = function()
 {
 

@@ -26,37 +26,18 @@ final class CDAPostParseEvent extends Event
     public const EVENT_HANDLE = 'cda.component.post.parse';
 
     /**
-     * @var array The component of the CDA document, see parseCDAEntryComponents() in CdaTemplateParse
-     */
-    private $templateData;
-
-    /**
-     * @var array Should equal the $templateData property in CdaTemplateParse
-     */
-    private $component;
-
-    /**
-     * @var string The name of the component. allergies, encounters, etc.
-     */
-    private $componentName;
-
-    /**
-     * @var string The OID of the template
-     */
-    private $oid;
-
-    /**
      *
      * @param string $componentName
+     * @param string $oid The OID of the template
      * @param array $component
      * @param array $templateData
      */
-    public function __construct(string $componentName, string $oid, array $component, array $templateData)
-    {
-        $this->componentName = $componentName;
-        $this->component = $component;
-        $this->templateData = $templateData;
-        $this->oid = $oid;
+    public function __construct(
+        private string $componentName,
+        private string $oid,
+        private array $component,
+        private array $templateData
+    ) {
     }
 
     /**

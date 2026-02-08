@@ -57,7 +57,7 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid', 'provider_uuid'];
+        return ['uuid', 'puuid', 'provider_uuid', 'euuid', 'facility_uuid', 'facility_location_uuid'];
     }
 
     public function search($search, $isAndCondition = true)
@@ -76,6 +76,7 @@ class ImmunizationService extends BaseService
                 education_date,
                 note,
                 create_date,
+                update_date,
                 amount_administered,
                 amount_administered_unit,
                 expiration_date,
@@ -92,7 +93,7 @@ class ImmunizationService extends BaseService
                 providers.provider_uuid,
                 providers.provider_npi,
                 providers.provider_username,
-                
+
                 IF(
                     IF(
                         information_source = 'new_immunization_record' AND
@@ -110,7 +111,10 @@ class ImmunizationService extends BaseService
                     ),
                     TRUE,
                     FALSE
-                ) as primarySource
+                ) as primarySource,
+                enc.euuid,
+                enc.facility_uuid,
+                enc.facility_location_uuid
                 FROM immunizations
                 LEFT JOIN (
                     SELECT uuid AS puuid
@@ -133,9 +137,25 @@ class ImmunizationService extends BaseService
                            notes AS refusal_reason_cdc_nip_code,
                            codes AS refusal_reason_codes,
                            title AS refusal_reason_description
-                   FROM list_options 
+                   FROM list_options
                    WHERE list_id = 'immunization_refusal_reason'
-               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id";
+               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id
+               LEFT JOIN (
+                   SELECT
+                       form_encounter.uuid AS euuid
+                        , form_encounter.encounter AS eid
+                        , facility.uuid AS facility_uuid
+                        , uuid_mapping.uuid AS facility_location_uuid
+                   FROM
+                       form_encounter
+                   LEFT JOIN
+                       facility ON form_encounter.facility_id = facility.id
+                   LEFT JOIN
+                       uuid_mapping ON facility.uuid = uuid_mapping.target_uuid
+                   WHERE
+                       uuid_mapping.resource = 'Location'
+               ) enc ON immunizations.encounter_id = enc.eid
+               ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -163,7 +183,7 @@ class ImmunizationService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (isset($search['patient.uuid'])) {
             $isValidEncounter = $this->immunizationValidator->validateId(
@@ -233,6 +253,9 @@ class ImmunizationService extends BaseService
      */
     public function insert($data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 
 
@@ -246,5 +269,8 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 }

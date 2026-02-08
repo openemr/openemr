@@ -33,6 +33,8 @@ class AppointmentService extends BaseService
     const PRACTITIONER_TABLE = "users";
     const FACILITY_TABLE = "facility";
 
+    const CATEGORY_CONSTANT_NO_SHOW = 'no_show';
+
     /**
      * @var EncounterService
      */
@@ -138,6 +140,7 @@ class AppointmentService extends BaseService
                        pce.pc_catid,
                        pce.pc_pid,
                        pce.pc_duration,
+                       pce.pc_title,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -156,7 +159,8 @@ class AppointmentService extends BaseService
                                pc_facility,
                                pc_billing_location,
                                pc_catid,
-                               pc_pid
+                               pc_pid,
+                               pc_title
                             FROM
                                  openemr_postcalendar_events
                        ) pce
@@ -179,7 +183,7 @@ class AppointmentService extends BaseService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
@@ -191,7 +195,7 @@ class AppointmentService extends BaseService
 
     public function getAppointmentsForPatient($pid)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT pce.pc_eid,
                        pce.uuid AS pc_uuid,
@@ -212,6 +216,7 @@ class AppointmentService extends BaseService
                        pce.pc_billing_location,
                        pce.pc_catid,
                        pce.pc_pid,
+                       pce.pc_title,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -263,6 +268,7 @@ class AppointmentService extends BaseService
                        pce.pc_room,
                        pce.pc_pid,
                        pce.pc_hometext,
+                       pce.pc_title,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -288,9 +294,14 @@ class AppointmentService extends BaseService
 
     public function insert($pid, $data)
     {
-        $startTime = date("H:i:s", strtotime($data['pc_startTime']));
-        // TODO: Why are we adding strings with numbers?  How is this even working
-        $endTime = $startTime . $data['pc_duration'];
+        $startUnixTime = strtotime((string) $data['pc_startTime']);
+        $startTime = date('H:i:s', $startUnixTime);
+
+        // DateInterval _needs_ a valid constructor, so set it to 0s then update.
+        $endTimeInterval = new \DateInterval('PT0S');
+        $endTimeInterval->s = $data['pc_duration'];
+
+        $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
@@ -313,7 +324,7 @@ class AppointmentService extends BaseService
 
         $results = sqlInsert(
             $sql,
-            array(
+            [
                 $uuid,
                 $pid,
                 $data["pc_catid"],
@@ -323,11 +334,11 @@ class AppointmentService extends BaseService
                 $data["pc_eventDate"],
                 $data['pc_apptstatus'],
                 $startTime,
-                $endTime,
+                $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
                 $data["pc_aid"] ?? null
-            )
+            ]
         );
 
         return $results;
@@ -346,11 +357,11 @@ class AppointmentService extends BaseService
         // =======================================
         if ($GLOBALS['select_multi_providers']) {
             // what is multiple key around this $eid?
-            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
             // obtain current list of providers regarding the multiple key
-            $providers_current = array();
-            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
+            $providers_current = [];
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", [$row['pc_multiple']]);
             while ($current = sqlFetchArray($up)) {
                 $providers_current[] = $current['pc_aid'];
             }
@@ -370,9 +381,9 @@ class AppointmentService extends BaseService
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
-                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", [$provider,$row['pc_multiple']]);
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                    $selected_date = date("Y-m-d", strtotime($event_selected_date));
+                    $selected_date = date("Y-m-d", strtotime((string) $event_selected_date));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= "," . $selected_date;
                     } else {
@@ -382,18 +393,18 @@ class AppointmentService extends BaseService
                     // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_recurrspec = ? " .
-                        " WHERE " . $whereClause, array(serialize($oldRecurrspec), $whereBind));
+                        " WHERE " . $whereClause, [serialize($oldRecurrspec), $whereBind]);
                 }
             } elseif ($recurr_affect == 'future') {
                 // update all existing event records to stop recurring on this date-1
-                $selected_date = date("Y-m-d", (strtotime($event_selected_date) - 24 * 60 * 60));
+                $selected_date = date("Y-m-d", (strtotime((string) $event_selected_date) - 24 * 60 * 60));
                 foreach ($providers_current as $provider) {
                     // In case of a change in the middle of the event
-                    if (strcmp($_POST['event_start_date'], $event_selected_date) != 0) {
+                    if (strcmp((string) $_POST['event_start_date'], (string) $event_selected_date) != 0) {
                         // update the provider's original event
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
-                            " WHERE " . $whereClause, array($selected_date), $whereBind);
+                            " WHERE " . $whereClause, [$selected_date, $whereBind]);
                     } else { // In case of a change in the event head
                         // as we need to notify events that we are deleting this record we need to grab all of the pc_eid
                         // so we can process the events
@@ -424,9 +435,9 @@ class AppointmentService extends BaseService
             if ($recurr_affect == 'current') {
                 // mod original event recur specs to exclude this date
                 // get the original event's repeat specs
-                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                $selected_date = date("Ymd", strtotime((string) $_POST['selected_date']));
                 if ($oldRecurrspec['exdate'] != "") {
                     $oldRecurrspec['exdate'] .= "," . $selected_date;
                 } else {
@@ -435,13 +446,13 @@ class AppointmentService extends BaseService
 
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? " .
-                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
+                    " WHERE pc_eid = ?", [serialize($oldRecurrspec),$eid]);
             } elseif ($recurr_affect == 'future') {
                 // mod original event to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
+                $selected_date = date("Ymd", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? " .
-                    " WHERE pc_eid = ?", array($selected_date,$eid));
+                    " WHERE pc_eid = ?", [$selected_date,$eid]);
             } else {
                 // fully delete the event from the database
                 $this->deleteAppointmentRecord($eid);
@@ -464,7 +475,7 @@ class AppointmentService extends BaseService
      */
     public function getCalendarCategories()
     {
-        $sql = "SELECT pc_catid, pc_constant_id, pc_catname, pc_cattype,aco_spec FROM openemr_postcalendar_categories "
+        $sql = "SELECT pc_catid, pc_constant_id, pc_catname, pc_cattype,aco_spec, pc_last_updated FROM openemr_postcalendar_categories "
         . " WHERE pc_active = 1 ORDER BY pc_seq";
         return QueryUtils::fetchRecords($sql);
     }
@@ -474,10 +485,10 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public function isCheckInStatus($option)
+    public static function isCheckInStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+            "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
         if (empty($row['toggle_setting_1'])) {
             return(false);
         }
@@ -490,10 +501,10 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public function isCheckOutStatus($option)
+    public static function isCheckOutStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+            "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
         if (empty($row['toggle_setting_2'])) {
             return(false);
         }
@@ -599,7 +610,7 @@ class AppointmentService extends BaseService
 
         $userService = new UserService();
         $user = $userService->getUser($appointment['pc_aid']);
-        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        $authGroup = $userService->getAuthGroupForUser($user['username']);
 
         $pos_code = QueryUtils::fetchSingleValue(
             "SELECT pos_code FROM facility WHERE id = ?",
@@ -607,6 +618,10 @@ class AppointmentService extends BaseService
             [$appointment['pc_facility']]
         );
 
+        $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
+        if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+            $visit_reason = 'Please indicate visit reason';
+        }
         $data = [
             'pc_catid' => $appointment['pc_catid']
             // TODO: where would we get this information if it wasn't defaulted to ambulatory?  Should this be a globals setting?
@@ -615,7 +630,7 @@ class AppointmentService extends BaseService
             ,'puuid' => $patientUuid
             ,'pid' => $appointment['pid']
             ,'provider_id' => $user['id']
-            ,'reason' => $appointment['pc_hometext'] ?? xl('Please indicate visit reason')
+            ,'reason' => $visit_reason
             ,'facility_id' => $appointment['pc_facility']
             ,'billing_facility' => $appointment['pc_billing_location']
             ,'pos_code' => $pos_code
@@ -640,5 +655,20 @@ class AppointmentService extends BaseService
     {
         $sql = "SELECT * FROM openemr_postcalendar_categories WHERE pc_catid = ?";
         return QueryUtils::fetchRecords($sql, [$cat_id]);
+    }
+
+    public function searchCalendarCategories(array $oeSearchParameters)
+    {
+        $sql = "SELECT * FROM openemr_postcalendar_categories ";
+        $whereClause = FhirSearchWhereClauseBuilder::build($oeSearchParameters, true);
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+        $processingResult = new ProcessingResult();
+        if (!empty($records)) {
+            $processingResult->setData($records);
+        }
+        // TODO: look at handling offset and limit here
+        return $processingResult;
     }
 }

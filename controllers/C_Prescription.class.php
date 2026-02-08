@@ -16,36 +16,52 @@
 
 require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
+require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\DrugSalesService;
+use OpenEMR\Services\PatientIssuesService;
 
 class C_Prescription extends Controller
 {
-    var $template_mod;
-    var $pconfig;
-    var $providerid = 0;
-    var $is_faxing = false;
-    var $is_print_to_fax = false;
-    var $RxList;
-    var $prescriptions;
+    public $pconfig;
+    public $providerid = 0;
+    public $is_faxing = false;
+    public $is_print_to_fax = false;
+    public $RxList;
+    /**
+     * @var Prescription[]
+     */
+    public $prescriptions;
+    public CodeTypesService $codeTypesService;
 
-    function __construct($template_mod = "general")
+    public function getCodeTypesService()
+    {
+        if (!isset($this->codeTypesService)) {
+            $this->codeTypesService = new CodeTypesService();
+        }
+        return $this->codeTypesService;
+    }
+
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
-        $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
+        $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions'] === '1');
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
         $this->RxList = new RxList();
         // test if rxnorm available for lookups.
         $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
-        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
+        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", ['RXCUI']);
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
@@ -53,8 +69,8 @@ class C_Prescription extends Controller
 
         if ($GLOBALS['inhouse_pharmacy']) {
             // Make an array of drug IDs and selectors for the template.
-            $drug_array_values = array(0);
-            $drug_array_output = array("-- " . xl('or select from inventory') . " --");
+            $drug_array_values = [0];
+            $drug_array_output = ["-- " . xl('or select from inventory') . " --"];
             $drug_attributes = '';
 
             // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
@@ -92,30 +108,49 @@ class C_Prescription extends Controller
                     js_escape($row['drug_code'])  . "]";    //  11 rxnorm drug code
             }
 
+            $this->assign("dispenseEnabled", true);
+            $this->assign("defaultPharmacySupplyType", "FF");
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
             $this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);
             $this->assign("DRUG_ATTRIBUTES", $drug_attributes);
+
+            // add in the pharmacy dispense type
         }
     }
 
-    function default_action()
+    function default_action(): void
     {
-        $this->assign("prescription", $this->prescriptions[0]);
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit.html");
+        $prescription = $this->prescriptions[0];
+        $this->assign("prescription", $prescription);
+        $vars = $this->getTemplateVars();
+        $vars['enable_amc_prompting'] = $GLOBALS['enable_amc_prompting'] ?? false;
+        $vars['weno_rx_enable'] = $GLOBALS['weno_rx_enable'] ?? false;
+        $vars['topActionBarDisplay'] = FormActionBarSettings::shouldDisplayTopActionBar();
+        $vars['bottomActionBarDisplay'] = FormActionBarSettings::shouldDisplayBottomActionBar();
+
+        if ($GLOBALS['enable_amc_prompting']) {
+            $vars['amcCollectReturnFlag'] = amcCollect('e_prescribe_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+            $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+            $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+        }
+        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    function edit_action($id = "", $patient_id = "", $p_obj = null)
+    function edit_action($id = "", $patient_id = "")
     {
-
-        if ($p_obj != null && get_class($p_obj) == "prescription") {
-            $this->prescriptions[0] = $p_obj;
-        } elseif (empty($this->prescriptions[0]) || !is_object($this->prescriptions[0]) || (get_class($this->prescriptions[0]) != "prescription")) {
+        if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
         }
 
         if (!empty($patient_id)) {
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
+
+        $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
+        $url = $GLOBALS['webroot'] . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
+        $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
+        $this->assign("addCodeUrl", $url);
 
         $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
 
@@ -124,11 +159,17 @@ class C_Prescription extends Controller
         if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
+        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
+        $this->assign("defaultEncounterId", $defaultEncounterId);
+
+        // Track whether this is a new prescription (no ID yet) - affects dispense behavior
+        $isNewPrescription = empty($this->prescriptions[0]->id);
+        $this->assign("isNewPrescription", $isNewPrescription);
 
         $this->default_action();
     }
 
-    function list_action($id, $sort = "")
+    function list_action($id, $sort = "", $printPrescriptionId = null)
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -151,11 +192,11 @@ class C_Prescription extends Controller
             } elseif ($rxn == true) {
                 //   Grab medication list from prescriptions list and load into array
                 $pid = $GLOBALS['pid'];
-                $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", array($pid));
-                $nameList = array();
+                $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
+                $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
-                    $drug = explode(" ", $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", array("%" . $drug[0] . "%"));
+                    $drug = explode(" ", (string) $name['drug']);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
@@ -167,7 +208,7 @@ class C_Prescription extends Controller
                     // Unable to urlencode the $rxcui, since this breaks the + items on call to rxnav.nlm.nih.gov; so need to include it in the path
                     $response = oeHttp::get('https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=' . $rxcui_list);
                     $data = $response->body();
-                    $json = json_decode($data, true);
+                    $json = json_decode((string) $data, true);
                     if (!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])) {
                         foreach ($json['fullInteractionTypeGroup'][0]['fullInteractionType'] as $item) {
                             $interaction .= '<div class="alert alert-danger">';
@@ -186,10 +227,30 @@ class C_Prescription extends Controller
             $this->assign("INTERACTION", $interaction);
         }
 
-        // flag to indicate the CAMOS form is regsitered and active
+        // flag to indicate the CAMOS form is registered and active
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+        $vars = $this->getTemplateVars();
+        $vars['pid'] = $id;
+        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
+        $vars['rx_show_drug_drug'] = $GLOBALS['rx_show_drug_drug'] ?? false;
+        $vars['rx_zend_pdf_template'] = $GLOBALS['rx_zend_pdf_template'] ?? false;
+        $vars['baseModDir'] = $GLOBALS['baseModDir'] ?? '';
+        $vars['zendModDir'] = $GLOBALS['zendModDir'] ?? '';
+        $vars['printm'] = null; // TODO: figure out where printm is used or defined
+        $vars['rx_zend_pdf_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
+        $vars['rx_zend_html_template'] = $GLOBALS['rx_zend_html_template'] ?? '';
+        $vars['rx_zend_html_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
+        $vars['rx_use_fax_template'] = $GLOBALS['rx_use_fax_template'] ?? '';
+        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
+        $vars['faxSignatureMissing'] = false;
+        if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
+            $vars['faxSignatureMissing'] = true;
+        }
+        // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
+        $vars['printPrescriptionId'] = $printPrescriptionId;
+        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 
     function block_action($id, $sort = "")
@@ -209,6 +270,14 @@ class C_Prescription extends Controller
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_block.html");
     }
 
+    /**
+     * TODO: remove this function in a future expansion.
+     * @deprecated As far as we can see this function isn't used
+     * @param $id
+     * @param $sort
+     * @return void
+     * @throws SmartyException
+     */
     function fragment_action($id, $sort = "")
     {
         if (empty($id)) {
@@ -228,6 +297,7 @@ class C_Prescription extends Controller
 
     function lookup_action()
     {
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->do_lookup();
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_lookup.html");
     }
@@ -257,18 +327,6 @@ class C_Prescription extends Controller
 
         $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
 
-        // If the "Prescribe and Dispense" button was clicked, then
-        // redisplay as in edit_action() but also replicate the fee and
-        // include a piece of javascript to call dispense().
-        //
-        if (!empty($_POST['disp_button'])) {
-            $this->assign("DISP_QUANTITY", $_POST['disp_quantity']);
-            $this->assign("DISP_FEE", $_POST['disp_fee']);
-            $this->assign("ENDING_JAVASCRIPT", "dispense();");
-            $this->_state = false;
-            return $this->edit_action($this->prescriptions[0]->id);
-        }
-
     // Set the AMC reporting flag (to record percentage of prescriptions that
     // are set as e-prescriptions)
         if (!(empty($_POST['escribe_flag']))) {
@@ -297,37 +355,87 @@ class C_Prescription extends Controller
               processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
-// TajEmo Work by CB 2012/05/29 02:58:29 PM to stop from going to send screen. Improves Work Flow
-//     if ($this->prescriptions[0]->get_active() > 0) {
-//       return $this->send_action($this->prescriptions[0]->id);
-//     }
+        // Handle dispense after save if requested (Save and Dispense workflow)
+        if (!empty($_POST['dispense_after_save']) && $_POST['dispense_after_save'] === '1') {
+            $this->dispenseAfterSave();
+            return;
+        }
+
+        // Handle print after save if requested (Save and Print workflow)
+        if (!empty($_POST['print_after_save']) && $_POST['print_after_save'] === '1') {
+            $this->printAfterSave();
+            return;
+        }
+
         $this->list_action($this->prescriptions[0]->get_patient_id());
         exit;
     }
 
-    function send_action($id)
+    /**
+     * Dispense drug immediately after saving a new prescription.
+     * Uses DrugSalesService for proper inventory management.
+     */
+    private function dispenseAfterSave(): void
     {
-        $_POST['process'] = "true";
-        if (empty($id)) {
-            $this->function_argument_error();
+        $prescription = $this->prescriptions[0];
+        $drugId = (int)($_POST['dispense_drug_id'] ?? $_POST['drug_id'] ?? 0);
+        $quantity = (float)($_POST['disp_quantity'] ?? 0);
+        $fee = (float)($_POST['disp_fee'] ?? 0);
+        $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
+        $patientId = $prescription->get_patient_id();
+        $prescriptionId = $prescription->id;
+
+        $dispenseError = null;
+
+        if ($drugId <= 0) {
+            $dispenseError = xl('No in-house drug selected for dispensing');
+        } elseif ($quantity <= 0) {
+            $dispenseError = xl('Invalid dispense quantity');
+        } elseif ($encounterId <= 0) {
+            $dispenseError = xl('No encounter selected for dispensing');
+        } else {
+            try {
+                $drugSalesService = new DrugSalesService();
+                $saleId = $drugSalesService->sellDrug(
+                    $drugId,
+                    $quantity,
+                    $fee,
+                    $patientId,
+                    $encounterId,
+                    $prescriptionId
+                );
+
+                if (!$saleId) {
+                    $dispenseError = xl('Inventory is not available for this order');
+                }
+            } catch (\Throwable $e) {
+                $dispenseError = $e->getMessage();
+            }
         }
 
-        $rx = new Prescription($id);
-        // Populate pharmacy info if the patient has a default pharmacy.
-        // Probably the Prescription object should handle this instead, but
-        // doing it there will require more careful research and testing.
-        $prow = sqlQuery("SELECT pt.pharmacy_id FROM prescriptions AS rx, " .
-            "patient_data AS pt WHERE rx.id = ? AND pt.pid = rx.patient_id", [$id]);
-        if ($prow['pharmacy_id']) {
-            $rx->pharmacy->set_id($prow['pharmacy_id']);
-            $rx->pharmacy->populate();
+        if ($dispenseError) {
+            // Show error and return to prescription list
+            echo "<script>alert(" . js_escape($dispenseError) . "); ";
+            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            exit;
         }
 
-        $this->assign("prescription", $rx);
+        // Success - redirect to prescription list
+        $this->list_action($patientId);
+        exit;
+    }
 
-        $this->_state = false;
-        return $this->fetch($GLOBALS['template_dir'] . "prescription/" .
-            $this->template_mod . "_send.html");
+    /**
+     * Print/download PDF immediately after saving a prescription.
+     * Redirects to the prescription list with a flag to trigger the print dialog on load.
+     * This keeps the dialog open (unlike directly streaming the PDF which would replace the page).
+     */
+    private function printAfterSave(): void
+    {
+        $prescriptionId = $this->prescriptions[0]->id;
+        $patientId = $this->prescriptions[0]->get_patient_id();
+        $this->list_action($patientId, "", $prescriptionId);
+        exit;
     }
 
     function multiprintfax_header(&$pdf, $p)
@@ -340,7 +448,7 @@ class C_Prescription extends Controller
         $this->providerid = $p->provider->id;
         //print header
         $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], null, '50', '', 'center', '');
-        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
+        $pdf->ezColumnsStart(['num' => 2, 'gap' => 10]);
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
         $pdf->ezText($res['addr'] ?? '', 12);
@@ -351,7 +459,7 @@ class C_Prescription extends Controller
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    // Now it is configureable. Change value in
+    // Now it is configurable. Change value in
     //     Administration->Globals->Rx
         if ($GLOBALS['rx_enable_DEA']) {
             if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
@@ -384,7 +492,7 @@ class C_Prescription extends Controller
 
         $pdf->ezText('', 10);
         $pdf->setLineStyle(1);
-        $pdf->ezColumnsStart(array('num' => 2));
+        $pdf->ezColumnsStart(['num' => 2]);
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>', 6);
         $pdf->ezText($p->patient->get_name_display(), 10);
@@ -398,7 +506,7 @@ class C_Prescription extends Controller
         $pdf->ezText('');
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Medical Record #') . '</b>', 6);
-        $pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT), 10);
+        $pdf->ezText(str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT), 10);
         $pdf->ezColumnsStop();
         if ($my_y < $pdf->y) {
             $pdf->ezSetY($my_y);
@@ -425,8 +533,8 @@ class C_Prescription extends Controller
         echo ("<td>\n");
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
         if (!empty($res)) {
-            $patterns = array ('/\n/','/Tel:/','/Fax:/');
-            $replace = array ('<br />', xl('Tel') . ':', xl('Fax') . ':');
+            $patterns =  ['/\n/','/Tel:/','/Fax:/'];
+            $replace =  ['<br />', xl('Tel') . ':', xl('Fax') . ':'];
             $res = preg_replace($patterns, $replace, $res);
         }
 
@@ -467,8 +575,8 @@ class C_Prescription extends Controller
         echo ($p->patient->get_name_display() . '<br />');
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
         if (!empty($res)) {
-            $patterns = array ('/\n/');
-            $replace = array ('<br />');
+            $patterns =  ['/\n/'];
+            $replace =  ['<br />'];
             $res = preg_replace($patterns, $replace, $res);
         }
 
@@ -482,7 +590,7 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
-        echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -541,7 +649,7 @@ class C_Prescription extends Controller
         echo ("}\n");
         echo ("</style>\n");
 
-        echo ("<title>" . xl('Prescription') . "</title>\n");
+        echo ("<title>" . xlt('Prescription') . "</title>\n");
         echo ("</head>\n");
         echo ("<body>\n");
     }
@@ -551,14 +659,29 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
+    function current_user_has_signature()
+    {
+        if (!empty($this->pconfig['signature'])) {
+            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            if (file_exists($sigfile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function multiprint_footer(&$pdf)
     {
-        if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
+        if (
+            $this->pconfig['use_signature']
+            && $this->current_user_has_signature()
+            && ( $this->is_faxing || $this->is_print_to_fax )
+        ) {
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
-                // $pdf->ezImage($sigfile, "", "", "none", "left");
-                $pdf->ezImage($sigfile, "", "", "none", "center");
+                $width = 0; // set to 0 so it uses the image width
+                $pdf->ezImage($sigfile, null, 0, "none", "center");
                 $pdf->ezText(xl('Date') . ": " . date('Y-m-d'), 12);
                 if ($this->is_print_to_fax) {
                     $pdf->ezText(xl('Please do not accept this prescription unless it was received via facsimile.'));
@@ -583,8 +706,8 @@ class C_Prescription extends Controller
     function multiprintcss_footer()
     {
         echo ("<div class='signdiv'>\n");
-        echo (xl('Signature') . ":________________________________<br />");
-        echo (xl('Date') . ": " . date('Y-m-d'));
+        echo (xlt('Signature') . ":________________________________<br />");
+        echo (xlt('Date') . ": " . text(date('Y-m-d')));
         echo ("</div>\n");
         echo ("</div>\n");
     }
@@ -639,7 +762,7 @@ class C_Prescription extends Controller
         $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
         $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
         $d = $this->get_prescription_body_text($p);
-        if ($pdf->ezText($d, 10, array(), 1)) {
+        if ($pdf->ezText($d, 10, [], 1)) {
             $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
             $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
             $this->multiprint_footer($pdf);
@@ -669,9 +792,9 @@ class C_Prescription extends Controller
     function multiprintcss_body($p)
     {
         $d = $this->get_prescription_body_text($p);
-        $patterns = array ('/\n/','/     /');
-        $replace = array ('<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-        $d = preg_replace($patterns, $replace, $d);
+        $patterns =  ['/\n/','/     /'];
+        $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
+        $d = preg_replace($patterns, $replace, (string) $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -688,40 +811,157 @@ class C_Prescription extends Controller
             $this->function_argument_error();
         }
 
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        $pdf->selectFont('Helvetica');
+        [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
 
-        // $print_header = true;
+        $pFirstName = $patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
+        $pFName = convert_safe_file_dir_name($pFirstName);
+        $modedFileName = "Rx_{$pFName}_{$patient->id}.pdf";
+        $pdf->ezStream(['Content-Disposition' => $modedFileName]);
+        return;
+    }
+
+    function multiprintplain_header($p)
+    {
+        $this->providerid = $p->provider->id;
+        $sql = "SELECT f.name, f.street, f.state, f.postal_code, f.phone, if(f.fax != '', f.fax, '') FROM users JOIN facility AS f ON f.name = users.facility where users.id = ?";
+        $result = QueryUtils::fetchRecords($sql, [$p->provider->id]);
+        $address = '';
+        if (!empty($result)) {
+            $res = $result[0];
+            $parts = [];
+            $parts[] = $res['name'];
+            $parts[] = $res['street'];
+            if (!empty($res['city'])) {
+                $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
+            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+                $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
+            }
+            if (!empty($res['phone'])) {
+                $parts[] = xl('Tel:') . $res['phone'] ?? '';
+            }
+            if (!empty($res['fax'])) {
+                $parts[] = xl('Fax:') . $res['fax'] ?? '';
+            }
+            $address = implode("\n", $parts);
+            if (trim($address) == "") {
+                $address = "";
+            }
+        }
+        echo xl("Digital Prescription Information") . "\n";
+        echo xl("Prescriber") . "\n";
+        echo $address;
+        echo ("\n");
+        echo ("\n");
+        echo ($p->provider->get_name_display()) . "\n";
+
+        if ($GLOBALS['rx_enable_DEA']) {
+            if ($GLOBALS['rx_show_DEA']) {
+                echo (xl('DEA') . ':' . $p->provider->federal_drug_id . "\n");
+            } else {
+                echo (xl('DEA') . ": ________________________\n" );
+            }
+        }
+
+        if ($GLOBALS['rx_enable_NPI']) {
+            if ($GLOBALS['rx_show_NPI']) {
+                echo (xl('NPI') . ':' . $p->provider->npi . '') . "\n";
+            } else {
+                echo ('' . xl('NPI') . ": ________________________\n");
+            }
+        }
+
+        if ($GLOBALS['rx_enable_SLN']) {
+            if ($GLOBALS['rx_show_SLN']) {
+                echo (xl('State Lic. #') . ':' . $p->provider->state_license_number . "\n");
+            } else {
+                echo (xl('State Lic. #') . ": ________________________\n");
+            }
+        }
+        echo "\n\n";
+        echo (xl('Patient Name & Address') . "\n");
+        echo ($p->patient->get_name_display() . "\n");
+        $sql = "SELECT street, city, `state`, postal_code, if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,''))) AS phone from patient_data where pid = ?";
+        $result = QueryUtils::fetchRecords($sql, [$p->patient->id]);
+        $address = '';
+        if (!empty($result)) {
+            $res = $result[0];
+            $parts = [];
+            $parts[] = $res['street'];
+            if (!empty($res['city'])) {
+                $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
+            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+                $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
+            }
+
+            if (!empty($res['phone'])) {
+                $parts[] = xl('Tel:') . $res['phone'] ?? '';
+            }
+            $address = implode("\n", $parts);
+            $address = trim($address);
+        }
+
+        echo ($address);
+        echo "\n";
+        echo (xl('Date of Birth')) . " ";
+        echo ($p->patient->date_of_birth );
+        echo "\n";
+        echo xl('Medical Record #');
+        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo "\n\n";
+        echo xl('Prescriptions') . "\n";
+    }
+
+
+    function multiprintplain_footer()
+    {
+        echo xl('Signature') . ":________________________________\n";
+        echo xl('Date') . ": " . date('Y-m-d') . "\n";
+    }
+
+
+    /**
+     * Outputs a JSON response of the subject and message body for the prescription contents to go into a native
+     * email client.  Useful if you want to use the native mailto: handler in the browser or user-agent's operating system.
+     * @return void
+     */
+    function getDefaultMailClientText_action()
+    {
+        $idsGet = $_GET['ids'];
+
+        if (empty($idsGet)) {
+            $this->function_argument_error();
+            return;
+        }
+        ob_start();
+
+        $ids = preg_split('/::/', substr((string) $idsGet, 1, strlen((string) $idsGet) - 2), -1, PREG_SPLIT_NO_EMPTY);
+
         $on_this_page = 0;
-
-        //print prescriptions body
-        $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         foreach ($ids as $id) {
             $p = new Prescription($id);
-            // if ($print_header == true) {
             if ($on_this_page == 0) {
-                $this->multiprint_header($pdf, $p);
+                $this->multiprintplain_header($p);
             }
 
             if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
-                $this->multiprint_footer($pdf);
-                $pdf->ezNewPage();
-                $this->multiprint_header($pdf, $p);
-                // $print_header = false;
+                $this->multiprintplain_footer();
+                $this->multiprintplain_header($p);
                 $on_this_page = 1;
             }
 
-            $this->multiprint_body($pdf, $p);
+            // we don't want any html in the plain text rendering
+            echo strip_tags((string) $this->get_prescription_body_text($p));
         }
 
-        $this->multiprint_footer($pdf);
-
-        $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
-        $pFName = convert_safe_file_dir_name($pFirstName);
-        $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
-        $pdf->ezStream(array('Content-Disposition' => $modedFileName));
+        $this->multiprintplain_footer();
+        $data = ob_get_clean();
+        $result = [
+            'subject' => $GLOBALS['openemr_name'] . " " . xl(" Prescription ")
+            ,'message' => $data
+        ];
+        http_response_code(200);
+        header("Content-Type:" . "application/json");
+        echo json_encode($result);
         return;
     }
 
@@ -735,7 +975,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_preheader();
 
         $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
 
         $on_this_page = 0;
         foreach ($ids as $id) {
@@ -758,73 +998,21 @@ class C_Prescription extends Controller
         return;
     }
 
-    function send_action_process($id)
+    function send_action_process()
     {
         $dummy = ""; // Added by Rod to avoid run-time warnings
         if ($_POST['process'] != "true") {
             return;
         }
+        $id = $_POST['sendEmailPrescriptionIds'];
 
         if (empty($id)) {
             $this->function_argument_error();
         }
+        $sendAsPDF = intval($_POST['sendAsPdf'] ?? 0) == 1;
 
-        $p = new Prescription($id);
-        switch ($_POST['submit']) {
-            case (xl("Print") . " (" . xl("PDF") . ")"):
-                // The following statement added by Rod.
-                // Looking at Controller.class.php, it appears that _state is set to false
-                // to indicate that no further HTML is to be generated.
-                $this->_state = false; // Added by Rod - see Controller.class.php
-                return $this->print_prescription($p, $dummy);
-                break;
-            case (xl("Print") . " (" . xl("HTML") . ")"):
-                                $this->_state = false;
-                return $this->print_prescription_css($p, $dummy);
-                        break;
-            case xl("Print To Fax"):
-                $this->_state = false;
-                $this->is_print_to_fax = true;
-                return $this->print_prescription($p, $dummy);
-                break;
-            case xl("Email"):
-                return $this->email_prescription($p, $_POST['email_to']);
-                break;
-            case xl("Fax"):
-                //this is intended to be the hook for the hylafax code we already have that hasn't worked its way into the tree yet.
-                //$this->assign("process_result","No fax server is currently setup.");
-                return $this->fax_prescription($p, $_POST['fax_to']);
-                break;
-            case xl("Auto Send"):
-                $pharmacy_id = $_POST['pharmacy_id'];
-                //echo "auto sending to : " . $_POST['pharmacy_id'];
-                $phar = new Pharmacy($_POST['pharmacy_id']);
-                //print_r($phar);
-                if ($phar->get_transmit_method() == TRANSMIT_PRINT) {
-                    return $this->print_prescription($p, $dummy);
-                } elseif ($phar->get_transmit_method() == TRANSMIT_EMAIL) {
-                    $email = $phar->get_email();
-                    if (!empty($email)) {
-                        return $this->email_prescription($p, $phar->get_email());
-                    }
-
-                    //else print it
-                } elseif ($phar->get_transmit_method() == TRANSMIT_FAX) {
-                    $faxNum = $phar->get_fax();
-                    if (!empty($faxNum)) {
-                        return $this->fax_prescription($p, $faxNum);
-                    }
-
-                    // return $this->assign("process_result","No fax server is currently setup.");
-                    // else default is printing,
-                } else {
-                    //the pharmacy has no default or default is print
-                    return $this->print_prescription($p, $dummy);
-                }
-                break;
-        }
-
-        return;
+        $patient = $this->email_prescription($id, $_POST['email_to'], $sendAsPDF);
+        return $this->list_action($patient->id);
     }
 
     function print_prescription($p, &$toFile)
@@ -863,56 +1051,39 @@ class C_Prescription extends Controller
         $this->multiprintcss_postfooter();
     }
 
-    function print_prescription_old($p, &$toFile)
-    {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        $pdf->selectFont('Helvetica');
-        if (!empty($this->pconfig['logo'])) {
-            $pdf->ezImage($this->pconfig['logo'], "", "", "none", "left");
-        }
-
-        $pdf->ezText($p->get_prescription_display(), 10);
-        if ($this->pconfig['use_signature']) {
-            $pdf->ezImage($this->pconfig['signature'], "", "", "none", "left");
-        } else {
-            $pdf->ezText("\n\n\n\nSignature:________________________________", 10);
-        }
-
-        if (!empty($toFile)) {
-            $toFile = $pdf->ezOutput();
-        } else {
-            $pdf->ezStream();
-            // $pdf->ezStream(array('compress' => 0)); // for testing with uncompressed output
-        }
-
-        return;
-    }
-
-    function email_prescription($p, $email)
+    function email_prescription($id, $email, $sendAsPdf)
     {
         if (empty($email)) {
             $this->assign("process_result", "Email could not be sent, the address supplied: '$email' was empty or invalid.");
             return;
         }
 
-        $mail = new PHPMailer();
-        //this is a temporary config item until the rest of the per practice billing settings make their way in
+        $mail = new MyMailer();
+        if ($sendAsPdf) {
+            [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
+            $pdfAsString = $pdf->output();
+            $mailBody = $GLOBALS['openemr_name'] . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
+        } else {
+            [$mailBody, $patient] = $this->generateHtmlObjectForPrescriptionIds($id);
+            $mail->isHTML(true);
+        }
+
         $mail->From = $GLOBALS['practice_return_email_path'];
-        $mail->FromName = $p->provider->get_name_display();
-        $mail->isMail();
-        $mail->Host     = "localhost";
-        $mail->Mailer   = "mail";
-        $text_body  = $p->get_prescription_display();
-        $mail->Body = $text_body;
-        $mail->Subject = "Prescription for: " . $p->patient->get_name_display();
+//        $mail->FromName = $p->provider->get_name_display();
+//        $text_body  = $p->get_prescription_display();
+        $mail->Body = $mailBody;
+        $mail->Subject = $GLOBALS['openemr_name'] . " " . xl("Prescription");
         $mail->AddAddress($email);
+        if ($sendAsPdf) {
+            $mail->addStringAttachment($pdfAsString, 'Prescription-' . date("Y-m-d_H_i_s") . ".pdf");
+        }
+
         if ($mail->Send()) {
             $this->assign("process_result", "Email was successfully sent to: " . $email);
-            return;
+            return $patient;
         } else {
             $this->assign("process_result", "There has been a mail error sending to " . $_POST['email_to'] . " " . $mail->ErrorInfo);
-            return;
+            return $patient;
         }
     }
 
@@ -926,7 +1097,7 @@ class C_Prescription extends Controller
 
         // process the lookup
         $this->assign("drug", $_POST['drug']);
-        $list = array();
+        $list = [];
         if (!empty($_POST['drug'])) {
             $list = $this->RxList->getList($_POST['drug']);
         }
@@ -949,7 +1120,7 @@ class C_Prescription extends Controller
     {
         $err = "Sent fax";
         //strip - ,(, ), and ws
-        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/", "", $faxNum);
+        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/", "", (string) $faxNum);
         //validate the number
 
         if (!empty($faxNum) && is_numeric($faxNum)) {
@@ -977,7 +1148,7 @@ class C_Prescription extends Controller
                     $err .= " Failed to open file $fileName to write fax to";
                 }
 
-                if (fwrite($handle, $faxFile) === false) {
+                if (fwrite($handle, (string) $faxFile) === false) {
                     $err .= " Failed to write data to $fileName";
                 }
 
@@ -993,5 +1164,100 @@ class C_Prescription extends Controller
         if ($err) {
             $this->assign("process_result", $err);
         }
+    }
+
+    /**
+     * @param mixed $id
+     * @return array
+     */
+    private function generatePdfObjectForPrescriptionIds(mixed $id): array
+    {
+        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+        $pdf->selectFont('Helvetica');
+
+        // $print_header = true;
+        $on_this_page = 0;
+
+        //print prescriptions body
+        $this->_state = false; // Added by Rod - see Controller.class.php
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($ids as $id) {
+            $p = new Prescription($id);
+            // if ($print_header == true) {
+            if ($on_this_page == 0) {
+                $this->multiprint_header($pdf, $p);
+            }
+
+            if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
+                $this->multiprint_footer($pdf);
+                $pdf->ezNewPage();
+                $this->multiprint_header($pdf, $p);
+                // $print_header = false;
+                $on_this_page = 1;
+            }
+
+            $this->multiprint_body($pdf, $p);
+        }
+
+        $this->multiprint_footer($pdf);
+        return [$pdf, $p->patient];
+    }
+
+    private function generateHtmlObjectForPrescriptionIds($id)
+    {
+        ob_start();
+        $this->multiprintcss_action($id);
+        $html = ob_get_clean();
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        if (!empty($ids)) {
+            $prescription = new Prescription($ids[0]);
+        }
+        return [$html, $prescription->patient];
+    }
+
+    private function getDiagnosisCodesList(Prescription $prescription)
+    {
+        $codeTypesService = $this->getCodeTypesService();
+        $listsService = new PatientIssuesService();
+        $activeIssues = $listsService->getActiveIssues($prescription->get_patient_id());
+        $formattedCodes = [];
+        $diagnosis = $prescription->get_diagnosis();
+        $selectedCodes = !empty($diagnosis) ? explode(';', $prescription->get_diagnosis() ?? '') : [];
+        $selectedCodes = array_combine($selectedCodes, $selectedCodes);
+        $formattedCodesByCode = [];
+        if ($activeIssues->hasData()) {
+            foreach ($activeIssues->getData() as $issue) {
+                $codes = $issue['diagnosis'];
+                $issueCodes = !empty($codes) ? explode(';', (string) $codes) : [];
+                foreach ($issueCodes as $code) {
+                    // already exists in the list so we skip over it.
+                    if (isset($formattedCodesByCode[$code])) {
+                        continue;
+                    }
+                    $description = $codeTypesService->lookup_code_description($code);
+                    $formattedCodes[] = [
+                        'value' => $code,
+                        'text' => $description . ' (' . $code . ')',
+                        'selected' => isset($selectedCodes[$code])
+                    ];
+                    $formattedCodesByCode[$code] = true;
+                    // clear it out so we don't show duplicates
+                    if (isset($selectedCodes[$code])) {
+                        unset($selectedCodes[$code]);
+                    }
+                }
+            }
+        }
+        // add any remaining selected codes that were not in active issues, but do exist in the prescription
+        foreach ($selectedCodes as $code) {
+            $description = $codeTypesService->lookup_code_description($code);
+            $formattedCodes[] = [
+                'value' => $code,
+                'text' => $description . ' (' . $code . ')',
+                'selected' => true
+            ];
+        }
+        return $formattedCodes;
     }
 }

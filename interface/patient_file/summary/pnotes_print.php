@@ -15,6 +15,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -23,11 +24,11 @@ $prow = getPatientData($pid, "squad, title, fname, mname, lname");
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'notes');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes print');
 }
 
 if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $prow['squad']);
 }
 
 $noteid = $_REQUEST['noteid'];
@@ -55,7 +56,7 @@ if ($noteid) {
 <body class="body_top">
 
 <p><?php echo "<b>" .
-  generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) .
+  generate_display_field(['data_type' => '1','list_id' => 'note_type'], $title) .
   "</b>" . ' ' . xlt('for') . ' ' .
   "<b>" . attr($ptname) . "</b>"; ?></p>
 

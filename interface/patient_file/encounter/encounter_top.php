@@ -12,13 +12,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Tabs\TabsWrapper;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.
@@ -30,7 +33,7 @@ if (isset($_GET["set_encounter"])) {
         $set_pid = false;
     }
 
-    if ($set_pid && $set_pid != $_SESSION["pid"]) {
+    if ($set_pid && $set_pid != $session->get("pid")) {
         setpid($set_pid);
     }
 
@@ -55,7 +58,7 @@ if (!empty($_GET['formname'])) {
 
 // This is for making the page title which will be picked up as the tab label.
 $dateres = getEncounterDateByEncounter($encounter);
-$encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+$encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
 ?>
 <!DOCTYPE html>
 <html>

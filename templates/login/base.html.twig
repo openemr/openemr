@@ -25,7 +25,7 @@ and semantic choices
     {% block head %}{% endblock %}
     {{ setupHeader() }}
 
-    {% include "login/partials/js/product_reg.js.twig" %}
+    {% include "login/partials/js/login_submit.js.twig" %}
 
     {% block css %}
     <style type="text/css">
@@ -36,6 +36,18 @@ and semantic choices
         }
     </style>
     {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passInput = document.getElementById('clearPass');
+            const toggle = document.getElementById('password-icon');
+            toggle.addEventListener('click', function () {
+                const isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -47,10 +59,6 @@ and semantic choices
 
 </body>
 
-{% block post_body %}
-    {# @todo Product Reg should be its own module and injected in a better way #}
-    {% include "login/partials/html/product_registration_modal.html.twig" %}
-{% endblock %}
 </html>
 {% if displayGoogleSignin %}
     {# @todo Google signing should be its own module and injected in a better way #}

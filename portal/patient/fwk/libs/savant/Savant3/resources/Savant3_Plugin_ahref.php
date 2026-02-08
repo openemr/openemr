@@ -90,8 +90,8 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
         if (is_array($attr)) {
             // from array
             foreach ($attr as $key => $val) {
-                $key = htmlspecialchars($key);
-                $val = htmlspecialchars($val);
+                $key = htmlspecialchars((string) $key);
+                $val = htmlspecialchars((string) $val);
                 $html .= " $key=\"$val\"";
             }
         } elseif (! is_null($attr)) {

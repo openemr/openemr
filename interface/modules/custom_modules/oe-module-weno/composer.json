@@ -1,0 +1,20 @@
+{
+  "name": "openemr/oe-module-weno",
+  "description": "Weno EZ Integration Module",
+  "type": "openemr-module",
+  "minimum-stability": "stable",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Kofi Appiah",
+      "email": "kkappiah@medsov.com"
+    }
+  ],
+  "require": {
+  },
+  "conflict": {
+    "openemr/openemr": ">=7.0.1"
+  },
+  "config": {
+  }
+}

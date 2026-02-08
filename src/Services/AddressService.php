@@ -7,13 +7,19 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Address\AddressData;
+use OpenEMR\Services\Address\AddressRecord;
+use Particle\Validator\ValidationResult;
 use Particle\Validator\Validator;
 
 class AddressService extends BaseService
@@ -22,7 +28,10 @@ class AddressService extends BaseService
     {
     }
 
-    public function validate($insuranceCompany)
+    /**
+     * Validate address data against length constraints.
+     */
+    public function validate(AddressData $address): ValidationResult
     {
         $validator = new Validator();
 
@@ -31,39 +40,28 @@ class AddressService extends BaseService
         $validator->optional('city')->lengthBetween(2, 255);
         $validator->optional('state')->lengthBetween(2, 35);
         $validator->optional('zip')->lengthBetween(2, 10);
+        $validator->optional('plus_four')->lengthBetween(2, 4);
         $validator->optional('country')->lengthBetween(2, 255);
 
-        return $validator->validate($insuranceCompany);
+        return $validator->validate($address->toArray());
     }
 
-    public function getAddressFromRecordAsString(array $addressRecord)
+    /**
+     * Format an address record as a multi-line string.
+     */
+    public function getAddressFromRecordAsString(AddressRecord $addressRecord): string
     {
-        // works for patients and users
-        $address = [];
-        if (!empty($addressRecord['street'])) {
-            $address[] = $addressRecord['street'];
-            $address[] = "\n";
-        }
-        if (!empty($addressRecord['city'])) {
-            $address[] = $addressRecord['city'];
-            $address[] = ", ";
-        }
-        if (!empty($addressRecord['state'])) {
-            $address[] = $addressRecord['state'];
-            $address[] = " ";
-        }
-        if (!empty($addressRecord['postal_code'])) {
-            $address[] = $addressRecord['postal_code'];
-            $address[] = " ";
-        }
-        if (!empty($addressRecord['country_code'])) {
-            $address[] = $addressRecord['country_code'];
-        }
-        return implode("", $address);
+        return $addressRecord->toString();
     }
 
-    public function insert($data, $foreignId)
+    /**
+     * Insert a new address record.
+     *
+     * @return int|false The new address ID, or false on failure
+     */
+    public function insert(AddressData $data, int $foreignId): int|false
     {
+        /** @var int $freshId */
         $freshId = $this->getFreshId("id", "addresses");
 
         $addressesSql  = " INSERT INTO addresses SET";
@@ -73,31 +71,38 @@ class AddressService extends BaseService
         $addressesSql .= "     city=?,";
         $addressesSql .= "     state=?,";
         $addressesSql .= "     zip=?,";
+        $addressesSql .= "     plus_four=?,";
         $addressesSql .= "     country=?,";
         $addressesSql .= "     foreign_id=?";
 
-        $addressesSqlResults = sqlInsert(
+        $addressesSqlResults = QueryUtils::sqlInsert(
             $addressesSql,
-            array(
+            [
                 $freshId,
-                $data["line1"],
-                $data["line2"],
-                $data["city"],
-                $data["state"],
-                $data["zip"],
-                $data["country"],
+                $data->line1,
+                $data->line2,
+                $data->city,
+                $data->state,
+                $data->zip,
+                $data->plusFour,
+                $data->country,
                 $foreignId
-            )
+            ]
         );
 
-        if (!$addressesSqlResults) {
+        if ($addressesSqlResults === 0) {
             return false;
         }
 
         return $freshId;
     }
 
-    public function update($data, $foreignId)
+    /**
+     * Update an existing address record.
+     *
+     * @return int|string|null The address ID, or null if not found
+     */
+    public function update(AddressData $data, int $foreignId): int|string|null
     {
         $addressesSql  = " UPDATE addresses SET";
         $addressesSql .= "     line1=?,";
@@ -105,34 +110,44 @@ class AddressService extends BaseService
         $addressesSql .= "     city=?,";
         $addressesSql .= "     state=?,";
         $addressesSql .= "     zip=?,";
+        $addressesSql .= "     plus_four=?,";
         $addressesSql .= "     country=?";
         $addressesSql .= "     WHERE foreign_id=?";
 
-        $addressesSqlResults = sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             $addressesSql,
-            array(
-                $data["line1"],
-                $data["line2"],
-                $data["city"],
-                $data["state"],
-                $data["zip"],
-                $data["country"],
+            [
+                $data->line1,
+                $data->line2,
+                $data->city,
+                $data->state,
+                $data->zip,
+                $data->plusFour,
+                $data->country,
                 $foreignId
-            )
+            ]
         );
 
-        if (!$addressesSqlResults) {
-            return false;
-        }
+        /** @var array{id: int|string}|false $addressIdSqlResults */
+        $addressIdSqlResults = QueryUtils::querySingleRow(
+            "SELECT id FROM addresses WHERE foreign_id=? LIMIT 1",
+            [$foreignId]
+        );
 
-        $addressIdSqlResults = sqlQuery("SELECT id FROM addresses WHERE foreign_id=?", $foreignId);
-
-        return $addressIdSqlResults["id"];
+        return $addressIdSqlResults["id"] ?? null;
     }
 
-    public function getOneByForeignId($foreignId)
+    /**
+     * Get an address by its foreign ID.
+     */
+    public function getOneByForeignId(int $foreignId): ?AddressData
     {
-        $sql = "SELECT * FROM addresses WHERE foreign_id=?";
-        return sqlQuery($sql, array($foreignId));
+        $sql = "SELECT * FROM addresses WHERE foreign_id=? LIMIT 1";
+        /** @var array<string, mixed>|false $result */
+        $result = QueryUtils::querySingleRow($sql, [$foreignId]);
+        if ($result === false) {
+            return null;
+        }
+        return AddressData::fromArray($result);
     }
 }

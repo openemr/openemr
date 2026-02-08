@@ -5,8 +5,11 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,6 +17,10 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
+use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
+use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
+use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\HttpClient\HttpClient;
 
 class EmailClient extends AppDispatch
@@ -24,8 +31,8 @@ class EmailClient extends AppDispatch
     public $serverUrl;
     public $credentials;
     public string $portalUrl;
-    protected $crypto;
-    private EmailClient $client;
+    protected CryptoGen $crypto;
+    private readonly bool $smtpEnabled;
 
     public function __construct()
     {
@@ -35,6 +42,7 @@ class EmailClient extends AppDispatch
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         parent::__construct();
     }
 
@@ -43,21 +51,16 @@ class EmailClient extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
 
         $this->sid = $credentials['username'];
         $this->appKey = $credentials['appKey'];
         $this->appSecret = $credentials['appSecret'];
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
     }
-
-    /**
-     * @return bool|string
-     */
 
     /**
      * @return string
@@ -81,9 +84,9 @@ class EmailClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 
@@ -93,12 +96,12 @@ class EmailClient extends AppDispatch
     public function sendEmail(): string
     {
         $statusMsg = xlt("Email Requests") . "<br />";
-        $body = $this->getRequest('comments');
+        $body = $this->getRequest('comments', '');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $subject = $this->getRequest('subject', xl("Private confidential message"));
         $user = $this::getLoggedInUser();
-        $htmlContent = $this->getRequest('html_content');
+        $htmlContent = $this->getRequest('html_content', '');
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         if (!$hasEmail) {
             return js_escape(xlt("Error: Missing email address. Try again."));
@@ -108,19 +111,72 @@ class EmailClient extends AppDispatch
     }
 
     /**
+     * @throws Exception
+     */
+    public function emailDocument($email, $body, $file, array $user = []): string
+    {
+        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
+        $mail = new MyMailer();
+        $from_name = text($from_name);
+        $from = $GLOBALS["practice_return_email_path"];
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $mail->AddAddress($email, $email);
+        $mail->Subject = xlt("Forwarded Fax Document");
+        $mail->Body = $desc;
+        $mail->AddAttachment($file);
+
+        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+    }
+
+    /**
+     * @throws InvalidEmailAddressException
+     * @throws SmtpNotConfiguredException
+     * @throws EmailSendFailedException
+     * @throws Exception
+     */
+    public function emailReminder($email, $body): void
+    {
+        if (!$this->validEmail($email)) {
+            throw new InvalidEmailAddressException("Missing valid email address");
+        }
+        if (!$this->smtpEnabled) {
+            throw new SmtpNotConfiguredException(sprintf(
+                "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
+                $GLOBALS['SMTP_HOST'] ?? 'NOT_SET',
+                $GLOBALS['SMTP_PORT'] ?? 'NOT_SET',
+                !empty($GLOBALS['SMTP_USER']) ? 'SET' : 'NOT_SET'
+            ));
+        }
+        $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
+        $desc = text($body);
+        $mail = new MyMailer();
+        $from = text($GLOBALS["practice_return_email_path"]);
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $mail->AddAddress($email, $email);
+        $mail->Subject = xlt("A Reminder for You");
+        $mail->Body = $desc;
+
+        if (!$mail->Send()) {
+            throw new EmailSendFailedException($mail->ErrorInfo);
+        }
+    }
+    /**
      * @return false|string
      */
     public function getUser(): bool|string
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
-        $result = sqlStatement($query, array($id));
-        $u = array();
+        $result = sqlStatement($query, [$id]);
+        $u = [];
         foreach ($result as $row) {
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']);
+        $r = [$u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']];
 
         return json_encode($r);
     }
@@ -145,6 +201,16 @@ class EmailClient extends AppDispatch
      */
     function fetchReminderCount(): string|bool
     {
+        return "0"; // Caller expects a string result, not HTML;
         // TODO: Implement fetchReminderCount() method.
+    }
+
+    /**
+     * @param $uiDateRangeFlag
+     * @return false|string|null
+     */
+    public function fetchEmailList($uiDateRangeFlag = true): false|string|null
+    {
+        return "[]"; // Caller expects JSON result, not HTML;
     }
 }

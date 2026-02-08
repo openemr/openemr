@@ -12,10 +12,11 @@
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
-function formHeader($title = "My Form")
+function formHeader($title = "My Form"): void
 {
     ?>
     <html>
@@ -27,7 +28,7 @@ function formHeader($title = "My Form")
     <?php
 }
 
-function formFooter()
+function formFooter(): void
 {
     ?>
     </body>
@@ -39,28 +40,30 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 {
     global $attendant_type;
 
-    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
-    $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, array($tableName)) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+
+    $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
+    $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, [$tableName]) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {
             continue;
         }
-        if (strpos($key, "openemr_net_cpt") === 0) {
+        if (str_starts_with((string) $key, "openemr_net_cpt")) {
             //code to auto add cpt code
             if (!empty($value)) {
-                $code_array = explode(" ", $value, 2);
+                $code_array = explode(" ", (string) $value, 2);
 
-                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $session->get('pid'), $authorized, $session->get('authUserID'));
             }
-        } elseif (strpos($key, "diagnosis") == (strlen($key) - 10) && !(strpos($key, "diagnosis") === false )) {
-            //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
-            //icd auto add ICD9-CM
+        } elseif ((bool) preg_match("/diagnosis\d$/", (string) $key)) {
+            // case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
+            // icd auto add ICD9-CM
             if (!empty($value)) {
-                $code_array = explode(" ", $value, 2);
-                BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                $code_array = explode(" ", (string) $value, 2);
+                BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $session->get('pid'), $authorized, $session->get('authUserID'));
             }
         } else {
-            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+            $sql .= " " . escape_sql_column_name($key, [$tableName]) . " = ?,";
             $sqlBindingArray[] = $value;
         }
     }
@@ -72,13 +75,14 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {
             continue;
         }
-        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+        $sql .= " " . escape_sql_column_name($key, [$tableName]) . " = ?,";
         $sqlBindingArray[] = $value;
     }
 
@@ -89,7 +93,7 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
     return sqlInsert($sql, $sqlBindingArray);
 }
 
-function formJump($address = '')
+function formJump($address = ''): void
 {
     echo "<script>\n";
     if ($address) {
@@ -106,7 +110,7 @@ function formJump($address = '')
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), array($tableName)) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,$GLOBALS['pid'],$activity]) ;
 }
 
 function formDisappear($tableName, $id)

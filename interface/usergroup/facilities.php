@@ -174,8 +174,8 @@ $(function () {
                         $fres = 0;
                         $fres = $facilityService->getAllFacility();
                         if ($fres) {
-                            $result2 = array();
-                            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
+                            $result2 = [];
+                            for ($iter3 = 0; $iter3 < count($fres); $iter3++) {
                                 $result2[$iter3] = $fres[$iter3];
                             }
 

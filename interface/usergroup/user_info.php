@@ -66,17 +66,17 @@ function update_password()
 
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Change Password'),
     'include_patient_name' => false,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => ""
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -84,7 +84,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <?php
 
-$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
+$res = sqlStatement("select fname,lname,username from users where id=?", [$_SESSION['authUserID']]);
 $row = sqlFetchArray($res);
       $iter = $row;
 ?>
@@ -127,6 +127,11 @@ $row = sqlFetchArray($res);
                         <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
+                            <!-- Password Strength Meter -->
+                            <div id="password_strength_meter" class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+                            </div>
+                            <div id="password_strength_text"></div>
                         </div>
                     </div>
                     <div class="form-group">

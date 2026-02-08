@@ -26,7 +26,7 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj = new ApplicationTable();
         $sql = "INSERT INTO categories_to_documents (category_id, document_id) VALUES (?, ?)";
-        $result = $obj->zQuery($sql, array($category_id, $document_id));
+        $result = $obj->zQuery($sql, [$category_id, $document_id]);
     }
 
     /*
@@ -38,7 +38,7 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj = new ApplicationTable();
         $sql = "UPDATE categories_to_documents SET category_id = ? WHERE document_id = ?";
-        $result = $obj->zQuery($sql, array($category_id, $document_id));
+        $result = $obj->zQuery($sql, [$category_id, $document_id]);
     }
 
     /**
@@ -51,13 +51,13 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj = new ApplicationTable();
         $sql = "SELECT * FROM `categories` WHERE `parent` = ? ORDER BY `order`";
-        $result = $obj->zQuery($sql, array($categoryParentId));
-        $category = array();
+        $result = $obj->zQuery($sql, [$categoryParentId]);
+        $category = [];
         foreach ($result as $row) {
-            $category[$row['cat_id']] = array(
+            $category[$row['cat_id']] = [
                 'category_id' => $row['id'],
                 'category_name' => $row['name'],
-            );
+            ];
         }
 
         return $category;
@@ -72,10 +72,10 @@ class DocumentsTable extends AbstractTableGateway
     public function getDocument($documentId)
     {
         $obj = new ApplicationTable();
-        $sql = "SELECT * FROM documents AS doc 
+        $sql = "SELECT * FROM documents AS doc
               JOIN categories_to_documents AS cat_doc ON cat_doc.document_id = doc.id
               WHERE doc.id = ?";
-        $result = $obj->zQuery($sql, array($documentId));
+        $result = $obj->zQuery($sql, [$documentId]);
         return $result->current();
     }
 
@@ -85,11 +85,11 @@ class DocumentsTable extends AbstractTableGateway
      * @param array $categories - Category Lists
      * @return
      */
-    public function getCategoryIDs($categories = array()): array
+    public function getCategoryIDs($categories = []): array
     {
         $obj = new ApplicationTable();
         $categories_count = count($categories);
-        $cat_name = array();
+        $cat_name = [];
         for ($i = 0; $i < $categories_count; $i++) {
             $cat_name[$i] = "?";
         }
@@ -97,7 +97,7 @@ class DocumentsTable extends AbstractTableGateway
         $sql = "SELECT `id`,`name` FROM `categories` " .
             "WHERE `name` IN (" . implode(",", $cat_name) . ")";
         $result = $obj->zQuery($sql, $categories);
-        $category = array();
+        $category = [];
         foreach ($result as $row) {
             $category[$row['name']] = $row['id'];
         }
@@ -114,8 +114,8 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj = new ApplicationTable();
         foreach ($current_document as $values) {
-            $sql = "UPDATE 
-             `documents` 
+            $sql = "UPDATE
+             `documents`
               SET
               `docdate` = ?,
               `pid` = ?,
@@ -123,7 +123,7 @@ class DocumentsTable extends AbstractTableGateway
               `issues` = ?,
               `name`  = ?
                WHERE `id` = ?";
-            $result = $obj->zQuery($sql, array($values['doc_docdate'], $values['patientname'], $values['notes'], $values['issue'], $values['docname'], $values['doc_id']));
+            $result = $obj->zQuery($sql, [$values['doc_docdate'], $values['patientname'], $values['notes'], $values['issue'], $values['docname'], $values['doc_id']]);
             $this->updateDocumentCategory($values['category'], $values['doc_id']);
         }
     }
@@ -135,7 +135,7 @@ class DocumentsTable extends AbstractTableGateway
      */
     public function getCategory(): array
     {
-        $category = array();
+        $category = [];
         $obj = new ApplicationTable();
         $sql = "SELECT * FROM `categories`";
         $result = $obj->zQuery($sql);
@@ -154,12 +154,12 @@ class DocumentsTable extends AbstractTableGateway
     public function deleteDocument($docid): void
     {
         $obj = new ApplicationTable();
-        $sql = "UPDATE 
-           `documents` 
+        $sql = "UPDATE
+           `documents`
            SET
-          `activity` = ? 
+          `activity` = ?
           WHERE `id` = ?";
-        $obj->zQuery($sql, array(0, $docid));
+        $obj->zQuery($sql, [0, $docid]);
     }
 
     /**
@@ -171,10 +171,10 @@ class DocumentsTable extends AbstractTableGateway
     public function updateDocumentCategoryUsingCatname($category_name, $document_id): void
     {
         $obj = new ApplicationTable();
-        $sql = "UPDATE categories_to_documents 
+        $sql = "UPDATE categories_to_documents
             JOIN categories ON `name` = ?
             SET category_id=id
             WHERE document_id = ?";
-        $result = $obj->zQuery($sql, array($category_name, $document_id));
+        $result = $obj->zQuery($sql, [$category_name, $document_id]);
     }
 }

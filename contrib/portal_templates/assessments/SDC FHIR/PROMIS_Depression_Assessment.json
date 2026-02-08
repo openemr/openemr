@@ -1,0 +1,627 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "PROMIS DEPRESSION Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/PD",
+            "prefix": "PROMIS DEPRESSION",
+            "text": "The next few questions help measure the level of your depression.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDDEP04",
+                            "display": "I felt worthless",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PD/EDDEP04",
+                    "text": "I felt worthless",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Depression score.",
+                            "type": "display",
+                            "linkId": "/PD/EDDEP04-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDDEP06",
+                            "display": "I felt helpless",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PD/EDDEP06",
+                    "text": "I felt helpless",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Depression score.",
+                            "type": "display",
+                            "linkId": "/PD/EDDEP06-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDDEP29",
+                            "display": "I felt depressed",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PD/EDDEP29",
+                    "text": "I felt depressed",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Depression score.",
+                            "type": "display",
+                            "linkId": "/PD/EDDEP29-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDDEP41",
+                            "display": "I felt hopeless",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PD/EDDEP41",
+                    "text": "I felt hopeless",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Depression score.",
+                            "type": "display",
+                            "linkId": "/PD/EDDEP41-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "PD-score",
+                            "display": "PROMIS DEPRESSION Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pd13_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP04').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP04').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pd14_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP06').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP06').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pd15_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP29').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP29').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pd16_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP41').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PD').item.where(linkId = '/PD/EDDEP41').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%pd13_value.exists() or %pd14_value.exists() or %pd15_value.exists() or %pd16_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%pd13_value.exists(), %pd13_value, 0) + iif(%pd14_value.exists(), %pd14_value, 0) + iif(%pd15_value.exists(), %pd15_value, 0) + iif(%pd16_value.exists(), %pd16_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/PD/PD-score",
+                    "text": "PROMIS DEPRESSION Score"
+                }
+            ]
+        }
+    ],
+    "name": "PROMIS_DEPRESSION_Assessment"
+}

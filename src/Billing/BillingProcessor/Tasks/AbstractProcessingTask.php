@@ -17,11 +17,8 @@ use OpenEMR\Billing\BillingUtilities;
 
 abstract class AbstractProcessingTask
 {
-    protected $action = null;
-
-    public function __construct($action)
+    public function __construct(protected $action)
     {
-        $this->action = $action;
     }
 
     /**

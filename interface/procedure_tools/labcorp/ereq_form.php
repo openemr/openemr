@@ -20,7 +20,7 @@ use Mpdf\Mpdf;
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
-function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true)
+function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
 {
 
     $styleSheet =  <<<STYLES
@@ -57,28 +57,33 @@ STYLES;
         $account_facility = $procedure['account_facility'];
         $facility = sqlQuery("SELECT * FROM facility f WHERE f.id=?", [$account_facility]);
         $location = sqlQueryNoLog("SELECT f.facility_code FROM users as u " .
-            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($procedure['provider_id']));
+            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", [$procedure['provider_id']]);
 
         $account = $facility['facility_code'];
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:45%;border-right: 0px;">';
-        $pdfContent .= "<h4>Account #: $account</h4><br/>";
-        $pdfContent .= '<h4>Req/Control #: ' . $form_id . '</h4>';
+        $pdfContent .= "<h4>Account #: " . text($account) . "</h4><br/>";
+        $pdfContent .= '<h4>Req/Control #: ' . text($form_id) . '</h4>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td style="width:55%;">';
         $pdfContent .= '<table>';
 
-        $collection_date = date("m/d/Y", strtotime($procedure['date_collected']));
-        $collection_time = date("H:i", strtotime($procedure['date_collected']));
+        if (!empty($procedure['date_collected'])) {
+            $collection_date = date("m/d/Y", strtotime((string) $procedure['date_collected']));
+            $collection_time = date("H:i", strtotime((string) $procedure['date_collected']));
+        } else {
+            $collection_date = '';
+            $collection_time = '';
+        }
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="text-align:right;width:35%;">Collection Date:</td>';
-        $pdfContent .= '<td style="width:65%;">' . $collection_date . '</td>';
+        $pdfContent .= '<td style="width:65%;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="text-align:right;">Collection Time:</td>';
-        $pdfContent .= '<td>' . $collection_time . '</td>';
+        $pdfContent .= '<td>' . text($collection_time) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="text-align:right;">Courtesy Copy:</td>';
@@ -100,21 +105,21 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Account Name:</td><td style="width:64%;padding-left:8px;">' . $facility['name'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Address 1:</td><td style="padding-left:8px;">' . $facility['street'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Account Name:</td><td style="width:64%;padding-left:8px;">' . text($facility['name']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Address 1:</td><td style="padding-left:8px;">' . text($facility['street']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Address 2:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . $facility['city'] . ', ' . $facility['state'] . ' ' . $facility['postal_code'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Phone:</td><td style="padding-left:8px;">' . $facility['phone'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . text($facility['city']) . ', ' . text($facility['state']) . ' ' . text($facility['postal_code']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Phone:</td><td style="padding-left:8px;">' . text($facility['phone']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
         $provider = sqlQuery("SELECT concat(lname,', ', fname) as name, npi, upin, id FROM users WHERE id=?", [$procedure['provider_id']]);
-        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Ordering Physician:</td><td style="width:64%;padding-left:8px;">' . $provider['name'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Ordering Physician:</td><td style="width:64%;padding-left:8px;">' . text($provider['name']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Physician Degree:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">NPI:</td><td style="padding-left:8px;">' . $provider['npi'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">UPIN:</td><td style="padding-left:8px;">' . $provider['upin'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Physician ID:</td><td style="padding-left:8px;">' . $provider['id'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">NPI:</td><td style="padding-left:8px;">' . text($provider['npi']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">UPIN:</td><td style="padding-left:8px;">' . text($provider['upin']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Physician ID:</td><td style="padding-left:8px;">' . text($provider['id']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -130,24 +135,24 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $page = getPatientAgeYMD($patient['DOB']);
-        $ageformat = explode(' ', $page['ageinYMD']);
+        $ageformat = explode(' ', (string) $page['ageinYMD']);
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Patient Name:</td><td style="width:64%;padding-left:8px;">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Gender:</td><td style="padding-left:8px;">' . $patient['sex'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime($patient['DOB'])) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', $ageformat[0]) . '/' . str_replace('m', '', $ageformat[1]) . '/' . str_replace('d', '', $ageformat[2]) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Patient Address:</td><td style="padding-left:8px;">' . $patient['street'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . $patient['city'] . ', ' . $patient['state'] . ' ' . $patient['postal_code'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Patient Name:</td><td style="width:64%;padding-left:8px;">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Gender:</td><td style="padding-left:8px;">' . text($patient['sex']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime((string) $patient['DOB'])) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', text($ageformat[0])) . '/' . text(str_replace('m', '', $ageformat[1])) . '/' . text(str_replace('d', '', $ageformat[2])) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Patient Address:</td><td style="padding-left:8px;">' . text($patient['street']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . text($patient['city']) . ', ' . text($patient['state']) . ' ' . text($patient['postal_code']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Patient SSN:</td><td style="width:64%;padding-left:8px;">' . $patient['ss'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Patient ID:</td><td style="padding-left:8px;">' . $patient['pubpid'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Phone:</td><td style="padding-left:8px;">' . $patient['phone_home'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Patient SSN:</td><td style="width:64%;padding-left:8px;">' . text($patient['ss']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Patient ID:</td><td style="padding-left:8px;">' . text($patient['pubpid']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Phone:</td><td style="padding-left:8px;">' . text($patient['phone_home']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">&nbsp;</td><td style="padding-left:8px;">&nbsp;</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Alt Control #:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Alt Patient ID:</td><td style="padding-left:8px;">' . $patient['pid'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Alt Patient ID:</td><td style="padding-left:8px;">' . text($patient['pid']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -159,8 +164,9 @@ STYLES;
         $proc_order = sqlNumRows($proc_sql);
         $procedure_right = floor($proc_order / 2);
         $procedure_left = $proc_order - $procedure_right;
-        $all_procedures = array();
-        $all_diagnoses = array();
+        $all_procedures = [];
+        $all_diagnoses = [];
+
         if (!empty($procedure['order_diagnosis'])) {
             $all_diagnoses[] = $procedure['order_diagnosis'];
         }
@@ -170,7 +176,7 @@ STYLES;
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width25" style="width:17%;padding-left:8px;"><b>ORDER CODE</b></td>';
-        $pdfContent .= '<td class="width25" style="width:33%;padding-left:8px;"><b>TESTS ORDERED (TOTAL: ' . $proc_order . ')</b></td>';
+        $pdfContent .= '<td class="width25" style="width:33%;padding-left:8px;"><b>TESTS ORDERED (TOTAL: ' . text($proc_order) . ')</b></td>';
         $pdfContent .= '<td class="width25" style="width:17%;padding-left:8px;"><b>ORDER CODE</b></td>';
         $pdfContent .= '<td class="width25" style="width:33%;padding-left:8px;"><b>TESTS ORDERED</b></td>';
         $pdfContent .= '</tr>';
@@ -179,9 +185,11 @@ STYLES;
         $pdfContent .= '<table>';
         for ($i = 0; $i < $procedure_left; $i++) {
             $pdfContent .= '<tr>';
-            $pdfContent .= '<td class="width50">' . $all_procedures[$i]['procedure_code'] . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
-            $all_diagnoses[] = $temp_diag;
+            $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
+            foreach ($temp_diag as $sub_diag) {
+                $all_diagnoses[] = $sub_diag;
+            }
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -190,7 +198,7 @@ STYLES;
         $pdfContent .= '<table>';
         for ($i = 0; $i < $procedure_left; $i++) {
             $pdfContent .= '<tr>';
-            $pdfContent .= '<td class="width50">' . $all_procedures[$i]['procedure_name'] . '</td>';
+            $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_name']) . '</td>';
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -199,9 +207,11 @@ STYLES;
         $pdfContent .= '<table>';
         for ($i = $procedure_left; $i < $proc_order; $i++) {
             $pdfContent .= '<tr>';
-            $pdfContent .= '<td class="width50">' . $all_procedures[$i]['procedure_code'] . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
-            $all_diagnoses[] = $temp_diag;
+            $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
+            foreach ($temp_diag as $sub_diag) {
+                $all_diagnoses[] = $sub_diag;
+            }
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -210,7 +220,7 @@ STYLES;
         $pdfContent .= '<table>';
         for ($i = $procedure_left; $i < $proc_order; $i++) {
             $pdfContent .= '<tr>';
-            $pdfContent .= '<td class="width50">' . $all_procedures[$i]['procedure_name'] . '</td>';
+            $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_name']) . '</td>';
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -233,13 +243,13 @@ STYLES;
                 "AND q.procedure_code = ? AND q.question_code = a.question_code " .
                 "WHERE a.procedure_order_id = ? AND a.procedure_order_seq = ? " .
                 "ORDER BY q.seq, a.answer_seq",
-                array($procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq'])
+                [$procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq']]
             );
             foreach ($aoe_list as $aoe_data) {
                 if ($aoe_data['question_code']) {
-                    if (stripos($all_procedures[$i]['procedure_name'], 'PAP') !== false) {
+                    if (stripos((string) $all_procedures[$i]['procedure_name'], 'PAP') !== false) {
                         if ($aoe_data['answer']) {
-                            $aoe_pap .= '<tr><td style="width:36%;text-align:right;">' . $aoe_data['question_text'] . ':</td><td style="width:64%;padding-left:8px;">' . $aoe_data['answer'] . '</td></tr>';
+                            $aoe_pap .= '<tr><td style="width:36%;text-align:right;">' . text($aoe_data['question_text']) . ':</td><td style="width:64%;padding-left:8px;">' . text($aoe_data['answer']) . '</td></tr>';
                             $pap_proc = 'AOE Test: ' . $all_procedures[$i]['procedure_code'];
                         }
                         continue;
@@ -249,7 +259,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLSRCE') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'V':
                                 $ans = "Venous";
                                 break;
@@ -263,7 +273,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLPURP') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'I':
                                 $ans = "Initial";
                                 break;
@@ -289,7 +299,7 @@ STYLES;
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
         if (!empty($pap_proc)) {
-            $pdfContent .= "<td class='width50' style='padding-left:8px;'><b>$pap_proc</b></td>";
+            $pdfContent .= "<td class='width50' style='padding-left:8px;'><b>text($pap_proc)</b></td>";
         } else {
             $pdfContent .= '<td class="width50" style="padding-left:8px;"><b>Clinical Information:</b></td>';
         }
@@ -301,7 +311,7 @@ STYLES;
         if ($pap_proc && $aoe_pap) {
             $pdfContent .= $aoe_pap;
         } else {
-            $pdfContent .= '<tr><td style="width:36%;text-align:right;">' . $procedure['clinical_hx'] . '</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
+            $pdfContent .= '<tr><td style="width:36%;text-align:right;">' . text($procedure['clinical_hx']) . '</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
         }
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
@@ -309,10 +319,10 @@ STYLES;
         $pdfContent .= '<table>';
 
         $fasting = $procedure['specimen_fasting'] === 'YES' ? "YES" : "NO";
-        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Fasting:</td><td style="width:64%;padding-left:8px;">' . $fasting . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Height (in):</td><td style="padding-left:8px;">' . $vitals['height'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Weight (lbs oz):</td><td style="padding-left:8px;">' . $vitals['weight'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Urine Total Volume (mls):</td><td style="padding-left:8px;">' . $vitals['urine_total_volume'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Fasting:</td><td style="width:64%;padding-left:8px;">' . text($fasting) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Height (in):</td><td style="padding-left:8px;">' . text($vitals['height']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Weight (lbs oz):</td><td style="padding-left:8px;">' . text($vitals['weight']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Urine Total Volume (mls):</td><td style="padding-left:8px;">' . text($vitals['urine_total_volume']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -325,7 +335,7 @@ STYLES;
         if (!empty($allspecs)) {
             $specs = implode(',', $allspecs);
         }
-        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Source:</td><td style="width:64%;padding-left:8px;">' . $specs . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;width:36%;">Source:</td><td style="width:64%;padding-left:8px;">' . text($specs) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50" style="padding-left:8px;"></td>';
@@ -336,7 +346,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $race = array("declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1);
+        $race = ["declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
         $hispanic = empty($patient['ethnicity']) ? "9" : null;
         $hispanic = ($patient['ethnicity'] === "hisp_or_latin" && empty($hispanic)) ? 1 : 2;
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Blood Lead Information: </b></td>';
@@ -344,15 +354,15 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Race:</td><td style="width:64%;padding-left:8px;">' . $race[$patient['race']] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Hispanic:</td><td style="padding-left:8px;">' . $hispanic . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Blood Lead Type:</td><td style="padding-left:8px;">' . implode(',', $allbltype) . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Race:</td><td style="width:64%;padding-left:8px;">' . text($race[$patient['race']]) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Hispanic:</td><td style="padding-left:8px;">' . text($hispanic) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Blood Lead Type:</td><td style="padding-left:8px;">' . text(implode(',', $allbltype)) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Blood Lead Purpose:</td><td style="width:64%;padding-left:8px;">' . implode(',', $allblpurpose) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Blood Lead County:</td><td style="padding-left:8px;">' . $patient['county'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Blood Lead Purpose:</td><td style="width:64%;padding-left:8px;">' . text(implode(',', $allblpurpose)) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Blood Lead County:</td><td style="padding-left:8px;">' . text($patient['county']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -365,31 +375,29 @@ STYLES;
         $pdfContent .= '<td style="padding-left:8px;" colspan="8"><b>Diagnosis Codes:</b>List all applicable Diagnosis codes. Must be at Highest Level Specificity.</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[0]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[1]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[2]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[3]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[4]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[5]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[6]) . '</td>';
-        $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[7]) . '</td>';
+        // need to remove the code system prefix
+        $codesOnlyArray = [];
+        foreach ($all_diagnoses as $diagnosis) {
+            $splitCode = explode(":", (string) $diagnosis);
+            if (!empty($splitCode)) {
+                $codesOnlyArray[] = !empty($splitCode[1]) ? $splitCode[1] : $splitCode;
+            }
+        }
+        for ($i = 0; $i < 8; $i++) {
+            $pdfContent .= '<td style="width:12.5%;" >' . text($codesOnlyArray[$i] ?? '') . '</td>';
+        }
         $pdfContent .= '</tr>';
         if (!empty($all_diagnoses[8])) {
             $pdfContent .= '<tr>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[8]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[9]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[10]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[11]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[12]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[13]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[14]) . '</td>';
-            $pdfContent .= '<td style="width:12.5%;" >' . str_replace('ICD10:', '', $all_diagnoses[15]) . '</td>';
+            for ($i = 8; $i < 16; $i++) {
+                $pdfContent .= '<td style="width:12.5%;" >' . text($codesOnlyArray[$i] ?? '') . '</td>';
+            }
             $pdfContent .= '</tr>';
         }
 
         $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='primary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $billtype = "Unknown";
-        switch (trim($procedure['billing_type'])) {
+        switch (trim((string) $procedure['billing_type'])) {
             case 'T':
                 $billtype = "Third Party";
                 break;
@@ -402,7 +410,7 @@ STYLES;
         }
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="border-right:0px;"><b>Bill Type:</b></td>';
-        $pdfContent .= '<td colspan="3" style="padding-left:8px;">' . $billtype . '</td>';
+        $pdfContent .= '<td colspan="3" style="padding-left:8px;">' . text($billtype) . '</td>';
         $pdfContent .= '<td style="border-right:0px;"><b>LCA Ins Code:</b></td>';
         $pdfContent .= '<td colspan="3" style="padding-left:8px;">&nbsp;</td>';
         $pdfContent .= '</tr>';
@@ -415,107 +423,107 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width25" style="width:25%;">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '</table>';
-        $pdfContent .= '</td>';
-        $pdfContent .= '<td class="width25" style="width:25%;">';
-        $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width25" style="width:25%;">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '</table>';
-        $pdfContent .= '</td>';
-        $pdfContent .= '<td class="width25" style="width:25%;">';
-        $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '</table>';
-        $pdfContent .= '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width25" style="width:25%;">';
-        $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width25" style="width:25%;">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '</table>';
-        $pdfContent .= '</td>';
-        $pdfContent .= '<td class="width25" style="width:25%;">';
-        $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
-        $pdfContent .= '</tr>';
-        $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width25" style="width:25%;">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td colspan="2">' . $patient['lname'] . ', ' . $patient['fname'] . '</td></tr>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $patient['dob'] . '</td>';
-        $pdfContent .= '<td class="width50" style="width:50%;">' . $collection_date . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        $pdfContent .= '<td>' . $account . '</td>';
-        $pdfContent .= '<td>' . $form_id . '</td>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '</table>';
+        $pdfContent .= '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td class="width25" style="width:25%;">';
+        $pdfContent .= '<table>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '</table>';
+        $pdfContent .= '</td>';
+        $pdfContent .= '<td class="width25" style="width:25%;">';
+        $pdfContent .= '<table>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '</table>';
+        $pdfContent .= '</td>';
+        $pdfContent .= '<td class="width25" style="width:25%;">';
+        $pdfContent .= '<table>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '</table>';
+        $pdfContent .= '</td>';
+        $pdfContent .= '<td class="width25" style="width:25%;">';
+        $pdfContent .= '<table>';
+        $pdfContent .= '<tr><td colspan="2">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($patient['dob']) . '</td>';
+        $pdfContent .= '<td class="width50" style="width:50%;">' . text($collection_date) . '</td>';
+        $pdfContent .= '</tr>';
+        $pdfContent .= '<tr>';
+        $pdfContent .= '<td>' . text($account) . '</td>';
+        $pdfContent .= '<td>' . text($form_id) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
@@ -538,15 +546,15 @@ STYLES;
         $pdfContent .= '<table>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Account Number:</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $account . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($account) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Req/Control#</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $form_id . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($form_id) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Collection Date:</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $collection_date . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($collection_date) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
@@ -554,15 +562,15 @@ STYLES;
         $pdfContent .= '<table>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Patient Name:</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $patient['lname'] . ', ' . $patient['fname'] . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Patient ID:</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $patient['pubpid'] . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($patient['pubpid']) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="width:36%;text-align:right;">Alt Pat ID:</td>';
-        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . $patient['pid'] . '</td>';
+        $pdfContent .= '<td style="width:64%;padding-left:8px;">' . text($patient['pid']) . '</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
@@ -578,11 +586,11 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td>';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:24%;text-align:right;">RP Name:</td><td style="width:76%;padding-left:8px;">' . $primary['subscriber_lname'] . ', ' . $primary['subscriber_fname'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">RP Address:</td><td style="padding-left:8px;">' . $primary['subscriber_street'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">RP City, State Zip:</td><td style="padding-left:8px;">' . $primary['subscriber_city'] . ', ' . $primary['subscriber_state'] . ' ' . $primary['subscriber_postal_code'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">RP Phone:</td><td style="padding-left:8px;">' . $primary['subscriber_phone'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">RP Relation to Pt:</td><td style="padding-left:8px;">' . $primary['subscriber_relationship'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:24%;text-align:right;">RP Name:</td><td style="width:76%;padding-left:8px;">' . text($primary['subscriber_lname']) . ', ' . text($primary['subscriber_fname']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">RP Address:</td><td style="padding-left:8px;">' . text($primary['subscriber_street']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">RP City, State Zip:</td><td style="padding-left:8px;">' . text($primary['subscriber_city']) . ', ' . text($primary['subscriber_state']) . ' ' . text($primary['subscriber_postal_code']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">RP Phone:</td><td style="padding-left:8px;">' . text($primary['subscriber_phone']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">RP Relation to Pt:</td><td style="padding-left:8px;">' . text($primary['subscriber_relationship']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -612,18 +620,18 @@ STYLES;
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">LCA Ins Code:</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . $primary['name'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . text($primary['name']) . '</td></tr>';
         $paddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id=?", [$primary['id']]);
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . $paddress['line1'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . $paddress['line2'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins City, State Zip:</td><td style="padding-left:8px;">' . $paddress['city'] . ', ' . $paddress['state'] . ' ' . $paddress['zip'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Policy Number:</td><td style="padding-left:8px;">' . $primary['policy_number'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Group #:</td><td style="padding-left:8px;">' . $primary['group_number'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . text($paddress['line1']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . text($paddress['line2']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins City, State Zip:</td><td style="padding-left:8px;">' . text($paddress['city']) . ', ' . text($paddress['state']) . ' ' . text($paddress['zip']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Policy Number:</td><td style="padding-left:8px;">' . text($primary['policy_number']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Group #:</td><td style="padding-left:8px;">' . text($primary['group_number']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Emp/Group Name:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
         if (!empty($primary['name'])) {
             $pprovider_id = $provider['id'];
         }
-        $pdfContent .= '<tr><td style="text-align:right;">Provider #:</td><td style="padding-left:8px;">' . $pprovider_id . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Provider #:</td><td style="padding-left:8px;">' . text($pprovider_id) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
@@ -631,17 +639,17 @@ STYLES;
         $secondary = sqlQuery("SELECT i.*, ic.name, ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='secondary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">LCA Ins Code:</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
         $saddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id=?", [$secondary['id']]);
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . $secondary['name'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . $saddress['line1'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . $saddress['line2'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Ins City, State Zip:</td><td style="padding-left:8px;">' . $saddress['city'] . ', ' . $saddress['state'] . ' ' . $saddress['zip'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Policy Number:</td><td style="padding-left:8px;">' . $secondary['policy_number'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Group #:</td><td style="padding-left:8px;">' . $secondary['group_number'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . text($secondary['name']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . text($saddress['line1']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . text($saddress['line2']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Ins City, State Zip:</td><td style="padding-left:8px;">' . text($saddress['city']) . ', ' . text($saddress['state']) . ' ' . text($saddress['zip']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Policy Number:</td><td style="padding-left:8px;">' . text($secondary['policy_number']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Group #:</td><td style="padding-left:8px;">' . text($secondary['group_number']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Emp/Group Name:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
         if (!empty($secondary['name'])) {
             $sprovider_id = $provider['id'];
         }
-        $pdfContent .= '<tr><td style="text-align:right;">Provider #:</td><td style="padding-left:8px;">' . $sprovider_id . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Provider #:</td><td style="padding-left:8px;">' . text($sprovider_id) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -652,18 +660,18 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Insured Name:</td><td style="width:64%;padding-left:8px;">' . $primary['subscriber_lname'] . ', ' . $primary['subscriber_fname'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Insured Address:</td><td style="padding-left:8px;">' . $primary['subscriber_street'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">&nbsp;</td><td style="padding-left:8px;">' . $primary['subscriber_city'] . ', ' . $primary['subscriber_state'] . ' ' . $primary['subscriber_postal_code'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Insured Relation to Pt:</td><td style="padding-left:8px;">' . $primary['subscriber_relationship'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Insured Name:</td><td style="width:64%;padding-left:8px;">' . text($primary['subscriber_lname']) . ', ' . text($primary['subscriber_fname']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Insured Address:</td><td style="padding-left:8px;">' . text($primary['subscriber_street']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">&nbsp;</td><td style="padding-left:8px;">' . text($primary['subscriber_city']) . ', ' . text($primary['subscriber_state']) . ' ' . text($primary['subscriber_postal_code']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Insured Relation to Pt:</td><td style="padding-left:8px;">' . text($primary['subscriber_relationship']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Insured Name:</td><td style="width:64%;padding-left:8px;">' . $secondary['subscriber_lname'] . ', ' . $secondary['subscriber_fname'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Insured Address:</td><td style="padding-left:8px;">' . $secondary['subscriber_street'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">&nbsp;</td><td style="padding-left:8px;">' . $secondary['subscriber_city'] . ', ' . $secondary['subscriber_state'] . ' ' . $secondary['subscriber_postal_code'] . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Insured Relation to Pt:</td><td style="padding-left:8px;">' . $secondary['subscriber_relationship'] . '</td></tr>';
+        $pdfContent .= '<tr><td style="width:36%;text-align:right;">Insured Name:</td><td style="width:64%;padding-left:8px;">' . text($secondary['subscriber_lname']) . ', ' . text($secondary['subscriber_fname']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Insured Address:</td><td style="padding-left:8px;">' . text($secondary['subscriber_street']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">&nbsp;</td><td style="padding-left:8px;">' . text($secondary['subscriber_city']) . ', ' . text($secondary['subscriber_state']) . ' ' . text($secondary['subscriber_postal_code']) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Insured Relation to Pt:</td><td style="padding-left:8px;">' . text($secondary['subscriber_relationship']) . '</td></tr>';
         $pdfContent .= '</table>';
         $pdfContent .= '</td>';
         $pdfContent .= '</tr>';
@@ -742,9 +750,9 @@ STYLES;
         $mpdfData = $mpdf->Output($filename, "S");
 
 // register the new document
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
         if (!$category['id']) {
-            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array('Lab Report'));
+            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ['Lab Report']);
         }
         $DOCUMENT_CATEGORY = $category['id'];
 
@@ -758,9 +766,9 @@ STYLES;
         $documentationOf = "$unique";
         sqlStatement(
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
-            array($documentationOf, $form_id, $d->id)
+            [$documentationOf, $form_id, $d->id]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo "Message: " . $e->getMessage();
         echo "";
         echo "getCode(): " . $e->getCode();

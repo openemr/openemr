@@ -1,0 +1,627 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "PROMIS ANXIETY Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/PA",
+            "prefix": "PROMIS ANXIETY",
+            "text": "The next few questions help measure the level of your anxiety.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDANX01",
+                            "display": "I felt fearful",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PA/EDANX01",
+                    "text": "I felt fearful",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Anxiety score.",
+                            "type": "display",
+                            "linkId": "/PA/EDANX01-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDANX40",
+                            "display": "I found it hard to focus on anything other than my anxiety",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PA/EDANX40",
+                    "text": "I found it hard to focus on anything other than my anxiety",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Anxiety score.",
+                            "type": "display",
+                            "linkId": "/PA/EDANX40-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDANX41",
+                            "display": "My worries overwhelmed me",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PA/EDANX41",
+                    "text": "My worries overwhelmed me",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Anxiety score.",
+                            "type": "display",
+                            "linkId": "/PA/EDANX41-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "EDANX53",
+                            "display": "I felt uneasy",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PA/EDANX53",
+                    "text": "I felt uneasy",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_1",
+                                "display": "Never"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_2",
+                                "display": "Rarely"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_3",
+                                "display": "Sometimes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_4",
+                                "display": "Often"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "FRQ_5",
+                                "display": "Always"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Anxiety score.",
+                            "type": "display",
+                            "linkId": "/PA/EDANX53-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "PA-score",
+                            "display": "PROMIS ANXIETY Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pa17_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX01').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX01').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pa18_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX40').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX40').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pa19_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX41').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX41').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pa20_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX53').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PA').item.where(linkId = '/PA/EDANX53').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%pa17_value.exists() or %pa18_value.exists() or %pa19_value.exists() or %pa20_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%pa17_value.exists(), %pa17_value, 0) + iif(%pa18_value.exists(), %pa18_value, 0) + iif(%pa19_value.exists(), %pa19_value, 0) + iif(%pa20_value.exists(), %pa20_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/PA/PA-score",
+                    "text": "PROMIS ANXIETY Score"
+                }
+            ]
+        }
+    ],
+    "name": "PROMIS_ANXIETY_Assessment"
+}

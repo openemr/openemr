@@ -6,30 +6,40 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $this->assign('title', xlt('Portal') . ' | ' . xlt('Activity'));
 $this->assign('nav', 'onsiteactivityviews');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
-    die(xlt("Unauthorized"));
-    exit;
+    AccessDeniedHelper::deny('Unauthorized access to onsite activity view');
 }
+
+$globalsBag = OEGlobalsBag::getInstance();
 
 $this->display('_FormsHeader.tpl.php');
 echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script>
-    $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+    $LAB.script("<?php echo $globalsBag->getString('web_root'); ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             actpage.init();
         });
         setTimeout(function(){
-            if (!actpage.isInitialized) actpage.init();
+            if (!actpage.isInitialized) {
+                actpage.init();
+            }
         },1000);
     });
 </script>
@@ -37,7 +47,7 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
 <div class="container mt-5">
 
 <h3>
-    <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities')?>
+    <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities'); ?>
     <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
     <div class="col-sm-3 col-md-3 float-right">
         <form class="navbar-form" role="search">
@@ -55,17 +65,21 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
         <table class="collection table table-sm table-bordered table-hover">
         <thead>
             <tr>
+                <th id="header_Id"><?php echo xlt('Id') ?><% if (actpage.orderBy == 'Id') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Date"><?php echo xlt('Date')?><% if (actpage.orderBy == 'Date') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_PatientId"><?php echo xlt('Patient Id')?><% if (actpage.orderBy == 'PatientId') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Fname"><?php echo xlt('First{{Name}}')?><% if (actpage.orderBy == 'Fname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Mname"><?php echo xlt('Middle{{Name}}')?><% if (actpage.orderBy == 'Mname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Lname"><?php echo xlt('Last{{Name}}')?><% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Narrative"><?php echo xlt('Narrative')?><% if (actpage.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Activity"><?php echo xlt('Activity')?><% if (actpage.orderBy == 'Activity') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_RequireAudit"><?php echo xlt('Require Audit')?><% if (actpage.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_PendingAction"><?php echo xlt('Pending Action')?><% if (actpage.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Fname"><?php echo xlt('First{{Name}}') ?><% if (actpage.orderBy == 'Fname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Mname"><?php echo xlt('Middle{{Name}}') ?><% if (actpage.orderBy == 'Mname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Lname"><?php echo xlt('Last{{Name}}') ?><% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Narrative"><?php echo xlt('Narrative') ?><% if (actpage.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Activity"><?php echo xlt('Activity') ?><% if (actpage.orderBy == 'Activity') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_TableArgs"><?php echo xlt('RecId') ?><% if (actpage.orderBy == 'TableArgs') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_PendingAction"><?php echo xlt('Pending Action') ?><% if (actpage.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Status"><?php echo xlt('Status')?><% if (actpage.orderBy == 'Status') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-<!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
+                <th><?php echo xlt('Action') ?></th>
+
+                <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
+                <th id="header_RequireAudit"><?php //echo xlt('Require Audit') ?><% if (actpage.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Id">Id<% if (actpage.orderBy == 'Id') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_ActionTaken">Action Taken<% if (actpage.orderBy == 'ActionTaken') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_TableAction">Table Action<% if (actpage.orderBy == 'TableAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
@@ -100,6 +114,7 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
         <tbody>
         <% items.each(function(item) { %>
             <tr id="<%= _.escape(item.get('id')) %>">
+                <td><%= _.escape(item.get('id') || '') %></td>
                 <td><%if (item.get('date')) { %><%= moment(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
                 <td><%= _.escape(item.get('patientId') || '') %></td>
                 <td><%= _.escape(item.get('fname') || '') %></td>
@@ -107,9 +122,10 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
                 <td><%= _.escape(item.get('lname') || '') %></td>
                 <td><%= _.escape(item.get('narrative') || '') %></td>
                 <td><%= _.escape(item.get('activity') || '') %></td>
-                <td><%= _.escape(item.get('requireAudit') || '') %></td>
+                <td><%= _.escape(item.get('tableArgs') || '') %></td>
                 <td><%= _.escape(item.get('pendingAction') || '') %></td>
                 <td><%= _.escape(item.get('status') || '') %></td>
+                <td><button class="delete-button btn btn-sm btn-link" data-update-id=<%= _.escape(item.get('id') || '') %> data-delete-id=<%= _.escape(item.get('tableArgs') || '') %>><i class="fa fa-trash text-danger"></i></button></td>
 <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
                 <td><%= _.escape(item.get('id') || '') %></td>
                 <td><%= _.escape(item.get('actionTaken') || '') %></td>

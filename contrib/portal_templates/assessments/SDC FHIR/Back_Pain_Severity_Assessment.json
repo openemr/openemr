@@ -1,0 +1,2477 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "Back Pain Severity Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/BS",
+            "prefix": "Back Pain Severity",
+            "text": "This questionnaire has been designed to give us information as to how your back pain is affecting your ability to manage in everyday life. It takes about 3 minutes. Please answer by checking ONE box in each section for the statement which best applies to you. We realize you may consider that two or more statements in any one section apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "MDS03",
+                            "display": "How would you rate your low-back pain on average?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/MDS03",
+                    "text": "How would you rate your low-back pain on average?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "NRS_1",
+                                "display": "0"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_2",
+                                "display": "1"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_3",
+                                "display": "2"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_4",
+                                "display": "3"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_5",
+                                "display": "4"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_6",
+                                "display": "5"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_7",
+                                "display": "6"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 6
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_8",
+                                "display": "7"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 7
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_9",
+                                "display": "8"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 8
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_10",
+                                "display": "9"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 9
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NRS_11",
+                                "display": "10"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 10
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/MDS03-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI01",
+                            "display": "Pain Intensity",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI01",
+                    "text": "Pain Intensity",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "ODI_1",
+                                "display": "I have no pain at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ODI_2",
+                                "display": "The pain is very mild at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ODI_3",
+                                "display": "The pain is moderate at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ODI_4",
+                                "display": "The pain is fairly severe at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ODI_5",
+                                "display": "The pain is very severe at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "ODI_6",
+                                "display": "The pain is the worst imaginable at the moment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI01-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI02",
+                            "display": "Personal Care (washing, dressing, etc.)",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI02",
+                    "text": "Personal Care (washing, dressing, etc.)",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "OSW_1",
+                                "display": "I can do it without pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "OSW_2",
+                                "display": "I can do it but it causes pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "OSW_3",
+                                "display": "I am slow and careful."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "OSW_4",
+                                "display": "I need some help."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "OSW_5",
+                                "display": "I need help in most self-care."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "OSW_6",
+                                "display": "I do not get dressed and stay in bed."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI02-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI03",
+                            "display": "Lifting",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI03",
+                    "text": "Lifting",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "LIF_1",
+                                "display": "I can lift heavy weights without pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "LIF_2",
+                                "display": "I can lift heavy weights with pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "LIF_3",
+                                "display": "I can lift heavy weights if conveniently positioned"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "LIF_4",
+                                "display": "I can manage medium weights."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "LIF_5",
+                                "display": "I can lift very light weights."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "LIF_6",
+                                "display": "I cannot lift or carry anything at all."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI03-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI04",
+                            "display": "Walking",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI04",
+                    "text": "Walking",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "WLK_1",
+                                "display": "Pain does not prevent me from walking any distance."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "WLK_2",
+                                "display": "Pain prevents me from walking more than 1 mile."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "WLK_3",
+                                "display": "Pain prevents me from walking more than 1/2 mile."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "WLK_4",
+                                "display": "Pain prevents me from walking more than 100 yards."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "WLK_5",
+                                "display": "I can only walk using a stick or crutches."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "WLK_6",
+                                "display": "I am in bed most of the time."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI04-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI05",
+                            "display": "Sitting",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI05",
+                    "text": "Sitting",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "SIT_1",
+                                "display": "I can sit in any chair as long as I like."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SIT_2",
+                                "display": "I can only sit in my favorite chair as long as I like."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SIT_3",
+                                "display": "Pain prevents me from sitting more than one hour."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SIT_4",
+                                "display": "Pain prevents me from sitting more than 30 minutes."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SIT_5",
+                                "display": "Pain prevents me from sitting more than 10 minutes."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SIT_6",
+                                "display": "Pain prevents me from sitting at all."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI05-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI06",
+                            "display": "Standing",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI06",
+                    "text": "Standing",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "STD_1",
+                                "display": "I can stand as long as I want without pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "STD_2",
+                                "display": "I can stand as long as I want but it causes pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "STD_3",
+                                "display": "Pain prevents me from standing more than 1 hour."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "STD_4",
+                                "display": "Pain prevents me from standing more than 30 minutes."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "STD_5",
+                                "display": "Pain prevents me from standing more than 10 minutes."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "STD_6",
+                                "display": "Pain prevents me from standing at all."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI06-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI07",
+                            "display": "Sleeping",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI07",
+                    "text": "Sleeping",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "SLG_1",
+                                "display": "My sleep is never disturbed by pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLG_2",
+                                "display": "My sleep is occasionally disturbed by pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLG_3",
+                                "display": "Because of pain I have less than 6 hours sleep."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLG_4",
+                                "display": "Because of pain I have less than 4 hours sleep."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLG_5",
+                                "display": "Because of pain I have less than 2 hours sleep."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLG_6",
+                                "display": "Pain prevents me from sleeping at all."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI07-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI08",
+                            "display": "Sex Life (if applicable)",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI08",
+                    "text": "Sex Life (if applicable)",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "SEX_1",
+                                "display": "My sex life is normal and causes no extra pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SEX_2",
+                                "display": "My sex life is normal but causes some extra pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SEX_3",
+                                "display": "My sex life is nearly normal but is very painful."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SEX_4",
+                                "display": "My sex life is severely restricted by pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SEX_5",
+                                "display": "My sex life is nearly absent because of pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SEX_6",
+                                "display": "Pain prevents any sex life at all."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI08-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI09",
+                            "display": "Social Life",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI09",
+                    "text": "Social Life",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "SLK_1",
+                                "display": "My social life is normal and gives me no extra pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLK_2",
+                                "display": "My social life is normal but increases the degree of pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLK_3",
+                                "display": "Pain limits my more energetic interests, e.g., sport."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLK_4",
+                                "display": "Pain has restricted my social life and I do not go out as often."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLK_5",
+                                "display": "Pain has restricted my social life to my home."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLK_6",
+                                "display": "I have no social life because of pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI09-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ODI10",
+                            "display": "Traveling",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/BS/ODI10",
+                    "text": "Traveling",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "TRL_1",
+                                "display": "I can travel anywhere without pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TRL_2",
+                                "display": "I can travel anywhere but it gives me extra pain."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TRL_3",
+                                "display": "Pain is bad but I manage journeys over 2 hours."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TRL_4",
+                                "display": "Pain is bad but I manage journeys less than 1 hour."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TRL_5",
+                                "display": "Pain restricts me to short necessary journeys under 30 minutes."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "TRL_6",
+                                "display": "Pain prevents me from traveling except to receive treatment."
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_2"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_3"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_4"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_5"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_6"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_7"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_8"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_9"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_10"
+                            }
+                        },
+                        {
+                            "question": "/BS/MDS03",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "NRS_11"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "This question is part of the Oswestry Disability Questionnaire. It measures how much your back pain is affecting your ability to manage in everyday life. Please answer by checking ONE box for the statement which best applies to you. We realize you may consider that two or more statements may apply, but please just mark the box that indicates the statement which most clearly describes your problem.",
+                            "type": "display",
+                            "linkId": "/BS/ODI10-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "BS-score",
+                            "display": "Back Pain Severity Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs1_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/MDS03').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/MDS03').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs2_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI01').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI01').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs3_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI02').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI02').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs4_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI03').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI03').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs5_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI04').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI04').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs6_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI05').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI05').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs7_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI06').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI06').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs8_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI07').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI07').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs9_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI08').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI08').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs10_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI09').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI09').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "bs11_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI10').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/BS').item.where(linkId = '/BS/ODI10').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%bs1_value.exists() or %bs2_value.exists() or %bs3_value.exists() or %bs4_value.exists() or %bs5_value.exists() or %bs6_value.exists() or %bs7_value.exists() or %bs8_value.exists() or %bs9_value.exists() or %bs10_value.exists() or %bs11_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%bs1_value.exists(), %bs1_value, 0) + iif(%bs2_value.exists(), %bs2_value, 0) + iif(%bs3_value.exists(), %bs3_value, 0) + iif(%bs4_value.exists(), %bs4_value, 0) + iif(%bs5_value.exists(), %bs5_value, 0) + iif(%bs6_value.exists(), %bs6_value, 0) + iif(%bs7_value.exists(), %bs7_value, 0) + iif(%bs8_value.exists(), %bs8_value, 0) + iif(%bs9_value.exists(), %bs9_value, 0) + iif(%bs10_value.exists(), %bs10_value, 0) + iif(%bs11_value.exists(), %bs11_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/BS/BS-score",
+                    "text": "Back Pain Severity Score"
+                }
+            ]
+        }
+    ],
+    "name": "Back_Pain_Severity_Assessment"
+}

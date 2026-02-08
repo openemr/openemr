@@ -40,7 +40,7 @@ class AMC_304d_STG2_Denominator implements AmcFilterIF
                 // the end date for encounter range is the above $beginDate
                 $endDate_encounter = $beginDate;
 
-        $twoEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 2 );
+        $twoEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 2 ];
         if (Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate_encounter, $endDate_encounter, $twoEncounter)) {
             return true;
         }

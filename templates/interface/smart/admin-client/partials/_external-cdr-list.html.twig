@@ -1,0 +1,36 @@
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>
+                {{ 'Edit'|xlt }}
+            </th>
+            <th>{{ 'Service Name / Service ID'|xlt }}</th>
+            <th>{{ 'Enabled'|xlt }}</th>
+            <th>{{ 'Service Type'|xlt }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if services|length <= 0 %}
+        <tr>
+            <td colspan="7">{{ 'There are no services registered in the system'|xlt }}</td>
+        </tr>
+        {% endif %}
+        {% for listService in services %}
+        <tr>
+            <td>
+                <a class="btn btn-primary btn-sm" href="{{ listService.link|attr }}" onclick="top.restoreSession()">{{ "Edit"|xlt }}</a>
+            </td>
+            <td>
+                {{ listService.service.client.name|text }}
+                <br />
+                <em>{{ listService.service.client.identifier|text }}</em>
+            </td>
+            <td>{{ listService.service.client.isEnabled() ? "Enabled"|xlt : "Disabled"|xlt }}</td>
+            {# TODO: @adunsulag need to switch this to be service type, evidence / vs predictive DSI #}
+            <td>{{ listService.service.type == 'evidence-based' ? "Evidence Based DSI"|xlt : "Predictive DSI"|xlt }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

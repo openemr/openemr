@@ -1,0 +1,52 @@
+{#
+The Edit/Create template of the clinical note form.
+
+@package OpenEMR
+@subpackage Forms
+@link   http://www.open-emr.org
+@author Jacob T Paul <jacob@zhservices.com>
+@author Vinish K <vinish@zhservices.com>
+@author Brady Miller <brady.g.miller@gmail.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
+@author Stephen Nielson <snielson@discoverandchange.com>
+@copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+@copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+@copyright Copyright (c) 2021 <sjpadgett@gmail.com>
+@copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+@copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "core/base.html.twig" %}
+{% block head %}
+    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker','datetime-picker-translated']) }}
+    <script src="{{ webroot }}/interface/forms/clinical_notes/clinical-notes.js?v={{ assetVersion|url_encode }}"></script>
+    <script>
+        if (window.oeFormsClinicalNotes) {
+            window.oeFormsClinicalNotes.init({
+                codeArray: {{ clinical_notes_type|json_encode }}
+                ,alertMessage: {{ alertMessage|js_escape }}
+                ,defaultType: {{ defaultType|json_encode }}
+                ,defaultCategory: {{ defaultCategory|json_encode }}
+                ,patientUuid: {{ patientUuid|json_encode }}
+                ,csrfToken: {{ csrfToken|json_encode }}
+            });
+        } else {
+            console.error("Failed to find oeFormsClinicalNotes object. Please check the JavaScript file.");
+        }
+    </script>
+{% endblock %}
+{% block pagetitle %}{{ oemrUiSettings.heading_title }}{% endblock %}
+{% block content %}
+    <form method='post' name='my_form' action='{{ rootdir }}/forms/clinical_notes/save.php?id={{ formid|attr_url }}'>
+        {{ csrfToken('default', 'csrf_token_form') }}
+        <legend>{{ 'Note Details'|xlt}}</legend>
+        <div class="container-fluid">
+            {% for key,obj in check_res %}
+            {% set index = key+1 %}
+            {% set context = '' %}
+            {% include "clinical_notes/templates/partials/new/_clinical-notes-row.html.twig" %}
+            {% endfor %}
+            {% include "clinical_notes/templates/partials/new/_clinical-notes-form-actions.html.twig" %}
+        </div>
+    </form>
+{% endblock %}

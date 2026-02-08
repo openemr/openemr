@@ -63,7 +63,7 @@ class JsonWebKeySet implements Key
         }
 
         // grab the keys array from the content
-        $jwks = json_decode($content);
+        $jwks = json_decode((string) $content);
         if (!property_exists($jwks, 'keys')) {
             throw new JWKValidatorException("Malformed jwks missing keys property");
         }
@@ -115,7 +115,7 @@ class JsonWebKeySet implements Key
             return $json;
         } catch (RequestException | ConnectException $exception) {
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }

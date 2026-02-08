@@ -69,7 +69,7 @@ class C_FormPainMap extends C_AbstractClickmap
      */
     function getOptionList()
     {
-        return array(  "0" => "None",
+        return [  "0" => "None",
                        "1" => "Level 1",
                        "2" => "Level 2",
                        "3" => "Level 3",
@@ -79,7 +79,7 @@ class C_FormPainMap extends C_AbstractClickmap
                        "7" => "Level 7",
                        "8" => "Level 8",
                        "9" => "Level 9",
-                       "10" => "Worst Possible" );
+                       "10" => "Worst Possible" ];
     }
 
     /**

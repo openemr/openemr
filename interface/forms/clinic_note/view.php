@@ -21,59 +21,10 @@ require_once("$srcdir/forms.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$row = array();
+$row = [];
 
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
-}
-
-function rbvalue($rbname)
-{
-    $tmp = $_POST[$rbname];
-    if (! $tmp) {
-        $tmp = '0';
-    }
-
-    return "$tmp";
-}
-
-function cbvalue($cbname)
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function rbinput($name, $value, $desc, $colname)
-{
-    global $row;
-    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
-}
-
-function rbcell($name, $value, $desc, $colname)
-{
-    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname)
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
 
 $formid = $_GET['id'];
@@ -97,13 +48,13 @@ if (!empty($_POST['bn_save'])) {
          followup_timing = ?
          WHERE id = ?";
 
-        sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
+        sqlStatement($query, [$_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid]);
     } else { // If adding a new form...
         $query = "INSERT INTO form_clinic_note ( " .
          "history, examination, plan, followup_required, followup_timing
          ) VALUES ( ?, ?, ?, ?, ? )";
 
-        $newid = sqlInsert($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing));
+        $newid = sqlInsert($query, [$_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing]);
         addForm($encounter, "Clinic Note", $newid, "clinic_note", $pid, $userauthorized);
     }
 
@@ -115,7 +66,7 @@ if (!empty($_POST['bn_save'])) {
 
 if ($formid) {
     $row = sqlQuery("SELECT * FROM form_clinic_note WHERE " .
-    "id = ? AND activity = '1'", array($formid)) ;
+    "id = ? AND activity = '1'", [$formid]) ;
 }
 ?>
 <html>

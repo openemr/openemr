@@ -63,19 +63,8 @@ class PatientMenuRole extends MenuRole
         if (!$menu_parsed) {
             die("\nJSON ERROR: " . json_last_error());
         }
-        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
-        foreach ($menu_parsed as $menu_obj) {
-            if (property_exists($menu_obj, 'url')) {
-                $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
-            }
-            if (!empty($menu_obj->children)) {
-                foreach ($menu_obj->children as $menu_obj) {
-                    if (property_exists($menu_obj, 'url')) {
-                        $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
-                    }
-                }
-            }
-        }
+
+        $menu_parsed = $this->setPatientMenuUrl($menu_parsed);
 
         // Parse the menu JSON and build the menu. Also, tell the EventDispatcher about the event
         // so that 3rd party modules may modify the menu items
@@ -83,7 +72,7 @@ class PatientMenuRole extends MenuRole
         $this->menuUpdateEntries($menu_parsed);
         $updatedPatientMenuEvent = $this->dispatcher->dispatch(new PatientMenuEvent($menu_parsed), PatientMenuEvent::MENU_UPDATE);
 
-        $menu_restrictions = array();
+        $menu_restrictions = [];
         $tmp = $updatedPatientMenuEvent->getMenu();
         $this->menuApplyRestrictions($tmp, $menu_restrictions);
         $updatedPatientMenuRestrictions = $this->dispatcher->dispatch(new PatientMenuEvent($menu_restrictions), PatientMenuEvent::MENU_RESTRICT);
@@ -94,8 +83,8 @@ class PatientMenuRole extends MenuRole
     /**
      * Build the html select element to list the PatientMenuRole options.
      *
-     * @var string $selected Current PatientMenuRole for current users.
      * @return string Html select element to list the PatientMenuRole options.
+     * @var string $selected Current PatientMenuRole for current users.
      */
     public function displayMenuRoleSelector($selected = "")
     {
@@ -142,6 +131,7 @@ class PatientMenuRole extends MenuRole
 
     /**
      * load demographics created by modules system
+     *
      * @param $menu_list
      */
     protected function updateModulesDemographicsMenu(&$menu_list)
@@ -161,12 +151,12 @@ class PatientMenuRole extends MenuRole
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ? "" : "1") {
                     continue;
                 }
 
                 $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;
@@ -181,6 +171,7 @@ class PatientMenuRole extends MenuRole
             }
         }
     }
+
     /**
      * displays a bootstrap4 horizontal nav bar
      */
@@ -198,13 +189,13 @@ class PatientMenuRole extends MenuRole
                     <ul class="navbar-nav">
         EOT;
         echo $str_top . "\r\n";
-        foreach ($menu_restrictions as $key => $value) {
+        foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
                 $list .= '<ul class="dropdown-menu">';
-                foreach ($value->children as $children_key => $children_value) {
+                foreach ($value->children as $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = $children_value->class ?? '';
                     $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
@@ -214,7 +205,7 @@ class PatientMenuRole extends MenuRole
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
                 $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
@@ -233,15 +224,43 @@ class PatientMenuRole extends MenuRole
 
     /**
      * make the url absolute to web root
+     *
      * @param $rel_url
      *
      * @return string
      */
     private function getAbsoluteWebRoot($rel_url)
     {
-        if ($rel_url && !strpos($rel_url, "://")) {
+        if ($rel_url && !strpos((string) $rel_url, "://")) {
+            // Normalize URL if it starts with a forward or backward slash
+            if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
+                $rel_url = ltrim((string) $rel_url, '/\\');
+            }
             return $GLOBALS['webroot'] . "/" . $rel_url;
         }
         return $rel_url;
+    }
+
+    /**
+     * @param $menu_parsed
+     * @return mixed
+     */
+    public function setPatientMenuUrl($menu_parsed)
+    {
+        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
+        foreach ($menu_parsed as $menu_obj) {
+            if (property_exists($menu_obj, 'url')) {
+                $menu_obj->url = $this->getAbsoluteWebRoot($menu_obj->url);
+            }
+            if (!empty($menu_obj->children)) {
+                foreach ($menu_obj->children as $menu_obj) {
+                    if (property_exists($menu_obj, 'url')) {
+                        $menu_obj->url = $this->getAbsoluteWebRoot($menu_obj->url);
+                    }
+                }
+            }
+        }
+
+        return $menu_parsed;
     }
 }

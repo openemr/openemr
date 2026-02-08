@@ -19,7 +19,7 @@ require_once("$srcdir/api.inc.php");
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION["authUser"]));
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
 
 /* name of this form */
 $form_name = "note";
@@ -29,11 +29,6 @@ if ($_GET['id'] != "") {
     $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
-/* remove the time-of-day from the date fields */
-if ($obj['date_of_signature'] != "") {
-    $dateparts = explode(" ", $obj['date_of_signature']);
-    $obj['date_of_signature'] = $dateparts[0];
-}
 ?>
 <html><head>
 <title><?php echo "Form: note"?></title>
@@ -67,7 +62,7 @@ if ($obj['date_of_signature'] != "") {
 </td><td>
 <span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' name='date_of_signature' id='date_of_signature'
-    value='<?php echo attr($obj['date_of_signature']); ?>'
+    value='<?php echo attr(oeFormatShortDate($obj['date_of_signature'])); ?>'
     />
 </td></tr>
 </table>

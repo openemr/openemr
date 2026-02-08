@@ -1,0 +1,736 @@
+{
+  "resourceType" : "Questionnaire",
+  "id" : "phq-9-example",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire"]
+  },
+  "text" : {
+    "status" : "extensions",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Questionnaire phq-9-example</b></p><a name=\"phq-9-example\"> </a><a name=\"hcphq-9-example\"> </a><a name=\"phq-9-example-en-US\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"http://hl7.org/fhir/uv/sdc/STU3/StructureDefinition-sdc-questionnaire.html\">SDCBaseQuestionnaire</a></p></div><b>Structure</b><table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"border: 1px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top;\"><tr style=\"border: 2px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top\"><th style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; padding-top: 3px; padding-bottom: 3px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"The linkID for the item\">LinkID</a></th><th style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; padding-top: 3px; padding-bottom: 3px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"Text for the item\">Text</a></th><th style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; padding-top: 3px; padding-bottom: 3px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"Minimum and Maximum # of times the item can appear in the instance\">Cardinality</a></th><th style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; padding-top: 3px; padding-bottom: 3px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"The type of the item\">Type</a></th><th style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; padding-top: 3px; padding-bottom: 3px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"Additional information about the item\">Description &amp; Constraints</a><span style=\"float: right\"><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"Legend for this format\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3goXBCwdPqAP0wAAAldJREFUOMuNk0tIlFEYhp9z/vE2jHkhxXA0zJCMitrUQlq4lnSltEqCFhFG2MJFhIvIFpkEWaTQqjaWZRkp0g26URZkTpbaaOJkDqk10szoODP//7XIMUe0elcfnPd9zsfLOYplGrpRwZaqTtw3K7PtGem7Q6FoidbGgqHVy/HRb669R+56zx7eRV1L31JGxYbBtjKK93cxeqfyQHbehkZbUkK20goELEuIzEd+dHS+qz/Y8PTSif0FnGkbiwcAjHaU1+QWOptFiyCLp/LnKptpqIuXHx6rbR26kJcBX3yLgBfnd7CxwJmflpP2wUg0HIAoUUpZBmKzELGWcN8nAr6Gpu7tLU/CkwAaoKTWRSQyt89Q8w6J+oVQkKnBoblH7V0PPvUOvDYXfopE/SJmALsxnVm6LbkotrUtNowMeIrVrBcBpaMmdS0j9df7abpSuy7HWehwJdt1lhVwi/J58U5beXGAF6c3UXLycw1wdFklArBn87xdh0ZsZtArghBdAA3+OEDVubG4UEzP6x1FOWneHh2VDAHBAt80IbdXDcesNoCvs3E5AFyNSU5nbrDPZpcUEQQTFZiEVx+51fxMhhyJEAgvlriadIJZZksRuwBYMOPBbO3hePVVqgEJhFeUuFLhIPkRP6BQLIBrmMenujm/3g4zc398awIe90Zb5A1vREALqneMcYgP/xVQWlG+Ncu5vgwwlaUNx+3799rfe96u9K0JSDXcOzOTJg4B6IgmXfsygc7/Bvg9g9E58/cDVmGIBOP/zT8Bz1zqWqpbXIsd0O9hajXfL6u4BaOS6SeWAAAAAElFTkSuQmCC\" alt=\"doco\" style=\"background-color: inherit\"/></a></span></th></tr><tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck1.png)\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon_q_root.gif\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"QuestionnaireRoot\" class=\"hierarchy\"/> PHQ9Example</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"/><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"/><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Questionnaire</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">http://hl7.org/fhir/us/core/Questionnaire/phq-9-example#8.0.0</td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44250-9\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44250-9</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Little interest or pleasure in doing things?</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44250-9\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44255-8\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44255-8</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Feeling down, depressed, or hopeless?</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44255-8\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44259-0\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44259-0</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Trouble falling or staying asleep, or sleeping too much in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44259-0\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44254-1\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44254-1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Feeling tired or having little energy in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44254-1\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44251-7\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44251-7</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Poor appetite or overeating in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44251-7\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44258-2\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44258-2</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Feeling bad about yourself - or that you are a failure or have let yourself or your family down in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44258-2\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44252-5\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44252-5</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Trouble concentrating on things, such as reading the newspaper or watching television in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44252-5\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44253-3\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44253-3</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">1..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44253-3\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44260-8\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /44260-8</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Thoughts that you would be better off dead, or of hurting yourself in some way in last 2 weeks [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">0..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./44260-8\">4 options</a></td></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)\" id=\"item./44261-6\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-decimal.png\" alt=\".\" style=\"background-color: white; background-color: inherit\" title=\"decimal\" class=\"hierarchy\"/> /44261-6</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Patient health questionnaire 9 item total score</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">0..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-decimal\">decimal</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: white; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"/></tr>\r\n<tr style=\"border: 1px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7\"><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck00.png)\" id=\"item./69722-7\" class=\"hierarchy\"><img src=\"tbl_spacer.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"tbl_vjoin_end.png\" alt=\".\" style=\"background-color: inherit\" class=\"hierarchy\"/><img src=\"icon-q-coding.png\" alt=\".\" style=\"background-color: #F7F7F7; background-color: inherit\" title=\"coding\" class=\"hierarchy\"/> /69722-7</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">How difficult have these made it for you to do your work, take care of things at home, or get along with other people [Reported.PHQ]</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">0..1</td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\"><a href=\"https://hl7.org/fhir/R4/codesystem-item-type.html#item-type-choice\">choice</a></td><td style=\"vertical-align: top; text-align : var(--ig-left,left); background-color: #F7F7F7; border: 1px #F0F0F0 solid; padding:0px 4px 0px 4px\" class=\"hierarchy\">Options: <a href=\"#opt-item./69722-7\">4 options</a></td></tr>\r\n<tr><td colspan=\"5\" class=\"hierarchy\"><br/><a href=\"https://hl7.org/fhir/R4/formats.html#table\" title=\"Legend for this format\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3goXBCwdPqAP0wAAAldJREFUOMuNk0tIlFEYhp9z/vE2jHkhxXA0zJCMitrUQlq4lnSltEqCFhFG2MJFhIvIFpkEWaTQqjaWZRkp0g26URZkTpbaaOJkDqk10szoODP//7XIMUe0elcfnPd9zsfLOYplGrpRwZaqTtw3K7PtGem7Q6FoidbGgqHVy/HRb669R+56zx7eRV1L31JGxYbBtjKK93cxeqfyQHbehkZbUkK20goELEuIzEd+dHS+qz/Y8PTSif0FnGkbiwcAjHaU1+QWOptFiyCLp/LnKptpqIuXHx6rbR26kJcBX3yLgBfnd7CxwJmflpP2wUg0HIAoUUpZBmKzELGWcN8nAr6Gpu7tLU/CkwAaoKTWRSQyt89Q8w6J+oVQkKnBoblH7V0PPvUOvDYXfopE/SJmALsxnVm6LbkotrUtNowMeIrVrBcBpaMmdS0j9df7abpSuy7HWehwJdt1lhVwi/J58U5beXGAF6c3UXLycw1wdFklArBn87xdh0ZsZtArghBdAA3+OEDVubG4UEzP6x1FOWneHh2VDAHBAt80IbdXDcesNoCvs3E5AFyNSU5nbrDPZpcUEQQTFZiEVx+51fxMhhyJEAgvlriadIJZZksRuwBYMOPBbO3hePVVqgEJhFeUuFLhIPkRP6BQLIBrmMenujm/3g4zc398awIe90Zb5A1vREALqneMcYgP/xVQWlG+Ncu5vgwwlaUNx+3799rfe96u9K0JSDXcOzOTJg4B6IgmXfsygc7/Bvg9g9E58/cDVmGIBOP/zT8Bz1zqWqpbXIsd0O9hajXfL6u4BaOS6SeWAAAAAElFTkSuQmCC\" alt=\"doco\" style=\"background-color: inherit\"/> Documentation for this format</a></td></tr></table><hr/><p><b>Options Sets</b></p><a name=\"opt-item./44250-9\"> </a><p><b>Answer options for /44250-9 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44255-8\"> </a><p><b>Answer options for /44255-8 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44259-0\"> </a><p><b>Answer options for /44259-0 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44254-1\"> </a><p><b>Answer options for /44254-1 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44251-7\"> </a><p><b>Answer options for /44251-7 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44258-2\"> </a><p><b>Answer options for /44258-2 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44252-5\"> </a><p><b>Answer options for /44252-5 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44253-3\"> </a><p><b>Answer options for /44253-3 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./44260-8\"> </a><p><b>Answer options for /44260-8 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6568-5 (&quot;Not at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6569-3 (&quot;Several days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6570-1 (&quot;More than half the days&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6571-9 (&quot;Nearly every day&quot;)</li></ul><a name=\"opt-item./69722-7\"> </a><p><b>Answer options for /69722-7 </b></p><ul><li style=\"font-size: 11px\">http://loinc.org#LA6572-7 (&quot;Not difficult at all&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6573-5 (&quot;Somewhat difficult&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6575-0 (&quot;Very difficult&quot;)</li><li style=\"font-size: 11px\">http://loinc.org#LA6574-3 (&quot;Extremely difficult&quot;)</li></ul></div>"
+  },
+  "url" : "http://hl7.org/fhir/us/core/Questionnaire/phq-9-example",
+  "identifier" : [{
+    "system" : "urn:ietf:rfc:3986",
+    "value" : "urn:oid:2.16.840.1.113883.4.642.40.2.35.5"
+  }],
+  "version" : "8.0.0",
+  "name" : "PHQ9Example",
+  "title" : "PHQ-9 Example",
+  "status" : "active",
+  "experimental" : true,
+  "subjectType" : ["Patient"],
+  "date" : "2023-03-31",
+  "publisher" : "HL7 International / Cross-Group Projects",
+  "contact" : [{
+    "name" : "HL7 International / Cross-Group Projects",
+    "telecom" : [{
+      "system" : "url",
+      "value" : "http://www.hl7.org/Special/committees/cgp"
+    },
+    {
+      "system" : "email",
+      "value" : "cgp@lists.HL7.org"
+    }]
+  }],
+  "jurisdiction" : [{
+    "coding" : [{
+      "system" : "urn:iso:std:iso:3166",
+      "code" : "US"
+    }]
+  }],
+  "copyright" : "This material contains content from LOINC® (http://loinc.org). LOINC is copyright © 1995-2024, Regenstrief Institute, Inc. and the LOINC Committee, and is available at no cost under the license at http://loinc.org/license. Copyright © Pfizer Inc. All rights reserved. Developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational grant from Pfizer Inc. No permission required to reproduce, translate, display or distribute (https://www.phqscreeners.com/).",
+  "code" : [{
+    "system" : "http://loinc.org",
+    "code" : "44249-1",
+    "display" : "PHQ-9 quick depression assessment panel [Reported.PHQ]"
+  }],
+  "item" : [{
+    "linkId" : "/44250-9",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44250-9",
+      "display" : "Little interest or pleasure in doing things in last 2 weeks"
+    }],
+    "text" : "Little interest or pleasure in doing things?",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44255-8",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44255-8",
+      "display" : "Feeling down, depressed, or hopeless in last 2 weeks"
+    }],
+    "text" : "Feeling down, depressed, or hopeless?",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44259-0",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44259-0",
+      "display" : "Trouble falling or staying asleep, or sleeping too much in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Trouble falling or staying asleep, or sleeping too much in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44254-1",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44254-1",
+      "display" : "Feeling tired or having little energy in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Feeling tired or having little energy in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44251-7",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44251-7",
+      "display" : "Poor appetite or overeating in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Poor appetite or overeating in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44258-2",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44258-2",
+      "display" : "Feeling bad about yourself - or that you are a failure or have let yourself or your family down in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Feeling bad about yourself - or that you are a failure or have let yourself or your family down in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44252-5",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44252-5",
+      "display" : "Trouble concentrating on things, such as reading the newspaper or watching television in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Trouble concentrating on things, such as reading the newspaper or watching television in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44253-3",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44253-3",
+      "display" : "Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : true,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44260-8",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44260-8",
+      "display" : "Thoughts that you would be better off dead, or of hurting yourself in some way in last 2 weeks [Reported.PHQ]"
+    }],
+    "text" : "Thoughts that you would be better off dead, or of hurting yourself in some way in last 2 weeks [Reported.PHQ]",
+    "type" : "choice",
+    "required" : false,
+    "answerOption" : [{
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "0"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 0
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6568-5",
+        "display" : "Not at all"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "1"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 1
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6569-3",
+        "display" : "Several days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "2"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 2
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6570-1",
+        "display" : "More than half the days"
+      }
+    },
+    {
+      "extension" : [{
+        "url" : "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
+        "valueString" : "3"
+      },
+      {
+        "url" : "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+        "valueDecimal" : 3
+      }],
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6571-9",
+        "display" : "Nearly every day"
+      }
+    }]
+  },
+  {
+    "linkId" : "/44261-6",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "44261-6",
+      "display" : "Patient Health Questionnaire 9 item (PHQ-9) total score [Reported]"
+    }],
+    "text" : "Patient health questionnaire 9 item total score",
+    "type" : "decimal",
+    "required" : false
+  },
+  {
+    "linkId" : "/69722-7",
+    "code" : [{
+      "system" : "http://loinc.org",
+      "code" : "69722-7",
+      "display" : "How difficult have these made it for you to do your work, take care of things at home, or get along with other people [Reported.PHQ]"
+    }],
+    "text" : "How difficult have these made it for you to do your work, take care of things at home, or get along with other people [Reported.PHQ]",
+    "type" : "choice",
+    "required" : false,
+    "answerOption" : [{
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6572-7",
+        "display" : "Not difficult at all"
+      }
+    },
+    {
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6573-5",
+        "display" : "Somewhat difficult"
+      }
+    },
+    {
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6575-0",
+        "display" : "Very difficult"
+      }
+    },
+    {
+      "valueCoding" : {
+        "system" : "http://loinc.org",
+        "code" : "LA6574-3",
+        "display" : "Extremely difficult"
+      }
+    }]
+  }]
+}

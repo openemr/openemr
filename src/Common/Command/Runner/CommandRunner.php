@@ -20,29 +20,23 @@ use OpenEMR\Common\Command\IOpenEMRCommand;
 
 class CommandRunner
 {
-    /**
-     * The OpenEMR root installation folder
-     * @var string
-     */
-    private $rootPath;
-
-    /**
-     * The name of the script that is calling the command runner
-     * @var string
-     */
-    private $scriptName;
-
     const COMMAND_NAMESPACE = 'OpenEMR\\Common\\Command\\';
     const COMMAND_SUFFIX = "Command";
 
-    public function __construct($rootPath, $scriptName)
-    {
-        $this->rootPath = $rootPath;
-        $this->scriptName = $scriptName;
+    /**
+     * @param string $rootPath The OpenEMR root installation folder
+     * @param string $scriptName The name of the script that is calling the command runner
+     */
+    public function __construct(
+        private $rootPath,
+        private $scriptName
+    ) {
     }
 
     public function run()
     {
+        echo "This Command Runner is deprecated and will be removed at a future date.  Use php bin/console as a replacement runner\n";
+
         $shortOpts = "c:hl";
         $options = getopt($shortOpts);
 
@@ -80,7 +74,6 @@ class CommandRunner
             exit;
         }
 
-        echo "Executing command '" . $commandName . "'\n";
         $command->execute($context);
         exit;
     }
@@ -132,7 +125,7 @@ class CommandRunner
                 }
             }
             return $availableCommands;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

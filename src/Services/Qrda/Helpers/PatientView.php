@@ -115,9 +115,7 @@ trait PatientView
     {
         $gender_elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicSex";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicSex"
         );
         if (empty($gender_elements)) {
             return false;
@@ -132,9 +130,7 @@ trait PatientView
     {
         $birthdate_elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicBirthdate";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicBirthdate"
         );
         if (empty($birthdate_elements)) {
             return "None";
@@ -147,9 +143,7 @@ trait PatientView
     {
         $elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicExpired";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicExpired"
         );
         if (empty($elements)) {
             return "None";
@@ -162,9 +156,7 @@ trait PatientView
     {
         $elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicRace";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicRace"
         );
         if (empty($elements)) {
             return false;
@@ -179,9 +171,7 @@ trait PatientView
     {
         $elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicEthnicity";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicEthnicity"
         );
         if (empty($elements)) {
             return false;
@@ -196,9 +186,7 @@ trait PatientView
     {
         $elements = array_filter(
             $this->patient->dataElements,
-            function ($de) {
-                return $de->_type == "QDM::PatientCharacteristicPayer";
-            }
+            fn($de): bool => $de->_type == "QDM::PatientCharacteristicPayer"
         );
         if (empty($elements)) {
             return false;

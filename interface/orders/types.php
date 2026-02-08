@@ -39,8 +39,8 @@ if ($popup && !AclMain::aclCheckCore('patients', 'lab') && !AclMain::aclCheckCor
 
 // If Save was clicked, set the result, close the window and exit.
 //
-if ($popup && $_POST['form_save']) {
-    $form_order = isset($_GET['form_order']) ? $_GET['form_order'] + 0 : 0;
+if ($popup && $_POST['form_save'] ?? '') {
+    $form_order = isset($_REQUEST['form_order']) ? $_REQUEST['form_order'] + 0 : 0;
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>
@@ -86,19 +86,19 @@ if ($popup && $_POST['form_save']) {
         }
         #con0 td {
             font-family: sans-serif;
-            font-size: 11px;
+            font-size: 16px;
             line-height: 25px;
         }
         .plusminus {
             font-family: monospace;
         }
         .haskids {
-            color: #0000dd;
+            color: #0404fd;
             cursor: pointer;
             cursor: hand;
         }
         tr.head {
-            font-size: 14px;
+            font-size: 16px;
             background-color: var(--light);
             font-weight: bold;
         }
@@ -405,4 +405,3 @@ if ($popup && $_POST['form_save']) {
 
 </body>
 </html>
-

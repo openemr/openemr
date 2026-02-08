@@ -74,14 +74,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// This exit is to avoid malicious use of this script.
-exit;
+// This safety check prevents accidental execution of this script.
+if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
+    die('Set OPENEMR_ENABLE_INSTALLER_AUTO=1 environment variable to enable this script');
+}
 
 // Include standard libraries/classes
-require_once dirname(__FILE__) . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use OpenEMR\Common\Logging\SystemLogger;
 
 // Set up default configuration settings
-$installSettings = array();
+$installSettings = [];
 $installSettings['iuser']                    = 'admin';
 $installSettings['iuname']                   = 'Administrator';
 $installSettings['iuserpass']                = 'pass';
@@ -102,7 +106,9 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i = 1; $i < count($argv); $i++) {
+$argc ??= 0;
+$argv ??= [];
+for ($i = 1; $i < $argc; $i++) {
     $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];
@@ -110,7 +116,7 @@ for ($i = 1; $i < count($argv); $i++) {
 }
 
 // Convert BLANK settings to empty
-$tempInstallSettings = array();
+$tempInstallSettings = [];
 foreach ($installSettings as $setting => $value) {
     if ($value == "BLANK") {
         $value = '';
@@ -123,7 +129,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer($installSettings);
+$installer = new Installer($installSettings, new SystemLogger());
 if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

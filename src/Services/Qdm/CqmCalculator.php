@@ -122,7 +122,7 @@ class CqmCalculator
             'doPretty' => true,
             'includeClauseResults' => true,
             'requestDocument' => true,
-            'effectiveDate' => date('YmdHi', strtotime($effectiveDate)) . '00',
+            'effectiveDate' => date('YmdHi', strtotime((string) $effectiveDate)) . '00',
             'effectiveDateEnd' => null // !empty($effectiveEndDate) ? date('YmdHi', strtotime($effectiveEndDate)) . '00' : null
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));

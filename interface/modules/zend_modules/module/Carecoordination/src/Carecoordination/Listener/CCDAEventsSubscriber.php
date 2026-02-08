@@ -29,18 +29,12 @@ use XSLTProcessor;
 class CCDAEventsSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var CcdaGenerator
-     */
-    private $generator;
-
-    /**
      * @var string The url that users will be sent to inside OpenEMR to view a CCDA
      */
     private $viewCcdaUrl;
 
-    public function __construct(CcdaGenerator $generator)
+    public function __construct(private readonly CcdaGenerator $generator)
     {
-        $this->generator = $generator;
         $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 
@@ -98,7 +92,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $fileUrl = $cdaResult->getData()[0]['ccda_data'];
                 $event->setFileUrl($fileUrl);
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
@@ -133,12 +127,12 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             $format = $event->getFormat();
             if ($format == 'html') {
                 // time to use our stylesheets
-                $stylesheet = dirname(__FILE__) . "/../../../../../public/xsl/";
+                $stylesheet = __DIR__ . "/../../../../../public/xsl/";
 
                 // from original ccr/display.php code
                 if ($type == 'CCR') {
                     $stylesheet .= "ccr.xsl";
-                } else if ($type == "CCD") {
+                } elseif ($type == "CCD") {
                     $stylesheet .= "cda.xsl";
                 }
                 if (!file_exists($stylesheet)) {
@@ -155,7 +149,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             }
             $event->setContent($updatedContent);
             return $event;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }

@@ -1,0 +1,194 @@
+<?php
+
+/*
+ * FhirObservationObservationFormService.php
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Services\FHIR\Observation;
+
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
+use OpenEMR\Services\ObservationService;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
+
+class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+{
+    use FhirObservationTrait;
+
+    private ObservationService $observationService;
+    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'therapy'];
+
+    public function __construct($fhirApiURL = null)
+    {
+        parent::__construct($fhirApiURL);
+        $this->observationService = new ObservationService();
+        $this->observationService->setSystemLogger($this->getSystemLogger());
+    }
+
+    public function supportsCategory($category): bool
+    {
+        return in_array($category, self::SUPPORTED_CATEGORIES);
+    }
+
+    public function supportsCode(string $code): bool
+    {
+        // we support pretty much any LOINC code, we could hit procedure_order_code and procedure_results to be
+        // specific but we'll just let the query execute.
+        return true;
+    }
+
+
+    /**
+     * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
+     * @return array<string, FhirSearchParameterDefinition>
+     */
+    protected function loadSearchParameters(): array
+    {
+        return [
+            'patient' => $this->getPatientContextSearchField(),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['ob_code']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
+                new ServiceField('uuid', ServiceField::TYPE_UUID)
+                ]),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
+        ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+    }
+
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
+    }
+    protected function setObservationProfile(FHIRMeta $meta, FHIRObservation $observation, array $dataRecord): void
+    {
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($this->createProfile($profile));
+        }
+        $categoryCodes = array_map(fn($category) => $category->getCoding()[0]->getCode(), $observation->getCategory() ?? []);
+        // check for linked questionnaire
+        if (!empty($dataRecord['questionnaire_uuid'])) {
+            // verify we have a survey category
+            if (in_array('survey', $categoryCodes)) {
+                foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
+                    $meta->addProfile($this->createProfile($profile));
+                }
+            }
+        }
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
+     */
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        if (isset($openEMRSearchParameters['ob_code'])) {
+            // need to loop through and grab all of our systems that we support for observation codes
+            // if there is a SNOMED system then we need to handle that differently since we store the system separately
+            /**
+             * @var TokenSearchField $codeSearchField
+             */
+            $codeSearchField = $openEMRSearchParameters['ob_code'];
+            // this isn't ideal, but we have much more complex logic here since observation codes can come from multiple code systems
+            // we need to break them down by system and then build a compound search field that includes code + code type for each system
+            $compoundObCode = new CompositeSearchField('ob_code', [], false);
+            $systemLookupHash = [];
+
+            foreach ($codeSearchField->getValues() as $codeSearchFieldValue) {
+                $system = $codeSearchFieldValue->getSystem() ?? null;
+                if (isset($systemLookupHash[$system])) {
+                    $codeTypes = $systemLookupHash[$system];
+                } else {
+                    $codeTypes = $this->getCodeTypesService()->getCodeTypeListForSystem($system);
+                    $systemLookupHash[$system] = $codeTypes;
+                }
+                if (!empty($codeTypes)) {
+                    $compoundObCodeWithCodeType = new CompositeSearchField('ob_code_code_type', [], true);
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('code_type', $codeTypes));
+                    $compoundObCode->addChild($compoundObCodeWithCodeType);
+                } else {
+                    $compoundObCode->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                }
+            }
+            $openEMRSearchParameters['ob_code'] = $compoundObCode;
+        }
+        // we grab the records and grab any children records and populate them if we have them.
+        return $this->observationService->searchAndPopulateChildObservations($openEMRSearchParameters);
+    }
+
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
+    {
+        // convert fields in the data array to the format that FhirObservationTrait expects
+        $dataRecord['last_updated_time'] = $dataRecord['date'];
+        return $this->parseObservationOpenEMRRecord($dataRecord, $encode);
+    }
+
+    /**
+     * Set observation value or dataAbsentReason (mustSupport, constraint us-core-2)
+     */
+    protected function setObservationValue(FHIRObservation $observation, array $dataRecord): void
+    {
+        $this->setObservationValueWithDetails(
+            $observation,
+            $dataRecord['ob_value'] ?? null,
+            $dataRecord['ob_unit'] ?? null,
+            $dataRecord['ob_value_code_description'] ?? null,
+            $dataRecord['sub_observations'] ?? []
+        );
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getSupportedVersions()
+    {
+        return self::PROFILE_VERSIONS_V2;
+    }
+
+    public function getProfileURIs(): array
+    {
+        $profileSets = [
+            $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions())
+            , $this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions())
+        ];
+        return array_merge(...$profileSets);
+    }
+}

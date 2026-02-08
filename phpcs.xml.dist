@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<ruleset name="OpenEMR Standard">
+  <description>PSR-12 (permissive)</description>
+
+  <!-- Runtime settings -->
+  <ini name="memory_limit" value="4G" />
+  <arg name="extensions" value="php,inc"/>
+  <arg name="tab-width" value="4"/>
+  <arg name="report-width" value="120"/>
+  <arg name="warning-severity" value="0" />
+  <!--
+      20 picked to max out most systems. Note that this will influence the
+      progressbar; it shows #jobs instead of #files when parallel is on.
+  -->
+  <arg name="parallel" value="20" />
+  <arg value="p" /> <!-- progressbar-->
+
+  <!-- Checks that the opening PHP tag is the first content in a file. -->
+  <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag"/>
+
+  <!-- Indenting -->
+  <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="ignoreIndentationTokens" type="array">
+        <element value="T_COMMENT"/>
+        <element value="T_DOC_COMMENT_OPEN_TAG"/>
+      </property>
+    </properties>
+  </rule>
+
+  <!-- Stricter rules can be scoped to specific directories, e.g.:
+  <rule ref="PSR12">
+    <include-pattern>src/*</include-pattern>
+  </rule>
+  -->
+
+  <!-- Default scan target (overridden when paths passed on CLI) -->
+  <file>.</file>
+
+  <exclude-pattern>*/gacl/gacl.ini.php</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/public/assets/*</exclude-pattern>
+  <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
+  <exclude-pattern>/tmp-phpstan/*</exclude-pattern>
+  <exclude-pattern>/vendor/*</exclude-pattern>
+</ruleset>

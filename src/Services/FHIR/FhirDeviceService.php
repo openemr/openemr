@@ -14,12 +14,15 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDevice;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier;
 use OpenEMR\Services\DeviceService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -29,6 +32,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var DeviceService
@@ -52,7 +56,13 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         return [
         'patient' => $this->getPatientContextSearchField(),
         '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+        '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
     /**
@@ -62,11 +72,18 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $device = new FHIRDevice();
 
-        $device->setMeta(UtilsService::createFhirMeta('1', UtilsService::getDateFormattedAsUTC()));
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        if (!empty($dataRecord['modifydate'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $device->setMeta($fhirMeta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -123,9 +140,8 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -160,9 +176,9 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

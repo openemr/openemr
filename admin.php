@@ -14,7 +14,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -22,14 +22,14 @@ if ($response !== true) {
 
 require_once "version.php";
 
-$webserver_root = dirname(__FILE__);
+$webserver_root = __DIR__;
 if (stripos(PHP_OS, 'WIN') === 0) {
     $webserver_root = str_replace("\\", "/", $webserver_root);
 }
 
 $OE_SITES_BASE = "$webserver_root/sites";
 
-function sqlQuery($statement, $link)
+function adminSqlQuery($statement, $link)
 {
     $row = mysqli_fetch_array(mysqli_query($link, $statement), MYSQLI_ASSOC);
     return $row;
@@ -130,16 +130,16 @@ function sqlQuery($statement, $link)
                                 echo "  <td colspan='3' class='text-danger'>" . htmlspecialchars($errmsg, ENT_NOQUOTES) . "</td>\n";
                             } else {
                                 // Get site name for display.
-                                $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
+                                $row = adminSqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
                                 $openemr_name = $row ? $row['gl_value'] : '';
 
                                 // Get version indicators from the database.
-                                $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
+                                $row = adminSqlQuery("SHOW TABLES LIKE 'version'", $dbh);
                                 if (empty($row)) {
                                     $openemr_version = 'Unknown';
                                     $database_version = 0;
                                 } else {
-                                    $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
+                                    $row = adminSqlQuery("SELECT * FROM version LIMIT 1", $dbh);
                                     $database_patch_txt = "";
                                     if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
                                         $database_patch_txt = " (" . $row['v_realpatch'] . ")";

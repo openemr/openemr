@@ -1,0 +1,60 @@
+name: PHPStan
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+    # Hack: temporarily uninstall rector, which interferes with PHPStan
+    # (it bundles some type-incomplete polyfills which can throw off results)
+    - name: Remove Rector
+      run: composer remove --dev --optimize-autoloader rector/rector
+    - name: PHPStan Cache
+      # https://phpstan.org/user-guide/result-cache
+      uses: actions/cache@v5
+      with:
+        path: tmp-phpstan # same as in phpstan.neon
+        key: "phpstan-result-cache-${{ github.run_id }}"
+        restore-keys: |
+          phpstan-result-cache-
+    - name: PHPStan Diagnose
+      run: vendor/bin/phpstan --memory-limit=8G diagnose
+    - name: PHPStan Analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+    - name: PHPStan Baseline
+      if: failure()
+      run: composer run phpstan-baseline
+    # Upload the resulting baseline as an artifact. This is intended mostly for
+    # debugging and isn't actively used by GH workflows.
+    - name: Upload PHPStan Baseline
+      if: failure()
+      uses: actions/upload-artifact@v6
+      with:
+        name: phpstan-baseline-php${{ matrix.php-version }}
+        path: .phpstan/baseline/*.php

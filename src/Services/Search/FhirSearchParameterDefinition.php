@@ -17,30 +17,17 @@ namespace OpenEMR\Services\Search;
 class FhirSearchParameterDefinition
 {
     /**
-     * @var string
+     * @param string $name
+     * @param string $type
+     * @param ServiceField[]|string[] $mappedFields
+     * @param string[] $options
      */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $type;
-    /**
-     * @var string[]
-     */
-    private $mappedFields;
-
-    /**
-     * @var string[]
-     */
-    private $options;
-
-    public function __construct($name, $type, $mappedFields, $options = array())
-    {
-        $this->name = $name;
-        $this->type = $type;
-        $this->mappedFields = $mappedFields;
-        $this->options = $options;
+    public function __construct(
+        private $name,
+        private $type,
+        private $mappedFields,
+        private $options = []
+    ) {
     }
 
     /**

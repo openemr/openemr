@@ -14,31 +14,30 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  *
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Provider extends ORDataObject
 {
-        var $id;
-        var $lname;
-        var $fname;
-        var $federal_drug_id;
-        var $insurance_numbers;
-        var $specialty;
-        var $npi;
-        var $state_license_number;
+        public $lname;
+        public $fname;
+        public $federal_drug_id;
+        public $insurance_numbers;
+        public $specialty;
+        public $npi;
+        public $state_license_number;
 
         /**
          * Constructor sets all Prescription attributes to their default value
          */
-    function __construct($id = "", $prefix = "")
+    function __construct(public $id = "")
     {
-        $this->id = $id;
         $this->federal_drug_id = "";
         $this->_table = "users";
         $this-> npi = "";
-        $this->insurance_numbers = array();
+        $this->insurance_numbers = [];
         $this->state_license_number = "";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
@@ -62,9 +61,9 @@ class Provider extends ORDataObject
 
     function utility_provider_array()
     {
-        $provider_array = array();
-        $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
-        while ($row = sqlFetchArray($res)) {
+        $provider_array = [];
+        $records = QueryUtils::fetchRecords("Select id,fname,lname  from users where authorized = 1");
+        foreach ($records as $row) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
@@ -73,11 +72,11 @@ class Provider extends ORDataObject
 
     function providers_factory($sort = "ORDER BY lname,fname")
     {
-        $psa = array();
+        $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
-        $results = sqlQ($sql);
+        $records = QueryUtils::fetchRecords($sql);
 
-        while ($row = sqlFetchArray($results)) {
+        foreach ($records as $row) {
                     $psa[] = new Provider($row['id']);
         }
 

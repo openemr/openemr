@@ -26,16 +26,20 @@
 
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Landing page definition -- where to go if something goes wrong
 // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
 // parameters, or even setting what the landing page should be for the portal verify session.
 if (!isset($landingpage)) {
-    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
 }
 
 if (!isset($skipLandingPageError)) {
@@ -44,10 +48,10 @@ if (!isset($skipLandingPageError)) {
 //
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     if ($skipLandingPageError === true) {
         header('Location: ' . $landingpage);
     } else {
@@ -57,4 +61,4 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 $ignoreAuth_onsite_portal = true; // ignore the standard authentication for a regular OpenEMR user
-require_once(dirname(__file__) . './../interface/globals.php');
+require_once(__DIR__ . '/../interface/globals.php');

@@ -12,10 +12,14 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-$classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\ClaimRevConnector\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 /**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
+ * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
 
-$bootstrap = new Bootstrap($eventDispatcher, $GLOBALS['kernel']);
+$classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\ClaimRevConnector\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
+/**
+ * @global EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
+ */
+
+$bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();

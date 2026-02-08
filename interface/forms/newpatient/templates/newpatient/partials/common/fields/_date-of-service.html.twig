@@ -1,0 +1,11 @@
+{# Date Of Service #}
+<div class="col-sm {{ displayOptionClass('enc_service_date') }}">
+    <div class="form-group">
+        <label for="form_date" class="text-right">{{ "Date of Service:"|xlt }}</label>
+        <input type="text"
+               class="form-control datepicker"
+               name="form_date"
+               id="form_date"
+               value="{{ encounter.date|oeFormatDateTime|attr }}" />
+    </div>
+</div>

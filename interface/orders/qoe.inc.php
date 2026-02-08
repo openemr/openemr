@@ -47,21 +47,21 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
     "JOIN procedure_questions AS q ON q.lab_id = t.lab_id " .
     "AND q.procedure_code = t.procedure_code AND q.activity = 1 " .
     "WHERE t.procedure_type_id = ? " .
-    "ORDER BY q.seq, q.question_text", array($ptid));
+    "ORDER BY q.seq, q.question_text", [$ptid]);
 
     while ($qrow = sqlFetchArray($qres)) {
-        $options = trim($qrow['options']);
-        $qfieldid = $prefix . trim($qrow['question_code']);
+        $options = trim((string) $qrow['options']);
+        $qfieldid = $prefix . trim((string) $qrow['question_code']);
         $fldtype = $qrow['fldtype'];
         $maxsize = 0 + $qrow['maxsize'];
         $qrow['tips'] = str_ireplace("^", " ", $qrow['tips']); // in case of HL7
 
         // Get answer value(s) to this question, if any.
-        $answers = array();
+        $answers = [];
         if ($orderid && $dbseq > 0) {
             $ares = sqlStatement("SELECT answer FROM procedure_answers WHERE " .
             "procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? " .
-            "ORDER BY answer_seq", array($orderid, $dbseq, $qrow['question_code']));
+            "ORDER BY answer_seq", [$orderid, $dbseq, $qrow['question_code']]);
             while ($arow = sqlFetchArray($ares)) {
                   $answers[] = $arow['answer'];
             }
@@ -165,10 +165,10 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
              *****************************************************************/
         } elseif ($fldtype == 'M') {
             // List of checkboxes.
-            $a = explode(';', $qrow['options']);
+            $a = explode(';', (string) $qrow['options']);
             $i = 0;
             foreach ($a as $aval) {
-                list($desc, $code) = explode(':', $aval);
+                [$desc, $code] = explode(':', $aval);
                 if (empty($code)) {
                     $code = $desc;
                 }
@@ -187,12 +187,12 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             }
         } else {
             // Radio buttons or drop-list, depending on the number of choices.
-            $a = explode(';', $qrow['options']);
+            $a = explode(';', (string) $qrow['options']);
             if (count($a) > 5) {
                 $s .= "<select class='input-sm' name='" . attr($qfieldid) . "'";
                 $s .= ">";
                 foreach ($a as $aval) {
-                    list($desc, $code) = explode(':', $aval);
+                    [$desc, $code] = explode(':', $aval);
                     if (empty($code)) {
                         $code = $desc;
                     }
@@ -209,7 +209,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             } else {
                 $i = 0;
                 foreach ($a as $aval) {
-                    list($desc, $code) = explode(':', $aval);
+                    [$desc, $code] = explode(':', $aval);
                     if (empty($code)) {
                         $code = $desc;
                         if (empty($code)) {

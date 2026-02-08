@@ -12,7 +12,7 @@
 ?>
 <tr class="reasonCodeContainer reason_code <?php echo !empty($oprow['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($i); ?>">
     <td colspan="6" class="border-top-0">
-        <div class="card mt-2 mb-4">
+        <div class="card mt-2 mb-4 container-xl mt-0">
             <div class="card-header">
                 <?php echo xlt("Procedure Order Reason Information"); ?>
             </div>

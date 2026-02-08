@@ -28,19 +28,17 @@ class SectionEvent extends Event
     const EVENT_HANDLE = 'section.render';
 
     /**
-     * @var string $section The section being rendered
-     */
-    private $section;
-
-    /**
      * @var array $cards Array of CardInterface objects
      */
     private $cards;
 
-    public function __construct(string $section)
-    {
+    /**
+     * @param string $section The section being rendered
+     */
+    public function __construct(
+        private readonly string $section
+    ) {
         $this->cards = [];
-        $this->section = $section;
     }
 
     /**
@@ -81,8 +79,11 @@ class SectionEvent extends Event
         // if (!is_int($position) || !is_null($position)) {
         //     throw new LogicException('Position parameter must be either null or an interger');
         // }
-
-        array_splice($this->cards, $position ?? -1, 0, array($card));
+        if ($position == null || !is_int($position)) {
+            $this->cards[] = $card;
+        } else {
+            array_splice($this->cards, $position, 0, [$card]);
+        }
     }
 
     /**
@@ -100,7 +101,7 @@ class SectionEvent extends Event
 
         foreach ($this->cards as $card) {
             if (!$card instanceof CardInterface) {
-                $objtype = get_class($card);
+                $objtype = $card::class;
                 throw new \UnexpectedValueException("Expecting an object implementing CardInterface. Received {$objtype}");
             }
             $_idArr[] = $card->getIdentifier();

@@ -1,0 +1,19 @@
+{# Referring Provider #}
+<div class="col-sm {{ displayOptionClass('enc_enable_referring_provider') }}">
+    <div class="form-group">
+        <label for='referring_provider_id' class="text-right">{{ 'Referring Provider'|xlt  }}:</label>
+        {% if referringProviders|length > 0 %}
+            <select name="referring_provider_id" id="referring_provider_id" class="form-control">
+                <option value="">-- {{ "Please Select"|xlt }} --</option>
+                {% for provider in referringProviders %}
+                    <option value="{{ provider.id|attr }}" {{ provider.selected ? 'selected' : '' }}>
+                        {{ provider.lname|default("")|text }}, {{ provider.fname|default("")|text }}
+                    </option>
+                {% endfor %}
+            </select>
+        {% else %}
+            <input type="hidden" name="referring_provider_id" value="" />
+            <input type="text" class="form-control" value="{{ "No available providers"|xla }}" disabled />
+        {% endif %}
+    </div>
+</div>

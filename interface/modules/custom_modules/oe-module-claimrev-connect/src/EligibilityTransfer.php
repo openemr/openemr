@@ -12,6 +12,11 @@
 
     namespace OpenEMR\Modules\ClaimRevConnector;
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
     use OpenEMR\Services\BaseService;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
     use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
@@ -53,7 +58,7 @@ class EligibilityTransfer extends BaseService
             $eid = $eligibility['id'];
             $request_json = $eligibility['request_json'];
 
-            $elig = json_decode($request_json);
+            $elig = json_decode((string) $request_json);
             $result = ClaimRevApi::uploadEligibility($elig, $token);
             EligibilityTransfer::saveEligibility($result, $eid);
         }
@@ -110,7 +115,7 @@ class EligibilityTransfer extends BaseService
             $reportFolder = "f271";
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
+                // Create a directory
                 mkdir($savePath, 0777, true);
             }
 

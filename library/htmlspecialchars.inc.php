@@ -21,6 +21,18 @@ function js_escape($text)
 }
 
 /**
+ * Escape a javascript literal with a protected string
+ */
+function js_escape_protected($text, string $protected = '\r\n')
+{
+    if (empty($text)) {
+        return '""';
+    }
+    $bookmark = '___PROTECTED_STRING___';
+    return str_replace($bookmark, $protected, json_encode(str_replace($protected, $bookmark, $text)));
+}
+
+/**
  * Escape a javascript literal within html onclick attribute.
  */
 function attr_js($text)
@@ -41,7 +53,7 @@ function attr_url($text)
  */
 function js_url($text)
 {
-    return js_escape(urlencode($text));
+    return js_escape(urlencode($text ?? ''));
 }
 
 /**
@@ -168,11 +180,7 @@ function textArray(array $arr, $depth = 0)
 
     $newArray = [];
     foreach ($arr as $key => $value) {
-        if (is_array($value)) {
-            $newArray[text($key)] = textArray($value, $depth + 1);
-        } else {
-            $newArray[text($key)] = text($value);
-        }
+        $newArray[text($key)] = is_array($value) ? textArray($value, $depth + 1) : text($value);
     }
     return $newArray;
 }
@@ -191,7 +199,7 @@ function textArray(array $arr, $depth = 0)
  * NOTE: This can be used as a "generic" HTML escape since it does maximal
  * quoting.  However, some HTML and XML contexts (CDATA) don't provide
  * escape mechanisms.  Also, further pre- or post-escaping might need to
- * be done when embdedded other languages (like JavaScript) inside HTML /
+ * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
  * @param string $text The string to escape, possibly including (&), (<),
@@ -214,7 +222,7 @@ function attr($text)
 function hsc_private_xl_or_warn($key)
 {
     if (function_exists('xl')) {
-        return xl($key);
+        return xl($key ?? '');
     } else {
         trigger_error(
             'Translation via xl() was requested, but the xl()'
@@ -249,19 +257,24 @@ function xla($key)
     return attr(hsc_private_xl_or_warn($key));
 }
 
-/*
- * Translate via xl() and then escape via js_escape for use with javascript literals
+/**
+ * Translate via xl() and then escape via js_escape() for use with JavaScript literals.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string escaped for JavaScript.
  */
 function xlj($key)
 {
     return js_escape(hsc_private_xl_or_warn($key));
 }
 
-/*
- * Deprecated
- *Translate via xl() and then escape via addslashes for use with javascript literals
+/**
+ * Translate via xl() and then escape via xmlEscape() for use in XML contexts.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string, escaped for XML contexts.
  */
-function xls($key)
+function xlx($key)
 {
-    return addslashes(hsc_private_xl_or_warn($key));
+    return xmlEscape(hsc_private_xl_or_warn($key));
 }

@@ -42,17 +42,10 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Billing\BillingProcessor\Tasks;
 use OpenEMR\Common\Session\SessionUtil;
 
 class BillingProcessor
 {
-    /**
-     * Post from the billing manager form
-     * @var
-     */
-    protected $post;
-
     /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
@@ -68,9 +61,12 @@ class BillingProcessor
     const VALIDATE_AND_CLEAR = 'validate-and-clear';
     const NORMAL = 'normal';
 
-    public function __construct($post)
-    {
-        $this->post = $post;
+    /**
+     * @param mixed $post Post from the billing manager form
+     */
+    public function __construct(
+        protected $post
+    ) {
         $this->logger = new BillingLogger();
     }
 
@@ -184,6 +180,8 @@ class BillingProcessor
         } elseif (isset($post['bn_ub04_x12'])) {
             SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorUB04X12($this->extractAction());
+        } elseif (isset($post['bn_process_ub04'])) {
+            $processing_task = new Tasks\GeneratorUB04NoForm($this->extractAction());
         } elseif (isset($post['bn_process_ub04_form'])) {
             $processing_task = new Tasks\GeneratorUB04Form_PDF($this->extractAction());
         } elseif (isset($post['bn_external'])) {

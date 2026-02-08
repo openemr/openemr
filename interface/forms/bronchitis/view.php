@@ -42,7 +42,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
-<span class=text><?php echo xlt('Onset of Ilness: '); ?></span><input type="text" name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
+<span class=text><?php echo xlt('Onset of Illness: '); ?></span><input type="text" name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
 
 <span class=text><?php echo xlt('HPI:'); ?> </span><br /><textarea cols=67 rows=8 wrap=virtual name="bronchitis_hpi" ><?php echo text($obj["bronchitis_hpi"]);?></textarea><br /><br />
 
@@ -100,7 +100,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
 
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
 <td><input type="text" name="bronchitis_ops_appearance" value="<?php echo
-stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
+attr($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
 </tr>
 </table>
 
@@ -301,7 +301,7 @@ stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
                                                                            };?>><span class=text></span><br /></td>
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
 <td><input type="text" name="bronchitis_oropharynx_appearance" value="<?php echo
-stripslashes($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
+attr($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
 </tr>
 </table>
 

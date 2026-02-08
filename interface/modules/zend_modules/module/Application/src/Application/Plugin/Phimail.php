@@ -22,6 +22,8 @@ require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
 class Phimail extends AbstractPlugin
 {
     protected $application;
+
+    private readonly Listener $listenerObject;
   /**
   *
   * Application Table Object
@@ -31,7 +33,7 @@ class Phimail extends AbstractPlugin
     public function __construct(ContainerInterface $container)
     {
         // TODO: again why grab the service... construct the tables and do nothing with them.  Can this code be removed?
-        $container->get('Laminas\Db\Adapter\Adapter');
+        $container->get(\Laminas\Db\Adapter\Adapter::class);
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener();
     }

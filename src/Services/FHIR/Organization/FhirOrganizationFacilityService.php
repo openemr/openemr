@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -101,15 +102,20 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -156,23 +162,27 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $organizationResource = new FHIROrganization();
 
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $organizationResource->setMeta($fhirMeta);
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $organizationResource->setMeta($meta);
         // facilities have no active / inactive state
         $organizationResource->setActive(true);
 
         $narrativeText = trim($dataRecord['name'] ?? "");
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $organizationResource->setText($text);
         }
 
@@ -237,14 +247,14 @@ class FhirOrganizationFacilityService extends FhirServiceBase
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
         }
 
-        $data = array();
+        $data = [];
 
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data['uuid'] = (string)$fhirResource->getId();
         // convert the strings to a
-        $data['name'] = (string)$fhirResource->getName() ?? null;
+        $data['name'] = (string)$fhirResource->getName();
 
         $addresses = $fhirResource->getAddress();
         if (!empty($addresses)) {
@@ -261,32 +271,30 @@ class FhirOrganizationFacilityService extends FhirServiceBase
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $validSystems = ['phone' => 'phone', 'email' => 'email', 'fax' => 'fax'];
                 if (isset($validSystems[$systemValue])) {
-                    $data[$systemValue] = (string)$contactPoint->getValue() ?? null;
+                    $data[$systemValue] = (string)$contactPoint->getValue();
                 }
             }
         }
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
-                $data['facility_npi'] = (string)$identifier->getValue() ?? null;
+                $data['facility_npi'] = (string)$identifier->getValue();
             }
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
-                $data['domain_identifier'] = (string)$identifier->getValue() ?? null;
+                $data['domain_identifier'] = (string)$identifier->getValue();
             }
         }
         return $data;

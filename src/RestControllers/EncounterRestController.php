@@ -12,8 +12,10 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EncounterRestController
 {
@@ -22,12 +24,12 @@ class EncounterRestController
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         "pid",
         "provider_id"
-    );
+    ];
 
-    public function __construct()
+    public function __construct(private readonly SessionInterface $session)
     {
         $this->encounterService = new EncounterService();
     }
@@ -38,10 +40,11 @@ class EncounterRestController
      * @param $data - array of encounter fields.
      * @return a 201/Created status code and the encounter identifier if successful.
      */
-    public function post($puuid, $data)
+    public function post($puuid, $data, HttpRestRequest $request)
     {
-        $data['user'] = $_SESSION['authUser'];
-        $data['group'] = $_SESSION['authProvider'];
+        $session = $request->getSession();
+        $data['user'] = $session->get('authUser');
+        $data['group'] = $session->get('authProvider');
         $processingResult = $this->encounterService->insertEncounter($puuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
@@ -104,10 +107,10 @@ class EncounterRestController
         $serviceResult = $this->encounterService->insertVital($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
-            array(
+            [
                 'vid' => $serviceResult[0],
                 'fid' => $serviceResult[1]
-            ),
+            ],
             201
         );
     }
@@ -122,7 +125,7 @@ class EncounterRestController
         }
 
         $serviceResult = $this->encounterService->updateVital($pid, $eid, $vid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array('vid' => $vid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['vid' => $vid], 200);
     }
 
     public function getVitals($pid, $eid)
@@ -161,10 +164,10 @@ class EncounterRestController
         $serviceResult = $this->encounterService->insertSoapNote($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
-            array(
+            [
                 'sid' => $serviceResult[0],
                 'fid' => $serviceResult[1]
-            ),
+            ],
             201
         );
     }
@@ -179,6 +182,6 @@ class EncounterRestController
         }
 
         $serviceResult = $this->encounterService->updateSoapNote($pid, $eid, $sid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array('sid' => $sid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['sid' => $sid], 200);
     }
 }

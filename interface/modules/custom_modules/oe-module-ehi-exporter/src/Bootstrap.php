@@ -29,8 +29,7 @@ use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -43,10 +42,6 @@ class Bootstrap
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-ehi-exporter";
     const CERTIFIED_RELEASE_VERSION = "7.0.2";
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -70,8 +65,14 @@ class Bootstrap
 
     private static self $instance;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
@@ -83,14 +84,13 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->eventDispatcher = $eventDispatcher;
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
         $this->logger = new SystemLogger();
     }
 
-    public static function instantiate(EventDispatcher $eventDispatcher, Kernel $kernel): self
+    public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
     {
         if (!isset(self::$instance)) {
             self::$instance = new Bootstrap($eventDispatcher, $kernel);
@@ -130,7 +130,7 @@ class Bootstrap
     public function subscribeToEvents()
     {
 //        $this->addGlobalSettings();
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
     }
 
     public function addCustomModuleMenuItem(MenuEvent $event)
@@ -177,7 +177,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalSettingsSection']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalSettingsSection(...));
     }
 
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)

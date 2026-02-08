@@ -22,6 +22,22 @@ class BootstrapService
     }
 
     /**
+     * Get a single vendor global value
+     *
+     * @param string $globalName The name of the global setting to retrieve
+     * @return string|null The value of the global setting, or null if not found
+     */
+    public static function getVendorGlobal(string $globalName): ?string
+    {
+        $result = sqlQuery(
+            "SELECT gl_value FROM `globals` WHERE `gl_name` = ?",
+            [$globalName]
+        );
+
+        return $result['gl_value'] ?? null;
+    }
+
+    /**
      * @return array
      */
     public function getVendorGlobals(): array
@@ -31,10 +47,12 @@ class BootstrapService
         $vendors['oesms_send'] = '';
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
+        $vendors['oe_enable_voice'] = '';
+        $vendors['oeenable_users_permissions'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email')
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?, ?)",
+            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice', 'oeenable_users_permissions']
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -49,12 +67,14 @@ class BootstrapService
     public function createVendorGlobals(): void
     {
         sqlInsert(
-            "INSERT INTO `globals` (`gl_name`,`gl_value`) 
-                VALUES ('oefax_enable_fax', '0'), 
+            "INSERT INTO `globals` (`gl_name`,`gl_value`)
+                VALUES ('oefax_enable_fax', '0'),
                        ('oefax_enable_sms', '0'),
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
-                       ('oe_enable_email', '0')"
+                       ('oe_enable_email', '0'),
+                       ('oe_enable_voice', '0'),
+                       ('oeenable_users_permissions', '0')"
         );
     }
 
@@ -64,18 +84,115 @@ class BootstrapService
      */
     public function saveVendorGlobals($vendors): void
     {
-        // Comes from a POST pass in. Only want what we want!
+        // Comes from a Setup form POST pass in. Only want what we want!
+        // Move form names to global name. Easier to read.
         $items['oefax_enable_sms'] = $vendors['sms_vendor'] ?? '';
         $items['oefax_enable_fax'] = $vendors['fax_vendor'] ?? '';
         $items['oesms_send'] = $vendors['allow_dialog'] ?? '';
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
+        $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
+        $items['oeenable_users_permissions'] = $vendors['oeenable_users_permissions'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
-                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) 
-                    ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-                array($key, $vendor, $key, $vendor)
+                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
+                [$key, $vendor, $key, $vendor]
             );
         }
+    }
+
+    /**
+     * Grab all Laminas Module setup or columns values.
+     *
+     * @param        $modId
+     * @param string $col
+     * @return array
+     */
+    function getModuleRegistry($modId, $col = '*'): array
+    {
+        $registry = [];
+        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
+        $results = sqlQuery($sql, [$modId]);
+        foreach ($results as $k => $v) {
+            $registry[$k] = trim(((string)preg_replace('/\R/', '', (string)$v)));
+        }
+
+        return $registry;
+    }
+
+    /**
+     * @param $items
+     * @return void
+     */
+    public function saveModuleListenerGlobals($items): void
+    {
+        foreach ($items as $key => $vendor) {
+            $id = sqlQuery(
+                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
+                [$key, $vendor, $key, $vendor]
+            );
+        }
+    }
+
+    /**
+     * @param $settings
+     * @return array|false|null
+     */
+    public function persistSetupSettings($settings): array|null|false
+    {
+        // vendor for backup of setup globals.
+        $vendor = '_persisted';
+        $authId = 0;
+        $content = json_encode($settings);
+        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
+            VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
+
+        return sqlQuery($sql, ['', $authId, $vendor, $content, $authId, $vendor, $content]);
+    }
+
+    /**
+     * @return array
+     */
+    public function fetchPersistedSetupSettings(): array
+    {
+        $vendor = '_persisted';
+        $authUserId = 0;
+        $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
+        if (is_string($globals['credentials'])) {
+            return json_decode($globals['credentials'], true) ?? [];
+        }
+        return [];
+    }
+
+    public static function getUserPermission($user_id, $service)
+    {
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_{$service}_permission";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '1';
+    }
+
+    public static function usePrimaryAccount($user_id)
+    {
+        if (!self::getVendorGlobal('oeenable_users_permissions') ?? null) {
+            return '0';
+        }
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_use_primary";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '0';
+    }
+
+    public static function getPrimaryUser()
+    {
+        $query = "SELECT setting_user FROM user_settings WHERE setting_label = 'module_faxsms_primary_user' AND setting_value = '1' LIMIT 1";
+        $result = sqlQuery($query);
+        return $result ? $result['setting_user'] : '0';
     }
 }

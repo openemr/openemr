@@ -38,7 +38,9 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -52,6 +54,7 @@ class FhirEncounterService extends FhirServiceBase implements
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     public const ENCOUNTER_STATUS_FINISHED = "finished";
 
@@ -63,6 +66,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
     public const ENCOUNTER_PARTICIPANT_TYPE_REFERRER = "REF";
     public const ENCOUNTER_PARTICIPANT_TYPE_REFERRER_TEXT = "Referrer";
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter';
 
 
     /**
@@ -95,8 +99,13 @@ class FhirEncounterService extends FhirServiceBase implements
             ),
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update'])
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update']);
     }
 
     /**
@@ -107,7 +116,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIREncounter
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $encounterResource = new FHIREncounter();
 
@@ -124,7 +133,7 @@ class FhirEncounterService extends FhirServiceBase implements
         $identifier = new FHIRIdentifier();
         $identifier->setValue($dataRecord['euuid']);
         // the system is a unique urn
-        $identifier->setSystem("urn:uuid:" . strtolower($dataRecord['euuid']));
+        $identifier->setSystem("urn:uuid:" . strtolower((string) $dataRecord['euuid']));
         $encounterResource->addIdentifier($identifier);
 
         // status - required
@@ -226,7 +235,7 @@ class FhirEncounterService extends FhirServiceBase implements
             // (beware of link rot)
             $reason = new FHIRCodeableConcept();
             $reasonText = $dataRecord['reason'] ?? "";
-            $reason->setText(trim($reasonText));
+            $reason->setText(trim((string) $reasonText));
             $encounterResource->addReasonCode($reason);
         }
         // hospitalization - must support
@@ -281,7 +290,7 @@ class FhirEncounterService extends FhirServiceBase implements
         }
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIREncounter)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -300,13 +309,12 @@ class FhirEncounterService extends FhirServiceBase implements
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($searchParam): ProcessingResult
     {
-        return $this->encounterService->search($searchParam, true, $puuidBind);
+        return $this->encounterService->search($searchParam, true);
     }
 
     /**
@@ -316,10 +324,8 @@ class FhirEncounterService extends FhirServiceBase implements
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

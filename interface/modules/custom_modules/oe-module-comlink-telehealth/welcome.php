@@ -206,7 +206,7 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
                 <div class="col">
                     <h4><?php echo xlt('Questions'); ?></h4>
                     <p>
-                        <?php echo xlt("Email support"); ?>: <a href="mailto:sherwin@affordablecustomehr.com">sherwin@affordablecustomehr.com</a>
+                        <?php echo xlt("Email support"); ?>: <a href="mailto:support@ehrcommunityhelpdesk.com">EHR Community Help Desk</a>
                     </p>
                 </div>
             </div>

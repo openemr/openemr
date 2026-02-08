@@ -1,0 +1,187 @@
+
+{
+    "resourceType": "QuestionnaireResponse",
+    "id": "mallard-predictor-response",
+    "questionnaire": "https://github.com/cds-hooks/source-attributes/Questionnaire/cds-source-attributes|1.0.0",
+    "status": "completed",
+    "subject": {
+        "display": "Mallard Landing Predictor CDS Service"
+    },
+    "authored": "2023-12-19T15:30:00Z",
+    "item": [
+        {
+            "linkId": "predictive",
+            "item": [
+                {
+                    "linkId": "predictive.details",
+                    "item": [
+                        {
+                            "linkId": "predictive.details.developer",
+                            "answer": [{"valueString": "Dr. Quackers McFeathers, Pond Analytics Inc., email: drquackers@pondanalytics.com"}]
+                        },
+                        {
+                            "linkId": "predictive.details.funding",
+                            "answer": [{"valueString": "Funded by the International Waterfowl Appreciation Society and surplus bread crumbs"}]
+                        },
+                        {
+                            "linkId": "predictive.details.output-value",
+                            "answer": [{"valueString": "Predicts the probability of a mallard performing a perfect landing on water, rated on the 'Splash-o-meter'"}]
+                        },
+                        {
+                            "linkId": "predictive.details.output-type",
+                            "answer": [{"valueString": "Prediction: Generates a 'Quack-tastic' score from 0 to 100"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.purpose",
+                    "item": [
+                        {
+                            "linkId": "predictive.purpose.intended-use",
+                            "answer": [{"valueString": "To assist pond-side spectators in anticipating particularly graceful mallard landings"}]
+                        },
+                        {
+                            "linkId": "predictive.purpose.patient-population",
+                            "answer": [{"valueString": "All mallards, with a special module for overweight ducks post-breeding season"}]
+                        },
+                        {
+                            "linkId": "predictive.purpose.intended-users",
+                            "answer": [{"valueString": "Park rangers, competitive duck-watching teams, and easily impressed tourists"}]
+                        },
+                        {
+                            "linkId": "predictive.purpose.decision-role",
+                            "answer": [{"valueString": "Informs bread-tossing strategies and camera-readiness for capturing perfect landing shots"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.cautions",
+                    "item": [
+                        {
+                            "linkId": "predictive.cautions.inappropriate-use",
+                            "answer": [{"valueString": "Not to be used for ducks in bathtubs, inflatable pool toys, or any bird that isn't a mallard (especially geese - they're just show-offs)"}]
+                        },
+                        {
+                            "linkId": "predictive.cautions.risks",
+                            "answer": [{"valueString": "May cause excessive excitement in bird-watchers. Do not use as a drinking game. May be unreliable during duck-hunting season due to heightened mallard anxiety."}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.development",
+                    "item": [
+                        {
+                            "linkId": "predictive.development.criteria",
+                            "answer": [{"valueString": "Excluded: Ducks wearing bow-ties or any other formal attire. Included: Only natural, free-range, organic mallards."}]
+                        },
+                        {
+                            "linkId": "predictive.development.variables",
+                            "answer": [{"valueString": "Used duck color, bill shininess, and number of bread pieces consumed in the last hour as key features"}]
+                        },
+                        {
+                            "linkId": "predictive.development.demographics",
+                            "answer": [{"valueString": "Representativeness ensured by including ducks from both city parks and rural ponds, with equal representation of ducks with and without funny walking patterns"}]
+                        },
+                        {
+                            "linkId": "predictive.development.relevance",
+                            "answer": [{"valueString": "Trained on various water bodies including ponds, lakes, and the occasional fancy fountain, ensuring applicability to diverse aquatic landing strips"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.fairness",
+                    "item": [
+                        {
+                            "linkId": "predictive.fairness.approach",
+                            "answer": [{"valueString": "Implemented 'Affirmative Quaction' to ensure equal representation of all duck sub-species"}]
+                        },
+                        {
+                            "linkId": "predictive.fairness.bias-mitigation",
+                            "answer": [{"valueString": "Hired a goose as an external bias consultant to eliminate any pro-duck prejudice"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.validation",
+                    "item": [
+                        {
+                            "linkId": "predictive.validation.data-source",
+                            "answer": [{"valueString": "Tested at the Annual Duckburg Splash-Down Competition, judged by a panel of retired synchronized swimmers"}]
+                        },
+                        {
+                            "linkId": "predictive.validation.tester",
+                            "answer": [{"valueString": "External validation conducted by the esteemed firm 'Waddle & Quack Analytics'"}]
+                        },
+                        {
+                            "linkId": "predictive.validation.demographics",
+                            "answer": [{"valueString": "Diverse sample including ducks of all ages, from ducklings to senior mallards with walking sticks"}]
+                        },
+                        {
+                            "linkId": "predictive.validation.process",
+                            "answer": [{"valueString": "Rigorous process involving blindfolded judges, slow-motion replay, and style points for any mid-air barrel rolls"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.performance",
+                    "item": [
+                        {
+                            "linkId": "predictive.performance.internal-validity",
+                            "answer": [{"valueString": "97% accuracy in predicting splashless entries (margin of error: ±3 ripples)"}]
+                        },
+                        {
+                            "linkId": "predictive.performance.internal-fairness",
+                            "answer": [{"valueString": "Equally accurate for ducks of all feather colors and beak sizes"}]
+                        },
+                        {
+                            "linkId": "predictive.performance.external-validity",
+                            "answer": [{"valueString": "92% accuracy when tested on a group of Swedish tourist ducks unfamiliar with local water conditions"}]
+                        },
+                        {
+                            "linkId": "predictive.performance.external-fairness",
+                            "answer": [{"valueString": "Maintained 90% accuracy even when tested on ducks with unusually large or small feet"}]
+                        },
+                        {
+                            "linkId": "predictive.performance.outcome-evaluation",
+                            "answer": [{"valueString": "See 'Journal of Improbable Ornithology', vol. 42, 'Impact of Predictive Landing Scores on Mallard Self-Esteem and Social Standing'"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.maintenance",
+                    "item": [
+                        {
+                            "linkId": "predictive.maintenance.validity-monitoring",
+                            "answer": [{"valueString": "Weekly recalibration using data from the 'Duck Cam' live stream, verified by a panel of easily-distracted toddlers"}]
+                        },
+                        {
+                            "linkId": "predictive.maintenance.local-validity",
+                            "answer": [{"valueString": "Achieved 99% agreement with local ducks' self-reported landing satisfaction surveys"}]
+                        },
+                        {
+                            "linkId": "predictive.maintenance.fairness-monitoring",
+                            "answer": [{"valueString": "Monthly fairness audits conducted by a coalition of ducks, geese, and one confused flamingo"}]
+                        },
+                        {
+                            "linkId": "predictive.maintenance.local-fairness",
+                            "answer": [{"valueString": "Consistently fair across all local duck populations, with a slight bias towards ducks wearing rain gear in stormy weather"}]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.updates",
+                    "item": [
+                        {
+                            "linkId": "predictive.updates.process",
+                            "answer": [{"valueString": "Updated every full moon or whenever a duck performs a landing that breaks the internet"}]
+                        },
+                        {
+                            "linkId": "predictive.updates.correction",
+                            "answer": [{"valueString": "Immediate patches released if any duck files a formal complaint about their score, to be reviewed by the 'Committee for Fair Quacking'"}]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

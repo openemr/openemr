@@ -12,7 +12,6 @@
                 "ignore": ["attribute", "class", "id"]
             }
         ],
-        "string-quotes": null,
         "selector-class-pattern": null,
         "selector-max-id": null,
         "selector-max-compound-selectors": null,

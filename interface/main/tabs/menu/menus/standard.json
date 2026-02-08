@@ -424,7 +424,7 @@
       {
         "label": "Batch Payments",
         "menu_id": "npa0",
-        "target": "pat",
+        "target": "pay",
         "url": "/interface/billing/new_payment.php",
         "children": [],
         "requirement": 0,
@@ -501,7 +501,7 @@
       {
         "label": "Manage Modules",
         "menu_id": "adm0",
-        "target": "pat",
+        "target": "adm",
         "url": "/interface/modules/zend_modules/public/Installer",
         "children": [],
         "requirement": 0,
@@ -672,7 +672,7 @@
     "requirement": 0
   },
   {
-    "label": "New Crop",
+    "label": "Ensora eRx",
     "menu_id": "feeimg",
     "children": [
       {
@@ -904,8 +904,8 @@
         "children": [
           {
             "label": "Codes",
-            "menu_id": "adm0",
-            "target": "adm",
+            "menu_id": "cod0",
+            "target": "cod",
             "url": "/interface/patient_file/encounter/superbill_custom_full.php",
             "children": [],
             "requirement": 0,
@@ -916,8 +916,8 @@
           },
           {
             "label": "Native Data Loads",
-            "menu_id": "adm0",
-            "target": "adm",
+            "menu_id": "cod0",
+            "target": "cod",
             "url": "/interface/super/load_codes.php",
             "children": [],
             "requirement": 0,
@@ -1183,32 +1183,6 @@
         ]
       },
       {
-        "label": "De Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/de_identification_screen1.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
-        "label": "Re Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/re_identification_input_screen.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
         "label": "Export",
         "menu_id": "adm0",
         "target": "adm",
@@ -1239,21 +1213,6 @@
             "global_req": [
               "erx_enable"
             ]
-          },
-          {
-            "label":"Weno Management",
-            "menu_id":"adm0",
-            "target":"adm",
-            "url":"/interface/weno/facilities.php",
-            "children":[],
-            "requirement":0,
-            "acl_req": [
-              "admin",
-              "super"
-            ],
-              "global_req": [
-                  "weno_rx_enable"
-              ]
           }
         ],
         "requirement": 0,
@@ -1328,21 +1287,6 @@
             ],
             "global_req": "!disable_prescriptions"
           },
-            {
-                "label":"Prescription Log",
-                "menu_id":"rep0",
-                "target":"rep",
-                "url":"/interface/weno/rxlogmanager.php",
-                "children":[],
-                "requirement":0,
-                "acl_req": [
-                    "patients",
-                    "rx"
-                ],
-                "global_req": [
-                    "weno_rx_enable"
-                ]
-            },
           {
             "label": "Patient List Creation",
             "menu_id": "rep0",
@@ -1454,10 +1398,10 @@
             "global_req": "enable_amc"
           },
           {
-            "label": "2023 Real World Testing Report",
+            "label": "2026 Real World Testing Report",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/rwt_2023_report.php",
+            "url": "/interface/reports/rwt_2026_report.php",
             "children": [],
             "requirement": 0,
             "acl_req": [

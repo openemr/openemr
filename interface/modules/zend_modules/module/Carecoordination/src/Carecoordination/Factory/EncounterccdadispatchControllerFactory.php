@@ -14,7 +14,7 @@ use Carecoordination\Model\EncounterccdadispatchTable;
  */
 class EncounterccdadispatchControllerFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         return new EncounterccdadispatchController($container->get(EncounterccdadispatchTable::class));
     }

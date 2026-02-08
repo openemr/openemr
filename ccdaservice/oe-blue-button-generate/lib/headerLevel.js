@@ -88,8 +88,8 @@ var patient = exports.patient = {
             key: "guardian",
             content: [{
                 key: "code",
-                attributes: leafLevel.codeFromName("2.16.840.1.113883.5.111"),
-                dataKey: "relation"
+                attributes: leafLevel.code,
+                dataKey: "code"
             },
                 [fieldLevel.usRealmAddress, dataKey("addresses")],
                 fieldLevel.telecom, {
@@ -230,15 +230,17 @@ var participants = (exports.participant = [
         attributes: {
             typeCode: leafLevel.inputProperty("typeCode"),
         },
-        // TODO: check if this middle element can be removed
-        /* eslint-disable-next-line no-sparse-arrays */
         content: [
-            [fieldLevel.effectiveTime, required, key("time")],
-            ,
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.5.8", "2023-05-01"),
+            [
+                fieldLevel.effectiveTime, required, key("time")
+            ],
             // associatedEntity
             fieldLevel.associatedEntity,
         ],
+        /* eslint-enable no-sparse-arrays */
         dataKey: "meta.ccda_header.participants",
+        existsWhen: condition.propertyNotEmpty('meta.ccda_header.participants'),
     },
 ]);
 

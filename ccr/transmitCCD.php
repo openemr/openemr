@@ -25,8 +25,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../library/patient.inc.php");
-require_once(dirname(__FILE__) . "/../library/direct_message_check.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
+require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -74,7 +74,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 
     $text_out = $message;
 
-    $text_len = strlen($text_out);
+    $text_len = strlen((string) $text_out);
     phimail_write($fp, "TEXT $text_len\n");
     $ret = @fgets($fp, 256);
     if ($ret != "BEGIN\n") {
@@ -108,7 +108,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -120,15 +120,15 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::instance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::instance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
+    EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
         "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
-    $res = @sqlStatementNoLog($sql, array($msg_id[2],$phimail_username,$recipient,$reqID));
+    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$reqID]);
 
     return("SUCCESS");
 }
@@ -151,7 +151,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
-    $patientData = getPatientPID(array("pid" => $pid));
+    $patientData = getPatientPID(["pid" => $pid]);
     if (empty($patientData)) { // shouldn't ever happen but we need to check anyways
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
@@ -168,7 +168,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         // if we have a filename from our database, we want to send that
         $att_filename = $filename;
         $extension = ""; // no extension needed
-    } else if (!empty($patientName2)) {
+    } elseif (!empty($patientName2)) {
         //spaces are the argument delimiter for the phiMail API calls and must be removed
         // CCDA format requires patient name in last, first format
         $att_filename = str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
@@ -231,16 +231,16 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
     if ($format_type == 'html') {
         $add_type = "TEXT";
-    } else if ($format_type == 'pdf') {
+    } elseif ($format_type == 'pdf') {
         $add_type = "RAW";
-    } else if ($format_type == 'xml') {
+    } elseif ($format_type == 'xml') {
         $add_type = $xml_type == "CCR" ? "CCR" : "CDA";
     } else {
         // unsupported format
         return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
     }
 
-    $ccd_len = strlen($ccd_out);
+    $ccd_len = strlen((string) $ccd_out);
 
     phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
     $ret = fgets($fp, 256);
@@ -290,7 +290,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -302,15 +302,15 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::instance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
+    EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
-    $res = @sqlStatementNoLog($sql, array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
+    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$pid,$reqID]);
 
     return("SUCCESS");
 }

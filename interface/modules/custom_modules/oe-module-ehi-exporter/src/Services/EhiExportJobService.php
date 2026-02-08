@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Handles the saving, retriving, and updating of ehi_export_job records.
+ * Handles the saving, retrieving, and updating of ehi_export_job records.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -54,7 +54,7 @@ class EhiExportJobService extends BaseService
                 QueryUtils::sqlInsert($patientJoinSql, $joinBind);
                 QueryUtils::commitTransaction();
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;
@@ -74,7 +74,7 @@ class EhiExportJobService extends BaseService
         try {
             QueryUtils::sqlStatementThrowException($sql, $bind);
             QueryUtils::commitTransaction();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;

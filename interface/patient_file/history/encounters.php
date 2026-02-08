@@ -2,6 +2,8 @@
 
 /**
  * Encounter list.
+ *  rm: print button to print page & generate pdf; include patients name, id and dob on the page. issue #7270
+ *
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -27,10 +29,20 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
+if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
+    PatientSessionUtil::setPid($_GET['pid']);
+}
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
 // case we only display encounters that are linked to the specified issue.
@@ -50,7 +62,7 @@ $auth_coding = AclMain::aclCheckCore('encounters', 'coding');
 $auth_relaxed = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med = AclMain::aclCheckCore('patients', 'med');
 $auth_demo = AclMain::aclCheckCore('patients', 'demo');
-$glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'));
+$glog_view_write = AclMain::aclCheckCore("groups", "glog", false, ['view', 'write']);
 
 $tmp = getPatientData($pid, "squad");
 if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
@@ -60,7 +72,7 @@ if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad']))
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = ?", array($_SESSION['authUserID']));
+  "where id = ?", [$session->get('authUserID')]);
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing'])) {
     $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -68,8 +80,14 @@ if (isset($_GET['billing'])) {
     $billing_view = ($default_encounter == 0) ? 0 : 1;
 }
 
+// form locator will cache form locations (so modules can extend)
+// form report renderer will render the form reports
+$logger = new SystemLogger();
+$formLocator = new FormLocator($logger);
+$formReportRenderer = new FormReportRenderer($formLocator, $logger);
+
 //Get Document List by Encounter ID
-function getDocListByEncID($encounter, $raw_encounter_date, $pid)
+function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 {
     global $ISSUE_TYPES, $auth_med;
 
@@ -77,7 +95,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
     if (!empty($documents) && count($documents) > 0) {
         foreach ($documents as $documentrow) {
             if ($auth_med) {
-                $irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", array($documentrow['list_id']));
+                $irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", [$documentrow['list_id']]);
                 if ($irow) {
                     $tcode = $irow['type'];
                     if ($ISSUE_TYPES[$tcode]) {
@@ -91,12 +109,12 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 
             // Get the notes for this document and display as title for the link.
             $queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
-            $noteResultSet = sqlStatement($queryString, array($documentrow['id']));
+            $noteResultSet = sqlStatement($queryString, [$documentrow['id']]);
             $note = '';
             while ($row = sqlFetchArray($noteResultSet)) {
-                $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . $row['note'] . "\n";
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date']))) . " : " . $row['note'] . "\n";
             }
-            $docTitle = ( $note ) ? $note : xl("View document");
+            $docTitle = $note ?: xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
@@ -108,7 +126,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 
 // This is called to generate a line of output for a patient document.
 //
-function showDocument(&$drow)
+function showDocument(&$drow): void
 {
     global $ISSUE_TYPES, $auth_med;
 
@@ -131,7 +149,7 @@ function showDocument(&$drow)
         $irow = sqlQuery("SELECT type, title, begdate " .
         "FROM lists WHERE " .
         "id = ? " .
-        "LIMIT 1", array($drow['list_id']));
+        "LIMIT 1", [$drow['list_id']]);
         if ($irow) {
               $tcode = $irow['type'];
             if ($ISSUE_TYPES[$tcode]) {
@@ -152,7 +170,7 @@ function showDocument(&$drow)
     echo "</tr>\n";
 }
 
-function generatePageElement($start, $pagesize, $billing, $issue, $text)
+function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 {
     if ($start < 0) {
         $start = 0;
@@ -169,7 +187,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') == "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -180,6 +198,12 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script>
+
+$(function () {
+   // print the history - as displayed
+    top.printLogSetup(document.getElementById('printbutton'));
+});
+
 // open dialog to edit an invoice w/o opening encounter.
 function editInvoice(e, id) {
     e.stopPropagation();
@@ -201,7 +225,13 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo attr_url($pid); ?>&doc_id=' + encodeURIComponent(docid);
+  const params = new URLSearchParams({
+    doc_id: docid,
+    document: '',
+    patient_id: <?php echo js_escape($pid); ?>,
+    view: ''
+  });
+  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -217,7 +247,13 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    window.location.href = "encounters.php?billing=" + encodeURIComponent(billing) + "&issue=" + encodeURIComponent(issue) + "&pagestart=" + encodeURIComponent(pagestart) + "&pagesize=" + encodeURIComponent(pagesize);
+    const params = new URLSearchParams({
+        billing: billing,
+        issue: issue,
+        pagesize: pagesize,
+        pagestart: pagestart
+    });
+    window.location.href = "encounters.php?" + params;
 }
 
 window.onload = function() {
@@ -231,7 +267,7 @@ window.onload = function() {
         <?php
         if ($issue) {
             echo xlt('Past Encounters for') . ' ';
-            $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", array($issue));
+            $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", [$issue]);
             echo text($tmp['title']);
         } else {
             //There isn't documents for therapy group yet
@@ -252,17 +288,9 @@ window.onload = function() {
     if (isset($_GET['pagesize'])) {
         $pagesize = $_GET['pagesize'];
     } else {
-        if (array_key_exists('encounter_page_size', $GLOBALS)) {
-            $pagesize = $GLOBALS['encounter_page_size'];
-        } else {
-            $pagesize = 0;
-        }
+        $pagesize = array_key_exists('encounter_page_size', $GLOBALS) ? $GLOBALS['encounter_page_size'] : 0;
     }
-    if (isset($_GET['pagestart'])) {
-        $pagestart = $_GET['pagestart'];
-    } else {
-        $pagestart = 0;
-    }
+    $pagestart = $_GET['pagestart'] ?? 0;
     $getStringForPage = "&pagesize=" . attr_url($pagesize) . "&pagestart=" . attr_url($pagestart);
 
     ?>
@@ -272,12 +300,14 @@ window.onload = function() {
     <?php } else { ?>
         <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Billing View'); ?></a>
     <?php } ?>
+    &nbsp; &nbsp;
+     <a  href='#' id='printbutton' class='btn btn-secondary btn-print'>  <?php echo xlt('Print page'); ?>   </a>
 
     <span class="float-right">
         <?php echo xlt('Results per page'); ?>:
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
-            $pagesizes = array(5, 10, 15, 20, 25, 50, 0);
+            $pagesizes = [5, 10, 15, 20, 25, 50, 0];
             for ($idx = 0, $idxMax = count($pagesizes); $idx < $idxMax; $idx++) {
                 echo "<option value='" . attr($pagesizes[$idx]) . "'";
                 if ($pagesize == $pagesizes[$idx]) {
@@ -297,6 +327,17 @@ window.onload = function() {
     </span>
 
     <br />
+    <span class="heading" >
+    <?php
+    if ($attendant_type == 'pid') {
+  // RM put patienes name, id and dob at top of the history -->
+        $name =  getPatientNameFirstLast($pid);
+        $dob =  text(oeFormatShortDate(getPatientData($pid, "DOB")['DOB']));
+         $external_id = getPatientData($pid, "pubpid")['pubpid'];
+        echo text($name) . " (" . text($external_id) . ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
+    }
+    ?>
+    </span>
 
     <div class="table-responsive">
         <table class="table table-hover jumbotron py-4 mt-3">
@@ -355,7 +396,7 @@ window.onload = function() {
             if (!$billing_view) {
             // Query the documents for this patient.  If this list is issue-specific
             // then also limit the query to documents that are linked to the issue.
-                $queryarr = array($pid);
+                $queryarr = [$pid];
                 $query = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, d.encounter_id, c.name " .
                 "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
                 "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
@@ -368,9 +409,9 @@ window.onload = function() {
                 $drow = sqlFetchArray($dres);
             }
 
-            // $count = 0;
+            $numRes = 0;
 
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             if ($attendant_type == 'pid') {
                 $from = "FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
@@ -391,7 +432,7 @@ window.onload = function() {
                 $sqlBindArray[] = $pid;
             } else {
                 $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
-                $sqlBindArray[] = $_SESSION['therapy_group'];
+                $sqlBindArray[] = $session->get('therapy_group');
             }
 
             $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
@@ -401,7 +442,7 @@ window.onload = function() {
 
             $countRes = sqlStatement($countQuery, $sqlBindArray);
             $count = sqlFetchArray($countRes);
-            $numRes = $count['c'];
+            $numRes += $count['c'];
 
 
             if ($pagesize > 0) {
@@ -416,7 +457,8 @@ window.onload = function() {
             if (($pagesize > 0) && ($pagestart > 0)) {
                 generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars(xl("Prev"), ENT_NOQUOTES) . " ");
             }
-            echo ($pagestart + 1) . "-" . $upper . " " . htmlspecialchars(xl('of'), ENT_NOQUOTES) . " " . $numRes;
+            echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars(xl('of'), ENT_NOQUOTES) . " " . $numRes;
+
             if (($pagesize > 0) && ($pagestart + $pagesize <= $numRes)) {
                 generatePageElement($pagestart + $pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars(xl("Next"), ENT_NOQUOTES) . "&rArr;");
             }
@@ -432,13 +474,13 @@ window.onload = function() {
 
                     $raw_encounter_date = '';
 
-                    $raw_encounter_date = date("Y-m-d", strtotime($result4["date"]));
-                    $encounter_date = date("D F jS", strtotime($result4["date"]));
+                    $raw_encounter_date = date("Y-m-d", strtotime((string) $result4["date"]));
+                    $encounter_date = date("D F jS", strtotime((string) $result4["date"]));
 
                     //fetch acl for given pc_catid
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($result4['pc_catid']);
                 if ($postCalendarCategoryACO) {
-                    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                    $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                     $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                 } else { // if no aco is set for category
                     $authPostCalendarCategory = true;
@@ -460,17 +502,17 @@ window.onload = function() {
 
                     // This generates document lines as appropriate for the date order.
                 while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
-                    showDocument($drow);
+                         showDocument($drow);
                     $drow = sqlFetchArray($dres);
                 }
 
                     // Fetch all forms for this encounter, if the user is authorized to see
                     // this encounter's notes and this is the clinical view.
-                    $encarr = array();
+                    $encarr = [];
                     $encounter_rows = 1;
                 if (
                     !$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
-                        ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+                        ($auth_notes_a || ($auth_notes && $result4['user'] == $session->get('authUser')))
                 ) {
                     $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
                     $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
@@ -485,7 +527,7 @@ window.onload = function() {
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
-                    $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
+                    $feid = $result4['id'] ?: 0; // form_encounter id
                     echo "<td class='align-top'>";
                     echo "<div id='note_" . attr($feid) . "'>";
                     echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
@@ -505,7 +547,7 @@ window.onload = function() {
                                                 "issue_encounter.pid = ? AND " .
                                                 "issue_encounter.encounter = ? AND " .
                                                 "lists.id = issue_encounter.list_id " .
-                                                "ORDER BY lists.type, lists.begdate", array($pid,$result4['encounter']));
+                                                "ORDER BY lists.type, lists.begdate", [$pid,$result4['encounter']]);
                             for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
                                 if ($i > 0) {
                                     echo "<br />";
@@ -548,7 +590,7 @@ window.onload = function() {
                         $formdir = $enc['formdir'];
                         if (
                             ($auth_notes_a) ||
-                            ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+                            ($auth_notes && $enc['user'] == $session->get('authUser')) ||
                             ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))
                         ) {
                         } else {
@@ -561,18 +603,19 @@ window.onload = function() {
                         //
                         $formdir = $enc['formdir'];
                         if ($issue) {
+                            // note per comments this is only used for athletic teams..
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
                             echo "<div class='encreport pl-2'>";
-                    // Use the form's report.php for display.  Forms with names starting with LBF
-                    // are list-based forms sharing a single collection of code.
-                            if (substr($formdir, 0, 3) == 'LBF') {
-                                include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-                                lbf_report($pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
-                            } else {
-                                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-                                call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
-                            }
+                            // render out the form, whether its LBF or a standard file.
+                            $formReportRenderer->renderReport(
+                                $formdir,
+                                "encounters.php",
+                                $pid,
+                                $result4['encounter'],
+                                2,
+                                $enc['form_id']
+                            );
                             echo "</div>";
                         } else {
                             $formDiv = "<div ";
@@ -607,7 +650,7 @@ window.onload = function() {
                         // for therapy group view
                     } else {
                         $counselors = '';
-                        foreach (explode(',', $result4['counselors']) as $userId) {
+                        foreach (explode(',', (string) $result4['counselors']) as $userId) {
                             $counselors .= getUserNameById($userId) . ', ';
                         }
                         $counselors = rtrim($counselors, ", ");
@@ -618,22 +661,22 @@ window.onload = function() {
                     //this is where we print out the text of the billing that occurred on this encounter
                     $thisauth = $auth_coding_a;
                 if (!$thisauth && $auth_coding) {
-                    if ($result4['user'] == $_SESSION['authUser']) {
+                    if ($result4['user'] == $session->get('authUser')) {
                         $thisauth = $auth_coding;
                     }
                 }
                     $coded = "";
                     $arid = 0;
                 if ($thisauth && $auth_sensitivity && $authPostCalendarCategory) {
-                    $binfo = array('', '', '', '', '');
+                    $binfo = ['', '', '', '', ''];
                     if ($subresult2 = BillingUtilities::getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee")) {
                         // Get A/R info, if available, for this encounter.
-                        $arinvoice = array();
+                        $arinvoice = [];
                         $arlinkbeg = "";
                         $arlinkend = "";
                         if ($billing_view) {
                                 $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                            "pid = ? AND encounter = ?", array($pid, $result4['encounter']));
+                                            "pid = ? AND encounter = ?", [$pid, $result4['encounter']]);
                                 $arid = (int) $tmp['id'];
                             if ($arid) {
                                 $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);
@@ -650,11 +693,11 @@ window.onload = function() {
                         "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
                         "WHERE s.pid = ? AND s.encounter = ? " .
                         "ORDER BY s.sale_id";
-                        $sres = sqlStatement($query, array($pid,$result4['encounter']));
+                        $sres = sqlStatement($query, [$pid,$result4['encounter']]);
                         while ($srow = sqlFetchArray($sres)) {
-                            $subresult2[] = array('code_type' => 'PROD',
+                            $subresult2[] = ['code_type' => 'PROD',
                             'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
-                            'code_text' => $srow['name'], 'fee' => $srow['fee']);
+                            'code_text' => $srow['name'], 'fee' => $srow['fee']];
                         }
 
                         // This creates 5 columns of billing information:
@@ -674,8 +717,6 @@ window.onload = function() {
                                 $codekey .= ':' . $iter2['modifier'];
                                 $codekeydisp .= ':' . $iter2['modifier'];
                             }
-
-                            $codekeydisp = $codekeydisp;
 
                             if ($binfo[0]) {
                                 $binfo[0] .= '<br />';
@@ -788,7 +829,7 @@ window.onload = function() {
                 }
 
                 if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
-                    $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+                    $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", [$result4['pc_catid']]);
                     echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
                 }
 
@@ -813,7 +854,7 @@ window.onload = function() {
             } // end while
 
             // Dump remaining document lines if count not exceeded.
-            while ($drow /* && $count <= $N */) {
+            while ($drow) {
                 showDocument($drow);
                 $drow = sqlFetchArray($dres);
             }
@@ -869,11 +910,14 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
-                "&encid=" + encodeURIComponent(el.dataset.formenc) +
-                "&formname=" + encodeURIComponent(el.dataset.formdir) +
-                "&formid=" + encodeURIComponent(el.dataset.formid) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                encid: el.dataset.formenc,
+                formid: el.dataset.formid,
+                formname: el.dataset.formdir,
+                ptid: el.dataset.formpid
+            });
+            let url = "encounters_ajax.php?" + params;
             let fetchedReport;
             $.ajax({
                 url: url,
@@ -898,7 +942,7 @@ $(function () {
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
-    // height is overflowed. Poporver will eiter close when mouse leaves view
+    // height is overflowed. Popover will either close when mouse leaves view
     // or user clicks anywhere in view.
     $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
         let elements = $('[aria-describedby^="popover"]');

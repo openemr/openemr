@@ -25,21 +25,24 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-//
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-//
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -49,18 +52,19 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
+require_once(__DIR__ . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
 // Record an event into the slots array for a specified day.
-function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
+function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -105,11 +109,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = $globalsBag->get('calendar_interval') * 60;
 
 $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
     if ($srow['pc_duration']) {
         $catslots = ceil($srow['pc_duration'] / $slotsecs);
     }
@@ -123,20 +127,14 @@ if ($_REQUEST['searchdays'] ?? null) {
 }
 
 // Get a start date.
-if (
-    $_REQUEST['startdate'] && preg_match(
-        "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-        $_REQUEST['startdate'],
-        $matches
-    )
-) {
-    $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+if (!empty($_REQUEST['startdate'])) {
+    $sdate = DateFormatterUtils::DateToYYYYMMDD($_REQUEST['startdate']);
 } else {
     $sdate = date("Y-m-d");
 }
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
 $edate = date(
     "Y-m-d",
     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
@@ -165,7 +163,7 @@ if ($_REQUEST['providerid']) {
     //   bit 2 = reserved
     // So, values may range from 0 to 7.
     //
-    $slots = array_pad(array(), $slotcount, 0);
+    $slots = array_pad([], $slotcount, 0);
 
     // Note there is no need to sort the query results.
     //  echo $sdate." -- ".$edate;
@@ -176,7 +174,7 @@ if ($_REQUEST['providerid']) {
         "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
         "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     array_push($sqlBindArray, $providerid, $sdate, $edate, $sdate, $edate);
     //////
     $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
@@ -287,7 +285,7 @@ if ($_REQUEST['providerid']) {
             <div class="form-row mx-0 align-items-center">
                 <label for="startdate" class="col-1 mx-2 col-form-label"><?php echo xlt('Start date:'); ?></label>
                 <div class="col-auto">
-                    <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
+                    <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(DateFormatterUtils::oeFormatShortDate($sdate)); ?>' title='starting date for search' />
                 </div>
                 <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('for'); ?></label>
                 <div class="col-auto">
@@ -410,8 +408,8 @@ if ($_REQUEST['providerid']) {
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

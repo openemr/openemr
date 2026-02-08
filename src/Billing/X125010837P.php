@@ -9,7 +9,7 @@
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,6 +17,7 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Billing\Claim;
 
 class X125010837P
@@ -26,7 +27,7 @@ class X125010837P
      * @param  $encounter
      * @param  $x12_partner
      * @param  $log
-     * @param  false $encounter_claim
+     * @param  bool $encounter_claim
      * @param  $SEFLAG
      * @param  $HLcount
      * @param  $edicount
@@ -77,7 +78,7 @@ class X125010837P
         $out .= "GS" .
             "*" . "HC" .
             "*" . $claim->x12gsgs02() .
-            "*" . trim($claim->x12gs03()) .
+            "*" . trim((string) $claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
             "*" . "1" . // TODO add a tracking number
@@ -162,7 +163,7 @@ class X125010837P
                     "*" . $claim->billingIdCode();
                 // else use provider's group name
                 } else {
-                    $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                    $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
                     if ($billingFacilityName == '') {
                         $log .= "*** billing facility name in 1000A loop is empty\n";
                     }
@@ -216,12 +217,12 @@ class X125010837P
             "~\n";
 
             // Situational PRV segment for provider taxonomy.
-            if ($claim->facilityTaxonomy()) {
+            if ($claim->billingFacilityTaxonomy()) {
                 ++$edicount;
                 $out .= "PRV" .
                 "*" . "BI" .
                 "*" . "PXC" .
-                "*" . $claim->facilityTaxonomy() .
+                "*" . $claim->billingFacilityTaxonomy() .
                 "~\n";
             }
 
@@ -240,7 +241,7 @@ class X125010837P
                 "*" . // Name Prefix not used
                 "*";
             } else {
-                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
                 if ($billingFacilityName == '') {
                     $log .= "*** billing facility name in 2010A loop is empty.\n";
                 }
@@ -286,7 +287,7 @@ class X125010837P
             }
             $out .= "*";
             // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
-            if (strlen($claim->billingFacilityZip()) != 9) {
+            if (strlen((string) $claim->billingFacilityZip()) != 9) {
                 $log .= "*** Billing facility zip is not 9 digits.\n";
             }
             $out .= $claim->billingFacilityZip();
@@ -319,7 +320,7 @@ class X125010837P
             // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
             if ($claim->pay_to_provider != '') {
                 ++$edicount;
-                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
                 $out .= "NM1" .       // Loop 2010AB Pay-To Provider
                 "*" . "87" .
                 "*" . "2" .
@@ -361,7 +362,7 @@ class X125010837P
                 }
                 $out .= "*";
                 // X12 requires a 9 digit zip but we output it anyways
-                if (strlen($claim->billingFacilityZip()) != 9) {
+                if (strlen((string) $claim->billingFacilityZip()) != 9) {
                     $log .= "*** Pay to provider zip is not 9 digits.\n";
                 }
                 $out .= $claim->billingFacilityZip();
@@ -472,8 +473,8 @@ class X125010837P
             $out .= "*";
             if (
                 !(
-                    (strlen($claim->x12Zip($claim->insuredZip())) == 5)
-                    || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+                    (strlen((string) $claim->x12Zip($claim->insuredZip())) == 5)
+                    || (strlen((string) $claim->x12Zip($claim->insuredZip())) == 9)
                 )
             ) {
                 $log .= "*** Insured zip is not 5 or 9 digits.\n";
@@ -505,7 +506,7 @@ class X125010837P
         // Segment PER*IC (Property and Casualty Subscriber Contact Information) omitted.
 
         ++$edicount;
-        $payerName = substr($claim->payerName(), 0, 60);
+        $payerName = substr((string) $claim->payerName(), 0, 60);
         $out .= "NM1" .       // Loop 2010BB Payer
             "*" . "PR" .
             "*" . "2" .
@@ -553,8 +554,8 @@ class X125010837P
         $out .= "*";
         if (
             !(
-                (strlen($claim->payerZip()) == 5)
-                || (strlen($claim->payerZip()) == 9)
+                (strlen((string) $claim->payerZip()) == 5)
+                || (strlen((string) $claim->payerZip()) == 9)
             )
         ) {
             $log .= "*** Payer zip is not 5 or 9 digits.\n";
@@ -628,8 +629,8 @@ class X125010837P
             }
             $out .= "*";
             if (
-                (strlen($claim->patientZip()) == 5)
-                || (strlen($claim->patientZip()) == 9)
+                (strlen((string) $claim->patientZip()) == 5)
+                || (strlen((string) $claim->patientZip()) == 9)
             ) {
                 $out .= $claim->patientZip();
             } else {
@@ -662,7 +663,7 @@ class X125010837P
         $proccount = $claim->procCount();
         $clm_total_charges = 0;
         for ($prockey = 0; $prockey < $proccount; ++$prockey) {
-            $clm_total_charges += $claim->cptCharges($prockey);
+            $clm_total_charges += floatval($claim->cptCharges($prockey));
         }
         if (!$clm_total_charges) {
             $log .= "*** This claim has no charges!\n";
@@ -678,8 +679,15 @@ class X125010837P
             "*" . "Y" .
             "*" . ($claim->billingFacilityAssignment() ? 'A' : 'C') .
             "*" . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
-            "*" . "Y" .
-            "~\n";
+            "*" . "Y" . "*" . "P"; // added patient signature source code CLM10
+        if ($claim->isRelatedEmployment()) {
+            $out .= "*" . "EM";
+        } elseif ($claim->isRelatedAuto()) {
+            $out .= "*" . "AA";
+        } elseif ($claim->isRelatedOther()) {
+            $out .= "*" . "OA";
+        }
+        $out .= "~\n";
 
         // above is for historical use of encounter onset date, now in misc_billing_options
         // Segment DTP*431 (Onset of Current Symptoms or Illness)
@@ -732,7 +740,7 @@ class X125010837P
                 "~\n";
         }
 
-        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
+        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Hospitalization
                 "*" . "435" .
@@ -742,7 +750,7 @@ class X125010837P
         }
 
         // above is for historical use of encounter onset date, now in misc_billing_options
-        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
+        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Admission
                 "*" . "435" .
@@ -752,7 +760,7 @@ class X125010837P
         }
 
         // Segment DTP*096 (Discharge Date)
-        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
+        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Discharge
                 "*" . "96" .
@@ -764,8 +772,24 @@ class X125010837P
         // Segments DTP (Assumed and Relinquished Care Dates) omitted.
         // Segment DTP*444 (Property and Casualty Date of First Contact) omitted.
         // Segment DTP*050 (Repricer Received Date) omitted.
-        // Segment PWK (Claim Supplemental Information) omitted.
         // Segment CN1 (Contract Information) omitted.
+
+        /* Segment PWK for medical attachments
+         * TODO: implement medical attachments :)
+         * Hardcode OZ, support data for claim, PWK01 report type code
+         * Hardcode EL, electronic, PWK02 report transmission code
+         * Hardcode AC, attachment control number
+         * Billing claim batch control number 9 digits for PWK06
+         */
+        if ($claim->isRelatedEmployment()) {
+            $out .= "PWK" .
+                "*" . "OZ" .
+                "*" . "EL" .
+                "*" . "*" .
+                "*" . "AC" .
+                "*" . BillingClaimBatchControlNumber::getIsa13() .
+                "~";
+        }
 
         $patientpaid = $claim->patientPaidAmount();
         if ($patientpaid != 0) {
@@ -843,11 +867,7 @@ class X125010837P
         // Diagnoses, up to $max_per_seg per HI segment.
         $max_per_seg = 12;
         $da = $claim->diagArray();
-        if ($claim->diagtype == "ICD9") {
-            $diag_type_code = 'BK';
-        } else {
-            $diag_type_code = 'ABK';
-        }
+        $diag_type_code = $claim->diagtype == "ICD9" ? 'BK' : 'ABK';
         $tmp = 0;
         foreach ($da as $diag) {
             if ($tmp % $max_per_seg == 0) {
@@ -858,11 +878,7 @@ class X125010837P
                 $out .= "HI";         // Health Diagnosis Codes
             }
             $out .= "*" . $diag_type_code . ":" . $diag;
-            if ($claim->diagtype == "ICD9") {
-                $diag_type_code = 'BF';
-            } else {
-                $diag_type_code = 'ABF';
-            }
+            $diag_type_code = $claim->diagtype == "ICD9" ? 'BF' : 'ABF';
             ++$tmp;
         }
 
@@ -955,7 +971,7 @@ class X125010837P
                 "," . $claim->providerFirstName() . " has invalid NPI.\n";
         }
 
-        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
+        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), ['0B', '1G', 'G2', 'LU'])) {
             if ($claim->providerNumber()) {
                 ++$edicount;
                 $out .= "REF" .
@@ -966,13 +982,14 @@ class X125010837P
         }
         // End of Loop 2310B
 
-        // Loop 2310C is omitted in the case of home visits (POS=12).
-        if ($claim->facilityPOS() != 12 && ($claim->facilityNPI() != $claim->billingFacilityNPI())) {
+        // Loop 2310C is omitted in the case of home visits (POS=12)
+        // and when the service facility is the billing facility
+        if ($claim->facilityPOS() != 12 && ($claim->billing_facility['id'] != $claim->facility['id'])) {
             ++$edicount;
             $out .= "NM1" .       // Loop 2310C Service Location
                 "*" . "77" .
                 "*" . "2";
-            $facilityName = substr($claim->facilityName(), 0, 60);
+            $facilityName = substr((string) $claim->facilityName(), 0, 60);
             if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) {
                 $out .=
                     "*" . $facilityName;
@@ -1022,7 +1039,7 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if (strlen($claim->facilityZip()) != 9) {
+            if (strlen((string) $claim->facilityZip()) != 9) {
                 $log .= "*** Service facility zip is not 9 digits.\n";
             }
             $out .= $claim->facilityZip();
@@ -1201,8 +1218,8 @@ class X125010837P
             $out .= "*";
             if (
                 !(
-                    (strlen($claim->insuredZip($ins)) == 5)
-                    || (strlen($claim->insuredZip($ins) == 9))
+                    (strlen((string) $claim->insuredZip($ins)) == 5)
+                    || (strlen((string) $claim->insuredZip($ins)) == 9)
                 )
             ) {
                 $log .= "*** Other insco insured zip is not 5 or 9 digits.\n";
@@ -1213,7 +1230,7 @@ class X125010837P
 
             // Segment REF (Other Subscriber Secondary Identification) omitted.
             ++$edicount;
-            $payerName = substr($claim->payerName($ins), 0, 60);
+            $payerName = substr((string) $claim->payerName($ins), 0, 60);
             $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 322/359.
                 "*" . "PR" .
                 "*" . "2" .
@@ -1263,8 +1280,8 @@ class X125010837P
             $out .= "*";
             if (
                 !(
-                    (strlen($claim->payerZip($ins)) == 5)
-                    || (strlen($claim->payerZip() == 9))
+                    (strlen((string) $claim->payerZip($ins)) == 5)
+                    || (strlen((string) $claim->payerZip($ins)) == 9)
                 )
             ) {
                 $log .= "*** Other payer zip is not 5 or 9 digits.\n";
@@ -1366,7 +1383,7 @@ class X125010837P
                 "*" . $claim->serviceDate() .
                 "~\n";
 
-            $testnote = rtrim($claim->cptNotecodes($prockey));
+            $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
                 $out .= "NTE" .     // Explain Unusual Circumstances.
@@ -1419,7 +1436,7 @@ class X125010837P
                     "*" . $ndc .
                     "~\n";
 
-                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
+                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', (string) $ndc, $tmp) && !preg_match('/^\d{11}$/', (string) $ndc)) {
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
 
@@ -1488,7 +1505,24 @@ class X125010837P
             // Segment NM1 (Loop 2420D Supervising Provider Name) omitted.
             // Segment REF (Loop 2420D Supervising Provider Secondary Identification) omitted.
 
-            // Loop 2420E, Ordering Provider omitted.
+            // Loop 2420E, Ordering Provider
+            if ($claim->orderer ?? null) {
+                ++$edicount;
+                $out .= "NM1" .
+                    "*" . "DK" .
+                    "*" . "1" .
+                    "*" .  $claim->ordererLastName() . '*' . $claim->ordererFirstName() .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" . "XX" .
+                    "*" . $claim->ordererNPI() . "~\n";
+                ++$edicount;
+                $out .= "N3" . "*" . $claim->ordererStreet() . "~\n";
+                ++$edicount;
+                $out .= "N4" . "*" . $claim->ordererCity() . "*" .
+                    $claim->ordererState() . "*" . $claim->ordererZip() . "~\n";
+            }
 
             // Segment NM1 (Referring Provider Name) omitted.
             // Segment REF (Referring Provider Secondary Identification) omitted.

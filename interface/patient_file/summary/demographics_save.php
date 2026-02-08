@@ -6,7 +6,11 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,27 +18,38 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Common\Logging\SystemLogger;
+
+// Initialize logger
+$logger = new SystemLogger();
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
+
 global $pid;
-// Check authorization.
+
+// Check authorization
 if ($pid) {
     if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-        die(xlt('Updating demographics is not authorized.'));
+        AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
 
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
-        die(xlt('Adding demographics is not authorized.'));
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
+        AccessDeniedHelper::deny('Adding demographics is not authorized');
     }
 }
 
@@ -44,184 +59,400 @@ foreach ($_POST as $key => $val) {
     }
 }
 
-// Update patient_data and employer_data:
-//
-$newdata = array();
+// Update patient_data and employer_data
+$newdata = [];
 $newdata['patient_data']['id'] = $_POST['db_id'];
+
+// Arrays to hold special field types for processing after main data save
+$addressFieldsToSave = [];
+$telecomFieldsToSave = [];
+$relationFieldsToSave = [];
+
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
 
-$addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
+
+    // Skip data type 52 (provider list)
     if ((int)$data_type === 52) {
-        // patient name history is saved in add.
         continue;
     }
+
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
-    if (str_starts_with($field_id, 'em_')) {
-        $colname = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $colname = substr((string) $field_id, 3);
         $table = 'employer_data';
     }
 
-    // Get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
-    // *unless* the data_type is a checkbox ("21"), because if the checkbox is unchecked, then it will not
-    // have a value set on the form, it will be empty.
-    if ($data_type == 54) { // address list
-        $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
+    // Handle address list fields (data_type 54)
+    if ($data_type == 54) {
+        try {
+            // Try get_layout_form_value first
+            $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
+
+            $logger->debug("Address field collected via get_layout_form_value", [
+                'field_id' => $field_id,
+                'data_type' => $data_type,
+                'is_array' => is_array($addressFieldsToSave[$field_id]),
+                'raw_data_keys' => is_array($addressFieldsToSave[$field_id]) ? array_keys($addressFieldsToSave[$field_id]) : 'not_array'
+            ]);
+
+            // Check if POST data exists and is different
+            $post_field_name = "form_" . $field_id;
+            if (isset($_POST[$post_field_name])) {
+                $logger->debug("Raw POST data for address field EXISTS", [
+                    'field_id' => $field_id,
+                    'post_field_name' => $post_field_name,
+                    'post_keys' => array_keys($_POST[$post_field_name])
+                ]);
+
+                // If get_layout_form_value returned empty or wrong format, use POST directly
+                if (empty($addressFieldsToSave[$field_id]) || !is_array($addressFieldsToSave[$field_id]) || !isset($addressFieldsToSave[$field_id]['data_action'])) {
+                    $logger->warning("get_layout_form_value returned invalid data, using POST directly");
+                    $addressFieldsToSave[$field_id] = $_POST[$post_field_name];
+                }
+            } else {
+                $logger->warning("POST data not found for field", [
+                    'field_id' => $field_id,
+                    'expected_post_key' => $post_field_name,
+                    'available_post_keys' => array_keys($_POST)
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $logger->error("Error collecting address field", [
+                'field_id' => $field_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    // Handle telecom list fields (data_type 55)
+    elseif ($data_type == 55) {
+        try {
+            $telecomFieldsToSave[$field_id] = get_layout_form_value($frow);
+
+            $logger->debug("Telecom field collected via get_layout_form_value", [
+                'field_id' => $field_id,
+                'data_type' => $data_type,
+                'is_array' => is_array($telecomFieldsToSave[$field_id]),
+                'raw_data_keys' => is_array($telecomFieldsToSave[$field_id]) ? array_keys($telecomFieldsToSave[$field_id]) : 'not_array'
+            ]);
+
+            $post_field_name = "form_" . $field_id;
+            if (isset($_POST[$post_field_name])) {
+                if (empty($telecomFieldsToSave[$field_id]) || !is_array($telecomFieldsToSave[$field_id]) || !isset($telecomFieldsToSave[$field_id]['data_action'])) {
+                    $logger->warning("get_layout_form_value returned invalid data for telecom, using POST directly");
+                    $telecomFieldsToSave[$field_id] = $_POST[$post_field_name];
+                }
+            }
+        } catch (\Throwable $e) {
+            $logger->error("Error collecting telecom field", [
+                'field_id' => $field_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    // Handle relation list fields (data_type 56)
+    elseif ($data_type == 56) {
+        try {
+            $relationFieldsToSave[$field_id] = get_layout_form_value($frow);
+
+            $logger->debug("Relation field collected via get_layout_form_value", [
+                'field_id' => $field_id,
+                'data_type' => $data_type,
+                'is_array' => is_array($relationFieldsToSave[$field_id]),
+                'raw_data_keys' => is_array($relationFieldsToSave[$field_id]) ? array_keys($relationFieldsToSave[$field_id]) : 'not_array'
+            ]);
+
+            $post_field_name = "form_" . $field_id;
+            if (isset($_POST[$post_field_name])) {
+                // grab address and telecom data
+                if (empty($relationFieldsToSave[$field_id]) || !is_array($relationFieldsToSave[$field_id]) || !isset($relationFieldsToSave[$field_id]['data_action'])) {
+                    $logger->warning("get_layout_form_value returned invalid data for relation, using POST directly");
+                    $relationFieldsToSave[$field_id] = $_POST[$post_field_name];
+                }
+            }
+        } catch (\Throwable $e) {
+            $logger->error("Error collecting relation field", [
+                'field_id' => $field_id,
+                'error' => $e->getMessage()
+            ]);
+        }
     } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
 
-// TODO: All of this should be bundled up inside a transaction...
-
-updatePatientData($pid, $newdata['patient_data']);
-if (!$GLOBALS['omit_employers']) {
-    updateEmployerData($pid, $newdata['employer_data']);
+// Save patient and employer data
+try {
+    updatePatientData($pid, $newdata['patient_data']);
+    if (!$GLOBALS['omit_employers']) {
+        updateEmployerData($pid, [], $newdata['employer_data']);
+    }
+} catch (\Throwable $e) {
+    $logger->error("Error updating patient/employer data", [
+        'pid' => $pid,
+        'error' => $e->getMessage()
+    ]);
+    die("Error updating patient data: " . $e->getMessage());
 }
 
+// Handle address fields through ContactAddressService
 if (!empty($addressFieldsToSave)) {
-    // TODO: we would handle other types of address fields here,
-    // for now we will just go through and populate the patient
-    // address information
-    // TODO: how are error messages supposed to display if the save fails?
-    foreach ($addressFieldsToSave as $field => $addressFieldData) {
-        // if we need to save other kinds of addresses we could do that here with our field column...
+    try {
         $contactService = new ContactService();
-        $contactService->saveContactsForPatient($pid, $addressFieldData);
+        $contactAddressService = new ContactAddressService();
+
+        $logger->info("Starting address save process", [
+            'pid' => $pid,
+            'field_count' => count($addressFieldsToSave)
+        ]);
+
+        foreach ($addressFieldsToSave as $fieldId => $addressFieldData) {
+            try {
+                $logger->debug("Processing address field", [
+                    'field_id' => $fieldId,
+                    'data_type' => gettype($addressFieldData),
+                    'is_array' => is_array($addressFieldData),
+                    'data_sample' => is_array($addressFieldData) ? array_keys($addressFieldData) : 'not_array'
+                ]);
+
+                if (is_array($addressFieldData) && !empty($addressFieldData)) {
+                    // Log the structure
+                    if (isset($addressFieldData['data_action'])) {
+                        $logger->info("Address data structure detected", [
+                            'field_id' => $fieldId,
+                            'action_count' => count($addressFieldData['data_action']),
+                            'actions' => $addressFieldData['data_action'],
+                            'has_line_1' => isset($addressFieldData['line_1']),
+                            'sample_keys' => array_keys($addressFieldData)
+                        ]);
+                    } else {
+                        $logger->warning("No data action found in address data", [
+                            'field_id' => $fieldId,
+                            'keys_found' => array_keys($addressFieldData)
+                        ]);
+                    }
+
+                    // Get or create contact for this patient
+                    $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+
+                    if ($contact) {
+                        // Use the generic method that works with any entity
+                        $savedRecords = $contactAddressService->saveAddressesForContact(
+                            $contact->get_id(),
+                            $addressFieldData
+                        );
+
+                        $logger->info("Addresses saved successfully", [
+                            'pid' => $pid,
+                            'contact_id' => $contact->get_id(),
+                            'field_id' => $fieldId,
+                            'saved_count' => count($savedRecords)
+                        ]);
+                    } else {
+                        $logger->error("Failed to get/create contact for patient", [
+                            'pid' => $pid,
+                            'field_id' => $fieldId
+                        ]);
+                    }
+                } else {
+                    $logger->warning("Address field data invalid", [
+                        'field_id' => $fieldId,
+                        'is_array' => is_array($addressFieldData),
+                        'is_empty' => empty($addressFieldData)
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $logger->error("Exception processing address field", [
+                    'field_id' => $fieldId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                error_log("Exception in address processing: " . $e->getMessage());
+            }
+        }
+    } catch (\Throwable $e) {
+        $logger->error("Fatal error in address processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
     }
 }
 
-$i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
-$i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
-$i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
+// Handle telecom fields through ContactTelecomService
+if (!empty($telecomFieldsToSave)) {
+    try {
+        $contactService = new ContactService();
+        $telecomService = new ContactTelecomService();
 
-$swap_value = $_POST['isSwapClicked'] ?? null;
-$type = ($swap_value == '2') ? "secondary" : "primary";
-newInsuranceData(
-    $pid,
-    $type,
-    filter_input(INPUT_POST, "i1provider"),
-    filter_input(INPUT_POST, "i1policy_number"),
-    filter_input(INPUT_POST, "i1group_number"),
-    filter_input(INPUT_POST, "i1plan_name"),
-    filter_input(INPUT_POST, "i1subscriber_lname"),
-    filter_input(INPUT_POST, "i1subscriber_mname"),
-    filter_input(INPUT_POST, "i1subscriber_fname"),
-    filter_input(INPUT_POST, "form_i1subscriber_relationship"),
-    filter_input(INPUT_POST, "i1subscriber_ss"),
-    $i1dob,
-    filter_input(INPUT_POST, "i1subscriber_street"),
-    filter_input(INPUT_POST, "i1subscriber_postal_code"),
-    filter_input(INPUT_POST, "i1subscriber_city"),
-    filter_input(INPUT_POST, "form_i1subscriber_state"),
-    filter_input(INPUT_POST, "form_i1subscriber_country"),
-    filter_input(INPUT_POST, "i1subscriber_phone"),
-    filter_input(INPUT_POST, "i1subscriber_employer"),
-    filter_input(INPUT_POST, "i1subscriber_employer_street"),
-    filter_input(INPUT_POST, "i1subscriber_employer_city"),
-    filter_input(INPUT_POST, "i1subscriber_employer_postal_code"),
-    filter_input(INPUT_POST, "form_i1subscriber_employer_state"),
-    filter_input(INPUT_POST, "form_i1subscriber_employer_country"),
-    filter_input(INPUT_POST, 'i1copay'),
-    filter_input(INPUT_POST, 'form_i1subscriber_sex'),
-    $i1date,
-    filter_input(INPUT_POST, 'i1accept_assignment'),
-    filter_input(INPUT_POST, 'i1policy_type'),
-    $i1date_end
-);
+        $logger->info("Starting telecom save process", [
+            'pid' => $pid,
+            'field_count' => count($telecomFieldsToSave)
+        ]);
 
-//Dont save more than one insurance since only one is allowed / save space in DB
-if (!$GLOBALS['insurance_only_one']) {
-    $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
-    $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
-    $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
+        foreach ($telecomFieldsToSave as $fieldId => $telecomFieldData) {
+            try {
+                $logger->debug("Processing telecom field", [
+                    'field_id' => $fieldId,
+                    'data_type' => gettype($telecomFieldData),
+                    'is_array' => is_array($telecomFieldData),
+                    'data_sample' => is_array($telecomFieldData) ? array_keys($telecomFieldData) : 'not_array'
+                ]);
 
-    // secondary swaps with primary, tertiary with secondary
-    if ($swap_value == '2') {
-        $type = "primary";
-    } elseif ($swap_value == '3') {
-        $type = "tertiary";
-    } else {
-        $type = "secondary";
+                if (is_array($telecomFieldData) && !empty($telecomFieldData)) {
+                    // Log the structure
+                    $firstKey = array_key_first($telecomFieldData);
+                    if (is_numeric($firstKey)) {
+                        $logger->info("Telecom data structure detected (array format)", [
+                            'field_id' => $fieldId,
+                            'record_count' => count($telecomFieldData),
+                            'sample_keys' => array_keys($telecomFieldData),
+                            'first_record_keys' => isset($telecomFieldData[$firstKey]) ? array_keys($telecomFieldData[$firstKey]) : []
+                        ]);
+                    } else {
+                        $logger->warning("Unexpected telecom data structure", [
+                            'field_id' => $fieldId,
+                            'keys_found' => array_keys($telecomFieldData)
+                        ]);
+                    }
+
+                    $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+
+                    if ($contact) {
+                        $savedRecords = $telecomService->saveTelecomsForContact(
+                            $contact->get_id(),
+                            $telecomFieldData
+                        );
+
+                        $logger->info("Telecoms saved successfully", [
+                            'pid' => $pid,
+                            'contact_id' => $contact->get_id(),
+                            'field_id' => $fieldId,
+                            'saved_count' => count($savedRecords)
+                        ]);
+                    } else {
+                        $logger->error("Failed to get/create contact for patient", [
+                            'pid' => $pid,
+                            'field_id' => $fieldId
+                        ]);
+                    }
+                } else {
+                    $logger->warning("Telecom field data invalid", [
+                        'field_id' => $fieldId,
+                        'is_array' => is_array($telecomFieldData),
+                        'is_empty' => empty($telecomFieldData)
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $logger->error("Exception processing telecom field", [
+                    'field_id' => $fieldId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                error_log("Exception in telecom processing: " . $e->getMessage());
+            }
+        }
+    } catch (\Throwable $e) {
+        $logger->error("Fatal error in telecom processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        error_log("Fatal error in telecom processing: " . $e->getMessage());
     }
-
-    newInsuranceData(
-        $pid,
-        $type,
-        filter_input(INPUT_POST, "i2provider"),
-        filter_input(INPUT_POST, "i2policy_number"),
-        filter_input(INPUT_POST, "i2group_number"),
-        filter_input(INPUT_POST, "i2plan_name"),
-        filter_input(INPUT_POST, "i2subscriber_lname"),
-        filter_input(INPUT_POST, "i2subscriber_mname"),
-        filter_input(INPUT_POST, "i2subscriber_fname"),
-        filter_input(INPUT_POST, "form_i2subscriber_relationship"),
-        filter_input(INPUT_POST, "i2subscriber_ss"),
-        $i2dob,
-        filter_input(INPUT_POST, "i2subscriber_street"),
-        filter_input(INPUT_POST, "i2subscriber_postal_code"),
-        filter_input(INPUT_POST, "i2subscriber_city"),
-        filter_input(INPUT_POST, "form_i2subscriber_state"),
-        filter_input(INPUT_POST, "form_i2subscriber_country"),
-        filter_input(INPUT_POST, "i2subscriber_phone"),
-        filter_input(INPUT_POST, "i2subscriber_employer"),
-        filter_input(INPUT_POST, "i2subscriber_employer_street"),
-        filter_input(INPUT_POST, "i2subscriber_employer_city"),
-        filter_input(INPUT_POST, "i2subscriber_employer_postal_code"),
-        filter_input(INPUT_POST, "form_i2subscriber_employer_state"),
-        filter_input(INPUT_POST, "form_i2subscriber_employer_country"),
-        filter_input(INPUT_POST, 'i2copay'),
-        filter_input(INPUT_POST, 'form_i2subscriber_sex'),
-        $i2date,
-        filter_input(INPUT_POST, 'i2accept_assignment'),
-        filter_input(INPUT_POST, 'i2policy_type'),
-        $i2date_end
-    );
-
-    $i3dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
-    $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
-    $i3date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date_end"));
-
-    $type = ($swap_value == '3') ? "secondary" : "tertiary";
-
-    newInsuranceData(
-        $pid,
-        $type,
-        filter_input(INPUT_POST, "i3provider"),
-        filter_input(INPUT_POST, "i3policy_number"),
-        filter_input(INPUT_POST, "i3group_number"),
-        filter_input(INPUT_POST, "i3plan_name"),
-        filter_input(INPUT_POST, "i3subscriber_lname"),
-        filter_input(INPUT_POST, "i3subscriber_mname"),
-        filter_input(INPUT_POST, "i3subscriber_fname"),
-        filter_input(INPUT_POST, "form_i3subscriber_relationship"),
-        filter_input(INPUT_POST, "i3subscriber_ss"),
-        $i3dob,
-        filter_input(INPUT_POST, "i3subscriber_street"),
-        filter_input(INPUT_POST, "i3subscriber_postal_code"),
-        filter_input(INPUT_POST, "i3subscriber_city"),
-        filter_input(INPUT_POST, "form_i3subscriber_state"),
-        filter_input(INPUT_POST, "form_i3subscriber_country"),
-        filter_input(INPUT_POST, "i3subscriber_phone"),
-        filter_input(INPUT_POST, "i3subscriber_employer"),
-        filter_input(INPUT_POST, "i3subscriber_employer_street"),
-        filter_input(INPUT_POST, "i3subscriber_employer_city"),
-        filter_input(INPUT_POST, "i3subscriber_employer_postal_code"),
-        filter_input(INPUT_POST, "form_i3subscriber_employer_state"),
-        filter_input(INPUT_POST, "form_i3subscriber_employer_country"),
-        filter_input(INPUT_POST, 'i3copay'),
-        filter_input(INPUT_POST, 'form_i3subscriber_sex'),
-        $i3date,
-        filter_input(INPUT_POST, 'i3accept_assignment'),
-        filter_input(INPUT_POST, 'i3policy_type'),
-        $i3date_end
-    );
 }
 
-// if refresh tab after saving then results in csrf error
+// Handle relation fields through ContactRelationService
+if (!empty($relationFieldsToSave)) {
+    try {
+        $relationService = new ContactRelationService();
+
+        $logger->info("Starting relation save process", [
+            'pid' => $pid,
+            'field_count' => count($relationFieldsToSave)
+        ]);
+
+        foreach ($relationFieldsToSave as $fieldId => $relationFieldData) {
+            try {
+                $logger->debug("Processing relation field", [
+                    'field_id' => $fieldId,
+                    'data_type' => gettype($relationFieldData),
+                    'is_array' => is_array($relationFieldData),
+                    'data_sample' => is_array($relationFieldData) ? array_keys($relationFieldData) : 'not_array'
+                ]);
+
+                if (is_array($relationFieldData) && !empty($relationFieldData)) {
+                    // Log the structure
+                    if (isset($relationFieldData['data_action'])) {
+                        $logger->info("Relation data structure detected", [
+                            'field_id' => $fieldId,
+                            'action_count' => count($relationFieldData['data_action']),
+                            'actions' => $relationFieldData['data_action'],
+                            'has_contact_id' => isset($relationFieldData['contact_id']),
+                            'sample_keys' => array_keys($relationFieldData)
+                        ]);
+                    } else {
+                        $logger->warning("No data_action found in relation data", [
+                            'field_id' => $fieldId,
+                            'keys_found' => array_keys($relationFieldData)
+                        ]);
+                    }
+
+                    $savedRecords = $relationService->saveRelatedPersons(
+                        'patient_data',
+                        $pid,
+                        $relationFieldData
+                    );
+
+                    $logger->info("Relations saved successfully", [
+                        'pid' => $pid,
+                        'field_id' => $fieldId,
+                        'saved_count' => count($savedRecords)
+                    ]);
+                } else {
+                    $logger->warning("Relation field data invalid", [
+                        'field_id' => $fieldId,
+                        'is_array' => is_array($relationFieldData),
+                        'is_empty' => empty($relationFieldData)
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $logger->error("Exception processing relation field", [
+                    'field_id' => $fieldId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                error_log("Exception in relation processing: " . $e->getMessage());
+            }
+        }
+    } catch (\Throwable $e) {
+        $logger->error("Fatal error in relation processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        error_log("Fatal error in relation processing: " . $e->getMessage());
+    }
+}
+
+/**
+ * Trigger events for listeners
+ */
+try {
+    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(
+        new PatientUpdatedEventAux($pid, $_POST),
+        PatientUpdatedEventAux::EVENT_HANDLE,
+        10
+    );
+} catch (\Throwable $e) {
+    $logger->error("Error dispatching event", [
+        'error' => $e->getMessage()
+    ]);
+}
+
 include_once("demographics.php");

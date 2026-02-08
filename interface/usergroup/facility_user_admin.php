@@ -140,16 +140,16 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 <body>
     <?php
     // Collect user information
-    $user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));
+    $user_info = sqlQuery("select * from `users` WHERE `id` = ?", [$_GET["user_id"]]);
 
     // Collect facility information
-    $fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]));
+    $fac_info = sqlQuery("select * from `facility` where `id` = ?", [$_GET["fac_id"]]);
 
     // Collect layout information and store them in an array
     $l_res = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
         "ORDER BY group_id, seq");
-    $l_arr = array();
+    $l_arr = [];
     for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
         $l_arr[$i] = $row;
     }
@@ -195,8 +195,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                             <td style="width:270px;">
                                 <?php
                                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                    "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'], $fac_info['id'], $layout_entry['field_id']));
-                                echo generate_form_field($layout_entry, ($entry_data['field_value'] ?? ''));
+                                    "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", [$user_info['id'], $fac_info['id'], $layout_entry['field_id']]);
+                                generate_form_field($layout_entry, ($entry_data['field_value'] ?? ''));
                                 ?>
                             </td>
                         </tr>

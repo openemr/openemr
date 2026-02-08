@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * JjEncounterContextMainMenuLinksTest class
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\E2e;
+
+use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Encounter\EncounterOpenTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
+use OpenEMR\Tests\E2e\Login\LoginTrait;
+use OpenEMR\Tests\E2e\Patient\PatientTestData;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Panther\PantherTestCase;
+
+class JjEncounterContextMainMenuLinksTest extends PantherTestCase
+{
+    use BaseTrait;
+    use LoginTrait;
+    use EncounterOpenTrait;
+
+    private $client;
+    private $crawler;
+
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testEncounterOpen')]
+    #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
+    #[Test]
+    public function testEncounterContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?bool $looseTabTitle = false, ?string $loading = 'Loading'): void
+    {
+        if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
+            // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
+            //  a high enough version of nodejs)
+            $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
+        }
+
+        if (is_null($loading)) {
+            $loading = 'Loading';
+        }
+
+        if (is_null($looseTabTitle)) {
+            $looseTabTitle = false;
+        }
+
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
+            $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false, false);
+            $this->goToMainMenuLink($menuLink);
+            if ($popup) {
+                $this->assertActivePopup($expectedTabPopupTitle);
+            } else {
+                $this->assertActiveTab($expectedTabPopupTitle, $loading, $looseTabTitle);
+            }
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
+        }
+        // Close client
+        $this->client->quit();
+    }
+
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
+    public static function menuLinkProvider()
+    {
+        return [
+            'Patient -> Visits -> Current menu link' => ['Patient||Visits||Current', 'Encounter', false, true],
+            'Fees -> Fee Sheet menu link' => ['Fees||Fee Sheet', 'Encounter', false, true],
+            'Fees -> Payment menu link' => ['Fees||Payment', 'Record Payment', false, false, 'Encounter'],
+            'Fees -> Checkout menu link' => ['Fees||Checkout', 'Receipt for Payment', false, false, 'Encounter'],
+            'Popups -> Payment link' => ['Popups||Payment', 'Payment', true]
+        ];
+    }
+}

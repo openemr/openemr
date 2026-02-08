@@ -1,0 +1,70 @@
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "Clinical Decision Intervention Info"|xlt }}{% endblock %}
+{% block header %}
+    {{ setupHeader([]) }}
+{% endblock %}
+{% block headerNav %}
+<div class="page-title">
+    <h2>
+        {{ nav.title|text }}
+    </h2>
+    <h3>{{ nav.subtitle|text }}</h3>
+</div>
+{% endblock %}
+{% block contents %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <h4>{{ "Source Attribute Details"|xlt }}
+                {% if showEditLink %}
+                    <input type="button" class="btn btn-sm btn-primary btn-edit-dsi" data-dsi-id="{{ service.id|attr }}" value="{{ "Edit"|xlt }}" />
+                {% endif %}
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <p>{{ "These source attributes can be updated through the Admin -> System -> API Clients screen"|xlt }}</p>
+                        {% if not showEditLink %}
+                        <p>{{ "Contact a system administrator if you need to update this information and do not have access to the API Clients management tool"|xlt }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {% for field in service.fields %}
+                        {% if field.type == 'text' %}
+                            <div class="form-group">
+                                <label for="{{ field.name|attr }}">{{ field.label|text }}</label>
+                                <input type="text" readonly disabled="disabled" class="form-control" id="{{ field.name|attr }}" name="{{ field.name|attr }}" value="{{ field.value|attr }}">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {# we hide the footer on 404 page #}
+    <script>
+        (function() {
+            window.document.addEventListener("DOMContentLoaded", function() {
+                var editBtns = document.querySelectorAll('.btn-edit-dsi');
+                editBtns.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var dsiId = btn.dataset['dsiId'];
+                        if (window.parent) {
+                            console.log("sending post message");
+                            window.parent.postMessage({type: 'smart-dsi-edit-source', dsiId: dsiId}, window.location.origin);
+                        } else {
+                            console.error("Failed to send message to parent window");
+                            alert(window.top.xl("A system error occurred"));
+                        }
+                    });
+                });
+            });
+        })(window);
+    </script>
+{% endblock %}

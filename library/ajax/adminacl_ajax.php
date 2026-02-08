@@ -30,7 +30,7 @@ header("Content-type: text/xml");
 header("Cache-Control: no-cache");
 
 //initiate error array
-$error = array();
+$error = [];
 
 //verify csrf
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -77,7 +77,7 @@ if ($_POST["control"] == "membership") {
 
         //add the group, then log it, then return updated membership data
         AclExtended::addUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::instance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 
@@ -91,11 +91,7 @@ if ($_POST["control"] == "membership") {
 
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
-        if (checkUserSetting("gacl_protect", "1", $userNametoID) || ($_POST["name"] == "admin")) {
-             $gacl_protect = true;
-        } else {
-             $gacl_protect = false;
-        }
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] == "admin" ? true : false;
 
         if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,
@@ -108,7 +104,7 @@ if ($_POST["control"] == "membership") {
 
         //remove the group(s), then log it, then return updated membership data
         AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::instance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 }
@@ -138,7 +134,7 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
-        } elseif (!ctype_alpha($_POST["identifier"])) {
+        } elseif (!ctype_alpha((string) $_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
         } elseif (AclExtended::aclExist(false, $_POST["identifier"], $_POST["return_value"])) {

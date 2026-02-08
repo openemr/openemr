@@ -1,0 +1,105 @@
+<script>
+    // keeping this centralized here
+    function editAppointment(mode, deid) {
+        let mdata = {};
+        let title = '';
+
+        if (mode === 'add') {
+            title = {{ 'Request New Appointment' | xlj }};
+            mdata = {
+                pid: deid
+            };
+        } else if (mode === 'recurring') {
+            let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
+            {# TODO: look at refactoring signerAlertMsg into a portalAlertMsg function, would better fit
+                Single Responsibility Principle to use that instead of the digital signature api here to show alert messages #}
+            signerAlertMsg(msg, 8000);
+            return false;
+        } else {
+            title = {{ 'Edit Appointment' | xlj }};
+            mdata = {
+                eid: deid
+            };
+        }
+
+        var params = {
+            dialogId: 'editpop',
+            buttons: [
+                {
+                    text: 'Cancel',
+                    close: true,
+                    style: 'btn-sm btn-secondary'
+                }
+            ],
+            allowDrag: false,
+            size: 800,
+            title: title,
+            type: "GET",
+            url: './add_edit_event_user.php',
+            data: mdata
+        };
+        /*
+        * A couple notes on dialog.ajax .alert etc.
+        * opener is not required. library will handle for you.
+        * these run in the same scope as calling script.
+        * so same styles, dependencies are in scope.
+        * a promise is returned for doing other neat stuff.
+        *
+        * */
+        {# this is coming from the dialog.js script #}
+        dialog.ajax(params);
+    }
+</script>
+<div class="collapse my-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
+    <div class="container-fluid">
+        <h3 class="text-center">{{ 'Future Appointments' | xlt }}</h3>
+        <div class="row">
+            {% if appointments|length > 0 %}
+                {% for appt in appointments %}
+                    {% include 'portal/appointment-item.html.twig' with {appt: appt, past: false} %}
+                {% endfor %}
+
+                {% if appointmentLimit == appointmentCount %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ 'Display limit reached' | xlt }}
+                                <br>
+                                {{ 'More upcoming appointments may exist' | xlt }}</h5>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info"><h5 class='text-center'>{{ 'No Appointments' | xlt }}</h5></div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="mt-3">
+            <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <h3 class="text-center">{{ 'Past Appointments' | xlt }}</h3>
+        <div class="row">
+            {% if pastAppointments|length > 0 %}
+                {% for appt in pastAppointments %}
+                    {% include 'portal/appointment-item.html.twig' with {appt: appt, past: true} %}
+                {% endfor %}
+
+                {% if appointmentLimit == pastAppointmentCount %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ 'Display limit reached' | xlt }}
+                                <br>
+                                {{ 'More past appointments may exist' | xlt }}</h5>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info"><h5 class='text-center'>{{ 'No Past Appointments' | xlt }}</h5></div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

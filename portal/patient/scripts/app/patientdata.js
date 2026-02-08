@@ -30,9 +30,10 @@ var page = {
         if (page.isInitialized || page.isInitializing) return;
         page.isInitializing = true;
         if (cuser < 1)
+            // where is savePatientButton used?
             $('#savePatientButton').hide();
 
-        $("#donePatientButton").hide();
+        $("#donePatientButton").addClass("disabled");
         $("#replaceAllButton").hide();
 
         if (!$.isReady && console) console.warn('page was initialized before dom is ready.  views may not render properly.');
@@ -48,6 +49,10 @@ var page = {
         });
         $("#donePatientButton").click(function (e) {
             e.preventDefault();
+            if ($(this).hasClass("disabled")) {
+                alert(window.top.xl("You must change a value in order to save"));
+                return;
+            }
             page.updateModel();
         });
         $("#replaceAllButton").click(function (e) {
@@ -135,8 +140,11 @@ var page = {
                     }
                 }
                 page.replaceAll();
-                $('form :input').on("change", function () {
-                    $("#donePatientButton").show();
+                // for mobile devices the change event does not fire during edit and so we are using input even though
+                // the event will fire more frequently... we want that instead of user having to tap or click something
+                // else in order to get the save button to be turned on.
+                $('form :input').on("input", function () {
+                    $("#donePatientButton").removeClass("disabled");
                     $('#savePatientButton').show();
                 });
             });

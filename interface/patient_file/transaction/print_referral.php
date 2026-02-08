@@ -18,9 +18,13 @@ require_once("$srcdir/transactions.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
-$TEMPLATE_LABELS = array(
+$TEMPLATE_LABELS = [
   'label_clinic_id'             => xlt('Clinic ID'),
   'label_client_id'             => xlt('Client ID'),
   'label_control_no'            => xlt('Control No.'),
@@ -28,6 +32,7 @@ $TEMPLATE_LABELS = array(
   'label_webpage_title'         => xlt('Referral Form'),
   'label_form1_title'           => xlt('Referral Form'),
   'label_name'                  => xlt('Name'),
+  'label_dob'                   => xlt('DOB'),
   'label_age'                   => xlt('Age'),
   'label_gender'                => xlt('Gender'),
   'label_address'               => xlt('Address'),
@@ -59,7 +64,7 @@ $TEMPLATE_LABELS = array(
   'label_ins_policy'            => xlt('Policy'),
   'label_ins_group'             => xlt('Group'),
   'label_ins_date'              => xlt('Effective Date')
-);
+];
 
 if (!is_file($template_file)) {
     die(text($template_file) . " does not exist!");
@@ -83,7 +88,7 @@ if ($transid) {
         $refer_date = date('Y-m-d');
     }
 
-    $trow = array('id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date);
+    $trow = ['id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date];
 }
 
 if ($patient_id) {
@@ -91,7 +96,7 @@ if ($patient_id) {
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
     $insurancedata = getInsuranceData($patient_id);
 } else {
-    $patdata = array('DOB' => '');
+    $patdata = ['DOB' => ''];
     $patient_age = '';
     $ins_name = '';
 }
@@ -104,33 +109,33 @@ if (empty($trow['refer_to'  ])) {
     $trow['refer_to'  ] = 0;
 }
 
-$frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']));
+$frrow = sqlQuery("SELECT * FROM users WHERE id = ?", [$trow['refer_from']]);
 if (empty($frrow)) {
-    $frrow = array();
+    $frrow = [];
 }
 
-$torow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_to']));
+$torow = sqlQuery("SELECT * FROM users WHERE id = ?", [$trow['refer_to']]);
 if (empty($torow)) {
-    $torow = array(
+    $torow = [
     'organization' => '',
     'street' => '',
     'city' => '',
     'state' => '',
     'zip' => '',
     'phone' => '',
-    );
+    ];
 }
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
   "pid = ? AND date <= ? " .
-  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date . " 23:59:59"));
+  "ORDER BY date DESC LIMIT 1", [$patient_id, $refer_date . " 23:59:59"]);
 if (empty($vrow)) {
-    $vrow = array(
+    $vrow = [
     'bps' => '',
     'bpd' => '',
     'weight' => '',
     'height' => '',
-    );
+    ];
 }
 
 // $facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
@@ -152,7 +157,7 @@ if (empty($facrow['facility_npi'])) {
 
 // Generate link to MA logo if it exists.
 $logo = "";
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }
@@ -193,7 +198,9 @@ while ($frow = sqlFetchArray($fres)) {
 
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
-        $s = str_replace("{pt_$key}", generate_display_field(array('data_type' => '1','list_id' => 'sex'), $value), $s);
+        $s = str_replace("{pt_$key}", generate_display_field(['data_type' => '1','list_id' => 'sex'], $value), $s);
+    } elseif ($key == "DOB") {
+        $s = str_replace("{pt_$key}", text(oeFormatShortDate($value)), $s);
     } else {
         $s = str_replace("{pt_$key}", text($value), $s);
     }

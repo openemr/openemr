@@ -48,7 +48,7 @@ class PhysicalExam extends ClinicalType
                 "AND form_vitals.pid = ? " .
                 "AND DATE( form_vitals.date ) >= ? " .
                 "AND DATE( form_vitals.date ) <= ? ";
-            $res = sqlStatement($query, array( $patient->id, $beginDate, $endDate ));
+            $res = sqlStatement($query, [ $patient->id, $beginDate, $endDate ]);
             $number = sqlNumRows($res);
             if ($number >= 1) {
                 return true;

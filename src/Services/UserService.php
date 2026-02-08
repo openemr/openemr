@@ -18,6 +18,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -67,7 +68,7 @@ class UserService
      * @param $username
      * @return string|bool
      */
-    public static function getAuthGroupForUser($username)
+    public function getAuthGroupForUser($username)
     {
         $return = false;
         $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
@@ -135,8 +136,9 @@ class UserService
      */
     public function getCurrentlyLoggedInUser()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
-        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
+        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
     }
 
     /**
@@ -213,9 +215,6 @@ class UserService
         // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
         if (count($records) == 1) {
             $akeys = array_keys($records[0]);
-            foreach ($akeys as $key) {
-                $records[0][$key] = $records[0][$key];
-            }
         }
 
         return ($records ?? null);
@@ -254,13 +253,17 @@ class UserService
                         phonecell,
                         users.notes,
                         state_license_number,
-                        abook.title as abook_title";
+                        abook.title as abook_title,
+                        last_updated ";
         if ($this->_includeUsername) {
             $sql .= ", username";
         }
+        // grab our address book type, make sure to use the index w/ list_id and option_id
         $sql .= "
                 FROM  users
-                LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
+                LEFT JOIN (
+                    SELECT list_id,option_id, title FROM list_options
+                ) abook ON abook.list_id = 'abook_type' AND abook.option_id = users.abook_type";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -284,9 +287,9 @@ class UserService
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT  id,
                         uuid,
@@ -329,7 +332,7 @@ class UserService
 
         if (!empty($search)) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);

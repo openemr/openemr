@@ -36,14 +36,14 @@ class Therapy_groups_participants
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
         $sql .= "JOIN " . self::PATIENT_TABLE . " AS p ON gp.pid = p.pid ";
         $sql .= "WHERE gp.group_id = ?";
-        $binds = array($groupId);
+        $binds = [$groupId];
 
         if ($onlyActive) {
             $sql .= " AND gp.group_patient_status = ?";
             $binds[] = 10;
         }
 
-        $groupParticipants = array();
+        $groupParticipants = [];
         $result = sqlStatement($sql, $binds);
         while ($gp = sqlFetchArray($result)) {
             $groupParticipants[] = $gp;
@@ -67,7 +67,7 @@ class Therapy_groups_participants
         $sql = substr($sql, 0, -1);
         $sql .= ' WHERE pid = ? AND group_id = ?';
 
-        $data = array_merge($participant, array($patientId, $groupId));
+        $data = array_merge($participant, [$patientId, $groupId]);
         $result = sqlStatement($sql, $data);
         return !$result ? false : true;
     }
@@ -76,7 +76,7 @@ class Therapy_groups_participants
     {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";
-        $result = sqlStatement($sql, array($groupId, $pid));
+        $result = sqlStatement($sql, [$groupId, $pid]);
         return !$result ? false : true;
     }
 
@@ -87,7 +87,7 @@ class Therapy_groups_participants
 
 //        $result = sqlStatement($sql, array($pid, $groupId));
 //        $count = sqlFetchArray($result);
-        $count = sqlQuery($sql, array($pid, $groupId));
+        $count = sqlQuery($sql, [$pid, $groupId]);
         return($count['count'] > 0) ? true : false;
     }
 

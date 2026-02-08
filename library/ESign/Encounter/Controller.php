@@ -5,10 +5,11 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2013 OEMR 501c3 www.oemr.org
+ * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
@@ -24,7 +25,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 
 class Encounter_Controller extends Abstract_Controller
 {
-    public function esign_is_encounter_locked()
+    public function esign_is_encounter_locked(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId);
@@ -41,6 +42,9 @@ class Encounter_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
+        $form->displayGoogleSignin = (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false;
+        $form->googleSigninClientID = $GLOBALS['google_signin_client_id'];
+
         if (
             $signable->isLocked() === false &&
             $GLOBALS['lock_esign_all'] &&
@@ -54,7 +58,7 @@ class Encounter_Controller extends Abstract_Controller
         $this->render();
     }
 
-    public function esign_log_view()
+    public function esign_log_view(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId); // Contains features that make object signable
@@ -74,6 +78,17 @@ class Encounter_Controller extends Abstract_Controller
         $status = self::STATUS_FAILURE;
         $password = $this->getRequest()->getParam('password', '');
         $encounterId = $this->getRequest()->getParam('encounterId', '');
+
+        // If google sign-in enable
+        $usedGoogleSignin = $this->getRequest()->getParam('used_google_signin', '');
+        $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
+        $force_google = (
+            !empty($GLOBALS['google_signin_enabled']) &&
+            !empty($GLOBALS['google_signin_client_id']) &&
+            !empty($usedGoogleSignin) &&
+            !empty($googleSigninToken)
+        ) ? 1 : 0;
+
         // Lock if 'Lock e-signed encounters and their forms' option is set,
         // unless esign_lock_toggle option is enable in globals, then check the request param
         $lock = false;
@@ -85,16 +100,29 @@ class Encounter_Controller extends Abstract_Controller
         }
 
         $amendment = $this->getRequest()->getParam('amendment', '');
-        if ((new AuthUtils())->confirmPassword($_SESSION['authUser'], $password)) {
+
+        // If google sign-in enable then valid google sign-in
+        if ($force_google ===  1) {
+            $valid = false;
+            $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken);
+            if (!empty($uPayload) && isset($uPayload['id']) && $uPayload['id'] == $_SESSION['authUserID']) {
+                $valid = true;
+            }
+            $gMessage = xlt("Invalid google log in");
+        } else {
+            $valid = (new AuthUtils())->confirmPassword($_SESSION['authUser'], $password);
+        }
+
+        if ($valid) {
             $signable = new Encounter_Signable($encounterId);
             if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
                 $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {
-                $message = xlt("An error occured signing the form");
+                $message = xlt("An error occurred signing the form");
             }
         } else {
-            $message = xlt("The password you entered is invalid");
+            $message = (isset($gMessage) && !empty($gMessage)) ? $gMessage : xlt("The password you entered is invalid");
         }
 
         $response = new Response($status, $message);

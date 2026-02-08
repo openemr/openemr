@@ -40,8 +40,8 @@ foreach ($options as $opt) {
 }
 
 // Collect variables
-$form_lookup_at = (isset($_POST['form_lookup_at'])) ? $_POST['form_lookup_at'] : '';
-$form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] : '';
+$form_lookup_at = $_POST['form_lookup_at'] ?? '';
+$form_diagnosis = $_POST['form_diagnosis'] ?? '';
 ?>
 
 <html>

@@ -53,14 +53,14 @@ abstract class AbstractQdmService
     {
         // max bigint size is 8 bytes which will fit fine
         // string ID should be prefixed with 0s so the converted data type should be far smaller
-        $trimmedId = ltrim($id, '\x0');
+        $trimmedId = ltrim((string) $id, '\x0');
         $decimal = hexdec($trimmedId);
         return $decimal;
     }
 
     public function validDateOrNull($date)
     {
-        if (strpos($date, '0000-00-00') !== false) {
+        if (empty($date) || str_contains((string) $date, '0000-00-00')) {
             return null;
         }
         return new DateTime([
@@ -88,7 +88,7 @@ abstract class AbstractQdmService
 
         // Apply the filter based on request type
         // If there's already a "WHERE" clause, then add an "AND" otherwise add our WHERE clause.
-        if (strpos(strtolower($sql), 'where')) {
+        if (strpos(strtolower((string) $sql), 'where')) {
             $sql .= " AND ( " . $filterClause . " )";
         } else {
             $sql .= " WHERE ( " . $filterClause . " )";
@@ -151,7 +151,7 @@ abstract class AbstractQdmService
         $codeModel = null;
         $code = null;
         $system = null;
-        $res = explode(":", $openEmrCode); //split diagnosis type and code
+        $res = !empty($openEmrCode) ? explode(":", (string) $openEmrCode) : []; //split diagnosis type and code
 
         // TODO For some reason, the import imports allergy codes like this: 'RXNORM:CVX:135' OR 'RXNORM:CVX:135'
         // so we have to account for the case where there are three parts to our exploded code
@@ -187,7 +187,7 @@ abstract class AbstractQdmService
      */
     public function explodeAndMakeCodeArray($openEmrMultiCode)
     {
-        $multiple = explode(";", $openEmrMultiCode);
+        $multiple = !empty($openEmrMultiCode) ? explode(";", (string) $openEmrMultiCode) : [];
         $codes = [];
         foreach ($multiple as $individual) {
             $code = $this->makeQdmCode($individual);

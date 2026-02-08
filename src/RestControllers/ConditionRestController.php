@@ -22,12 +22,12 @@ class ConditionRestController
     /**
      * White list of search/insert fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         'title',
         'begdate',
         'enddate',
         'diagnosis'
-    );
+    ];
 
     public function __construct()
     {
@@ -52,7 +52,7 @@ class ConditionRestController
     /**
      * Returns condition resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $processingResult = $this->conditionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);

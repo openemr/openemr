@@ -10,9 +10,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -52,7 +54,7 @@ $where = addwhere($where, 'a.city', $_GET['form_city']);
 $where = addwhere($where, 'a.state', $_GET['form_state']);
 $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
-$phone_parts = array();
+$phone_parts = [];
 $area_code = null;
 $prefix = null;
 $digits = null;
@@ -61,7 +63,7 @@ $digits = null;
 if (
     preg_match(
         "/(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -73,7 +75,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -85,7 +87,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -119,9 +121,29 @@ td {
 
  // This is invoked when an insurance company name is clicked.
  function setins(ins_id, ins_name) {
-   opener.set_insurance(ins_id, ins_name);
-   dlgclose();
-   return false;
+     if (!window.opener) {
+         return; // nothing to do here as somehow we got here without the opener
+     }
+     let postMessage = {
+         action: 'insurance-search-set-insurance'
+         ,insuranceId: ins_id
+         ,insuranceName: ins_name
+     };
+     // fire off a message so we can decouple things so we don't have to have a specific function
+     // name in the global scope of the opener
+     opener.postMessage(postMessage, window.location.origin);
+     if (opener.closed) {
+         alert('The target form was closed; I cannot apply your selection.');
+     }
+     else if (opener.set_insurance) {
+         opener.set_insurance(ins_id, ins_name);
+         dlgclose();
+     } else {
+         // if we don't have a set_insurance function then we will just close the window as the opener is
+         // using post message to receive events.
+         dlgclose();
+     }
+     return false;
  }
 
 </script>

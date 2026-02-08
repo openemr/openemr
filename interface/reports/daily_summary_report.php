@@ -40,8 +40,8 @@ $facilityService = new FacilityService();
 
 $from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d'); // From date filter
 $to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
-$selectedFacility = isset($_POST['form_facility']) ? $_POST['form_facility'] : "";  // facility filter
-$selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "";  // provider filter
+$selectedFacility = $_POST['form_facility'] ?? "";  // facility filter
+$selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 ?>
 
 <html>
@@ -118,8 +118,8 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
                                             <?php
-                                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                                            'empty_title' => '-- All Providers --'), $selectedProvider);
+                                            generate_form_field(['data_type' => 10, 'field_id' => 'provider',
+                                            'empty_title' => '-- All Providers --'], $selectedProvider);
                                             ?>
                                         </td>
                                 </table>
@@ -161,7 +161,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         }
 
         // define all the variables as initial blank array
-        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = array();
+        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = [];
 
         // define all the where condition variable as initial value set 1=1
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
@@ -181,7 +181,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         // define provider and facility as null
         $providerID = $facilityID = null;
         // define all the bindarray variables as initial blank array
-        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
+        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = [];
 
         // make all condition on by default today's date
         if ($dateSet != 1 && $facilitySet != 1) {
@@ -304,7 +304,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                                                     GROUP BY `b`.`encounter`,Date,provider_name ORDER BY Date ASC", $sqlBindArrayTotalPayment);
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
-            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] = $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ?? null;
+            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ??= 0;
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
@@ -344,6 +344,12 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 </tr>
                 <?php
                 if (count($dailySummaryReport) > 0) { // check if daily summary array has value
+                    $totalAppointments = 0;
+                    $totalNewRegisterPatient = 0;
+                    $totalVisits = 0;
+                    $totalPayments = 0;
+                    $totalPaidAmount = 0;
+                    $totalDueAmount = 0;
                     foreach ($dailySummaryReport as $date => $dataValue) { //   daily summary array which consists different/dynamic values
                         foreach ($facilities as $facility) { // facility array
                             if (isset($dataValue[$facility])) {
@@ -356,9 +362,9 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td><?php echo isset($information['appointments']) ? text($information['appointments']) : 0; ?></td>
                                         <td><?php echo isset($information['newPatient']) ? text($information['newPatient']) : 0; ?></td>
                                         <td><?php echo isset($information['visits']) ? text($information['visits']) : 0; ?></td>
-                                        <td align="right"><?php echo isset($information['payments']) ? text(number_format($information['payments'], 2)) : number_format(0, 2); ?></td>
-                                        <td align="right"><?php echo isset($information['paidAmount']) ? text(number_format($information['paidAmount'], 2)) : number_format(0, 2); ?></td>
-                                        <td align="right">
+                                        <td><?php echo isset($information['payments']) ? text(number_format($information['payments'], 2)) : number_format(0, 2); ?></td>
+                                        <td><?php echo isset($information['paidAmount']) ? text(number_format($information['paidAmount'], 2)) : number_format(0, 2); ?></td>
+                                        <td>
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
                                                 $dueAmount = number_format(floatval(str_replace(",", "", $information['payments'])) - floatval(str_replace(",", "", ($information['paidAmount'] ?? null))), 2);
@@ -372,22 +378,11 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                     </tr>
                                     <?php
                                     if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
-                                        $totalAppointments = $totalAppointments ?? null;
-                                        $totalAppointments += ($information['appointments'] ?? null);
-
-                                        $totalNewRegisterPatient = $totalNewRegisterPatient ?? null;
-                                        $totalNewRegisterPatient += ($information['newPatient'] ?? null);
-
-                                        $totalVisits = $totalVisits ?? null;
-                                        $totalVisits += ($information['visits'] ?? null);
-
-                                        $totalPayments = $totalPayments ?? null;
+                                        $totalAppointments += ($information['appointments'] ?? 0);
+                                        $totalNewRegisterPatient += ($information['newPatient'] ?? 0);
+                                        $totalVisits += ($information['visits'] ?? 0);
                                         $totalPayments += floatval(str_replace(",", "", ($information['payments'] ?? '')));
-
-                                        $totalPaidAmount = $totalPaidAmount ?? null;
                                         $totalPaidAmount += floatval(str_replace(",", "", ($information['paidAmount'] ?? '')));
-
-                                        $totalDueAmount = $totalDueAmount ?? null;
                                         $totalDueAmount += $dueAmount;
                                     }
                                 }
@@ -403,9 +398,9 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                         <td><?php echo text($totalAppointments); ?></td>
                         <td><?php echo text($totalNewRegisterPatient); ?></td>
                         <td><?php echo text($totalVisits); ?></td>
-                        <td align="right"><?php echo text(number_format($totalPayments, 2)); ?></td>
-                        <td align="right"><?php echo text(number_format($totalPaidAmount, 2)); ?></td>
-                        <td align="right"><?php echo text(number_format($totalDueAmount, 2)); ?></td>
+                        <td><?php echo text(number_format($totalPayments, 2)); ?></td>
+                        <td><?php echo text(number_format($totalPaidAmount, 2)); ?></td>
+                        <td><?php echo text(number_format($totalDueAmount, 2)); ?></td>
                     </tr>
                     <?php
                 } else { // if there are no records then display message

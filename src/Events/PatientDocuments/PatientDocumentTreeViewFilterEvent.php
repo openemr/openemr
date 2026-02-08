@@ -16,8 +16,9 @@ namespace OpenEMR\Events\PatientDocuments;
 
 use HTML_TreeNode;
 use CategoryTree;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class PatientDocumentTreeViewFilterEvent
+class PatientDocumentTreeViewFilterEvent extends Event
 {
     const EVENT_NAME = "patient.document.tree.view.filter";
 

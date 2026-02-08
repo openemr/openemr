@@ -1,0 +1,11 @@
+x-includes:
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-nginx.yml"
+  database-template: "compose-shared-mariadb.yml"
+  mailpit-template: "compose-shared-mailpit.yml"
+
+services:
+  mysql:
+    image: mariadb:11.8
+  openemr:
+    image: openemr/dev-php-fpm:8.5

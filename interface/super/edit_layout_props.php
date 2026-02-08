@@ -109,11 +109,11 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_subtitle = ?, "   .
             "grp_init_open = ?, "  .
             "grp_columns = ?";
-        $sqlvars = array(
+        $sqlvars = [
             $_POST['form_subtitle'],
             empty($_POST['form_init_open' ]) ? 0 : 1,
             intval($_POST['form_columns']),
-        );
+        ];
     } else {
         $sets =
             "grp_title = ?, "      .
@@ -133,7 +133,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_services = ?, "   .
             "grp_products = ?, "   .
             "grp_diags = ?";
-        $sqlvars = array(
+        $sqlvars = [
             $_POST['form_title'],
             $_POST['form_subtitle'],
             $_POST['form_mapping'],
@@ -151,7 +151,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
-        );
+        ];
     }
 
     if ($layout_id) {
@@ -176,11 +176,11 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             $alertmsg = xl('Layout ID is required');
         } elseif ($form_title == '') {
             $alertmsg = xl('Title is required');
-        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', $form_form_id)) {
+        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', (string) $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",
-                array($form_form_id)
+                [$form_form_id]
             );
             if (empty($row)) {
                 $sqlvars[] = $form_form_id;
@@ -210,7 +210,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
     exit();
 }
 
-$row = array(
+$row = [
     'grp_form_id'    => '',
     'grp_title'      => '',
     'grp_subtitle'   => '',
@@ -230,13 +230,13 @@ $row = array(
     'grp_products'   => '',
     'grp_diags'      => '',
     'grp_last_update' => '',
-);
+];
 
 if ($layout_id) {
     $row = sqlQuery(
         "SELECT * FROM layout_group_properties WHERE " .
         "grp_form_id = ? AND grp_group_id = ?",
-        array($layout_id, $group_id)
+        [$layout_id, $group_id]
     );
     if (empty($row)) {
         die(xlt('This layout does not exist.'));
@@ -391,7 +391,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     $itres = sqlStatement(
         "SELECT type, singular FROM issue_types " .
         "WHERE category = ? AND active = 1 ORDER BY singular",
-        array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
+        [$GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default']
     );
     while ($itrow = sqlFetchArray($itres)) {
         echo "<option value='" . attr($itrow['type']) . "'";

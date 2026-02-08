@@ -22,7 +22,7 @@ require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\PractitionerService;
@@ -41,10 +41,10 @@ if (!empty($_POST)) {
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
 // See if showing an old report or creating a new report
-$report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
+$report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 
 // Collect the back variable, if pertinent
-$back_link = (isset($_GET['back'])) ? trim($_GET['back']) : "";
+$back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
 
 // If showing an old report, then collect information
 $heading_title = "";
@@ -55,7 +55,7 @@ if (!empty($report_id)) {
     $type_report = $report_view['type'];
 
     $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
-    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+    $is_cqm_report = in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"]);
     $type_report = ($is_amc_report || $is_cqm_report) ? $type_report : "standard";
     $rule_filter = $report_view['type'];
 
@@ -71,16 +71,16 @@ if (!empty($report_id)) {
     $pat_prov_rel = $report_view['pat_prov_rel'];
 
 
-    $amc_report_data = $amc_report_types[$type_report] ?? array();
+    $amc_report_data = $amc_report_types[$type_report] ?? [];
     $dataSheet = formatReportData($report_id, $report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_data);
 } else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
   // to simplify for when submitting for a new report.
-    $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
+    $type_report = (isset($_GET['type'])) ? trim((string) $_GET['type']) : "standard";
 
     $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
-    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+    $is_cqm_report = in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"]);
 
     if (($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
         $type_report = "cqm";
@@ -88,29 +88,29 @@ if (!empty($report_id)) {
 
   // Collect form parameters (set defaults if empty)
     if ($is_amc_report) {
-        $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
+        $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date'])) : "";
         $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
     }
 
-    $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_target_date'])) : date('Y-m-d H:i:s');
+    $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_target_date'])) : date('Y-m-d H:i:s');
     $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
-    $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
+    $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim((string) $_POST['form_pat_prov_rel']);
     $dataSheet = [];
 }
 
 $show_help = false;
 if ($type_report == "standard") {
     $heading_title = xl('Standard Measures');
-} else if ($type_report == "cqm") {
+} elseif ($type_report == "cqm") {
     $heading_title = xl('Clinical Quality Measures (CQM)');
-} else if ($type_report == 'cqm_2011') {
+} elseif ($type_report == 'cqm_2011') {
     $heading_title = 'Clinical Quality Measures (CQM) - 2011';
-} else if ($type_report == "cqm_2014") {
+} elseif ($type_report == "cqm_2014") {
     $heading_title = 'Clinical Quality Measures (CQM) - 2014';
-} else if ($is_amc_report) {
+} elseif ($is_amc_report) {
     $heading_title = $amc_report_types[$type_report]['title'];
     $show_help = true;
     $help_file_name = "cqm_amc_help.php";
@@ -129,7 +129,7 @@ $formData = [
         'heading_title' => xl('Add/Edit Patient Transaction'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "cqm.php",//only for actions - reset, link and back
@@ -166,7 +166,7 @@ $formData = [
     , 'collate_outer' => $provider == 'collate_outer'
     , 'datasheet' => $dataSheet
 ];
-if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+if (in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"])) {
     $formData['widthDyn'] = '410px';
     $formData['rule_filters'] = [
         ['value' => 'cqm', 'selected' => $type_report == 'cqm', 'label' => xl('All Clinical Quality Measures (CQM)')]
@@ -179,7 +179,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
         ,['value' => 'cqm_2011', 'selected' => $plan_filter == 'cqm_2011', 'label' => xl('2011 Official Clinical Quality Measures (CQM) Measure Groups')]
         ,['value' => 'cqm_2014', 'selected' => $plan_filter == 'cqm_2014', 'label' => xl('2014 Official Clinical Quality Measures (CQM) Measure Groups')]
     ];
-} else if ($is_amc_report) {
+} elseif ($is_amc_report) {
     // latest AMC doesn't have collate options
     if (empty($report_id)) {
         // truncate to just the first option
@@ -205,7 +205,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
     }
     $formData['providerReportOptions'][] = ['value' => 'group_calculation', 'selected' => $provider == 'group_calculation'
         , 'label' => xl('All EP/EC Group Calculation')];
-} else if ($type_report == 'standard') {
+} elseif ($type_report == 'standard') {
     $formData['rule_filters'] = [
         ['value' => 'passive_alert', 'selected' => $type_report == 'passive_alert', 'label' => xl('Passive Alert Rules')]
         ,['value' => 'active_alert', 'selected' => $type_report == 'active_alert', 'label' => xl('Active Alert Rules')]

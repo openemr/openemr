@@ -28,11 +28,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $form_dryrun = !empty($_POST['form_dryrun']);
 
-function applyCode($layoutid, $codetype, $code, $description)
+function applyCode($layoutid, $codetype, $code, $description): void
 {
     global $thecodes;
     if (!isset($thecodes[$layoutid])) {
-        $thecodes[$layoutid] = array();
+        $thecodes[$layoutid] = [];
     }
     $thecodes[$layoutid]["$codetype:$code"] = $description;
 }
@@ -71,7 +71,7 @@ if (!empty($_POST['bn_upload'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $thecodes = array();
+    $thecodes = [];
     $tmp_name = $_FILES['form_file']['tmp_name'];
 
     if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
@@ -91,9 +91,9 @@ if (!empty($_POST['bn_upload'])) {
             if (count($acsv) < 3) {
                 continue;
             }
-            $layoutid = trim($acsv[0]);
-            $codetype = trim($acsv[1]);
-            $code     = trim($acsv[2]);
+            $layoutid = trim((string) $acsv[0]);
+            $codetype = trim((string) $acsv[1]);
+            $code     = trim((string) $acsv[2]);
             if (empty($layoutid) || empty($codetype) || empty($code)) {
                 continue;
             }
@@ -112,7 +112,7 @@ if (!empty($_POST['bn_upload'])) {
                     "SELECT code, code_text FROM codes WHERE code_type = ? AND " .
                     "(related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ?) " .
                     "AND active = 1 ORDER BY code",
-                    array($ct_arr['id'], $tmp, "$tmp;%", "%;$tmp", "%;$tmp;%")
+                    [$ct_arr['id'], $tmp, "$tmp;%", "%;$tmp", "%;$tmp;%"]
                 );
                 while ($relrow = sqlFetchArray($relres)) {
                     applyCode($layoutid, $ct_key, $relrow['code'], $relrow['code_text']);
@@ -138,7 +138,7 @@ if (!empty($_POST['bn_upload'])) {
                 sqlStatement(
                     "UPDATE layout_group_properties SET grp_services = ? WHERE " .
                     "grp_form_id = ? AND grp_group_id = ''",
-                    array($services, $layoutid)
+                    [$services, $layoutid]
                 );
             }
         }
@@ -211,7 +211,7 @@ while ($row = sqlFetchArray($res)) {
     if ($row['grp_services'] == '*') {
         $row['grp_services'] = '';
     }
-    $codes = explode(';', $row['grp_services']);
+    $codes = explode(';', (string) $row['grp_services']);
     foreach ($codes as $codestring) {
         echo " <tr>\n";
 
@@ -235,12 +235,12 @@ while ($row = sqlFetchArray($res)) {
         echo "</td>\n";
 
         echo "  <td class='detail'>\n";
-        list ($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         $crow = sqlQuery(
             "SELECT code_text FROM codes WHERE " .
             "code_type = ? AND code = ? AND active = 1 " .
             "ORDER BY id LIMIT 1",
-            array($code_types[$codetype]['id'], $code)
+            [$code_types[$codetype]['id'], $code]
         );
         echo text($crow['code_text']);
         echo "&nbsp;</td>\n";

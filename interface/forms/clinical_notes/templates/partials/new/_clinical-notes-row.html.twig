@@ -1,0 +1,299 @@
+<div class="tb_row" id="tb_row_{{ index|attr }}">
+    <fieldset>
+        <div class="form-row">
+            <input type="hidden" id="id_{{ index|attr }}" name="id[]" class="id" value="{{ obj.id|attr }}" />
+            <input type="hidden" id="code_{{ index|attr }}" name="code[]" class="code" value="{{ obj.code|attr }}" />
+            <input type="hidden" id="codetext_{{ index|attr }}" name="codetext[]" class="codetext" value="{{ obj.codetext|attr }}" />
+            <div class="forms col-lg-4">
+                <div class="row pl-2">
+                    <div class="col-12">
+                        <label for="code_date_{{ index|attr }}" class="h5">{{ "Date"|xlt }}:</label>
+                        <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
+                    </div>
+                    {% if clinical_notes_type|length > 0 %}
+                        <div class="col-12">
+                            <label for="clinical_notes_type_{{ index|attr }}" class="h5">{{ 'Type'|xlt }}:</label>
+                            {# We can't use the selectList twig extension right now as the select name and id are different values here #}
+                            <select name="clinical_notes_type[]" id="clinical_notes_type_{{ index|attr }}" class="form-control clinical_notes_type">
+                                <option value="">{{ 'Select Note Type'|xlt }}</option>
+                                {% for type in clinical_notes_type %}
+                                    {% set selected = false %}
+                                    {# if obj.clinical_notes_type is empty it gets set to the default value for the list #}
+                                    {% if type.value is not empty and type.value == obj.clinical_notes_type %}
+                                        {% set selected = true %}
+                                    {% endif %}
+                                    {% if selected %}
+                                        {% set context = type.title %}
+                                    {% endif %}
+                                    <option value="{{ type.value|attr }}" {{ selected ? "selected='selected'" : "" }}>
+                                        {{ type.xlTitle|text }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if clinical_notes_category|length > 0 %}
+                        <div class="col-12">
+                            <label for="clinical_notes_category_{{ index|attr }}" class="h5">{{ 'Category'|xlt }}:</label>
+                            <select name="clinical_notes_category[]" id="clinical_notes_category_{{ index|attr }}" class="form-control clinical_notes_category">
+                                <option value="">{{ 'Select Note Category'|xlt }}</option>
+                                {% for type in clinical_notes_category %}
+                                    {% set selected = false %}
+                                    {# if obj.clinical_notes_category is empty it gets set to the default value for the list #}
+                                    {% if type.value is not empty and type.value == obj.clinical_notes_category %}
+                                        {% set selected = true %}
+                                    {% endif %}
+                                    {% if selected %}
+                                        {% set context = type.title %}
+                                    {% endif %}
+                                    <option value="{{ type.value|attr }}" {{ selected ? "selected='selected'" : "" }}>
+                                        {{ type.xlTitle|text }}</option>
+                                {% endfor %}
+                            </select>
+                            <hr class="text-dark">
+                        </div>
+                    {% endif %}
+                    <!-- Note Author -->
+                    <div class="hide-author">
+                        <div class="col-12">
+                            <label class="h6">{{ 'Author'|xlt }}:</label>
+                            <span class="text-muted">{{ obj.full_name|text }}</span>
+                        </div>
+                        <!-- Last edited date -->
+                        <div class="col-12">
+                            <label class="h6">{{ 'Last Updated'|xlt }}:</label>
+                            <span>{{ obj.last_updated|text }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="forms col-lg-8">
+                <div class="row pl-2 pr-2">
+                    <div class="col-12">
+                        <label for="description_{{ index|attr }}" class="h5">{{ "Narrative"|xlt }}:</label>
+                        <textarea name="description[]" id="description_{{ index|attr }}" data-textcontext="{{ context|attr }}" class="form-control description" rows="14">{{ obj.description|text }}</textarea>
+                    </div>
+
+                    <!-- Linked Documents Section -->
+                    <div class="col-12 mt-3">
+                        <label class="h6">
+                            <i class="fa fa-file-alt text-secondary mr-1"></i>
+                            {{ "Linked Documents"|xlt }}:
+                        </label>
+                        <div id="linked_documents_{{ index|attr }}" class="linked-documents-container border rounded p-2 mb-2" style="min-height: 60px; background-color: #f8f9fa;">
+                            {% if obj.documents is defined and obj.documents|length > 0 %}
+                                {% for document in obj.documents %}
+                                    <div class="document-item badge badge-secondary mr-1 mb-1" data-uuid="{{ document.uuid|attr }}">
+                                        <span title="{{ document.name|attr }} ({{ document.type|attr }})">{{ document.name|text }} ({{ document.type|text }})</span>
+                                        <button type="button" class="btn-close-document ml-1" data-note-index="{{ index|attr }}" data-uuid="{{ document.uuid|attr }}" title="{{ 'Remove document'|xla }}">&times;</button>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">{{ "No documents linked"|xlt }}</span>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-add-documents" data-note-index="{{ index|attr }}">
+                            <i class="fa fa-plus"></i> {{ "Add Documents"|xlt }}
+                        </button>
+                        <input type="hidden" name="linked_documents[]" id="linked_documents_data_{{ index|attr }}" class="linked_documents_data" value="{{ obj.documents|default([])|json_encode|attr }}" />
+                    </div>
+
+                    <!-- Linked Procedure Results Section -->
+                    <div class="col-12 mt-3">
+                        <label class="h6">
+                            <i class="fa fa-flask text-info mr-1"></i>
+                            {{ "Linked Procedure Results"|xlt }}:
+                        </label>
+                        <div id="linked_results_{{ index|attr }}" class="linked-results-container border rounded p-2 mb-2" style="min-height: 60px; background-color: #f8f9fa;">
+                            {% if obj.linked_results is defined and obj.linked_results|length > 0 %}
+                                {% for result in obj.linked_results %}
+                                    <div class="result-item badge badge-info mr-1 mb-1" data-uuid="{{ result.uuid|attr }}">
+                                        <span title="{{ result.procedure_name|attr }} {{ result.result_text|attr }}: {{ result.result|attr }} ({{ result.date|attr }})">
+                                            {{ result.result_text|text }}: {{ result.result|text }}
+                                        </span>
+                                        <button type="button" class="btn-close-result ml-1" data-note-index="{{ index|attr }}" data-uuid="{{ result.uuid|attr }}" title="{{ 'Remove result'|xla }}">&times;</button>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">{{ "No results linked"|xlt }}</span>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-info btn-add-results" data-note-index="{{ index|attr }}">
+                            <i class="fa fa-plus"></i> {{ "Add Results"|xlt }}
+                        </button>
+                        <input type="hidden" name="linked_results[]" id="linked_results_data_{{ index|attr }}" class="linked_results_data" value="{{ obj.linked_results|default([])|json_encode|attr }}" />
+                    </div>
+
+                    {% include "clinical_notes/templates/partials/new/_clinical-notes-row-actions.html.twig" %}
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <hr />
+</div>
+
+<!-- Document Search Dialog Template -->
+<template id="document-search-template">
+    <div class="document-search-dialog p-3">
+        <div class="search-form bg-light p-3 rounded mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="doc-search-term">{{ 'Search by name'|xlt }}:</label>
+                    <input type="text" class="form-control" id="doc-search-term" placeholder="{{ 'Enter document name...'|xla }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="doc-content-type">{{ 'Document Type'|xlt }}:</label>
+                    <select class="form-control" id="doc-content-type">
+                        <option value="">{{ 'All Types'|xlt }}</option>
+                        <option value="image">{{ 'Images'|xlt }}</option>
+                        <option value="video">{{ 'Video'|xlt }}</option>
+                        <option value="application/dicom">{{ 'Dicom'|xlt }}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="doc-date-from">{{ 'From Date'|xlt }}:</label>
+                    <input type="date" class="form-control" id="doc-date-from">
+                </div>
+                <div class="col-md-2">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary form-control" id="search-documents">
+                        <i class="fa fa-search"></i> {{ 'Search'|xlt }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
+            <div id="document-loading" class="text-center p-3">
+                <i class="fa fa-spinner fa-spin"></i> {{ 'Loading documents...'|xlt }}
+            </div>
+            <div id="document-results"></div>
+            <div id="document-no-results" class="text-center text-muted p-3 d-none">
+                <i class="fa fa-folder-open"></i><br>{{ 'No documents found matching your criteria.'|xlt }}
+            </div>
+            <div id="document-error" class="text-center text-danger p-3 d-none"></div>
+        </div>
+    </div>
+</template>
+
+<!-- Results Search Dialog Template -->
+<template id="results-search-template">
+    <div class="results-search-dialog p-3">
+        <div class="search-form bg-light p-3 rounded mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="result-search-term">{{ 'Search by procedure'|xlt }}:</label>
+                    <input type="text" class="form-control" id="result-search-term" placeholder="{{ 'Enter procedure name...'|xla }}">
+                </div>
+                {# until we can get more clarity on the different types of linkage we'll have for clinical notes we'll just link to procedure #}
+                <input type="hidden" value="laboratory" id="result-category" />
+                {#                <div class="col-md-3"> #}
+                {#                    <label for="result-category">{{ 'Category'|xlt }}:</label> #}
+                {#                    <select class="form-control" id="result-category"> #}
+                {#                        <option value="">{{ 'All Categories'|xlt }}</option> #}
+                {#                        <option #}
+                {#                        {% for option in resultCategories %} #}
+                {#                            <option value="{{ option.option_id|attr }}" {% if option.option_id == 'laboratory' %}selected="selected"{% endif %}> #}
+                {#                                {{ option.title|xlListLabel|text }}</option> #}
+                {#                        {% endfor %} #}
+                {#                    </select> #}
+                {#                </div> #}
+                <div class="col-md-3">
+                    <label for="result-date-from">{{ 'From Date'|xlt }}:</label>
+                    <input type="date" class="form-control" id="result-date-from">
+                </div>
+                <div class="col-md-2">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-info form-control" id="search-results">
+                        <i class="fa fa-search"></i> {{ 'Search'|xlt }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
+            <div id="results-loading" class="text-center p-3">
+                <i class="fa fa-spinner fa-spin"></i> {{ 'Loading procedure results...'|xlt }}
+            </div>
+            <div id="procedure-results"></div>
+            <div id="results-no-results" class="text-center text-muted p-3 d-none">
+                <i class="fa fa-flask"></i><br>{{ 'No procedure results found matching your criteria.'|xlt }}
+            </div>
+            <div id="results-error" class="text-center text-danger p-3 d-none"></div>
+        </div>
+    </div>
+</template>
+
+<!-- Document Item Template (for search results) -->
+<template id="document-item-template">
+    <div class="document-item border rounded p-2 mb-2" style="cursor: pointer;">
+        <div class="document-name font-weight-bold"></div>
+        <div class="document-meta small text-muted">
+            <span class="badge badge-secondary mr-1 document-type-badge"></span>
+            <span class="document-size mr-2"></span>
+            <span class="document-date"></span>
+        </div>
+    </div>
+</template>
+
+<!-- Result Item Template (for search results) -->
+<template id="result-item-template">
+    <div class="result-item border rounded p-2 mb-2" style="cursor: pointer;">
+        <div class="d-flex justify-content-between">
+            <div class="procedure-name font-weight-bold"></div>
+            <div class="result-status badge"></div>
+        </div>
+        <div class="result-value text-primary"></div>
+        <div class="result-meta small text-muted">
+            <span class="result-date"></span>
+        </div>
+    </div>
+</template>
+
+<!-- Document Badge Template (for linked documents) -->
+<template id="document-badge-template">
+    <div class="document-item badge badge-secondary mr-1 mb-1">
+        <span class="document-badge-text"></span>
+        <button type="button" class="btn-close-document ml-1" title="{{ 'Remove document'|xla }}">&times;</button>
+    </div>
+</template>
+
+<!-- Result Badge Template (for linked results) -->
+<template id="result-badge-template">
+    <div class="result-item badge badge-info mr-1 mb-1">
+        <span class="result-badge-text"></span>
+        <button type="button" class="btn-close-result ml-1" title="{{ 'Remove result'|xla }}">&times;</button>
+    </div>
+</template>
+
+<!-- Empty State Template -->
+<template id="empty-state-template">
+    <span class="text-muted empty-state-text"></span>
+</template>
+
+<style>
+  .document-item, .result-item {
+    transition: background-color 0.2s;
+  }
+
+  .document-item:hover, .result-item:hover {
+    background-color: #f8f9fa !important;
+  }
+
+  .document-item.selected {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #0056b3 !important;
+  }
+
+  .result-item.selected {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    border-color: #138496 !important;
+  }
+
+  .document-item.selected .badge,
+  .result-item.selected .badge {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+</style>

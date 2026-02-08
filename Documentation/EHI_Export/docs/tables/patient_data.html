@@ -124,7 +124,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="id">id</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title=''></td>
@@ -132,6 +132,11 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="person_patient_link.patient_id references patient_data.id"><a href='person_patient_link.html'>person_patient_link</a><span class='relatedKey'>.patient_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -146,7 +151,7 @@
                                     <td>16</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -163,7 +168,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -180,7 +185,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -197,7 +202,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -209,12 +214,12 @@
                                     <td><p>Financial information of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="fname">fname</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="fname">fname</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -226,12 +231,12 @@
                                     <td><p>First name of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="lname">lname</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="lname">lname</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -248,7 +253,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -260,12 +265,12 @@
                                     <td><p>Middle name of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="DOB">DOB</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="DOB">DOB</span></td>
                                     <td>DATE</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -282,7 +287,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -299,7 +304,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -316,7 +321,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -333,7 +338,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -350,7 +355,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -367,7 +372,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -384,7 +389,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -401,7 +406,7 @@
                                     <td>2147483647</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -418,7 +423,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -435,7 +440,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -452,7 +457,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -469,7 +474,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -508,7 +513,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -525,7 +530,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -542,7 +547,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -559,7 +564,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -576,7 +581,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -593,7 +598,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -610,7 +615,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -632,7 +637,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -654,7 +659,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -671,7 +676,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -688,7 +693,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -705,7 +710,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -722,7 +727,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -739,7 +744,7 @@
                                     <td>40</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -756,7 +761,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -773,7 +778,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -790,7 +795,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -807,7 +812,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -824,7 +829,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -841,7 +846,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -858,7 +863,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -875,7 +880,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -916,6 +921,16 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="care_team.pid references patient_data.pid"><a href='care_team.html'>care_team</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.care_team_id references patient_data.pid"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.care_team_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="claims.patient_id references patient_data.pid"><a href='claims.html'>claims</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -926,12 +941,32 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="document_templates.pid references patient_data.pid"><a href='document_templates.html'>document_templates</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="documents.foreign_id references patient_data.pid"><a href='documents.html'>documents</a><span class='relatedKey'>.foreign_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
                                                 <td title="drug_sales.pid references patient_data.pid"><a href='drug_sales.html'>drug_sales</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job_patients.pid references patient_data.pid via FK_ehi_export_job_patients_patient_id"><a href='ehi_export_job_patients.html'>ehi_export_job_patients</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">FK_ehi_export_job_patients_patient_id</td>
+                                                <td class="constraint detail"><span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job_task_patients.pid references patient_data.pid via FK_ehi_export_job_task_patients_patient_id"><a href='ehi_export_job_task_patients.html'>ehi_export_job_task_patients</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">FK_ehi_export_job_task_patients_patient_id</td>
+                                                <td class="constraint detail"><span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="employer_data.pid references patient_data.pid"><a href='employer_data.html'>employer_data</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -947,21 +982,6 @@
                                             </tr>
                                             <tr>
                                                 <td title="external_procedures.ep_pid references patient_data.pid"><a href='external_procedures.html'>external_procedures</a><span class='relatedKey'>.ep_pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_aftercare_plan.pid references patient_data.pid"><a href='form_aftercare_plan.html'>form_aftercare_plan</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_ankleinjury.pid references patient_data.pid"><a href='form_ankleinjury.html'>form_ankleinjury</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_bronchitis.pid references patient_data.pid"><a href='form_bronchitis.html'>form_bronchitis</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1096,12 +1116,17 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="form_history_sdoh.pid references patient_data.pid"><a href='form_history_sdoh.html'>form_history_sdoh</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_misc_billing_options.pid references patient_data.pid"><a href='form_misc_billing_options.html'>form_misc_billing_options</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="form_note.pid references patient_data.pid"><a href='form_note.html'>form_note</a><span class='relatedKey'>.pid</span></td>
+                                                <td title="form_observation.parent_observation_id references patient_data.pid"><a href='form_observation.html'>form_observation</a><span class='relatedKey'>.parent_observation_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1111,17 +1136,7 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="form_painmap.pid references patient_data.pid"><a href='form_painmap.html'>form_painmap</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_phq9.pid references patient_data.pid"><a href='form_phq9.html'>form_phq9</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_prior_auth.pid references patient_data.pid"><a href='form_prior_auth.html'>form_prior_auth</a><span class='relatedKey'>.pid</span></td>
+                                                <td title="form_observation.user references patient_data.pid"><a href='form_observation.html'>form_observation</a><span class='relatedKey'>.user</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1141,11 +1156,6 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="form_sdoh.pid references patient_data.pid"><a href='form_sdoh.html'>form_sdoh</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="form_soap.pid references patient_data.pid"><a href='form_soap.html'>form_soap</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -1161,17 +1171,12 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="form_transfer_summary.pid references patient_data.pid"><a href='form_transfer_summary.html'>form_transfer_summary</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_treatment_plan.pid references patient_data.pid"><a href='form_treatment_plan.html'>form_treatment_plan</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="form_vitals.pid references patient_data.pid"><a href='form_vitals.html'>form_vitals</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_vitals_calculation.pid references patient_data.pid"><a href='form_vitals_calculation.html'>form_vitals_calculation</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1201,6 +1206,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="issue_encounter.pid references patient_data.pid"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="lists.pid references patient_data.pid"><a href='lists.html'>lists</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -1226,7 +1236,17 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="document_templates.pid references patient_data.pid"><a href='document_templates.html'>document_templates</a><span class='relatedKey'>.pid</span></td>
+                                                <td title="form_aftercare_plan.pid references patient_data.pid"><a href='form_aftercare_plan.html'>form_aftercare_plan</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_ankleinjury.pid references patient_data.pid"><a href='form_ankleinjury.html'>form_ankleinjury</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_bronchitis.pid references patient_data.pid"><a href='form_bronchitis.html'>form_bronchitis</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1236,7 +1256,37 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="issue_encounter.pid references patient_data.pid"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.pid</span></td>
+                                                <td title="form_note.pid references patient_data.pid"><a href='form_note.html'>form_note</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_painmap.pid references patient_data.pid"><a href='form_painmap.html'>form_painmap</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_phq9.pid references patient_data.pid"><a href='form_phq9.html'>form_phq9</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_prior_auth.pid references patient_data.pid"><a href='form_prior_auth.html'>form_prior_auth</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_sdoh.pid references patient_data.pid"><a href='form_sdoh.html'>form_sdoh</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_transfer_summary.pid references patient_data.pid"><a href='form_transfer_summary.html'>form_transfer_summary</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_treatment_plan.pid references patient_data.pid"><a href='form_treatment_plan.html'>form_treatment_plan</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1247,6 +1297,11 @@
                                             </tr>
                                             <tr>
                                                 <td title="patient_access_onsite.pid references patient_data.pid"><a href='patient_access_onsite.html'>patient_access_onsite</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_care_experience_preferences.patient_id references patient_data.pid"><a href='patient_care_experience_preferences.html'>patient_care_experience_preferences</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1262,6 +1317,11 @@
                                             </tr>
                                             <tr>
                                                 <td title="patient_tracker.pid references patient_data.pid"><a href='patient_tracker.html'>patient_tracker</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_treatment_intervention_preferences.patient_id references patient_data.pid"><a href='patient_treatment_intervention__11811af1.html'>patient_treatment_intervention_preferences</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1334,7 +1394,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1351,7 +1411,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1368,7 +1428,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1385,7 +1445,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1402,7 +1462,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1419,7 +1479,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1436,7 +1496,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1453,7 +1513,7 @@
                                     <td>20</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1470,7 +1530,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>NO</td>
+                                    <td>&#39;NO&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1487,7 +1547,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>NO</td>
+                                    <td>&#39;NO&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1504,7 +1564,7 @@
                                     <td>32</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1538,7 +1598,7 @@
                                     <td>30</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1555,7 +1615,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1572,7 +1632,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1589,7 +1649,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1606,7 +1666,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1623,7 +1683,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1640,7 +1700,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1657,7 +1717,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1674,7 +1734,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1691,7 +1751,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1708,7 +1768,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1725,7 +1785,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1742,7 +1802,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1759,7 +1819,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1776,7 +1836,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1793,7 +1853,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1810,7 +1870,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>standard</td>
+                                    <td>&#39;standard&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1827,7 +1887,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1844,7 +1904,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1861,7 +1921,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>NO</td>
+                                    <td>&#39;NO&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1874,11 +1934,11 @@
                                 </tr>
                                 <tr>
                                     <td><span id="ad_reviewed">ad_reviewed</span></td>
-                                    <td>DATE</td>
-                                    <td>10</td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1895,7 +1955,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1912,7 +1972,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1929,7 +1989,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1946,7 +2006,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1963,7 +2023,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1980,7 +2040,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -1997,7 +2057,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2014,7 +2074,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2031,7 +2091,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2048,7 +2108,7 @@
                                     <td>3</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2065,7 +2125,7 @@
                                     <td>60</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2082,7 +2142,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2099,7 +2159,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2116,7 +2176,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2133,7 +2193,7 @@
                                     <td>40</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2150,7 +2210,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2167,7 +2227,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2184,7 +2244,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2201,7 +2261,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2218,7 +2278,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2235,7 +2295,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2252,7 +2312,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2269,7 +2329,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2286,7 +2346,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2303,7 +2363,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2320,7 +2380,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2337,7 +2397,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2354,7 +2414,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2371,7 +2431,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2388,7 +2448,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2405,7 +2465,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2422,7 +2482,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2439,7 +2499,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2456,7 +2516,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2473,7 +2533,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2490,7 +2550,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2507,7 +2567,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2541,7 +2601,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2558,7 +2618,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2575,7 +2635,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2592,7 +2652,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2609,7 +2669,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2626,7 +2686,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2643,7 +2703,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2665,7 +2725,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2687,7 +2747,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2704,7 +2764,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2714,6 +2774,111 @@
                                         </table>
                                     </td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="last_updated">last_updated</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="tribal_affiliations">tribal_affiliations</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.tribal_affiliations references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;tribal_affiliations&rsquo;</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="sex_identified">sex_identified</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.sex_identified references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;administrative_sex&rsquo;</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="interpreter_needed">interpreter_needed</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.interpreter_needed references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;yes_no_unknown&rsquo; and represents whether an interpreter is needed for this patient</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="advance_directive_user_authenticator">advance_directive_user_authenticator</span></td>
+                                    <td>BIGINT</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.advance_directive_user_authenticator references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>fk to users.id of the user who authenticates that the advance care directive is valid.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -2750,6 +2915,18 @@
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_patient_dob</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>DOB</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_patient_name</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>lname + fname</td>
                                 </tr>
                                 <tr>
                                     <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> pid</td>

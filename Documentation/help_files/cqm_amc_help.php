@@ -32,7 +32,7 @@ require_once("../../interface/globals.php");
         <div class="col-sm-12">
             <h3><?php echo xlt("Running a report"); ?></h3>
             <p><?php echo xlt("Automated Measure Calculations are used for reporting measures in the USA to CMS"); ?>.</p>
-            <p><?php echo xlt("The most recent 2015 RuleSet calculations only applies to the MIPS Promoting Interoperability"); ?>.</p>
+            <p><?php echo xlt("The most recent RuleSet calculations only applies to the MIPS Promoting Interoperability"); ?>.</p>
             <p><?php echo xlt("The AMC calculations in this software only uses the MIPS Promoting Interopability calculation methods and does NOT use the Medicaid calculation methods"); ?>.</p>
             <p><?php echo xlt("Both the Eligible Individual Clinician (EC) calculation method and the Eligible Group Clinician calculation method are supported"); ?>.</p>
             <h4><?php echo xlt("Eligible Individual Clinician (EC) calculation method"); ?></h4>

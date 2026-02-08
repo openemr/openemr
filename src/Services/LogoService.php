@@ -15,6 +15,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Events\Services\LogoFilterEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -34,11 +37,17 @@ class LogoService
      */
     private $fs;
 
-    public function __construct()
+    private readonly EventDispatcherInterface $dispatcher;
+
+    public function __construct(?EventDispatcherInterface $dispatcher = null)
     {
         // Ensure a finder object exists
         $this->resetFinder();
         $this->fs = new Filesystem();
+
+        // cleanest way to refactor for now, is to fallback to global dispatcher
+        // don't like it though
+        $this->dispatcher = $dispatcher ?? $GLOBALS['kernel']->getEventDispatcher();
     }
 
     private function resetFinder()
@@ -78,15 +87,24 @@ class LogoService
 
         try {
             $logo = $this->findLogo($paths, $filename);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
             $logo = "";
         }
 
-        // This is critical, the finder must be completely reinstantiated to ensure the proper directories are searched next time.
+        // This is critical, the finder must be completely re-instantiated to ensure the proper directories are searched next time.
         $this->resetFinder();
 
-        return $this->convertToWebPath($logo);
+        $webPath = $this->convertToWebPath($logo);
+        $logoFilterEvent = new LogoFilterEvent($type, $logo, $webPath);
+        $filteredEvent = $this->dispatcher->dispatch($logoFilterEvent, LogoFilterEvent::EVENT_NAME);
+        $updatedWebPath = $filteredEvent->getWebPath();
+        // make sure the web path is safe for the logo
+        if ($updatedWebPath != $webPath) {
+            $safePaths = ModulesApplication::filterSafeLocalModuleFiles([$updatedWebPath]);
+            return $safePaths[0] ?? '';
+        }
+        return $webPath;
     }
 
     /**
@@ -113,13 +131,17 @@ class LogoService
      * By default, will search in the directory array for any file named "logo" (extension agnostic). If found, only
      * the last file found will be returned. By default, will append a query string for time modified to cache bust.
      *
-     * @param array $directory Array of directories to search
-     * @param string $filename File to look for
+     * @param array   $directory Array of directories to search
+     * @param string  $filename  File to look for
      * @param boolean $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
     private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
     {
+        if (empty($directory)) {
+            return "";
+        }
+
         $this->finder->files()->in($directory)->name($filename);
 
         if ($this->finder->hasResults()) {

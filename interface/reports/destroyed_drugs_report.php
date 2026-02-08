@@ -50,7 +50,7 @@ function mergeData($d1, $d2)
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
-function mapToTable($row)
+function mapToTable($row): void
 {
     if ($row) {
         echo "<tr>\n";
@@ -58,7 +58,7 @@ function mapToTable($row)
         echo "<td>" . text($row["ndc_number"]) . " </td>\n";
         echo "<td>";
         foreach ($row['inventory_id'] as $key => $value) {
-            echo "<div onclick='doclick(" . attr(addslashes($row['drug_id'])) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+            echo "<div onclick='doclick(" . attr(addslashes((string) $row['drug_id'])) . "," . attr(addslashes((string) $row['inventory_id'][$key])) . ")'>" .
             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
         }
         echo "</td>\n<td>";
@@ -130,7 +130,11 @@ a, a:visited, a:hover {
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
- dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
+ const params = new URLSearchParams({
+     drug: id,
+     lot: lot
+ });
+ dlgopen('../drugs/destroy_lot.php?' + params, '_blank', 600, 475);
 }
 
 $(function () {
@@ -203,7 +207,7 @@ if ($_POST['form_refresh']) {
     "WHERE $where " .
     "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
 
-    $res = sqlStatement($query, array($form_from_date, $form_to_date));
+    $res = sqlStatement($query, [$form_from_date, $form_to_date]);
     $prevRow = '';
     while ($row = sqlFetchArray($res)) {
         $row = processData($row);

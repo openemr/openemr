@@ -16,6 +16,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\{
     DateTime,
     Interval
 };
+use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -40,6 +41,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     public function getSqlStatement()
     {
         $observation_type = add_escape_custom($this->getObservationType());
+        // TODO: @adunsulag should this query be moved into the ObservationService?
         $sql = "SELECT `pid`, `encounter`, `date`, `code`, `code_type`, `ob_value`, `ob_unit`,
                 `description`, `ob_code`, `ob_type`, `ob_status`,
                 `ob_reason_status`, `ob_reason_code`, `date_end`

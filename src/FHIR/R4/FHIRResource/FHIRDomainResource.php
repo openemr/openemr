@@ -247,7 +247,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

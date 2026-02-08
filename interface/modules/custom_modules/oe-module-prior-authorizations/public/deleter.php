@@ -8,10 +8,10 @@
  *  license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Acl\AclMain;
 
-    require_once dirname(__FILE__, 5) . '/globals.php';
+require_once dirname(__FILE__, 5) . '/globals.php';
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     echo xlt('Unauthorized');
@@ -37,5 +37,3 @@ sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id'
     <p><?php echo "<br> <br>" .  xlt("If you are seeing this message the record was deleted. Click done, pls"); ?></p>
 </body>
 </html>
-
-

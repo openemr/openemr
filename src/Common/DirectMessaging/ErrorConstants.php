@@ -59,5 +59,5 @@ class ErrorConstants
     // xl("There was a problem sending the message.")
     const ERROR_MESSAGE_UNEXPECTED_RESPONSE = "There was a problem sending the message.";
 
-    const ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED = "There was a problem in setting the server flag for receiving a message recieved disposition notification";
+    const ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED = "There was a problem in setting the server flag for receiving a message received disposition notification";
 }

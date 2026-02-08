@@ -13,8 +13,10 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 abstract class BaseValidator
@@ -39,9 +41,17 @@ abstract class BaseValidator
 
     public function __construct()
     {
-        $this->validator = new Validator();
+        $this->validator = $this->getInnerValidator();
         $this->supportedContexts = [];
         $this->configureValidator();
+    }
+
+    protected function getInnerValidator(): Validator
+    {
+        if (empty($this->validator)) {
+            $this->validator = new Validator();
+        }
+        return $this->validator;
     }
 
     /**
@@ -100,7 +110,7 @@ abstract class BaseValidator
         if ($isUuid) {
             try {
                 $lookupId = UuidRegistry::uuidToBytes($lookupId);
-            } catch (InvalidUuidStringException $e) {
+            } catch (InvalidUuidStringException) {
                 return $validationResult;
             }
         } elseif (!is_int(intval($lookupId))) {
@@ -109,7 +119,7 @@ abstract class BaseValidator
 
         $result = sqlQuery(
             "SELECT $field FROM $table WHERE $field = ?",
-            array($lookupId)
+            [$lookupId]
         );
         if (!empty($result[$field])) {
             return true;
@@ -131,7 +141,7 @@ abstract class BaseValidator
         $sql = "SELECT option_id FROM $table WHERE list_id = ? AND option_id = ?";
         $result = sqlQuery(
             $sql,
-            array($valueset, $code)
+            [$valueset, $code]
         );
         return $result['option_id'] ? true : false;
     }

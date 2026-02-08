@@ -5,6 +5,7 @@
  * Validate.js may be freely distributed under the MIT license.
  * For all details and documentation:
  * http://validatejs.org/
+ * TODO: validate.js has been archived as of December 11th 2021 we should evaluate either forking the project or deprecating this code in the codebase.
  */
 
 (function(exports, module, define) {
@@ -622,7 +623,7 @@
       return ret;
     },
 
-    // Converts the error mesages by prepending the attribute name unless the
+    // Converts the error messages by prepending the attribute name unless the
     // message is prefixed by ^
     convertErrorMessages: function(errors, options) {
       options = options || {};

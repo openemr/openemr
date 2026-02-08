@@ -1,0 +1,24 @@
+{# Group Therapy #}
+<div class="col-sm {{ enableGroupTherapy ? '' : 'd-none' }}">
+    {% if enableGroupTherapy %}
+    <div class="form-group {{ therapyGroupCategories|length > 0 ? '' : 'd-none' }}" id="therapy_group_name" >
+        <label for="form_group" class="text-right">{{ "Group name"|xlt }}:</label>
+        {# note in JS we will launch a selector for this see newpatient.js #}
+        <input type='text'
+               name='form_group'
+               class='form-control'
+               id="form_group"
+               placeholder='{{ "Click to select"|xla }}'
+               value='{{ groupData.name|attr }}'
+               title='{{ "Click to select group"|xla }}'
+               readonly />
+        <input type='hidden'
+               name='form_gid'
+               value='{{ groupData.group_id|attr }}' />
+    </div>
+    {% else %}
+        {# leave it as blank #}
+        <input type="hidden" name="form_gid" value="" />
+        <input type="hidden" name="form_group" value="" />
+    {% endif %}
+</div>

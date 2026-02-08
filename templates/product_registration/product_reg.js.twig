@@ -1,0 +1,31 @@
+
+<script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr_url }}"></script>
+<script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr_url }}"></script>
+<script>
+    {% set regTranslations = {
+        'title': "OpenEMR Product Registration"|xla,
+        'pleaseProvideValidEmail': "Please provide a valid email address"|xla,
+        'genericError': "Error. Try again later"|xla,
+        'closeTooltip': ""
+    } %}
+
+    {% set regConstants = {
+        'webroot': webroot,
+    } %}
+
+    const registrationTranslations = {{ regTranslations|json_encode }};
+    const registrationConstants = {{ regConstants|json_encode }};
+
+    $(document).ready(init());
+
+    function init() {
+        var productRegistrationController = new ProductRegistrationController();
+        productRegistrationController.getProductRegistrationStatus(function (err, data) {
+            if (err) { return; }
+
+            if (data.allowRegisterDialog === 1) {
+                productRegistrationController.showProductRegistrationModal();
+            }
+        });
+    }
+</script>

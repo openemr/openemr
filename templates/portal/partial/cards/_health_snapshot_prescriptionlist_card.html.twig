@@ -1,0 +1,17 @@
+{#
+* _health_snapshot_prescriptionlist_card.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="card">
+    <header class="card-header p-1 bg-dark text-light h5">{{ 'Active Prescriptions' | xlt }}</header>
+    <div id="prescriptionlist" class="card-body p-2 bg-light">
+        {% include "portal/partial/_alert_loading.html.twig" %}
+    </div>
+</div>

@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,37 +23,62 @@ require_once("$srcdir/encounter.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Pdf\Config_Mpdf;
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
 
 // The form name is passed to us as a GET parameter.
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 
-$patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
-if ($patientid < 0) {
-    $patientid = (int) $pid; // -1 means current pid
-}
+// Use session patient/encounter for authorization — never trust request parameters for these.
+$patientid = (int) $pid;
 // PDF header information
 $patientname = getPatientName($patientid);
 $patientdob = getPatientData($patientid, "DOB");
 $dateofservice = fetchDateService($encounter);
 
-$visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
-if ($visitid < 0) {
-    $visitid = (int) $encounter; // -1 means current encounter
+$visitid = isset($_REQUEST['visitid']) ? (int) $_REQUEST['visitid'] : 0;
+if ($visitid <= 0) {
+    $visitid = (int) $encounter;
 }
 
-$formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
+$formid = isset($_REQUEST['formid']) ? (int) $_REQUEST['formid'] : 0;
+
+// Verify the requested form belongs to the session's active patient and encounter.
+if ($formid > 0) {
+    $formOwner = QueryUtils::querySingleRow(
+        "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir LIKE 'LBF%' AND deleted = 0",
+        [$formid]
+    );
+    if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
+        (new SystemLogger())->warning(
+            "An attempt was made to view an LBF form belonging to a different patient or encounter",
+            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
+        );
+        EventAuditLogger::getInstance()->newEvent(
+            "security-access",
+            $_SESSION['authUser'] ?? '',
+            $_SESSION['authProvider'] ?? '',
+            0,
+            "Unauthorized attempt to view LBF form " . $formid . " for pid " . $patientid
+        );
+        http_response_code(404);
+        die(xlt('Form not found'));
+    }
+}
 
 // True if to display as a form to complete, false to display as information.
 $isblankform = empty($_REQUEST['isform']) ? 0 : 1;
 
 $CPR = 4; // cells per row
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
@@ -75,11 +102,11 @@ if ($lobj['grp_diags'   ]) {
 
 // Check access control.
 if (!empty($lobj['aco_spec'])) {
-    $LBF_ACO = explode('|', $lobj['aco_spec']);
+    $LBF_ACO = explode('|', (string) $lobj['aco_spec']);
 }
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
-        die(xlt('Access denied'));
+        AccessDeniedHelper::deny('Unauthorized access to LBF printable form');
     }
 }
 
@@ -91,6 +118,10 @@ $PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
+    $config_mpdf['margin_top'] *= 1.5;
+    $config_mpdf['margin_bottom'] *= 1.5;
+    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
+    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
@@ -106,7 +137,7 @@ if ($visitid && (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION) || is
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .
-  "ORDER BY group_id, seq", array($formname));
+  "ORDER BY group_id, seq", [$formname]);
 ?>
 <?php if (!$PDF_OUTPUT) { ?>
 <html>
@@ -275,7 +306,7 @@ if ($PDF_OUTPUT) {
 
 <?php
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -284,7 +315,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -296,12 +327,6 @@ function end_row()
         echo "</tr>\n";
         $cell_count = 0;
     }
-}
-
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
 }
 
 $cell_count = 0;
@@ -348,14 +373,14 @@ while ($frow = sqlFetchArray($fres)) {
 
     $this_levels = $this_group;
     $i = 0;
-    $mincount = min(strlen($this_levels), strlen($group_levels));
+    $mincount = min(strlen((string) $this_levels), strlen($group_levels));
     while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) {
         ++$i;
     }
     // $i is now the number of initial matching levels.
 
     // If ending a group or starting a subgroup, terminate the current row and its table.
-    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen($this_levels))) {
+    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
         end_row();
         echo " </table>\n";
         $group_table_active = false;
@@ -370,7 +395,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // If there are any new groups, open them.
-    while ($i < strlen($this_levels)) {
+    while ($i < strlen((string) $this_levels)) {
         end_row();
         if ($group_table_active) {
             echo " </table>\n";
@@ -463,7 +488,7 @@ while ($frow = sqlFetchArray($fres)) {
         if ($cell_count > 0) {
             echo "padding-left:5pt;";
         }
-        if (in_array($data_type, array(21,27,40))) {
+        if (in_array($data_type, [21,27,40])) {
             // Omit underscore for checkboxes, radio buttons and images.
             echo "border-width:0 0 0 0;";
         }
@@ -504,7 +529,7 @@ if ($fs && (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION))) {
 
 if ($fs && isset($LBF_SERVICES_SECTION)) {
     $s = '';
-    foreach ($fs->serviceitems as $lino => $li) {
+    foreach ($fs->serviceitems as $li) {
         // Skip diagnoses; those would be in the Diagnoses section below.
         if ($code_types[$li['codetype']]['diag']) {
             continue;
@@ -530,7 +555,7 @@ if ($fs && isset($LBF_SERVICES_SECTION)) {
 if ($fs && isset($LBF_PRODUCTS_SECTION)) {
     $s = '';
     $fs->loadProductItems();
-    foreach ($fs->productitems as $lino => $li) {
+    foreach ($fs->productitems as $li) {
         $s .= "  <tr>\n";
         $s .= "   <td class='text'>" . text($li['code_text']) . "&nbsp;</td>\n";
         $s .= "   <td class='text' align='right'>" . text($li['units']) . "&nbsp;</td>\n";
@@ -551,7 +576,7 @@ if ($fs && isset($LBF_PRODUCTS_SECTION)) {
 
 if ($fs && isset($LBF_DIAGS_SECTION)) {
     $s = '';
-    foreach ($fs->serviceitems as $lino => $li) {
+    foreach ($fs->serviceitems as $li) {
         // Skip anything that is not a diagnosis; those are in the Services section above.
         if (!$code_types[$li['codetype']]['diag']) {
             continue;
@@ -577,13 +602,13 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 ?>
 
 <p style='text-align:center' class='small'>
-  <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+  <?php echo text(xl('Rev.') . ' ' . substr((string) $grp_last_update, 0, 10)); ?>
 </p>
 
 </form>
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     if (isset($_GET['return_content'])) {
         echo js_escape($content);
         exit();

@@ -1,4 +1,5 @@
 <?php
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * import_template.php
@@ -11,33 +12,34 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+    $globalsBag = OEGlobalsBag::getInstance();
     //require_once ("./../verify_session.php");
     require_once("../../library/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
     $this->assign('nav', 'patientdata');
     /*
-     *  row keys are js underscore camelcase and follow the underscores varables used in this template
+     *  row keys are js underscore camelcase and follow the underscores variables used in this template
      *  $row['city'] or $row['postalCode'] e.t.c.. The keys do not match table columns ie postalCode here is postal_code in table.
      *  */
-    $row = array();
+    $row = [];
 if ($this->trow) {
     $row = $this->trow;
 }
-$exclude = array();
+$exclude = [];
 if ($this->exclude) {
     $exclude = $this->exclude;
 }
 
-    echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
+    echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $globalsBag->getString('web_root') . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
 
     $this->display('_modalFormHeader.tpl.php');
 ?>
 
 <script>
     // bring in the datepicker and datetimepicker localization and setting elements
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
+    <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
-    $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+    $LAB.script("scripts/app/patientdata.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             page.init();
         });
@@ -135,13 +137,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
-                    <label class="plist-label" for="pid"><?php echo xlt('Pid')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
+                    <label class="plist-label" for="pid"><?php /*echo xlt('Pid')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="pid" placeholder="<?php echo xla('Pid')?>" value="<%= _.escape(item.get('pid') || '') %>">
+                        <input type="text" class="form-control" id="pid" readonly placeholder="<?php /*echo xla('Pid')*/?>" value="<%= _.escape(item.get('pid') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="pubpidInputContainer">
                     <label class="plist-label" for="pubpid"><?php echo xlt('Public Patient Id')?></label>
                     <div class="controls inline-inputs">
@@ -158,13 +160,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
-                    <label class="plist-label" for="ss"><?php echo xlt('SSN')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
+                    <label class="plist-label" for="ss"><?php /*echo xlt('SSN')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php echo xla('Social Security(Optional)'); ?>" value="<%= _.escape(item.get('ss') || '') %>">
+                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php /*echo xla('Social Security(Optional)'); */?>" value="<%= _.escape(item.get('ss') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="sexInputContainer">
                     <label class="plist-label" for="sex"><?php echo xlt('Gender')?></label><br />
                     <div class="controls inline-inputs">
@@ -480,14 +482,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
-                    <label class="plist-label" for="careTeam"><?php echo xlt('Care Team')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
+                    <label class="plist-label" for="careTeam"><?php /*echo xlt('Care Team')*/?></label>
                     <div class="controls inline-inputs">
-                        <!-- disabled for now. Patient doesn't have a need to select what care team they belong -->
                         <select disabled class="form-control" id="careTeam"
-                            title="<?php echo xla('Care Team'); ?>" value="<?php echo $row['careTeam']; ?>">
+                            title="<?php /*echo xla('Care Team'); */?>" value="<?php /*echo $row['careTeam']; */?>">
                             <?php
-                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
+/*                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
                             foreach ($this->users_list as $user) {
                                 $user_name = text($user['fname'] . ' ' . $user['lname']);
                                 $id = attr($user['id']);
@@ -497,11 +498,11 @@ if ($this->exclude) {
                                 }
                                 echo ">$user_name</option>";
                             }
-                            ?>
+                            */?>
                         </select>
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group dynhide" id="noteInputContainer">
                     <label class="plist-label" style="color:green" for="note"><?php echo xlt('Comments about change request')?></label>
                     <div class="controls inline-inputs">

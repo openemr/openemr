@@ -97,7 +97,7 @@ function tabRefresh(data,evt)
         data.window.location = data.window.location;
         activateTab(data);
     } catch(e) {
-        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
+        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie Ensora)
     }
 }
 
@@ -140,7 +140,6 @@ function tabCloseByName(name)
 
 function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
-
     top.restoreSession();
     if($("iframe[name='"+name+"']").length>0)
     {
@@ -243,23 +242,31 @@ function clickNewGroupEncounter(data,evt)
     newTherapyGroupEncounter();
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function newEncounter(data, evt) {
-    var url = '';
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
     if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
-        url = webroot_url + '/interface/forms/newpatient/new.php?mode=followup&enc=' + data.encounterId + '&autoloaded=1&calenc=';
+        params.append('mode', 'followup');
+        params.append('enc', data.encounterId);
     }
-    else {
-        url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
-    }
+    const url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc", true);
     });
-
 }
+// AI-generated code end
 
 function newTherapyGroupEncounter()
 {
-    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==';
+    // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
+    const url = webroot_url + '/interface/forms/newGroupEncounter/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc",true);
     });
@@ -306,7 +313,6 @@ function popMenuDialog(url, title) {
 
 function menuActionClick(data,evt)
 {
-
     // Yet another menu fixup for legacy 'popup'.
     // let's abandon a tab and call a support function from this view.
     // we'll take along uri and current menu label as title for dialog.
@@ -348,6 +354,10 @@ function menuActionClick(data,evt)
 
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
+            // Send telemetry event. This is sent after the tab is activated to ensure the tab is visible.
+            if (top.telemetryEnabled) {
+                reportMenuClickData(data);
+            }
         },xl("Loading") + " " + dataLabel);
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
@@ -372,7 +382,30 @@ function menuActionClick(data,evt)
 
 }
 
-function clearPatient()
+function reportMenuClickData(data, evt = 'menuClick') {
+    top.restoreSession();
+    const clickEventData = {
+        action: 'reportMenuClickData',
+        eventType: evt,
+        eventLabel: data.label(),
+        eventUrl: data.url(),
+        eventTarget: data.target,
+        csrf_token_form: top.csrf_token_js,
+    };
+
+    let url = top.webroot_url + '/library/ajax/track_events.php';
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(clickEventData)
+    }).catch(error => {
+        console.error('reportMenu POST error:', error);
+    });
+}
+
+function clearPatient(openFinder = true)
 {
     top.restoreSession();
     app_view_model.application_data.patient(null);
@@ -380,9 +413,11 @@ function clearPatient()
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
-    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
-        activateTabByName('fin',true);
-    });
+    if (openFinder) {
+        navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
+            activateTabByName('fin',true);
+        });
+    }
 
     if (WindowTitleAddPatient)
     {

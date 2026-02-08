@@ -46,8 +46,8 @@ trait PatientExtension
     }
 
     /**
-     * @param null $category
-     * @param null $status
+     * @param ?string $category
+     * @param ?string $status
      * @return mixed
      *
      * Return the first actual code for this data element code. This is used for building a hash count of codes

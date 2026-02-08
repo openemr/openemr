@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SqlConfigEvent class is fired when attemtping to set the SQL credentials and is used to manage how we set credentials
+ * SqlConfigEvent class is fired when attempting to set the SQL credentials and is used to manage how we set credentials
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -14,8 +14,9 @@
 namespace OpenEMR\Events\Core;
 
 use OpenEMR\Events\Core\Interfaces\SqlConfigInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class SqlConfigEvent
+class SqlConfigEvent extends Event
 {
     public const EVENT_NAME = "sql.config";
 

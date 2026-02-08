@@ -1,0 +1,7 @@
+{# Class #}
+<div class="col-sm {{ displayOptionClass('enc_enable_type') }}">
+    <div class="form-group">
+        <label for="encounter_type" class="text-right">{{ "Type"|xlt }}:</label>
+        {{ selectList('encounter_type', 'encounter-types', defaultEncounterTypeValue, '', {empty_name: '--'~'Select One'~'--'}) }}
+    </div>
+</div>

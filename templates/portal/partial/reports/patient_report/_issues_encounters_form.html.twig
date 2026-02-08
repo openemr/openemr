@@ -1,0 +1,47 @@
+{#
+* _issues_encounters_form.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<table class="issues_encounters_forms table">
+    <tr>
+        <!-- Issues -->
+        <td class='text'>
+            {% include "portal/partial/reports/patient_report/_issues_encounters.html.twig" %}
+        </td>
+        <!-- Encounters and Forms -->
+        <td class='text'>
+            <div class='encounters'>
+                <span class='bold'>{{ "Encounters & Forms"|xlt }}:</span>
+                <br /><br />
+                {% for encounter in encounters %}
+                <div class='encounter_data'>
+                    <label>
+                        <input type='checkbox' name='{{ encounter.formdir|attr }}_{{ encounter.form_id|attr }}'
+                               id='{{ encounter.formdir|attr }}_{{ encounter.form_id|attr }}'
+                               value='{{ encounter.encounter|attr }}' class='encounter'>{{ encounter.display|text }} ({{ form.date|date("Y-m-d") }})
+                    </label>
+                    <div class='encounter_forms'>
+                        {% for formName,formList in encounter.forms %}
+                        {% for form in formList %}
+                        <label>
+                            <input type="checkbox" name="{{ form.formdir|attr }}_{{ form.form_id|attr }}"
+                                   id="{{ form.formdir|attr }}_{{ form.form_id|attr }}"
+                                   value="{{ form.encounter|attr }}" class="encounter_form">{{ form.display|text }} ({{ form.date|date("Y-m-d")|text }})
+                        </label>
+                        <br />
+                        {% endfor %}
+                        {% endfor %}
+                    </div> <!-- end encounter_forms -->
+                </div> <!-- end encounter_data -->
+                {% endfor %}
+            </div>
+        </td>
+    </tr>
+</table>

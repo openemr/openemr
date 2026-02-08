@@ -35,7 +35,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  */
 
 
-function smarty_function_dispatchPatientDocumentEvent($params, &$smarty)
+function smarty_function_dispatchPatientDocumentEvent($params, &$smarty): void
 {
     if (empty($params['event'])) {
         trigger_error("dispatchPatientDocumentEvent: missing 'event' parameter", E_USER_WARNING);

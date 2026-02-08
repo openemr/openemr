@@ -1,0 +1,37 @@
+{#
+* _issues_encounters.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="issues">
+    <span class='bold'>{{ "Issues"|xlt }}:</span>
+    <br /><br />
+    <table>
+        {% for disptype,issuesCategory in issues %}
+        <tr>
+            <td colspan='4' class='bold'><b>{{ issuesCategory.display|text }}</b></td>
+        </tr>
+        {% for issue in issuesCategory.issues %}
+        <tr class='text'>
+            <td>&nbsp;</td>
+            <td>
+                <label class="d-block" for='issue_{{ issue.id|attr }}'>
+                    <input type='checkbox' name='issue_{{ issue.id|attr }}' id='issue_{{ issue.id|attr }}' class='issuecheckbox' value='/{{ issue.encounter|join("/")|attr }}' />
+                    {{ issue.title|text }}
+                </label>
+            </td>
+            <td><label for='issue_{{ issue.id|attr }}' class="d-block">{{ issue.begdate|text }}
+                {% if issue.status == 'active' %}{{ "Active"|xlt }}{% else %}{{ issue.enddate|text }}{% endif %}
+            </label>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </table>
+</div>

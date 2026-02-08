@@ -29,7 +29,7 @@ class UserRestController
     /**
      * White list of practitioner search fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         "id",
         "title",
         "fname",
@@ -60,7 +60,7 @@ class UserRestController
         "notes",
         "state_license_number",
         "username"
-    );
+    ];
 
     public function __construct()
     {
@@ -89,7 +89,7 @@ class UserRestController
     /**
      * Returns user resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $validKeys = array_combine(self::WHITELISTED_FIELDS, self::WHITELISTED_FIELDS);
         $validSearchFields = array_intersect_key($search, $validKeys);

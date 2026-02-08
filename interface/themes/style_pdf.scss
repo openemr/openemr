@@ -1,3 +1,13 @@
+$compact-theme: false;
+@import "../../public/assets/bootstrap/scss/bootstrap";
+
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "default-variables";
 @import "core";
 
 a {
@@ -981,24 +991,6 @@ div.notab-right {
   color: #f00;
   font-size: 10pt;
   text-decoration: none;
-}
-
-/* Style for red font */
-
-.de_identification_status_message {
-  border: 1px solid #00f;
-  width: 50%;
-}
-
-.de_identification_input_controls_box {
-  border: 1px solid #00f;
-  width: 100%;
-}
-
-.de_id_upgrade_login {
-  background-color: #fff;
-  border: 1px solid #000;
-  width: 40%;
 }
 
 #navigation-slide,

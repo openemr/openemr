@@ -18,16 +18,13 @@ use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
 {
-    private $globalsArray;
-
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
 
-    public function __construct(array $globalsArray)
+    public function __construct(private array $globalsArray)
     {
-        $this->globalsArray = $globalsArray;
         $this->cryptoGen = new CryptoGen();
     }
 

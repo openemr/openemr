@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services;
 
-class VersionService extends BaseService
+class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
      * Default constructor.
@@ -31,7 +31,7 @@ class VersionService extends BaseService
     }
 
     /**
-     * Return the compounded major, minor, patch and tag verions as a string
+     * Return the compounded major, minor, patch and tag versions as a string
      *
      * @var $includeTag bool Include the tag
      * @var $includeRealpatch bool Include the realpatch

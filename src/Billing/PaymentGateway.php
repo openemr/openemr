@@ -67,7 +67,7 @@ class PaymentGateway
             $ccard->validate();
             $this->card = $card;
             return true;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -97,7 +97,7 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -121,34 +121,30 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
 
     /**
      * @param $which
-     * @return string
+     * @return void
      */
-    public function setGateway($which)
+    public function setGateway($which): void
     {
         if (isset($this->gateway)) {
             unset($this->gateway);
         }
-        try {
-            if (stripos($which, "stripe") !== false) {
-                $gatewayName = 'Stripe';
-                $this->gateway = Omnipay::create($gatewayName);
-                $this->gateway->setApiKey($this->apiKey);
-            } else {
-                $gatewayName = 'AuthorizeNetApi_Api';
-                $this->gateway = Omnipay::create($gatewayName);
-                $this->gateway->setAuthName($this->apiKey);
-                $this->gateway->setTransactionKey($this->transactionKey);
-                $this->gateway->setTestMode($this->production);
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (stripos((string) $which, "stripe") !== false) {
+            $gatewayName = 'Stripe';
+            $this->gateway = Omnipay::create($gatewayName);
+            $this->gateway->setApiKey($this->apiKey);
+        } else {
+            $gatewayName = 'AuthorizeNetApi_Api';
+            $this->gateway = Omnipay::create($gatewayName);
+            $this->gateway->setAuthName($this->apiKey);
+            $this->gateway->setTransactionKey($this->transactionKey);
+            $this->gateway->setTestMode($this->production);
         }
     }
 }

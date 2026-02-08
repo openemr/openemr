@@ -148,7 +148,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Another way to select an ICD code to justify the CPT4 code is to click on the label CPT4 at the beginning of the row"); ?>.</p>
 
-                <p><?php echo xlt("It will display the justify display pop-up. It has a search box that wil let you search for a ICD code.  It will also display the 10 most commonly used ICD codes. You can select any or all codes by checking the J (justify) checkbox and pressing update"); ?>.</p>
+                <p><?php echo xlt("It will display the justify display pop-up. It has a search box that will let you search for a ICD code.  It will also display the 10 most commonly used ICD codes. You can select any or all codes by checking the J (justify) checkbox and pressing update"); ?>.</p>
 
                 <p><?php echo xlt("This ICD code can be automatically added to to Problem List by checking the P (Problem) checkbox. This selected item will show up in the Issues section under Medical problems"); ?>.</p>
 
@@ -166,7 +166,7 @@ require_once("../../interface/globals.php");
                 <h4 class="oe-help-heading"><?php echo xlt("Setup the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to perform the setup"); ?>.</strong></p>
 
-                <p><?php echo xlt("The very first step would be install the ICD codes. Go to Administraion > Other > External Data Loads. Select the Code sets you want to install and click Install"); ?>.</p>
+                <p><?php echo xlt("The very first step would be install the ICD codes. Go to Administration > Other > External Data Loads. Select the Code sets you want to install and click Install"); ?>.</p>
 
                 <p><?php echo xlt("For full billing functionality in the United States CPT/HCPCS codes will then need to be installed"); ?>.</p>
 
@@ -224,7 +224,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("The third column will contain the CPT code"); ?>.</p>
 
-                <p><?php echo xlt("The first two numbers in the first and second colum will be used to determine the sort order of the buttons and the lists that are present in the popup"); ?>.</p>
+                <p><?php echo xlt("The first two numbers in the first and second column will be used to determine the sort order of the buttons and the lists that are present in the popup"); ?>.</p>
 
                 <p><?php echo xlt("Go to Administration > Lists. Select 'Fee Sheet' from the dropdown box"); ?>.</p>
 
@@ -236,13 +236,13 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Enter the category data in the appropriate fields and click 'Save'. These will be used to group the ICD codes and will be displayed on the buttons in the 'Select Codes' section"); ?>.</p>
 
-                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Go to Adminstration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10"); ?>.</strong></p>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Go to Administration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10"); ?>.</strong></p>
 
-                <p><?php echo xlt("Go to Adminstration > Codes. Select ICD 10 under Type, enter ICD 10 Code, enter Description, under category select an appropriate category, this ICD 10 code will then appear when the button with that category is clicked"); ?>.</p>
+                <p><?php echo xlt("Go to Administration > Codes. Select ICD 10 under Type, enter ICD 10 Code, enter Description, under category select an appropriate category, this ICD 10 code will then appear when the button with that category is clicked"); ?>.</p>
 
                 <p><?php echo xlt("Click 'Save'"); ?>.</p>
 
-                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10"); ?>.</strong></p>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("After you have finished entering all the ICD 10 codes go to Administration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10"); ?>.</strong></p>
 
                 <p><?php echo xlt("Click 'Save'. Now you will be able to use the Search feature to search all ICD 10 codes"); ?>.</p>
 

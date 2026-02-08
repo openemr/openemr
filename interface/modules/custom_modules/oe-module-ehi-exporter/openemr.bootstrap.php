@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Module to handle the 2015 ONC certification (b)(10) requirement for
+ * Module to handle the ONC certification (b)(10) requirement for
  * Electronic Health Information Export.
  *
  * This module fulfills the following requirements:
@@ -90,6 +90,6 @@ use OpenEMR\Core\ModulesClassLoader;
 $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\EhiExporter\\", __DIR__ . DIRECTORY_SEPARATOR . "src");
 
 /**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
+ * @global EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 $bootstrap = Bootstrap::instantiate($eventDispatcher, $GLOBALS['kernel']);

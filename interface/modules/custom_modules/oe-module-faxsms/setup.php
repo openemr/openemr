@@ -23,15 +23,17 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $c = $clientApp->getCredentials();
-$title = $service == "2" ? xlt('Twilio SMS') : xlt('SMS');
+$title = xlt('SMS');
+$title = $service == "2" ? xlt('Twilio SMS') : $title;
 $title = $service == "3" ? xlt('etherFAX') : $title;
+$title = $service == "5" ? xlt('Clickatell') : $title;
 $module_config = $_REQUEST['module_config'] ?? 0;
 $mode = $_REQUEST['mode'] ?? null;
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>><?php echo xlt("Setup") ?></title>
+    <title><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
     echo "<script>let currentService=" . js_escape($service) . "</script>";
@@ -79,9 +81,15 @@ $mode = $_REQUEST['mode'] ?? null;
 
             if (currentService == '2') {
                 $(".etherfax").hide();
+                $(".signalwire").hide();
             } else if (currentService == '3') {
                 $(".twilio").hide();
                 $(".etherfax").show();
+                $(".signalwire").hide();
+            } else if (currentService == '6') {
+                $(".twilio").hide();
+                $(".etherfax").hide();
+                $(".signalwire").show();
             }
         });
     </script>
@@ -95,7 +103,31 @@ $mode = $_REQUEST['mode'] ?? null;
             <div class="messages"></div>
             <div class="row">
                 <div class="col">
-                    <?php if ($service == '3') {
+                    <?php if ($service == '5') {
+                        ?> <!-- Clickatell -->
+                        <div class="form-group">
+                            <label for="form_extension"><?php echo xlt("Account Sending Number") ?> *</label>
+                            <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('') ?>" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_key"><?php echo xlt("Account API Key") ?> *</label>
+                            <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('') ?>" required />
+                        </div>
+                        <div class=" form-group">
+                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                            <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
+                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                            <span style="font-size:12px;font-style: italic">&nbsp;
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
+                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } elseif ($service == '3') {
                         ?> <!-- etherFAX -->
                         <div class="checkbox">
                             <label>
@@ -170,7 +202,88 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
                             </span>
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } elseif ($service == '1') {
+                        ?> <!-- RC -->
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                <?php echo xlt("Production Check") ?>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
+                            <input id="form_username" type="text" name="username" class="form-control"
+                                required="required" value='<?php echo attr($c['username']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
+                            <input id="form_password" type="password" name="password" class="form-control"
+                                required="required" value='<?php echo attr($c['password']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
+                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
+                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
+                            <input id="form_key" type="text" name="key" class="form-control"
+                                required="required" value='<?php echo attr($c['appKey']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
+                            <input id="form_secret" type="password" name="secret" class="form-control"
+                                required="required" value='<?php echo attr($c['appSecret']) ?>' />
+                        </div>
+                        <div class=" form-group">
+                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                            <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
+                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                            <span style="font-size:12px;font-style: italic">&nbsp;
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
+                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } elseif ($service == '6') {
+                        ?> <!-- SignalWire -->
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                <?php echo xlt("Production Mode") ?>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_space_url"><?php echo xlt("Space URL") ?> *</label>
+                            <input id="form_space_url" type="text" name="space_url" class="form-control"
+                                placeholder="<?php echo xla('example.signalwire.com') ?>"
+                                required="required" value='<?php echo attr($c['space_url'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Space URL (without https://)") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_project_id"><?php echo xlt("Project ID") ?> *</label>
+                            <input id="form_project_id" type="text" name="project_id" class="form-control"
+                                required="required" value='<?php echo attr($c['project_id'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Project ID (UUID format)") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_api_token"><?php echo xlt("API Token") ?> *</label>
+                            <input id="form_api_token" type="password" name="api_token" class="form-control"
+                                required="required" value='<?php echo attr($c['api_token'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire API Token") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_fax_number"><?php echo xlt("Fax Number") ?> *</label>
+                            <input id="form_fax_number" type="text" name="fax_number" class="form-control"
+                                placeholder="<?php echo xla('+1XXXXXXXXXX') ?>"
+                                required="required" value='<?php echo attr($c['fax_number'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire fax number in E.164 format") ?></small>
                         </div>
                     <?php } ?>
                     <div>

@@ -156,7 +156,7 @@
                                     <td>16</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -173,7 +173,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -190,7 +190,7 @@
                                     <td>20</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -258,7 +258,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -275,7 +275,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -292,7 +292,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>&#39;0&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -309,7 +309,7 @@
                                     <td>25</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -326,7 +326,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>&#39;0&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -343,7 +343,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>&#39;0&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -377,7 +377,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -407,8 +407,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="active">active</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>1</td>
@@ -424,8 +424,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="allow_combining">allow_combining</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>0</td>
@@ -441,8 +441,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="allow_multiple">allow_multiple</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>1</td>
@@ -462,7 +462,7 @@
                                     <td>25</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -475,8 +475,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="consumable">consumable</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>0</td>
@@ -492,8 +492,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="dispensable">dispensable</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>1</td>
@@ -506,6 +506,40 @@
                                         </table>
                                     </td>
                                     <td><p>0 = pharmacy elsewhere, 1 = dispensed here</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="date_created">date_created</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="last_updated">last_updated</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
                                 </tr>
                                 </tbody>
                             </table>

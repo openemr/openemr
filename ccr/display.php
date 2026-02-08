@@ -15,7 +15,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../interface/globals.php");
+require_once(__DIR__ . "/../interface/globals.php");
 
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -32,7 +32,7 @@ try {
     if (!$d->can_access()) {
         echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
         exit;
-    } else if ($d->is_deleted()) {
+    } elseif ($d->is_deleted()) {
         echo $twig->getTwig()->render("templates/error/404.html.twig");
         exit;
     }
@@ -62,7 +62,7 @@ try {
         exit;
     }
     echo $updatedViewCCDAEvent->getContent($content);
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller(
         "Failed to generate ccda for view",
         ['type' => $type, 'document_id' => $document_id, 'message' => $exception, 'trace' => $exception->getTraceAsString()]

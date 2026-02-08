@@ -56,25 +56,25 @@ function smarty_function_html_checkboxes($params, &$smarty)
         switch($_key) {
             case 'name':
             case 'separator':
-                $$_key = $_val;
+                ${$_key} = $_val;
                 break;
 
             case 'labels':
-                $$_key = (bool)$_val;
+                ${$_key} = (bool)$_val;
                 break;
 
             case 'options':
-                $$_key = (array)$_val;
+                ${$_key} = (array)$_val;
                 break;
 
             case 'values':
             case 'output':
-                $$_key = array_values((array)$_val);
+                ${$_key} = array_values((array)$_val);
                 break;
 
             case 'checked':
             case 'selected':
-                $selected = array_map('strval', array_values((array)$_val));
+                $selected = array_map(strval(...), array_values((array)$_val));
                 break;
 
             case 'checkboxes':
@@ -99,7 +99,7 @@ function smarty_function_html_checkboxes($params, &$smarty)
         return ''; /* raise error here? */
 
     settype($selected, 'array');
-    $_html_result = array();
+    $_html_result = [];
 
     if (isset($options)) {
 
@@ -109,7 +109,7 @@ function smarty_function_html_checkboxes($params, &$smarty)
 
     } else {
         foreach ($values as $_i=>$_key) {
-            $_val = isset($output[$_i]) ? $output[$_i] : '';
+            $_val = $output[$_i] ?? '';
             $_html_result[] = smarty_function_html_checkboxes_output($name, $_key, $_val, $selected, $extra, $separator, $labels);
         }
 

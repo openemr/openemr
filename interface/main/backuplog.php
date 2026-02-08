@@ -20,6 +20,10 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
+if (!isset($argv[1])) {
+    throw new RuntimeException("At least one argument is required");
+}
+
 require_once("$argv[1]/library/sqlconf.php");
 $backuptime = date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
@@ -29,5 +33,5 @@ if (!file_exists($BACKUP_EVENTLOG_DIR)) {
 }
 
 $BACKUP_EVENTLOG_DIR = $BACKUP_EVENTLOG_DIR . '/eventlog_' . $backuptime . '.sql';
-$cmd = escapeshellcmd($argv[1] . '/interface/main/backuplog.sh') . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' ' . escapeshellarg($BACKUP_EVENTLOG_DIR) . ' ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["port"]);
+$cmd = escapeshellcmd($argv[1] . '/interface/main/backuplog.sh') . ' ' . escapeshellarg((string) $sqlconf["login"]) . ' ' . escapeshellarg((string) $sqlconf["pass"]) . ' ' . escapeshellarg((string) $sqlconf["dbase"]) . ' ' . escapeshellarg($BACKUP_EVENTLOG_DIR) . ' ' . escapeshellarg((string) $sqlconf["host"]) . ' ' . escapeshellarg((string) $sqlconf["port"]);
 system($cmd);

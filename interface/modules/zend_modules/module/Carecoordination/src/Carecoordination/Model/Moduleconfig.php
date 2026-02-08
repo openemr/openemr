@@ -46,7 +46,7 @@ class Moduleconfig extends AbstractTableGateway
     {
         return get_object_vars($this);
     }
-    public function setInputFilter(InputFilterInterface $inputFilter)
+    public function setInputFilter(InputFilterInterface $inputFilter): never
     {
         throw new \Exception("Not used");
     }

@@ -1,0 +1,107 @@
+{#
+# Template for the New Patient Encounter Form
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+# @author    Brady Miller <brady.g.miller@gmail.com>
+# @author    Ranganath Pathak <pathak@scrs1.org>
+# @author    Jerry Padgett <sjpadgett@gmail.com>
+# @author    Stephen Nielson <snielson@discoverandchange.com>
+# @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+# @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+# @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+# @license   This code was generated as a translation of code in the newpatient/common.php file via Claude.ai and are licensed as Public Domain.  They have been marked with a header and footer.
+#}
+<!DOCTYPE html>
+<html>
+{% include "newpatient/partials/common/_head.html.twig" %}
+<body class="{{ bodyClass|attr }}">
+<div id="container_div" class="{{ oemrUiContainerClass(oemrUiSettings) }} mt-3">
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+            {{ oemrUiPageHeading(oemrUiSettings) }}
+        </div>
+    </div>
+
+    {# Note formAction HAS to be escaped in the twig caller class #}
+    <form id="new-encounter-form" method="post" action="{{ webroot }}{{ formAction }}" name="new_encounter" class="mt-3">
+        {% include "newpatient/partials/common/_form-start.html.twig" %}
+        {% include "newpatient/partials/common/fields/_hidden-fields.html.twig" %}
+        {% include "newpatient/partials/common/_form-heading.html.twig" %}
+        <fieldset>
+
+            <div id="visit-details" class="px-3">
+                <div class="form-row align-items-center">
+                    {# Visit Category #}
+                    {% include "newpatient/partials/common/fields/_visit-category.html.twig" %}
+                    {# Class #}
+                    {% include "newpatient/partials/common/fields/_class.html.twig" %}
+                    {# Encounter Type #}
+                    {% include "newpatient/partials/common/fields/_type.html.twig" %}
+                    {# Sensitivity #}
+                    {% include "newpatient/partials/common/fields/_sensitivities.html.twig" %}
+                </div>
+
+                <div class="form-row align-items-center">
+                    {# Provider Selection #}
+                    {% include "newpatient/partials/common/fields/_provider.html.twig" %}
+
+                    {# Referring Provider #}
+                    {% include "newpatient/partials/common/fields/_provider-referring.html.twig" %}
+
+                    {# Ordering Provider #}
+                    {% include "newpatient/partials/common/fields/_provider-ordering.html.twig" %}
+
+                    {# Facility #}
+                    {% include "newpatient/partials/common/fields/_facility.html.twig" %}
+
+                    {# Billing Facility #}
+                    {% include "newpatient/partials/common/fields/_facility-billing.html.twig" %}
+                </div>
+
+                {# Additional form rows for dates, POS code, etc #}
+                <div class="form-row align-items-center">
+                    {# Date Of Service #}
+                    {% include "newpatient/partials/common/fields/_date-of-service.html.twig" %}
+
+                    {# Date Of Onset #}
+                    {% include "newpatient/partials/common/fields/_date-of-onset.html.twig" %}
+
+                    {# Referral Source #}
+                    {% include "newpatient/partials/common/fields/_referral.html.twig" %}
+
+                    {# Point Of Service #}
+                    {% include "newpatient/partials/common/fields/_point-of-service.html.twig" %}
+
+                    {# In Collection #}
+                    {% include "newpatient/partials/common/fields/_in-collection.html.twig" %}
+                </div>
+                <div class="form-row align-items-center">
+                {# Discharge Disposition #}
+                    {% include "newpatient/partials/common/fields/_discharge-disposition.html.twig" %}
+
+                {# Group Name #}
+                    {% include "newpatient/partials/common/fields/_group-name.html.twig" %}
+                </div>
+            </div>
+        </fieldset>
+
+        {# Reason for Visit & Issues Section #}
+        <div class="form-row">
+            {% include "newpatient/partials/common/fields/_reason-for-visit.html.twig" %}
+            {% include "newpatient/partials/common/fields/_issues.html.twig" %}
+        </div>
+
+        {# Form Buttons #}
+        {% include "newpatient/partials/common/_form-controls.html.twig" %}
+        {% include "newpatient/partials/common/_form-end.html.twig" %}
+    </form>
+</div>
+{# End of container div #}
+{{ oemrUiBelowContainerDiv(oemrUiSettings) }}
+{% include "newpatient/partials/common/_body-scripts.html.twig" %}
+{% include "newpatient/partials/common/_body-end.html.twig" %}
+</body>
+</html>

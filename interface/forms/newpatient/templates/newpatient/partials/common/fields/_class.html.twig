@@ -1,0 +1,7 @@
+{# Class #}
+<div class="col-sm {{ displayOptionClass('enc_enable_class') }}">
+    <div class="form-group">
+        <label for="class_code" class="text-right">{{ "Class"|xlt }}:</label>
+        {{ selectList('class_code', '_ActEncounterCode', defaultClassCodeValue, '', {empty_name: ''}) }}
+    </div>
+</div>

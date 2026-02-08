@@ -17,7 +17,9 @@
 
 namespace OpenEMR\Events\Core;
 
-class TemplatePageEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class TemplatePageEvent extends Event
 {
     const CONTEXT_ARGUMENT_SCRIPT_NAME = "script_name";
 
@@ -29,7 +31,7 @@ class TemplatePageEvent
     private $context;
 
     /**
-     * Array of twig varibles passed to the twig template
+     * Array of twig variables passed to the twig template
      *
      * @var array
      */
@@ -49,7 +51,7 @@ class TemplatePageEvent
      */
     private $pageName;
 
-    public function __construct(string $pageName, $context = array(), $twigTemplate = "", $twigVariables = [])
+    public function __construct(string $pageName, $context = [], $twigTemplate = "", $twigVariables = [])
     {
         $this->setContext($context);
         $this->setPageName($pageName);

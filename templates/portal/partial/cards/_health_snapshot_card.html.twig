@@ -1,0 +1,27 @@
+{#
+* _health_snapshot_card.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<!-- Health Snapshot Card -->
+<div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
+    <div class="card d-flex mr-1 mb-1">
+        <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Snapshot (Medical Lists)' | xlt }}</header>
+        <div class="card-body">
+            {% include "portal/partial/cards/_health_snapshot_immunization_card.html.twig" with {immunizationRecords: healthSnapshot.immunizationRecords} %}
+            {% include "portal/partial/cards/_health_snapshot_medicationlist_card.html.twig" %}
+            {% include "portal/partial/cards/_health_snapshot_prescriptionlist_card.html.twig" %}
+            {% include "portal/partial/cards/_health_snapshot_allergylist_card.html.twig" %}
+            {% include "portal/partial/cards/_health_snapshot_problemslist_card.html.twig" %}
+            {# {% include "portal/partial/cards/_health_snapshot_amendmentslist_card.html.twig" %} #}
+            {% include "portal/partial/cards/_health_snapshot_labresults_card.html.twig" %}
+        </div>
+    </div>
+</div>
+{% include "portal/partial/cards/_health_snapshot_scripts.html.twig" %}
