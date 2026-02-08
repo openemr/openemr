@@ -129,7 +129,7 @@ trait PatientAddTrait
                 WebDriverExpectedCondition::alertIsPresent()
             );
             $alert->accept();
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException) {
             // No alert is expected for successful patient creation
             // This is normal and we can continue
         }
