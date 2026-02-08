@@ -14,6 +14,8 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $alertmsg = '';
@@ -191,11 +193,12 @@ function validate(f) {
 
 <body class="body_top">
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // If we are saving, then save and close the window.
 // First check for duplicates.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -227,7 +230,7 @@ if (!empty($_POST['form_save'])) {
 }
 
 if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -442,7 +445,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 <h3 class="ml-1"><?php echo text($title);?></h3>
 <form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'
  onsubmit='return validate(this);'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
     <div class="form-group">
         <label><?php echo xlt('Name'); ?>:</label>

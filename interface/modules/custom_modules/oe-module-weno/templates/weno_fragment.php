@@ -130,7 +130,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
     }
 </script>
 
-<input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', session: $session)); ?>" />
+<input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div>
     <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">

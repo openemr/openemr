@@ -17,15 +17,17 @@
 require_once("$srcdir/display_help_icon_inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $viewArgs = [
     'pageHeading' => $oemr_ui->pageHeading(),
     'pid' => $pid,
-    'csrf' => CsrfUtils::collectCsrfToken(),
+    'csrf' => CsrfUtils::collectCsrfToken(session: $session),
 ];
 
 echo $t->render('patient/dashboard_header.html.twig', $viewArgs);

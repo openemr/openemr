@@ -25,7 +25,7 @@
 require_once("../../globals.php");
 require_once('../../../library/amc.php');
 
-use OpenEMR\Common\{Csrf\CsrfUtils,};
+use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
 use OpenEMR\Services\PatientAccessOnsiteService;
 
 function displayLogin($patient_id, $message, $emailFlag)
@@ -56,9 +56,10 @@ if ($option == '2') {
     $forced_reset_disable = 1; // sets database to ignore force reset on login
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $credMessage = '';
-if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
@@ -78,7 +79,7 @@ $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
     'credMessage' => $credMessage
-    , 'csrfToken' => CsrfUtils::collectCsrfToken()
+    , 'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
     , 'fname' => $credentials['fname']
     , 'portal_username' => $credentials['portal_username']
     , 'id' => $credentials['id']

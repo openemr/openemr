@@ -474,7 +474,7 @@ class C_Document extends Controller
 
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session));
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken(session: $session));
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");

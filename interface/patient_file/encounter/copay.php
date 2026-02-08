@@ -64,7 +64,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session)); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class='title'><?php echo xlt('Copay'); ?></span></dt>

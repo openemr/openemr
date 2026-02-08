@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Utils;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Utility class for generating HTML pagination links in legacy UI pages.
@@ -139,8 +140,9 @@ class PaginationUtils implements PaginationInterface
             unset($params[$param]);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Add CSRF token
-        $params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
+        $params['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
 
         return $params;
     }

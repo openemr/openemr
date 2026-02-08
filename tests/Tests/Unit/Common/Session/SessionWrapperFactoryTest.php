@@ -366,7 +366,7 @@ class SessionWrapperFactoryTest extends TestCase
         );
     }
 
-//    TODO: Get information how properly to distinguish OAuth Session and how to return proper SymfonySession in such case
+//    TODO @zmilan: Get information how properly to distinguish OAuth Session and how to return proper SymfonySession in such case
 //    /**
 //     * Test that getActiveSession returns core session for OAuth cookie
 //     */

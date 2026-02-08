@@ -19,6 +19,7 @@ use OpenEMR\Common\Auth\AuthGlobal;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class SphereRevert
 {
@@ -111,6 +112,7 @@ class SphereRevert
             throw new Exception(xl('Incorrect confirmation PIN'));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Note that the returnurl needs to match the returnUrl that is created in processSphereRevert() js function, so
         //  if modify this, also need to modify there
         $response = $this->client->request('POST', 'token.php', [
@@ -119,7 +121,7 @@ class SphereRevert
                 'aggregator1' => Sphere::AGGREGATOR_ID,
                 'custid' => $this->custid,
                 'password' => $this->custpass,
-                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode((string) CsrfUtils::collectCsrfToken("sphere_revert")),
+                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode((string) CsrfUtils::collectCsrfToken('sphere_revert', $session)),
                 'action' => $action,
                 'transid' => $transid
             ]
@@ -187,6 +189,7 @@ class SphereRevert
      */
     public static function renderRevertSphereJs(): string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return '
             function revertSphere(action, front, transId, uuidTx) {
                 dlgopen("", "", 300, 250, false, xl("Enter PIN code"), {
@@ -234,7 +237,7 @@ class SphereRevert
                 request.append("front", front);
                 request.append("trans_id", transId);
                 request.append("uuid_tx", uuidTx);
-                request.append("csrf_token", ' . js_escape(CsrfUtils::collectCsrfToken("sphere_revert_token")) . ');
+                request.append("csrf_token", ' . js_escape(CsrfUtils::collectCsrfToken('sphere_revert_token', $session)) . ');
 
                 top.restoreSession();
                 fetch(top.webroot_url + "/sphere/token.php", {
@@ -265,7 +268,7 @@ class SphereRevert
             function processSphereRevert(token, front, action, transId, uuidTx) {
                 // Note that the returnUrl needs to match the returnurl that is created in getToken() function, so
                 //  if modify this, also need to modify there
-                let returnUrl = ' . js_escape($GLOBALS["site_addr_oath"] . $GLOBALS["web_root"]) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken("sphere_revert")) . ';
+                let returnUrl = ' . js_escape($GLOBALS["site_addr_oath"] . $GLOBALS["web_root"]) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken('sphere_revert', $session)) . ';
                 let mainUrl = ' . js_escape(Sphere::TRUSTEE_API_URL) . ' + "payment.php?aggregators=1&aggregator1=" + ' . js_escape(Sphere::AGGREGATOR_ID) . ' + "&transid=" + encodeURIComponent(transId) + "&token=" + encodeURIComponent(token) + "&action=" + encodeURIComponent(action) + "&returnurl=" + encodeURIComponent(returnUrl);
                 dlgopen(mainUrl, "_blank", 950, 650, "", "Sphere " + action, {allowExternal: true});
             }

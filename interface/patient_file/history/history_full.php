@@ -21,6 +21,7 @@ require_once("$srcdir/validation/LBF_Validation.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -37,6 +38,8 @@ if (AclMain::aclCheckCore('patients', 'med')) {
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to patient history');
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -275,7 +278,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <script> var constraints = <?php echo $constraints;?>; </script>
 
             <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <input type='hidden' name='mode' value='save' />
 
                 <div class="btn-group">

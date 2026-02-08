@@ -16,6 +16,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -27,7 +28,9 @@ if (empty($viewBean)) {
 $form_begin_date = $viewBean->form_begin_date;
 $form_end_date = $viewBean->form_end_date;
 $search = $viewBean->search;
-$records = $viewBean->records ?>
+$records = $viewBean->records;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+?>
 
 <html>
 
@@ -55,7 +58,7 @@ $records = $viewBean->records ?>
                 let action = $("#theform").attr("action");
                 let uri = new URL(action, window.location.href);
                 uri.searchParams.set("action", "log!download");
-                uri.searchParams.set("csrf_token_form", "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>");
+                uri.searchParams.set("csrf_token_form", "<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>");
                 uri.searchParams.set("form_begin_date", $("#form_begin_date").val());
                 uri.searchParams.set("form_end_date", $("#form_end_date").val());
                 window.location.href = uri.href;
@@ -99,7 +102,7 @@ $records = $viewBean->records ?>
 <span class='title'><?php echo xlt('Alerts Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='cdr_log.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <input type="hidden" id="cdr_action" name="action" value="log!view" />
 
     <div id="report_parameters">

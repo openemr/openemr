@@ -911,7 +911,7 @@ $(function () {
                 return xl("Report Unavailable");
             }
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 encid: el.dataset.formenc,
                 formid: el.dataset.formid,
                 formname: el.dataset.formdir,

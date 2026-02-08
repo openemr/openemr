@@ -50,7 +50,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-//        $_SESSION = $this->originalSession; // restore the session sadly.
+// TODO @zmilan:       $_SESSION = $this->originalSession; // restore the session sadly.
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $session->clear();
         // need to clean up the database records

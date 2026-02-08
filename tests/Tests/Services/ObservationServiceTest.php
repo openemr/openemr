@@ -33,7 +33,7 @@ class ObservationServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->service = new ObservationService();
-//        $this->sessionBackup = $_SESSION;
+//  TODO @zmilan:      $this->sessionBackup = $_SESSION;
         $this->backupAttendantType = $GLOBALS['attendant_type'] ?? null;
         $this->backupDateFormat = $GLOBALS['date_display_format'] ?? null;
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

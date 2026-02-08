@@ -22,6 +22,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
@@ -29,6 +30,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -41,7 +43,7 @@ use OpenEMR\RestControllers\Finder\StandardRouteFinder;
                 url: '../../apis/default/api/facility',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api', $session)); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -57,7 +59,7 @@ use OpenEMR\RestControllers\Finder\StandardRouteFinder;
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api', $session)); ?>
                 })
             })
             .then(response => response.json())

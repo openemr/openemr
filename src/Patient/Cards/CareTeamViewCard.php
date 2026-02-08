@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -122,7 +123,8 @@ class CareTeamViewCard extends CardModel
     private function handleFormSubmission()
     {
         if (($_POST['save_care_team'] ?? '') === 'true') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -331,6 +333,7 @@ class CareTeamViewCard extends CardModel
         }
         // AI-generated addition - End
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             'team_id' => $careTeamResult['team_id'] ?? null,
             'pid' => $pid,
@@ -346,7 +349,7 @@ class CareTeamViewCard extends CardModel
             'role_options' => $templateData['role_options'],
             'status_options' => $templateData['status_options'],
             'existing_care_team' => $existingCareTeam,
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => CsrfUtils::collectCsrfToken(session: $session),
             'translations' => self::getTranslations()
         ];
     }

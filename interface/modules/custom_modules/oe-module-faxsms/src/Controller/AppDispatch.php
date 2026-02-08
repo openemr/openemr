@@ -49,7 +49,7 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession(); // TODO check what to do with this one
+        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession(); // TODO @zmilan: check what to do with this one
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {

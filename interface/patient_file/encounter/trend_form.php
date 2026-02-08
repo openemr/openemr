@@ -90,7 +90,7 @@ function show_graph(table_graph, name_graph, title_graph)
             table: table_graph,
             name: name_graph,
             title: title_graph,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         }),
         dataType: "json",
         success: function(returnData){

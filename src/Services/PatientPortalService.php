@@ -172,7 +172,7 @@ class PatientPortalService
             return $session->get($param, $default);
         }
 
-        return $session->all(); // TODO should this be array or session object?
+        return $session->all(); // TODO @zmilan: should this be array or session object?
     }
 
     /**

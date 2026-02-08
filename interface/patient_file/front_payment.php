@@ -96,7 +96,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -398,7 +398,7 @@ function printlog_before_print() {
 function deleteme() {
     const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
@@ -1076,7 +1076,7 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1847,7 +1847,7 @@ function make_insurance() {
             }
             echo '<script type="text/javascript">';
             echo $twig->render('payments/rainforest.js', [
-                'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+                'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session),
                 'endpoint' => 'front_payment.rainforest.php',
             ]);
             echo '</script>';

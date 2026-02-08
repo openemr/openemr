@@ -64,10 +64,11 @@ class TransmitProperties
      */
     public function __construct($returnFlag = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->wenoLocation = $_GET['location'] ?? '';
         $this->setWenoLocation($this->wenoLocation);
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
-        $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
+        $this->csrf = js_escape(CsrfUtils::collectCsrfToken(session: $session));
         $this->cryptoGen = new CryptoGen();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();

@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH form');
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session);
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 
 // Fetch record
 if ($is_new) {

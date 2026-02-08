@@ -15,9 +15,11 @@ require_once __DIR__ . "/../../interface/globals.php";
 
 use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

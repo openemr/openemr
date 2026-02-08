@@ -132,7 +132,7 @@ function printLogPrint(elem) {
  $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
-    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken('default', $session)); ?>
+    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>
   }
  );
 <?php } ?>

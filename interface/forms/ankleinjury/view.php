@@ -19,8 +19,10 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
     <?php Header::setupHeader(); ?>
@@ -31,7 +33,7 @@ require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_ankleinjury", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/ankleinjury/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br /><br />
 

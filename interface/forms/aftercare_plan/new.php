@@ -18,6 +18,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form:AfterCare Planning");
@@ -25,6 +26,7 @@ $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -54,7 +56,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) . "'>\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <table  border="0">
 <tr>

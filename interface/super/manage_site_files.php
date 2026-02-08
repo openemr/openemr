@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -26,10 +27,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $educationdir = "$OE_SITE_DIR/documents/education";
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_save'])) {
     //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -68,7 +69,7 @@ if (!empty($_POST['bn_save'])) {
 
 if (isset($_POST['generate_thumbnails'])) {
     //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -133,7 +134,7 @@ if ($GLOBALS['secure_upload']) {
 
     if (isset($_POST['submit_form'])) {
         //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -208,7 +209,7 @@ function msfFileChanged() {
 <body class="body_top">
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <center>
 
@@ -244,7 +245,7 @@ function msfFileChanged() {
             </td>
             <td  class="thumb_form" style="width: 17%; border-right: none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <input style="margin-top: 10px" class="btn btn-primary" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>" />
                 </form>
             </td>
@@ -314,7 +315,7 @@ function msfFileChanged() {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" class="btn btn-primary" value="<?php echo xla('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         </div>
     </form>
 

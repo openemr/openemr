@@ -110,7 +110,7 @@ $CPR = 4; // cells per row
                     // delete from table.
                     const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
                     let doData = new FormData();
-                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                     doData.append('id', data.id);
                     doData.append('task_name_history', 'delete');
                     fetch(url, {
@@ -418,7 +418,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
         <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
         <input type="hidden" name="isSwapClicked" value="" />

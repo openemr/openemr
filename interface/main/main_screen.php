@@ -377,7 +377,7 @@ if (isset($_POST['new_login_session_management'])) {
     }
 } else {
     // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     $session->migrate(false);
@@ -435,7 +435,7 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session)),
+        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);

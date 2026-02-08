@@ -376,7 +376,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     event.preventDefault();
     let url = '<?php echo $GLOBALS['webroot']; ?>/library/specialty_forms.php?';
     url += "form_handler=" + encodeURIComponent(formHandler);
-    url += "&csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>;
+    url += "&csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     let title = xl("Add to History");
     dlgopen('', '', size, 500, '', '', {
     allowResize: true,

@@ -377,7 +377,7 @@ try {
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),
-        'csrfUtils' => CsrfUtils::collectCsrfToken('default', $session),
+        'csrfUtils' => CsrfUtils::collectCsrfToken(session: $session),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,

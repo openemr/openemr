@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $form_key = $_REQUEST['key'];
@@ -25,6 +26,7 @@ $form_ss = preg_replace('/[^0-9]/', '', (string) $args['ss']);
 $form_fname = $args['fname'];
 $form_lname = $args['lname'];
 $form_DOB = $args['DOB'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,7 +69,7 @@ $form_DOB = $args['DOB'];
 
 <body class="body_top">
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <?php
 if ($form_key) {
     $clarr = [];

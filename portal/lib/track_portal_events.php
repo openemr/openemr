@@ -56,7 +56,7 @@ function portal_handleRequest(): void
     $data = json_decode($input_json, true);
 
     // Verify CSRF token.
-    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"], 'default', $session)) {
+    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

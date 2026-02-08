@@ -20,10 +20,12 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
 <script>
@@ -58,7 +60,7 @@ $returnurl = 'encounter_top.php';
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <br /><br />
 <span class="title" ><?php echo xlt('Bronchitis Form'); ?></span>

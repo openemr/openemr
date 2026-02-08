@@ -18,9 +18,11 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form: CAMOS");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -30,7 +32,7 @@ formHeader("Form: CAMOS");
 
 <body class='ml-1'>
     <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>
         <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />

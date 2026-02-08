@@ -24,6 +24,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
@@ -43,6 +44,8 @@ $auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
 $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
@@ -630,7 +633,7 @@ $(function () {
         // there's a lot of ways to do this but for now, we'll go with this!
         top.restoreSession();
         let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
-            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken() ?>");
+            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken(session: $session) ?>");
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',

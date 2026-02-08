@@ -16,6 +16,7 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
@@ -29,8 +30,9 @@ if ($search) {
     $title = xlt('Copy Fax to Patient');
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_create'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     $clientApp = AppDispatch::getApiService('fax');
@@ -230,7 +232,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
 
             function searchme() {
                 var f = document.forms[0];
-                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>';
                 <?php
                 $lres = getLayoutRes($SHORT_FORM);
                 while ($lrow = sqlFetchArray($lres)) {
@@ -303,7 +305,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
     <div class="container-fluid">
         <div class='title'><?php echo $title; ?></div>
         <form class="form" name='new_patient' method='post' action="" onsubmit='return validate()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <input type="hidden" id="form_create" name="form_create" value="" />
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
             <div class="form-group col">

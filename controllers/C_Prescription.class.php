@@ -66,7 +66,8 @@ class C_Prescription extends Controller
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
         if ($GLOBALS['inhouse_pharmacy']) {
             // Make an array of drug IDs and selectors for the template.

@@ -19,6 +19,7 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
@@ -68,8 +69,9 @@ $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_
 $form_to_date   = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_facility  = $_POST['form_facility'] ?? null;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_csvexport'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -119,7 +121,7 @@ if (!empty($_POST['form_csvexport'])) {
 <h2><?php echo xlt('Pending Orders')?></h2>
 
 <form method='post' action='pending_orders.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <table class='border-0' cellpadding='3'>
 
@@ -175,7 +177,7 @@ if (!empty($_POST['form_csvexport'])) {
 // If generating a report.
 //
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

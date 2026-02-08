@@ -23,6 +23,7 @@ require_once("$srcdir/patientvalidation.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Check authorization.
@@ -42,6 +43,8 @@ $grparr = [];
 getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Determine layout field search treatment from its data type:
 // 1 = text field
@@ -318,7 +321,7 @@ function selBlur(elem) {
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+ var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>';
 
 <?php
 $lres = getLayoutRes($SHORT_FORM);
@@ -379,7 +382,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       method='post'
                       onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
                     <tr>

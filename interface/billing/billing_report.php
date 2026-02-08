@@ -28,6 +28,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -56,9 +58,9 @@ if ($GLOBALS['use_custom_daysheet'] != 0) {
 }
 
 $alertmsg = '';
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -609,7 +611,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         <div class="hideaway">
             <div>
                 <form class="form" name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <input type='hidden' name='mode' value='change' />
                     <!-- Criteria section Starts -->
                     <?php
@@ -847,7 +849,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     <?php } ?>
                 </div>
             </nav>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <input name='mode' type='hidden' value="bill" />
             <input name='authorized' type='hidden' value="<?php echo attr($my_authorized); ?>" />
             <input name='unbilled' type='hidden' value="<?php echo attr($unbilled); ?>" />
@@ -1218,7 +1220,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
 
                                         if ($crow['process_time']) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                             ++$lcount;
                                         }
 
@@ -1421,7 +1423,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 var checkstr = confirm(<?php echo xlj("Do you really want to clear the log?"); ?>);
                 if (checkstr == true) {
                     top.restoreSession();
-                    dlgopen("clear_log.php?csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 400);
+                    dlgopen("clear_log.php?csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 400);
                 } else {
                     return false;
                 }

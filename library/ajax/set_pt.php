@@ -21,7 +21,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session)) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
