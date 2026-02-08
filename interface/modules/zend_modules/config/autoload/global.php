@@ -63,7 +63,7 @@ $factories = [
 $adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
-    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
+    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'] . ';port=' . $GLOBALS['port'], $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
@@ -71,9 +71,8 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
             $cryptoGen = new CryptoGen();
             $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
-                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
+                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . ';port=' . $row['port'],
                 'driver_options' => $utf8,
-                'port' => $row['port'],
                 'username' => $row['username'],
                 'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
             ];
@@ -96,10 +95,9 @@ $sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', '
 return [
     'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($sqlConf['dbase'] ?? '') . ';host=' . ($sqlConf['host'] ?? ''),
+        'dsn'            => 'mysql:dbname=' . ($sqlConf['dbase'] ?? '') . ';host=' . ($sqlConf['host'] ?? '') . ';port=' . ($sqlConf['port'] ?? ''),
         'username'       => $sqlConf['login'] ?? '',
         'password'       => $sqlConf['pass'] ?? '',
-        'port'           => $sqlConf['port'] ?? '',
         'driver_options' => $utf8,
         'adapters' => $adapters
 
