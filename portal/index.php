@@ -110,7 +110,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => text($_GET['service_auth']),
-            'target' => $_GET['target'] ?? null,
+            'target' => text($_GET['target'] ?? null),
             'csrf_token' => text(CsrfUtils::collectCsrfToken('autologin', $session)),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
