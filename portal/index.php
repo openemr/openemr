@@ -708,7 +708,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($globalsBag->get('portal_tw
                 <?php $datetimepicker_formatInput = false; ?>
                 <?php require $globalsBag->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             });
-            $(document.body).on('hidden.bs.modal', function () {
+            document.body.addEventListener('hidden.bs.modal', function () {
                 callServer('cleanup');
             });
             $("#resetPass").on('submit', function (e) {

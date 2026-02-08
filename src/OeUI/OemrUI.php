@@ -391,9 +391,12 @@ class OemrUI
             $(".modal-dialog").addClass('drag-action');
             $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
-            $('#myModal').on('hidden.bs.modal', function (e) {
-                $('#help-href').prop('title', '');
-            });
+            var myModalEl = document.getElementById('myModal');
+            if (myModalEl) {
+                myModalEl.addEventListener('hidden.bs.modal', function () {
+                    $('#help-href').prop('title', '');
+                });
+            }
             $('#help-href').focus( function() {
                 $('#help-href').prop('title', helpTitle);
             });

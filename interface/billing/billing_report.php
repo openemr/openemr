@@ -282,13 +282,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
             $("body").append(dModal);
 
-            $('#confirmDialog').on('hidden.bs.modal', function(e) {
-                // remove modal
-                $(this).remove();
-                console.log("Confirm Modal Removed");
-                // remove this event for next time.
-                $(this).off(e);
-            });
+            var confirmDialogEl = document.getElementById('confirmDialog');
+            if (confirmDialogEl) {
+                confirmDialogEl.addEventListener('hidden.bs.modal', function() {
+                    // remove modal
+                    this.remove();
+                    console.log("Confirm Modal Removed");
+                });
+            }
         }
 
         function onNewPayer(oEvent) {
