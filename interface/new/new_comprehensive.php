@@ -386,7 +386,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <!-- Patient Photo Capture -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <button type="button" class="btn btn-outline-secondary" id="btnTakePicture">
+                <button type="button" class="btn btn-outline-dark" id="btnTakePicture">
                     <i class="fa fa-camera mr-1"></i><?php echo xlt('Take Picture'); ?>
                 </button>
                 <div id="photoPreviewContainer" class="ml-3 align-middle" style="display: none;">
