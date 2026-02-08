@@ -45,6 +45,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
@@ -1845,6 +1846,7 @@ class AuthorizationController
         $this->session->setId($oauthSessionId);
         $sessionFactory = new HttpSessionFactory($request, $this->webroot, HttpSessionFactory::SESSION_TYPE_OAUTH);
         $this->session = $sessionFactory->createSession(); // create and start a new session
+        SessionWrapperFactory::getInstance()->setActiveSession($this->session); // set active session to be in use in standalone/shared files
     }
 
     protected function getUserRepository(): UserRepository
