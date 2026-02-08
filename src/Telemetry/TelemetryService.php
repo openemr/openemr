@@ -152,7 +152,7 @@ class TelemetryService
                     'error' => $serverGeoData['error']
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->warning("Telemetry: Exception during geolocation lookup - {message}. Continuing with telemetry report.", ['message' => $e->getMessage(), 'exception' => $e]);
             $serverGeoData = [
                 'country' => null,
