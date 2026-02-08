@@ -585,7 +585,7 @@ $ResultSearchSub = sqlStatement(
             <div class="row">
                 <div class="col-sm-12">
                     <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
-                        <button class="navbar-toggler icon-bar" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+                        <button class="navbar-toggler" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="myNavbar">
                             <ul class="navbar-nav me-auto">
                                 <li class="nav-item active">
@@ -994,7 +994,7 @@ $ResultSearchSub = sqlStatement(
                                 <td class="bg-dark text-secondary" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
                                 <td align="center" colspan="2">&nbsp;</td>
                                 <td align="right">
-                                    <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"
+                                    <button type="button" class="btn btn-sm btn-secondary btn-refresh float-end"
                                         onclick="updateAllFormTotals(<?php echo attr_js($TotalRows); ?>);"><?php echo xlt("Recalculate"); ?></button>
                                 </td>
                             </tr>

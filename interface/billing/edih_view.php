@@ -146,10 +146,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                         </tr>
                                         <tr height='1.5em'>
                                             <td class='text-center'>
-                                                <select class="custom-select" id="csvselect" name="csvtables"></select>
+                                                <select class="form-select" id="csvselect" name="csvtables"></select>
                                             </td>
                                             <td class='text-center'>
-                                                <select class="custom-select" id="csvperiod" name="csv_period">
+                                                <select class="form-select" id="csvperiod" name="csv_period">
                                                     <option value='2w' selected='selected'>2 <?php echo xlt('weeks'); ?></option>
                                                     <option value='1m'>1 <?php echo xlt('month'); ?></option>
                                                     <option value='2m'>2 <?php echo xlt('months'); ?></option>
@@ -266,7 +266,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Inspect the log"); ?></h4>
                                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
-                                    <select class="custom-select" id="logselect" name="log_select"></select>
+                                    <select class="form-select" id="logselect" name="log_select"></select>
                                     <input type="hidden" name="logshowfile" value="getlog">
                                     <div class="btn-group mt-3">
                                         <button type="submit" class="btn btn-primary btn-add" id="logshow" form="formlog" value="<?php echo xla("Submit"); ?>">
@@ -319,7 +319,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Archive old files"); ?></h4>
                                     <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
-                                    <select class="custom-select" id="archiveselect" name="archive_sel">
+                                    <select class="form-select" id="archiveselect" name="archive_sel">
                                         <option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
                                         <option value="24m">24 <?php echo xlt('months'); ?></option>
                                         <option value="18m">18 <?php echo xlt('months'); ?></option>
@@ -340,7 +340,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Restore Archive"); ?></h4>
                                     <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
-                                    <select class="custom-select" id="archrestoresel" name="archrestore_sel"> </select>
+                                    <select class="form-select" id="archrestoresel" name="archrestore_sel"> </select>
                                     <input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
                                     <label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>
                                     <input type="submit" class="btn btn-sm btn-secondary" id="archrestore" name="arch_restore" form="formarchrestore" value="<?php echo xla("Restore"); ?>" />

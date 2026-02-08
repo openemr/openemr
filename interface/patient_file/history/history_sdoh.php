@@ -140,7 +140,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
         height: 100%;
       }
 
-      .text-muted {
+      .text-body-secondary {
         font-size: 0.875rem;
       }
     </style>
@@ -155,7 +155,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 <h4 class="m-0"><?php echo xlt("Social Determinants of Health Assessment"); ?></h4>
                 <div>
                     <?php if (!$is_new && !empty($info)) : ?>
-                        <span class="text-muted me-3">
+                        <span class="text-body-secondary me-3">
                             <?php echo xlt("Last Updated") . ": " . text(oeFormatShortDate($info['updated_at'] ?? '')); ?>
                         </span>
                     <?php endif; ?>
@@ -202,7 +202,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                             <label><?php echo xlt("Score"); ?></label>
                             <input type="number" class="form-control" name="instrument_score" id="total_score" readonly
                                 value="<?php echo attr(v($info, 'instrument_score', 0)); ?>">
-                            <small class="text-muted"><?php echo xlt("Auto-calculated"); ?></small>
+                            <small class="text-body-secondary"><?php echo xlt("Auto-calculated"); ?></small>
                         </div>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                     <div class="card mb-3">
                         <div class="card-header fw-bold">
                             <?php echo xlt("Hunger Vital Signs"); ?>
-                            <small class="text-muted ms-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
+                            <small class="text-body-secondary ms-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
@@ -232,12 +232,12 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                     <textarea class="form-control" rows="1" name="food_insecurity_notes"><?php echo text(v($info, 'food_insecurity_notes')); ?></textarea>
                                 </div>
                                 <label><?php echo xlt("Within the past 12 months, we worried whether our food would run out before we got money to buy more"); ?></label>
-                                <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88122-7"); ?></small>
+                                <small class="text-body-secondary d-block mb-1"><?php echo xlt("LOINC 88122-7"); ?></small>
                                 <?php render_list_select('hunger_q1', 'vital_signs_answers', v($info, 'hunger_q1')); ?>
                             </div>
                             <div class="mb-3">
                                 <label><?php echo xlt("Within the past 12 months, the food we bought just didn't last and we didn't have money to get more"); ?></label>
-                                <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88123-5"); ?></small>
+                                <small class="text-body-secondary d-block mb-1"><?php echo xlt("LOINC 88123-5"); ?></small>
                                 <?php render_list_select('hunger_q2', 'vital_signs_answers', v($info, 'hunger_q2')); ?>
                             </div>
                             <div class="row gx-2">
@@ -245,7 +245,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                     <label><?php echo xlt("Hunger Score"); ?></label>
                                     <input type="number" class="form-control" name="hunger_score" id="hunger_score" readonly
                                         value="<?php echo attr(v($info, 'hunger_score', 0)); ?>">
-                                    <small class="text-muted"><?php echo xlt("0 = No risk, ≥1 = At risk"); ?></small>
+                                    <small class="text-body-secondary"><?php echo xlt("0 = No risk, ≥1 = At risk"); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -256,7 +256,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                     <div class="card mb-3">
                         <div class="card-header fw-bold">
                             <?php echo xlt("Disability Status"); ?>
-                            <small class="text-muted ms-2"><?php echo xlt("ACS 6-item set"); ?></small>
+                            <small class="text-body-secondary ms-2"><?php echo xlt("ACS 6-item set"); ?></small>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
@@ -396,12 +396,12 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                     <div class="mb-3">
                         <label><?php echo xlt("Generated Goals"); ?></label>
                         <textarea class="form-control" rows="3" readonly><?php echo text($goals_text); ?></textarea>
-                        <small class="text-muted"><?php echo xlt("Goals are automatically generated based on positive SDOH findings"); ?></small>
+                        <small class="text-body-secondary"><?php echo xlt("Goals are automatically generated based on positive SDOH findings"); ?></small>
                     </div>
                     <div class="mb-3">
                         <label><?php echo xlt("Generated Interventions"); ?></label>
                         <textarea class="form-control" rows="3" readonly><?php echo text($interventions_text); ?></textarea>
-                        <small class="text-muted"><?php echo xlt("Interventions are automatically generated based on positive SDOH findings"); ?></small>
+                        <small class="text-body-secondary"><?php echo xlt("Interventions are automatically generated based on positive SDOH findings"); ?></small>
                     </div>
                     <div class="mb-3">
                         <label><?php echo xlt("Additional Interventions (Manual)"); ?></label>

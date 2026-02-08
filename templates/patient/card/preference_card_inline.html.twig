@@ -71,11 +71,11 @@
                     <tbody>
                     {% for pref in preferences %}
                         <tr>
-                            <td><small class="text-muted">{{ pref.effective_datetime ? pref.effective_datetime|date('Y-m-d') : pref.recorded_date|date('Y-m-d') }}</small></td>
+                            <td><small class="text-body-secondary">{{ pref.effective_datetime ? pref.effective_datetime|date('Y-m-d') : pref.recorded_date|date('Y-m-d') }}</small></td>
                             <td>
                                 <strong>{{ pref.observation_code_text ?? pref.code_display|default('')|text }}</strong>
                                 {% if pref.note %}
-                                    <br><small class="text-muted"><i class="fa fa-comment"></i> {{ pref.note|text }}</small>
+                                    <br><small class="text-body-secondary"><i class="fa fa-comment"></i> {{ pref.note|text }}</small>
                                 {% endif %}
                             </td>
                             <td>
@@ -92,7 +92,7 @@
                                 {% elseif pref.value_text %}
                                     {{ pref.value_text|text }}
                                 {% else %}
-                                    <span class="text-muted">{{ "Not specified"|xlt }}</span>
+                                    <span class="text-body-secondary">{{ "Not specified"|xlt }}</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -162,7 +162,7 @@
                             {% endfor %}
                         </select>
                         <input type="hidden" name="observation_code_text" id="{{ type|attr }}-observation_code_text">
-                        <small class="form-text text-muted">{{ "LOINC-coded list for FHIR compliance"|xlt }}</small>
+                        <small class="form-text text-body-secondary">{{ "LOINC-coded list for FHIR compliance"|xlt }}</small>
                     </div>
 
                     <div class="mb-3 col-md-3">

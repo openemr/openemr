@@ -204,10 +204,10 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
 
                 <div class="card-body">
                     <?php if (empty($info)) : ?>
-                        <div class="text-muted"><?php echo xlt("No SDOH assessments found."); ?></div>
+                        <div class="text-body-secondary"><?php echo xlt("No SDOH assessments found."); ?></div>
                     <?php else : ?>
                         <!-- Meta line -->
-                        <div class="mb-2 small text-muted">
+                        <div class="mb-2 small text-body-secondary">
                             <?php echo xlt("Assessment Date"); ?>:
                             <?php echo text($assessment_date ?: '—'); ?> &nbsp;|&nbsp;
                             <?php echo xlt("Tool"); ?>:
@@ -263,12 +263,12 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
                                         <td><?php echo xlt(ucwords(str_replace('_', ' ', $col))); ?></td>
                                         <td>
                                             <?php if ($val === '' || $val === null) : ?>
-                                                <span class="text-muted"><?php echo text($valText); ?></span>
+                                                <span class="text-body-secondary"><?php echo text($valText); ?></span>
                                             <?php else : ?>
                                                 <span class="badge <?php echo attr($badge); ?>"><?php echo text($valText); ?></span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><?php echo $notes !== '' ? text(hs_clip($notes, 90)) : "<span class='text-muted'>" . xlt("None") . "</span>"; ?></td>
+                                        <td><?php echo $notes !== '' ? text(hs_clip($notes, 90)) : "<span class='text-body-secondary'>" . xlt("None") . "</span>"; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

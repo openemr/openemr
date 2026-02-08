@@ -2311,7 +2311,7 @@ $(function () {
                     }
 
                   });
-                  $('[title]').tooltip();
+                  document.querySelectorAll('[title]').forEach(function(el) { new bootstrap.Tooltip(el); });
                   $('#form_PCP,#form_rDOC').on('change', function() {
                                                    update_DOCS();
                                                    });

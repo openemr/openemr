@@ -1392,7 +1392,7 @@ foreach (explode(',', $given) as $item) {
         });
     });
 
-    $('[title]').tooltip();
+    document.querySelectorAll('[title]').forEach(function(el) { new bootstrap.Tooltip(el); });
 
 </script>
 </body>

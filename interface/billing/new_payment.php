@@ -314,7 +314,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
             </div>
         </div>
         <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-2">
-            <button class="navbar-toggler icon-bar" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
+            <button class="navbar-toggler" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">

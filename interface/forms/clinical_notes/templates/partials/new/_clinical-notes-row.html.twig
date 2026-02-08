@@ -56,7 +56,7 @@
                     <div class="hide-author">
                         <div class="col-12">
                             <label class="h6">{{ 'Author'|xlt }}:</label>
-                            <span class="text-muted">{{ obj.full_name|text }}</span>
+                            <span class="text-body-secondary">{{ obj.full_name|text }}</span>
                         </div>
                         <!-- Last edited date -->
                         <div class="col-12">
@@ -88,7 +88,7 @@
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                <span class="text-muted">{{ "No documents linked"|xlt }}</span>
+                                <span class="text-body-secondary">{{ "No documents linked"|xlt }}</span>
                             {% endif %}
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-primary btn-add-documents" data-note-index="{{ index|attr }}">
@@ -114,7 +114,7 @@
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                <span class="text-muted">{{ "No results linked"|xlt }}</span>
+                                <span class="text-body-secondary">{{ "No results linked"|xlt }}</span>
                             {% endif %}
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-info btn-add-results" data-note-index="{{ index|attr }}">
@@ -167,7 +167,7 @@
                 <i class="fa fa-spinner fa-spin"></i> {{ 'Loading documents...'|xlt }}
             </div>
             <div id="document-results"></div>
-            <div id="document-no-results" class="text-center text-muted p-3 d-none">
+            <div id="document-no-results" class="text-center text-body-secondary p-3 d-none">
                 <i class="fa fa-folder-open"></i><br>{{ 'No documents found matching your criteria.'|xlt }}
             </div>
             <div id="document-error" class="text-center text-danger p-3 d-none"></div>
@@ -215,7 +215,7 @@
                 <i class="fa fa-spinner fa-spin"></i> {{ 'Loading procedure results...'|xlt }}
             </div>
             <div id="procedure-results"></div>
-            <div id="results-no-results" class="text-center text-muted p-3 d-none">
+            <div id="results-no-results" class="text-center text-body-secondary p-3 d-none">
                 <i class="fa fa-flask"></i><br>{{ 'No procedure results found matching your criteria.'|xlt }}
             </div>
             <div id="results-error" class="text-center text-danger p-3 d-none"></div>
@@ -227,7 +227,7 @@
 <template id="document-item-template">
     <div class="document-item border rounded p-2 mb-2" style="cursor: pointer;">
         <div class="document-name fw-bold"></div>
-        <div class="document-meta small text-muted">
+        <div class="document-meta small text-body-secondary">
             <span class="badge bg-secondary me-1 document-type-badge"></span>
             <span class="document-size me-2"></span>
             <span class="document-date"></span>
@@ -243,7 +243,7 @@
             <div class="result-status badge"></div>
         </div>
         <div class="result-value text-primary"></div>
-        <div class="result-meta small text-muted">
+        <div class="result-meta small text-body-secondary">
             <span class="result-date"></span>
         </div>
     </div>
@@ -267,7 +267,7 @@
 
 <!-- Empty State Template -->
 <template id="empty-state-template">
-    <span class="text-muted empty-state-text"></span>
+    <span class="text-body-secondary empty-state-text"></span>
 </template>
 
 <style>

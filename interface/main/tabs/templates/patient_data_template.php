@@ -71,26 +71,26 @@ switch ($search_any_type) {
                         $wrapperElementClass = 'btn-group btn-group-sm mb-2';
                         $closeElement = '';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         $pubpidElement = 'span';
                         break;
                     case 'text-large':
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'h3';
                         $wrapperElementClass = 'd-inline';
                         $closeElement = 'small';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted fa-xs';
+                        $closeIconClass = 'text-body-secondary fa-xs';
                         $pubpidElement = 'small';
                         break;
                     default:
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'div';
                         $wrapperElementClass = 'd-inline';
                         $pubpidElement = 'span';
                         $closeElement = 'span';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         break;
                 endswitch;
                 echo "<$wrapperElement class=\"$wrapperElementClass\">";
@@ -128,7 +128,7 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Select Encounter"); ?>&nbsp;
-                    (<span data-bind="text:encounterArray().length"></span>)<span class="caret"></span></button>
+                    (<span data-bind="text:encounterArray().length"></span>)</button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
                     <li class="d-inline-flex">
@@ -188,7 +188,6 @@ switch ($search_any_type) {
                     aria-expanded="true">
                     <?php echo xlt("Portal"); ?>&nbsp;
                     <span class="badge bg-danger" data-bind="text: portalAlerts()"></span>
-                    <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="portalMsgAlerts">
                     <li>
@@ -222,7 +221,6 @@ switch ($search_any_type) {
                     aria-expanded="true">
                     <?php echo xlt("Services"); ?>&nbsp;
                     <span class="badge bg-danger" data-bind="text: serviceAlerts()"></span>
-                    <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="servicesMsgAlerts">
                     <li>

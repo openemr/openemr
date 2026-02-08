@@ -560,7 +560,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
         max-width: 50% !important;
       }
 
-      .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+      .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
         color: #dc3545;
         font-size: 1rem;
         line-height: revert !important;

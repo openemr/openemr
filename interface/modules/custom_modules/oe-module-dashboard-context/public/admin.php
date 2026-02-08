@@ -159,7 +159,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                     <i class="fa fa-sliders-h me-2"></i>
                     <?php echo xlt('Dashboard Context Manager'); ?>
                 </h4>
-                <p class="text-muted"><?php echo xlt('Manage care contexts and control which dashboard widgets are available to users.'); ?></p>
+                <p class="text-body-secondary"><?php echo xlt('Manage care contexts and control which dashboard widgets are available to users.'); ?></p>
             </div>
         </div>
 
@@ -426,7 +426,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                         $('<span>').text(ctx.context_name),
                                         $('<span>', {class: 'badge ' + badgeClass}).text(badgeText)
                                     ),
-                                    $('<p>', {class: 'card-text small text-muted'}).text(ctx.description || ''),
+                                    $('<p>', {class: 'card-text small text-body-secondary'}).text(ctx.description || ''),
                                     $('<p>', {class: 'card-text small'}).append(
                                         $('<strong>').text(self.xl.key + ': '),
                                         $('<code>').text(ctx.context_key)
@@ -496,7 +496,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             $('<div>', {class: 'dialog-body'}).append(
                                 $('<input>', {type: 'hidden', id: 'contextId', value: isEdit ? contextData.id : ''}),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextName + ' *'),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextName + ' *'),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -505,7 +505,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     })
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextKey),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextKey),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -516,7 +516,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     })
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.description),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.description),
                                     $('<textarea>', {
                                         class: 'form-control',
                                         id: 'contextDescription',
@@ -524,7 +524,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     }).text(isEdit ? (contextData.description || '') : '')
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.widgetConfig),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.widgetConfig),
                                     $widgetGrid
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -686,7 +686,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             $('<td>').append(
                                 $('<strong>').text(user.name),
                                 $('<br>'),
-                                $('<small>', {class: 'text-muted'}).text(user.username)
+                                $('<small>', {class: 'text-body-secondary'}).text(user.username)
                             ),
                             $('<td>').text(user.facility_name || '-'),
                             $('<td>').text(self.config.userTypes[user.user_type] || user.user_type || '-'),
@@ -740,7 +740,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                 $('<input>', {type: 'hidden', id: 'assignUserId', value: userId}),
                                 $('<p>').append($('<strong>').text(self.xl.user + ': '), $('<span>').text(userName)),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.context),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.context),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -820,7 +820,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     $('<span>').text(selected.length + ' ' + self.xl.usersSelected)
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextToAssign),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextToAssign),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -997,7 +997,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
 
                     if (stats.length === 0) {
                         $container.append($('<div>', {class: 'col-12'}).append(
-                            $('<p>', {class: 'text-muted'}).text(self.xl.noData)
+                            $('<p>', {class: 'text-body-secondary'}).text(self.xl.noData)
                         ));
                         return;
                     }

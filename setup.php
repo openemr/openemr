@@ -1905,18 +1905,20 @@ BOT;
     </div><!--end of container div -->
     <?php $installer->setupHelpModal();?>
     <script>
-        //jquery-ui tooltip
+        //bootstrap tooltip
         $(function () {
-            $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
-                show: {
-                    delay: 700,
-                    duration: 0
-                }
+            document.querySelectorAll('.icon-tooltip').forEach(function(el) {
+                el.setAttribute('title', 'Click to see more information');
+                new bootstrap.Tooltip(el, {delay: {show: 700, hide: 0}});
             });
-            $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
-            $('.2fa-section-tooltip').prop( "title", "Two factor authentication prevents unauthorized access to openEMR thus improves security. It is optional. More information is available in the help file under Step 2 Database and OpenEMR Initial User Setup Details.").tooltip();
-
-
+            document.querySelectorAll('.enter-details-tooltip').forEach(function(el) {
+                el.setAttribute('title', 'Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section');
+                new bootstrap.Tooltip(el);
+            });
+            document.querySelectorAll('.2fa-section-tooltip').forEach(function(el) {
+                el.setAttribute('title', 'Two factor authentication prevents unauthorized access to openEMR thus improves security. It is optional. More information is available in the help file under Step 2 Database and OpenEMR Initial User Setup Details.');
+                new bootstrap.Tooltip(el);
+            });
         });
     </script>
     <script>

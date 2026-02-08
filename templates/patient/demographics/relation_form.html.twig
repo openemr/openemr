@@ -101,14 +101,14 @@
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ms-4 display_relations_relationship" style="vertical-align: 0.1rem;">
+                                <small class="text-body-secondary ms-4 display_relations_relationship" style="vertical-align: 0.1rem;">
                                     {{ list_relationships[relatedPerson.relationship]|text }}
                                     {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
                                 </small>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted display_relations_dob" style="vertical-align: 0.1rem;">{% if relatedPerson.birth_date %}{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}{% endif %}</small>
+                                <small class="text-body-secondary display_relations_dob" style="vertical-align: 0.1rem;">{% if relatedPerson.birth_date %}{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}{% endif %}</small>
                             </div>
                         </div>
                         <div>
@@ -183,11 +183,11 @@
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ms-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-body-secondary ms-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ms-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-body-secondary ms-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
                             </div>
                         </div>
 
@@ -628,7 +628,7 @@
 
                     if (person.birth_date) {
                         const dobSpan = document.createElement('small');
-                        dobSpan.className = 'text-muted';
+                        dobSpan.className = 'text-body-secondary';
                         dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
                         nameDisplay.appendChild(dobSpan);
                     }

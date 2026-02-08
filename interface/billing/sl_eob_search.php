@@ -1249,7 +1249,7 @@ if (
                     <span class="visually-hidden"><?php echo xlt('Loading...'); ?></span>
                 </div>
                 <h5 class="mt-3"><?php echo xlt('Searching...'); ?></h5>
-                <p class="text-muted"><?php echo xlt('Please wait while we search for invoices.'); ?></p>
+                <p class="text-body-secondary"><?php echo xlt('Please wait while we search for invoices.'); ?></p>
             </div>
         </div>
     </div>
@@ -1341,7 +1341,7 @@ if (
     }
     ?>
     $(function () {
-        $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+        (function() { var el = document.getElementById('select-method-tooltip'); if (el) { el.setAttribute('title', <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>); el.setAttribute('data-bs-toggle', 'tooltip'); el.setAttribute('data-bs-placement', 'bottom'); new bootstrap.Tooltip(el); } })();
     });
 </script>
 <?php

@@ -8,7 +8,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
-// Bootstrap 4 to Bootstrap 5 CSS Variable Compatibility
+// Bootstrap 5 CSS Variable Compatibility
 // Bootstrap 5 renamed CSS custom properties with a --bs- prefix.
 // This provides backwards compatibility for existing code using the old variable names.
 :root {
@@ -41,6 +41,34 @@
 .dropdown-menu-end {
   right: 0 !important;
   left: auto !important;
+}
+
+/* BS5: .form-inline was removed in Bootstrap 5 - add backwards compatibility shim */
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+
+  .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
+
+  .form-select {
+    width: auto;
+  }
+
+  .input-group {
+    width: auto;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+  }
 }
 
 /* BS5: font-weight-* classes renamed to fw-* - add backwards compatibility */

@@ -89,7 +89,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             }
 
             retrieveMsgs();
-            $('#received').tab('show');
+            var receivedTabEl = document.getElementById('received'); if (receivedTabEl) new bootstrap.Tab(receivedTabEl).show();
         });
 
         <?php
@@ -860,7 +860,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <?php if ($clientApp->verifyAcl('patients', 'appt')) { ?>
                         <div class="nav-item dropdown ms-auto">
                             <button class="btn btn-lg btn-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                                <?php echo xlt('Account Actions'); ?><span class="caret"></span>
+                                <?php echo xlt('Account Actions'); ?>
                             </button>
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>

@@ -183,9 +183,10 @@ $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
 // functions to view and pop out documents as needed.
 $(function () {
-    $("img[id^='icon_objTreeMenu_']").tooltip({
-        items: $("img[src*='file3.png']"),
-        content: {xlj t="Double Click on this icon to pop up document in a new viewer."}
+    document.querySelectorAll("img[id^='icon_objTreeMenu_'][src*='file3.png']").forEach(function(el) {
+        new bootstrap.Tooltip(el, {
+            title: {xlj t="Double Click on this icon to pop up document in a new viewer."}
+        });
     });
 
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {

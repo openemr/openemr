@@ -93,9 +93,7 @@ if (
                 text-align: left !important;
             }
 
-            .icon-bar {
-                background-color: var(--danger);
-            }
+
         }
     </style>
 
@@ -604,13 +602,13 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($prev >= 0) {
                             $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
 
                         if ($next < $total) {
                             $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
                         // Display the Messages table header.
                         echo "
@@ -865,9 +863,22 @@ if (!empty($_REQUEST['go'])) { ?>
             });
         });
         $(function () {
-            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+            (function() {
+                var tooltips = [
+                    {id: 'see-all-tooltip', title: <?php echo xlj('Click to show messages for all users'); ?>},
+                    {id: 'just-mine-tooltip', title: <?php echo xlj('Click to show messages for only the current user'); ?>},
+                    {id: 'open-sms-tooltip', title: <?php echo xlj('Click to open SMS for patient'); ?>}
+                ];
+                tooltips.forEach(function(t) {
+                    var el = document.getElementById(t.id);
+                    if (el) {
+                        el.setAttribute('title', t.title);
+                        el.setAttribute('data-bs-toggle', 'tooltip');
+                        el.setAttribute('data-bs-placement', 'bottom');
+                        new bootstrap.Tooltip(el);
+                    }
+                });
+            })();
         });
         $(function () {
             var f = $("#smsForm");

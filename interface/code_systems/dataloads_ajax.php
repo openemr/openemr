@@ -223,11 +223,22 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
                         });
                     });
                     // Initial tooltip
-                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-
-                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-
-                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+                    (function() {
+                        var tooltipData = [
+                            {id: dbName + '_unsupportedmsg', title: "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>"},
+                            {id: dbName + '_dirmsg', title: "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase()},
+                            {id: dbName + '_msg', title: "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase()}
+                        ];
+                        tooltipData.forEach(function(t) {
+                            var el = document.getElementById(t.id);
+                            if (el) {
+                                el.setAttribute('title', t.title);
+                                el.setAttribute('data-bs-toggle', 'tooltip');
+                                el.setAttribute('data-bs-placement', 'bottom');
+                                new bootstrap.Tooltip(el);
+                            }
+                        });
+                    })();
 
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {

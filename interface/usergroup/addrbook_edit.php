@@ -87,7 +87,7 @@ function invalue($name)
     margin: 0 0 5px 0;
     color: #333;
 }
-.npi-result-item .text-muted {
+.npi-result-item .text-body-secondary {
     font-size: 0.85em;
 }
 .npi-loading {
@@ -250,7 +250,7 @@ function invalue($name)
 
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
-                <div class="text-muted">
+                <div class="text-body-secondary">
                     <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
                     ${jsText(taxonomy) ? `<strong>${jsText(xl('Specialty'))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
                     ${jsText(addr) ? `<strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
@@ -310,7 +310,7 @@ function invalue($name)
 
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
-                <div class="text-muted">
+                <div class="text-body-secondary">
                     <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
                     ${jsText(taxonomy) ? `<strong>${jsText(xl(Specialty))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
                     ${jsText(addr)} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''

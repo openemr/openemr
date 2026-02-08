@@ -128,9 +128,10 @@ $msgApp = new ChatController();
                 restrict: 'A',
                 link: function (scope, element, attrs) {
                     $(element).hover(function () {
-                        $(element).tooltip('show');
+                        bootstrap.Tooltip.getOrCreateInstance(element[0]).show();
                     }, function () {
-                        $(element).tooltip('hide');
+                        var inst = bootstrap.Tooltip.getInstance(element[0]);
+                        if (inst) inst.hide();
                     });
                 }
             };

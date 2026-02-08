@@ -114,7 +114,7 @@
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <div class="observation-meta d-flex flex-wrap gap-3 text-muted small">
+                                        <div class="observation-meta d-flex flex-wrap gap-3 text-body-secondary small">
                                             <span class="me-1">
                                                 <strong>{{ "Observation Date"|xlt }}:</strong>
                                                 {{ observation.date|oeFormatDateTime }}
@@ -168,7 +168,7 @@
                                                     {% if observation.ob_value %}
                                                         <div class="col-md-4">
                                                             <div class="detail-item bg-light border rounded p-2">
-                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                <div class="detail-label small text-body-secondary text-uppercase">
                                                                     {{ "Primary Value"|xlt }}
                                                                 </div>
                                                                 <div class="detail-value fw-bold">
@@ -184,7 +184,7 @@
                                                     {% if observation.code_type %}
                                                         <div class="col-md-4">
                                                             <div class="detail-item bg-light border rounded p-2">
-                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                <div class="detail-label small text-body-secondary text-uppercase">
                                                                     {{ "Code Type"|xlt }}
                                                                 </div>
                                                                 <div class="detail-value fw-bold">
@@ -198,7 +198,7 @@
 {#                                                    {% if observation.date_end %}#}
 {#                                                        <div class="col-md-4">#}
 {#                                                            <div class="detail-item bg-light border rounded p-2">#}
-{#                                                                <div class="detail-label small text-muted text-uppercase">#}
+{#                                                                <div class="detail-label small text-body-secondary text-uppercase">#}
 {#                                                                    {{ "End Date"|xlt }}#}
 {#                                                                </div>#}
 {#                                                                <div class="detail-value fw-bold">#}
@@ -213,7 +213,7 @@
                                                     {% if observation.observation %}
                                                         <div class="col-12 mt-2">
                                                             <div class="detail-item bg-light border rounded p-2">
-                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                <div class="detail-label small text-body-secondary text-uppercase">
                                                                     {{ "Comments"|xlt }}
                                                                 </div>
                                                                 <div class="detail-value">
@@ -232,16 +232,16 @@
                                                     <div class="questionnaire-name small fw-bold text-success mb-1">
                                                         <i class="fa fa-clipboard-list"></i> {{ "Linked Questionnaire"|xlt }}
                                                     </div>
-                                                    <div class="questionnaire-date text-muted small">
+                                                    <div class="questionnaire-date text-body-secondary small">
                                                         {{ observation.questionnaire_name|text }}
                                                     </div>
                                                 </div>
                                             {% else %}
                                                 <div class="questionnaire-info bg-light border rounded p-2 text-center">
-                                                    <div class="questionnaire-name small text-muted mb-1">
+                                                    <div class="questionnaire-name small text-body-secondary mb-1">
                                                         <i class="fa fa-clipboard-list"></i> {{ "No Questionnaire"|xlt }}
                                                     </div>
-                                                    <div class="questionnaire-date text-muted small">
+                                                    <div class="questionnaire-date text-body-secondary small">
                                                         {{ "Not linked"|xlt }}
                                                     </div>
                                                 </div>
@@ -251,7 +251,7 @@
                                         <div class="col-md-2">
                                             {% set subObservations = observation.sub_observations %}
                                             <div class="sub-observations bg-light border rounded p-2">
-                                                <div class="sub-obs-header small fw-bold text-muted text-uppercase mb-2">
+                                                <div class="sub-obs-header small fw-bold text-body-secondary text-uppercase mb-2">
                                                     {{ "Sub-observations"|xlt }} ({{ subObservations|length }})
                                                 </div>
                                                 {% if subObservations|length > 0 %}
@@ -265,13 +265,13 @@
                                                             </div>
                                                         {% endfor %}
                                                         {% if subObservations|length > 3 %}
-                                                            <div class="text-muted small">
+                                                            <div class="text-body-secondary small">
                                                                 {{ subObservations|length - 3 }} {{ "more..."|xlt }}
                                                             </div>
                                                         {% endif %}
                                                     </div>
                                                 {% else %}
-                                                    <div class="text-muted small text-center">
+                                                    <div class="text-body-secondary small text-center">
                                                         {{ "None"|xlt }}
                                                     </div>
                                                 {% endif %}
@@ -284,11 +284,11 @@
                     {% else %}
                         {# Empty State #}
                         <div class="empty-state text-center py-5">
-                            <div class="empty-state-icon text-muted mb-3" style="font-size: 48px;">
+                            <div class="empty-state-icon text-body-secondary mb-3" style="font-size: 48px;">
                                 <i class="fa fa-clipboard-list"></i>
                             </div>
-                            <h4 class="text-muted mb-3">{{ "No Observations Found"|xlt }}</h4>
-                            <p class="text-muted mb-4">
+                            <h4 class="text-body-secondary mb-3">{{ "No Observations Found"|xlt }}</h4>
+                            <p class="text-body-secondary mb-4">
                                 {{ "There are no observations recorded for this encounter yet."|xlt }}
                             </p>
                             <a href="{{ webroot }}/interface/forms/observation/new.php?pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"

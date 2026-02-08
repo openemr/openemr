@@ -221,7 +221,7 @@ function adminSqlQuery($statement, $link)
             });
         });
         $(function () {
-            $('[data-bs-toggle="tooltip"]').tooltip();
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) { new bootstrap.Tooltip(el); });
         });
         // Jquery draggable
         $(".modal-dialog").addClass('drag-action');

@@ -168,7 +168,7 @@ function twSetup(tabsid) {
 // This may be useful as an iframe's name so it can later call twCloseTab().
 
 function activateTab(tab){
-  $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+  var tabTriggerEl = document.querySelector('.nav-tabs a[href="#' + tab + '"]'); if (tabTriggerEl) new bootstrap.Tab(tabTriggerEl).show();
 };
 
 function nextPanelId(tabsid){

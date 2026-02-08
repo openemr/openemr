@@ -96,7 +96,7 @@ const ContextAdmin = {
                                 ${this.escapeHtml(ctx.context_name)}
                                 <span class="badge ${badgeClass} float-end">${badgeText}</span>
                             </h6>
-                            <p class="card-text small text-muted">${this.escapeHtml(ctx.description || '')}</p>
+                            <p class="card-text small text-body-secondary">${this.escapeHtml(ctx.description || '')}</p>
                             <p class="card-text small"><strong>Key:</strong> ${this.escapeHtml(ctx.context_key)}</p>
                             ${!isSystem ? `
                                 <div class="btn-group btn-group-sm">
@@ -277,7 +277,7 @@ const ContextAdmin = {
             $tbody.append(`
                 <tr class="${isLocked ? 'user-row locked' : 'user-row'}">
                     <td><input type="checkbox" class="user-select" value="${user.id}"></td>
-                    <td>${this.escapeHtml(user.name)} <small class="text-muted">(${this.escapeHtml(user.username)})</small></td>
+                    <td>${this.escapeHtml(user.name)} <small class="text-body-secondary">(${this.escapeHtml(user.username)})</small></td>
                     <td>${this.escapeHtml(user.facility_name || '-')}</td>
                     <td>${this.escapeHtml(this.config.userTypes[user.user_type] || user.user_type || '-')}</td>
                     <td>${this.escapeHtml(contextLabel)}</td>

@@ -897,48 +897,55 @@ $(function () {
 });
 
 $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) { new bootstrap.Tooltip(el); });
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
-    $('body').popover({
-        sanitize: false,
-        title: function () {
-            return this.innerHTML;
-        },
-        content: function () {
-            let el = this;
-            if (typeof el.dataset == 'undefined') {
-                return xl("Report Unavailable");
-            }
-            const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
-                encid: el.dataset.formenc,
-                formid: el.dataset.formid,
-                formname: el.dataset.formdir,
-                ptid: el.dataset.formpid
+    // Initialize popovers on each PopOverReport element directly (BS5 removed selector option)
+    function initPopOverReports() {
+        document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+            // Skip if already initialized
+            if (bootstrap.Popover.getInstance(el)) return;
+            new bootstrap.Popover(el, {
+                sanitize: false,
+                title: function () {
+                    return this.innerHTML;
+                },
+                content: function () {
+                    if (typeof this.dataset == 'undefined') {
+                        return xl("Report Unavailable");
+                    }
+                    const params = new URLSearchParams({
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                        encid: this.dataset.formenc,
+                        formid: this.dataset.formid,
+                        formname: this.dataset.formdir,
+                        ptid: this.dataset.formpid
+                    });
+                    let url = "encounters_ajax.php?" + params;
+                    let fetchedReport;
+                    $.ajax({
+                        url: url,
+                        method: "GET",
+                        async: false,
+                        beforeSend: top.restoreSession,
+                        success: function (report) {
+                            fetchedReport = report;
+                        }
+                    });
+                    return fetchedReport;
+                },
+                boundary: "window",
+                animation: false,
+                placement: "auto",
+                trigger: "hover focus",
+                html: true,
+                delay: {"show": 300, "hide": 30000},
+                template: '<div class="container"><div class="popover" style="max-width:fit-content;max-height:fit-content;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
             });
-            let url = "encounters_ajax.php?" + params;
-            let fetchedReport;
-            $.ajax({
-                url: url,
-                method: "GET",
-                async: false,
-                beforeSend: top.restoreSession,
-                success: function (report) {
-                    fetchedReport = report;
-                }
-            });
-            return fetchedReport;
-        },
-        selector: '[data-bs-toggle="PopOverReport"]',
-        boundary: "window",
-        animation: false,
-        placement: "auto",
-        trigger: "hover focus",
-        html: true,
-        delay: {"show": 300, "hide": 30000},
-        template: '<div class="container"><div class="popover" style="max-width:fit-content;max-height:fit-content;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
-    });
+        });
+    }
+    initPopOverReports();
+
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
@@ -952,7 +959,8 @@ $(function () {
             if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
                 continue;
             }
-            $(elements[i]).popover('hide');
+            var popInst = bootstrap.Popover.getInstance(elements[i]);
+            if (popInst) popInst.hide();
         }
     });
 
@@ -960,10 +968,16 @@ $(function () {
 
         // set event listeners
         $('.popover').click(function (e) {
-            $('[data-bs-toggle="PopOverReport"]').popover('hide');
+            document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+                var popInst = bootstrap.Popover.getInstance(el);
+                if (popInst) popInst.hide();
+            });
         }).mouseleave(function (e) {
             timeoutObj = setTimeout(function () {
-                $('[data-bs-toggle="PopOverReport"]').popover('hide');
+                document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+                    var popInst = bootstrap.Popover.getInstance(el);
+                    if (popInst) popInst.hide();
+                });
             }, 100);
         });
     });

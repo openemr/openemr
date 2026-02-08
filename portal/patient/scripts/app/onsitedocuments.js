@@ -521,10 +521,10 @@ var page = {
                 }
             });
             $('.navCollapse .dropdown-menu>a').on('click', function () {
-                $('.navbar-collapse').collapse('hide');
+                var navCol = document.querySelector('.navbar-collapse'); var colInst = bootstrap.Collapse.getInstance(navCol); if (colInst) colInst.hide();
             });
             $('.navCollapse li.nav-item>a').on('click', function () {
-                $('.navbar-collapse').collapse('hide');
+                var navCol = document.querySelector('.navbar-collapse'); var colInst = bootstrap.Collapse.getInstance(navCol); if (colInst) colInst.hide();
             });
             if (page.version === 'Legacy' && isPortal && !page.isLocked) {
                 alert(page.onsiteDocument.get('docType') + " is available for one last edit." + "\n" +

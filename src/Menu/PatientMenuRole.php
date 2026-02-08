@@ -173,7 +173,7 @@ class PatientMenuRole extends MenuRole
     }
 
     /**
-     * displays a bootstrap4 horizontal nav bar
+     * displays a bootstrap horizontal nav bar
      */
 
     public function displayHorizNavBarMenu()
@@ -191,9 +191,9 @@ class PatientMenuRole extends MenuRole
         echo $str_top . "\r\n";
         foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
-                // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
+                // create dropdown if there are children
                 $class = $value->class ?? '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . '</a>';
                 $list .= '<ul class="dropdown-menu">';
                 foreach ($value->children as $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);

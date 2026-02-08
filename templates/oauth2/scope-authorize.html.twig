@@ -40,7 +40,7 @@
                                     {% block resourcePermissions %}
                                         {% if structuredScopes is defined and structuredScopes|length > 0 %}
                                             <h6 class="mb-3">{{ "Resource Permissions"|xlt }}</h6>
-                                            <p class="text-muted small mb-3">
+                                            <p class="text-body-secondary small mb-3">
                                                 {{ "Select the data and actions this application can access. You can customize permissions for each resource type."|xlt }}
                                             </p>
 
@@ -71,7 +71,7 @@
                                                                         <div>
                                                                             <strong class="text-dark">{{ resource.name|text }}</strong>
                                                                             <br>
-                                                                            <small class="text-muted">{{ resource.description|text }}</small>
+                                                                            <small class="text-body-secondary">{{ resource.description|text }}</small>
                                                                         </div>
                                                                         <span class="badge bg-info text-dark ms-2">
                                                                             {{ resource.context|upper|text }}
@@ -104,7 +104,7 @@
 
                                                                 {# Action permissions grid #}
                                                                 <div class="mb-3">
-                                                                    <label class="fw-bold small text-muted mb-2">{{ "Actions this application can perform:"|xlt }}</label>
+                                                                    <label class="fw-bold small text-body-secondary mb-2">{{ "Actions this application can perform:"|xlt }}</label>
                                                                     <div class="d-flex flex-wrap gap-2 action-permissions">
                                                                         {% for actionKey, action in resource.actions %}
                                                                             {% if action.enabled %}
@@ -139,7 +139,7 @@
                                                                 {% if resource.hasRestrictions and resource.restrictions|length > 0 %}
                                                                     <hr class="my-2">
                                                                     <div class="restrictions-section">
-                                                                        <label class="fw-bold small text-muted mb-2">
+                                                                        <label class="fw-bold small text-body-secondary mb-2">
                                                                             {% if resource.isUnrestricted %}
                                                                                 {{ "Select specific data categories to authorize:"|xlt }}
                                                                             {% else %}
@@ -154,7 +154,7 @@
                                                                                 </small>
                                                                             </div>
                                                                         {% else %}
-                                                                            <p class="text-muted small mb-2">
+                                                                            <p class="text-body-secondary small mb-2">
                                                                                 {{ "Uncheck categories to deny access to that data"|xlt }}
                                                                             </p>
                                                                         {% endif %}
@@ -218,18 +218,18 @@
                                     <div class="card-body pt-2">
                                         <h5 class="card-title text-sm-center mb-3">{{ "Identity Information Requested"|xlt }}</h5>
                                         <hr />
-                                        <p class="text-muted small">{{ "This application is requesting access to the following information about you"|xlt }}</p>
+                                        <p class="text-body-secondary small">{{ "This application is requesting access to the following information about you"|xlt }}</p>
                                         <ul class="ps-3">
                                             {% for key, value in claims %}
                                                 {% if key == 'fhirUser' %}
                                                     <li class='mb-2'>
                                                         <strong class="d-block">{{ "Current User Information"|xlt }}</strong>
-                                                        <span class="text-muted small">{{ userAccount.firstName|default("")|text }} {{ userAccount.lastName|default("")|text }}</span>
+                                                        <span class="text-body-secondary small">{{ userAccount.firstName|default("")|text }} {{ userAccount.lastName|default("")|text }}</span>
                                                     </li>
                                                 {% else %}
                                                     <li class='mb-2'>
                                                         <strong>{{ key|text }}:</strong>
-                                                        <span class="text-muted">{{ value|text }}</span>
+                                                        <span class="text-body-secondary">{{ value|text }}</span>
                                                     </li>
                                                 {% endif %}
                                             {% endfor %}
@@ -267,7 +267,7 @@
                                             {{ "Allow Offline Access"|xlt }}
                                         </label>
                                     </div>
-                                    <small class="text-muted">
+                                    <small class="text-body-secondary">
                                         {{ "If you do not want to allow this application to have offline access to your data, uncheck this option"|xlt  }}
                                     </small>
                                 </div>

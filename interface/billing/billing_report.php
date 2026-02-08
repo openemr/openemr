@@ -756,7 +756,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <div class="collapse navbar-collapse clearfix" id="billing-nav-detail" role="group">
                     <div class="btn-group dropdown">
                         <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_x12_support" title=""><?php echo xla('X12 OPTIONS') ?>
-                            <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <?php if (file_exists($EXPORT_INC)) { ?>
@@ -795,7 +794,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     </div>
                     <div class="btn-group dropdown">
                         <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_process_hcfa_support" title=""><?php echo xlt('HCFA FORM') ?>
-                            <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-item">
@@ -820,7 +818,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     <?php if ($GLOBALS['ub04_support']) { ?>
                     <div class="btn-group dropdown">
                         <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_process_ub04_support" title=""><?php echo xlt('UB04 FORM') ?>
-                            <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-item">
@@ -1466,7 +1463,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             // jquery-ui tooltip converted to bootstrap tooltip
-            $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
+            (function() { var el = document.getElementById('update-tooltip'); if (el) { el.setAttribute('title', <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>); el.setAttribute('data-bs-toggle', 'tooltip'); new bootstrap.Tooltip(el); } })();
         });
     </script>
     <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? '') ?>" />

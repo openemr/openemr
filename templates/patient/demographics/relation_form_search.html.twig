@@ -536,7 +536,7 @@
                         <strong>${escapeHtml(person.first_name)} ${person.middle_name ? escapeHtml(person.middle_name) + ' ' : ''}${escapeHtml(person.last_name)}</strong>
                         ${badges}
                         <br>
-                        <small class="text-muted">
+                        <small class="text-body-secondary">
                             ${person.birth_date ? window.xl('DOB') + ': ' + escapeHtml(person.birth_date) : ''}
                             ${person.gender ? ' | ' + escapeHtml(person.gender) : ''}
                             ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}

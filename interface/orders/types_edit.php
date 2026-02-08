@@ -749,17 +749,27 @@ function recursiveDelete($typeid): void
         </div>
     </div><!--end of container div-->
     <script>
-        //jqury-ui tooltip
+        //bootstrap tooltip
         $(function () {
-            $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip({
-                show: {
-                    delay: 700,
-                    duration: 0
-                }
+            document.querySelectorAll('.icon-tooltip i').forEach(function(el) {
+                el.setAttribute('title', <?php echo xlj('Click to see more information'); ?>);
+                el.setAttribute('data-bs-toggle', 'tooltip');
+                el.setAttribute('data-bs-placement', 'bottom');
+                new bootstrap.Tooltip(el, {delay: {show: 700, hide: 0}});
             });
-            $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip();
+            document.querySelectorAll('.enter-details-tooltip').forEach(function(el) {
+                el.setAttribute('title', <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>);
+                el.setAttribute('data-bs-toggle', 'tooltip');
+                el.setAttribute('data-bs-placement', 'bottom');
+                new bootstrap.Tooltip(el);
+            });
             $('#form_procedure_type').click(function () {
-                $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip();
+                document.querySelectorAll('.enter-details-tooltip').forEach(function(el) {
+                    el.setAttribute('title', <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>);
+                    el.setAttribute('data-bs-toggle', 'tooltip');
+                    el.setAttribute('data-bs-placement', 'bottom');
+                    new bootstrap.Tooltip(el);
+                });
             });
         });
     </script>

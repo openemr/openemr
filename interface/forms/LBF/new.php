@@ -1276,7 +1276,7 @@ if (
                             $titlecols = $CPR;
                             $tmp = '';
                         }
-                        $tmp .= ($frow['uor'] == 2) ? ' required' : ' font-weight-bold';
+                        $tmp .= ($frow['uor'] == 2) ? ' required' : ' fw-bold';
                         if ($graphable) {
                             $tmp .= ' graph';
                         }
@@ -1304,7 +1304,7 @@ if (
 
                     ++$item_count;
 
-                    // This gets a font-weight-bold class so removed strong
+                    // This gets a fw-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);

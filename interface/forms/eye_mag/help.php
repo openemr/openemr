@@ -1569,7 +1569,7 @@ if ($showit == 'ext') {
                                      '#anteriorSegmentAccordion', '#retinaAccordion', '#neuroAccordion'];
 
             $(function () {
-                $('[data-bs-toggle="tooltip"]').tooltip();
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) { new bootstrap.Tooltip(el); });
             });
 
             $('#general_button').click(() => {
