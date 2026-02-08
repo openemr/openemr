@@ -74,7 +74,6 @@ class EncounterccdadispatchController extends AbstractActionController
 
         global $assignedEntity;
         global $representedOrganization;
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -374,7 +373,6 @@ class EncounterccdadispatchController extends AbstractActionController
      */
     public function getConsolidatedQrda3Content($pids = null, $measures = [])
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         try {
             $xmlController = new QrdaReportController();
 
