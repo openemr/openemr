@@ -1366,10 +1366,10 @@ function make_insurance() {
     <td class="text-right">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=text($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
+            name="form_upay[<?=text($enc)?>]"
             id="paying_<?=$idx?>"
             value=""
             onchange="coloring();calctotal()"

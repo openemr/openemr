@@ -109,9 +109,9 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
-            'service_auth' => $_GET['service_auth'],
+            'service_auth' => text($_GET['service_auth']),
             'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session),
+            'csrf_token' => text(CsrfUtils::collectCsrfToken('autologin', $session)),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
