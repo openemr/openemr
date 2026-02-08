@@ -68,7 +68,7 @@ $fres = getLayoutRes($SHORT_FORM);
 <?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <style>
-.mb-3 {
+#DEM .mb-3 {
     margin-bottom: 0.25rem !important;
 }
 </style>
