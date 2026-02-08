@@ -345,7 +345,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         } catch (OAuthServerException $exception) {
             $this->getSystemLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
             throw new HttpException(401, $exception->getMessage(), $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($exception instanceof LogicException) {
                 $this->getSystemLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() LogicException, likely oauth2 public key is missing, corrupted, or misconfigured",
@@ -465,7 +465,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $context = $token['context'] ?? "{}"; // if there is no populated context we just return an empty return
         try {
             return json_decode($context, true);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }

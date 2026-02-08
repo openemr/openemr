@@ -157,7 +157,7 @@ trait BaseTrait
                         $alert = $driver->switchTo()->alert();
                         $alert->accept();
                         return true;
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         return false;
                     }
                 });

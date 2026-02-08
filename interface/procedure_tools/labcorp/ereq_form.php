@@ -768,7 +768,7 @@ STYLES;
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
             [$documentationOf, $form_id, $d->id]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo "Message: " . $e->getMessage();
         echo "";
         echo "getCode(): " . $e->getCode();

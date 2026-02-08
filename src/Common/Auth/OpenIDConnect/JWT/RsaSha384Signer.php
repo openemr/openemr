@@ -110,7 +110,7 @@ class RsaSha384Signer implements Signer
             $key = $key instanceof Key ? $key->contents() : $key;
             try {
                 $jwk = json_decode($key);
-            } catch (\Exception) {
+            } catch (\Throwable) {
                 throw new JWKValidatorException("failed to decode contents of JWKS from key");
             }
         }

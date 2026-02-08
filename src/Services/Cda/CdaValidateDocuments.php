@@ -74,7 +74,7 @@ class CdaValidateDocuments
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
             return [];
         }
@@ -287,7 +287,7 @@ class CdaValidateDocuments
         ];
         try {
             $result = $this->schematronValidateDocument($xml, $type);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $e = $e->getMessage();
             error_log($e);
             $result = [];

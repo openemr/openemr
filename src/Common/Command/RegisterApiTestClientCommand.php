@@ -113,7 +113,7 @@ class RegisterApiTestClientCommand extends Command
                 $symfonyStyler->info("Scopes: " . $info['scope']);
             }
             return Command::SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $symfonyStyler->error("Error creating : " . $e->getMessage());
             $symfonyStyler->error($e->getTraceAsString());
             return Command::FAILURE;

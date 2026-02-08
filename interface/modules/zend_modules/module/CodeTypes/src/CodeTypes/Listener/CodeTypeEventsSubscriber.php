@@ -238,10 +238,10 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                 }
             }
             \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             if (!empty($logger) && is_callable($logger)) {
-                $logger(xl('Failed') . ' - (sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
+                $logger(xl('Failed') . ' - (sql=`"' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . "`)");
             }
             \sqlRollbackTrans();
         }
@@ -269,7 +269,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                 QueryUtils::sqlStatementThrowException($sql, $values);
             }
             \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             \sqlRollbackTrans();
         }

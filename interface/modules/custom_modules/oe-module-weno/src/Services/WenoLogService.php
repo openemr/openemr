@@ -57,7 +57,7 @@ class WenoLogService
         $sql = "INSERT INTO weno_download_log SET value = ?, status = ?, data_in_context = ?";
         try {
             sqlInsert($sql, $bind);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
         return true;

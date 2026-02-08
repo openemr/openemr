@@ -155,7 +155,7 @@ class DataAdapter implements IObservable
                 $this->_dbconn = $this->_driver->Open($this->ConnectionSetting->ConnectionString, $this->ConnectionSetting->DBName, $this->ConnectionSetting->Username, $this->ConnectionSetting->Password, $this->ConnectionSetting->Charset, $this->ConnectionSetting->BootstrapSQL);
 
                 $this->_num_retries = 0;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries++;
@@ -230,7 +230,7 @@ class DataAdapter implements IObservable
         try {
             $rs = $this->_driver->Query($this->_dbconn, $sql);
             $this->_num_retries = 0;
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             // retry one time a communication error occurs
             if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                 $this->_num_retries++;
@@ -286,7 +286,7 @@ class DataAdapter implements IObservable
             try {
                 $result = $this->_driver->Execute($this->_dbconn, $sql);
                 $this->_num_retries = 0;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries++;

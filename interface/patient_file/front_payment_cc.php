@@ -44,7 +44,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['cc_type'] = $r->transactionResponse->accountType;
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         return $ex->getMessage();
     }
 
@@ -91,7 +91,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['cc_type'] = $r['brand'];
         $cc['zip'] = $r->address_zip;
         $ccaudit = json_encode($cc);
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         echo $ex->getMessage();
     }
 
@@ -114,7 +114,7 @@ if ($_GET['mode'] == 'terminal_token') {
     try {
         $connectionToken = ConnectionToken::create();
         echo json_encode(['secret' => $connectionToken->secret], JSON_THROW_ON_ERROR);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
@@ -134,7 +134,7 @@ if ($_GET['mode'] == 'cancel_intent') {
         $rtn = $intent->cancel();
 
         echo json_encode(['status' => (string)$rtn->status]);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -156,7 +156,7 @@ if ($_GET['mode'] == 'terminal_capture') {
         $intent = $intent->capture();
 
         echo json_encode($intent);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
@@ -193,7 +193,7 @@ if ($_GET['mode'] == 'terminal_create') {
                 ]
         ]);
         echo json_encode(['client_secret' => $intent->client_secret], JSON_THROW_ON_ERROR);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }

@@ -57,7 +57,7 @@ $twigVars = [
 $twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     // we want the json to fail
     die(json_encode(['error' => 'Server died']));

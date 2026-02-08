@@ -378,7 +378,7 @@ class AuthorizationController
                 $params['dsi_type'] = $dsiTypeName;
 
                 $clientSaved = true;
-            } catch (Exception $exception) {
+            } catch (\Throwable $exception) {
                 $this->getSystemLogger()->errorLogCaller("Failed to create account Exception: " . $exception->getMessage(), ['trace' => $exception->getMessage()]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
@@ -387,7 +387,7 @@ class AuthorizationController
                 } else {
                     try {
                         $this->rollbackTransaction();
-                    } catch (Exception $exception) {
+                    } catch (\Throwable $exception) {
                         $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
                     }
                 }
@@ -620,7 +620,7 @@ class AuthorizationController
             );
             $httpRequest->getSession()->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
             $httpRequest->getSession()->invalidate();
             $body = $response->getBody();
@@ -791,7 +791,7 @@ class AuthorizationController
             $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
             $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
             $session->set('authRequestSerial', $this->authRequestSerial);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             echo $e;
         }
     }
@@ -944,7 +944,7 @@ class AuthorizationController
         // TODO: @adunsulag do we want to catch exceptions here?
         try {
             $responseBody = $twig->render($template, $vars);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
@@ -1232,7 +1232,7 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() sending server response");
             $this->session->invalidate();
             return $result;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
             $this->session->invalidate();
             $body = $response->getBody();
@@ -1276,7 +1276,7 @@ class AuthorizationController
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
             }
-            catch (Exception $e) {
+            catch (\Throwable $e) {
                 $this->getSystemLogger()->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
@@ -1320,7 +1320,7 @@ class AuthorizationController
             $authRequest->setState($outer['state']);
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             echo $e;
         }
 
@@ -1388,7 +1388,7 @@ class AuthorizationController
             );
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error(
                 "AuthorizationController->oauthAuthorizeToken() Exception occurred",
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -1419,7 +1419,7 @@ class AuthorizationController
                 return false;
             }
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return false;
         }

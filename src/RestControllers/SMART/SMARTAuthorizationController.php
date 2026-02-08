@@ -233,7 +233,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (Exception $error) {
+        } catch (\Throwable $error) {
             // error occurred, no patients found just display the screen with an error message
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
             $errorMessage = "There was a server error in loading patients.  Contact your system administrator for assistance";
@@ -297,7 +297,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (Exception $error) {
+        } catch (\Throwable $error) {
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", [
@@ -338,7 +338,7 @@ class SMARTAuthorizationController
                 ->withStatus(Response::HTTP_OK)
                 ->withHeader('Content-Type', 'text/html; charset=UTF-8')
                 ->withBody((new Psr17Factory())->createStream($twig->render($template, $vars)));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return (new Psr17Factory())->createResponse()
                 ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
@@ -361,7 +361,7 @@ class SMARTAuthorizationController
             }
             $resolvedTemplate = $twig->resolveTemplate($templates);
             $response = new JsonResponse($resolvedTemplate->render($vars));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $response = new JsonResponse($twig->render("error/general_http_error.json.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

@@ -152,7 +152,7 @@ try {
     </div>
 </div>
     <?php }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 }

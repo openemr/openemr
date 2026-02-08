@@ -92,7 +92,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $fileUrl = $cdaResult->getData()[0]['ccda_data'];
                 $event->setFileUrl($fileUrl);
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
@@ -149,7 +149,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             }
             $event->setContent($updatedContent);
             return $event;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }
