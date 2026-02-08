@@ -1226,7 +1226,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
         echo '<script type="text/javascript">';
         echo $twig->render('payments/rainforest.js', [
-            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
         echo '</script>';

@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -202,7 +202,7 @@ function popup_close() {
         // If the delete is confirmed...
         //
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -448,9 +448,9 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session)); ?>'>
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>'>
             <input type="hidden" name="csrf_token_form"
-                value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+                value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <p>
             <?php
             $type = '';

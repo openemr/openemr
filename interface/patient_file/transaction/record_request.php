@@ -15,12 +15,14 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient Records Request", xl("Patient Records Request"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -40,7 +42,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
                     complete: false,
                     mode: "add_force",
                     patient_id: <?php echo js_escape($pid); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             });
         });

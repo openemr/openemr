@@ -19,6 +19,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -26,8 +28,9 @@ if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Superbill", xl("Superbill"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -188,7 +191,7 @@ if (empty($form_patient)) {
 <div id="report_parameters">
 
 <form method="post" name="theform" id='theform' action="custom_report_range.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>

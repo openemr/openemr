@@ -697,7 +697,7 @@ class C_EncounterVisitForm
             'canAddIssues' => AclMain::aclCheckCore('patients', 'med', '', 'write'),
             'issues' => $issuesEnabled && $issuesAuth ? $this->getIssuesForTemplate($pid, $viewmode, $encounter['encounter'] ?? null, $_REQUEST['issue'] ?? null) : [],
             // END AI GENERATED CODE
-            'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(),
+            'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session),
             'bodyClass' => $body_javascript ?? '',
             'oemrUiSettings' => $arrOeUiSettings,
             'formAction' => '/interface/forms/newpatient/save.php',

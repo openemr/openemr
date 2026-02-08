@@ -24,7 +24,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {

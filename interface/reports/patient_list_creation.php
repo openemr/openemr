@@ -27,6 +27,7 @@ require_once "../drugs/drugs.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -34,7 +35,8 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
 }
 
-if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -462,7 +464,7 @@ if ($csv) {
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
             <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
             <div id="report_parameters">
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>

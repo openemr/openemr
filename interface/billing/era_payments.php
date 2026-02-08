@@ -28,6 +28,7 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -70,6 +71,7 @@ function era_payments_callback(array &$out): void
         $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //===============================================================================
 // Validate pending_eraname matches expected pattern (YYYYMMDD_controlnum_payerid)
 // to prevent path traversal. Only alphanumeric and underscores are allowed.
@@ -114,7 +116,7 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
 //===============================================================================
   // Handle X12 835 file upload.
 elseif (!empty($_FILES['form_erafile']['size'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -215,7 +217,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
              deposit_date: deposit_date,
              original: 'original',
              InsId: <?php echo js_escape($hidden_type_code); ?>,
-             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
          window.open('sl_eob_process.php?' + params.toString(), '_blank');
          return false;
@@ -334,7 +336,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <div class="jumbotron py-4">
                             <div class="row h3">

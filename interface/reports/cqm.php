@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
@@ -34,8 +35,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -138,7 +140,7 @@ $formData = [
         'show_help_icon' => $show_help,
         'help_file_name' => $help_file_name
     ]
-    ,'csrf_token' => CsrfUtils::collectCsrfToken()
+    ,'csrf_token' => CsrfUtils::collectCsrfToken(session: $session)
     ,'widthDyn' => '610px'
     ,'is_amc_report' => $is_amc_report
     ,'dis_text' => (!empty($report_id) ? "disabled='disabled'" : "")

@@ -15,6 +15,7 @@
  *
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\PersonService;
@@ -178,6 +179,7 @@ $widgetConstants = [
     'textbox' => 2
 ];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Prepare template variables
 $templateVars = [
     'table_id' => $table_id,
@@ -201,7 +203,7 @@ $templateVars = [
     'target_contact_id' => $targetContactId,
     'webroot' => $GLOBALS['webroot'],
     'srcdir' => $GLOBALS['srcdir'],
-    'csrfToken' => CsrfUtils::collectCsrfToken()
+    'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
 ];
 
 // TODO: @adunsulag - Remove debug log after testing
@@ -215,7 +217,7 @@ $logger->debug("Sending to TWIG", [
                     'owner_table' => $foreign_table,
                     'owner_id' => $foreign_id,
                     'owner_contact_id' => $ownerContactId,
-                    'csrfToken' => CsrfUtils::collectCsrfToken()
+                    'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
                 ]);
 
 // Render Twig template

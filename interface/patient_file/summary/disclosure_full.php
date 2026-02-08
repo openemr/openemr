@@ -36,7 +36,7 @@ $res = sqlQuery("select username from users where username=?", [$session->get("a
 $uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -65,7 +65,7 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
 }
 
 if (isset($_GET['deletelid'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -219,7 +219,7 @@ $(function () {
     var DeleteNote = function (logevent) {
         if (confirm(<?php echo xlj('Are you sure you want to delete this disclosure?'); ?> + "\n " + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
-            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>);
         }
     }
 

@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $line_id = $_REQUEST['lineid'];
@@ -27,6 +28,8 @@ $info_msg = "";
 if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -41,7 +44,7 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -84,7 +87,7 @@ if ($_POST['form_save']) {
     ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <center>
 

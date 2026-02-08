@@ -85,7 +85,7 @@ trait AbstractModuleActionTrait
             return $session->get($param, $default);
         }
 
-        return $session->all(); // TODO do we wish to return array or Session instance?
+        return $session->all(); // TODO @zmilan: do we wish to return array or Session instance?
     }
 
     /**

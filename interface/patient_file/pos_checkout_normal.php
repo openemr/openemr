@@ -215,7 +215,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         function deleteme() {
             const params = new URLSearchParams({
                 billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
             return false;
@@ -580,7 +580,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -964,7 +964,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
             <div class="row">
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                         <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>' />
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>

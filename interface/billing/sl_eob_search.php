@@ -370,7 +370,8 @@ if (
         ) || !empty($_REQUEST['form_portalnotify'])
     ) && $form_cb
 ) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -652,6 +653,8 @@ if (
 ) {
     echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -712,7 +715,7 @@ if (
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         }
@@ -808,7 +811,7 @@ if (
     <div class="row">
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -944,7 +947,7 @@ if (
                     <div class="table-responsive">
                         <?php
                         if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
-                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
                                 CsrfUtils::csrfNotVerified();
                             }
 
@@ -1273,7 +1276,7 @@ if (
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             debug: debug,
             eraname: <?php echo js_escape($eraname); ?>,
             original: 'original',

@@ -79,7 +79,7 @@ $patientName = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session);
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 
 <!DOCTYPE html>

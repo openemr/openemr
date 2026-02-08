@@ -13,10 +13,12 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . "/../../interface/globals.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'counter')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'counter', $session)) {
     CsrfUtils::csrfNotVerified(false);
 }
 

@@ -23,10 +23,12 @@ require_once("../../../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
@@ -101,7 +103,7 @@ body {
 </head>
 <body>
 <form name="search_form" id="search_form" method="post" action="index.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php echo ($parameters['match_name']) ? "CHECKED" : ""; ?>>
@@ -275,7 +277,7 @@ $(function () {
         const dupecount = $(this).attr("dupecount");
         const masterid = $(this).attr("oemrid");
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             dupecount: dupecount,
             masterid: masterid
         });

@@ -14,6 +14,7 @@ require_once("language.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -29,8 +30,9 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['add'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -67,8 +69,8 @@ if (!empty($_POST['add'])) {
 
 ?>
 
-<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <!-- Constant Name -->
     <div class="form-group">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>
