@@ -335,7 +335,7 @@ div.category-display {
 
 /*main.php expandable search*/
 /*bootstrap navbar */
-.navbar-collapse.collapse.in {
+.navbar-collapse.show {
   background-color: lighten($light, 20%) !important;
   color: $body-color !important;
 }

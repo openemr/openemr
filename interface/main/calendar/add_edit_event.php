@@ -1601,64 +1601,80 @@ function isRegularRepeat($repeat)
     */
 ?>
 <div class="bg-body-tertiary px-3 py-4 my-2">
-    <div class="row gx-2 mb-sm-2">
-        <div class='col-sm-2 form-check form-check-inline'>
+    <div class="row gx-2 mb-sm-2 align-items-center">
+        <div class='col-auto form-check'>
             <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />
             <label for="rballday1" class='form-check-label' id='tdallday1'><?php echo xlt('All day event'); ?></label>
         </div>
-        <label class='col-sm col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
-        <input class="col-sm-2 form-control datepicker" type='text' size='10' name='form_date' id='form_date' value='<?php echo attr(oeFormatShortDate($date)) ?>' title='<?php echo xla('event date or starting date'); ?>' onchange='dateChanged()' />
-        <div class='col-sm form-check form-check-inline'>
+        <label class='col-auto col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
+        <div class="col-auto">
+            <input class="form-control datepicker" type='text' size='10' name='form_date' id='form_date' value='<?php echo attr(oeFormatShortDate($date)) ?>' title='<?php echo xla('event date or starting date'); ?>' onchange='dateChanged()' />
+        </div>
+        <div class='col-auto form-check'>
             <input class="form-check-input" type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?> />
             <label class="form-check-label" for="rballday2" id='tdallday2'><?php echo xlt('Time'); ?></label>
         </div>
-        <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <div class="col">
+            <input class='form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
+        </div>
+        <div class="col">
+            <input class='form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
+        </div>
         <?php if ($GLOBALS['time_display_format'] == 1) : ?>
-        <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
-            <option value='1'><?php echo xlt('AM'); ?></option>
-            <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-        </select>
+        <div class="col-auto">
+            <select class='form-select form-select-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+                <option value='1'><?php echo xlt('AM'); ?></option>
+                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+            </select>
+        </div>
         <?php endif ?>
-        <label class='col-sm col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
-        <input class="col-sm form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
+        <label class='col-auto col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
+        <div class="col">
+            <input class="form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
+        </div>
     </div>
-    <div class="row gx-2 mb-sm-2">
-        <div class="col-sm form-check-inline">
+    <div class="row gx-2 mb-sm-2 align-items-center">
+        <div class="col-auto form-check">
             <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>
             <label class='form-check-label' id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
         </div>
         <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate ?? ''); ?>' />
         <!-- dates excluded from the repeat -->
-        <select class='col-sm form-control form-control-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
-            <?php
-            // Added options for 7th, 8th, and 9th.
-            $repeatOptions = [1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}'), 7 => xl('7th{{every}}'), 8 => xl('8th{{every}}'), 9 => xl('9th{{every}}') ];
+        <div class="col">
+            <select class='form-select form-select-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
+                <?php
+                // Added options for 7th, 8th, and 9th.
+                $repeatOptions = [1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}'), 7 => xl('7th{{every}}'), 8 => xl('8th{{every}}'), 9 => xl('9th{{every}}') ];
 
-            foreach ($repeatOptions as $key => $value) {
-                echo "<option value='" . attr($key) . "'";
-                if ($key == $repeatfreq && isRegularRepeat($repeats)) {
-                    echo " selected";
+                foreach ($repeatOptions as $key => $value) {
+                    echo "<option value='" . attr($key) . "'";
+                    if ($key == $repeatfreq && isRegularRepeat($repeats)) {
+                        echo " selected";
+                    }
+                    echo ">" . text($value) . "</option>\n";
                 }
-                echo ">" . text($value) . "</option>\n";
-            }
-            ?>
-        </select>
-        <select class='col-sm form-control form-control-sm' name='form_repeat_type'>
-            <?php
-            // See common.api.php for these. Options 5 and 6 will be dynamically filled in
-            // when the start date is set.
-            foreach ([0 => xl('day'), 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?'] as $key => $value) {
-                echo "<option value='" . attr($key) . "'";
-                if ($key == $repeattype && isRegularRepeat($repeats)) {
-                    echo " selected";
+                ?>
+            </select>
+        </div>
+        <div class="col">
+            <select class='form-select form-select-sm' name='form_repeat_type'>
+                <?php
+                // See common.api.php for these. Options 5 and 6 will be dynamically filled in
+                // when the start date is set.
+                foreach ([0 => xl('day'), 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?'] as $key => $value) {
+                    echo "<option value='" . attr($key) . "'";
+                    if ($key == $repeattype && isRegularRepeat($repeats)) {
+                        echo " selected";
+                    }
+                    echo ">" . text($value) . "</option>\n";
                 }
-                echo ">" . text($value) . "</option>\n";
-            }
-            ?>
-        </select>
-        <label class='col-sm col-form-label' id='tdrepeat2'><?php echo xlt('until date'); ?></label>
-        <input class="col-sm form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date ?? '')) ?>' title='<?php echo xla('last date of this event'); ?>' />
+                ?>
+            </select>
+        </div>
+        <label class='col-auto col-form-label' id='tdrepeat2'><?php echo xlt('until date'); ?></label>
+        <div class="col">
+            <input class="form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date ?? '')) ?>' title='<?php echo xla('last date of this event'); ?>' />
+        </div>
         <?php
         if (!empty($repeatexdate)) {
             $tmptitle = "The following dates are excluded from the repeating series";
@@ -1681,11 +1697,11 @@ function isRegularRepeat($repeat)
     </div>
     <!-- Days of Week -->
     <div class="row gx-2" id="days_every_week_row">
-        <div class="col-sm-4 form-check-inline">
+        <div class="col-auto form-check">
             <input class="form-check-input" type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/>
             <label class="form-check-label" for="days_every_week" id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></label>
         </div>
-        <div class="col-sm input-group" id="days">
+        <div class="col input-group" id="days">
             <?php
             $weekdays = [
                 1 => xl('Su{{Sunday}}'),

@@ -11,7 +11,7 @@ $close-color: $black;
 
 // Import Bootstrap SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
-// bs4import
+// bs5import
 
 // Fix Font Awesome fonts path
 $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
@@ -509,7 +509,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   }
   /*openemr5.0.2 edit_globals vertical menu*/
   /*bootstrap navbar */
-  .navbar-collapse.collapse.in {
+  .navbar-collapse.show {
     background-color: $light !important;
     color: $body-color !important;
   }
