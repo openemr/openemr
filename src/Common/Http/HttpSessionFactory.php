@@ -31,6 +31,21 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     private bool $useBridge = false;
 
+    /**
+     * Keys in $_SESSION that should not be copied into the Symfony session as
+     * regular attributes. This includes OpenEMR session-name keys (used as
+     * AttributeBag storage keys) and Symfony-internal bag storage keys that are
+     * automatically managed by the Session component.
+     */
+    private const SESSION_INTERNAL_KEYS = [
+        SessionUtil::OAUTH_SESSION_ID,
+        SessionUtil::API_SESSION_ID,
+        SessionUtil::CORE_SESSION_ID,
+        SessionUtil::PORTAL_SESSION_ID,
+        '_symfony_flashes', // Symfony FlashBag storage key
+        '_sf2_meta',        // Symfony MetadataBag storage key
+    ];
+
     public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
         if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
@@ -113,7 +128,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         // while we migrate the sessions to testable objects.
         if (!empty($_SESSION)) {
             foreach ($_SESSION as $key => $value) {
-                if (!in_array($key, [SessionUtil::OAUTH_SESSION_ID, SessionUtil::API_SESSION_ID, SessionUtil::CORE_SESSION_ID])) { // Avoid overwriting session name
+                if (!in_array($key, self::SESSION_INTERNAL_KEYS)) {
                     $session->set($key, $value);
                 }
             }
