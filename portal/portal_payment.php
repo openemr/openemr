@@ -549,7 +549,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         alert(<?php echo xlj('Validation error: Fix and resubmit. This popup info is preserved!'); ?>)
                         return false;
                     }
-                    $("#openPayModal .close").click()
+                    $("#openPayModal .btn-close").click()
                 },
                 error: function (qXHR, textStatus, errorThrow) {
                     console.log("There was an error:" + errorThrow);
@@ -565,7 +565,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
             });
             if (flag) {
-                $("#openPayModal .close").click();
+                $("#openPayModal .btn-close").click();
             }
         });
 

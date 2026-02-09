@@ -238,10 +238,11 @@
 <div class="modal fade" id="onsitePortalActivityDetailDialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><a class="btn-close" data-bs-dismiss="modal">×</a>
+            <div class="modal-header">
                 <h3><i class="icon-edit"></i> <?php echo xlt('Edit Onsite Portal Activity'); ?>
                     <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
                 </h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"></button>
             </div>
             <div class="modal-body">
                 <div id="modelAlert"></div>
