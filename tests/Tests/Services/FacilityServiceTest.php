@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
@@ -180,15 +181,15 @@ class FacilityServiceTest extends TestCase
 
         // Verify organization_type was saved
         $sql = "SELECT `organization_type` FROM `facility` WHERE `uuid` = ?";
-        $result = sqlQuery($sql, [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("dept", $result["organization_type"]);
+        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
+        $this->assertEquals("dept", $result);
 
         // Test update organization_type
         $this->facilityFixture["organization_type"] = "edu";
         $this->facilityService->update($actualUuid, $this->facilityFixture);
 
-        $result = sqlQuery($sql, [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("edu", $result["organization_type"]);
+        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
+        $this->assertEquals("edu", $result);
     }
 
     #[Test]
@@ -203,7 +204,7 @@ class FacilityServiceTest extends TestCase
         $actualUuid = $dataResult["uuid"];
 
         $sql = "SELECT `organization_type` FROM `facility` WHERE `uuid` = ?";
-        $result = sqlQuery($sql, [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("prov", $result["organization_type"]);
+        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
+        $this->assertEquals("prov", $result);
     }
 }
