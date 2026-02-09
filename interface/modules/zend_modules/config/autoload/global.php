@@ -16,25 +16,7 @@
  */
 
 use OpenEMR\Common\Crypto\CryptoGen;
-
-/**
- * Build a MySQL PDO DSN string from parameters, omitting empty values.
- *
- * @var \Closure(string, string, string=): string
- */
-$buildMysqlDsn = function (string $dbname, string $host, string $port = ''): string {
-    $parts = array_filter([
-        'dbname' => $dbname,
-        'host' => $host,
-        'port' => $port,
-    ], fn($v) => $v !== '');
-
-    return 'mysql:' . implode(';', array_map(
-        fn($k, $v) => "$k=$v",
-        array_keys($parts),
-        $parts
-    ));
-};
+use OpenEMR\Common\Database\DbUtils;
 
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {
@@ -82,7 +64,7 @@ $factories = [
 $adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
-    $dbh = new PDO($buildMysqlDsn($GLOBALS['dbase'], $GLOBALS['host'], $GLOBALS['port']), $GLOBALS['login'], $GLOBALS['pass']);
+    $dbh = new PDO(DbUtils::buildMysqlDsn($GLOBALS['dbase'], $GLOBALS['host'], $GLOBALS['port']), $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
@@ -90,7 +72,7 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
             $cryptoGen = new CryptoGen();
             $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
-                'dsn' => $buildMysqlDsn($row['dbname'], $row['host'], $row['port'] ?? ''),
+                'dsn' => DbUtils::buildMysqlDsn($row['dbname'], $row['host'], $row['port'] ?? ''),
                 'driver_options' => $utf8,
                 'username' => $row['username'],
                 'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
@@ -114,7 +96,7 @@ $sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', '
 return [
     'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => $buildMysqlDsn($sqlConf['dbase'] ?? '', $sqlConf['host'] ?? '', $sqlConf['port'] ?? ''),
+        'dsn'            => DbUtils::buildMysqlDsn($sqlConf['dbase'] ?? '', $sqlConf['host'] ?? '', $sqlConf['port'] ?? ''),
         'username'       => $sqlConf['login'] ?? '',
         'password'       => $sqlConf['pass'] ?? '',
         'driver_options' => $utf8,
