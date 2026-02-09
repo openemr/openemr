@@ -220,6 +220,24 @@ class ValidationUtils
     }
 
     /**
+     * Validates a TCP/UDP port number.
+     *
+     * Accepts empty string (no port specified) or valid port numbers (1-65535).
+     * Port 0 is reserved and not considered valid for connection purposes.
+     *
+     * @param string $port The port to validate
+     * @return bool True if empty string or valid port number, false otherwise
+     */
+    public static function isValidPort(string $port): bool
+    {
+        if ($port === '') {
+            return true;
+        }
+
+        return self::validateInt($port, 1, 65535) !== false;
+    }
+
+    /**
      * Validates a phone number using libphonenumber.
      *
      * Accepts phone numbers in various formats including:

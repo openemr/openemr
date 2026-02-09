@@ -12,6 +12,9 @@
 
 namespace OpenEMR\Common\Database;
 
+use InvalidArgumentException;
+use OpenEMR\Common\Utils\ValidationUtils;
+
 class DbUtils
 {
     /**
@@ -19,11 +22,16 @@ class DbUtils
      *
      * @param string $dbname Database name
      * @param string $host   Host address
-     * @param string $port   Port number (optional)
+     * @param string $port   Port number (optional, must be empty or 1-65535)
      * @return string PDO DSN string
+     * @throws InvalidArgumentException If port is not empty and not a valid port number
      */
     public static function buildMysqlDsn(string $dbname, string $host, string $port = ''): string
     {
+        if (!ValidationUtils::isValidPort($port)) {
+            throw new InvalidArgumentException("Invalid port: '$port'. Must be empty or a number between 1 and 65535.");
+        }
+
         $parts = array_filter([
             'dbname' => $dbname,
             'host' => $host,
