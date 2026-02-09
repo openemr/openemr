@@ -28,7 +28,7 @@ class DbUtils
      */
     public static function buildMysqlDsn(string $dbname, string $host, string $port = ''): string
     {
-        if (!ValidationUtils::isValidPort($port)) {
+        if ($port !== '' && !ValidationUtils::isValidPort($port)) {
             throw new InvalidArgumentException("Invalid port: '$port'. Must be empty or a number between 1 and 65535.");
         }
 
