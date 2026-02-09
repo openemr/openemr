@@ -2,19 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between non\\-empty\\-array and null will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
@@ -142,11 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
@@ -160,16 +145,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-falsy\\-string and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between false and true will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \\(int\\|false\\) and \'\' will always evaluate to false\\.$#',

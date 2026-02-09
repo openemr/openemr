@@ -491,5 +491,10 @@ $ignoreErrors[] = [
     'count' => 43,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

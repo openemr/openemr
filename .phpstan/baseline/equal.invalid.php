@@ -13,11 +13,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\=\\=" between array and 0 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\=\\=" between array and 0 results in an error\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];

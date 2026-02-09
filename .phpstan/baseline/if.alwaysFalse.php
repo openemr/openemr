@@ -44,11 +44,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -205,16 +200,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',

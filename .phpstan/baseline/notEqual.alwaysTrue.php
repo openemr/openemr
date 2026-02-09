@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\!\\= between 0 and 1 will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between \'00193FC7\\-AEE4\\-4507…\'\\|\'0899A359\\-0CD8\\-4977…\'\\|\'0ED7B212\\-369B\\-489A…\'\\|\'201F5A6E\\-4DDE\\-43A2…\'\\|\'35B1A6DF\\-1871\\-4633…\'\\|\'3F4CDE57\\-1C5C\\-4250…\'\\|\'663FB12B\\-0FF4\\-49AB…\'\\|\'7549BA9E\\-1841\\-4231…\'\\|\'C948D0D2\\-D6E9\\-4099…\' and \'\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',

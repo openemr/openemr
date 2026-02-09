@@ -24722,16 +24722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:\\$cryptoGen has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:\\$systemLogger has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:\\$clientRole has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
@@ -31690,6 +31680,16 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\JjEncounterContextMainMenuLinksTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\SvcCodeFinancialReportTest\\:\\:\\$client has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\SvcCodeFinancialReportTest\\:\\:\\$crawler has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\ECQM\\\\MeasureResultsTest\\:\\:\\$client has no type specified\\.$#',

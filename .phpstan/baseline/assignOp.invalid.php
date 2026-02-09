@@ -272,11 +272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \'billing\\#payments\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/de_identification_forms/de_identification_screen2.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and 0 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
@@ -862,8 +857,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
-    'count' => 4,
+    'message' => '#^Binary operation "\\+\\=" between 0\\|float and mixed results in an error\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
@@ -2132,8 +2127,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
-    'count' => 4,
+    'message' => '#^Binary operation "\\+\\=" between 0\\|float and mixed results in an error\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [

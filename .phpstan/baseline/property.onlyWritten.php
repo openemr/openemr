@@ -242,6 +242,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Rainforest\\\\Api\\:\\:\\$platformId is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Rainforest/Api.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ApiApplication\\:\\:\\$webroot is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ApiApplication.php',

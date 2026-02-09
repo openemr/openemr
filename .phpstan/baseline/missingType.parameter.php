@@ -147,91 +147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function tableExists_de\\(\\) has parameter \\$tblname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upgradeFromSqlFile_de\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdFacilityTable\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdForms\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdInsuranceDataTable\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdInsuranceDataTable\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData\\(\\) has parameter \\$DEBUG with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData\\(\\) has parameter \\$female with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData\\(\\) has parameter \\$lnames with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData\\(\\) has parameter \\$male with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdUsersTable\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn\\(\\) has parameter \\$column with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function truncateLogs\\(\\) has parameter \\$con with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function UpdateTable\\(\\) has parameter \\$newvalue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -902,11 +817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_registry_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function LWDate\\(\\) has parameter \\$field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function Sex\\(\\) has parameter \\$field with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_xml.php',
@@ -1447,21 +1357,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pc_eid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_age\\(\\) has parameter \\$age with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
@@ -1587,16 +1482,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function emailLogin\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function emailLogin\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function era_callback\\(\\) has parameter \\$out with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -1633,16 +1518,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function upload_file_to_client\\(\\) has parameter \\$file_to_send with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upload_file_to_client_email\\(\\) has parameter \\$file_to_send with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upload_file_to_client_email\\(\\) has parameter \\$ppid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
@@ -3412,11 +3287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function debug\\(\\) has parameter \\$local_var with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
@@ -4115,11 +3985,6 @@ $ignoreErrors[] = [
     'message' => '#^Function prior_auth_report\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/prior_auth/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getListOptions\\(\\) has parameter \\$fieldnames with no type specified\\.$#',
@@ -6713,16 +6578,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Add\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/ippf_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function LWDate\\(\\) has parameter \\$field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/ippf_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function Sex\\(\\) has parameter \\$field with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
 ];
@@ -10320,16 +10175,6 @@ $ignoreErrors[] = [
     'message' => '#^Function isValidPhone\\(\\) has parameter \\$phone with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR\\(\\) has parameter \\$field_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR\\(\\) has parameter \\$form_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\BootstrapService\\:\\:getModuleRegistry\\(\\) has parameter \\$modId with no type specified\\.$#',
@@ -14357,16 +14202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR\\(\\) has parameter \\$field_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR\\(\\) has parameter \\$form_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getSearchClass\\(\\) has parameter \\$data_type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
@@ -14380,21 +14215,6 @@ $ignoreErrors[] = [
     'message' => '#^Function generate_order_summary\\(\\) has parameter \\$orderid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oresData\\(\\) has parameter \\$index with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oresData\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oresRawData\\(\\) has parameter \\$index with no type specified\\.$#',
@@ -14747,11 +14567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function invalue\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
@@ -14895,16 +14710,6 @@ $ignoreErrors[] = [
     'message' => '#^Function ffescape\\(\\) has parameter \\$field with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function calcTaxes\\(\\) has parameter \\$amount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function calcTaxes\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generatePageElement\\(\\) has parameter \\$billing with no type specified\\.$#',
@@ -15157,11 +14962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function markTaxes\\(\\) has parameter \\$taxrates with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pull_adjustment\\(\\) has parameter \\$billtime with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
@@ -15307,11 +15107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function markTaxes\\(\\) has parameter \\$taxrates with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function printFacilityHeader\\(\\) has parameter \\$frow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
@@ -15382,22 +15177,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/printed_fee_sheet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function patientFilePostToGet\\(\\) has parameter \\$arin with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function ActiveIssueCodeRecycleFn\\(\\) has parameter \\$ISSUE_TYPES2 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function ActiveIssueCodeRecycleFn\\(\\) has parameter \\$thispid2 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull\\(\\) has parameter \\$fld with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
@@ -30027,11 +29812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generic_sql_select_db\\(\\) has parameter \\$link with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sqlCommitTrans\\(\\) has parameter \\$ok with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -30302,21 +30082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pc_eid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function WriteLog\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
@@ -30393,21 +30158,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_setmessage\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pc_eid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry\\(\\) has parameter \\$type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
@@ -31492,231 +31242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:CommitTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Execute\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Execute\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Fetch\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Fetch\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetLastError\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetLastInsertId\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetQuotedSql\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetTableNames\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetTableNames\\(\\) has parameter \\$dbname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Optimize\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Optimize\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Ping\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Query\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Query\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Release\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Release\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:RollbackTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:CommitTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Execute\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Execute\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Fetch\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Fetch\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetErrorDescription\\(\\) has parameter \\$obj with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetLastError\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetLastInsertId\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetQuotedSql\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetTableNames\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetTableNames\\(\\) has parameter \\$dbname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Optimize\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Optimize\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Ping\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Query\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Query\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Release\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Release\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:RollbackTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
@@ -31825,116 +31350,6 @@ $ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:CommitTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Execute\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Execute\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Fetch\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Fetch\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetLastError\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetLastInsertId\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetQuotedSql\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetTableNames\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetTableNames\\(\\) has parameter \\$dbname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Optimize\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Optimize\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Ping\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Query\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Query\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Release\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Release\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:RollbackTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method DatabaseException\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -32750,16 +32165,6 @@ $ignoreErrors[] = [
     'message' => '#^Method UserDAO\\:\\:GetReviewerFormHearings\\(\\) has parameter \\$criteria with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function calcTaxes\\(\\) has parameter \\$amount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function calcTaxes\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Zip\\(\\) has parameter \\$destination with no type specified\\.$#',
@@ -36627,21 +36032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:csrfNotVerified\\(\\) has parameter \\$die with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:csrfNotVerified\\(\\) has parameter \\$toLog with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:csrfNotVerified\\(\\) has parameter \\$toScreen with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:verifyCsrfToken\\(\\) has parameter \\$subject with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
@@ -38167,11 +37557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Session/SessionTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:apiSessionStart\\(\\) has parameter \\$web_root with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:coreSessionStart\\(\\) has parameter \\$read_only with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
@@ -38285,11 +37670,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FormatMoney\\:\\:getFormattedMoney\\(\\) has parameter \\$amount with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/FormatMoney.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\HttpUtils\\:\\:base64url_encode\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/HttpUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:celsiusToFh\\(\\) has parameter \\$val with no type specified\\.$#',
@@ -40905,21 +40285,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategy\\:\\:is_portal_request\\(\\) has parameter \\$resource with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\OAuth2PublicJsonWebKeyController\\:\\:base64url_encode\\(\\) has parameter \\$input with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/OAuth2PublicJsonWebKeyController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:base64url_decode\\(\\) has parameter \\$token with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:base64url_encode\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:decodeToken\\(\\) has parameter \\$token with no type specified\\.$#',
@@ -51037,11 +50402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\BbCreateStaffTest\\:\\:populateUserFormReliably\\(\\) has parameter \\$username with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:__construct\\(\\) has parameter \\$fileName with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
@@ -51730,16 +51090,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\NumberToTextTest\\:\\:testConvert\\(\\) has parameter \\$text with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/NumberToTextTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function check_code_set_filters\\(\\) has parameter \\$filters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function check_code_set_filters\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method RestApiEventHookExample\\\\Module\\:\\:addRestAPIRouteToMap\\(\\) has parameter \\$m with no type specified\\.$#',

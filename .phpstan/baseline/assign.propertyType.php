@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$AltBody \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property AbstractClickmapModel\\:\\:\\$activity \\(activity\\) does not accept float\\|int\\<min, \\-1\\>\\|int\\<1, max\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
@@ -767,22 +762,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property DataAdapter\\:\\:\\$_driver \\(IDataDriver\\|null\\) does not accept object\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property DataAdapter\\:\\:\\$_num_retries \\(used\\) does not accept int\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept IDataDriver\\.$#',
+    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept DataDriverMySQLi\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept IDataDriver\\|null\\.$#',
+    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept IDataDriver\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];

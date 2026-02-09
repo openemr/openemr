@@ -2925,11 +2925,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(PDO\\:errorInfo \\$errorInfo\\)\\: Unexpected token "\\:", expected variable at offset 77 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
          Phreezer\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 100 on line 4$#',
     'count' => 1,

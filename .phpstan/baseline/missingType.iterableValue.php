@@ -857,11 +857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_GetNotificationSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$db_sms_msg with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
@@ -2522,6 +2517,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/forms.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function calcTaxes\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cron_GetNotificationSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function cron_getPhoneAlertpatientData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
@@ -3172,16 +3177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL\\:\\:Fetch\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQL_PDO\\:\\:Fetch\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:Fetch\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
@@ -3195,11 +3190,6 @@ $ignoreErrors[] = [
     'message' => '#^Property DataDriverMySQLi\\:\\:\\$GOOD_CHARS type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverSQLite\\:\\:Fetch\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property BrowserDevice\\:\\:\\$DESKTOP_DEVICE_PATTERNS type has no value type specified in iterable type array\\.$#',
@@ -4655,6 +4645,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:\\$config type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:getSessionStorage\\(\\) has parameter \\$sessionSettings with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:sessionStartWrapper\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#',
@@ -15422,6 +15417,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchEnabledEncounterForms\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchSitePopulationData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
@@ -15500,6 +15500,16 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Validators\\\\Rules\\\\ListOptionRule\\:\\:\\$messageTemplates type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/Rules/ListOptionRule.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkFunctionCall\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkStaticCall\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AllergyIntoleranceFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',

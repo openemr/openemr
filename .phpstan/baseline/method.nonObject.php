@@ -1392,11 +1392,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAllFacility\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method bill_info\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_process.php',
@@ -1808,7 +1803,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method set\\(\\) on mixed\\.$#',
-    'count' => 109,
+    'count' => 108,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
@@ -1835,6 +1830,26 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/login/login.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/about_page.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/about_page.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getTwigTemplate\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/about_page.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getTwigVariables\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/about_page.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
@@ -4542,6 +4557,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
@@ -5537,16 +5557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method BeginTrans\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method CommitTrans\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method ErrorMsg\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -5568,7 +5578,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -5577,23 +5587,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method GenID\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Insert_ID\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method PConnect\\(\\) on ADOConnection\\|false\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method RollbackTrans\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -5603,11 +5598,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method SetFetchMode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method affected_rows\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -5635,11 +5625,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAllFacility\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
@@ -5780,86 +5765,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method item\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method beginTransaction\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method commit\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method errorInfo\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method execute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method lastInsertId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method prepare\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method query\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method rollBack\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method close\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method exec\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchArray\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method finalize\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method lastErrorMsg\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method lastInsertRowID\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method query\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method delete\\(\\) on mixed\\.$#',
@@ -7682,31 +7587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method cryptCheckStandard\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method decryptStandard\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method encryptStandard\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 11,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomAuthCodeGrant.php',
@@ -7917,17 +7797,42 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/ZfcModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method ExecuteNoLog\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method Affected_Rows\\(\\) on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method BeginTrans\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method CommitTrans\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method ExecuteNoLog\\(\\) on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method GenID\\(\\) on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Insert_ID\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method RollbackTrans\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
@@ -8103,12 +8008,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on Psr\\\\Log\\\\LoggerInterface\\|null\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method errorLogCaller\\(\\) on Psr\\\\Log\\\\LoggerInterface\\|null\\.$#',
-    'count' => 12,
+    'count' => 11,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [
@@ -11413,16 +11318,21 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on Psr\\\\Log\\\\LoggerInterface\\|null\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method error\\(\\) on Psr\\\\Log\\\\LoggerInterface\\|null\\.$#',
-    'count' => 1,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method fetchActiveModuleCounts\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method fetchEnabledEncounterForms\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
@@ -11439,6 +11349,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method saveTelemetryEvent\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method warning\\(\\) on Psr\\\\Log\\\\LoggerInterface\\|null\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
@@ -11690,6 +11605,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getRuleTypeLabels\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../templates/super/rules/controllers/review/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method toString\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
@@ -12007,8 +11927,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 20,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
@@ -12038,12 +11963,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 8,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 10,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
@@ -12063,22 +11988,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 14,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 8,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
@@ -12098,12 +12033,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method defaultContent\\(\\) on mixed\\.$#',
-    'count' => 10,
+    'count' => 11,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 15,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 43,
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
@@ -12113,22 +12053,22 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method findElement\\(\\) on mixed\\.$#',
-    'count' => 5,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method form\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method frame\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on mixed\\.$#',
-    'count' => 1,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
@@ -12137,18 +12077,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method isDisplayed\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 6,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 24,
+    'count' => 13,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method request\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
@@ -12158,27 +12103,37 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 18,
+    'count' => 20,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 28,
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 12,
+    'count' => 28,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 25,
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 12,
+    'count' => 28,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
@@ -12202,8 +12157,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 43,
+    'count' => 15,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12238,12 +12198,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 8,
+    'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 24,
+    'count' => 16,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12263,22 +12223,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 28,
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
     'count' => 23,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
     'count' => 11,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
+    'count' => 23,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12302,8 +12272,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 66,
+    'count' => 24,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12338,12 +12313,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 12,
+    'count' => 15,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 37,
+    'count' => 25,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12363,22 +12338,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 42,
+    'count' => 18,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 15,
+    'count' => 33,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 37,
+    'count' => 19,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 15,
+    'count' => 33,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -12402,8 +12387,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 24,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 89,
+    'count' => 33,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12438,12 +12428,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 16,
+    'count' => 20,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 50,
+    'count' => 34,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12463,22 +12453,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 56,
+    'count' => 24,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 19,
+    'count' => 43,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 16,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 52,
+    'count' => 28,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 19,
+    'count' => 43,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12502,8 +12502,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 42,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 157,
+    'count' => 59,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12538,12 +12543,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 30,
+    'count' => 37,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 89,
+    'count' => 61,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12563,22 +12568,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 98,
+    'count' => 42,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 34,
+    'count' => 76,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 28,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 94,
+    'count' => 52,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 34,
+    'count' => 76,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -12602,8 +12617,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 20,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12633,12 +12653,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 10,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12658,22 +12678,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 14,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 8,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12697,8 +12727,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 20,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12728,12 +12763,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 10,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12753,22 +12788,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 14,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 8,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12792,8 +12837,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 66,
+    'count' => 24,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12828,12 +12878,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 14,
+    'count' => 17,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 37,
+    'count' => 25,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12853,22 +12903,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 42,
+    'count' => 18,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 15,
+    'count' => 33,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 37,
+    'count' => 19,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 15,
+    'count' => 33,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12892,8 +12952,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 42,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
-    'count' => 157,
+    'count' => 59,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12928,12 +12993,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
-    'count' => 32,
+    'count' => 39,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
-    'count' => 89,
+    'count' => 61,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -12953,23 +13018,173 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
-    'count' => 98,
+    'count' => 42,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
-    'count' => 34,
+    'count' => 76,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 28,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
-    'count' => 94,
+    'count' => 52,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
-    'count' => 34,
+    'count' => 76,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method clear\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method count\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method defaultContent\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method eq\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method filter\\(\\) on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method findElement\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method form\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method frame\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getElement\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getTitle\\(\\) on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method isSelected\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method quit\\(\\) on mixed\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method refreshCrawler\\(\\) on mixed\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method request\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method sendKeys\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method submit\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method text\\(\\) on mixed\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method until\\(\\) on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToContain\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitForElementToNotContain\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method waitFor\\(\\) on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method wait\\(\\) on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method calculate\\(\\) on mixed\\.$#',

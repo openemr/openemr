@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'procedure_order…\' on array\\{\\} in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'samesite\' on array\\{lifetime\\: int\\<0, max\\>, path\\: non\\-falsy\\-string, domain\\: string, secure\\: bool, httponly\\: bool, samesite\\: \'Lax\'\\|\'lax\'\\|\'None\'\\|\'none\'\\|\'Strict\'\\|\'strict\'\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
@@ -25,11 +20,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'items\' on array\\{group_name\\: mixed, group_id\\: mixed, items\\: non\\-empty\\-list\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'date\' on array\\{\\} in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'date\' on non\\-empty\\-list in empty\\(\\) does not exist\\.$#',
@@ -45,11 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'form_submit\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'payer_type\' on array\\{\\} in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'inhouse_pharmacy\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',

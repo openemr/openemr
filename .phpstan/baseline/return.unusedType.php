@@ -22,16 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/ModuleManagerListener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_GetNotificationData\\(\\) never returns false so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_GetNotificationSettings\\(\\) never returns false so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function isValidPhone\\(\\) never returns array so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
@@ -113,11 +103,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getLabconfig\\(\\) never returns null so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProcedureProvider\\(\\) never returns bool so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];

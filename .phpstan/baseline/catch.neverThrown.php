@@ -2,22 +2,27 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Exception is never thrown in the try block\\.$#',
+    'message' => '#^Dead catch \\- RingCentral\\\\SDK\\\\Http\\\\ApiException is never thrown in the try block\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Exception is never thrown in the try block\\.$#',
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Exception is never thrown in the try block\\.$#',
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Exception is never thrown in the try block\\.$#',
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
 ];
@@ -32,7 +37,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Exception is never thrown in the try block\\.$#',
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];

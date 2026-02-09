@@ -8,11 +8,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of \\|\\| is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
 ];

@@ -62,26 +62,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property DataDriverMySQL\\:\\:\\$BAD_CHARS \\(characters\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property DataDriverMySQL\\:\\:\\$GOOD_CHARS \\(characters\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property DataDriverMySQL_PDO\\:\\:\\$BAD_CHARS \\(characters\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property DataDriverMySQL_PDO\\:\\:\\$GOOD_CHARS \\(characters\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property RequestUtil\\:\\:\\$bodyCache \\(body\\) does not accept default value of type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',

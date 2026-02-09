@@ -2,13 +2,8 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -105,11 +100,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'form_id\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/group_attendance/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'procedure_order_seq\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'procedure_name\' might not exist on array\\<string, mixed\\>\\|null\\.$#',
@@ -262,16 +252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'author\' might not exist on array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'time\' might not exist on array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 0 might not exist on array\\{\\}\\|array\\{0\\?\\: non\\-empty\\-array\\<mixed\\>\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -312,19 +292,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'id\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: mixed, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'date\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'date\' does not exist on non\\-empty\\-list\\.$#',
@@ -337,24 +307,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: 0\\|float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: 0\\|float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'type\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'payer_type\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset float does not exist on list\\<non\\-empty\\-array\\>\\.$#',
@@ -399,11 +359,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Offset \'Fac\' might not exist on array\\{\\}\\|array\\{Stat\\?\\: non\\-falsy\\-string, Fac\\?\\: non\\-falsy\\-string\\}\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'MedEx_id\' does not exist on array\\{\\}\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -672,17 +627,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'reason\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: \\(float\\|int\\), payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'reason\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
@@ -745,11 +700,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'table_name\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'followUp\' might not exist on array\\{patientId\\: string, encounterId\\: string, codeType\\: string, code\\: string, modifier\\: string, payerType\\: string, postUser\\: string, sessionId\\: string, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/PaymentProcessing/Recorder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'actions\' might not exist on array\\{hasRestrictions\\: true, restrictions\\?\\: non\\-empty\\-array\\<array\\{label\\: \'Clinical Test\'\\|\'Encounter Diagnoses\'\\|\'Health Concerns\'\\|\'Laboratory\'\\|\'Problem List Items\'\\|\'Social Determinants…\'\\|\'Social History\'\\|\'Survey\'\\|\'Vital Signs\', value\\: \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\', selected\\: true, actions\\: array\\{0\\?\\: \'c\'\\|\'d\'\\|\'r\'\\|\'s\'\\|\'u\', 1\\?\\: \'d\'\\|\'r\'\\|\'s\'\\|\'u\', 2\\?\\: \'d\'\\|\'s\'\\|\'u\', 3\\?\\: \'d\'\\|\'s\', 4\\?\\: \'s\'\\}\\}\\>\\}\\|array\\{name\\: mixed, description\\: string, context\\: mixed, version\\: mixed, actions\\: array\\{c\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, r\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, u\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, d\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, s\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}\\}, restrictions\\: array\\<array\\{label\\: mixed, value\\: mixed, selected\\: true, actions\\: mixed\\}\\>, hasRestrictions\\: true, isUnrestricted\\: bool, \\.\\.\\.\\}\\.$#',
