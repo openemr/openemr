@@ -1,7 +1,3 @@
-codecov:
-  notify:
-    manual_trigger: true
-
 ignore:
 - tests/PHPStan/         # Static analysis rules — not exercised by PHPUnit
 - tests/Rector/          # Rector rules — run outside PHPUnit coverage
