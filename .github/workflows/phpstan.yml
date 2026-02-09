@@ -58,3 +58,40 @@ jobs:
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
         path: .phpstan/baseline/*.php
+
+  baseline-guard:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for new PHPStan baseline entries
+        run: |
+          BASE_REF="origin/${{ github.base_ref }}"
+
+          # Ensure the base ref is available
+          git fetch origin "${{ github.base_ref }}" --depth=1 2>/dev/null || true
+
+          DIFF_ARGS=("$BASE_REF"...HEAD -- '.phpstan/baseline/')
+          # shellcheck disable=SC2016
+          ENTRY_PATTERN='^\+.*\$ignoreErrors\[\] = \['
+
+          if ! git diff --quiet "${DIFF_ARGS[@]}"; then
+            # Count new $ignoreErrors[] entries (added lines in the diff)
+            ADDED=$(git diff "${DIFF_ARGS[@]}" | grep -c "$ENTRY_PATTERN" || true)
+
+            if [ "$ADDED" -gt 0 ]; then
+              echo "::error::$ADDED new PHPStan baseline entries detected. The baseline must not accept new errors — fix them instead."
+              echo ""
+              echo "Added entries:"
+              git diff "${DIFF_ARGS[@]}" | grep -A3 "$ENTRY_PATTERN" | grep '^\+' | sed 's/^\+//' | head -60
+              echo ""
+              echo "Affected baseline files:"
+              git diff "${DIFF_ARGS[@]}" | grep -B5 "$ENTRY_PATTERN" | grep '^+++ b/' | sed 's|^+++ b/||' | sort -u
+              exit 1
+            fi
+          fi
+
+          echo "Baseline check passed — no new entries added."
