@@ -117,7 +117,7 @@ class PhoneNumberService extends BaseService
             return false;
         }
 
-        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", $this->foreignId);
+        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", [$this->foreignId]);
 
         if (!$phoneNumbersIdSqlResults) {
             $this->insert($data, $foreignId);
