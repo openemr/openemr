@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -146,7 +146,7 @@ class SLEOB
             'payerType' => $payer_type,
             'postDate' => $date,
             'postUser' => $_SESSION['authUserID'],
-            'sessionID' => $session_id,
+            'sessionId' => $session_id,
             'memo' => $memo,
             'payAmount' => $amount,
             'adjustmentAmount' => '0.0',
