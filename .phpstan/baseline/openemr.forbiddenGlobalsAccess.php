@@ -2998,7 +2998,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 56,
+    'count' => 55,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [

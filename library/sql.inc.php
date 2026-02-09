@@ -506,14 +506,11 @@ function generate_id()
 */
 function sqlQ($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    try {
+        return QueryUtils::sqlStatementThrowException($statement, $binds);
+    } catch (SqlQueryException) {
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds) or
-    HelpfulDie("query failed: $statement", getSqlLastError());
-    return $recordset;
 }
 
 
