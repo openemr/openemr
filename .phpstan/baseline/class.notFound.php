@@ -2142,6 +2142,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method RecordCount\\(\\) on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
