@@ -552,14 +552,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
             $info = $backtrace[$level];
             echo "<br />" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
             if ($level > 1) {
-                // Safely convert arguments to strings using get_debug_type()
-                $args = array_map(function($arg) {
-                    if (is_scalar($arg) || is_null($arg)) {
-                        return var_export($arg, true);
-                    } else {
-                        return get_debug_type($arg);
-                    }
-                }, $info["args"]);
+                $args = array_map('get_debug_type', $info["args"]);
                 echo "(" . text(implode(", ", $args)) . ")";
             }
         }
