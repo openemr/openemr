@@ -647,6 +647,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 $i = 0;
                 $form_begin = DateToYYYYMMDD($_REQUEST['form_begin']);
                 $form_end   = DateToYYYYMMDD($_REQUEST['form_end']);
+                $form_return = DateToYYYYMMDD($_REQUEST['form_return'] ?? '');
 
                 /**
                  *  When adding an issue, see if the issue is already here.
