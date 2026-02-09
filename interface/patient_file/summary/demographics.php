@@ -14,6 +14,7 @@
  * @author    Robert Down <robertdown@live.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
@@ -22,6 +23,7 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1990,29 +1992,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     // END of past appointments
 
-                    // Display the Appt card
-                    $id = "appointments_ps_expand";
-                    $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
-                    echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
-                        'title' => xl("Appointments"),
-                        'id' => $id,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                        'btnLabel' => "Add",
-                        'btnLink' => "return newEvt()",
-                        'linkMethod' => "javascript",
-                        'appts' => $appts,
-                        'recurrAppts' => $recurr,
-                        'pastAppts' => $past_appts,
-                        'displayAppts' => $displayAppts,
-                        'displayRecurrAppts' => $displayRecurrAppts,
-                        'displayPastAppts' => $displayPastAppts,
-                        'extraApptDate' => $extraApptDate,
-                        'therapyGroupCategories' => $therapyGroupCategories,
-                        'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
-                        'resNotNull' => $resNotNull,
-                        'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                        'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                    ]);
+                    // Display the Appt card only if user has permission
+                    if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
+                        $id = "appointments_ps_expand";
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
+                        echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
+                            'title' => xl("Appointments"),
+                            'id' => $id,
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'btnLabel' => "Add",
+                            'btnLink' => "return newEvt()",
+                            'linkMethod' => "javascript",
+                            'appts' => $appts ?? [],
+                            'recurrAppts' => $recurr,
+                            'pastAppts' => $past_appts ?? [],
+                            'displayAppts' => $displayAppts,
+                            'displayRecurrAppts' => $displayRecurrAppts,
+                            'displayPastAppts' => $displayPastAppts,
+                            'extraApptDate' => $extraApptDate ?? '',
+                            'therapyGroupCategories' => $therapyGroupCategories ?? [],
+                            'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
+                            'resNotNull' => $resNotNull,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ]);
+                    }
 
                     echo "<div id=\"stats_div\"></div>";
 

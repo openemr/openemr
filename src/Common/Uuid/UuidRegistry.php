@@ -417,8 +417,8 @@ class UuidRegistry
         WHERE " . implode(" AND ", $columnsWhere) . "
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
-        $number = sqlNumRows($groupsWithoutUuid);
+        $groupsWithoutUuid = QueryUtils::sqlStatementThrowException($query, [], noLog: true);
+        $number = $groupsWithoutUuid->RecordCount();
 
         // create uuids and populate the groups with them
         if ($number > 0) {
@@ -426,10 +426,10 @@ class UuidRegistry
             $this->insertUuidsIntoRegistry($batchUUids);
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
-            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+            while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
                 $mappedValues = array_map(fn($col) => $row[$col], $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
-                sqlStatementNoLog($sqlUpdate, $bindValues, true);
+                QueryUtils::sqlStatementThrowException($sqlUpdate, $bindValues, noLog: true);
                 $counter++;
             }
         }
@@ -464,16 +464,16 @@ class UuidRegistry
         WHERE `q2`.`uuid` IS NOT NULL AND `q2`.`uuid` != '' AND `q2`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
-        $number = sqlNumRows($groupsWithoutUuid);
+        $groupsWithoutUuid = QueryUtils::sqlStatementThrowException($query, [], noLog: true);
+        $number = $groupsWithoutUuid->RecordCount();
 
         // populate the groups with the already existent uuids
         if ($number > 0) {
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
-            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+            while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
                 $mappedValues = array_map(fn($col) => $row[$col], array_merge(['uuid'], $this->table_vertical));
-                sqlStatementNoLog($sqlUpdate, $mappedValues, true);
+                QueryUtils::sqlStatementThrowException($sqlUpdate, $mappedValues, noLog: true);
                 $counter++;
             }
         }
