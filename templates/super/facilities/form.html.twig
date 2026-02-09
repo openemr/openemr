@@ -149,7 +149,7 @@ function displayAlert() {
 
             <div class="form-row">
                 <div class="form-group w-100">
-                    <input type='text' class='form-control form-control-lg' aria-label="{{ 'Facility Name'|xlt }}" placeholder="{{ 'Facility Name'|xla }}" name='facility' value='{{ facility.name|default('')|attr }}'>
+                    <input type='text' class='form-control form-control-lg' aria-label="{{ 'Facility Name'|xla }}" placeholder="{{ 'Facility Name'|xla }}" name='facility' value='{{ facility.name|default('')|attr }}'>
                 </div>
             </div>
             <div class="form-row mb-2">
@@ -281,7 +281,7 @@ function displayAlert() {
                     <div class="pr-1">
                         <div class="form-group">
                             <label for="organization_type">{{ "Organization Type"|xlt }}</label>
-                            {{ selectList('organization_type', 'organization-type', facility.organization_type, '', {class: 'form-control-sm', empty_name: '-- Select Organization Type--'}) }}
+                            {{ selectList('organization_type', 'organization-type', facility.organization_type, '', {class: 'form-control-sm', empty_name: '-- ' ~ 'Select Organization Type'|xlt ~ ' --'}) }}
                         </div>
                         <div class="form-group">
                             <label for='ncolor'>{{ 'Color'|xlt }}</label>
