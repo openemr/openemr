@@ -2952,11 +2952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$AlertCount on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/soap_functions/soap_accountStatusDetails.php',
@@ -3810,11 +3805,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$request_use_auto_globals on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_connectionID on ADOConnection\\|false\\.$#',

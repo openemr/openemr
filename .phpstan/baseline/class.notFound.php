@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method Execute\\(\\) on an unknown class connection\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
@@ -207,11 +202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function coding_carburetor\\(\\) has invalid return type outputs\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -250,11 +240,6 @@ $ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to property \\$fields on an unknown class recordset\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\$search_query of function diagnosis_search\\(\\) has invalid type type\\.$#',
@@ -397,16 +382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevModuleSetup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityData.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:\\$loggedInUserId has unknown class Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\The as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
@@ -432,34 +407,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/models/OrderStatusViewModel.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\LogProperties\\:\\:\\$container has unknown class OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\Container as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to property \\$_numOfRows on an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_fragment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_fragment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
@@ -1122,26 +1077,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to property \\$_numOfRows on an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/ereqs/ereq_universal_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/ereq_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to property \\$_numOfRows on an unknown class recordset\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/super/edit_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$encounterId of method ESign\\\\Encounter_Log\\:\\:__construct\\(\\) has invalid type ESign\\\\unknown\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
@@ -1160,11 +1095,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\$formId of method ESign\\\\Form_Log\\:\\:__construct\\(\\) has invalid type ESign\\\\unknown\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'msg_date\' on an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to static method NWeekdayOfMonth\\(\\) on an unknown class MedExApi\\\\Date_Calc\\.$#',
@@ -1287,72 +1217,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to property \\$EOF on an unknown class type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method FetchRow\\(\\) on an unknown class type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method RecordCount\\(\\) on an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_db\\(\\) has invalid return type connection\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function privStatement\\(\\) has invalid return type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sqlQ\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sqlStatementNoLog\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sqlStatementThrowException\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sqlStatement\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$params of function privQuery\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$params of function privStatement\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$r of function sqlNumRows\\(\\) has invalid type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$sql of function privQuery\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$sql of function privStatement\\(\\) has invalid type type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -2102,11 +1972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthExpiredException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method FetchRow\\(\\) on an unknown class recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:checkPhpVersion\\(\\) has invalid return type OpenEMR\\\\Common\\\\Compatibility\\\\warning\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
@@ -2122,7 +1987,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:sqlStatementThrowException\\(\\) has invalid return type OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:sqlStatementThrowException\\(\\) has invalid return type OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
@@ -2147,7 +2012,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
 ];
@@ -2652,7 +2517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
 ];
@@ -2687,7 +2552,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
+    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
