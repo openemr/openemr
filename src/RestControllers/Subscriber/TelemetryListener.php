@@ -31,7 +31,7 @@ class TelemetryListener implements EventSubscriberInterface
                 'eventUrl' => $request->getRequestMethod() . ' ' . $request->getPathInfo(),
                 'eventTarget' => $userRole,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $kernel = $event->getKernel();
             if ($kernel instanceof OEHttpKernel) {
                 $logger = $kernel->getSystemLogger();

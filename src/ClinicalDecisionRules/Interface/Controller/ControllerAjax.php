@@ -96,7 +96,7 @@ class ControllerAjax extends BaseController
         if ($plan_id == 'add_new_plan') {
             try {
                 $plan_id = RulesPlanMappingEventHandlers::addNewPlan($plan_name, $added_rules);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $status_code = '001';
                 $status_mssg = $e->getMessage();
 
@@ -136,7 +136,7 @@ class ControllerAjax extends BaseController
 
         try {
             RulesPlanMappingEventHandlers::togglePlanStatus($plan_id_toggle, $nm_flag);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // do a preg replace of all non-numeric values in exception message to just be safe in our values here
             $code_back = $e->getMessage();
             $code_back = preg_replace('/[^0-9]/', '', $code_back);

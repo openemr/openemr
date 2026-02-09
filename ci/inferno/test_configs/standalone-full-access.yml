@@ -2,27 +2,27 @@
   description: URL of the FHIR endpoint used by SMART applications
   title: FHIR Endpoint
   type: text
-  value: https://localhost:8523/
+  value: 'https://localhost:8523/'
 - name: standalone_smart_auth_info
   options:
     mode: auth
     components:
-    - name: auth_type
-      default: symmetric
-      options:
-        list_options:
-        - label: Public
-          value: public
-        - label: Confidential Symmetric
-          value: symmetric
-      locked: true
-    - name: auth_request_method
-      default: GET
-      locked: true
-    - name: use_discovery
-      locked: true
-    - name: requested_scopes
-      default: launch/patient openid fhirUser offline_access patient/Medication.read patient/AllergyIntolerance.read patient/CarePlan.read patient/CareTeam.read patient/Condition.read patient/Device.read patient/DiagnosticReport.read patient/DocumentReference.read patient/Encounter.read patient/Goal.read patient/Immunization.read patient/Location.read patient/MedicationRequest.read patient/Observation.read patient/Organization.read patient/Patient.read patient/Practitioner.read patient/Procedure.read patient/Provenance.read patient/PractitionerRole.read
+      - name: auth_type
+        default: symmetric
+        options:
+          list_options:
+            - label: Public
+              value: public
+            - label: Confidential Symmetric
+              value: symmetric
+        locked: true
+      - name: auth_request_method
+        default: GET
+        locked: true
+      - name: use_discovery
+        locked: true
+      - name: requested_scopes
+        default: launch/patient openid fhirUser offline_access patient/Medication.read patient/AllergyIntolerance.read patient/CarePlan.read patient/CareTeam.read patient/Condition.read patient/Device.read patient/DiagnosticReport.read patient/DocumentReference.read patient/Encounter.read patient/Goal.read patient/Immunization.read patient/Location.read patient/MedicationRequest.read patient/Observation.read patient/Organization.read patient/Patient.read patient/Practitioner.read patient/Procedure.read patient/Provenance.read patient/PractitionerRole.read
   title: Standalone Launch Credentials
   type: auth_info
   value:

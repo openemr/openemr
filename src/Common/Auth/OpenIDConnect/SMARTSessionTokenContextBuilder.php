@@ -71,7 +71,7 @@ class SMARTSessionTokenContextBuilder
                 $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }

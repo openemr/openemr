@@ -323,7 +323,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                 if ($date === false) {
                     try {
                         $date = new DateTime($start_date);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new \InvalidArgumentException("Invalid start_date format: " . $start_date . " - " . $e->getMessage());
                     }
                 }
@@ -352,7 +352,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                 if ($date === false) {
                     try {
                         $date = new DateTime($end_date);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new \InvalidArgumentException("Invalid end_date format: " . $end_date . " - " . $e->getMessage());
                     }
                 }

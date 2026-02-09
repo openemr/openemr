@@ -1313,7 +1313,7 @@ class ProcedureService extends BaseService
             if ($deletedCount > 0) {
                 error_log("Deleted $deletedCount relationships for procedure_order_id: $procedureOrderId");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Error deleting relationships for procedure_order_id $procedureOrderId: " . $e->getMessage());
         }
 
@@ -1336,7 +1336,7 @@ class ProcedureService extends BaseService
     {
         try {
             return $this->relationshipService->cleanupOrphanedRecords();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Error cleaning up orphaned relationships: " . $e->getMessage());
             return 0;
         }
@@ -1352,7 +1352,7 @@ class ProcedureService extends BaseService
     {
         try {
             return $this->relationshipService->getStatistics();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Error getting relationship statistics: " . $e->getMessage());
             return [
                 'error' => $e->getMessage(),

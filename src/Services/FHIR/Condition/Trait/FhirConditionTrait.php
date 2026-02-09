@@ -129,7 +129,7 @@ trait FhirConditionTrait
                     return true;
                 }
             }
-        } catch (Exception) {
+        } catch (\Throwable) {
         }
         return false;
     }

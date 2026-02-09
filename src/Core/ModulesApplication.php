@@ -175,7 +175,7 @@ class ModulesApplication
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
             // here and then inject the EventDispatcher or even possibly the Symfony Kernel here?
             include $module['path'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             error_log(errorLogEscape($exception->getMessage()));
         }
     }

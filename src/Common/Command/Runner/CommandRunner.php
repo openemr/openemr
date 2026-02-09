@@ -125,7 +125,7 @@ class CommandRunner
                 }
             }
             return $availableCommands;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

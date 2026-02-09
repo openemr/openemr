@@ -689,7 +689,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }

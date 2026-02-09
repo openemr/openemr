@@ -173,7 +173,7 @@ class DecisionSupportInterventionService extends BaseService
             if (!$this->inNestedTransaction) {
                 QueryUtils::commitTransaction();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($inTransaction && !$this->inNestedTransaction) {
                 QueryUtils::rollbackTransaction();
             }

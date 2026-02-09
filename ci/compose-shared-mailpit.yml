@@ -6,7 +6,7 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
       MP_MAX_MESSAGES: 5000
     healthcheck:
-      test: [CMD, wget, --quiet, --tries=1, --spider, http://localhost:8025/api/v1/messages]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025/api/v1/messages"]
       start_period: 10s
       interval: 30s
       timeout: 5s
@@ -23,5 +23,5 @@ services:
       OPENEMR_SETTING_SMTP_PASS: openemr
       OPENEMR_SETTING_SMTP_SECURE: ''
       OPENEMR_SETTING_SMTP_Auth: 'TRUE'
-      OPENEMR_SETTING_practice_return_email_path: noreply@openemr.local
-      OPENEMR_SETTING_Patient_Reminder_Sender_Name: OpenEMR Reminders
+      OPENEMR_SETTING_practice_return_email_path: 'noreply@openemr.local'
+      OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'

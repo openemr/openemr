@@ -228,7 +228,7 @@ class SystemLogger implements LoggerInterface
                 try {
                     $object = json_encode($value);
                     $escapedDict[$escapedKey] = $this->escapeValue($object);
-                } catch (\Exception $error) {
+                } catch (\Throwable $error) {
                     error_log($error->getMessage());
                 }
             } else {

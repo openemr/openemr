@@ -81,7 +81,7 @@ class FhirOperationDocRefRestController
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $response->getBody()->write(json_encode($operationOutcome));
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
             $response->getBody()->write(json_encode($operationOutcome));

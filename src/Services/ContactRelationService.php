@@ -92,7 +92,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error creating relationship", [
                 'contact_id' => $contactId,
                 'target_table' => $targetTable,
@@ -134,7 +134,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error updating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -172,7 +172,7 @@ class ContactRelationService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to deactivate relationship");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -202,7 +202,7 @@ class ContactRelationService extends BaseService
                 'deleted' => true,
                 'contact_relation_id' => $relationId
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -388,7 +388,7 @@ class ContactRelationService extends BaseService
             foreach ($indexedResults as $recordUuid) {
                 $processingResult->addData($personByUuids[$recordUuid]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error searching patient relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -655,7 +655,7 @@ class ContactRelationService extends BaseService
                 'source_contact_id' => $sourceContactId,
                 'destination_contact_id' => $destinationContactId
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error transferring relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -857,7 +857,7 @@ class ContactRelationService extends BaseService
                             'patient_id' => $targetId,
                             'person_id' => $targetPersonId
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $this->getLogger()->error("Failed to get/create person for patient", [
                             'patient_id' => $targetId,
                             'error' => $e->getMessage()
@@ -940,7 +940,7 @@ class ContactRelationService extends BaseService
 
             QueryUtils::commitTransaction();
             $committed = true;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getLogger()->error("Error batch saving relationships", [
                 'error' => $exception->getMessage()
             ]);

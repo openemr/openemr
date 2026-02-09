@@ -459,7 +459,7 @@ class QrdaReportController
 
             // Stream download to browser
             $this->streamXmlDownload($filename, $xml);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Send error response

@@ -384,7 +384,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             }
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error(
                 "FhirObservationAdvanceDirectiveService->searchForOpenEMRRecords() exception",
                 ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]

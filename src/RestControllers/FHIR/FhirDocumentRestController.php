@@ -93,7 +93,7 @@ class FhirDocumentRestController
                 if (!$document->is_deleted()) {
                     $document->process_deleted();
                 }
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 // we just continue as we still wanto to reject the response
                 $this->logger->error(
                     "FhirDocumentRestController->downloadDocument() Failed to delete document with id",

@@ -138,7 +138,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
             try {
                 // createUuid() returns bytes directly - no uuidToBytes() needed!
                 $this->uuid = (new UuidRegistry(['table_name' => 'person']))->createUuid();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail - UUID is optional
                 error_log("Failed to generate UUID for person: " . $e->getMessage());
             }
