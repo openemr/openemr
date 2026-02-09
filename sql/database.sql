@@ -1886,7 +1886,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW());
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW(), 'prov');
 
 -- --------------------------------------------------------
 
