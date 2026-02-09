@@ -102,7 +102,7 @@ if ($dispose == $_POST['audit_delete'] ?? null) {
                 ;
                 echo js_escape(['success' => false, 'message' => 'Failed to update or delete record.']);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Rollback on error
             QueryUtils::rollbackTransaction();
             echo js_escape(['success' => false, 'message' => $e->getMessage()]);
@@ -172,10 +172,10 @@ try {
             echo $file;
             $logit->portalLog('fetched PDF', $cpid, ('document:' . $form_filename));
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             die(text($e->getMessage()));
         }
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     die(text($e->getMessage()));
 }

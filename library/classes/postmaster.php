@@ -79,7 +79,7 @@ class MyMailer extends PHPMailer
             $body = json_encode($templateData);
             QueryUtils::sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`,  `template_name`, `datetime_queued`) VALUES (?, ?, ?, ?, ?, NOW())", [$sender, $recipient, $subject, $body, $template]);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             (new SystemLogger())->errorLogCaller("Failed to add email to queue notification error " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
         return false;
@@ -153,7 +153,7 @@ class MyMailer extends PHPMailer
                         } else {
                             $mail->smtpClose();
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         (new SystemLogger())->errorLogCaller("Failed to generate email contents: " . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
                         throw $e; // Ensure rollback in case of failure
                     }
@@ -164,7 +164,7 @@ class MyMailer extends PHPMailer
             }
             // Success so Commit transaction.
             QueryUtils::commitTransaction();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Failed so Rollback transaction.
             QueryUtils::rollbackTransaction();
             (new SystemLogger())->errorLogCaller("Failed to send email" . ': ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);

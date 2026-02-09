@@ -214,7 +214,7 @@ abstract class AppDispatch
             self::setModuleType($type);
             self::$_apiService = self::getServiceInstance($type);
             return self::$_apiService;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo $e->getMessage();
             exit;
         }
@@ -234,7 +234,7 @@ abstract class AppDispatch
             }
             self::setModuleType($type);
             self::$_apiService = self::getServiceInstance($type);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo $e->getMessage();
             exit;
         }
@@ -644,7 +644,7 @@ abstract class AppDispatch
             if ($mail->Send()) {
                 $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;
         }
@@ -712,7 +712,7 @@ abstract class AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return 'Error: ' . text($message) . PHP_EOL;
         }

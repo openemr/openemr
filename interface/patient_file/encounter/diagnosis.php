@@ -16,6 +16,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
@@ -130,7 +131,7 @@ if (isset($mode)) {
 
         if (!empty($sql)) {
             foreach ($sql as $q) {
-                $results = sqlQ($q);
+                QueryUtils::sqlStatementThrowException($q);
             }
         }
 

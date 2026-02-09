@@ -141,7 +141,7 @@ try {
         'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Registry error'
     ]);
     exit;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     // Other errors
     error_log("NPI Lookup Error: " . $e->getMessage());
     http_response_code(500);

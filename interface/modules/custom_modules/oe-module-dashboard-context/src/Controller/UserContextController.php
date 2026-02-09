@@ -60,7 +60,7 @@ class UserContextController
                 'get_full_config' => $this->getFullConfig(),
                 default => $this->sendError('Invalid action'),
             };
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->sendError($e->getMessage());
         }
     }

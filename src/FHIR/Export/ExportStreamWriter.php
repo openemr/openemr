@@ -88,7 +88,7 @@ class ExportStreamWriter
             }
         } catch (\JsonException $exception) {
             throw new ExportCannotEncodeException("Failed to encode resource for export", 0, $this->lastProcessedId, $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw new ExportException("Unknown error in writing to stream", 0, $this->lastProcessedId, $exception);
         }
     }

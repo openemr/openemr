@@ -128,7 +128,7 @@ try {
     if ($questionnaire_form == 'New Questionnaire') {
         $q_list = $service->getQuestionnaireList(true);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $msg = "<p style='color: red; font-size: 1.25rem;'>" . xlt("Can not continue") . ": " . text($e->getMessage()) . "</p>";
     die($msg);
 }

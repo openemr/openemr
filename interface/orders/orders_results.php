@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PhoneNumberService;
@@ -65,66 +66,99 @@ function oresRawData($name, $index)
     return trim((string) $s);
 }
 
-function oresData($name, $index)
-{
-    $s = $_POST[$name][$index] ?? '';
-    return add_escape_custom(trim((string) $s));
-}
-
-function QuotedOrNull($fld)
-{
-    if (empty($fld)) {
-        return "null";
-    }
-
-    return "'$fld'";
-}
-
 $current_report_id = 0;
 
 if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
         [$order_id, $order_seq, $report_id, $result_id] = explode(':', (string) $line_value);
 
-// Not using xl() here because this is for debugging only.
+        // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {
             die("Order ID is missing from line " . text($lino) . ".");
         }
 
-// If report data exists for this line, save it.
-        $date_report = oresData("form_date_report", $lino);
+        // If report data exists for this line, save it.
+        $date_report = oresRawData("form_date_report", $lino);
 
         if (!empty($date_report)) {
-            $sets =
-                "procedure_order_id = '" . add_escape_custom($order_id) . "', " .
-                "procedure_order_seq = '" . add_escape_custom($order_seq) . "', " .
-                "date_report = '" . add_escape_custom($date_report) . "', " .
-                "date_collected = " . QuotedOrNull(oresData("form_date_collected", $lino)) . ", " .
-                "specimen_num = '" . oresData("form_specimen_num", $lino) . "', " .
-                "report_status = '" . oresData("form_report_status", $lino) . "'";
+            $date_collected = oresRawData("form_date_collected", $lino);
+            $binds = [
+                $order_id,
+                $order_seq,
+                $date_report,
+                empty($date_collected) ? null : $date_collected,
+                oresRawData("form_specimen_num", $lino),
+                oresRawData("form_report_status", $lino),
+            ];
 
-// Set the review status to reviewed.
-            if ($form_review) {
-                $sets .= ", review_status = 'reviewed'";
-            }
-
-            if ($report_id) { // Report already exists.
-                sqlStatement("UPDATE procedure_report SET $sets " .
-                    "WHERE procedure_report_id = '" . add_escape_custom($report_id) . "'");
-            } else { // Add new report.
-                $report_id = sqlInsert("INSERT INTO procedure_report SET $sets");
+            if ($report_id) {
+                // Report already exists.
+                $binds[] = $report_id;
+                if ($form_review) {
+                    QueryUtils::sqlStatementThrowException(
+                        <<<'SQL'
+                        UPDATE `procedure_report`
+                        SET `procedure_order_id` = ?,
+                            `procedure_order_seq` = ?,
+                            `date_report` = ?,
+                            `date_collected` = ?,
+                            `specimen_num` = ?,
+                            `report_status` = ?,
+                            `review_status` = 'reviewed'
+                        WHERE `procedure_report_id` = ?
+                        SQL,
+                        $binds
+                    );
+                } else {
+                    QueryUtils::sqlStatementThrowException(
+                        <<<'SQL'
+                        UPDATE `procedure_report`
+                        SET `procedure_order_id` = ?,
+                            `procedure_order_seq` = ?,
+                            `date_report` = ?,
+                            `date_collected` = ?,
+                            `specimen_num` = ?,
+                            `report_status` = ?
+                        WHERE `procedure_report_id` = ?
+                        SQL,
+                        $binds
+                    );
+                }
+            } else {
+                // Add new report.
+                if ($form_review) {
+                    $report_id = QueryUtils::sqlInsert(
+                        <<<'SQL'
+                        INSERT INTO `procedure_report` (
+                            `procedure_order_id`, `procedure_order_seq`, `date_report`,
+                            `date_collected`, `specimen_num`, `report_status`, `review_status`
+                        ) VALUES (?, ?, ?, ?, ?, ?, 'reviewed')
+                        SQL,
+                        $binds
+                    );
+                } else {
+                    $report_id = QueryUtils::sqlInsert(
+                        <<<'SQL'
+                        INSERT INTO `procedure_report` (
+                            `procedure_order_id`, `procedure_order_seq`, `date_report`,
+                            `date_collected`, `specimen_num`, `report_status`
+                        ) VALUES (?, ?, ?, ?, ?, ?)
+                        SQL,
+                        $binds
+                    );
+                }
             }
         }
 
-// If this line had report data entry fields, filled or not, set the
-// "current report ID" which the following result data will link to.
+        // If this line had report data entry fields, filled or not, set the
+        // "current report ID" which the following result data will link to.
         if (isset($_POST["form_date_report"][$lino])) {
             $current_report_id = $report_id;
         }
 
-// If there's a report, save corresponding results.
+        // If there's a report, save corresponding results.
         if ($current_report_id) {
-// Comments and notes will be combined into one comments field.
+            // Comments and notes will be combined into one comments field.
             $form_comments = oresRawData("form_comments", $lino);
             $form_comments = str_replace("\n", '~', $form_comments);
             $form_comments = str_replace("\r", '', $form_comments);
@@ -133,24 +167,57 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 $form_comments .= "\n" . $form_notes;
             }
 
-            $sets =
-                "procedure_report_id = '" . add_escape_custom($current_report_id) . "', " .
-                "result_code = '" . oresData("form_result_code", $lino) . "', " .
-                "result_text = '" . oresData("form_result_text", $lino) . "', " .
-                "`date` = " . QuotedOrNull(oresData("form_result_date", $lino)) . ", " .
-                "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
-                "result = '" . oresData("form_result_result", $lino) . "', " .
-                "`range` = '" . oresData("form_result_range", $lino) . "', " .
-                "units = '" . oresData("form_result_units", $lino) . "', " .
-                "facility = '" . oresData("form_facility", $lino) . "', " .
-                "comments = '" . add_escape_custom($form_comments) . "', " .
-                "result_status = '" . oresData("form_result_status", $lino) . "', " .
-                "`date_end` = " . QuotedOrNull(oresData("form_result_date_end", $lino));
-            if ($result_id) { // result already exists
-                sqlStatement("UPDATE procedure_result SET $sets " .
-                    "WHERE procedure_result_id = '" . add_escape_custom($result_id) . "'");
-            } else { // Add new result.
-                $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
+            $result_date = oresRawData("form_result_date", $lino);
+            $result_date_end = oresRawData("form_result_date_end", $lino);
+            $binds = [
+                $current_report_id,
+                oresRawData("form_result_code", $lino),
+                oresRawData("form_result_text", $lino),
+                empty($result_date) ? null : $result_date,
+                oresRawData("form_result_abnormal", $lino),
+                oresRawData("form_result_result", $lino),
+                oresRawData("form_result_range", $lino),
+                oresRawData("form_result_units", $lino),
+                oresRawData("form_facility", $lino),
+                $form_comments,
+                oresRawData("form_result_status", $lino),
+                empty($result_date_end) ? null : $result_date_end,
+            ];
+
+            if ($result_id) {
+                // Result already exists.
+                $binds[] = $result_id;
+                QueryUtils::sqlStatementThrowException(
+                    <<<'SQL'
+                    UPDATE `procedure_result`
+                    SET `procedure_report_id` = ?,
+                        `result_code` = ?,
+                        `result_text` = ?,
+                        `date` = ?,
+                        `abnormal` = ?,
+                        `result` = ?,
+                        `range` = ?,
+                        `units` = ?,
+                        `facility` = ?,
+                        `comments` = ?,
+                        `result_status` = ?,
+                        `date_end` = ?
+                    WHERE `procedure_result_id` = ?
+                    SQL,
+                    $binds
+                );
+            } else {
+                // Add new result.
+                $result_id = QueryUtils::sqlInsert(
+                    <<<'SQL'
+                    INSERT INTO `procedure_result` (
+                        `procedure_report_id`, `result_code`, `result_text`, `date`,
+                        `abnormal`, `result`, `range`, `units`, `facility`,
+                        `comments`, `result_status`, `date_end`
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    SQL,
+                    $binds
+                );
             }
         }
     } // end foreach

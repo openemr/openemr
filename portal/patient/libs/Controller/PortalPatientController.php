@@ -97,7 +97,7 @@ class PortalPatientController extends AppBasePortalController
             $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -120,7 +120,7 @@ class PortalPatientController extends AppBasePortalController
             }
 
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -220,7 +220,7 @@ class PortalPatientController extends AppBasePortalController
                 // $patient->Save(); //active records save
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -256,7 +256,7 @@ class PortalPatientController extends AppBasePortalController
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -276,7 +276,7 @@ class PortalPatientController extends AppBasePortalController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

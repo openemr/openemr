@@ -149,7 +149,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
 

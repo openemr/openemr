@@ -103,7 +103,7 @@ class SymfonyCommandRunner
             // dispatch an event so modules can also add commands
             $this->getEventDispatcher()->dispatch($filterCommand, CommandRunnerFilterEvent::EVENT_NAME);
             return $filterCommand->getCommands();
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

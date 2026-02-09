@@ -9,3 +9,4 @@ parameters:
     - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
   excludePaths:
     - ../sites/default/documents/smarty
+    - ../tests/Rector

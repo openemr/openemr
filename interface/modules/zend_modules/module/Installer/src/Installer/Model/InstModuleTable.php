@@ -183,11 +183,12 @@ class InstModuleTable
                 $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
-            } catch (SqlQueryException | \Exception $exception) {
-                (new SystemLogger())->errorLogCaller(
-                    "Error: " . $exception->getMessage(),
-                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
-                );
+            } catch (\Throwable $exception) {
+                $context = ['trace' => $exception->getTraceAsString()];
+                if ($exception instanceof SqlQueryException) {
+                    $context['statement'] = $exception->getSqlStatement();
+                }
+                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {

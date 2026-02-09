@@ -169,7 +169,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
             header("Content-Description: File Transfer");
             echo $pdfwkout;
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt($e->getMessage());
     }
     return true;

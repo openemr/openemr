@@ -48,7 +48,7 @@ try {
         $response = $controller->newAction($request);
     }
     $response->send();
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle any exceptions that may occur
     $logger->errorLogCaller("Failed to create new observation form", [
         'error' => $e->getMessage(),

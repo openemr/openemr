@@ -34,7 +34,7 @@ if ((!empty($id)) && ($id > 0)) {
     try {
         $drug_name = "SELECT patient_id, drug FROM prescriptions WHERE id = ?";
         $dn = sqlQuery($drug_name, [$id]);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
         if ($e->getMessage()) {
             exit;
@@ -52,7 +52,7 @@ if ((!empty($id)) && ($id > 0)) {
             sqlStatement($medicationlist, [$pid, $drugname]);
             EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $drugname . " prescription/medication removed", $pid);
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
         if ($e->getMessage()) {
             exit;
@@ -65,7 +65,7 @@ if ((!empty($id)) && ($id > 0)) {
     try {
         $sql = "delete from prescriptions where id = ?";
         sqlQuery($sql, [$id]);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
         if ($e->getMessage()) {
             exit;

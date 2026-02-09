@@ -81,7 +81,7 @@ function downloadWenoPrescriptionLog(): void
     try {
         $logSync = new LogProperties();
         $rtn = $logSync->logSync('background');
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $rtn = false;
         $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
         error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

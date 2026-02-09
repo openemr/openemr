@@ -49,7 +49,7 @@ header('Content-Type: application/json');
 try {
     $token = (new SphereRevert($front))->getToken($action, $transid, $confirmPinPost, $uuidTx);
     echo json_encode(['success' => $token]);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $errorAudit = [];
     $errorAudit['token_request_error'] = $e->getMessage();
     $errorAudit['get']['front'] = $front;

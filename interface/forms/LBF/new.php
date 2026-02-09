@@ -60,7 +60,7 @@ function end_cell(): void
 
 function end_row(): void
 {
-    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
+    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
     end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {

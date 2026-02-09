@@ -78,11 +78,6 @@ if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
     AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
-function QuotedOrNull($fld)
-{
-    return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////

@@ -88,7 +88,7 @@ function saveAddressesForPatient($pid, $addressData)
                         }
                         break;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->error("Error processing address", [
                     'action' => $action,
                     'index' => $i,
@@ -102,7 +102,7 @@ function saveAddressesForPatient($pid, $addressData)
             'count' => count($savedAddresses)
         ]);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Error in saveAddressesForPatient", [
             'pid' => $pid,
             'error' => $e->getMessage()
