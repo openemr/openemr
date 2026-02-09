@@ -9,10 +9,12 @@
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1719,14 +1721,17 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// This computes, sets and returns the dup score for the given patient.
-//
+// Compute dupscore for a single patient using symmetric comparison (p2.pid != p1.pid).
+// This is required for single-patient updates (e.g., after demographics change) to detect
+// matches with higher-PID patients. Batch operations in dupscore.cli.php and calculateScores()
+// intentionally use asymmetric comparison (p2.pid < p1.pid) as a performance optimization
+// that works correctly when processing all patients.
 function updateDupScore($pid)
 {
     $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid < p1.pid",
+        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1",
         [$pid]
     );
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
