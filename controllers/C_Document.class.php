@@ -1435,7 +1435,7 @@ class C_Document extends Controller
     public function clear_procedure_tag_action(?string $patient_id, $document_id)
     {
         if (is_numeric($document_id)) {
-            sqlStatement("delete from procedure_result where document_id = ?", $document_id);
+            sqlStatement("delete from procedure_result where document_id = ?", [$document_id]);
         }
         return $this->view_action($patient_id, $document_id);
     }
