@@ -332,8 +332,8 @@ class ApplicationTable
         $temp = explode(' ', (string) $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
-        $output_format = ApplicationTable::dateFormat($output_format);
-        $input_format = ApplicationTable::dateFormat($input_format);
+        $output_format = $this->dateFormat($output_format);
+        $input_format = $this->dateFormat($input_format);
 
         preg_match("/[^ymd]/", (string) $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];
