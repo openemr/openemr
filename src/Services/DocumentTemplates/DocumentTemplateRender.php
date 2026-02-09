@@ -24,6 +24,7 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use RuntimeException;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PhoneNumberService;
@@ -94,7 +95,7 @@ class DocumentTemplateRender
         }
 
         // Get most recent vitals.
-        $this->vitalsrow = sqlQuery(
+        $this->vitalsrow = QueryUtils::querySingleRow(
             "SELECT weight, height, BMI FROM form_vitals WHERE pid = ? ORDER BY id DESC LIMIT 1",
             [$this->pid]
         ) ?: [];

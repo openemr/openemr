@@ -25,6 +25,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -384,7 +385,7 @@ if ($encounter) {
 }
 
 // Get most recent vitals.
-$vitalsrow = sqlQuery(
+$vitalsrow = QueryUtils::querySingleRow(
     "SELECT weight, height, BMI FROM form_vitals WHERE pid = ? ORDER BY id DESC LIMIT 1",
     [$pid]
 );

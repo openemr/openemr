@@ -947,7 +947,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ptrow, \\$hisrow, \\$enrow, \\$nextLocation, \\$keyLocation, \\$keyLength\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ptrow, \\$hisrow, \\$enrow, \\$vitalsrow, \\$nextLocation, \\$keyLocation, \\$keyLength\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
 ];
