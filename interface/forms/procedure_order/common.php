@@ -511,12 +511,20 @@ if (!empty($row['lab_id'])) {
                     $(this).find('tbody tr input,tbody tr select').filter(function () {
                         return $(this).val();
                     }).length > 0) {
-                    $(this).collapse('show');
+                    const collapseEl = this;
+                    if (collapseEl) {
+                        const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                        collapse.show();
+                    }
                 }
             });
             // If editing an existing order, close the order options panel real estate matters!
             if ($("input[name='id']").val() > 0) {
-                $('#orderOptions').collapse();
+                const orderOptionsEl = document.getElementById('orderOptions');
+                if (orderOptionsEl) {
+                    const collapse = bootstrap.Collapse.getOrCreateInstance(orderOptionsEl);
+                    collapse.hide();
+                }
             }
         });
 
@@ -1050,7 +1058,11 @@ if (!empty($row['lab_id'])) {
             $(document).on('click', '.specimen-code-btn', function (e) {
                 e.preventDefault();
                 const id = this.getAttribute('data-toggle-specimen');
-                $('#' + id).collapse('toggle');
+                const collapseEl = document.getElementById(id);
+                if (collapseEl) {
+                    const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                    collapse.toggle();
+                }
             });
             // Add specimen row
             $(document).on('click', '.add-specimen-row', function (e) {
@@ -1071,7 +1083,11 @@ if (!empty($row['lab_id'])) {
             });
 
             <?php if ($row['date_transmitted'] ?? '') { ?>
-            $("#summary").collapse("toggle");
+            const summaryEl = document.getElementById('summary');
+            if (summaryEl) {
+                const collapse = bootstrap.Collapse.getOrCreateInstance(summaryEl);
+                collapse.toggle();
+            }
             <?php } ?>
         });
 
@@ -1288,12 +1304,12 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="container-xl clearfix">
-                    <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
+                    <legend class="lfont1" data-bs-toggle="collapse" data-bs-target="#orderOptions" role="button">
                         <i class="fa fa-plus"></i>
                         <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ?: 'New Order') ?>
                     </legend>
                     <div class="col-md-12 collapse show" id="orderOptions">
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="provider_id" class="col-form-label col-md-2"><?php echo xlt('Ordering Provider'); ?></label>
                             <div class="col-md-2">
                                 <?php generate_form_field(['data_type' => 10, 'field_id' => 'provider_id'], $row['provider_id']); ?>
@@ -1325,7 +1341,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="clearfix"></div>
                         </div>
                         <!-- Order Intent & Status & Priority -->
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="form_order_intent" class="col-form-label col-md-2"><?php echo xlt('Order Intent'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1358,7 +1374,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="clearfix"></div>
                         </div>
                         <!--  Service Details todo sjp lot into collapse -->
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="form_performer_type" class="col-form-label col-md-2"><?php echo xlt('Performer Type'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1388,10 +1404,10 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="clearfix"></div>
                         </div>
                         <!-- Scheduling Information -->
-                        <div class="form-group form-row bg-light py-2 my-2">
+                        <div class="mb-3 row gx-2 bg-light py-2 my-2">
                             <div class="col-md-12">
                                 <h6 class="text-primary mb-2">
-                                    <i class="fa fa-calendar mr-2"></i><?php echo xlt('Scheduling Information'); ?>
+                                    <i class="fa fa-calendar me-2"></i><?php echo xlt('Scheduling Information'); ?>
                                 </h6>
                             </div>
                             <label for="form_scheduled_date" class="col-form-label col-md-2"><?php echo xlt('Scheduled Date'); ?></label>
@@ -1423,7 +1439,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="form_order_psc" class="col-form-label col-md-2"><?php echo xlt('PSC Hold Order'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1480,7 +1496,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="form_specimen_fasting" class="col-form-label col-md-2"><?php echo xlt('Fasting'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1503,7 +1519,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <label for="form_history_order"
                                 class="col-form-label col-md-2"><?php echo xlt('History Order'); ?></label>
                             <div class="col-md-2">
@@ -1517,7 +1533,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 row gx-2">
                             <div class="col-md-6">
                                 <label for='form_clinical_hx' class='col-form-label'><?php echo xlt('Clinical History'); ?></label>
                                 <textarea class='form-control text' rows='2' cols='60' wrap='hard'
@@ -1531,7 +1547,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     placeholder='<?php echo xla('Example: Fast for 12 hours before test'); ?>'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
                             </div>
                         </div>
-                        <div class="form-group form-row bg-dark text-light my-2 py-1">
+                        <div class="mb-3 row gx-2 bg-dark text-light my-2 py-1">
                             <label for="form_order_diagnosis" class="col-form-label"><?php echo xlt('Primary Diagnosis'); ?></label>
                             <div class="col-md-4">
                                 <?php
@@ -1570,13 +1586,13 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     </div>
                 </fieldset>
                 <fieldset class="container-xl card clearfix">
-                    <legend class="card-heading collapsed lfont1" data-toggle="collapse" data-target="#summary" role="button">
-                        <i class="fa fa-plus mr-2"></i><?php echo xlt("Order Documents and Logs"); ?>
-                        <i class="wait fa fa-cog fa-spin ml-2 d-none"></i>
+                    <legend class="card-heading collapsed lfont1" data-bs-toggle="collapse" data-bs-target="#summary" role="button">
+                        <i class="fa fa-plus me-2"></i><?php echo xlt("Order Documents and Logs"); ?>
+                        <i class="wait fa fa-cog fa-spin ms-2 d-none"></i>
                     </legend>
                     <div class="card-body collapse" id="summary">
-                        <div class="form-group"> <!--Order document links-->
-                            <div class="col-md-12 text-left position-override">
+                        <div class="mb-3"> <!--Order document links-->
+                            <div class="col-md-12 text-start position-override">
                                 <legend class="bg-dark text-light lfont1" role="button"><?php echo xlt("Order Documents"); ?></legend>
                                 <div class="btn-group" role="group">
                                     <?php
@@ -1588,7 +1604,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                 href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
                                         <?php }
                                     } ?>
-                                    <a class='btn btn-success ml-1' href='#'
+                                    <a class='btn btn-success ms-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
                                     if ($row['order_psc'] && !$isDorn) { ?>
@@ -1605,7 +1621,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                         <div class="col-md-12">
                             <legend class="bg-dark text-light lfont1"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
+                            <div class="bg-body-tertiary rounded-3 m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
                                 <?php
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;
@@ -1630,7 +1646,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     </div>
                     <?php if (!empty($order_data ?? null)) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
-                            <button type="button" class="close" data-dismiss="alert"><span class="text-dark">&times;</span></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"><span class="text-dark">&times;</span></button>
                             <p>
                                 <?php echo $order_data;
                                 unset($order_data); ?>
@@ -1681,7 +1697,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                 value=''>
                                         <?php endif; ?>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group'>
                                             <button type="button" class='btn btn-secondary btn-search' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
                                             <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='' />
@@ -1695,11 +1711,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td class='diagnosis-div input-group'>
-                                        <div class='input-group-prepend'>
-                                            <span class='btn btn-secondary input-group-text'>
-                                                <i class='fa fa-search search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
-                                            </span>
-                                        </div>
+                                        <span class='btn btn-secondary input-group-text'>
+                                            <i class='fa fa-search search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
+                                        </span>
                                         <input class='form-control c-hand add-diagnosis-sel-related' type='text'
                                             name='form_proc_type_diag[<?php echo $i; ?>]'
                                             value=''
@@ -1720,11 +1734,11 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     </td>
                                     <td>
                                         <!-- Action button for reason panel -->
-                                        <button class="btn btn-secondary reason-code-btn mt-2 float-right"
+                                        <button class="btn btn-secondary reason-code-btn mt-2 float-end"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
                                             data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
                                         </button>
-                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-1 float-right"
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 me-1 float-end"
                                             title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
                                             data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
                                             <i class="fa fa-flask"></i>
@@ -1771,7 +1785,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         <th><?php echo xlt('Procedure Test'); ?></th>
                                         <th><?php echo xlt('Diagnosis Codes'); ?></th>
                                         <th><?php echo xlt("Order Questions"); ?></th>
-                                        <th class="float-right"><?php echo xlt("Actions"); ?></th>
+                                        <th class="float-end"><?php echo xlt("Actions"); ?></th>
                                     </tr>
                                     </thead>
                                 <?php } ?>
@@ -1794,7 +1808,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_order_title']) ?>'>
                                         <?php endif; ?>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group'>
                                             <button type="button" class='btn btn-secondary btn-search' onclick='selectProcedureCode(<?php echo $i; ?>)' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
                                             <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type'] ?? ''); ?>' />
@@ -1810,11 +1824,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td class='diagnosis-div input-group'>
-                                        <div class='input-group-prepend'>
-                                            <span class='btn btn-secondary input-group-text'>
-                                                <i onclick='current_diagnoses(this)' class='fa fa-search' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
-                                            </span>
-                                        </div>
+                                        <span class='btn btn-secondary input-group-text'>
+                                            <i onclick='current_diagnoses(this)' class='fa fa-search' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
+                                        </span>
                                         <input class='form-control c-hand' type='text'
                                             name='form_proc_type_diag[<?php echo $i; ?>]'
                                             value='<?php echo attr($oprow['diagnoses'] ?? '') ?>'
@@ -1835,11 +1847,11 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary reason-code-btn mt-2 float-right"
+                                        <button class="btn btn-secondary reason-code-btn mt-2 float-end"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
                                             data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
                                         </button>
-                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-1 float-right"
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 me-1 float-end"
                                             title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
                                             data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
                                             <i class="fa fa-flask"></i>
@@ -1856,10 +1868,10 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         }
                         ?>
                     </div>
-                    <div class="btn=group ml-4">
+                    <div class="btn=group ms-4">
                         <div class="text-md-center">
                             <div class="position-override mt-2">
-                                <span class="wait fa fa-cog fa-spin fa-1x ml-2 d-none"></span>
+                                <span class="wait fa fa-cog fa-spin fa-1x ms-2 d-none"></span>
                                 <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
                                 <div class="btn-group" role="group">
                                     <button type="submit" class="btn btn-primary btn-save"

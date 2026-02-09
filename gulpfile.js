@@ -13,7 +13,7 @@ const gulpif = require('gulp-if');
 const prefix = require('autoprefixer');
 const postcss = require('gulp-postcss');
 const rename = require('gulp-rename');
-const sass = require('gulp-dart-sass');
+const sass = require('gulp-sass')(require('sass'));
 const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
@@ -124,7 +124,7 @@ function styles_style_uni() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_uni)
         .pipe(gap.prependText('$compact-theme: false;\n'))
-        .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
+        .pipe(injector.replace('// bs5import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -149,7 +149,7 @@ function styles_style_uni_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_uni)
         .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -177,7 +177,7 @@ function styles_style_color() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_color)
         .pipe(gap.prependText('$compact-theme: false;\n'))
-        .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
+        .pipe(injector.replace('// bs5import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -202,7 +202,7 @@ function styles_style_color_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_color)
         .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -277,7 +277,7 @@ function rtl_style_uni() {
     return gulp.src(config.src.styles.style_uni)
         .pipe(gap.prependText('$compact-theme: false;\n$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr-rtl";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -307,7 +307,7 @@ function rtl_style_uni_compact() {
         .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr_rtl_compact_imports";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr_rtl_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -336,7 +336,7 @@ function rtl_style_color() {
     return gulp.src(config.src.styles.style_color)
         .pipe(gap.prependText('$compact-theme: false;\n$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr-rtl";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -366,7 +366,7 @@ function rtl_style_color_compact() {
         .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr_rtl_compact_imports";'))
+        .pipe(injector.replace('// bs5import', '@import "../oemr_rtl_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
             log_error(isSuccess, err);
@@ -471,8 +471,8 @@ function install(done) {
                 gulp.src("node_modules/" + key + "/locales/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/locales")
                 );
-            } else if (key == "bootstrap" || key == "bootstrap-rtl") {
-                // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
+            } else if (key == "bootstrap") {
+                // bootstrap is special and need to copy dist and scss
                 gulp.src("node_modules/" + key + "/dist/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/dist")
                 );

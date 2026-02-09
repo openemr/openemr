@@ -2,6 +2,11 @@
 @if $compact-theme == false {
   .table > thead {
     background: $mid !important;
+
+    > tr > th,
+    > tr > td {
+      background-color: inherit !important;
+    }
   }
 
   .table-striped > tbody > tr:nth-of-type(odd) {

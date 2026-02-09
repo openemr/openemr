@@ -1,7 +1,7 @@
 {# Ordering Provider #}
 <div class="col-sm {{ displayOptionClass('enc_enable_ordering_provider') }}">
-    <div class="form-group">
-        <label for='ordering_provider_id' class="text-right">{{ 'Ordering Provider'|xlt  }}:</label>
+    <div class="mb-3">
+        <label for='ordering_provider_id' class="text-end">{{ 'Ordering Provider'|xlt  }}:</label>
         {% if orderingProviders|length > 0 %}
             <select name="ordering_provider_id" id="ordering_provider_id" class="form-control">
                 <option value="">-- {{ "Please Select"|xlt }} --</option>

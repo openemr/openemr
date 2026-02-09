@@ -214,7 +214,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
             <h4 class="mb-0"><?php echo xlt("Add Related Health Concerns"); ?></h4>
         </div>
         <div class="card-body">
-            <p class="text-muted mb-4">
+            <p class="text-body-secondary mb-4">
                 <?php echo xlt("Based on the SDOH assessment, the following health concerns may be relevant for this patient. Select any that apply:"); ?>
             </p>
 
@@ -234,7 +234,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
                                         <input type="checkbox"
                                                name="health_concerns[]"
                                                value="<?php echo attr($concern['id']); ?>"
-                                               class="form-check-input mr-2">
+                                               class="form-check-input me-2">
                                         <?php echo text($concern['title']); ?>
                                     <?php if (!empty($concern['diagnosis'])) : ?>
                                         <div class="concern-description">
@@ -266,7 +266,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
 
     <!-- Help Text -->
     <div class="mt-4">
-        <small class="text-muted">
+        <small class="text-body-secondary">
             <i class="fa fa-info-circle"></i>
             <?php echo xlt("Selected health concerns will be added as active conditions for this patient and linked to this SDOH assessment."); ?>
         </small>

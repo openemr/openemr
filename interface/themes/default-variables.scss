@@ -38,9 +38,12 @@ $body-bg: $white !default;
 $body-color: $gray-900 !default;
 $secondary-color: $gray-100 !default;
 
+/* Default primary color - themes can override $primary before importing this file */
+$primary: $blue !default;
+
 /* Array of theme colors that can be added to */
 $theme-colors: (
-  primary: $blue,
+  primary: $primary,
   secondary: $secondary-color,
   success: $green,
   info: $cyan,

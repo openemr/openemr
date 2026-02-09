@@ -333,7 +333,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                       "size='11' class='bg-transparent'>" .
                       " &nbsp;Qty:&nbsp;" .
                       "<input type='text' name='ndc[" . attr($ndclino) . "][ndcqty]' value='" . attr($ndcqty) . "' " .
-                      "size='3' class='bg-transparent text-right'> " .
+                      "size='3' class='bg-transparent text-end'> " .
                       "<select name='ndc[" . attr($ndclino) . "][ndcuom]' class='bg-transparent'>";
                 foreach ($ndc_uom_choices as $key => $value) {
                     $billing_html[$iter["code_type"]] .= "<option value='" . attr($key) . "'";

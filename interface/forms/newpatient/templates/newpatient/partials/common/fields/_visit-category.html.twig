@@ -1,7 +1,7 @@
 {# Visit Category #}
 <div class="col-sm {{ displayOptionClass('enc_enable_visit_category') }}">
-    <div class="form-group">
-        <label for="pc_catid" class="text-right">{{ "Visit Category:"|xlt }}</label>
+    <div class="mb-3">
+        <label for="pc_catid" class="text-end">{{ "Visit Category:"|xlt }}</label>
         <select name="pc_catid" id="pc_catid" class="form-control" {{ mode == 'followup' ? 'disabled' : '' }}>
             <option value="_blank">-- {{ "Select One"|xlt }} --</option>
             {% for category in visitCategories %}

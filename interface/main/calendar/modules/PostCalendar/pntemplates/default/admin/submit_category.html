@@ -46,7 +46,7 @@
 							<td>
 								<table class='table' cellspacing='8' cellpadding='2'>
             						<tr>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
             								<input type="hidden" name="newid" value=""/>
             								[-$_PC_CAT_NAME|text-]:<br />
             								&nbsp;<input type="text" class="form-control" name="newname" value="" size="20"/><br />
@@ -59,24 +59,24 @@
                 								[-/foreach-]
                 								</select>
             							</td>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
 											[-$_PC_CAT_CONSTANT_ID|text-]:<br />
 											&nbsp;<input type="text" class="form-control" name="newconstantid" value="" size="20"/><br />
                 							[-$_PC_CAT_COLOR|text-]:<br />
                 							&nbsp;<input type="color" name="newcolor" id='newcolor' value="var(--white)" size="10"/>
                                             [<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE|text-]</a>]
             							</td>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
                 							[-$_PC_CAT_DESC|text-]:<br />
                 							&nbsp;<textarea class="form-control" name="newdesc" rows="3" cols="20"></textarea>
             							</td>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
             								[-$ALL_DAY_CAT_TITLE|text-]<br />
             								&nbsp;[-$ALL_DAY_CAT_YES|text-]<input type="radio" name="new[-$InputAllDay|attr-]" value="[-$ValueAllDay|attr-]"/>
             								<br />
             								&nbsp;[-$ALL_DAY_CAT_NO|text-]<input type="radio" name="new[-$InputAllDay|attr-]" value="[-$ValueAllDayNo|attr-]" checked />
             							</td>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
             								[-$_PC_CAT_DUR|text-]:<br />
                 							&nbsp;	[-$DurationHourTitle|text-]
                 							<input type="text" class="form-control" name="new[-$InputDurationHour|attr-]" value="0" size="4" />
@@ -84,16 +84,16 @@
                 							&nbsp;	[-$DurationMinTitle|text-]
                 							<input type="text" class="form-control" name="new[-$InputDurationMin|attr-]" value="0" size="4" />
                 						</td>
-                						<td class="align-top text-left">
+                						<td class="align-top text-start">
                 							[-$_PC_ACTIVE|text-]:<br />
                 							<input type="radio" name="newactive" value="1"/> [-$ActiveTitleYes|text-]<br />
                 							<input type="radio" name="newactive" value="0"/> [-$ActiveTitleNo|text-]<br />
                 						</td>
-                						<td class="align-top text-left">
+                						<td class="align-top text-start">
                 							[-$_PC_SEQ|text-]:<br />
                 							<input type="text" class="form-control" name="newsequence" value="0" size="4" />
 										</td>
-										<td vclass="align-top text-left">
+										<td vclass="align-top text-start">
 											[-$_ACO|text-]:<br />
 											&nbsp;<select name="new[-$InputACO|attr-]" class="form-control">
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
@@ -116,12 +116,12 @@
 							<td>
             					<table class='table w-100'>
             						<tr>
-                						<td colspan="4" class="align-top text-left">
+                						<td colspan="4" class="align-top text-start">
                 							[-$RepeatingHeader|text-]
                 						</td>
                 					</tr>
             						<tr>
-                						<td colspan="4" class="align-middle text-left">
+                						<td colspan="4" class="align-middle text-start">
                 							<input type="radio" name="new[-$InputNoRepeat|attr-]" value="[-$ValueNoRepeat|attr-]" />
                 							[-$NoRepeatTitle|text-]<br />
                 							<input type="radio" name="new[-$InputRepeat|attr-]" value="[-$ValueRepeat|attr-]"/>
@@ -206,11 +206,11 @@
 							<td colspan='5'>
                 <table class='table table-borderless w-100'>
                   <tr bgcolor="[-$cat.color-]">
-                    <td class="text-left">
+                    <td class="text-start">
                       &nbsp;
                     </td>
                     <th class="text-center">[-$_PC_REP_CAT_TITLE_S|text-] [-$cat.id|text-]</th>
-                    <td class="text-right">
+                    <td class="text-end">
                       [-if $cat.id > 4 && $cat.id != 8 && $cat.id != 11 && $cat.id != 6 && $cat.id != 7-]
                       <!-- allow non-required categories to be deleted -->
                       <input type="checkbox" name="del[]" value="[-$cat.id|attr-]"/>
@@ -226,7 +226,7 @@
 							<td>
 								<table class='table'>
             						<tr>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
             								<input type="hidden" name="id[]" value="[-$cat.id|attr-]"/>
             								[-$_PC_CAT_NAME|text-]:<br />
             								&nbsp;<input type="text" class="form-control" name="name[]" value="[-$cat.name|attr-]" size="20"/><br />
@@ -240,34 +240,34 @@
                 								</select>
             							</td>
                           [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
-                          <td class="align-top text-left">[-$_PC_CAT_NAME_XL|text-]:<br />
+                          <td class="align-top text-start">[-$_PC_CAT_NAME_XL|text-]:<br />
                             <span class="text-success">[-$cat.nameTranslate|text-]</span>
                           </td>
                           [-/if-]
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
 											[-$_PC_CAT_CONSTANT_ID|text-]:<br />
 											&nbsp;<input type="text" class="form-control" name="constantid[]" value="[-$cat.constantid|attr-]" size="20"/><br />
                 							[-$_PC_CAT_COLOR|text-]:<br />
                 							&nbsp;<input type="color" name="color[]" id='color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]' value="[-$cat.color|attr-]" size="10"/>
                                             [<a href="javascript:void(0);" onClick="pick('pick','color[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE|text-]</a>]
             							</td>
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
                 							[-$_PC_CAT_DESC|text-]:<br />
                 							&nbsp;<textarea class="form-control" name="desc[]" rows="3" cols="20">[-$cat.desc|text-]</textarea>
             							</td>
                           [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
-                          <td class="align-top text-left">[-$_PC_CAT_DESC_XL|text-]:<br />
+                          <td class="align-top text-start">[-$_PC_CAT_DESC_XL|text-]:<br />
                             <span class="text-success">[-$cat.descTranslate|text-]</span>
                           </td>
                           [-/if-]
-            							<td class="align-top text-left">
+            							<td class="align-top text-start">
             								[-$ALL_DAY_CAT_TITLE|text-]<br />
             								[-$ALL_DAY_CAT_YES|text-]
             								<input type="radio" name="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueAllDay|attr-]" [-if $cat.end_all_day == 1-]checked[-/if-]/>
             								<br />
             								&nbsp;[-$ALL_DAY_CAT_NO|text-]<input type="radio" name="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueAllDayNo|attr-]" [-if $cat.end_all_day == 0-]checked[-/if-]/>
             							</td>
-                					<td class="align-top text-left">
+                					<td class="align-top text-start">
             								[-$_PC_CAT_DUR|text-]:<br />
                 							&nbsp;	[-$DurationHourTitle|text-]
                 							<input type="text" class="form-control" name="[-$InputDurationHour|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationh|attr-]" size="4" />
@@ -275,16 +275,16 @@
                 							&nbsp;	[-$DurationMinTitle|text-]
                 							<input type="text" class="form-control" name="[-$InputDurationMin|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationm|attr-]" size="4" />
                 					</td>
-                					<td class="align-top text-left">
+                					<td class="align-top text-start">
                 							[-$_PC_ACTIVE|text-]:<br />
                 							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="1" data='[-$cat.active|attr-]' [-if $cat.active == 1-]checked[-/if-]/>  [-$ActiveTitleYes|text-]<br />
                 							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="0" data='[-$cat.active|attr-]' [-if $cat.active == 0-]checked[-/if-]/>  [-$ActiveTitleNo|text-]<br />
                 					</td>
-                					<td class="align-top text-left">
+                					<td class="align-top text-start">
                 							[-$_PC_SEQ|text-]:<br />
                 							<input type="text" class="form-control" name="sequence[]" value="[-$cat.sequence|attr-]" size="4" />
                 					</td>
-      										<td class="align-top text-left">
+      										<td class="align-top text-start">
       											[-$_ACO|text-]:<br />
       											&nbsp;<select name="[-$InputACO|attr-][]" class="form-control">
                      									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
@@ -306,12 +306,12 @@
 							<td>
             					<table class='table w-100'>
             						<tr>
-                						<td colspan="4" class="align-top text-left">
+                						<td colspan="4" class="align-top text-start">
                 							[-$RepeatingHeader|text-]
                 						</td>
                 					</tr>
             						<tr>
-                						<td colspan="4"class="align-middle text-left">
+                						<td colspan="4"class="align-middle text-start">
                 							<input type="radio" name="[-$InputNoRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueNoRepeat|attr-]" [-if $cat.event_repeat == 0-]checked[-/if-]/>
                 							[-$NoRepeatTitle|text-]<br />
                 							<input type="radio" name="[-$InputRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueRepeat|attr-]" [-if $cat.event_repeat == 1-]checked[-/if-] />

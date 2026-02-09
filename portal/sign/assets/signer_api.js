@@ -51,8 +51,7 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
             <div id="alertMessage" class="alert alert-${type} border border-dark alert-dismissible fade show" role="alert">
                 <div class="alert-heading bg-dark text-light text-center"><h5 class="p-0 pb-2 ">` + jsText('Alert Message!') + `</h5></div>
                 <p>${message}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                 </button>
             </div>
         </div>
@@ -65,7 +64,15 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 
     const AlertMsg = setTimeout(function () {
         $('#alertMessage').fadeOut(950, function () {
-            $('#alertMessage').alert('close');
+            var alertEl = document.getElementById('alertMessage');
+            if (alertEl) {
+                var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                if (bsAlert) {
+                    bsAlert.close();
+                } else {
+                    alertEl.remove();
+                }
+            }
         });
     }, timer);
 }
@@ -231,11 +238,15 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        $("#openSignModal").modal('hide');
-        backdrops.forEach(function (backdrop) {
+        const backdrop = document.querySelector('.modal-backdrop');
+        var modalEl = document.getElementById('openSignModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) { modalInstance.hide(); }
+        }
+        if (backdrop) {
             backdrop.remove();
-        });
+        }
     }).catch(error => signerAlertMsg(error));
 
     return true;
@@ -293,7 +304,9 @@ function initSignerApi() {
             $("#isAdmin").prop('checked', false);
             isAdmin = false;
         }
-        $("#openSignModal").modal('show');
+        var modalEl = document.getElementById('openSignModal');
+        var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modalInstance.show();
     }
 
     function doConfirm(result) {
@@ -404,14 +417,14 @@ function initSignerApi() {
             }
         });*/
 
-        $("#openSignModal .close").on("click", function (e) {
+        $("#openSignModal .btn-close").on("click", function (e) {
             signaturePad.clear();
         });
 
         if (typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
             placeSignatureButton = wrapper.querySelector("[data-action=place]");
         }
-        $("#openSignModal").on('show.bs.modal', function (e) {
+        document.getElementById('openSignModal').addEventListener('show.bs.modal', function (e) {
             let type = $('#openSignModal #signatureModal').data('type');
             if (type === 'admin-signature' && isPortal) {
                 signerAlertMsg('Signer Pad not available for this signature type!', 2000);
@@ -424,7 +437,7 @@ function initSignerApi() {
             }
         });
         // for our dynamically added modal
-        $("#openSignModal").on('shown.bs.modal', function (e) {
+        document.getElementById('openSignModal').addEventListener('shown.bs.modal', function (e) {
             let type = $('#openSignModal #signatureModal').data('type');
             if (type) {
                 if (type === "admin-signature") {
@@ -440,28 +453,38 @@ function initSignerApi() {
             }
             let showElement = document.getElementById('signatureModal');
             $('#signatureModal').attr('src', signhere);
-            $("#openSignModal").modal({backdrop: false});
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var modalEl = document.getElementById('openSignModal');
+                var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {backdrop: false});
+                modalInstance.show();
+            }
             $('html').css({
                 'overflow': 'hidden'
             });
-            $(this).css({
+            $(e.currentTarget).css({
                 'padding-right': '0px'
             });
             $('body').bind('selectstart', function () {
                 return false;
             });
-            $(this).modal('handleUpdate');
-        }).on('shown.bs.modal', function (e) { // yes two shown events
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var modalInstance = bootstrap.Modal.getInstance(e.currentTarget);
+                if (modalInstance) { modalInstance.handleUpdate(); }
+            }
+        });
+        document.getElementById('openSignModal').addEventListener('shown.bs.modal', function (e) { // yes two shown events
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();
-        }).on('hide.bs.modal', function () {
+        });
+        document.getElementById('openSignModal').addEventListener('hide.bs.modal', function () {
             if ((typeof $lastEl !== 'undefined' || !$lastEl) && typeof event === "undefined") {
                 if (!signaturePad.isEmpty()) {
                     let dataURL = signaturePad.toDataURL();
                     placeSignature(dataURL, $lastEl);
                 }
             }
-        }).on('hidden.bs.modal', function () {
+        });
+        document.getElementById('openSignModal').addEventListener('hidden.bs.modal', function () {
             $('html').css({
                 'overflow': 'inherit'
             });

@@ -12,16 +12,16 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="form-row mt-3">
+<div id="{{ table_id|attr }}" class="row g-2 mt-3">
     <div class="table_text_addresses col-12">
-    <div class="text_addresses_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300);">
+    <div class="text_addresses_header label_custom ps-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300);">
         {% if foreign_table == 'patient_data' %}
         <div>{{ 'Additional Addresses'|xlt }}</div>
         {% else %}
         <div>{{ 'Addresses'|xlt }}</div>
         {% endif %}
         {% if addresses|length > 0 %}
-        <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+        <div class="form-check me-3" style="margin-bottom: 0; display: flex; align-items: center;">
             <input type="checkbox" class="form-check-input" id="show_inactive_addresses_display_{{ table_id|attr }}" onchange="toggleInactiveAddressesDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
             <label class="form-check-label" for="show_inactive_addresses_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
                 {{ 'Show Inactive'|xlt }}
@@ -38,20 +38,20 @@
 
         {% if not has_active_addresses %}
         <div class="no_addresses">
-            <span class="text data pl-1">{{ 'NONE'|xlt }}</span>
+            <span class="text data ps-1">{{ 'NONE'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
 
         {% for address in addresses %}
         {% set is_inactive = address.status != 'A' %}
-        <div class="text_addresses_row form-group mb-0 {{ is_inactive ? 'address-inactive-display d-none' : '' }}" data-status="{{ address.status|attr }}">
-            <div class="text_addresses_subrow_1 form-row pl-1">
+        <div class="text_addresses_row mb-3 mb-0 {{ is_inactive ? 'address-inactive-display d-none' : '' }}" data-status="{{ address.status|attr }}">
+            <div class="text_addresses_subrow_1 row g-2 ps-1">
                 <div class="col-2 text data">
                     <span class="text_addresses_use">
                         {{ list_address_uses[address.use]|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary ml-1 text-white" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge bg-secondary ms-1 text-white" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -82,10 +82,10 @@
                 </div>
             </div>
 
-            <div class="text_addresses_subrow_2 form-row pl-1">
+            <div class="text_addresses_subrow_2 row g-2 ps-1">
                 <div class="col-2 text data">
                     {% if address.is_primary == 'Y' %}
-                        <span class="badge badge-primary">{{ 'Primary'|xlt }}</span>
+                        <span class="badge bg-primary">{{ 'Primary'|xlt }}</span>
                     {% endif %}
                 </div>
                 <div class="col-6 text data">

@@ -29,6 +29,10 @@
     border-color: $dark;
   }
 
+  .striped .row.mb-3:nth-child(even) {
+    background: transparent !important;
+  }
+
   .oe-global-tab-heading {
     color: $black;
   }

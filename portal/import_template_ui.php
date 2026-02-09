@@ -114,7 +114,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             selectDropdown.select2({
                 multiple: true,
                 placeholder: 'Type to search.',
-                theme: 'bootstrap4',
+                theme: 'bootstrap-5',
                 dropdownAutoWidth: true,
                 width: '100%',
                 closeOnSelect: false
@@ -193,7 +193,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             ourSelect.select2({
                 multiple: false,
                 placeholder: xl('Type to search Questionnaire Repository.'),
-                theme: 'bootstrap4',
+                theme: 'bootstrap-5',
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
@@ -265,10 +265,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 $('input:checkbox[name=send]').addClass('d-none');
             });
 
-            $('#upload-nav').on('hidden.bs.collapse', function () {
+            document.getElementById('upload-nav').addEventListener('hidden.bs.collapse', function () {
                 $('#upload-nav-value').val('collapse');
             });
-            $('#upload-nav').on('show.bs.collapse', function () {
+            document.getElementById('upload-nav').addEventListener('show.bs.collapse', function () {
                 $('#upload-nav-value').val('show');
                 //$('#edit_form').submit();
             });
@@ -277,26 +277,36 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 $('#edit_form').submit();
             });
 
-            $('#template-collapse').on('show.bs.collapse', function () {
+            document.getElementById('template-collapse').addEventListener('show.bs.collapse', function () {
                 $('#edit_form #all_state').val('show');
             });
-            $('#template-collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('template-collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #all_state').val('collapse');
             });
 
-            $('#assigned_collapse').on('show.bs.collapse', function () {
-                $('#repository-collapse').collapse('hide');
-                $('#template-collapse').collapse('hide');
+            document.getElementById('assigned_collapse').addEventListener('show.bs.collapse', function () {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                    var repositoryEl = document.getElementById('repository-collapse');
+                    var templateEl = document.getElementById('template-collapse');
+                    if (repositoryEl) {
+                        var repositoryCollapse = bootstrap.Collapse.getOrCreateInstance(repositoryEl, {toggle: false});
+                        repositoryCollapse.hide();
+                    }
+                    if (templateEl) {
+                        var templateCollapse = bootstrap.Collapse.getOrCreateInstance(templateEl, {toggle: false});
+                        templateCollapse.hide();
+                    }
+                }
                 $('#edit_form #assigned_state').val('show');
             });
-            $('#assigned_collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('assigned_collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #assigned_state').val('collapse');
             });
 
-            $('#repository-collapse').on('show.bs.collapse', function () {
+            document.getElementById('repository-collapse').addEventListener('show.bs.collapse', function () {
                 $('#edit_form #repository_send_state').val('show');
             });
-            $('#repository-collapse').on('hidden.bs.collapse', function () {
+            document.getElementById('repository-collapse').addEventListener('hidden.bs.collapse', function () {
                 $('#edit_form #repository_send_state').val('collapse');
             });
 
@@ -550,7 +560,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
         max-width: 50% !important;
       }
 
-      .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+      .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
         color: #dc3545;
         font-size: 1rem;
         line-height: revert !important;
@@ -569,13 +579,13 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
     <div class='container-xl'>
         <nav class='nav navbar bg-light text-dark sticky-top'>
             <span class='title'><?php echo xlt('Template Maintenance'); ?></span>
-            <div class="ml-auto">
+            <div class="ms-auto">
                 <label class="form-check"><?php echo xlt('Full Editor'); ?>
                     <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
                 </label>
             </div>
-            <div class='btn-group ml-1'>
-                <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
+            <div class='btn-group ms-1'>
+                <button type='button' class='btn btn-secondary' data-bs-toggle='collapse' data-bs-target='#help-panel'>
                     <?php echo xlt('Help') ?>
                 </button>
                 <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
@@ -589,7 +599,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
-                    <a class='navbar-brand ml-1'><?php echo xlt('Scope'); ?></a>
+                    <a class='navbar-brand ms-1'><?php echo xlt('Scope'); ?></a>
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                     foreach ($category_list as $option_category) {
@@ -604,13 +614,13 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     }
                     ?>
                     <div class="input-group" id="category_group">
-                        <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
+                        <label class="fw-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
                         <select class="form-control" id="template_category" name="template_category">
                             <?php echo $select_cat_options ?>
                         </select>
                     </div>
-                    <div class="form-group mx-2">
-                        <div class='btn-group ml-1'>
+                    <div class="mb-3 mx-2">
+                        <div class='btn-group ms-1'>
                             <button type='submit' class='btn btn-save btn-primary'><?php echo xlt("Submit"); ?></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
@@ -620,8 +630,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
                     </div>
-                    <div class="form-row form-inline mx-1 w-100">
-                        <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
+                    <div class="row gx-2 form-inline mx-1 w-100">
+                        <!--<label class='fw-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
                         $ppt = [
@@ -687,23 +697,23 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 <div id='upload_scope_category'></div>
                                 <div class="input-group">
                                     <label class="form-check"><?php echo xlt('If questionnaire import, use Questionnaire tool'); ?>
-                                        <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
+                                        <input type="checkbox" class='form-check-inline ms-1' id='upload_scope' checked>
                                 </div>
                             </div>
-                            <div class='form-group col'>
-                                <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
+                            <div class='mb-3 col'>
+                                <input type='file' class='btn btn-outline-info me-1 mt-1' id="fetch_files" name='template_files[]' multiple />
                                 <div class="mt-1">
                                     <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
-                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
+                                        <i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
                                     <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
-                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
+                                        <i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
                                     <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');" title="<?php echo xla('Used to cut and paste Questionnaire or LHC Form json. Will then convert and import to questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
                                     <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();" title="<?php echo xla('Use this to create a new empty template for use with built in editor.') ?>"><?php echo xlt('New Empty Template') ?></button>
                                 </div>
                             </div>
                             <div class="mt-2">
-                                <div class="text-center m-0 p-0"><small class="my-1 font-weight-bolder font-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
-                                <div class="input-group input-group-append">
+                                <div class="text-center m-0 p-0"><small class="my-1 fw-bolder fst-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
+                                <div class="input-group">
                                     <select class="select-questionnaire" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false" title="<?php echo xla('Items that are already an existing template will be overwritten if selected.') ?>">
                                         <option value=""></option>
                                         <?php
@@ -738,11 +748,11 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <!-- Repository -->
             <div class='row'>
-                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse' role='button'>
-                    <div class="h5"><i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                <div class='col col-12' data-bs-toggle='collapse' data-bs-target='#repository-collapse' role='button'>
+                    <div class="h5"><i class='fa fa-eye me-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
-                        <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
-                            <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
+                        <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-bs-toggle='collapse' data-bs-target='#upload-nav'>
+                            <i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
                         </span>
                     </div>
                 </div>
@@ -804,7 +814,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 '</button>';
                             if ($authUploadTemplates) {
                                 echo '<button id="templateDelete' . attr($template_id) .
-                                    '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
+                                    '" class="btn btn-sm btn-outline-danger float-end" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
                                     '</button>';
                             }
                             echo "</td>";
@@ -827,7 +837,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         echo '<caption>' . xlt('Profiles in Portal') . "</caption>";
                         echo "<thead>\n";
                         echo "<tr>\n" .
-                            "<th>" . xlt('Active') . "<button type='button' id='send-profile-hide' class='btn btn-sm ml-1 py-0 btn-transmit btn-success d-none' onclick='return sendProfiles()'>" . xlt('Update') . "</button></th>" .
+                            "<th>" . xlt('Active') . "<button type='button' id='send-profile-hide' class='btn btn-sm ms-1 py-0 btn-transmit btn-success d-none' onclick='return sendProfiles()'>" . xlt('Update') . "</button></th>" .
                             '<th style="min-width: 25%">' . xlt('Profile') . '</th>' .
                             '<th>' . xlt('Assigned Templates') . '</th>' .
                             '<th>' . xlt('Assigned Groups') . '</th>' .
@@ -887,8 +897,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <!-- All Patients -->
             <hr />
             <div class='row'>
-                <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
-                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xla('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
+                <div class='col col-12' data-bs-toggle='collapse' data-bs-target='#template-collapse'>
+                    <h5><i class='fa fa-eye me-1' role='button' title="<?php echo xla('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
                 </div>
                 <div class='col col-12 table-responsive <?php echo attr(($_REQUEST['all_state'] ?? '') ?: 'collapse') ?>' id='template-collapse'>
                     <?php
@@ -943,8 +953,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <div class='row'>
                 <div class='col col-12'>
-                    <div class='h5' data-toggle='collapse' data-target='#assigned_collapse' role='button'>
-                        <i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                    <div class='h5' data-bs-toggle='collapse' data-bs-target='#assigned_collapse' role='button'>
+                        <i class='fa fa-eye me-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->
@@ -974,7 +984,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                         }
 
-                        echo "<tr><td class='h6 font-weight-bolder bg-light text-dark' data-toggle='collapse' data-target='" .
+                        echo "<tr><td class='h6 fw-bolder bg-light text-dark' data-bs-toggle='collapse' data-bs-target='" .
                             attr('#id' . ++$idcnt) . "' role='button'>" . text($name) .
                             " (" . text($count . ' ' . xl('Templates')) . ") in " . text($fetched_groups) . "</td></tr>";
                         echo "<td class='collapse' id='" . attr('id' . $idcnt) . "'><table class='table table-sm table-striped table-bordered'>\n";

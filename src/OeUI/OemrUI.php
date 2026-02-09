@@ -327,8 +327,8 @@ class OemrUI
                 'oe-help-redirect',
             ],
             'attributes' => [
-                'data-target' => "#myModal",
-                'data-toggle' => 'modal',
+                'data-bs-target' => "#myModal",
+                'data-bs-toggle' => 'modal',
                 'name' => $id,
             ]
         ];
@@ -369,14 +369,14 @@ class OemrUI
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="$close">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="$close">
                             <span aria-hidden="true" class='text-black' style='font-size:1.5em;'>×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             $modal_body
                         </div>
                         <div class="modal-footer mt-0">
-                           <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
+                           <button class="btn btn-link btn-cancel oe-pull-away" data-bs-dismiss="modal" type="button">$close</button>
                         </div>
                     </div>
                 </div>
@@ -391,9 +391,12 @@ class OemrUI
             $(".modal-dialog").addClass('drag-action');
             $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
-            $('#myModal').on('hidden.bs.modal', function (e) {
-                $('#help-href').prop('title', '');
-            });
+            var myModalEl = document.getElementById('myModal');
+            if (myModalEl) {
+                myModalEl.addEventListener('hidden.bs.modal', function () {
+                    $('#help-href').prop('title', '');
+                });
+            }
             $('#help-href').focus( function() {
                 $('#help-href').prop('title', helpTitle);
             });

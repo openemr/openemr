@@ -173,7 +173,7 @@ class PatientMenuRole extends MenuRole
     }
 
     /**
-     * displays a bootstrap4 horizontal nav bar
+     * displays a bootstrap horizontal nav bar
      */
 
     public function displayHorizNavBarMenu()
@@ -184,16 +184,16 @@ class PatientMenuRole extends MenuRole
         $str_top = <<<EOT
         <!--navbar-light is needed for color override in other themes-->
         <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="navbar-nav">
         EOT;
         echo $str_top . "\r\n";
         foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
-                // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
+                // create dropdown if there are children
                 $class = $value->class ?? '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . '</a>';
                 $list .= '<ul class="dropdown-menu">';
                 foreach ($value->children as $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);

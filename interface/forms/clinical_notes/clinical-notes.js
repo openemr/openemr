@@ -346,7 +346,7 @@
 
         if (addedCount > 0) {
             // Remove "no documents" message if it exists
-            let noDocsMsg = container.querySelector('.text-muted');
+            let noDocsMsg = container.querySelector('.text-body-secondary');
             if (noDocsMsg && noDocsMsg.textContent.includes('No documents')) {
                 noDocsMsg.remove();
             }
@@ -460,7 +460,7 @@
 
         if (addedCount > 0) {
             // Remove "no results" message if it exists
-            let noResultsMsg = container.querySelector('.text-muted');
+            let noResultsMsg = container.querySelector('.text-body-secondary');
             if (noResultsMsg && noResultsMsg.textContent.includes('No results')) {
                 noResultsMsg.remove();
             }
@@ -1069,13 +1069,13 @@
     function getStatusClass(status) {
         switch (status?.toLowerCase()) {
             case 'final':
-                return 'badge-success';
+                return 'bg-success';
             case 'preliminary':
-                return 'badge-warning';
+                return 'bg-warning';
             case 'corrected':
-                return 'badge-info';
+                return 'bg-info';
             default:
-                return 'badge-secondary';
+                return 'bg-secondary';
         }
     }
 
