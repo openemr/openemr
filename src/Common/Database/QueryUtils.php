@@ -202,38 +202,6 @@ class QueryUtils
     }
 
     /**
-     * Executes a SQL statement and returns the recordset, throwing on failure.
-     *
-     * Unlike sqlStatementThrowException(), this does not pass
-     * insertNeedReturn=true to the ADODB Execute wrapper, matching the
-     * behavior of the legacy sqlStatement() function.
-     *
-     * @param  string  $statement  query
-     * @param  array   $binds      binded variables array (optional)
-     * @param  bool    $log        if true the sql statement is logged, false bypasses the database logger
-     * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return ADORecordSet
-     */
-    public static function sqlStatement($statement, $binds = [], $log = true)
-    {
-        // Below line is to avoid a nasty bug in windows.
-        if (empty($binds)) {
-            $binds = false;
-        }
-
-        if ($log) {
-            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-        } else {
-            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-        }
-        if ($recordset === false) {
-            throw new SqlQueryException($statement, "Failed to execute statement. Error: "
-                . getSqlLastError() . " Statement: " . $statement);
-        }
-        return $recordset;
-    }
-
-    /**
      * @param $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
      * @return bool
      */
@@ -410,7 +378,7 @@ class QueryUtils
                 'trace' => (new \Exception())->getTraceAsString(),
             ]);
         }
-        $result = self::sqlStatement($sql, $params, log: $log);
+        $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
         return self::fetchArrayFromResultSet($result);
     }
 
