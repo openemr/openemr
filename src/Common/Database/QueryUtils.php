@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use Throwable;
 
 class QueryUtils
@@ -400,8 +401,15 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array|false
      */
-    public static function querySingleRow(string $sql, array $params = [], bool $log = true)
+    public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
+        /** @var mixed @params */
+        if (!is_array($params)) {
+            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+                'method' => __METHOD__,
+                'trace' => (new \Exception())->getTraceAsString(),
+            ]);
+        }
         $result = self::sqlStatement($sql, $params, log: $log);
         return self::fetchArrayFromResultSet($result);
     }
