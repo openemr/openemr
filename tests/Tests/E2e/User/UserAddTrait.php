@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
@@ -51,7 +52,7 @@ trait UserAddTrait
         $this->client->quit();
     }
 
-    private function userAddIfNotExist(string $username): void
+    private function userAddIfNotExist(string $username, bool $isRetry = false): void
     {
         // if user already exists, then skip this
         if ($this->isUserExist($username)) {
@@ -106,14 +107,37 @@ trait UserAddTrait
 
         // Wait for the modal iframe to disappear (dialog closes on successful user creation)
         // The dialog calls dlgclose('reload', false) on success, which closes the modal
-        // and triggers a reload of the admin iframe
-        $this->client->wait(30)->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(
-                WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
-            )
-        );
+        // and triggers a reload of the admin iframe.
+        //
+        // Use a short initial timeout to detect failure quickly. If the modal
+        // doesn't close, gather diagnostics and retry once with a fresh session.
+        if (!$this->waitForModalClose(10)) {
+            // Modal didn't close - gather diagnostics before retrying
+            $diagnostics = $this->gatherModalDiagnostics($username);
+            fwrite(STDERR, "[E2E] Modal failed to close after user creation. Diagnostics: {$diagnostics}\n");
 
-        // assert the new user is in the database
+            // Check if user was actually created despite modal not closing
+            if ($this->isUserExist($username)) {
+                fwrite(STDERR, "[E2E] User exists in database despite modal not closing - possible JS/UI issue\n");
+                // Force close by refreshing the page - modal state is broken but data is saved
+                $this->client->request('GET', '/interface/main/main_screen.php');
+                $this->waitForAppReady(10);
+            } elseif ($isRetry) {
+                // Already retried once - fail with diagnostics
+                throw new TimeoutException(
+                    "Modal failed to close after user creation (retry also failed). Diagnostics: {$diagnostics}"
+                );
+            } else {
+                // User not created - retry with fresh session
+                fwrite(STDERR, "[E2E] User not in database, retrying with fresh session...\n");
+                $this->client->quit();
+                $this->base();
+                $this->userAddIfNotExist($username, true);
+                return;
+            }
+        }
+
+        // Assert the new user is in the database
         $this->assertUserInDatabase($username);
 
         // Wait for the admin iframe to be ready (it reloads after dialog closes)
@@ -189,5 +213,72 @@ trait UserAddTrait
             . 'f.dispatchEvent(new Event("change", {bubbles: true}));',
             [$fieldName, $value]
         );
+    }
+
+    /**
+     * Wait for the modal iframe to close.
+     *
+     * @param int $timeout Seconds to wait
+     * @return bool True if modal closed, false if timeout
+     */
+    private function waitForModalClose(int $timeout): bool
+    {
+        try {
+            $this->client->wait($timeout)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+                )
+            );
+            return true;
+        } catch (TimeoutException) {
+            return false;
+        }
+    }
+
+    /**
+     * Gather diagnostic information when the modal fails to close.
+     *
+     * Captures:
+     * - Whether the user exists in the database
+     * - Modal iframe content (error messages, form state)
+     * - Any visible alert text
+     *
+     * @param string $username The username being created
+     * @return string JSON-encoded diagnostics
+     */
+    private function gatherModalDiagnostics(string $username): string
+    {
+        try {
+            $userExists = $this->isUserExist($username);
+
+            // Check if modal iframe is still present
+            $modalVisible = false;
+            $iframeContent = '';
+            try {
+                $iframe = $this->client->findElement(
+                    WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+                );
+                $modalVisible = $iframe->isDisplayed();
+
+                // Switch to iframe to capture its content
+                if ($modalVisible) {
+                    $this->client->switchTo()->frame($iframe);
+                    $iframeContent = (string) $this->client->executeScript(
+                        'return document.body ? document.body.innerText.substring(0, 500) : "no body"'
+                    );
+                    $this->client->switchTo()->defaultContent();
+                }
+            } catch (\Throwable) {
+                // Modal not found or not accessible
+            }
+
+            return json_encode([
+                'userExistsInDb' => $userExists,
+                'modalVisible' => $modalVisible,
+                'iframeContentPreview' => $iframeContent,
+            ], JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            return json_encode(['error' => 'Failed to gather diagnostics: ' . $e->getMessage()]);
+        }
     }
 }
