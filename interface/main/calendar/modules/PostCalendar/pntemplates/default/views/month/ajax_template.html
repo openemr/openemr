@@ -130,19 +130,25 @@ $timeslotHeightUnit="px";
 
  // echo "<!-- There are " . count($A_EVENTS) . " A_EVENTS days -->\n";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$authUserID = $session->get('authUserID');
+$facilities = getUserFacilities($authUserID); // from users_facility
+$pc_facility = $session->get('pc_facility');
+$language_direction = $session->get('language_direction');
+$authorizeduser = $session->get('authorizeduser');
+
  //==================================
  //FACILITY FILTERING (CHEMED)
- $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
-if ( $_SESSION['pc_facility'] ) {
-    $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+if ( $facilities ) {
+    $provinfo = getProviderInfo('%', true, $facilities);
  } else {
     $provinfo = getProviderInfo();
  }
  //EOS FACILITY FILTERING (CHEMED)
  //==================================
 
-$chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
-$chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+$chevron_icon_left = $language_direction == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+$chevron_icon_right = $language_direction == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
 [-/php-]
 <div id="wrapper">
@@ -294,21 +300,21 @@ foreach ($atmp as $currdate) {
 // ==============================
 // FACILITY FILTERING (lemonsoftware)
 // $facilities = getFacilities();
-if (!empty($_SESSION['authorizeduser']) && ($_SESSION['authorizeduser'] == 1)) {
+if (!empty($authorizeduser) && ($authorizeduser == 1)) {
   $facilities = getFacilities();
 } else {
-  $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
+  $facilities = getUserFacilities($authUserID); // from users_facility
   if (count($facilities) == 1)
     OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control'>\n";
-    if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
+    if ( !$pc_facility ) $selected = "selected='selected'";
     // echo "    <option class='bg-info' value='0' $selected>"  . xlt('All Facilities'). "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option class='bg-info' value='0' $selected>" . xlt('All Facilities') . "</option>\n";
 
     foreach ($facilities as $fa) {
-        $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
+        $selected = ( $pc_facility == $fa['id']) ? "selected='selected'" : "" ;
         echo "    <option class='bg-info' value='" . attr($fa['id']). "' $selected>"  . text($fa['name']). "</option>\n";
     }
     echo "   </select>\n";
@@ -330,7 +336,7 @@ if (count($facilities) > 1) {
 [-/php-]
 </div>
 [-php-]
-if($_SESSION['pc_facility'] == 0){
+if($pc_facility == 0){
 [-/php-]
 <ul class="list-group list-group-flush" id="facilityColor">
 [-php-]
@@ -617,12 +623,12 @@ foreach ($providers as $provider) {
             if ( $catid != 6){
                      $divTitle .= "\n(" . xl('double click to edit') . ")";
                 }
-            if($_SESSION['pc_facility'] == 0){
+            if($pc_facility == 0){
                     echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " month_event' style='background-color:" . $color. "' title='" . attr($divTitle) . "'" . " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'" . ">";
                     echo $content;
                     echo "</div>\n";
             }
-            elseif($_SESSION['pc_facility'] == $row['id']){
+            elseif($pc_facility == $row['id']){
                     echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " month_event' style='background-color:".$event["catcolor"].
                         "' title='" . attr($divTitle) . "'".
                         " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
