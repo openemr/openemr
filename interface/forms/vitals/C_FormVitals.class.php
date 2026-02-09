@@ -21,7 +21,7 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\VitalsService;
@@ -358,9 +358,8 @@ class C_FormVitals
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
-        $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
 
-        echo $twig->render("vitals.html.twig", $data);
+        echo TwigFactory::createInstance($this->template_dir)->render("vitals.html.twig", $data);
     }
 
     private function get_interpretation_list_options()

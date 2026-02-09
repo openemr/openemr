@@ -16,14 +16,13 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$twigContainer = new TwigContainer(null, $kernel);
-$t = $twigContainer->getTwig();
+$t = TwigFactory::createInstance();
 
 /**
  * Return an array of list data for a given issue type and patient

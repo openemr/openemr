@@ -19,16 +19,13 @@ use OpenEMR\Common\{
     Logging\SystemLogger,
 };
 use OpenEMR\Services\SpreadSheetService;
+use OpenEMR\Common\Twig\TwigFactory;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (
-        new TwigContainer(
-            null,
-            $GLOBALS['kernel']
-        ))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Immunization Registry")]
-        );
+    echo TwigFactory::createInstance()->render(
+        'core/unauthorized.html.twig',
+        ['pageTitle' => xl("Immunization Registry")]
+    );
     exit;
 }
 

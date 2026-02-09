@@ -19,7 +19,7 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -166,12 +166,7 @@ class TwigTemplateRenderTest extends TestCase
             return self::$twig;
         }
 
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
-
-        $twigContainer = new TwigContainer();
-        $twig = $twigContainer->getTwig();
+        $twig = TwigFactory::createInstance();
 
         // Override setupHeader() before the first render initializes extensions.
         // The real function requires $kernel for event dispatching; the stub

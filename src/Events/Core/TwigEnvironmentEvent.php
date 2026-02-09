@@ -33,7 +33,7 @@ use Twig\Environment;
 class TwigEnvironmentEvent extends Event
 {
     /**
-     * This event is triggered after the twig environment has been created in the TwigContainer
+     * This event is triggered after the twig environment has been created in the TwigFactory
      */
     const EVENT_CREATED = 'core.twig.environment.create';
 

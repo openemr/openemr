@@ -13,13 +13,13 @@
     require_once "../../../../globals.php";
 
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Common\Twig\TwigFactory;
 
     $tab = "home";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Home")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Home")]);
     exit;
 }
 ?>

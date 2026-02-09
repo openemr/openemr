@@ -13,14 +13,14 @@
     require_once "../../../../globals.php";
 
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Common\Twig\TwigFactory;
     use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
     $tab = "x12";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - X12 Tracker")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - X12 Tracker")]);
     exit;
 }
 

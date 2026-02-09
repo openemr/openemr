@@ -18,7 +18,7 @@
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
@@ -61,27 +61,14 @@ class Bootstrap
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
-     * @param ?Kernel $kernel
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
     ) {
         global $GLOBALS;
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-
-        // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
-        // it here.
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
-
+        $this->twig = TwigFactory::createInstance($this->getTemplatePath());
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-
-        // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
         $this->logger = new SystemLogger();
     }

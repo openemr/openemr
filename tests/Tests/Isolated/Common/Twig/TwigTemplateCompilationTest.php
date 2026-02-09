@@ -18,7 +18,7 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -138,11 +138,7 @@ class TwigTemplateCompilationTest extends TestCase
             return self::$twig;
         }
 
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-
-        $twigContainer = new TwigContainer();
-        $twig = $twigContainer->getTwig();
+        $twig = TwigFactory::createInstance();
 
         // Add extra template directories so the loader can resolve template names
         // for forms and modules that store templates outside the main templates/ dir.

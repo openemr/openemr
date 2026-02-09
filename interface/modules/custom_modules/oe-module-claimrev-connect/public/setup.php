@@ -14,14 +14,14 @@
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Common\Twig\TwigFactory;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
     $tab = "setup";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
     exit;
 }
 

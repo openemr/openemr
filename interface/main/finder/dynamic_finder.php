@@ -22,7 +22,7 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
@@ -458,7 +458,7 @@ function rp()
 
 $rp = rp();
 
-$templateVars = [
+echo TwigFactory::createInstance()->render('patient_finder/finder.html.twig', [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
     'pageHeading' => $oemr_ui->pageHeading(),
@@ -467,11 +467,7 @@ $templateVars = [
     'colcount' => $colcount,
     'headers' => $rp['headers'],
     'rp' => $rp['rp'],
-];
-
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
-$t = $twig->getTwig();
-echo $t->render('patient_finder/finder.html.twig', $templateVars);
+]);
 
 ?>
 </body>

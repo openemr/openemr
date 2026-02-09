@@ -18,7 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
@@ -60,7 +60,7 @@ $is_authorized = true;
 if (!AclMain::aclCheckForm($_GET["formname"])) {
     $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
     $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
     exit;
 }
 

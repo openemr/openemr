@@ -1,7 +1,7 @@
 <?php
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty
@@ -78,14 +78,14 @@ class Controller extends Smarty
     {
         if ((array_key_first($qarray) ?? '') == 'practice_settings') {
             if (!AclMain::aclCheckCore('admin', 'practice')) {
-                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
+                echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
                 exit;
             }
         }
 
         if ((array_key_first($qarray) ?? '') == 'prescription') {
             if (!AclMain::aclCheckCore('patients', 'rx')) {
-                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions")]);
+                echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions")]);
                 exit;
             }
         }

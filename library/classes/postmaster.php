@@ -15,7 +15,7 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
 
@@ -125,8 +125,7 @@ class MyMailer extends PHPMailer
 
                 if ($emailMethodConfigured) {
                     try {
-                        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-                        $twig = $twigContainer->getTwig();
+                        $twig = TwigFactory::createInstance();
                         if (!empty($ret['template_name'])) {
                             $templateData = json_decode((string) $ret['body'], true);
                             // we make sure to prefix this so that people have to work inside the openemr namespace for email templates

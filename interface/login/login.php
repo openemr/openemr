@@ -30,7 +30,7 @@ Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\FacilityService;
@@ -50,9 +50,6 @@ $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 require_once("../globals.php");
-
-$twig = new TwigContainer(null, $globalsBag->get("kernel"));
-$t = $twig->getTwig();
 
 $logoService = new LogoService();
 $primaryLogo = $logoService->getLogo("core/login/primary");
@@ -266,7 +263,7 @@ $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $view
 $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 try {
-    echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());
+    echo TwigFactory::createInstance()->render($event->getTwigTemplate(), $event->getTwigVariables());
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     echo "<p style='font-size:24px; color: red;'>" . text($e->getMessage()) . '</p>';
 }

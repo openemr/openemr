@@ -18,10 +18,7 @@ require_once("$srcdir/display_help_icon_inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-
-$twigContainer = new TwigContainer();
-$t = $twigContainer->getTwig();
+use OpenEMR\Common\Twig\TwigFactory;
 
 $viewArgs = [
     'pageHeading' => $oemr_ui->pageHeading(),
@@ -29,4 +26,4 @@ $viewArgs = [
     'csrf' => CsrfUtils::collectCsrfToken(),
 ];
 
-echo $t->render('patient/dashboard_header.html.twig', $viewArgs);
+echo TwigFactory::createInstance()->render('patient/dashboard_header.html.twig', $viewArgs);

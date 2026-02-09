@@ -17,7 +17,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
 $kernel = $GLOBALS['kernel'];
-$bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
+$bootstrap = new Bootstrap($kernel->getEventDispatcher());
 $globalConfig = $bootstrap->getGlobalConfig();
 $subscriptionId = $globalConfig->getGlobalSetting(TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID) ?? '';
 $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true;

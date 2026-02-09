@@ -16,7 +16,7 @@
 
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 
 // Initialize services
@@ -77,6 +77,4 @@ $templateVars = [
 ];
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-$twig = $twigContainer->getTwig();
-echo $twig->render('patient/demographics/address_display.html.twig', $templateVars);
+echo TwigFactory::createInstance()->render('patient/demographics/address_display.html.twig', $templateVars);

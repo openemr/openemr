@@ -47,7 +47,7 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use Twig\Error\SyntaxError;
@@ -64,7 +64,7 @@ $auth_demo = true; //AclMain::aclCheckCore('patients'  , 'demo');
 $ignoreAuth_onsite_portal = true;
 
 $portalPatientReportController = new PortalPatientReportController();
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = TwigFactory::createInstance();
 
 $issues = [];
 $data = [];

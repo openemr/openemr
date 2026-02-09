@@ -18,7 +18,7 @@ use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 class CdaValidateDocuments
 {
@@ -331,8 +331,7 @@ class CdaValidateDocuments
         $errors = $this->fetchValidationLog($amid);
 
         if (count($errors ?? [])) {
-            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-            $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
+            $html = TwigFactory::createInstance()->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
             $html = xlt("No Errors or Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");
         }

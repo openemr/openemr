@@ -27,20 +27,20 @@ use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Services\FormService;
 
 $logger = new SystemLogger();
 
-// Output the response
 try {
-    // Create controller and handle request
     $request = Request::createFromGlobals();
-    $service = new ObservationService();
-    $formService = new FormService();
-    // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
-    $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
+
+    $controller = new ObservationController(
+        new ObservationService(),
+        new FormService(),
+        TwigFactory::createInstance(__DIR__ . '/../../'),
+    );
+
     // edit screen will start with list view... if
     if ($controller->shouldShowListView($request)) {
         $response = $controller->listAction($request);

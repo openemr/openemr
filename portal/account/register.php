@@ -16,7 +16,7 @@
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -63,9 +63,8 @@ $data = [
 ];
 
 // Render Register Twig template
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
-    echo $twig->render('portal/registration/portal_register.html.twig', $data);
+    echo TwigFactory::createInstance()->render('portal/registration/portal_register.html.twig', $data);
 } catch (LoaderError | SyntaxError | RuntimeError $e) {
     (new SystemLogger())->error($e->getMessage());
     echo text($e->getMessage());

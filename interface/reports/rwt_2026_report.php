@@ -15,7 +15,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\RealWorldTesting;
@@ -23,7 +23,9 @@ use OpenEMR\Reports\RealWorldTesting;
 $globalsBag = OEGlobalsBag::getInstance();
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2026 Real World Testing Report')]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', [
+        'pageTitle' => xl('2025 Real World Testing Report'),
+    ]);
     exit;
 }
 

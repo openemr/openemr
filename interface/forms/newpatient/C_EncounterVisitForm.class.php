@@ -27,7 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CareTeamService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -66,9 +66,7 @@ class C_EncounterVisitForm
         private readonly string $rootdir,
         private readonly string $pageName = 'newpatient/common.php'
     ) {
-        // Initialize Twig
-        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->twig = $twig->getTwig();
+        $this->twig = TwigFactory::createInstance($templatePath . '/templates/');
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
         $this->eventDispatcher = $kernel->getEventDispatcher();

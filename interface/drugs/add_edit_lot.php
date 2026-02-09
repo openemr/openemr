@@ -22,7 +22,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 
 // Check authorizations.
@@ -35,7 +35,7 @@ $auth_lots = $auth_admin ||
     AclMain::aclCheckCore('inventory', 'consumption') ||
     AclMain::aclCheckCore('inventory', 'destruction');
 if (!$auth_lots) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
     exit;
 }
 

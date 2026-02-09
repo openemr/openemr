@@ -26,7 +26,7 @@ require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
@@ -95,8 +95,7 @@ $patientService = new PatientService();
 $patient = $patientService->findByPid($_SESSION['pid']);
 $listService = new ListService();
 $resultCategories = $listService->getOptionsByListName('Observation_Types');
-$twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
-$t = $twig->getTwig();
+$t = TwigFactory::createInstance(dirname(__DIR__));
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
     ,'patientUuid' => UuidRegistry::uuidToString($patient['uuid'])

@@ -24,7 +24,7 @@ require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
@@ -83,7 +83,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = TwigFactory::createInstance();
 
 ?>
 <!DOCTYPE html>

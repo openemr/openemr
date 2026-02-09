@@ -19,17 +19,16 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
-    Twig\TwigContainer
+    Twig\TwigFactory
 };
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (
-        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Billing Manager")]
-        );
+    echo TwigFactory::createInstance()->render(
+        'core/unauthorized.html.twig',
+        ['pageTitle' => xl("Billing Manager")]
+    );
     exit;
 }
 

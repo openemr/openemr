@@ -243,7 +243,7 @@ rules:
     confidence: MEDIUM
 
   # --- Twig template rules (generic mode) ---
-  # Autoescape is globally disabled in OpenEMR (TwigContainer.php:66),
+  # Autoescape is globally disabled in OpenEMR (TwigFactory.php:43),
   # so all escaping is manual. These rules target high-risk attribute contexts
   # where unescaped output leads to XSS.
 

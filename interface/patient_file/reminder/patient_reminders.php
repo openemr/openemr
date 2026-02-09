@@ -21,7 +21,7 @@ require_once "$srcdir/report_database.inc.php";
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\OeUI\OemrUI;
 
 $thisauth = true;
@@ -32,7 +32,7 @@ if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder',
     $thisauth = false;
 }
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
     exit;
 }
 

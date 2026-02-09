@@ -15,7 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
@@ -36,19 +36,15 @@ class NotificationEventListener implements EventSubscriberInterface
      */
     private $twig;
 
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
         $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
         $this->isVoiceEnabled = !empty($GLOBALS['oe_enable_voice'] ?? 0);
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
+        $this->twig = TwigFactory::createInstance($this->getTemplatePath());
     }
 
     public function getTemplatePath(): string
