@@ -8,9 +8,12 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
+ * @author    Meghana Chowdary Ainampudi <33152427+ameghana@users.noreply.github.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -102,16 +105,24 @@ if (!empty($_POST['form_save'])) {
     $form_pid = $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
-    $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
-    sqlStatement(
-        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-        [$invoice_refno, $encounter, $form_pid]
-    );
+    // Server-side validation: require check/reference number for check and bank draft payments
+    if (($form_method === 'check_payment' || $form_method === 'bank_draft') && $form_source === '') {
+        $alertmsg = xl('Check or Reference Number is required for this payment method.');
+    }
 
-    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+    if ($alertmsg === '') {
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
+        $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+
+        //Update the invoice_refno
+        sqlStatement(
+            "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
+            [$invoice_refno, $encounter, $form_pid]
+        );
+    }
+
+    if ($alertmsg === '' && $_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
                 "insert into ar_session set " .
                 "payer_id = ?" .
@@ -132,7 +143,7 @@ if (!empty($_POST['form_save'])) {
          frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
     }
 
-    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+    if ($alertmsg === '' && $_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
             $payment = floatval($payment);
             if ($amount = $payment) {
@@ -314,17 +325,15 @@ if (!empty($_POST['form_save'])) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
+if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receipt']))) {
     if (!empty($_REQUEST['receipt'])) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     }
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
-
-    // Get the patient's name and chart number.
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
 
     // Re-fetch payment info.
     $payrow = sqlQuery("SELECT " .
@@ -1046,6 +1055,13 @@ function make_insurance() {
     ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
+    <?php if ($alertmsg !== '') { ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        alert(<?php echo js_escape($alertmsg); ?>);
+    });
+    </script>
+    <?php } ?>
 </head>
 <body>
     <div class="container mt-3"><!--begin container div for form-->

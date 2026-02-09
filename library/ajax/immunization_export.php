@@ -43,7 +43,7 @@ try {
     if (!empty($spreadsheet->buildSpreadsheet())) {
         $spreadsheet->downloadSpreadsheet('Xls');
     }
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger = new SystemLogger();
     $logger->logError($e->getMessage());
 }

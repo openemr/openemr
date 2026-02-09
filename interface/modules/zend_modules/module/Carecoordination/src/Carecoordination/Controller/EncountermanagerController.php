@@ -276,7 +276,7 @@ class EncountermanagerController extends AbstractActionController
             $proc->importStylesheet($ss);
             $updatedContent = $proc->transformToXml($xmlDom);
             echo $updatedContent;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
             (new SystemLogger())->errorLogCaller(
                 "Failed to generate preview for ccda document",

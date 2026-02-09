@@ -73,7 +73,7 @@ if ($mode !== 'new' && $mode !== 'new_repository_form') {
             $_POST['response_meta'] = $responseService->extractResponseMetaData($saved['questionnaire_response'], true);
             $_POST['response_id'] = $saved['response_id'];
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         // allow exception to pass onward with echoed notification to user.
         // The form has a backup copy of response and will save with the form.
         echo("<p>" . xlt("Questionnaire Response save failed because") . '<br />' . text($e->getMessage()) . '<br /><h3>' . xlt("Will attempt to save using backed up answers.") . "</h3></p>");
@@ -87,7 +87,7 @@ if (isset($_POST['save_registry'])) {
         $service = new QuestionnaireService();
         try {
             $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter', $category);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             die(xlt("New Questionnaire insert failed") . '<br />' . text($e->getMessage()));
         }
         $rtn = sqlInsert("Insert Into `registry` Set

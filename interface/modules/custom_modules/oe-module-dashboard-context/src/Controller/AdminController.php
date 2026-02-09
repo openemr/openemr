@@ -81,7 +81,7 @@ class AdminController
                 'get_audit_log' => $this->getAuditLog(),
                 default => $this->sendError('Invalid action'),
             };
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->sendError($e->getMessage());
         }
     }

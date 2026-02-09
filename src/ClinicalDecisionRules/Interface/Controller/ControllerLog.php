@@ -67,7 +67,7 @@ class ControllerLog extends BaseController
                     $record['value'],
                     $record['new_value']
                 ]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
                 (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
             }

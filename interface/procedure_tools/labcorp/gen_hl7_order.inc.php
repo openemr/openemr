@@ -14,6 +14,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
 /*
 * A bit of documentation that will need to go into the manual:
 *

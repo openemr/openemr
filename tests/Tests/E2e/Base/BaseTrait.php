@@ -148,16 +148,22 @@ trait BaseTrait
     private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false, bool $clearAlert = false): void
     {
         if ($clearAlert) {
-            // ok the alert (example case of this is when open the Create Visit link since there is already an encounter on same day)
-            $this->client->wait(10)->until(function ($driver) {
-                try {
-                    $alert = $driver->switchTo()->alert();
-                    $alert->accept();
-                    return true; // Alert is present and has been cleared
-                } catch (\Exception) {
-                    return false; // Alert is not present
-                }
-            });
+            // Accept an alert if present (e.g., duplicate encounter warning when
+            // creating a visit on the same day as an existing encounter). The alert
+            // may not appear if no encounter exists, so don't fail if none shows.
+            try {
+                $this->client->wait(2)->until(function ($driver) {
+                    try {
+                        $alert = $driver->switchTo()->alert();
+                        $alert->accept();
+                        return true;
+                    } catch (\Throwable) {
+                        return false;
+                    }
+                });
+            } catch (TimeoutException) {
+                // No alert appeared within the window, which is fine
+            }
         }
         // Wait for each loading indicator to disappear from the live DOM
         if (str_contains($loading, '||')) {

@@ -196,7 +196,7 @@ class HTML_TreeMenu
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['structure']   = &$params['structure'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;
@@ -223,7 +223,7 @@ class HTML_TreeMenu
                         $recurseParams['structure']   = $node;
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;

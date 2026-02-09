@@ -70,7 +70,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM form_history_sdoh WHERE id = ?",
                     [$recordId]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail cleanup
                 error_log("Failed to cleanup SDOH record {$recordId}: " . $e->getMessage());
             }
@@ -143,7 +143,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -154,7 +154,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test user: " . $e->getMessage());
             }
         }

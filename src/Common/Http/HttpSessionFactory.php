@@ -89,7 +89,7 @@ class HttpSessionFactory implements SessionFactoryInterface
             $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
             try {
                 $sessionHandler = (new SentinelUtil())->configure($settings['gc_maxlifetime']);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
                 $this->getSystemLogger()->error(
                     "SessionUtil: failed to configure predis sentinel session storage: " . $e->getMessage(),

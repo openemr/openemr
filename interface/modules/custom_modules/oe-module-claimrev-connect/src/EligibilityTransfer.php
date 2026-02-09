@@ -12,6 +12,11 @@
 
     namespace OpenEMR\Modules\ClaimRevConnector;
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
     use OpenEMR\Services\BaseService;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
     use OpenEMR\Modules\ClaimRevConnector\EligibilityData;

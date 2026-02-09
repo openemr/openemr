@@ -385,7 +385,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
             $processingResult = new ProcessingResult();
             $processingResult->addData($saved['response_id']);
             return $processingResult;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult = new ProcessingResult();
             $processingResult->setInternalErrors("Server Error in creating QuestionnaireResponse resource");

@@ -57,7 +57,7 @@ class TelehealthConfigurationVerifier
                 $resultObject['message'] = xlt('Settings verified');
                 $resultObject['status'] = 'success';
                 $resultObject['bridgeSettings'] = $bridgeSettings;
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $this->logger->errorLogCaller(
                     "Failed to verify telehealth connection settings" . $exception->getMessage(),
                     ['trace' => $exception->getTraceAsString()]

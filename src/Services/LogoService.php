@@ -87,7 +87,7 @@ class LogoService
 
         try {
             $logo = $this->findLogo($paths, $filename);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
             $logo = "";
         }

@@ -157,11 +157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$twig in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$res in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',

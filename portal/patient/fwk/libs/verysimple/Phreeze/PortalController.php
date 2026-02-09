@@ -480,7 +480,7 @@ abstract class PortalController
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
-            } catch (exception $ex) {
+            } catch (\Throwable $ex) {
                 throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to suppress this error: " . $ex->getMessage());
             }
         }
@@ -895,7 +895,7 @@ abstract class PortalController
 
         try {
             $output = json_encode($obj);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {

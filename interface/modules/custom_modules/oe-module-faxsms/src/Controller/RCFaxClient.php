@@ -143,7 +143,7 @@ class RCFaxClient extends AppDispatch
         try {
             $response = $this->platform->get($uri);
             return js_escape((string)$response->text());
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $responseMsg = "<tr><td>" . text($e->getMessage()) . "</td></tr>";
             return json_encode(['error' => $responseMsg]);
         }
@@ -220,13 +220,13 @@ class RCFaxClient extends AppDispatch
                         $contentType
                     );
                     $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     return js_escape('Error: ' . text($e->getMessage()));
                 }
             }
             unlink($filePath);
             return js_escape($statusMsg);
-        } catch (ApiException|Exception $e) {
+        } catch (ApiException|\Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
@@ -318,7 +318,7 @@ class RCFaxClient extends AppDispatch
             // debug error log
             error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
             return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text(js_escape($e->getMessage()));
         }
     }
@@ -376,7 +376,7 @@ class RCFaxClient extends AppDispatch
                     $this->cacheAuthData($this->platform);
                     return 'Fax Successfully Sent';
                 }
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 return "Re-authentication Error: " . text($ex->getMessage());
             }
         }
@@ -538,7 +538,7 @@ class RCFaxClient extends AppDispatch
             ];
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
@@ -694,7 +694,7 @@ class RCFaxClient extends AppDispatch
             exit; // Stop further script execution
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
@@ -763,7 +763,7 @@ class RCFaxClient extends AppDispatch
                 $msg = text($nrow["message"]);
                 $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
@@ -887,7 +887,7 @@ class RCFaxClient extends AppDispatch
                 . xlt('Report to Administration.')
                 . "</td></tr>";
             return json_encode(['error' => $msg]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return json_encode(['error' => text($e->getMessage())]);
         }
 
@@ -1097,7 +1097,7 @@ class RCFaxClient extends AppDispatch
             ]);
             $json = $response->json();
             return (string)text(count($json->records));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error fetching incoming faxes in Reminder tasking: ' . text($e->getMessage()));
             return false;
         }
@@ -1142,7 +1142,7 @@ class RCFaxClient extends AppDispatch
             return $result ? xlt("Error: Failed to save document. Category Fax") : xlt("Chart Success");
         } catch (ApiException $e) {
             return json_encode(['error' => "Error: Retrieving Fax: " . text($e->getMessage())]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return json_encode(['error' => "Error: " . text($e->getMessage())]);
         }
     }

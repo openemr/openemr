@@ -186,7 +186,7 @@ class ContactTelecomService extends BaseService
             ]);
 
             return $savedRecords;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving telecoms for contact", [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
@@ -264,7 +264,7 @@ class ContactTelecomService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error setting primary telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -292,7 +292,7 @@ class ContactTelecomService extends BaseService
             }
 
             return $contactTelecom->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -311,7 +311,7 @@ class ContactTelecomService extends BaseService
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -513,7 +513,7 @@ class ContactTelecomService extends BaseService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error copying telecom", ['error' => $e->getMessage()]);
             return null;
         }

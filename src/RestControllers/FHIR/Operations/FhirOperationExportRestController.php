@@ -189,7 +189,7 @@ class FhirOperationExportRestController
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError($header->getMessage());
             $response->getBody()->write(json_encode($operationOutcome));
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
                 ['exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -254,7 +254,7 @@ class FhirOperationExportRestController
             $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
                 ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -307,7 +307,7 @@ class FhirOperationExportRestController
             $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
                 ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
@@ -392,7 +392,7 @@ class FhirOperationExportRestController
                     . "maximum execution time.", [
                     'exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = xlt("An unknown system error occurred during the export for resource") . ' ' . $resource;
                 $errorOutcome = $this->createOperationOutcomeError($errorMessage);
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);

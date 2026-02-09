@@ -381,7 +381,7 @@ try {
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
 }
@@ -747,7 +747,7 @@ $globalsBag->set('layout_search_color', '#ff9919');
 // upgrade fails for versions prior to 4.2.0 since no modules table
 try {
     $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', false, true);
-} catch (\Exception $ex) {
+} catch (\Throwable $ex) {
     error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
 }
 
@@ -772,7 +772,7 @@ if (!empty($checkModulesTableExists)) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
         error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
         die();
     }
@@ -854,5 +854,11 @@ if (empty($skipAuditLog)) {
 if (!empty($GLOBALS['translation_preload_cache'])) {
     xlWarmCache();
 }
+
+/**
+ * Marker constant indicating globals.php has fully loaded.
+ * Used by include files to guard against direct HTTP access.
+ */
+const OPENEMR_GLOBALS_LOADED = true;
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
