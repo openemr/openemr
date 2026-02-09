@@ -80,7 +80,7 @@ class TeleHealthVideoRegistrationController
         try {
             $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // convert uuid to a string value
             $this->createPatientRegistration($patient);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid']]);
         }
@@ -103,7 +103,7 @@ class TeleHealthVideoRegistrationController
             if (empty($apiUser)) {
                 $this->createPatientRegistration($patient);
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid'] ?? '']);
         }
@@ -135,7 +135,7 @@ class TeleHealthVideoRegistrationController
                     ['username' => $event->getUsername(), 'userWithUuid' => $userWithUuid, 'uuid' => $userWithUuid['uuid'] ?? null]
                 );
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user['uuid']]);
         }
@@ -197,7 +197,7 @@ class TeleHealthVideoRegistrationController
                     $this->suspendUser($apiUser->getUsername(), $apiUser->getAuthToken());
                 }
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->errorLogCaller("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user]);
         }

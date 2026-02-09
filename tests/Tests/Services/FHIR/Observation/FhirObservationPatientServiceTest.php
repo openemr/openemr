@@ -174,7 +174,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -185,7 +185,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
             }
         }

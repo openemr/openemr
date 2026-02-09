@@ -374,7 +374,7 @@ class NotificationEventListener implements EventSubscriberInterface
             if (!$send) {
                 error_log("Failed to send email: " . $mail->ErrorInfo);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Failed to send email: " . $e->getMessage());
         }
         return $send ? xlt("Email sent.") : xlt("Email failed to send.");

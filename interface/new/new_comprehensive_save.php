@@ -96,7 +96,7 @@ if (!empty($addressFieldsToSave)) {
                 $contactAddressService->saveAddressesForContact($contact->get_id(), $addressFieldData);
             }
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         (new SystemLogger())->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),

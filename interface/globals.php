@@ -225,6 +225,8 @@ if (empty($globalsBag)) {
 }
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
+// Absolute path to the location of documentroot directory for use with include statements:
+$globalsBag->set('webroot', $web_root);
 $globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
 $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
@@ -310,8 +312,6 @@ $globalsBag->set('fileroot', $webserver_root);
 // Absolute path to the location of interface directory for use with include statements:
 $include_root = "$webserver_root/interface";
 $globalsBag->set('include_root', $include_root);
-// Absolute path to the location of documentroot directory for use with include statements:
-$globalsBag->set('webroot', $web_root);
 
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
@@ -381,7 +381,7 @@ try {
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
 }
@@ -722,11 +722,6 @@ $globalsBag->set('backpic', $backpic ?? '');
 // else 0.
 $globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
 
-//set include_de_identification to enable De-identification (currently de-identification works fine only with linux machines)
-//Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
-//functions, tables for de-identification(Mysql root user and password is required for successful
-//execution of the de-identification upgrade script)
-$globalsBag->set('include_de_identification', 0);
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
@@ -752,7 +747,7 @@ $globalsBag->set('layout_search_color', '#ff9919');
 // upgrade fails for versions prior to 4.2.0 since no modules table
 try {
     $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', false, true);
-} catch (\Exception $ex) {
+} catch (\Throwable $ex) {
     error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
 }
 
@@ -777,7 +772,7 @@ if (!empty($checkModulesTableExists)) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
         error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
         die();
     }
@@ -859,5 +854,11 @@ if (empty($skipAuditLog)) {
 if (!empty($GLOBALS['translation_preload_cache'])) {
     xlWarmCache();
 }
+
+/**
+ * Marker constant indicating globals.php has fully loaded.
+ * Used by include files to guard against direct HTTP access.
+ */
+const OPENEMR_GLOBALS_LOADED = true;
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

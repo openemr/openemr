@@ -37,7 +37,7 @@ try {
         default:
             $response['error'] = 'Invalid action';
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $response['error'] = $e->getMessage();
 }
 
@@ -102,7 +102,7 @@ function deleteProcedure()
             'success' => true,
             'orderEmpty' => ($remaining['cnt'] == 0)
         ];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         sqlRollbackTrans();
         throw $e;
     }
@@ -128,7 +128,7 @@ function deleteSpecimen()
         );
 
         return ['success' => true];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }

@@ -518,25 +518,13 @@ if ($form_step == 1) {
 
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
 
-    if ($GLOBALS['include_de_identification'] == 1) {
-        //include routines during backup when de-identification is enabled
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --routines" .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    } else {
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    }
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
+    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+    " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+    escapeshellarg((string) $sqlconf["dbase"]);
 
     $auto_continue = true;
 }

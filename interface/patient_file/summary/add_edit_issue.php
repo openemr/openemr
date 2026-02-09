@@ -21,6 +21,7 @@ require_once $GLOBALS['srcdir'] . '/options.inc.php';
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -69,17 +70,12 @@ $info_msg = "";
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
 if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'addonly'])) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Not authorized to add issue of this type');
 }
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt("Not authorized for this squad!"));
-}
-
-function QuotedOrNull($fld)
-{
-    return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void

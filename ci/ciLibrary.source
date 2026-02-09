@@ -12,6 +12,8 @@
 
 set -xeuo pipefail
 
+coverage_filter_dirs=(apis gacl interface library modules oauth2 portal sites src tests)
+
 coverage_args=(
     --coverage-filter apis
     --coverage-filter gacl
@@ -58,6 +60,25 @@ _exec() {
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
+}
+
+##
+# Run the convert-coverage script inside the Docker container with
+# the standard coverage filter directories. This ensures that
+# realpath() and is_file() resolve correctly for container paths.
+# Arguments:
+#   $1 - input directory (inside container)
+#   $2 - output file path (relative to project root)
+#   $@ - additional arguments passed to convert-coverage
+convert_coverage() {
+    local input_dir=$1
+    local output=$2
+    shift 2
+    local -a args=("${input_dir}" "${output}")
+    for dir in "${coverage_filter_dirs[@]}"; do
+        args+=(--coverage-filter="${dir}")
+    done
+    _exec php -d memory_limit=4G ci/convert-coverage "${args[@]}" "$@"
 }
 
 dockers_env_start() {
@@ -213,10 +234,16 @@ setup_e2e_bookends() {
 # Coverage is mainly enabled for E2E and API tests through ci/auto_prepend.php
 # However, E2E tests still need longer timeouts.
 enable_e2e_coverage() {
-    # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
-    export SELENIUM_IMPLICIT_WAIT=90
+    # Increase page-load timeout when coverage is enabled (coverage slows
+    # down page loads due to auto_prepend.php instrumentation overhead).
+    #
+    # Do NOT override SELENIUM_IMPLICIT_WAIT here. Implicit wait must stay
+    # at 0 when using explicit waits (wait()->until()). A non-zero implicit
+    # wait causes each findElement() inside an explicit wait condition to
+    # block for the full duration before throwing, consuming the entire
+    # explicit wait timeout in a single attempt instead of retrying.
     export SELENIUM_PAGE_LOAD_TIMEOUT=180
-    echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
+    echo "Selenium page_load_timeout increased to ${SELENIUM_PAGE_LOAD_TIMEOUT}s for coverage"
 }
 
 build_test_e2e() {
@@ -225,10 +252,18 @@ build_test_e2e() {
     # Fix permissions for video recording
     actions_chmod 777 selenium-videos
 
-    # Enable E2E coverage collection if coverage is enabled
+    # Build coverage args for e2e test files (not server-side coverage).
+    # Server-side coverage is collected via auto_prepend.php; this captures
+    # the test file execution itself to verify tests actually ran.
+    local -a e2e_coverage_args=()
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         echo 'Enabling E2E coverage collection…'
         enable_e2e_coverage
+        e2e_coverage_args=(
+            --coverage-clover coverage.e2e-tests.clover.xml
+            --coverage-filter tests/Tests/E2e
+            --coverage-text
+        )
     fi
 
     selenium_video_start
@@ -259,7 +294,11 @@ build_test_e2e() {
 
     echo 'Running E2E tests…'
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit \
+        --log-junit junit-e2e.xml \
+        --testsuite e2e \
+        --testdox \
+        "${e2e_coverage_args[@]}"
     status=$?
     set -e
 
@@ -339,7 +378,15 @@ build_test() {
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in
-        api) # API tests collect coverage via auto_prepend.php
+        api) # API tests collect server-side coverage via auto_prepend.php.
+             # Also collect test file coverage to verify tests actually ran.
+             if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+                 args+=(
+                     --coverage-clover coverage.api-tests.clover.xml
+                     --coverage-filter tests/Tests/Api
+                     --coverage-text
+                 )
+             fi
              phpunit "${args[@]}" "$@"
              return
              ;;

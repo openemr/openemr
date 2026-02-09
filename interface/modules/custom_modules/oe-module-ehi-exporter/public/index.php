@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
                 $taskId = intval($_POST['taskId'] ?? 0);
                 $task = $exporter->runExportTask($taskId);
                 echo json_encode($task->getJSON());
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
@@ -73,14 +73,14 @@ if (isset($_POST['submit'])) {
                 $task = $exporter->getExportTaskForStatusUpdate($taskId);
                 // will already have the encoded progress results in the task
                 echo json_encode($task->getJSON());
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
-    } catch (\Exception $exception) {
+    } catch (\Throwable $exception) {
         $errorMessage = $exception->getMessage();
         $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
     }

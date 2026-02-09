@@ -13,6 +13,7 @@
 $this->assign('title', xlt('Portal') . ' | ' . xlt('Activity'));
 $this->assign('nav', 'onsiteactivityviews');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -21,7 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
-    die(xlt("Unauthorized"));
+    AccessDeniedHelper::deny('Unauthorized access to onsite activity view');
 }
 
 $globalsBag = OEGlobalsBag::getInstance();

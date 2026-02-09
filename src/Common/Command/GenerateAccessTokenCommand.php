@@ -214,7 +214,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             $symfonyStyler->info("Bearer Token Response");
             $symfonyStyler->text($jsonResponse);
             return Command::SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $symfonyStyler->error("Error creating access token : " . $e->getMessage());
             $symfonyStyler->error($e->getTraceAsString());
             return Command::FAILURE;

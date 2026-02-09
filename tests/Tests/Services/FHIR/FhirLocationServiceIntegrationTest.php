@@ -411,7 +411,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM `{$table}` WHERE uuid = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$uuid]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log error but don't fail test cleanup
                 error_log("Failed to cleanup test data from {$table}: " . $e->getMessage());
             }
@@ -422,7 +422,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM facility WHERE id = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$facilityId]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup facility {$facilityId}: " . $e->getMessage());
             }
         }

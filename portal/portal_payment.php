@@ -43,6 +43,7 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
         exit();
     }
 }
+assert(isset($pid)); // Set by globals.php via session; PHPStan can't see through require_once
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
@@ -66,8 +67,10 @@ $cryptoGen = new CryptoGen();
 $recorder = new Recorder();
 
 $appsql = new ApplicationTable();
-$pid = $_REQUEST['pid'] ?? $pid;
-$pid = ($_REQUEST['hidden_patient_code'] ?? null) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+if (!$isPortal) {
+    $pid = $_REQUEST['pid'] ?? $pid;
+    $pid = ($_REQUEST['hidden_patient_code'] ?? 0) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+}
 $recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
 $adminUser = '';
 $portalPatient = '';
@@ -91,40 +94,6 @@ if ($edata) {
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", [$value
-        ]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-// echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
-}
-
 $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
@@ -136,7 +105,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
-    $form_pid = $_POST['form_pid'];
+    $form_pid = $isPortal ? $pid : $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
@@ -340,7 +309,7 @@ if ($_POST['form_save'] ?? '') {
 
 if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     if (($_REQUEST['receipt'] ?? null)) {
-        $form_pid = $_GET['patient'];
+        $form_pid = $isPortal ? $pid : $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
 
@@ -1076,7 +1045,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1145,7 +1114,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
                                 <div class="form-group">
@@ -1247,6 +1216,19 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
+            echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
+        echo '<script type="text/javascript">';
+        echo $twig->render('payments/rainforest.js', [
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'endpoint' => 'portal_payment.rainforest.php',
+        ]);
+        echo '</script>';
     }
     ?>
 

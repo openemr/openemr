@@ -23,6 +23,9 @@
   ],
   "author": "d3sandoval",
   "license": "GNU GPL",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "browserslist": [
     "> 1%",
     "ie >= 8",
@@ -38,7 +41,7 @@
   ],
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "autoprefixer": "10.4.23",
+    "autoprefixer": "10.4.24",
     "colors": "1.4.0",
     "del": "6.1.1",
     "eslint": "9.39.2",
@@ -99,7 +102,7 @@
     "jquery": "3.7.1",
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.22.0",
-    "jspdf": "4.0.0",
+    "jspdf": "4.1.0",
     "jszip": "3.10.1",
     "knockout": "3.5.1",
     "konva": "9.3.22",

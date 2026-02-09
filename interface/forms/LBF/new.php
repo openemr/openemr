@@ -19,21 +19,22 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
-require_once(__DIR__ . "/../../../vendor/autoload.php");
+require_once __DIR__ . "/../../../vendor/autoload.php";
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once("$srcdir/FeeSheetHtml.class.php");
+require_once "../../globals.php";
+require_once "$srcdir/api.inc.php";
+require_once "$srcdir/forms.inc.php";
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/patient.inc.php";
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once "$srcdir/FeeSheetHtml.class.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -59,7 +60,7 @@ function end_cell(): void
 
 function end_row(): void
 {
-    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
+    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
     end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {
@@ -194,7 +195,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
-        die(xlt('Access denied'));
+        AccessDeniedHelper::deny('Unauthorized access to LBF form');
     }
 }
 
@@ -205,7 +206,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 if (!$from_trend_form) {
     $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
-        include_once($fname);
+        include_once $fname;
     }
 }
 
@@ -435,7 +436,7 @@ if (
 
     </style>
 
-    <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+    <?php require_once "{$GLOBALS['srcdir']}/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -467,7 +468,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -507,7 +508,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -516,7 +517,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -525,7 +526,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -534,7 +535,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -543,7 +544,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -552,7 +553,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -914,7 +915,8 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'"; } ?>>
+    echo " style='background-color:var(--white)'";
+                      } ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
@@ -1322,7 +1324,7 @@ if (
                         $tmp = ' text';
                         if (isOption($edit_options, 'DS')) {
                             $tmp .= ' RS';
-                        } else if (isOption($edit_options, 'DO')) {
+                        } elseif (isOption($edit_options, 'DO')) {
                             $tmp .= ' RO';
                         }
                         if ($USING_BOOTSTRAP) {

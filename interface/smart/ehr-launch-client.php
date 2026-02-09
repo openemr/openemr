@@ -34,7 +34,7 @@ try {
 } catch (AccessDeniedException $exception) {
     (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

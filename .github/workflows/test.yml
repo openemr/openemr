@@ -102,7 +102,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: Install npm package
       uses: actions/setup-node@v6
@@ -152,7 +152,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.vendor }}'
         matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -181,7 +181,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.composer }}'
         matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -219,7 +219,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.npm-build }}'
         matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -249,7 +249,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.ccda-build }}'
         matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -278,7 +278,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.npm }}'
         matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -382,7 +382,6 @@ jobs:
       run: |
         . ci/ciLibrary.source
         configure_coverage
-        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP}/coverage-e2e-raw" >> "${GITHUB_ENV}"
 
     ##
     # Setup auto_prepend.php for API and E2E test coverage collection
@@ -452,33 +451,13 @@ jobs:
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
       run: mv junit-api.xml junit-api.saved-test-data
 
-    - name: Copy API coverage files from container
+    - name: Convert API coverage to Clover XML
       if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
       run: |
         . ci/ciLibrary.source
-        mkdir -p "${RUNNER_TEMP}/coverage-api-raw"
-        dc cp openemr:/tmp/openemr-coverage/api "${RUNNER_TEMP}/coverage-api-raw" || true
-        echo "Listing contents of coverage-api-raw:"
-        ls -laR "${RUNNER_TEMP}/coverage-api-raw" || true
-        find "${RUNNER_TEMP}/coverage-api-raw" -type f -name '*.php' |
-          wc -l |
-          xargs echo 'Found raw API coverage files:'
-
-    - name: Convert API coverage to .cov format
-      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
-      run: |
-        mkdir -p coverage
-        sudo chmod -R 777 coverage
-        if [[ -d "${RUNNER_TEMP}/coverage-api-raw/api" ]]; then
-          ./ci/convert-coverage "${RUNNER_TEMP}/coverage-api-raw/api" \
-                                 coverage/coverage.api.cov \
-                                 --clover=coverage.api.clover.xml
-          ls -lah coverage.api.clover.xml coverage/coverage.api.cov
-        else
-          echo "Warning: No API coverage files found in ${RUNNER_TEMP}/coverage-api-raw/api"
-          echo "This likely means no API tests were executed or coverage collection failed"
-          exit 0
-        fi
+        convert_coverage /tmp/openemr-coverage/api \
+                         /dev/null \
+                         --clover=coverage.api.clover.xml
 
     - name: Upload api test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
@@ -491,6 +470,21 @@ jobs:
     - name: Hide api coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
       run: mv coverage.api.clover.xml api.saved-cov-data
+
+    # API test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # This verifies the API test code itself is executing, separate from
+    # the server-side application coverage collected via auto_prepend.php.
+    - name: Upload api test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.api-tests.clover.xml
+        flags: api-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide api test file coverage from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
+      run: mv coverage.api-tests.clover.xml api-tests.saved-cov-data
 
     - name: Fixtures testing
       if: ${{ success() || failure() }}
@@ -690,25 +684,13 @@ jobs:
         . ci/ciLibrary.source
         build_test e2e
 
-    - name: Copy E2E coverage files from container
+    - name: Convert E2E coverage to Clover XML
       if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
       run: |
         . ci/ciLibrary.source
-        mkdir -p "${COVERAGE_RAW_TMPDIR}"
-        dc cp openemr:/tmp/openemr-coverage/e2e "${COVERAGE_RAW_TMPDIR}" || true
-        find "${COVERAGE_RAW_TMPDIR}" -type f -name '*.php' |
-          wc -l |
-          xargs echo 'Found raw E2E coverage files:'
-
-    - name: Convert E2E coverage to .cov format
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
-      run: |
-        mkdir -p coverage
-        sudo chmod -R 777 coverage
-        ./ci/convert-coverage "${COVERAGE_RAW_TMPDIR}/e2e" \
-                              coverage/coverage.e2e.cov \
-                              --clover=coverage.e2e.clover.xml
-        ls -lah coverage.e2e.clover.xml coverage/coverage.e2e.cov
+        convert_coverage /tmp/openemr-coverage/e2e \
+                         /dev/null \
+                         --clover=coverage.e2e.clover.xml
 
     ##
     # The logs for the e2e run are directly in the container logs for nginx/php-fpm
@@ -762,6 +744,21 @@ jobs:
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
       run: mv coverage.e2e.clover.xml e2e.saved-cov-data
 
+    # E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # This verifies the e2e test code itself is executing, separate from
+    # the server-side application coverage collected via auto_prepend.php.
+    - name: Upload e2e test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.e2e-tests.clover.xml
+        flags: e2e-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide e2e test file coverage from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      run: mv coverage.e2e-tests.clover.xml e2e-tests.saved-cov-data
+
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v6
@@ -811,4 +808,4 @@ jobs:
           echo "| Status | PHP | Webserver | Database | E2E | Coverage | Docker Dir |"
           echo "| --- | --- | --- | --- | --- | --- | --- |"
           echo "| ${status_emoji} ${{ job.status }} | ${{ steps.parse.outputs.php }} | ${{ steps.parse.outputs.webserver }} | ${{ steps.parse.outputs.database }} ${{ steps.parse.outputs.db }} | ${{ steps.parse.outputs.e2e_enabled }} | ${{ env.ENABLE_COVERAGE }} | ${{ steps.parse.outputs.docker_dir }} |"
-        } >> $GITHUB_STEP_SUMMARY
+        } >> "$GITHUB_STEP_SUMMARY"

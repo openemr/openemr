@@ -37,7 +37,7 @@ class PharmacyService
                 $data['alternate_pharmacy'],
                 $data['search_persist'],
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -61,7 +61,7 @@ class PharmacyService
                 $data['search_persist'],
                 $pid
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }

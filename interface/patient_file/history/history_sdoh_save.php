@@ -12,6 +12,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -27,7 +28,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $ses
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
 
 if (empty($pid)) {
@@ -169,7 +170,7 @@ try {
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
     die(xlt("Error saving SDOH record."));
 }

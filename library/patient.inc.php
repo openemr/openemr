@@ -1185,7 +1185,7 @@ function pdValueOrNull($key, $value)
  *
  * @param $pid
  * @param $new
- * @param false $create
+ * @param bool $create
  * @return mixed
  */
 function updatePatientData($pid, $new, $create = false)

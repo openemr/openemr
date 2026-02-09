@@ -65,7 +65,7 @@ class SignalWireClient extends AppDispatch
             }
 
             $this->portalUrl = "https://" . ($this->credentials['space_url'] ?? 'example.signalwire.com');
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWire initialization error: ' . $e->getMessage());
             // Continue anyway to allow setup
         }
@@ -243,7 +243,7 @@ class SignalWireClient extends AppDispatch
                 'fax_sid' => $fax->sid,
                 'status' => $fax->status
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWire Fax Error: ' . $e->getMessage());
             return json_encode([
                 'success' => false,
@@ -313,7 +313,7 @@ class SignalWireClient extends AppDispatch
             $mediaUrl = $this->serverUrl . '/' . $relativeUploadDir . '/' . $filename;
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - Generated media URL: " . $mediaUrl);
             return $mediaUrl;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWireClient.uploadFileForFax(): ERROR - ' . $e->getMessage());
             error_log('SignalWireClient.uploadFileForFax(): TRACE - ' . $e->getTraceAsString());
             return null;
@@ -608,7 +608,7 @@ class SignalWireClient extends AppDispatch
             } else {
                 return json_encode(['error' => $result['message']]);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.assignFax(): ERROR - " . $e->getMessage());
             return json_encode(['error' => xlt('Failed to assign fax: ') . $e->getMessage()]);
         }
@@ -651,7 +651,7 @@ class SignalWireClient extends AppDispatch
             foreach ($faxes as $fax) {
                 $this->upsertFaxFromSignalWire($fax);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.getPending(): ERROR - " . $e->getMessage());
         }
 
@@ -794,7 +794,7 @@ class SignalWireClient extends AppDispatch
                 $duration = $freshFax->duration ?? $duration;
                 $mediaUrl = $freshFax->mediaUrl ?? $mediaUrl;
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Fetched fresh data from API: status={$status}, pages={$numPages}");
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): WARNING - Could not fetch fresh status: " . $e->getMessage());
             }
 
@@ -843,7 +843,7 @@ class SignalWireClient extends AppDispatch
                 QueryUtils::sqlStatementThrowException($sql, [$uid, $jobId, $from, $to, json_encode($faxData), $dateCreated, $direction, $status, $site_id, $mediaPath ?? null]);
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Inserted fax {$jobId}");
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.upsertFaxFromSignalWire(): ERROR - " . $e->getMessage());
         }
     }
@@ -895,7 +895,7 @@ class SignalWireClient extends AppDispatch
 
             error_log("SignalWireClient.downloadFaxMedia(): Successfully downloaded fax to {$filepath}");
             return $filepath;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.downloadFaxMedia(): ERROR - " . $e->getMessage());
             return null;
         }
@@ -931,7 +931,7 @@ class SignalWireClient extends AppDispatch
             }
 
             return $fileContent;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.downloadFaxMediaContent(): ERROR - " . $e->getMessage());
             return null;
         }

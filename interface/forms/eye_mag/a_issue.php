@@ -11,9 +11,11 @@
  * @authorRod Roark <rod@sunsetsystems.com>
  * @authorRay Magauran <magauran@MedFetch.com>
  * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -52,7 +55,7 @@ $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
 if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    die(xlt("Edit is not authorized!"));
+    AccessDeniedHelper::deny('Editing eye exam issue is not authorized');
 }
 
 if (
@@ -61,7 +64,7 @@ if (
     'addonly'
     ])
 ) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
 }
 
 $PMSFH = build_PMSFH($pid);

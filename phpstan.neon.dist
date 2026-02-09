@@ -37,8 +37,6 @@ parameters:
   - templates
   - tests
   - version.php
-  scanDirectories:
-  - ./.phpstan
   scanFiles:
   - library/sql.inc.php
   - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php

@@ -121,22 +121,6 @@ function getContent()
     return $content;
 }
 
-function patientFilePostToGet($arin)
-{
-    $getstring = "";
-    foreach ($arin as $key => $val) {
-        if (is_array($val)) {
-            foreach ($val as $v) {
-                $getstring .= attr_url($key . "[]") . "=" . attr_url($v) . "&";
-            }
-        } else {
-            $getstring .= attr_url($key) . "=" . attr_url($val) . "&";
-        }
-    }
-
-    return $getstring;
-}
-
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -282,7 +266,7 @@ function patientFilePostToGet($arin)
                 </div>
                 <br />
                 <br />
-                <a href="custom_report.php?printable=1&<?php print patientFilePostToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+                <a href="custom_report.php?printable=1&<?php echo http_build_query($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
             <?php } // end not printable ?>
@@ -598,18 +582,18 @@ function patientFilePostToGet($arin)
                                             $itpl = $pdf->importPage($i + 1);
                                             $pdf->useTemplate($itpl);
                                         }
-                                    } catch (Exception) {
+                                    } catch (\Throwable) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
-                                        //
-                                        unlink($from_file_tmp_name);
                                         $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
-                                        $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
+                                        $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp ?? '');
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
                                         $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
                                     } finally {
-                                        unlink($from_file_tmp_name);
+                                        if (isset($from_file_tmp_name)) {
+                                            unlink($from_file_tmp_name);
+                                        }
                                         // Make sure whatever follows is on a new page. Maybe!
                                         // okay if not a series of pdfs so if so need @todo
                                         if (empty($err)) {

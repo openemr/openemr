@@ -3,15 +3,17 @@
 /**
  * ValidationUtils is intended for validation methods that are used in OpenEMR.
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Cassian LUP <cassi.lup@gmail.com>
- * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package    OpenEMR
+ * @link       http://www.open-emr.org
+ * @author     Cassian LUP <cassi.lup@gmail.com>
+ * @author     Stephen Nielson <snielson@discoverandchange.com>
+ * @author     Michael A. Smith <michael@opencoreemr.com>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
+ * @copyright  Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
+ * @copyright  Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright  Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Utils;
@@ -40,9 +42,9 @@ class ValidationUtils
     /**
      * Validates an IP address using filter_var.
      *
-     * @param string $ip The IP address to validate
-     * @param int $flags Optional flags: FILTER_FLAG_IPV4, FILTER_FLAG_IPV6,
-     *                   FILTER_FLAG_NO_PRIV_RANGE, FILTER_FLAG_NO_RES_RANGE
+     * @param string $ip    The IP address to validate
+     * @param int    $flags Optional flags: FILTER_FLAG_IPV4, FILTER_FLAG_IPV6,
+     *                      FILTER_FLAG_NO_PRIV_RANGE, FILTER_FLAG_NO_RES_RANGE
      * @return bool True if valid IP address, false otherwise
      */
     public static function isValidIpAddress(string $ip, int $flags = 0): bool
@@ -54,8 +56,8 @@ class ValidationUtils
      * Validates an integer, optionally within a range.
      *
      * @param mixed $value The value to validate
-     * @param ?int $min Minimum allowed value (inclusive)
-     * @param ?int $max Maximum allowed value (inclusive)
+     * @param ?int  $min   Minimum allowed value (inclusive)
+     * @param ?int  $max   Maximum allowed value (inclusive)
      * @return int|false The validated integer, or false if invalid
      */
     public static function validateInt(mixed $value, ?int $min = null, ?int $max = null): int|false
@@ -74,9 +76,9 @@ class ValidationUtils
     /**
      * Validates a float, optionally within a range.
      *
-     * @param mixed $value The value to validate
-     * @param ?float $min Minimum allowed value (inclusive)
-     * @param ?float $max Maximum allowed value (inclusive)
+     * @param mixed  $value The value to validate
+     * @param ?float $min   Minimum allowed value (inclusive)
+     * @param ?float $max   Maximum allowed value (inclusive)
      * @return float|false The validated float, or false if invalid
      */
     public static function validateFloat(mixed $value, ?float $min = null, ?float $max = null): float|false
@@ -129,7 +131,7 @@ class ValidationUtils
         $parity = $length % 2;
 
         for ($i = 0; $i < $length; $i++) {
-            $digit = (int) $number[$i];
+            $digit = (int)$number[$i];
 
             if ($i % 2 === $parity) {
                 $digit *= 2;
@@ -148,7 +150,7 @@ class ValidationUtils
      * Validates a postal code based on country.
      *
      * @param string $postalCode The postal code to validate
-     * @param string $country The country code (US, CA, etc.)
+     * @param string $country    The country code (US, CA, etc.)
      * @return bool True if valid postal code for the country, false otherwise
      */
     public static function isValidPostalCode(string $postalCode, string $country = 'US'): bool
@@ -170,7 +172,7 @@ class ValidationUtils
      */
     public static function isValidUSPostalCode(string $postalCode): bool
     {
-        return (bool) preg_match('/^\d{5}(-\d{4})?$/', $postalCode);
+        return (bool)preg_match('/^\d{5}(-\d{4})?$/', $postalCode);
     }
 
     /**
@@ -183,24 +185,24 @@ class ValidationUtils
      */
     public static function isValidCAPostalCode(string $postalCode): bool
     {
-        return (bool) preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', $postalCode);
+        return (bool)preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', $postalCode);
     }
 
     /**
      * Validates a URL using filter_var.
      *
-     * @param string $url The URL to validate
-     * @param bool $requireHttps If true, only accept HTTPS URLs
+     * @param string $url          The URL to validate
+     * @param bool   $requireHttps If true, only accept HTTPS URLs
      * @return bool True if valid URL, false otherwise
      */
-    public static function isValidUrl(string $url, bool $requireHttps = false): bool
+    public static function isValidUrl(?string $url, bool $requireHttps = false): bool
     {
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
         }
 
         if ($requireHttps) {
-            return strtolower(parse_url($url, PHP_URL_SCHEME) ?? '') === 'https';
+            return strtolower(parse_url((string) $url, PHP_URL_SCHEME) ?? '') === 'https';
         }
 
         return true;
@@ -218,6 +220,20 @@ class ValidationUtils
     }
 
     /**
+     * Validates a TCP/UDP port number.
+     *
+     * Valid port numbers are 1-65535. Port 0 is reserved and not considered
+     * valid for connection purposes.
+     *
+     * @param string $port The port to validate
+     * @return bool True if valid port number, false otherwise
+     */
+    public static function isValidPort(string $port): bool
+    {
+        return self::validateInt($port, 1, 65535) !== false;
+    }
+
+    /**
      * Validates a phone number using libphonenumber.
      *
      * Accepts phone numbers in various formats including:
@@ -225,10 +241,10 @@ class ValidationUtils
      * - E.164 format: +15551234567
      * - With country code: 1-555-123-4567
      *
-     * @param string $phone The phone number to validate
+     * @param string $phone         The phone number to validate
      * @param string $defaultRegion Default region code (e.g., 'US') for parsing numbers without country code
-     * @param bool $strict If true, validates against real area codes. If false, only checks format/length.
-     *                     Use strict=false for test/demo data with fake numbers like 555-xxx-xxxx.
+     * @param bool   $strict        If true, validates against real area codes. If false, only checks format/length.
+     *                              Use strict=false for test/demo data with fake numbers like 555-xxx-xxxx.
      * @return bool True if valid phone number, false otherwise
      */
     public static function isValidPhoneNumber(string $phone, string $defaultRegion = 'US', bool $strict = true): bool

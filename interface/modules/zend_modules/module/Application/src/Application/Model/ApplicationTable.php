@@ -67,7 +67,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement = $this->adapter->query($sql);
             $return = $statement->execute($params);
             $result = true;
-        } catch (\Exception | ExceptionInterface $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -414,7 +414,7 @@ class ApplicationTable extends AbstractTableGateway
         } else {
             try {
                 $dateObj = new DateTime($input_date);
-            } catch (Exception) {
+            } catch (\Throwable) {
                 return false;
             }
         }
