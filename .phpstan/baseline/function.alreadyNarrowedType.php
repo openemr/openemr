@@ -232,11 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with OpenEMR\\\\Common\\\\Database\\\\ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',

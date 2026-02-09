@@ -370,7 +370,7 @@ class QueryUtils
      */
     public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
-        /** @var mixed @params */
+        /** @var mixed $params */
         if (!is_array($params)) {
             (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
                 'method' => __METHOD__,
@@ -390,7 +390,6 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
     public static function escapeLimit(string|int $limit)
