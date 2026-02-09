@@ -138,19 +138,23 @@ $timeslotHeightUnit="px";
 
  $MULTIDAY = count($A_EVENTS) > 1;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$authUserID = $session->get('authUserID');
+$facilities = getUserFacilities($authUserID); // from users_facility
+$pc_facility = $session->get('pc_facility');
+$language_direction = $session->get('language_direction');
+$authorizeduser = $session->get('authorizeduser');
 //==================================
 //FACILITY FILTERING (CHEMED)
-$facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
-if ( $_SESSION['pc_facility'] ) {
-  $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+if ( $pc_facility ) {
+  $provinfo = getProviderInfo('%', true, $pc_facility);
 } else {
   $provinfo = getProviderInfo();
 }
 //EOS FACILITY FILTERING (CHEMED)
 //==================================
-
-$chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
-$chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+$chevron_icon_left = $language_direction == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+$chevron_icon_right = $language_direction == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 [-/php-]
 <div id="wrapper">
     <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
@@ -322,21 +326,21 @@ while ($currdate <= $enddate) {
 /*********************************************************************
 $facilities = getFacilities();
 *********************************************************************/
-if (!empty($_SESSION['authorizeduser']) && ($_SESSION['authorizeduser'] == 1)) {
+if (!empty($authorizeduser) && ($authorizeduser == 1)) {
   $facilities = getFacilities();
 } else {
-  $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
+  $facilities = getUserFacilities($authUserID); // from users_facility
   if (count($facilities) == 1)
     OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 /********************************************************************/
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility' class='view1 form-control' >\n";
-    if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
+    if ( !$pc_facility ) $selected = "selected='selected'";
     // echo "    <option value='0' $selected>"  . xlt('All Facilities') . "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option class='bg-info' value='0' $selected>" . xlt('All Facilities') . "</option>\n";
     foreach ($facilities as $fa) {
-        $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
+        $selected = ( $pc_facility == $fa['id']) ? "selected='selected'" : "" ;
         echo "    <option class='bg-info' value='" . attr($fa['id']) . "' $selected>" . text($fa['name']) . "</option>\n";
     }
     echo "   </select>\n";
@@ -357,7 +361,7 @@ if (count($facilities) > 1) {
 [-/php-]
 </div>
 [-php-]
-if($_SESSION['pc_facility'] == 0){
+if($pc_facility == 0){
 [-/php-]
 <ul class="list-group list-group-flush" id="facilityColor">
 [-php-]
@@ -813,7 +817,7 @@ foreach ($providers as $provider) {
 
             $divTitle .= "\n(" . xl('double click to edit') . ")";
 
-       if($_SESSION['pc_facility'] == 0){
+       if($pc_facility == 0){
           // a special case for the 'IN' event this puts the time ABOVE
           // the normal DIV so it doesn't overlap another event DIV and include the time
           if ($event['catid'] == 2) {
@@ -857,7 +861,7 @@ foreach ($providers as $provider) {
           if ($event['catid'] != 2) { echo $content; }
           echo "</div>\n";
        }
-       elseif($_SESSION['pc_facility'] == $row['id']){
+       elseif($pc_facility == $row['id']){
            if ($event['catid'] == 2) {
                $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
                echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event in_start' style='top:".$inTop.

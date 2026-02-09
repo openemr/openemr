@@ -20,6 +20,7 @@ use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
@@ -48,10 +49,11 @@ class Module
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Enforce ACL for the Care Coordination module.
             // Skip for patient portal sessions which have their own authorization.
-            if (($_SESSION['sessionUser'] ?? '') !== '-patient-') {
-                $userId = $_SESSION['authUserID'] ?? '';
+            if (($session->get('sessionUser') ?? '') !== '-patient-') {
+                $userId = $session->get('authUserID') ?? '';
                 if (
                     !AclMain::zhAclCheck($userId, 'send_to_hie')
                     && !AclMain::aclCheckCore('admin', 'super')
