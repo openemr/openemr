@@ -1192,11 +1192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function debug may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
@@ -1435,11 +1430,6 @@ $ignoreErrors[] = [
     'message' => '#^Function prior_auth_report may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/prior_auth/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getListOptions may not be defined in the global namespace\\.$#',
@@ -2587,16 +2577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oresData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function oresRawData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
@@ -2800,11 +2780,6 @@ $ignoreErrors[] = [
     'message' => '#^Function storeNote may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function invalue may not be defined in the global namespace\\.$#',
@@ -3088,11 +3063,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function ActiveIssueCodeRecycleFn may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
