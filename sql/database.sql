@@ -15383,7 +15383,7 @@ CREATE TABLE `preference_value_sets` (
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
 
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', 'organization-type', 'Organization type');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'organization-type', 'Organization type', 1, 0);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);

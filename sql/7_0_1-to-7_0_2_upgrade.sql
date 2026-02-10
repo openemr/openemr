@@ -616,7 +616,7 @@ CREATE TABLE `fee_schedule` (
 #EndIf
 
 #IfNotRow list_options list_id `organization-type`
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', 'organization-type', 'Organization type');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'organization-type', 'Organization type', 1, 0);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);
