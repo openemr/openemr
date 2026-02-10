@@ -692,7 +692,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'type\' does not exist on non\\-empty\\-array\\<int, array\\<mixed\\>\\>\\.$#',
+    'message' => '#^Offset \'type\' does not exist on non\\-empty\\-list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
 ];

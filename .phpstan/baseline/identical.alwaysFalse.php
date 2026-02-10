@@ -7,12 +7,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array\\|false and null will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between array\\<mixed\\>\\|false and null will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array\\|false and null will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between array\\<mixed\\>\\|false and null will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];

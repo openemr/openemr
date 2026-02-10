@@ -762,12 +762,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Validators/TelehealthPatientValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type array\\|false supplied for foreach, only iterables are supported\\.$#',
+    'message' => '#^Argument of an invalid type array\\<mixed\\>\\|false supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/ModuleManagerListener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type array\\|false supplied for foreach, only iterables are supported\\.$#',
+    'message' => '#^Argument of an invalid type array\\<mixed\\>\\|false supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Services/ModuleService.php',
 ];

@@ -44,7 +44,7 @@ trait DatabaseQueryTrait
     /**
      * @param string $sqlStatement
      * @param mixed[] $binds
-     * @return array<int, mixed[]>
+     * @return list<array<mixed>>
      */
     protected function fetchRecordsNoLog($sqlStatement, $binds)
     {
@@ -54,8 +54,8 @@ trait DatabaseQueryTrait
     /**
      * @param string $sqlStatement
      * @param string $column
-     * @param array $binds
-     * @return array
+     * @param mixed[] $binds
+     * @return list<mixed>
      */
     protected function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
@@ -76,7 +76,7 @@ trait DatabaseQueryTrait
      * @param string $sqlStatement
      * @param mixed[] $binds
      * @param bool $noLog
-     * @return array<int, mixed[]>
+     * @return list<array<mixed>>
      */
     protected function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
@@ -86,8 +86,8 @@ trait DatabaseQueryTrait
     /**
      * @param string $sqlStatement
      * @param string $column
-     * @param array $binds
-     * @return array
+     * @param mixed[] $binds
+     * @return array<mixed>
      */
     protected function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
@@ -96,7 +96,7 @@ trait DatabaseQueryTrait
 
     /**
      * @param ADORecordSet|false $resultSet
-     * @return array|false
+     * @return array<mixed>|false
      */
     protected function fetchArrayFromResultSet($resultSet)
     {
@@ -105,7 +105,7 @@ trait DatabaseQueryTrait
 
     /**
      * @param string $statement
-     * @param array $binds
+     * @param mixed[] $binds
      * @param bool $noLog
      * @return ADORecordSet
      */
@@ -125,7 +125,7 @@ trait DatabaseQueryTrait
 
     /**
      * @param string $statement
-     * @param array $binds
+     * @param mixed[] $binds
      * @return int
      */
     protected function sqlInsert($statement, $binds = [])
@@ -189,9 +189,9 @@ trait DatabaseQueryTrait
     }
 
     /**
-     * @param array $params
+     * @param mixed[] $params
      * @param bool $log
-     * @return array|false
+     * @return array<mixed>|false
      */
     protected function querySingleRow(string $sql, array $params, bool $log = true)
     {

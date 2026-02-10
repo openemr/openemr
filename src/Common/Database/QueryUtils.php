@@ -64,7 +64,7 @@ class QueryUtils
     /**
      * @param string $sqlStatement
      * @param mixed[] $binds
-     * @return array<int, mixed[]>
+     * @return list<array<mixed>>
      */
     public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
@@ -93,9 +93,9 @@ class QueryUtils
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
      * @param string $sqlStatement
      * @param string $column column you want returned
-     * @param array $binds
+     * @param mixed[] $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return array
+     * @return list<mixed>
      */
     public static function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
@@ -109,6 +109,7 @@ class QueryUtils
 
     /**
      * @param string $sqlStatement
+     * @param string $column
      * @param mixed[] $binds
      */
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
@@ -126,7 +127,7 @@ class QueryUtils
      * @param string $sqlStatement
      * @param mixed[] $binds
      * @param bool $noLog
-     * @return array<int, mixed[]>
+     * @return list<array<mixed>>
      */
     public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
@@ -142,9 +143,9 @@ class QueryUtils
      * Executes the sql statement and returns an associative array for a single column of a table
      * @param string $sqlStatement The statement to run
      * @param string $column The column you want returned
-     * @param array $binds
+     * @param mixed[] $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return array
+     * @return array<mixed>
      */
     public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
@@ -165,7 +166,7 @@ class QueryUtils
      * sqlStatement() function (and sqlQ() function).
      *
      * @param ADORecordSet|false $resultSet
-     * @return array|false
+     * @return array<mixed>|false
      */
     public static function fetchArrayFromResultSet($resultSet)
     {
@@ -197,9 +198,9 @@ class QueryUtils
      * The sqlFetchArray() function should be used to
      * utilize the return object.
      *
-     * @param  string  $statement  query
-     * @param  array   $binds      binded variables array (optional)
-     * @param  bool    $noLog      if true the sql statement bypasses the database logger, false logs the sql statement
+     * @param string $statement query
+     * @param mixed[] $binds binded variables array (optional)
+     * @param bool $noLog if true the sql statement bypasses the database logger, false logs the sql statement
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return ADORecordSet
      */
@@ -269,10 +270,10 @@ class QueryUtils
      * is specialized for insert function and will return
      * the last id generated from the insert.
      *
-     * @param  string   $statement  query
-     * @param  array    $binds      binded variables array (optional)
+     * @param string $statement query
+     * @param mixed[] $binds binded variables array (optional)
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return integer  Last id generated from the sql insert command
+     * @return int Last id generated from the sql insert command
      */
     public static function sqlInsert($statement, $binds = [])
     {
@@ -410,11 +411,11 @@ class QueryUtils
     /**
      * Executes a query and returns the first row as an associative array.
      *
-     * @param  string  $sql     query
-     * @param  array   $params  binded variables array (optional)
-     * @param  bool    $log     if true the sql statement is logged, false bypasses the database logger
+     * @param string $sql query
+     * @param mixed[] $params binded variables array (optional)
+     * @param bool $log if true the sql statement is logged, false bypasses the database logger
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return array|false
+     * @return array<mixed>|false
      */
     public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
