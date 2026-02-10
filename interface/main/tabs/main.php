@@ -437,7 +437,8 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     // fire off an event here
     if (OEGlobalsBag::getInstance()->hasKernel()) {
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
