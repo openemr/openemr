@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\Reports\FinancialSummaryReportService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Financial Summary by Service Code")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Financial Summary by Service Code")]);
     exit;
 }
 
@@ -43,17 +43,12 @@ if (!empty($_POST)) {
     }
 }
 
-$grand_total_units  = 0;
-$grand_total_amt_billed  = 0;
-$grand_total_amt_paid  = 0;
-$grand_total_amt_adjustment  = 0;
-$grand_total_amt_balance  = 0;
-
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_facility  = isset($_POST['form_facility']) && $_POST['form_facility'] !== '' ? (int) $_POST['form_facility'] : null;
 $form_provider  = isset($_POST['form_provider']) && $_POST['form_provider'] !== '' ? (int) $_POST['form_provider'] : null;
 
+// Handle CSV export using League CSV component
 if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
@@ -293,42 +288,64 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         }
     }
 
-    if (!$_POST['form_csvexport']) {
-        echo "<tr class='bg-white'>\n";
-        echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n";
-        echo " <td class='detail'>" . text($grand_total_units) . "</td>\n";
-        echo " <td class='detail'>" .
-        text(oeFormatMoney($grand_total_amt_billed)) . "</td>\n";
-        echo " <td class='detail'>" .
-        text(oeFormatMoney($grand_total_amt_paid)) . "</td>\n";
-        echo " <td class='detail'>" .
-        text(oeFormatMoney($grand_total_amt_adjustment)) . "</td>\n";
-        echo " <td class='detail'>" .
-        text(oeFormatMoney($grand_total_amt_balance)) . "</td>\n";
-        echo " </tr>\n";
-        ?>
-     </table>    </div>
-                <?php
+// Initialize service and prepare data
+$service = new SvcCodeFinancialReportService();
+$facilityService = new FacilityService();
+$report_data = null;
+$chart_data = null;
+$summary_metrics = null;
+$formatted_codes = null;
+
+if (!empty($_POST['form_refresh'])) {
+    // Get procedure codes
+    $procedureCodes = $service->getProcedureCodeFinancials(
+        $form_from_date,
+        $form_to_date,
+        $form_facility ? (int)$form_facility : null,
+        $form_provider ? (int)$form_provider : null,
+        !empty($form_details)
+    );
+
+    if (!empty($procedureCodes)) {
+        $report_data = $procedureCodes;
+        $summary_metrics = $service->calculateSummaryMetrics($procedureCodes);
+        $chart_data = $service->prepareChartData($procedureCodes);
+        $formatted_codes = $service->formatForDisplay($procedureCodes);
     }
 }
 
-if (empty($_POST['form_csvexport'])) {
-    if (!empty($_POST['form_refresh']) && empty($print)) {
-        echo "<span style='font-size:10pt;'>";
-           echo xlt('No matches found. Try search again.');
-           echo "</span>";
-        echo '<script>document.getElementById("report_results").style.display="none";</script>';
-    }
+// Get facilities for dropdown
+$facilities = [];
+$facilityRecords = $facilityService->getAllFacility();
+foreach ($facilityRecords as $facility) {
+    $facilities[] = ['id' => $facility['id'], 'name' => $facility['name']];
+}
 
-    if (empty($_POST['form_refresh']) && empty($_POST['form_csvexport'])) { ?>
-        <div class='text'>
-        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
-        </div><?php
-    } ?>
-</form>
-</body>
+// Get providers for dropdown
+$providers = [];
+$query = "SELECT id, lname, fname FROM users WHERE authorized = 1 ORDER BY lname, fname";
+$ures = sqlStatement($query);
+while ($urow = sqlFetchArray($ures)) {
+    $providers[] = $urow;
+}
 
-</html>
-    <?php
-} // End not csv export
+// Prepare template variables
+$twigVariables = [
+    'form_from_date' => $form_from_date,
+    'form_to_date' => $form_to_date,
+    'form_facility' => $form_facility,
+    'form_provider' => $form_provider,
+    'form_details' => $form_details,
+    'facilities' => $facilities,
+    'providers' => $providers,
+    'report_data' => $report_data,
+    'chart_data' => $chart_data,
+    'summary_metrics' => $summary_metrics,
+    'formatted_codes' => $formatted_codes,
+    'webroot' => OEGlobalsBag::getInstance()->get('webroot'),
+];
+
+// Render Twig template
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig();
+echo $twig->render('reports/svc_code_financial_report/report.html.twig', $twigVariables);
 ?>
