@@ -112,16 +112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$extension might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$text_out might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$policies_by_payer_id might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/chart_review_pids.php',
