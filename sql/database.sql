@@ -15383,16 +15383,16 @@ CREATE TABLE `preference_value_sets` (
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'organization-type', 'Organization type', 1, 0);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'govt', 'Government', 3);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'ins', 'Insurance Company', 4);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'pay', 'Payer', 5);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'edu', 'Educational Institute', 6);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'reli', 'Religious Institution', 7);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 8);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'cg', 'Community Group', 9);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 10);
-INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'other', 'Other', 11);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'dept', 'Hospital Department', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'team', 'Organizational team', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'govt', 'Government', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'ins', 'Insurance Company', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'pay', 'Payer', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'edu', 'Educational Institute', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'reli', 'Religious Institution', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);
