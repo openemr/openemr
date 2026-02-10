@@ -1,0 +1,81 @@
+{% if charts is defined and charts is not empty %}
+<div class="row no-print mb-4">
+    <div class="col-12 mb-3">
+        <h3>
+            <i class="fa fa-bar-chart" aria-hidden="true"></i>
+            {{ 'Analytics Dashboard' | xlt }}
+        </h3>
+    </div>
+
+    {% if charts.provider_revenue is defined %}
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fa fa-pie-chart" aria-hidden="true"></i>
+                    {{ 'Provider Revenue Distribution' | xlt }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="providerRevenueChart" role="img" aria-label="{{ 'Provider revenue distribution chart' | xla }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if charts.daily_cashflow is defined %}
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fa fa-line-chart" aria-hidden="true"></i>
+                    {{ 'Daily Cash Flow Trend' | xlt }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="dailyCashflowChart" role="img" aria-label="{{ 'Daily cash flow trend chart' | xla }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Wait for Chart.js to be fully loaded
+    $(document).ready(function() {
+        // Check if Chart is available, if not wait for window.onload
+        function initCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded yet, waiting...');
+                setTimeout(initCharts, 100);
+                return;
+            }
+            
+            {% if charts.provider_revenue is defined %}
+            // Provider Revenue Pie Chart
+            try {
+                new Chart(document.getElementById('providerRevenueChart'), {{ charts.provider_revenue | json_encode | raw }});
+            } catch(e) {
+                console.error('Error creating provider revenue chart:', e);
+            }
+            {% endif %}
+
+            {% if charts.daily_cashflow is defined %}
+            // Daily Cash Flow Line Chart
+            try {
+                new Chart(document.getElementById('dailyCashflowChart'), {{ charts.daily_cashflow | json_encode | raw }});
+            } catch(e) {
+                console.error('Error creating daily cashflow chart:', e);
+            }
+            {% endif %}
+        }
+        
+        // Initialize charts
+        initCharts();
+    });
+</script>
+{% endif %}

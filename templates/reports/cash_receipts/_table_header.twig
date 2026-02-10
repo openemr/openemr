@@ -1,0 +1,26 @@
+<thead class="thead-light">
+    <tr>
+        <th>{{ 'Practitioner' | xlt }}</th>
+        <th>{{ 'Date' | xlt }}</th>
+        {% if filters.procedures %}
+        <th>
+            {% if invoice_display_mode %}
+                {{ 'Name' | xlt }}
+            {% else %}
+                {{ 'Invoice' | xlt }}
+            {% endif %}
+        </th>
+        {% endif %}
+        {% if filters.proc_codefull %}
+        <th class="text-right">{{ 'InvAmt' | xlt }}</th>
+        <th>{{ 'Insurance' | xlt }}</th>
+        {% endif %}
+        {% if filters.procedures %}
+        <th>{{ 'Procedure' | xlt }}</th>
+        <th class="text-right">{{ 'Prof.' | xlt }}</th>
+        <th class="text-right">{{ 'Clinic' | xlt }}</th>
+        {% else %}
+        <th class="text-right">{{ 'Received' | xlt }}</th>
+        {% endif %}
+    </tr>
+</thead>

@@ -1,0 +1,38 @@
+<div id="report_results" role="region" aria-label="{{ 'Report Results' | xla }}">
+    {% if provider_summaries is empty %}
+        <div class="alert alert-warning" role="alert">
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            {{ 'No cash receipts found for the selected criteria.' | xlt }}
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover" id="mymaintable">
+                {% include 'reports/cash_receipts/_table_header.twig' %}
+                <tbody>
+                    {% for provider_summary in provider_summaries %}
+                        {% set provider = provider_summary %}
+                        {% if filters.details %}
+                            {% for receipt in provider.receipts %}
+                                {% include 'reports/cash_receipts/_receipt_detail_row.twig' %}
+                            {% endfor %}
+                        {% endif %}
+                        {% include 'reports/cash_receipts/_provider_subtotal_row.twig' %}
+                    {% endfor %}
+                    {% include 'reports/cash_receipts/_grand_totals_row.twig' %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="font-weight-bold">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                {{ 'Report Period' | xlt }}: 
+                <span class="badge badge-info">{{ filters.from_date | text }} - {{ filters.to_date | text }}</span>
+            </span>
+            <span class="text-muted">
+                <i class="fa fa-users" aria-hidden="true"></i>
+                {{ 'Providers' | xlt }}: <strong>{{ provider_summaries|length }}</strong>
+            </span>
+        </div>
+    {% endif %}
+</div>

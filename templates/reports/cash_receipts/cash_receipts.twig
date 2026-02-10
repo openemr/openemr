@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ 'Cash Receipts by Provider' | xlt }}</title>
+    {{ setupHeader(['datetime-picker', 'report-helper', 'chart-js']) }}
+    
+    <!-- Fallback Chart.js load if asset not registered -->
+    <script src="{{ webroot }}/public/assets/chart.js/dist/chart.umd.js"></script>
+
+    <style>
+        @media print {
+            #report_parameters {
+                display: none;
+            }
+            #report_results {
+                margin-top: 30px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+
+        #mymaintable {
+            font-size: 0.9rem;
+        }
+
+        .provider-subtotal {
+            background-color: #e3f2fd;
+            font-weight: bold;
+        }
+
+        .grand-total {
+            background-color: #fff3e0;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Loading overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            text-align: center;
+        }
+
+        .loading-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+        }
+
+        /* Table enhancements */
+        .table-hover tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Tooltip styling */
+        .info-icon {
+            cursor: help;
+            color: #007bff;
+            margin-left: 4px;
+        }
+
+        /* Sticky table header */
+        #mymaintable thead th {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 10;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive table wrapper */
+        .table-responsive {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            opacity: 0.5;
+        }
+    </style>
+
+    <script>
+        $(function () {
+            // Setup fixed header for table
+            if (document.getElementById('mymaintable')) {
+                oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            }
+            
+            // Setup print button
+            var win = top.printLogSetup ? top : opener.top;
+            if (document.getElementById('printbutton')) {
+                win.printLogSetup(document.getElementById('printbutton'));
+            }
+
+            // Setup datepicker
+            {{ jqueryDateTimePicker('.datepicker', false, false, true) }}
+
+            // Initialize Bootstrap tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Form submission with loading overlay
+            $('#theform').on('submit', function() {
+                $('#loading-overlay').addClass('show');
+            });
+
+            // Smooth scroll to results
+            {% if show_results %}
+                $('html, body').animate({
+                    scrollTop: $('#report_results').offset().top - 20
+                }, 500);
+            {% endif %}
+        });
+
+        // Chart.js currency formatting helper
+        function formatCurrency(context) {
+            let value = context.parsed || context.raw;
+            return '$' + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function formatCurrencyWithPercentage(context) {
+            let value = context.parsed || context.raw;
+            let label = context.label;
+            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+            let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            return label + ': $' + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' (' + percentage + '%)';
+        }
+
+        // Code selector popup callbacks
+        function set_related_target(codetype, code, selector, codedesc, target_element, limit=0) {
+            var f = document.forms[0];
+            var s = f[target_element].value;
+            if (code) {
+                s = codetype + ':' + code;
+            } else {
+                s = '';
+            }
+            f[target_element].value = s;
+        }
+
+        function sel_procedure() {
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype={{ procedure_codetypes | raw }}', '_blank', 500, 400);
+        }
+
+        function sel_diagnosis() {
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype={{ diagnosis_codetypes | raw }}', '_blank', 500, 400);
+        }
+    </script>
+</head>
+<body class="body_top">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">{{ 'Loading...' | xlt }}</span>
+            </div>
+            <p class="mt-3 font-weight-bold">{{ 'Generating report...' | xlt }}</p>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="clearfix mb-3">
+                    <h1 class="title float-left h2">
+                        <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                        {{ 'Report' | xlt }} - {{ 'Cash Receipts by Provider' | xlt }}
+                        <i class="fa fa-info-circle info-icon" 
+                           data-toggle="tooltip" 
+                           data-placement="right" 
+                           title="{{ 'Displays cash receipts from copayments and accounts receivable payments grouped by provider' | xla }}"
+                           aria-label="{{ 'Report information' | xla }}"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        {% include 'reports/cash_receipts/_filters_form.twig' %}
+
+        {% if show_results %}
+            {% include 'reports/cash_receipts/_charts.twig' %}
+            {% include 'reports/cash_receipts/_results_table.twig' %}
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
+                        <h3>{{ 'No Results Yet' | xlt }}</h3>
+                        <p class="text-muted">{{ 'Please input search criteria above and click Submit to view results.' | xlt }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
