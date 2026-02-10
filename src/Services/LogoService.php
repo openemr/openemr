@@ -16,6 +16,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\LogoFilterEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -47,7 +48,7 @@ class LogoService
 
         // cleanest way to refactor for now, is to fallback to global dispatcher
         // don't like it though
-        $this->dispatcher = $dispatcher ?? $GLOBALS['kernel']->getEventDispatcher();
+        $this->dispatcher = $dispatcher ?? OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     private function resetFinder()

@@ -382,11 +382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Document\\:\\:\\$eventDispatcher \\(Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Document\\:\\:\\$id \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -1722,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Patient\\\\Cards\\\\PortalCard\\:\\:\\$ed \\(OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:\\$custid \\(string\\) does not accept string\\|false\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
@@ -1802,11 +1792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$eventDispatcher \\(Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$logger \\(OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
@@ -1820,11 +1805,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateImportDispose\\:\\:\\$currentEncounter \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateParse\\:\\:\\$ed \\(Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Laminas\\\\Config\\\\Reader\\\\Xml\\:\\:\\$directory \\(string\\) does not accept null\\.$#',
@@ -1897,19 +1877,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\LogoService\\:\\:\\$dispatcher \\(Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\PatientAccessOnsiteService\\:\\:\\$kernel \\(OpenEMR\\\\Core\\\\Kernel\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$AltBody \\(string\\) does not accept mixed\\.$#',

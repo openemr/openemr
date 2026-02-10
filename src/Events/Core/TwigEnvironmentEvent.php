@@ -16,7 +16,7 @@
  *          $loader->prependPath(\dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR);
  *     }
  * }
- * $GLOBALS['kernel']->getEventDispatcher()->addListener(TwigEnvironmentEvent::EVENT_CREATED, ['addTemplateOverrideLoader']);
+ * OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->addListener(TwigEnvironmentEvent::EVENT_CREATED, ['addTemplateOverrideLoader']);
  *
  * @package openemr
  * @link      http://www.open-emr.org

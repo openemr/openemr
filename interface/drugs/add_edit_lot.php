@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorizations.
 $auth_admin = AclMain::aclCheckCore('admin', 'drugs');
@@ -35,7 +36,7 @@ $auth_lots = $auth_admin ||
     AclMain::aclCheckCore('inventory', 'consumption') ||
     AclMain::aclCheckCore('inventory', 'destruction');
 if (!$auth_lots) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
     exit;
 }
 

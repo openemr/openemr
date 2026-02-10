@@ -18,6 +18,7 @@
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Core\Header;
+    use OpenEMR\Core\OEGlobalsBag;
     use OpenEMR\Modules\Dorn\ReceiveHl7Results;
 
 if (!empty($_GET)) {
@@ -33,7 +34,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
 }
 

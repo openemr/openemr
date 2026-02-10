@@ -211,7 +211,7 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE, 10);
+    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();

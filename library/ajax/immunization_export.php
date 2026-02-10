@@ -17,14 +17,16 @@ use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
+    Twig\TwigContainer,
 };
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SpreadSheetService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (
         new TwigContainer(
             null,
-            $GLOBALS['kernel']
+            OEGlobalsBag::getInstance()->getKernel()
         ))->getTwig()->render(
             'core/unauthorized.html.twig',
             ['pageTitle' => xl("Immunization Registry")]

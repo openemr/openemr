@@ -15,8 +15,9 @@
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Common\Twig\TwigContainer;
-    use OpenEMR\Modules\ClaimRevConnector\EraPage;
     use OpenEMR\Core\Header;
+    use OpenEMR\Core\OEGlobalsBag;
+    use OpenEMR\Modules\ClaimRevConnector\EraPage;
 
     $tab = "eras";
     $selected = " selected ";
@@ -24,7 +25,7 @@
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - ERAs")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - ERAs")]);
     exit;
 }
 

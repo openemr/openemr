@@ -18,6 +18,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Services\AppointmentService;
@@ -89,7 +90,7 @@ class SmartLaunchController
                         'intent' => SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG
             ];
 
-            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
             echo $twig->render("patient/card/smart_launch.html.twig", $viewArgs);
             $this->renderLaunchScript();
     }

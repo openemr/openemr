@@ -31,6 +31,7 @@ use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +42,7 @@ if (!$encounter) { // comes from globals.php
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 // Defaults for new orders.
 $provider_id = getProviderIdOfEncounter($encounter);
