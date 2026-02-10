@@ -25,7 +25,7 @@ class QueryUtils
      * of columns that exist in a table.
      *
      * @param   string  $table sql table
-     * @return  array
+     * @return  string[]
      */
     public static function listTableFields($table)
     {
@@ -303,7 +303,13 @@ class QueryUtils
      * Shared getter for SQL selects.
      *
      * @param string $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
-     * @param $map - Query information (where clause(s), join clause(s), order, data, etc).
+     * @param array{
+     *   data?: mixed,
+     *   where?: string,
+     *   order?: string,
+     *   join?: string,
+     *   limit?: int,
+     * } $map - Query information (where clause(s), join clause(s), order, data, etc).
      * @throws SqlQueryException If the query is invalid
      * @return array of associative arrays | one associative array.
      */

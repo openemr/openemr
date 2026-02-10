@@ -1512,7 +1512,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property OpenEMR\\\\Common\\\\Translation\\\\TranslationCache\\:\\:\\$cache \\(array\\<int, array\\<string, string\\>\\>\\) does not accept array\\<int, array\\>\\.$#',
+    'message' => '#^Static property OpenEMR\\\\Common\\\\Translation\\\\TranslationCache\\:\\:\\$cache \\(array\\<int, array\\<string, string\\>\\>\\) does not accept array\\<int, array\\<mixed\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Translation/TranslationCache.php',
 ];

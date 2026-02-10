@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/Syndromicsurveillance.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$inputarr \\(array\\) of method ADODB_mysqli_log\\:\\:Execute\\(\\) should be contravariant with parameter \\$inputarr \\(array\\|bool\\) of method ADODB_mysqli\\:\\:execute\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$criteriaType \\(OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaType\\) of method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaAgeBuilder\\:\\:newInstance\\(\\) should be contravariant with parameter \\$criteriaType \\(mixed\\) of method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaBuilder\\:\\:newInstance\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaAgeBuilder.php',

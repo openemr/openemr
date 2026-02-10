@@ -232,7 +232,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_object\\(\\) with OpenEMR\\\\Common\\\\Database\\\\ADORecordSet will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_object\\(\\) with ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
@@ -310,6 +310,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array will always evaluate to true\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_int\\(\\) with int will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirExportJobService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\> will always evaluate to true\\.$#',

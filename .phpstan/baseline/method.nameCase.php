@@ -467,6 +467,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRouteHandler.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method ADORecordSet\\:\\:recordCount\\(\\) with incorrect case\\: RecordCount$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method Laminas\\\\Code\\\\Generator\\\\ClassGenerator\\:\\:setDocBlock\\(\\) with incorrect case\\: setDocblock$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
