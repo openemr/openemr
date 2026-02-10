@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Services;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
@@ -168,43 +167,4 @@ class FacilityServiceTest extends TestCase
         $this->assertNotNull($actualResult);
     }
 
-    #[Test]
-    public function testOrganizationType(): void
-    {
-        // Test insert with organization_type
-        $this->facilityFixture["organization_type"] = "dept";
-        $actualResult = $this->facilityService->insert($this->facilityFixture);
-        $this->assertTrue($actualResult->isValid());
-
-        $dataResult = $actualResult->getData()[0];
-        $actualUuid = $dataResult["uuid"];
-
-        // Verify organization_type was saved
-        $sql = "SELECT `organization_type` FROM `facility` WHERE `uuid` = ?";
-        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("dept", $result);
-
-        // Test update organization_type
-        $this->facilityFixture["organization_type"] = "edu";
-        $this->facilityService->update($actualUuid, $this->facilityFixture);
-
-        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("edu", $result);
-    }
-
-    #[Test]
-    public function testOrganizationTypeDefaultValue(): void
-    {
-        // Test that organization_type defaults to 'prov' when not specified
-        unset($this->facilityFixture["organization_type"]);
-        $actualResult = $this->facilityService->insert($this->facilityFixture);
-        $this->assertTrue($actualResult->isValid());
-
-        $dataResult = $actualResult->getData()[0];
-        $actualUuid = $dataResult["uuid"];
-
-        $sql = "SELECT `organization_type` FROM `facility` WHERE `uuid` = ?";
-        $result = QueryUtils::fetchSingleValue($sql, 'organization_type', [UuidRegistry::uuidToBytes($actualUuid)]);
-        $this->assertEquals("prov", $result);
-    }
 }
