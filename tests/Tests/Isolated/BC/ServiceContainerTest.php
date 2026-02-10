@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\BC;
 
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +29,7 @@ use Psr\Http\Message\{
     UriFactoryInterface,
 };
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Smoke tests intentionally verify runtime types match declared types.
@@ -95,5 +97,37 @@ class ServiceContainerTest extends TestCase
         $factory = ServiceContainer::getUriFactory();
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertInstanceOf(UriFactoryInterface::class, $factory);
+    }
+
+    public function testRegisterReturnsCustomInstance(): void
+    {
+        ServiceContainer::reset();
+        $customLogger = new NullLogger();
+
+        ServiceContainer::register(LoggerInterface::class, $customLogger);
+
+        $this->assertSame($customLogger, ServiceContainer::getLogger());
+        ServiceContainer::reset();
+    }
+
+    public function testRegisterLastWins(): void
+    {
+        ServiceContainer::reset();
+        $first = new NullLogger();
+        $second = new NullLogger();
+
+        ServiceContainer::register(LoggerInterface::class, $first);
+        ServiceContainer::register(LoggerInterface::class, $second);
+
+        $this->assertSame($second, ServiceContainer::getLogger());
+        $this->assertNotSame($first, ServiceContainer::getLogger());
+        ServiceContainer::reset();
+    }
+
+    public function testRegisterThrowsOnTypeMismatch(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        ServiceContainer::register(LoggerInterface::class, new \stdClass());
     }
 }

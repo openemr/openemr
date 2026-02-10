@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
@@ -42,39 +43,80 @@ use Twig\Environment;
  */
 class ServiceContainer
 {
+    /** @var array<class-string, object> */
+    private static array $instances = [];
+
+    /**
+     * Reset all registered instances. For testing only.
+     *
+     * @internal
+     */
+    public static function reset(): void
+    {
+        self::$instances = [];
+    }
+
+    /**
+     * Register a custom implementation for an interface.
+     *
+     * Modules can use this during bootstrap to provide alternative
+     * implementations of core services. Last registration wins.
+     *
+     * @param class-string $interface
+     * @throws InvalidArgumentException if instance doesn't implement interface
+     */
+    public static function register(string $interface, object $instance): void
+    {
+        if (!is_a($instance, $interface)) {
+            throw new InvalidArgumentException(sprintf(
+                '%s does not implement %s',
+                $instance::class,
+                $interface,
+            ));
+        }
+        self::$instances[$interface] = $instance;
+    }
+
     public static function getClock(): ClockInterface
     {
-        return SystemClock::fromSystemTimezone();
+        /** @var ClockInterface */
+        return self::$instances[ClockInterface::class] ?? SystemClock::fromSystemTimezone();
     }
 
     public static function getCrypto(): Crypto\CryptoInterface
     {
-        return new Crypto\CryptoGen();
+        /** @var Crypto\CryptoInterface */
+        return self::$instances[Crypto\CryptoInterface::class] ?? new Crypto\CryptoGen();
     }
 
     public static function getLogger(): LoggerInterface
     {
-        return new Logging\SystemLogger();
+        /** @var LoggerInterface */
+        return self::$instances[LoggerInterface::class] ?? new Logging\SystemLogger();
     }
 
     public static function getRequestFactory(): RequestFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var RequestFactoryInterface */
+        return self::$instances[RequestFactoryInterface::class] ?? new Psr17Factory();
     }
 
     public static function getResponseFactory(): ResponseFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var ResponseFactoryInterface */
+        return self::$instances[ResponseFactoryInterface::class] ?? new Psr17Factory();
     }
 
     public static function getServerRequestFactory(): ServerRequestFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var ServerRequestFactoryInterface */
+        return self::$instances[ServerRequestFactoryInterface::class] ?? new Psr17Factory();
     }
 
     public static function getStreamFactory(): StreamFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var StreamFactoryInterface */
+        return self::$instances[StreamFactoryInterface::class] ?? new Psr17Factory();
     }
 
     /**
@@ -92,11 +134,13 @@ class ServiceContainer
 
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var UploadedFileFactoryInterface */
+        return self::$instances[UploadedFileFactoryInterface::class] ?? new Psr17Factory();
     }
 
     public static function getUriFactory(): UriFactoryInterface
     {
-        return new Psr17Factory();
+        /** @var UriFactoryInterface */
+        return self::$instances[UriFactoryInterface::class] ?? new Psr17Factory();
     }
 }
