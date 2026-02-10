@@ -13,8 +13,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set up autoloader as early as possible
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(__DIR__ . "/../src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -192,18 +194,6 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
-
-// Includes composer autoload
-// Note this is skipped in special cases where the autoload has already been performed
-// Note this also brings in following library files:
-//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
-//  library/formdata.inc.php - Include sanitization/checking functions (for security)
-//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
-//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
-//  library/date_functions.php - Includes functions for date internationalization
-//  library/validation/validate_core.php - Includes functions for page validation
-//  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
