@@ -7902,11 +7902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Health/Check/CacheCheck.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Health/Check/DatabaseCheck.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getMenu\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
