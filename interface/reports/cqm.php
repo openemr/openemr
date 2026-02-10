@@ -21,15 +21,16 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));
 }
 
 if (!empty($_POST)) {
@@ -116,7 +117,7 @@ if ($type_report == "standard") {
     $help_file_name = "cqm_amc_help.php";
 }
 
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 
 $formData = [

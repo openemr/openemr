@@ -2441,11 +2441,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(recordset/resource\\)\\: Unexpected token "/resource", expected TOKEN_HORIZONTAL_WS at offset 261 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(c mixed  Unicode character\\.\\)\\: Unexpected token "mixed", expected variable at offset 64 on line 3$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
@@ -3468,11 +3463,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(\\<type\\> \\$pid\\)\\: Unexpected token "\\<", expected type at offset 359 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(noLog   boolean     if true the sql statement bypasses the database logger, false logs the sql statement\\)\\: Unexpected token "boolean", expected variable at offset 516 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(json array \\$options \\["G","P","T"\\], \\["G"\\] or could be legacy string with form "GPT", "G", "012"\\)\\: Unexpected token "array", expected variable at offset 99 on line 4$#',
@@ -4573,11 +4563,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 113 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 37 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(@isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary\\)\\: Unexpected token "@isUuid", expected type at offset 118 on line 4$#',

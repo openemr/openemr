@@ -2,6 +2,16 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'city\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'state\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset 0 on non\\-empty\\-list\\<string\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',

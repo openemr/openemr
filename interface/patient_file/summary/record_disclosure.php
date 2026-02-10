@@ -15,17 +15,16 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Control access
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
 $authAddonly = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
 if (!$authWrite && !$authAddonly) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Record Disclosure")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/disclosure: Edit/Record Disclosure", xl("Edit/Record Disclosure"));
 }
 
 //if the edit button for editing disclosure is set.

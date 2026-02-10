@@ -145,26 +145,8 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
     }
 
-    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false, bool $clearAlert = false): void
+    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
     {
-        if ($clearAlert) {
-            // Accept an alert if present (e.g., duplicate encounter warning when
-            // creating a visit on the same day as an existing encounter). The alert
-            // may not appear if no encounter exists, so don't fail if none shows.
-            try {
-                $this->client->wait(2)->until(function ($driver) {
-                    try {
-                        $alert = $driver->switchTo()->alert();
-                        $alert->accept();
-                        return true;
-                    } catch (\Throwable) {
-                        return false;
-                    }
-                });
-            } catch (TimeoutException) {
-                // No alert appeared within the window, which is fine
-            }
-        }
         // Wait for each loading indicator to disappear from the live DOM
         if (str_contains($loading, '||')) {
             foreach (explode('||', $loading) as $loadingText) {
@@ -188,7 +170,7 @@ trait BaseTrait
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
-    private function goToMainMenuLink(string $menuLink): void
+    private function goToMainMenuLink(string $menuLink, bool $acceptAlert = false): void
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
@@ -228,6 +210,26 @@ trait BaseTrait
             );
             $element->click();
             $counter++;
+        }
+
+        if ($acceptAlert) {
+            // Accept any JavaScript alert/confirm that appears after clicking.
+            // Some menu items (e.g., "Create Visit") show a confirm dialog if
+            // a visit already exists for the patient today. Handle immediately
+            // after clicking to prevent the alert from blocking subsequent
+            // WebDriver operations.
+            try {
+                $this->client->wait(2)->until(function ($driver) {
+                    try {
+                        $driver->switchTo()->alert()->accept();
+                        return true;
+                    } catch (\Throwable) {
+                        return false;
+                    }
+                });
+            } catch (TimeoutException) {
+                // No alert appeared, which is fine
+            }
         }
     }
 

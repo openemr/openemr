@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
@@ -25,11 +20,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with float\\|int\\|numeric\\-string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/track_anything/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with list will always evaluate to true\\.$#',
@@ -50,11 +40,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with null will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with non\\-empty\\-list\\<string\\> will always evaluate to true\\.$#',
@@ -90,16 +75,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Provider.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function method_exists\\(\\) with CqmPopulationCrtiteriaFactory and \'createDenominatorEx…\' will always evaluate to true\\.$#',
@@ -257,7 +232,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_object\\(\\) with OpenEMR\\\\Common\\\\Database\\\\ADORecordSet will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_object\\(\\) with ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
@@ -325,11 +300,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-list\\<string\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DemographicsRelatedPersonsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\> will always evaluate to true\\.$#',

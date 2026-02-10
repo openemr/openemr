@@ -14,8 +14,9 @@
 require_once "../../../../globals.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Core\OEGlobalsBag;
 
-$kernel = $GLOBALS['kernel'];
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(false);
 

@@ -16,4 +16,6 @@ enum AccessDeniedResponseFormat
 {
     case Text;
     case Json;
+    /** Suppress default output - use when beforeExit callback handles rendering */
+    case None;
 }

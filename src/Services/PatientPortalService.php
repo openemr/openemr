@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 
 class PatientPortalService
@@ -97,7 +98,7 @@ class PatientPortalService
             'audit_id' => $audit_id,
             'expiry_interval' => $period
         ];
-        $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME);
         return text($statusMsg);
     }

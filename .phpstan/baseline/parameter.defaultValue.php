@@ -77,16 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$inputarr \\(false\\) of method ADODB_mysqli_log\\:\\:ExecuteNoLog\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$inputarr \\(false\\) of method ADODB_mysqli_log\\:\\:Execute\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$foreign_id \\(string\\) of method Document\\:\\:documents_factory\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -277,6 +267,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsertClean_audit\\(\\) is incompatible with type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsert\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -288,11 +283,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlQueryCdrEngine\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlQueryNoLogIgnoreError\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];

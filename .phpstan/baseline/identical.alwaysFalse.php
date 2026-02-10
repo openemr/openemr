@@ -2,19 +2,19 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between array\\<mixed\\>\\|false and null will always evaluate to false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
+    'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between array\\<mixed\\>\\|false and null will always evaluate to false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between string and \\-1 will always evaluate to false\\.$#',
@@ -25,11 +25,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between false\\|null and true will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/welcome.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#',
@@ -77,7 +72,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
 ];
@@ -132,7 +127,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
@@ -162,7 +157,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
+    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
@@ -192,24 +187,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between int and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CDADocumentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between recordset and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirExportJobService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod and null will always evaluate to false\\.$#',

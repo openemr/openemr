@@ -1873,7 +1873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between \\(float\\|int\\) and mixed results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -6557,11 +6557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'//table\\[@name\\=\\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Failed to add \' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
@@ -8887,11 +8882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' / \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
@@ -9122,8 +9112,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/types.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\*" between mixed and 10 results in an error\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\*" between mixed and 9 results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
     'count' => 6,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -12219,11 +12224,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between 0 and mixed results in an error\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
@@ -16773,7 +16773,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
-    'count' => 6,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
@@ -21597,26 +21597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \' \' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SELECT 1 as id FROM \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SHOW COLUMNS FROM \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\{EncounterForm\\:\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/CoreFormToPortalUtility.php',
@@ -21842,22 +21822,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Address.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \' `\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'INSERT INTO \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'get_\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'set_\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
@@ -23702,16 +23667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Document did not…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Patient uuid could…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Expected service of…\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
@@ -25042,17 +24997,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SELECT id FROM form…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'UPDATE form_vitals…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
 ];

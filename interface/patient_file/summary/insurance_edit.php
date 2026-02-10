@@ -24,10 +24,11 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Events\PatientDemographics\UpdateEvent;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -49,7 +50,7 @@ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
+    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||
@@ -79,7 +80,7 @@ if ($GLOBALS['insurance_only_one']) {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
 }
 
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 //$insurance_info[0]['active'] = true;
 //$insuranceTypes = array_map(function($item) { return $item['type'];}, $insurance_info);
 //$insrender(uranceTypes = array_unique($insuranceTypes);

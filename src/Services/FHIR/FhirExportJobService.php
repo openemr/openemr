@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -100,11 +101,11 @@ class FhirExportJobService
             , $job->getOutputFormat(), $job->getResourcesString(), $job->getClientId(), $job->getUserId()
             , $job->getAccessTokenId(), $job->getStatus(), $job->getRequestURI()];
 
-        sqlStatementThrowException($sql, $params);
-        $id = sqlGetLastInsertId();
+        QueryUtils::sqlStatementThrowException($sql, $params);
+        $id = QueryUtils::getLastInsertId();
         if (!is_int($id)) {
             $params[0] = $job->getUuidString(); // so we don't spit out the binary value
-            $this->logger->error("Failed to save ExportJob", ['ret' => $id, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
+            $this->logger->error("Failed to save ExportJob", ['ret' => $id, 'sql' => $sql, 'params' => $params]);
             throw new \RuntimeException("Failed to save ExportJob");
         } else {
             $job->setId($id);
@@ -120,17 +121,17 @@ class FhirExportJobService
      */
     public function deleteJob(ExportJob $job)
     {
-
         $sql = "DELETE FROM `export_job` WHERE `uuid` = ? AND `client_id` = ? AND `user_id` = ?";
         $params = [$job->getUuid(), $job->getClientId(), $job->getUserId()];
 
-        $ret = sqlStatement($sql, $params);
-        if ($ret === false) {
+        try {
+            QueryUtils::sqlStatementThrowException($sql, $params);
+        } catch (SqlQueryException $e) {
             $params[0] = $job->getUuidString(); // so we don't spit out the binary value
-            $this->logger->error("Failed to delete ExportJob", ['ret' => $ret, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
-            throw new \RuntimeException("Failed to delete ExportJob");
+            $this->logger->error("Failed to delete ExportJob", ['sql' => $sql, 'params' => $params, 'sqlError' => $e->sqlError]);
+            throw new \RuntimeException("Failed to delete ExportJob", 0, $e);
         }
-        return $ret !== false;
+        return true;
     }
 
     /**
@@ -143,12 +144,13 @@ class FhirExportJobService
     {
         $sql = "UPDATE export_job SET `output`=?, `errors`=?, `status`=? WHERE uuid = ?";
         $params = [$job->getOutput(), $job->getErrors(), $job->getStatus(), $job->getUuid()];
-        $ret = sqlQueryNoLog($sql, $params);
-        if (!empty($ret)) {
+        try {
+            QueryUtils::sqlStatementThrowException($sql, $params, noLog: true);
+        } catch (SqlQueryException $e) {
             // replace our UUID param so we don't spit out binary
-            $params[2] = $job->getUuidString();
-            $this->logger->error("Failed to save ExportJob", ['sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
-            throw new \RuntimeException("Failed to save ExportJob with updated output,errors, & status");
+            $params[3] = $job->getUuidString();
+            $this->logger->error("Failed to save ExportJob", ['sql' => $sql, 'params' => $params, 'sqlError' => $e->sqlError]);
+            throw new \RuntimeException("Failed to save ExportJob with updated output,errors, & status", 0, $e);
         }
         return $job;
     }

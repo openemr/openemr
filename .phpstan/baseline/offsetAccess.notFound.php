@@ -582,31 +582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'portal_username\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/account/account.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'portal_login_username\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'portal_onetime\' might not exist on \'\'\\|array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'portal_pwd\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'portal_username\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 0 might not exist on array\\{0\\?\\: string\\}\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
@@ -642,7 +617,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'data\' might not exist on array\\{\\}\\|array\\{data\\: non\\-empty\\-array, company\\: array, object\\: InsuranceCompany\\}\\.$#',
+    'message' => '#^Offset \'data\' might not exist on array\\{\\}\\|array\\{data\\: non\\-empty\\-array, company\\: array\\|false, object\\: InsuranceCompany\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -682,21 +657,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'client_name\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'is_confidential\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'redirect_uri\' might not exist on \'\'\\|array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'table_name\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
@@ -730,6 +690,11 @@ $ignoreErrors[] = [
     'message' => '#^Offset 4 does not exist on array\\{non\\-falsy\\-string, non\\-empty\\-string, non\\-empty\\-string, non\\-empty\\-string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'type\' does not exist on non\\-empty\\-list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'secondaryAddress\' might not exist on array\\|null\\.$#',

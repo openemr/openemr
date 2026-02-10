@@ -59,11 +59,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
@@ -94,11 +89,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
@@ -119,12 +109,22 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/ereqs/ereq_universal_form.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/ereq_form.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
@@ -290,6 +290,11 @@ $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

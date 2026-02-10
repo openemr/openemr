@@ -12,9 +12,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ModuleManagerListener\\:\\:setModuleState\\(\\) never returns bool so it can be removed from the return type\\.$#',
+    'message' => '#^Method ModuleManagerListener\\:\\:setModuleState\\(\\) never returns null so it can be removed from the return type\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/ModuleManagerListener.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/ModuleManagerListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ModuleManagerListener\\:\\:setModuleState\\(\\) never returns null so it can be removed from the return type\\.$#',
@@ -82,22 +82,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getBarId\\(\\) never returns bool so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getBarId\\(\\) never returns null so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getLabProviders\\(\\) never returns null so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLabconfig\\(\\) never returns bool so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
@@ -120,11 +110,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_math\\(\\) never returns string so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sqlQueryNoLog\\(\\) never returns \'\' so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:mapOrderTypeToCategory\\(\\) never returns null so it can be removed from the return type\\.$#',

@@ -20,6 +20,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\PatientService;
@@ -74,11 +75,12 @@ class ObservationControllerTest extends TestCase
         CsrfUtils::setupCsrfKey();
 
         // Mock global variables that may be used
+        $globalsBag = OEGlobalsBag::getInstance();
         $this->globalWebrootBackup = $GLOBALS['webroot'] ?? null;
-        $this->globalKernelBackup = $GLOBALS['kernel'] ?? null;
+        $this->globalKernelBackup = $globalsBag->get('kernel');
         $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
-        $GLOBALS['kernel'] = null;
+        $globalsBag->set('kernel', null);
         $GLOBALS['date_display_format'] = 0; // YYYY-MM-DD
 
         // Create mock dependencies
@@ -103,7 +105,7 @@ class ObservationControllerTest extends TestCase
     {
         $_SESSION = $this->sessionBackup;
         $GLOBALS['webroot'] = $this->globalWebrootBackup;
-        $GLOBALS['kernel'] = $this->globalKernelBackup;
+        OEGlobalsBag::getInstance()->set('kernel', $this->globalKernelBackup);
         $GLOBALS['date_display_format'] = $this->globalDateFormat;
         parent::tearDown();
     }

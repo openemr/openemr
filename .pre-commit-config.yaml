@@ -5,6 +5,7 @@
 #   - Lock files (generated): composer.lock, package-lock.json
 #   - Minified files: *.min.js, *.min.css, *-min.js, *-min.css
 #   - Source maps: *.js.map, *.css.map
+#   - PHPStan baseline files: .phpstan/baseline/ (generated PHP arrays)
 #   - Vendored/generated third-party code (alphabetized):
 #     - Documentation/EHI_Export/ (SchemaSpy + bower components)
 #     - gacl/ (phpGACL library)
@@ -28,6 +29,8 @@ exclude: |
     # Minified files and source maps
     .*[.\-]min\.(js|css)$|
     .*\.(js|css)\.map$|
+    # PHPStan baseline files (generated)
+    \.phpstan/baseline/|
     # Vendored/generated third-party code (alphabetized)
     Documentation/EHI_Export/|
     gacl/|

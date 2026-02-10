@@ -82,11 +82,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Instanceof between OpenEMR\\\\Events\\\\Services\\\\ServiceSaveEvent and OpenEMR\\\\Events\\\\Services\\\\ServiceSaveEvent will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition and OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',

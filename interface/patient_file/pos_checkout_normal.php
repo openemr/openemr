@@ -53,10 +53,10 @@ require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
@@ -65,8 +65,7 @@ use OpenEMR\Services\FacilityService;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 $facilityService = new FacilityService();

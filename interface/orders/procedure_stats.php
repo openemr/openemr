@@ -20,14 +20,13 @@ require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Statistics Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Procedure Statistics Report", xl("Procedure Statistics Report"));
 }
 
 $from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : '0000-00-00';

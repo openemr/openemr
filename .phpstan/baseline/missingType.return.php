@@ -4592,11 +4592,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthProviderRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthUserRepository\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthUserRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthUserRepository\\:\\:createUniquePassword\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthUserRepository.php',
@@ -18307,11 +18302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sqlStatementCdrEngine\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function icd_import\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
@@ -23777,62 +23767,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Database/QueryPagination.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:ediGenerateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:escapeColumnName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:escapeTableName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:fetchRecordsNoLog\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:fetchRecords\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:fetchSingleValue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:generateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:getLastInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:querySingleRow\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
@@ -26612,11 +26547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:getSelectJoinClauses\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
@@ -26937,11 +26867,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:deleteClinicalNoteRecordForPatient\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
@@ -27022,11 +26947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ConditionService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DecisionSupportInterventionService\\:\\:deleteAttribute\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
@@ -27097,16 +27017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DeviceService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DeviceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DocumentService\\:\\:getAllAtPath\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentService.php',
@@ -27135,11 +27045,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DrugSalesService\\:\\:sellDrug\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DrugService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\EmployerService\\:\\:setUuidRegistry\\(\\) has no return type specified\\.$#',
@@ -29082,11 +28987,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/GroupService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:getAll\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
@@ -29317,11 +29217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:getSampleLaboratoryResults\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
@@ -29387,11 +29282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:getAllIssues\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
@@ -29435,11 +29325,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientNameHistoryService\\:\\:getPatientNameHistory\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientNameHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:findByPid\\(\\) has no return type specified\\.$#',
@@ -29590,16 +29475,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:isValidPractitionerUuid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProductRegistrationService\\:\\:optInStrategy\\(\\) has no return type specified\\.$#',
@@ -31202,11 +31077,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:create\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
@@ -31230,11 +31100,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:updateHistoryDataForPatientPid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\SurgeryService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\TreatmentInterventionPreferenceService\\:\\:delete\\(\\) has no return type specified\\.$#',
@@ -31442,11 +31307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\VitalsService\\:\\:createResultRecordFromDatabaseResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VitalsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\VitalsService\\:\\:create\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsService.php',
@@ -31497,107 +31357,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Tabs/TabsWrapper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:commitTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:ediGenerateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:escapeColumnName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:escapeLimit\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:escapeTableName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:existsTable\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchArrayFromResultSet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchRecordsNoLog\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchRecords\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchSingleValue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchTableColumnAssoc\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:fetchTableColumn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:generateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:getLastInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:listTableFields\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:querySingleRow\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:rollbackTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:selectHelper\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:sqlInsert\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:sqlStatementThrowException\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\BackgroundTaskManager\\:\\:startTransaction\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
 ];
@@ -31607,212 +31367,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:commitTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:ediGenerateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:escapeColumnName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:escapeLimit\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:escapeTableName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:existsTable\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchArrayFromResultSet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchRecordsNoLog\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchRecords\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchSingleValue\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchTableColumnAssoc\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:fetchTableColumn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:generateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:getLastInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:listTableFields\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:querySingleRow\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:rollbackTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:selectHelper\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:sqlInsert\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:sqlStatementThrowException\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryRepository\\:\\:startTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:commitTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:ediGenerateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:escapeColumnName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:escapeLimit\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:escapeTableName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:existsTable\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchArrayFromResultSet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchRecordsNoLog\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchRecords\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchSingleValue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchTableColumnAssoc\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:fetchTableColumn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:generateId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:getLastInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:listTableFields\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:querySingleRow\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:rollbackTransaction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:selectHelper\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:sqlInsert\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:sqlStatementThrowException\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:startTransaction\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
@@ -32320,11 +31880,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\Rules\\\\ListOptionRuleStub\\:\\:validateDirectly\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Rules/ListOptionRuleTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:fetchRecordsNoLog\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/BackgroundTaskManagerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:fetchSingleValue\\(\\) has no return type specified\\.$#',

@@ -133,7 +133,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -278,6 +278,26 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Services/ContactAddressService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Services/ContactService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Services/ContactTelecomService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
@@ -353,7 +373,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -363,7 +383,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -395,6 +415,11 @@ $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Services/PersonService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',

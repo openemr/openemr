@@ -21,6 +21,7 @@ use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FormService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 function observation_report($pid, $encounter, $cols, $id): void
 {
@@ -32,7 +33,7 @@ function observation_report($pid, $encounter, $cols, $id): void
         $service = new ObservationService();
         $formService = new FormService();
         // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-        $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
+        $twigContainer = new TwigContainer(__DIR__ . '/../../', OEGlobalsBag::getInstance()->getKernel());
         $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
         // This approach is consistent with the current design, even though the original report used session values.
         $response = $controller->reportAction($pid, $encounter, $cols, $id);
