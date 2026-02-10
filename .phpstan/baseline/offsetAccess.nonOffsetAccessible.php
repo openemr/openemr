@@ -56287,56 +56287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'custom_modules\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'laminas_modules\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'total_enabled_modules\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'total_patients\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'total_portal_patients\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'total_users\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'telemetry_disabled\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zone\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ZIPCode\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
