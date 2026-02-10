@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+{#    [-headerTemplate-]#}
+    {{ setupHeader() }}
+    <title>{{ 'Calendar'|xlt}}</title>
+<!--[if IE]>
+        <link rel="stylesheet" href="{{ webroot }}/interface/themes/ajax_calendar_ie.css';">
+<![endif]-->
+{# note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php #}
+    {% if HEADER_SCRIPTS|length %}
+        {% for script in HEADER_SCRIPTS %}
+        <!-- Module Scripts Started -->
+        <script src='{{  script }}' type='text/javascript'></script>
+        <!-- Module Scripts Ended -->
+        {% endfor %}
+    {% endif %}
+
+    {% if HEADER_STYLES|length %}
+        {% for cssSrc in HEADER_STYLES %}
+        <!-- Module Styles Started -->";
+        <link rel='stylesheet' href='{{ cssSrc }}' type='text/css' />
+        {% endfor %}
+    {% endif %}
+<!-- the javascript used for the ajax_* style calendars -->
+<script src="{{ webroot }}/library/js/calendarDirectSelect.js"></script>
+<!-- Accessibility fix for modal dialogs -->
+<script src="{{ webroot }}/library/js/modal-accessibility-fix.js"></script>
+<script>
+    function event_time_click(elem) {
+        EditEvent($(elem).parents("div.event_appointment").get(0));
+    }
+</script>
+</head>
+<body class = '{{ language_direction|attr}} calsearch_body w-100'>

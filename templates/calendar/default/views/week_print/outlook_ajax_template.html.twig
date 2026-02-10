@@ -1,0 +1,331 @@
+{% extends 'calendar/default/views/header.html.twig' %}
+
+{% block content %}
+{# Define TPL_IMAGE_PATH variable for images #}
+{% set TPL_IMAGE_PATH = webroot ~ "/main/calendar/modules/PostCalendar/pntemplates/default/images" %}
+
+{# Values used in setting timeslot and event heights #}
+{% set timeslotHeightVal = 20 %}
+{% set timeslotHeightUnit = "px" %}
+
+<html>
+<head>
+<style>
+body {
+    font-size: 1em;
+}
+a {
+    text-decoration:none;
+}
+td {
+    font-family: Arial, Helvetica, sans-serif;
+}
+div.tiny { width:1px; height:1px; font-size:1px; }
+
+#bigCalHeader {
+    height: 20%;
+    font-family: Arial, Helvetica, sans-serif;
+    float: left;
+}
+#bigCalText {
+    float: left;
+}
+#provname {
+    font-size: 2em;
+}
+#daterange {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+.pagebreak {
+    page-break-after: always;
+}
+
+/* these are for the small datepicker DIV */
+#datePicker {
+    float: right;
+    padding: 5px;
+    text-align: center;
+    margin: 5px;
+}
+#datePicker td {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.7em;
+}
+#datePicker table {
+    border-collapse: collapse;
+}
+#datePicker .tdDOW-small {
+    font-family: Arial, Helvetica, sans-serif;
+    vertical-align: top;
+    text-align: center;
+    border-bottom: 1px solid black;
+    padding: 2px 3px 2px 3px;
+}
+#datePicker .tdWeekend-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+}
+
+#datePicker .tdOtherMonthDay-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    color: #fff;
+}
+
+#datePicker .tdMonthName-small {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-style: normal
+}
+
+#datePicker .tdMonthDay-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff;
+}
+#datePicker .currentWeek {
+    border-top: 1px solid blue;
+    border-bottom: 1px solid blue;
+}
+#datePicker .currentDate {
+    border: 1px solid blue;
+    background-color: blue;
+    color: lightblue;
+}
+
+/* the DIV of times */
+#times {
+    border-right: 1px solid #999;
+}
+#times table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+#times table td {
+    border: 0px;
+    border-top: 1px solid #999;
+    margin: 0px;
+    padding: 0px;
+    font-size: 10pt;
+}
+.timeslot {
+    height: {{ timeslotHeightVal }}{{ timeslotHeightUnit }};
+    margin: 0px;
+    padding: 0px;
+}
+.schedule {
+    background-color: pink;
+    vertical-align: top;
+    padding: 0px;
+    margin: 0px;
+    border-right: 1px solid black;
+}
+
+/* types of events */
+.event_in {
+    width: 98%;
+    font-size: 0.8em;
+    padding: 2px;
+}
+.event_out {
+    width: 98%;
+    font-size: 0.8em;
+    padding: 2px;
+}
+.event_appointment {
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    padding: 2px;
+}
+.event_noshow {
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    padding: 2px;
+}
+.event_reserved {
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    padding: 2px;
+}
+/* these hold the day groupings */
+#weekcal {
+    width: 100%;
+    height: 80%;
+    border-collapse: collapse;
+    float: left;
+}
+#weekcal td {
+    vertical-align:top;
+    text-align:left;
+    border: 1px solid #333;
+    width: 50%;
+    height: 20%;
+}
+#dowheader {
+    font-family: helvetica, arial;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
+    font-align: left;
+    font-size: 1em;
+}
+</style>
+
+</head>
+
+<body>
+
+{# Provider Information #}
+{% for provider in providers %}
+    <div id='bigCalHeader'>
+        <div id='bigCalText'>
+            <span id='provname'>{{ provider.lname }}, {{ provider.fname }}</span><br />
+            <span id='daterange'>
+                {% set atmp = A_EVENTS|keys %}
+                {% if atmp is not empty %}
+                    {{ atmp[0]|date('m/d/Y') }} - {{ atmp[atmp|length-1]|date('m/d/Y') }}
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="pagebreak"></div>
+
+    {# Calculate calendar time boundaries #}
+    {% set calStartMin = times[0].hour * 60 + times[0].minute %}
+    {% set calEndMin = times[times|length - 1].hour * 60 + times[times|length - 1].minute %}
+
+    {# Begin week calendar table #}
+    <table id="weekcal">
+    
+    {# Following the original Smarty template, show days 0-3 on the first page with 2x2 layout #}
+    {% set atmp = A_EVENTS|keys %}
+    
+    {% for i in range(0, 1) %}
+        <tr>
+            <td>
+                {% if atmp[i*2] is defined %}
+                    {% set current_date = atmp[i*2] %}
+                    <div id="dowheader">{{ current_date|date('D') }} {{ current_date|date('m/d') }}</div>
+                    
+                    {# Print events for this date #}
+                    {% if A_EVENTS[current_date] is defined %}
+                        {{ PrintEvents(A_EVENTS[current_date], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            
+            <td>
+                {% if atmp[i*2+1] is defined %}
+                    {% set date_next = atmp[i*2+1] %}
+                    <div id="dowheader">{{ date_next|date('D') }} {{ date_next|date('m/d') }}</div>
+                    
+                    {# Print events for date+1 #}
+                    {% if A_EVENTS[date_next] is defined %}
+                        {{ PrintEvents(A_EVENTS[date_next], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    
+    {% for i in range(0, 1) %}
+        <tr>
+            <td>
+                {% if atmp[i*2+2] is defined %}
+                    {% set current_date = atmp[i*2+2] %}
+                    <div id="dowheader">{{ current_date|date('D') }} {{ current_date|date('m/d') }}</div>
+                    
+                    {# Print events for this date #}
+                    {% if A_EVENTS[current_date] is defined %}
+                        {{ PrintEvents(A_EVENTS[current_date], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            
+            <td>
+                {% if atmp[i*2+3] is defined %}
+                    {% set date_next = atmp[i*2+3] %}
+                    <div id="dowheader">{{ date_next|date('D') }} {{ date_next|date('m/d') }}</div>
+                    
+                    {# Print events for date+1 #}
+                    {% if A_EVENTS[date_next] is defined %}
+                        {{ PrintEvents(A_EVENTS[date_next], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    
+    {# Page break for second half of week #}
+    <div class="pagebreak"></div>
+    
+    {# Second part of week (days 4-6) with 2x2 layout #}
+    <table id="weekcal">
+    {% for i in range(0, 1) %}
+        <tr>
+            <td>
+                {% if atmp[i*2+4] is defined %}
+                    {% set current_date = atmp[i*2+4] %}
+                    <div id="dowheader">{{ current_date|date('D') }} {{ current_date|date('m/d') }}</div>
+                    
+                    {# Print events for this date #}
+                    {% if A_EVENTS[current_date] is defined %}
+                        {{ PrintEvents(A_EVENTS[current_date], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            
+            <td>
+                {% if atmp[i*2+5] is defined %}
+                    {% set date_next = atmp[i*2+5] %}
+                    <div id="dowheader">{{ date_next|date('D') }} {{ date_next|date('m/d') }}</div>
+                    
+                    {# Print events for date+1 #}
+                    {% if A_EVENTS[date_next] is defined %}
+                        {{ PrintEvents(A_EVENTS[date_next], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    
+    <tr>
+        <td>
+            {% if atmp[6] is defined %}
+                {% set current_date = atmp[6] %}
+                <div id="dowheader">{{ current_date|date('D') }} {{ current_date|date('m/d') }}</div>
+                
+                {# Print events for this date #}
+                {% if A_EVENTS[current_date] is defined %}
+                    {{ PrintEvents(A_EVENTS[current_date], provider.id, calStartMin, calEndMin, timeslotHeightVal, timeslotHeightUnit, interval) }}
+                {% endif %}
+            {% endif %}
+        </td>
+        
+        <td>
+            {# Empty cell #}
+        </td>
+    </tr>
+    </table>
+{% endfor %}
+
+</body>
+</html>
+{% endblock %}

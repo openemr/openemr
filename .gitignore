@@ -34,3 +34,4 @@ coverage/js-unit
 
 # phpstan
 tmp-phpstan/*
+tmp-phpstan/

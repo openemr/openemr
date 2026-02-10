@@ -1,0 +1,237 @@
+{% extends 'calendar/default/views/header.html.twig' %}
+
+{% block content %}
+{# Values used in setting timeslot and event heights #}
+{% set timeslotHeightVal = 20 %}
+{% set timeslotHeightUnit = "px" %}
+{% set TPL_IMAGE_PATH = webroot ~ "/main/calendar/modules/PostCalendar/pntemplates/default/images" %}
+
+<html>
+<head>
+<style>
+a {
+ text-decoration:none;
+}
+td {
+ font-family: Arial, Helvetica, sans-serif;
+}
+div.tiny { width:1px; height:1px; font-size:1px; }
+
+#bigCalHeader {
+    height: 20%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#bigCalText {
+    float: left;
+}
+#provname {
+    font-size: 2em;
+}
+#daterange {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+/* these are for the small datepicker DIV */
+#datePicker {
+    float: right;
+    padding: 5px;
+    text-align: center;
+    margin: 5px;
+}
+#datePicker td {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.7em;
+}
+#datePicker table {
+    border-collapse: collapse;
+}
+#datePicker .tdDOW-small {
+    font-family: Arial, Helvetica, sans-serif;
+    vertical-align: top;
+    text-align: center;
+    border-bottom: 1px solid black;
+    padding: 2px 3px 2px 3px;
+}
+#datePicker .tdWeekend-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+}
+
+#datePicker .tdOtherMonthDay-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    color: #fff;
+}
+
+#datePicker .tdMonthName-small {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-style: normal
+}
+
+#datePicker .tdMonthDay-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff;
+}
+#datePicker .currentWeek {
+    border-top: 1px solid blue;
+    border-bottom: 1px solid blue;
+}
+#datePicker .currentDate {
+    border: 1px solid blue;
+    background-color: blue;
+    color: lightblue;
+}
+
+/* the DIV of times */
+#times {
+    border-right: 1px solid #999;
+}
+#times table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+#times table td {
+    border: 0px;
+    border-top: 1px solid #999;
+    margin: 0px;
+    padding: 0px;
+    font-size: 10pt;
+}
+.timeslot {
+    height: {{ timeslotHeightVal }}{{ timeslotHeightUnit }};
+    margin: 0px;
+    padding: 0px;
+}
+.schedule {
+    background-color: pink;
+    vertical-align: top;
+    padding: 0px;
+    margin: 0px;
+    border-right: 1px solid black;
+}
+
+/* types of events */
+.event_in {
+    position: absolute;
+    background-color: white;
+    width: 98%;
+    font-size: 0.8em;
+    border: 1px solid black;
+    padding: 2px;
+}
+.event_out {
+    position: absolute;
+    background-color: pink;
+    width: 98%;
+    font-size: 0.8em;
+    border: 1px solid black;
+    padding: 2px;
+}
+.event_appointment {
+    position: absolute;
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    border: 1px solid black;
+    padding: 2px;
+}
+.event_noshow {
+    position: absolute;
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    border: 1px solid black;
+    color: gray;
+    padding: 2px;
+}
+.event_reserved {
+    position: absolute;
+    overflow: hidden;
+    width: 98%;
+    font-size: 0.8em;
+    border: 1px dashed black;
+    padding: 2px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="bigCal">
+    {% for provider in providers %}
+        <div id="bigCalHeader">
+            <div id="bigCalText">
+                <span id="provname">{{ provider.fname }} {{ provider.lname }}</span>
+                <br>
+                <span id="daterange">
+                    {% set event_dates = days|keys %}
+                    {% if event_dates is not empty %}
+                        {{ event_dates[0]|date('F d') }}
+                    {% endif %}
+                </span>
+            </div>
+            
+            {# Output calendar picker #}
+            <div id="datePicker">
+                {{ PrintDatePicker(Date|date('U'), DOWlist, A_SHORT_DAY_NAMES) }}
+            </div>
+        </div>
+
+        {# Calculate calendar time boundaries #}
+        {% set calStartMin = times[0].hour * 60 + times[0].minute %}
+        {% set calEndMin = times[times|length - 1].hour * 60 + times[times|length - 1].minute %}
+
+        <div class="pagebreak"></div>
+
+        <table border="0" cellpadding="1" cellspacing="0" width="100%">
+            <tr>
+                {% for date, events in days %}
+                    <td width="50%" valign="top">
+                        <div class="schedule_title">
+                            {{ date|date('l, F j, Y') }}
+                        </div>
+                        <div class="schedule">
+                            {# Print events for this date using our Twig function #}
+                            {{ printEvents(events, provider.id, TPL_IMAGE_PATH, {
+                                'calStartMin': calStartMin,
+                                'calEndMin': calEndMin,
+                                'timeslotHeightVal': timeslotHeightVal,
+                                'timeslotHeightUnit': timeslotHeightUnit,
+                                'interval': interval,
+                                'date': date
+                            }) }}
+                        </div>
+                    </td>
+                {% endfor %}
+            </tr>
+        </table>
+        <p></p>
+    {% endfor %}
+</div>  <!-- end bigCal DIV -->
+
+</body>
+
+<script>
+$(function () {
+    // var win = top.printLogPrint ? top : opener.top;
+    // win.printLogPrint(window);
+});
+</script>
+
+</html>
+{% endblock %}

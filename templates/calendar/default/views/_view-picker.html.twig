@@ -1,0 +1,25 @@
+<div id="viewPicker">
+    <a href='#' title='{{ "New Appointment"|xla }}' onclick='newEvt(1, 9, 00, "{{ Date }}", 0, 0)' class='btn btn-primary'><i class='fa fa-plus'></i></a>
+    <a href='#' title='{{ "Search Appointment"|xla }}' onclick='top.restoreSession();location="index.php?module=PostCalendar&func=search"' class='btn btn-primary'><i class='fa fa-search'></i></a>
+    <a href='#' id='printview' title='{{ "View Printable Version"|xla }}' class='btn btn-primary'><i class='fa fa-print'></i></a>
+    <a href='#' title='{{ "Refresh"|xla }}' onclick='javascript:refreshme()' class='btn btn-primary'><i class='fa fa-sync'></i></a>
+    <a href='#' type='button' id='dayview' title='{{ 'Day View'|xla }}' class='btn btn-primary calendar-view-picker
+        {% if activeView == 'day' %}btn-active{% endif %}'>{{ 'Day'|xlt }}</a>
+    <a href='#' type='button' id='weekview' title='{{ 'Week View'|xla }}' class='btn btn-primary calendar-view-picker
+        {% if activeView == 'week' %}btn-active{% endif %}'>{{ 'Week'|xlt }}
+    </a>
+    <a href='#' type='button' id='monthview' title='{{ 'Month View'|xla }}' class='btn btn-primary calendar-view-picker
+        {% if activeView == 'month' %}btn-active{% endif %}'>{{ 'Month'|xlt }}</a>
+</div>
+<script>
+    $(function() {
+        $(".calendar-view-picker").click(function(evt) {
+            if ($(this).hasClass('btn-active')) {
+                evt.preventDefault();
+                return; // nothing to do here
+            }
+            // otherwise let's change the view here
+            ChangeView(evt.currentTarget);
+        });
+    });
+</script>
