@@ -27,10 +27,9 @@ set_time_limit(0);
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
@@ -63,8 +62,7 @@ function getLabID($npi)
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Load Compendium")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Load Compendium", xl("Load Compendium"));
 }
 
 $form_step   = isset($_POST['form_step']) ? trim((string) $_POST['form_step']) : '0';

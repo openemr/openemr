@@ -18,6 +18,7 @@
 
 require_once('../interface/globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -25,8 +26,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'docs')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dicom Viewer")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Dicom Viewer", xl("Dicom Viewer"));
 }
 
 $web_path = $_REQUEST['web_path'] ?? null;

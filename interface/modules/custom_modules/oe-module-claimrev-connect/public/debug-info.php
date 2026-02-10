@@ -12,17 +12,15 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
-    use OpenEMR\Core\OEGlobalsBag;
     use OpenEMR\Modules\ClaimRevConnector\ConnectivityInfo;
 
     $tab = "connectivity";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Account")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - Connectivity", xl("ClaimRev Connect - Connectivity"));
 }
 ?>
 

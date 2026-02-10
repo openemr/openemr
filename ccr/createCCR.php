@@ -46,16 +46,14 @@ require_once(__DIR__ . "/uuid.php");
 require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use PHPMailer\PHPMailer\PHPMailer;
 
 if ($notPatientPortal) {
     $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
     if (!$thisauth) {
-        echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Create CCR", xl("Create CCR"));
     }
 }
 

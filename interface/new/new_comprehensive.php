@@ -20,16 +20,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Search or Add Patient", xl("Search or Add Patient"));
 }
 
 $CPR = 4; // cells per row

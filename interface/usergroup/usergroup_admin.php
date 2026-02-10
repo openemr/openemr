@@ -23,11 +23,11 @@
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -42,8 +42,7 @@ if (!empty($_REQUEST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("User / Groups")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: User / Groups", xl("User / Groups"));
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {

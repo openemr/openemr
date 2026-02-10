@@ -23,8 +23,9 @@
 namespace OpenEMR\Forms\NewPatient;
 
 use OpenEMR\Billing\MiscBillingOptions;
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -521,9 +522,12 @@ class C_EncounterVisitForm
                 $parentEncounterId = $encounter['id'];
             }
 
-            if ($encounter['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $encounter['sensitivity'])) {
-                $this->twig->render("newpatient/unauthorized.html.twig");
-                exit();
+            $sensitivity = $encounter['sensitivity'];
+            if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+                AccessDeniedHelper::denyWithTemplate(
+                    "ACL check failed for sensitivities/$sensitivity: Patient Encounter",
+                    xl("Patient Encounter")
+                );
             }
         }
 

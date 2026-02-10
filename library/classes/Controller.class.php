@@ -1,8 +1,7 @@
 <?php
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty
@@ -79,15 +78,13 @@ class Controller extends Smarty
     {
         if ((array_key_first($qarray) ?? '') == 'practice_settings') {
             if (!AclMain::aclCheckCore('admin', 'practice')) {
-                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
-                exit;
+                AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Practice Settings", xl("Practice Settings"));
             }
         }
 
         if ((array_key_first($qarray) ?? '') == 'prescription') {
             if (!AclMain::aclCheckCore('patients', 'rx')) {
-                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions")]);
-                exit;
+                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Prescriptions", xl("Prescriptions"));
             }
         }
 

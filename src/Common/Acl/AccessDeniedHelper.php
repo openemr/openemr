@@ -22,6 +22,8 @@ namespace OpenEMR\Common\Acl;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Response;
 
 class AccessDeniedHelper
@@ -69,6 +71,7 @@ class AccessDeniedHelper
             AccessDeniedResponseFormat::Text => (static function (): void {
                 echo xlt('Access denied');
             })(),
+            AccessDeniedResponseFormat::None => null,
         };
 
         if ($beforeExit !== null) {
@@ -76,5 +79,74 @@ class AccessDeniedHelper
         }
 
         exit;
+    }
+
+    /**
+     * Deny access and render the unauthorized template.
+     *
+     * Convenience method for the common pattern of rendering the unauthorized
+     * template when an ACL check fails. Handles logging, auditing, and exits.
+     *
+     * @param string $comment   Audit log comment describing what was attempted
+     * @param string $pageTitle Title to display on the unauthorized page
+     * @param string $auditEvent Event name for EventAuditLogger
+     */
+    public static function denyWithTemplate(
+        string $comment,
+        string $pageTitle,
+        string $auditEvent = 'security-access-denied',
+    ): never {
+        self::deny(
+            $comment,
+            $auditEvent,
+            Response::HTTP_FORBIDDEN,
+            AccessDeniedResponseFormat::None,
+            static function () use ($pageTitle): void {
+                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                    ->getTwig()
+                    ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+            },
+        );
+    }
+
+    /**
+     * Create an access denied Response for controller patterns.
+     *
+     * Use this in controller catch blocks that need to return a Response object
+     * instead of calling exit(). Handles logging and auditing, then returns
+     * a Response with the rendered unauthorized template.
+     *
+     * @param string $comment    Audit log comment describing what was attempted
+     * @param string $pageTitle  Title to display on the unauthorized page
+     * @param string $auditEvent Event name for EventAuditLogger
+     * @param int    $httpStatus HTTP status code (default 403 Forbidden)
+     */
+    public static function createDeniedResponse(
+        string $comment,
+        string $pageTitle,
+        string $auditEvent = 'security-access-denied',
+        int $httpStatus = Response::HTTP_FORBIDDEN,
+    ): Response {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $user = $session->get('authUser', 'unknown');
+        $group = $session->get('authProvider', '');
+
+        (new SystemLogger())->warning("Access denied: $comment", [
+            'user' => $user,
+        ]);
+
+        EventAuditLogger::getInstance()->newEvent(
+            $auditEvent,
+            $user,
+            $group,
+            0,
+            $comment,
+        );
+
+        $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+            ->getTwig()
+            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+
+        return new Response($contents, $httpStatus);
     }
 }

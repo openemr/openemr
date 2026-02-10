@@ -26,6 +26,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -47,14 +48,12 @@ $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/rep_a or patients/rx: Receipt for Payment", xl("Receipt for Payment"));
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill/write: " . $pageTitle, $pageTitle);
     }
 }
 
