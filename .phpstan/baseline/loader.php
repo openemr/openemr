@@ -140,7 +140,6 @@ return ['includes' => [
     __DIR__ . '/smaller.alwaysTrue.php',
     __DIR__ . '/smaller.invalid.php',
     __DIR__ . '/smallerOrEqual.alwaysTrue.php',
-    __DIR__ . '/staticClassAccess.privateProperty.php',
     __DIR__ . '/staticMethod.impossibleType.php',
     __DIR__ . '/staticMethod.nonObject.php',
     __DIR__ . '/staticMethod.resultUnused.php',

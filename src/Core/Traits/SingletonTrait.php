@@ -29,7 +29,7 @@ use LogicException;
 trait SingletonTrait
 {
     /** @var array<class-string<static>, static> */
-    private static array $instances = [];
+    protected static array $instances = [];
 
     final public function __clone()
     {
