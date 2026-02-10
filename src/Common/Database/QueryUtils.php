@@ -38,7 +38,7 @@ class QueryUtils
         return $field_list;
     }
 
-    public static function escapeTableName($table)
+    public static function escapeTableName(string $table): string
     {
         $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
         $tables_array = [];
@@ -51,11 +51,16 @@ class QueryUtils
         return \escape_identifier($table, $tables_array, true, false);
     }
 
-    public static function escapeColumnName($columnName, $tables = [])
+    public static function escapeColumnName($columnName, $tables = []): string
     {
         return \escape_sql_column_name($columnName, $tables);
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param mixed[] $binds
+     * @return array<int, mixed[]>
+     */
     public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
@@ -108,6 +113,12 @@ class QueryUtils
         return null;
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param mixed[] $binds
+     * @param bool $noLog
+     * @return array<int, mixed[]>
+     */
     public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
