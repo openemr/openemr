@@ -5562,27 +5562,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method ErrorNo\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method ExecuteNoLog\\(\\) on ADOConnection\\|false\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method ExecuteNoLog\\(\\) on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method FetchRow\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];

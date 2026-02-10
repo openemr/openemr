@@ -277,6 +277,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsertClean_audit\\(\\) is incompatible with type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsert\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -288,11 +293,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlQueryCdrEngine\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlQueryNoLogIgnoreError\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];

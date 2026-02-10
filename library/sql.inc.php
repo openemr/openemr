@@ -144,24 +144,15 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset
+* @return ADORecordSet
 */
 function sqlStatement($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    // Use adodb Execute with binding and return a recordset.
-    //   Note that the auditSQLEvent function is embedded
-    //    in the Execute command.
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-    if ($recordset === false) {
+    try {
+        return QueryUtils::sqlStatementThrowException($statement, $binds);
+    } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    return $recordset;
 }
 
 /**
@@ -177,7 +168,8 @@ function sqlStatement($statement, $binds = false)
  *
  * @param  string  $statement  query
  * @param  array   $binds      binded variables array (optional)
- * @return recordset
+ * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+ * @return ADORecordSet
  */
 function sqlStatementThrowException($statement, $binds = false)
 {
@@ -209,21 +201,19 @@ function sqlGetLastInsertId()
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset
+* @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
+* @return ADORecordSet
 */
 function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    if ($throw_exception_on_error) {
+    try {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
-    }
-
-    // Use adodb ExecuteNoLog with binding and return a recordset.
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-    if ($recordset === false) {
+    } catch (SqlQueryException $e) {
+        if ($throw_exception_on_error) {
+            throw $e;
+        }
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    return $recordset;
 }
 
 /**
@@ -233,7 +223,7 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset/resource
+* @return ADORecordSet
 */
 function sqlStatementCdrEngine($statement, $binds = false)
 {
@@ -317,31 +307,15 @@ function sqlInsert($statement, $binds = false)
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false
 */
 function sqlQuery($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        return QueryUtils::querySingleRow($statement, $binds ?: []);
+    } catch (SqlQueryException) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
 }
 
 /**
@@ -354,81 +328,26 @@ function sqlQuery($statement, $binds = false)
 * audit engine. This function should only be used
 * in very special situations.
 *
-* Note: If you do an INSERT or UPDATE statement you will get an empty string ("") as a response
+* Note: This function is not suitable for INSERT or UPDATE statements;
+* use sqlStatementNoLog() instead.
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array|false|""
+* @param  bool    $throw_exception_on_error  if true throws SqlQueryException instead of calling HelpfulDie
+* @return array|false
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        return QueryUtils::querySingleRow($statement, $binds ?: [], log: false);
+    } catch (SqlQueryException $e) {
         if ($throw_exception_on_error) {
-            throw new SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
-        } else {
-            HelpfulDie("query failed: $statement", getSqlLastError());
+            throw $e;
         }
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
 }
 
-/**
-* Specialized sql query in OpenEMR that ignores sql errors, bypasses the
-* auditing engine and only returns the first row of query results as an
-* associative array.
-*
-* Function that will allow use of the adodb binding
-* feature to prevent sql-injection. It is equivalent to the
-* sqlQuery() function, EXCEPT it skips the
-* audit engine and ignores errors. This function should only be used
-* in very special situations.
-*
-* @param  string  $statement  query
-* @param  array   $binds      binded variables array (optional)
-* @return array
-*/
-function sqlQueryNoLogIgnoreError($statement, $binds = false)
-{
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
-        // ignore the error and return FALSE
-        return false;
-    }
-
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
-}
 
 /**
 * sqlQuery() function wrapper for CDR engine in OpenEMR.
@@ -437,7 +356,7 @@ function sqlQueryNoLogIgnoreError($statement, $binds = false)
 *
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false
 */
 function sqlQueryCdrEngine($statement, $binds = false)
 {
@@ -459,16 +378,13 @@ function sqlQueryCdrEngine($statement, $binds = false)
 * This function should only be used in very special situations.
 *
 * @param  string  $statement  query
+* @param  array   $binds      binded variables array (optional)
 */
 function sqlInsertClean_audit($statement, $binds = false): void
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
-    }
-
-    $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-    if ($ret === false) {
+    try {
+        QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
+    } catch (SqlQueryException) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }
 }
@@ -477,24 +393,11 @@ function sqlInsertClean_audit($statement, $binds = false): void
 * Function that will safely return the last error,
 * and accounts for the audit engine.
 *
-* @param   string  $mode either adodb(default) or native_mysql
-* @return  string        last mysql error
+* @return  string  last mysql error
 */
 function getSqlLastError()
 {
     return !empty($GLOBALS['last_mysql_error']) ? $GLOBALS['last_mysql_error'] : $GLOBALS['adodb']['db']->ErrorMsg();
-}
-
-/**
- * Function that will safely return the last error no,
- * and accounts for the audit engine.
- *
- * @param   string  $mode either adodb(default) or native_mysql
- * @return  string        last mysql error no
- */
-function getSqlLastErrorNo()
-{
-    return !empty($GLOBALS['last_mysql_error_no']) ? $GLOBALS['last_mysql_error_no'] : $GLOBALS['adodb']['db']->ErrorNo();
 }
 
 /**
@@ -519,7 +422,7 @@ function sqlListFields($table)
 /**
 * Returns the number of sql rows
 *
-* @param recordset $r
+* @param ADORecordSet $r
 * @return integer Number of rows
 */
 function sqlNumRows($r)
@@ -601,14 +504,11 @@ function generate_id()
 */
 function sqlQ($statement, $binds = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    try {
+        return QueryUtils::sqlStatementThrowException($statement, $binds);
+    } catch (SqlQueryException) {
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
-
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds) or
-    HelpfulDie("query failed: $statement", getSqlLastError());
-    return $recordset;
 }
 
 
@@ -761,9 +661,9 @@ function getPrivDB()
 /**
  * mechanism to use "super user" for SQL queries related to password operations
  *
- * @param type $sql
- * @param type $params
- * @return type
+ * @param string $sql
+ * @param array|null $params
+ * @return ADORecordSet
  */
 function privStatement($sql, $params = null)
 {
@@ -787,9 +687,9 @@ function privStatement($sql, $params = null)
  * Wrapper for privStatement that just returns the first row of a query or FALSE
  * if there were no results.
  *
- * @param type $sql
- * @param type $params
- * @return boolean
+ * @param string $sql
+ * @param array|null $params
+ * @return array|false
  */
 function privQuery($sql, $params = null)
 {

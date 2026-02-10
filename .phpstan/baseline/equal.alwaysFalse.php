@@ -67,6 +67,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/product_registration/product_registration_controller.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0\\|int\\<4, max\\> and 2 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
@@ -100,11 +105,6 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'2100\' and \'2110\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between array and 0 will always evaluate to false\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between null and \'email\' will always evaluate to false\\.$#',

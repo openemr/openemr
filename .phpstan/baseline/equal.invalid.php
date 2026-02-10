@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\=\\=" between array and 0 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Comparison operation "\\=\\=" between used and 0 results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',

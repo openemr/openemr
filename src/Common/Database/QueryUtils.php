@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use Throwable;
 
 class QueryUtils
@@ -76,8 +77,8 @@ class QueryUtils
     }
     /**
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
-     * @param $sqlStatement
-     * @param $column string column you want returned
+     * @param string $sqlStatement
+     * @param string $column column you want returned
      * @param array $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
@@ -115,8 +116,8 @@ class QueryUtils
 
     /**
      * Executes the sql statement and returns an associative array for a single column of a table
-     * @param $sqlStatement The statement to run
-     * @param $column The column you want returned
+     * @param string $sqlStatement The statement to run
+     * @param string $column The column you want returned
      * @param array $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
@@ -174,9 +175,9 @@ class QueryUtils
      *
      * @param  string  $statement  query
      * @param  array   $binds      binded variables array (optional)
-     * @param  noLog   boolean     if true the sql statement bypasses the database logger, false logs the sql statement
+     * @param  bool    $noLog      if true the sql statement bypasses the database logger, false logs the sql statement
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return recordset
+     * @return ADORecordSet
      */
     public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
@@ -358,9 +359,25 @@ class QueryUtils
         return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
     }
 
-    public static function querySingleRow(string $sql, array $params = [])
+    /**
+     * Executes a query and returns the first row as an associative array.
+     *
+     * @param  string  $sql     query
+     * @param  array   $params  binded variables array (optional)
+     * @param  bool    $log     if true the sql statement is logged, false bypasses the database logger
+     * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+     * @return array|false
+     */
+    public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
-        $result = self::sqlStatementThrowException($sql, $params);
+        /** @var mixed $params */
+        if (!is_array($params)) {
+            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+                'method' => __METHOD__,
+                'trace' => (new \Exception())->getTraceAsString(),
+            ]);
+        }
+        $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
         return self::fetchArrayFromResultSet($result);
     }
 
@@ -373,7 +390,6 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
     public static function escapeLimit(string|int $limit)
