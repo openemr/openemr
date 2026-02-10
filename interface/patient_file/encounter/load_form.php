@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once("../../../library/registry.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -39,9 +40,15 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     // ensure authorized to see the form
     if (!AclMain::aclCheckForm($_GET["formname"])) {
         $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-        $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-        echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-        exit;
+        $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+        AccessDeniedHelper::deny(
+            "ACL check failed for form: " . $formLabel,
+            beforeExit: function () use ($formLabel): void {
+                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                    ->getTwig()
+                    ->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+            }
+        );
     }
 }
 $formLocator = new FormLocator();

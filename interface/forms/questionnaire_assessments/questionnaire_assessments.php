@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
@@ -59,9 +60,15 @@ $isAdmin = true;
 $is_authorized = true;
 if (!AclMain::aclCheckForm($_GET["formname"])) {
     $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-    $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-    exit;
+    $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+    AccessDeniedHelper::deny(
+        "ACL check failed for form: " . $formLabel,
+        beforeExit: function () use ($formLabel): void {
+            echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                ->getTwig()
+                ->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+        }
+    );
 }
 
 // General error trap. Echo and die.
