@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use ADORecordSet;
 use OpenEMR\Common\Logging\SystemLogger;
 use Throwable;
 
@@ -51,6 +52,10 @@ class QueryUtils
         return \escape_identifier($table, $tables_array, true, false);
     }
 
+    /**
+     * @param string $columnName
+     * @param string[] $tables
+     */
     public static function escapeColumnName($columnName, $tables = []): string
     {
         return \escape_sql_column_name($columnName, $tables);
@@ -68,7 +73,7 @@ class QueryUtils
             $binds = false;
         }
 
-        $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($sqlStatement, $binds);
+        $recordset = self::getADODB()->ExecuteNoLog($sqlStatement, $binds);
 
         if ($recordset === false) {
             $error = self::getLastError();
@@ -102,6 +107,10 @@ class QueryUtils
         return $list;
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param mixed[] $binds
+     */
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
@@ -205,9 +214,9 @@ class QueryUtils
         // Note the auditSQLEvent function is embedded in the
         //   Execute function.
         if ($noLog) {
-            $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
+            $recordset = self::getADODB()->ExecuteNoLog($statement, $binds);
         } else {
-            $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+            $recordset = self::getADODB()->Execute($statement, $binds, true);
         }
         if ($recordset === false) {
             $error = self::getLastError();
@@ -221,7 +230,7 @@ class QueryUtils
     }
 
     /**
-     * @param $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
+     * @param string $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
      * @return bool
      */
     public static function existsTable($tableName)
@@ -275,7 +284,7 @@ class QueryUtils
         //Run a adodb execute
         // Note the auditSQLEvent function is embedded in the
         //   Execute function.
-        $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+        $recordset = self::getADODB()->Execute($statement, $binds, true);
         if ($recordset === false) {
             $error = self::getLastError();
             throw new SqlQueryException(
@@ -428,7 +437,7 @@ class QueryUtils
      */
     public static function affectedRows()
     {
-        return $GLOBALS['adodb']['db']->Affected_Rows();
+        return self::getADODB()->Affected_Rows();
     }
 
     /**
@@ -442,5 +451,10 @@ class QueryUtils
         return !empty($GLOBALS['last_mysql_error'])
             ? (string) $GLOBALS['last_mysql_error']
             : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+    }
+
+    private static function getADODB(): \ADODB_mysqli_log
+    {
+        return $GLOBALS['adodb']['db'];
     }
 }
