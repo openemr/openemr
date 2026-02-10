@@ -77,7 +77,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\FaxAccount\\:\\:\\$TimeZone\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$CompletedOn\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$Confidence\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$FaxImage\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$FaxResult\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
 ];
@@ -90,6 +110,41 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$Name\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$PagesDelivered\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$RemoteId\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$CalledNumber\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$CallingNumber\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$DocumentParams\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$FaxImage\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$JobId\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$ReceivedOn\\.$#',
@@ -140,6 +195,11 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property Carecoordination\\\\Model\\\\ModuleconfigTable\\:\\:\\$applicationTable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Installer\\\\Controller\\\\InstallerController\\:\\:\\$helperObject\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property Installer\\\\Model\\\\InstModule\\:\\:\\$mod_enc_menu\\.$#',
@@ -244,6 +304,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$ensureVisible\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$items\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
 ];
 $ignoreErrors[] = [
@@ -743,7 +808,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property BaseController\\:\\:\\$viewBean\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
 ];
 $ignoreErrors[] = [
@@ -792,9 +857,24 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$class\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$label\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$menu_id\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCareTeamRestController\\:\\:\\$systemLogger\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNode\\:\\:\\$tagName\\.$#',
@@ -808,8 +888,23 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$dataElementCodes\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$hqmf_id\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$id\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$stratification_id\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$negationRationale\\.$#',
@@ -860,6 +955,11 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$family\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Search\\\\CompositeSearchField\\:\\:\\$getValues\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Search/CompositeSearchField.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PhpParser\\\\Node\\:\\:\\$name\\.$#',
