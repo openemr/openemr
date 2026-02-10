@@ -44,16 +44,16 @@ use Twig\Environment;
 class ServiceContainer
 {
     /** @var array<class-string, object> */
-    private static array $instances = [];
+    private static array $overrides = [];
 
     /**
-     * Reset all registered instances. For testing only.
+     * Reset all registered overrides. For testing only.
      *
      * @internal
      */
     public static function reset(): void
     {
-        self::$instances = [];
+        self::$overrides = [];
     }
 
     /**
@@ -76,49 +76,54 @@ class ServiceContainer
                 $interface,
             ));
         }
-        self::$instances[$interface] = $instance;
+        self::$overrides[$interface] = $instance;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $interface
+     * @param T $default
+     * @return T
+     */
+    private static function resolve(string $interface, object $default): object
+    {
+        /** @var T */
+        return self::$overrides[$interface] ?? $default;
     }
 
     public static function getClock(): ClockInterface
     {
-        /** @var ClockInterface */
-        return self::$instances[ClockInterface::class] ?? SystemClock::fromSystemTimezone();
+        return self::resolve(ClockInterface::class, SystemClock::fromSystemTimezone());
     }
 
     public static function getCrypto(): Crypto\CryptoInterface
     {
-        /** @var Crypto\CryptoInterface */
-        return self::$instances[Crypto\CryptoInterface::class] ?? new Crypto\CryptoGen();
+        return self::resolve(Crypto\CryptoInterface::class, new Crypto\CryptoGen());
     }
 
     public static function getLogger(): LoggerInterface
     {
-        /** @var LoggerInterface */
-        return self::$instances[LoggerInterface::class] ?? new Logging\SystemLogger();
+        return self::resolve(LoggerInterface::class, new Logging\SystemLogger());
     }
 
     public static function getRequestFactory(): RequestFactoryInterface
     {
-        /** @var RequestFactoryInterface */
-        return self::$instances[RequestFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(RequestFactoryInterface::class, new Psr17Factory());
     }
 
     public static function getResponseFactory(): ResponseFactoryInterface
     {
-        /** @var ResponseFactoryInterface */
-        return self::$instances[ResponseFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(ResponseFactoryInterface::class, new Psr17Factory());
     }
 
     public static function getServerRequestFactory(): ServerRequestFactoryInterface
     {
-        /** @var ServerRequestFactoryInterface */
-        return self::$instances[ServerRequestFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(ServerRequestFactoryInterface::class, new Psr17Factory());
     }
 
     public static function getStreamFactory(): StreamFactoryInterface
     {
-        /** @var StreamFactoryInterface */
-        return self::$instances[StreamFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(StreamFactoryInterface::class, new Psr17Factory());
     }
 
     /**
@@ -136,13 +141,11 @@ class ServiceContainer
 
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface
     {
-        /** @var UploadedFileFactoryInterface */
-        return self::$instances[UploadedFileFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(UploadedFileFactoryInterface::class, new Psr17Factory());
     }
 
     public static function getUriFactory(): UriFactoryInterface
     {
-        /** @var UriFactoryInterface */
-        return self::$instances[UriFactoryInterface::class] ?? new Psr17Factory();
+        return self::resolve(UriFactoryInterface::class, new Psr17Factory());
     }
 }
