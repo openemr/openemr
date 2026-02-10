@@ -1857,5 +1857,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT); ?>
 </html>

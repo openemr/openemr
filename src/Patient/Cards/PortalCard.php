@@ -16,6 +16,7 @@ namespace OpenEMR\Patient\Cards;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\Patient\Card\Card;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
@@ -28,10 +29,7 @@ class PortalCard extends CardModel
 
     private $opts = [];
 
-    /**
-     * @var EventDispatcher
-     */
-    private $ed;
+    private readonly EventDispatcherInterface $ed;
 
     public function __construct()
     {

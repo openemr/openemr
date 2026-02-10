@@ -1717,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Patient\\\\Cards\\\\PortalCard\\:\\:\\$ed \\(OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher\\) does not accept Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:\\$custid \\(string\\) does not accept string\\|false\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',

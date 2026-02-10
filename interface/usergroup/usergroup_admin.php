@@ -319,7 +319,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
         // instead of the entire user data?  This makes the pre event data not very useful w/o doing a database hit...
         $userUpdatedEvent = new UserUpdatedEvent($user_data, $_POST);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userUpdatedEvent, UserUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userUpdatedEvent, UserUpdatedEvent::EVENT_HANDLE);
     }
 }
 
@@ -459,7 +459,7 @@ if (isset($_POST["mode"])) {
             $submittedData['username'] = $submittedData['rumple'] ?? null;
             $userCreatedEvent = new UserCreatedEvent($submittedData);
             unset($submittedData); // clear things out in case we have any sensitive data here
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userCreatedEvent, UserCreatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userCreatedEvent, UserCreatedEvent::EVENT_HANDLE);
         }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");

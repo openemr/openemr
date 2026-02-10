@@ -2107,21 +2107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method addListener\\(\\) on an unknown class OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method dispatch\\(\\) on an unknown class OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Patient\\\\Cards\\\\PortalCard\\:\\:\\$ed has unknown class OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$APP_ROOT has unknown class OpenEMR\\\\RestControllers\\\\Config\\\\app as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',

@@ -50,7 +50,7 @@ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
+    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||

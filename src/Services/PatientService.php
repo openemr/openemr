@@ -183,7 +183,7 @@ class PatientService extends BaseService
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE);
         $data = $beforePatientCreatedEvent->getPatientData();
 
         $query = $this->buildInsertColumns($data);
@@ -195,7 +195,7 @@ class PatientService extends BaseService
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE);
 
         // If we have a result-set from our insert, return the PID,
         // otherwise return false
@@ -260,7 +260,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -274,7 +274,7 @@ class PatientService extends BaseService
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
 
             return $data;
         } else {
@@ -306,7 +306,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -337,7 +337,7 @@ class PatientService extends BaseService
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
             $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
         }
         return $processingResult;
     }

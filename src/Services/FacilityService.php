@@ -215,7 +215,7 @@ class FacilityService extends BaseService
         );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
 
         return $result;
     }
@@ -231,7 +231,7 @@ class FacilityService extends BaseService
         );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
 
         return $facilityId;
     }

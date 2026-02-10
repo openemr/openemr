@@ -7992,16 +7992,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Patient/Cards/InsuranceViewCard.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAppendedInjection\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrependedInjection\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
