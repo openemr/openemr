@@ -77,16 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$inputarr \\(false\\) of method ADODB_mysqli_log\\:\\:ExecuteNoLog\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$inputarr \\(false\\) of method ADODB_mysqli_log\\:\\:Execute\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$foreign_id \\(string\\) of method Document\\:\\:documents_factory\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',

@@ -97,7 +97,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         } else {
             echo "Check that you can ping the server " . text($host) . ".<p>";
         }
-        HelpfulDie("Could not connect to server!", getSqlLastError());
+        HelpfulDie("Could not connect to server!", QueryUtils::getLastError());
     }
 
 // Modified 5/2009 by BM for UTF-8 project ---------
@@ -105,12 +105,12 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
             $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
             if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
             }
         } else {
             $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
             if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
             }
         }
     }
@@ -118,7 +118,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 // Turn off STRICT SQL
     $sql_strict_set_success = $database->ExecuteNoLog("SET sql_mode = ''");
     if (!$sql_strict_set_success) {
-        error_log("Unable to set strict sql setting: " . errorLogEscape(getSqlLastError()), 0);
+        error_log("Unable to set strict sql setting: " . errorLogEscape(QueryUtils::getLastError()), 0);
     }
 
 // set up associations in adodb calls (not sure why above define
@@ -149,9 +149,9 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 function sqlStatement($statement, $binds = false)
 {
     try {
-        return QueryUtils::sqlStatementThrowException($statement, $binds);
-    } catch (SqlQueryException) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
+    } catch (SqlQueryException $e) {
+        HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
 
@@ -212,7 +212,7 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
         if ($throw_exception_on_error) {
             throw $e;
         }
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
 
@@ -293,8 +293,8 @@ function sqlInsert($statement, $binds = false)
 {
     try {
         return QueryUtils::sqlInsert($statement, $binds);
-    } catch (SqlQueryException) {
-        HelpfulDie("insert failed: $statement", getSqlLastError());
+    } catch (SqlQueryException $e) {
+        HelpfulDie("insert failed: $statement", $e->sqlError);
     }
 }
 
@@ -313,8 +313,8 @@ function sqlQuery($statement, $binds = false)
 {
     try {
         return QueryUtils::querySingleRow($statement, $binds ?: []);
-    } catch (SqlQueryException) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+    } catch (SqlQueryException $e) {
+        HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
 
@@ -344,7 +344,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
         if ($throw_exception_on_error) {
             throw $e;
         }
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
 
@@ -384,20 +384,9 @@ function sqlInsertClean_audit($statement, $binds = false): void
 {
     try {
         QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
-    } catch (SqlQueryException) {
-        HelpfulDie("insert failed: $statement", getSqlLastError());
+    } catch (SqlQueryException $e) {
+        HelpfulDie("insert failed: $statement", $e->sqlError);
     }
-}
-
-/**
-* Function that will safely return the last error,
-* and accounts for the audit engine.
-*
-* @return  string  last mysql error
-*/
-function getSqlLastError()
-{
-    return !empty($GLOBALS['last_mysql_error']) ? $GLOBALS['last_mysql_error'] : $GLOBALS['adodb']['db']->ErrorMsg();
 }
 
 /**
@@ -506,8 +495,8 @@ function sqlQ($statement, $binds = false)
 {
     try {
         return QueryUtils::sqlStatementThrowException($statement, $binds);
-    } catch (SqlQueryException) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+    } catch (SqlQueryException $e) {
+        HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
 
@@ -524,7 +513,7 @@ function sqlClose()
 {
   //----------Close our mysql connection
     $closed = $GLOBALS['adodb']['db']->close or
-    HelpfulDie("could not disconnect from mysql server link", getSqlLastError());
+    HelpfulDie("could not disconnect from mysql server link", QueryUtils::getLastError());
     return $closed;
 }
 

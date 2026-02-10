@@ -143,6 +143,9 @@ class BaseService implements BaseServiceInterface
         return $normalizedFields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return [];
@@ -523,7 +526,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     * @param array<string, mixed> $row The record returned from the database
+     * @return array<string, mixed>
      */
     protected function createResultRecordFromDatabaseResult($row)
     {

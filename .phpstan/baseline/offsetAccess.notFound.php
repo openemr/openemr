@@ -692,6 +692,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'type\' does not exist on non\\-empty\\-list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'secondaryAddress\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',

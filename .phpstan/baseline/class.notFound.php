@@ -407,11 +407,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/models/OrderStatusViewModel.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\LogProperties\\:\\:\\$container has unknown class OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\Container as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
@@ -1967,26 +1962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to property \\$EOF on an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method FetchRow\\(\\) on an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:sqlStatementThrowException\\(\\) has invalid return type OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$resultSet of method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) has invalid type OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$notes has unknown class OpenEMR\\\\Common\\\\ORDataObject\\\\Note as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
@@ -1997,19 +1972,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method RecordCount\\(\\) on an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\IsAcceptedFileFilterEvent\\:\\:getAcceptedList\\(\\) has invalid return type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This\\.$#',
@@ -2487,11 +2452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LocationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformationActivity\\(\\) has invalid return type OpenEMR\\\\Services\\\\recordset\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
@@ -2520,11 +2480,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\$dobYMD of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeDisplay\\(\\) has invalid type OpenEMR\\\\Services\\\\type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Search\\\\DateSearchField\\:\\:\\$dateType has unknown class OpenEMR\\\\Services\\\\Search\\\\Tracks as its type\\.$#',

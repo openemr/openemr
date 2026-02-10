@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/PatientvalidationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(bool\\) of method ADODB_mysqli_log\\:\\:Execute\\(\\) should be covariant with return type \\(ADORecordSet\\|false\\) of method ADODB_mysqli\\:\\:execute\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ADODB_mysqli_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\|false\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:getClientEntity\\(\\) should be covariant with return type \\(League\\\\OAuth2\\\\Server\\\\Entities\\\\ClientEntityInterface\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Repositories\\\\ClientRepositoryInterface\\:\\:getClientEntity\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
@@ -1580,6 +1575,11 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\QuestionnaireResponse\\\\FhirQuestionnaireResponseFormService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:createResultRecordFromDatabaseResult\\(\\) should be covariant with return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(mixed\\) of method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:getField\\(\\) should be covariant with return type \\(string\\) of method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getField\\(\\)$#',
