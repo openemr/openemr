@@ -69,7 +69,7 @@ class ServiceContainer
      */
     public static function override(string $interface, object $instance): void
     {
-        if (!is_a($instance, $interface)) {
+        if (!($instance instanceof $interface)) {
             throw new InvalidArgumentException(sprintf(
                 '%s does not implement %s',
                 $instance::class,
