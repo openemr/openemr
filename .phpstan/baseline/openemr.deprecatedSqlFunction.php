@@ -2753,7 +2753,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
@@ -4028,7 +4028,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 9,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [

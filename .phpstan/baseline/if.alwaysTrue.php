@@ -423,11 +423,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];

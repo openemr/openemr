@@ -2,7 +2,7 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc type template_dir of property C_AbstractClickmap\\:\\:\\$template_dir is not covariant with PHPDoc type array of overridden property Smarty\\:\\:\\$template_dir\\.$#',
+    'message' => '#^PHPDoc type template_dir of property C_AbstractClickmap\\:\\:\\$template_dir is not the same as PHPDoc type array of overridden property Smarty\\:\\:\\$template_dir\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];

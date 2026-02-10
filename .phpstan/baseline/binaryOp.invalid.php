@@ -1873,7 +1873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between \\(float\\|int\\) and mixed results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -8887,11 +8887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' / \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
@@ -9122,8 +9117,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/types.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\*" between mixed and 10 results in an error\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\*" between mixed and 9 results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
     'count' => 6,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -12219,11 +12229,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between 0 and mixed results in an error\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
@@ -16773,7 +16778,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
-    'count' => 6,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
