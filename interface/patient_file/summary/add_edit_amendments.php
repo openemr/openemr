@@ -17,16 +17,17 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
     exit;
 }
 $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
@@ -42,7 +43,7 @@ if (isset($_POST['mode'])) {
     if ($_POST["amendment_id"] == "") {
         // New. Insert
         if (!$addAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
+            echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
             exit;
         }
         $query = "INSERT INTO amendments SET
@@ -68,7 +69,7 @@ if (isset($_POST['mode'])) {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
         if (!$editAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
+            echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
             exit;
         }
         $query = "UPDATE amendments SET

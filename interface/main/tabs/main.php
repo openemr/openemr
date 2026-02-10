@@ -26,6 +26,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
@@ -83,7 +84,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
 ?>
 <!DOCTYPE html>
@@ -386,7 +387,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         'openemr_name' => $GLOBALS['openemr_name']
     ]);
     // Collect the menu then build it
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
@@ -435,8 +436,8 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 <body class="min-vw-100">
     <?php
     // fire off an event here
-    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if (!empty(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher())) {
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>

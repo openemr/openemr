@@ -67,6 +67,14 @@ class OEGlobalsBag extends ParameterBag
     }
 
     /**
+     * Check if the kernel is initialized and is the correct type
+     */
+    public function hasKernel(): bool
+    {
+        return $this->get('kernel') instanceof Kernel;
+    }
+
+    /**
      * Get the OpenEMR Kernel instance
      *
      * @throws \RuntimeException if the kernel is not initialized

@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 
 // Indicates if we are entering in batch mode.
@@ -31,14 +32,14 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'sign');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
     exit;
 }
 
 // Check authorization for pending review.
 $reviewauth = AclMain::aclCheckCore('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
     exit;
 }
 

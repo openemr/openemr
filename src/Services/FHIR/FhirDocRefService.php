@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
@@ -217,7 +218,7 @@ class FhirDocRefService
     private function getDocumentReferenceForCCDAEvent(PatientDocumentCreateCCDAEvent $event)
     {
         // this creates our CCDA
-        $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
+        $createdEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
         if (empty($createdEvent->getPid())) {
             throw new \Exception("Failed to create ccda event, pid is empty");
         }

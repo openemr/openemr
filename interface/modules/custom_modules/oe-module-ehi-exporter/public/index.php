@@ -5,6 +5,7 @@ namespace OpenEMR\Modules\EhiExporter;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 require_once(__DIR__ . "/../../../../globals.php");
@@ -12,7 +13,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
-$bootstrap = Bootstrap::instantiate($GLOBALS['kernel']->getEventDispatcher(), $GLOBALS['kernel']);
+$bootstrap = Bootstrap::instantiate(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(), OEGlobalsBag::getInstance()->getKernel());
 $exporter = $bootstrap->getExporter();
 
 

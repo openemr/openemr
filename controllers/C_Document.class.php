@@ -25,6 +25,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
@@ -861,7 +862,7 @@ class C_Document extends Controller
             }
 
             $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($d->get_url(), $d);
-            $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+            $updatedOffsiteDocumentEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
                 $retrieveOffsiteDocument,
                 PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
             );
@@ -1167,7 +1168,7 @@ class C_Document extends Controller
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
-                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
                 exit;
             }
             $cur_pid = '0';
@@ -1184,7 +1185,7 @@ class C_Document extends Controller
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+            echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
             exit;
         }
         $this->assign('is_new', $is_new);
@@ -1265,7 +1266,7 @@ class C_Document extends Controller
                     ]);
 
                     $treeViewFilterEvent->setHtmlTreeNode($htmlNode);
-                    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                    $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
                     if ($filteredEvent->getHtmlTreeNode() != null) {
                         $current_node->addItem($filteredEvent->getHtmlTreeNode());
                     } else {

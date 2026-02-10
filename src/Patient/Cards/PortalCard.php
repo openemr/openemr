@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Events\Patient\Card\Card;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
@@ -34,8 +35,7 @@ class PortalCard extends CardModel
 
     public function __construct()
     {
-        global $GLOBALS;
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
         $this->setOpts();
         parent::__construct($this->opts);

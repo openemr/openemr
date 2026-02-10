@@ -14,6 +14,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorizations.
 $auth_admin = AclMain::aclCheckCore('admin', 'drugs');
@@ -28,7 +29,7 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
     exit;
 }
 // Note if user is restricted to any facilities and/or warehouses.

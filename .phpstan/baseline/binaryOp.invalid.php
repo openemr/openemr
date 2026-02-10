@@ -23707,16 +23707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Document did not…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Patient uuid could…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Expected service of…\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',

@@ -19,6 +19,7 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 $clean_id = sanitizeNumber($_GET["id"]);
 
@@ -40,7 +41,7 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if (!AclMain::aclCheckForm($_GET["formname"])) {
         $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
         $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+        echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
         exit;
     }
 }

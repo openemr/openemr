@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/config/module.config.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Menu\\\\PatientMenuRole constructor invoked with 1 parameter, 0 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
@@ -30,6 +35,16 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Patient\\\\Cards\\\\PortalCard constructor invoked with 1 parameter, 0 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/insurance_edit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
@@ -62,6 +77,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoInterface\\:\\:encryptStandard\\(\\) invoked with 1 parameter, 3 required\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
@@ -92,6 +112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Finder/StandardRouteFinder.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:validate\\(\\) invoked with 1 parameter, 2 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
@@ -100,6 +125,11 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Events\\\\Patient\\\\Summary\\\\PortalCredentialsTemplateDataFilterEvent constructor invoked with 2 parameters, 0 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter constructor invoked with 3 parameters, 2 required\\.$#',

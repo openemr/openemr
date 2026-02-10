@@ -15,6 +15,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
@@ -56,8 +57,9 @@ class VitalsService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
         $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
-        if (!empty($GLOBALS['kernel'])) {
-            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();
         } else {
             $this->dispatcher = new EventDispatcher();
         }

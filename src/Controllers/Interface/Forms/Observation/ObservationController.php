@@ -15,6 +15,7 @@ namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -50,7 +51,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $this->twig = $twig ?? (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         $this->codeTypeService = new CodeTypesService();
     }
 

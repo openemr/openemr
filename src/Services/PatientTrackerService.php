@@ -17,6 +17,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 
 class PatientTrackerService extends BaseService
@@ -270,7 +271,7 @@ class PatientTrackerService extends BaseService
             sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_room` = ? WHERE `pc_eid` = ?", [$room,$eid]);
         }
 
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $tracker), ServiceSaveEvent::EVENT_POST_SAVE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $tracker), ServiceSaveEvent::EVENT_POST_SAVE);
 
         # Returning the tracker id that has been managed
         return $tracker_id;

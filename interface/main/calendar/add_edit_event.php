@@ -54,6 +54,7 @@ require_once($GLOBALS['srcdir'] . '/group.inc.php');
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
@@ -61,7 +62,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
     exit;
 }
 
@@ -108,7 +109,7 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 /**
  * @var EventDispatcherInterface $eventDispatcher
  */
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 ?>
 <!DOCTYPE html>
@@ -763,7 +764,7 @@ if (!empty($_POST['form_action'])) {
     if (isset($eid)) {
         $closeEvent->setAppointmentId($eid);
     }
-    $event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($closeEvent, AppointmentDialogCloseEvent::EVENT_NAME);
+    $event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($closeEvent, AppointmentDialogCloseEvent::EVENT_NAME);
     // listeners can stop the window from closing if they want to add any additional workflow steps
     // to the calendar appointment flow for their own workflow dialogs here they will need
     // to implement the dialog closing and duplicate the logic of what happens here in this closing event.

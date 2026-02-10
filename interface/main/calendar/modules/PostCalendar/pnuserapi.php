@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -537,11 +538,11 @@ function postcalendar_userapi_buildView($args)
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
         $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
         $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
         $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
         $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
@@ -1293,7 +1294,7 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setEndDate($end_date);
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
-    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
     if ($result instanceof CalendarUserGetEventsFilter) {
         $days = $result->getEventsByDays();
     }
@@ -1494,7 +1495,7 @@ function calculateEvents($days, $events, $viewtype)
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }

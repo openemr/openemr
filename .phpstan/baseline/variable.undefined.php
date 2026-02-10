@@ -12232,11 +12232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$dispatcher might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/tabs/main.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$fileroot might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',

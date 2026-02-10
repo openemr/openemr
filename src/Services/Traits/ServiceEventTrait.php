@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\Traits;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 
 trait ServiceEventTrait
@@ -15,7 +16,7 @@ trait ServiceEventTrait
     private function dispatchSaveEvent(string $type, $saveData)
     {
         $saveEvent = new ServiceSaveEvent($this, $saveData);
-        $filteredData = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($saveEvent, $type);
+        $filteredData = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($saveEvent, $type);
         if ($filteredData instanceof ServiceSaveEvent) { // make sure whoever responds back gives us the right data.
             $saveData = $filteredData->getSaveData();
         }

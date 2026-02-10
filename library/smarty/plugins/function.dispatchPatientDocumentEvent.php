@@ -14,6 +14,7 @@
  * of the License, or (at your option) any later version.
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -44,7 +45,7 @@ function smarty_function_dispatchPatientDocumentEvent($params, &$smarty): void
         $event = $params['event'];
     }
 
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     if ($event == "javascript_ready_fax_dialog") {
         $eventDispatcher->dispatch(new GenericEvent(), PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG);
     } elseif ($event == "actions_render_fax_anchor") {

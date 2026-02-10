@@ -30,13 +30,14 @@ if ($GLOBALS['enable_group_therapy']) {
 require_once "C_EncounterVisitForm.class.php";
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
 
 try {
     /**
      * @global $rootdir
      */
-    $controller = new C_EncounterVisitForm(__DIR__, $GLOBALS['kernel'], $GLOBALS['ISSUE_TYPES'], $rootdir, 'newpatient/common.php');
+    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), $GLOBALS['ISSUE_TYPES'], $rootdir, 'newpatient/common.php');
     /**
      * @global $pid
      */

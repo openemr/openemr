@@ -28,6 +28,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\ListService;
@@ -95,7 +96,7 @@ $patientService = new PatientService();
 $patient = $patientService->findByPid($_SESSION['pid']);
 $listService = new ListService();
 $resultCategories = $listService->getOptionsByListName('Observation_Types');
-$twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
+$twig = new TwigContainer(dirname(__DIR__), OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
@@ -127,7 +128,7 @@ $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/templates/new.html.twig',
     $viewArgs
 );
-$event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+$event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 if (!$event instanceof TemplatePageEvent) {
     throw new \RuntimeException('Invalid event returned from template page event');
 }

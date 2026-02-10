@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
 {
@@ -58,7 +59,7 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
 
  // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Import Patient Demographics XML")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Import Patient Demographics XML")]);
     exit;
 }
 

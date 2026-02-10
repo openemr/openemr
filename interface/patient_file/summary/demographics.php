@@ -41,9 +41,10 @@ use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 use OpenEMR\Events\Patient\Summary\Card\RenderModel;
@@ -79,7 +80,7 @@ if (!isset($pid)) {
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
@@ -97,14 +98,14 @@ if (isset($_GET['set_pid'])) {
 // Note: it would eventually be a good idea to move this into
 // it's own module that people can remove / add if they don't
 // want smart support in their system.
-$smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
+$smartLaunchController = new SMARTLaunchController(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
 $hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 $active_reminders = false;
 $all_allergy_alerts = false;

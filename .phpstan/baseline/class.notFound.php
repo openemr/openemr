@@ -1107,16 +1107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method getTwig\\(\\) on an unknown class TwigContainer\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class TwigContainer not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NumberToText\\:\\:convert\\(\\) has invalid return type The\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
@@ -2115,16 +2105,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:\\$dispatcher has unknown class OpenEMR\\\\Menu\\\\EventDispatcher as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getTwig\\(\\) on an unknown class OpenEMR\\\\OeUI\\\\TwigEnvironment\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class OpenEMR\\\\OeUI\\\\TwigEnvironment\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method addListener\\(\\) on an unknown class OpenEMR\\\\Patient\\\\Cards\\\\EventDispatcher\\.$#',

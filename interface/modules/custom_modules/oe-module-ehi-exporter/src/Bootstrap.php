@@ -19,6 +19,7 @@ namespace OpenEMR\Modules\EhiExporter;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
@@ -123,7 +124,7 @@ class Bootstrap
 
     public function getTwig()
     {
-        $container = new TwigContainer($this->getTemplatePath(), $GLOBALS['kernel']);
+        $container = new TwigContainer($this->getTemplatePath(), OEGlobalsBag::getInstance()->getKernel());
         return $container->getTwig();
     }
 
