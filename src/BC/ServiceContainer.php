@@ -19,7 +19,6 @@ use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
@@ -133,8 +132,10 @@ class ServiceContainer
      */
     public static function getTwig(?string $path = null): Environment
     {
-        /** @var Kernel $kernel */
-        $kernel = OEGlobalsBag::getInstance()->get('kernel');
+        if (($env = self::resolve(Environment::class)) !== null) {
+            return $env;
+        }
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         return (new TwigContainer($path, $kernel))->getTwig();
     }
 
