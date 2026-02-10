@@ -1295,10 +1295,7 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
     $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    if ($result instanceof CalendarUserGetEventsFilter) {
-        $days = $result->getEventsByDays();
-    }
-    return $days;
+    return $result->getEventsByDays();
 }
 
 //===========================

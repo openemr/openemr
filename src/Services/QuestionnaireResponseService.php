@@ -488,9 +488,6 @@ class QuestionnaireResponseService extends BaseService
 
         $preSaveEvent = new ServiceSaveEvent($this, $dataValues);
         $updatedPreSaveEvent = $this->getEventDispatcher()->dispatch($preSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
-        if (!$updatedPreSaveEvent instanceof ServiceSaveEvent) {
-            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed ot receive valid class for " . ServiceSaveEvent::class);
-        }
         $dataValues = $updatedPreSaveEvent->getSaveData();
 
         if ($update_flag) {
@@ -528,10 +525,7 @@ class QuestionnaireResponseService extends BaseService
             $dataValues['id'] = $id;
         }
         $postSaveEvent = new ServiceSaveEvent($this, $dataValues);
-        $updatedPostSaveEvent = $this->getEventDispatcher()->dispatch($postSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
-        if (!$updatedPostSaveEvent instanceof ServiceSaveEvent) {
-            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed to receive valid class for " . ServiceSaveEvent::class);
-        }
+        $this->getEventDispatcher()->dispatch($postSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
 
         return ['id' => $id, 'response_id' => $qr_id, 'new' => !$update_flag];
     }

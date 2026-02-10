@@ -224,9 +224,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesEvent->setScopes($scopesSupportedList);
             // TODO: @adunsulag we need to extract this global out of the this class so we can inject and test it.
             $scopesEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scopesEvent, RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES);
-            if ($scopesEvent instanceof RestApiScopeEvent) {
-                $scopesSupportedList = $scopesEvent->getScopes();
-            }
+            $scopesSupportedList = $scopesEvent->getScopes();
         }
 
         return $scopesSupportedList;

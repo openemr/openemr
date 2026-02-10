@@ -17,9 +17,6 @@ trait ServiceEventTrait
     {
         $saveEvent = new ServiceSaveEvent($this, $saveData);
         $filteredData = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($saveEvent, $type);
-        if ($filteredData instanceof ServiceSaveEvent) { // make sure whoever responds back gives us the right data.
-            $saveData = $filteredData->getSaveData();
-        }
-        return $saveData;
+        return $filteredData->getSaveData();
     }
 }

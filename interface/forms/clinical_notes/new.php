@@ -129,9 +129,6 @@ $templatePageEvent = new TemplatePageEvent(
     $viewArgs
 );
 $event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
-if (!$event instanceof TemplatePageEvent) {
-    throw new \RuntimeException('Invalid event returned from template page event');
-}
 
 // Render template
 echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

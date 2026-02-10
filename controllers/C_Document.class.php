@@ -870,10 +870,7 @@ class C_Document extends Controller
             // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
             // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
             // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
-            if (
-                $updatedOffsiteDocumentEvent instanceof PatientRetrieveOffsiteDocument
-                && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null
-            ) {
+            if ($updatedOffsiteDocumentEvent->getOffsiteUrl() !== null) {
                 header('Content-Description: File Transfer');
                 header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
                 exit;
