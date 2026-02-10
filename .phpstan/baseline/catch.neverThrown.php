@@ -41,5 +41,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Dead catch \\- JsonException is never thrown in the try block\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DeviceService.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -1577,6 +1577,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:createResultRecordFromDatabaseResult\\(\\) should be covariant with return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Return type \\(mixed\\) of method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:getField\\(\\) should be covariant with return type \\(string\\) of method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getField\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/BasicSearchField.php',
