@@ -2112,6 +2112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/tabs/main.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method registerNamespaceIfNotExists\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/openemr.bootstrap.php',
