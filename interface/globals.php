@@ -763,7 +763,9 @@ if (!empty($checkModulesTableExists)) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
         $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
+        die();
     } catch (\Throwable $ex) {
+        http_response_code(500);
         $logger->error($ex->getMessage(), ['exception' => $ex]);
         die();
     }
