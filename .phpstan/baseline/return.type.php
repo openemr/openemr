@@ -3292,7 +3292,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/BC/Database.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\BC\\\\Database\\:\\:readLegacyConfig\\(\\) should return array\\{driver\\: \'pdo_mysql\', dbname\\: string, host\\: string, port\\: int, user\\: string, password\\: string, charset\\: string, driverOptions\\: array\\<20\\|1000\\|1001\\|1002\\|1003\\|1004\\|1005\\|1006\\|1007\\|1008\\|1009\\|1010\\|1011\\|1012\\|1013\\|1014, string\\>\\} but returns array\\{driver\\: \'pdo_mysql\', dbname\\: mixed, host\\: mixed, port\\: mixed, user\\: mixed, password\\: mixed, charset\\: mixed, driverOptions\\: array\\<20\\|1000\\|1001\\|1002\\|1003\\|1004\\|1005\\|1006\\|1007\\|1008\\|1009\\|1010\\|1011\\|1012\\|1013\\|1014, string\\>\\}\\.$#',
+    'message' => '#^Method OpenEMR\\\\BC\\\\Database\\:\\:readLegacyConfig\\(\\) should return array\\{driver\\: \'pdo_mysql\', dbname\\: string, host\\: string, port\\: int, user\\: string, password\\: string, charset\\: string, driverOptions\\: array\\<[0-9|]+, string\\>\\} but returns array\\{driver\\: \'pdo_mysql\', dbname\\: mixed, host\\: mixed, port\\: mixed, user\\: mixed, password\\: mixed, charset\\: mixed, driverOptions\\: array\\<[0-9|]+, string\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/BC/Database.php',
 ];
