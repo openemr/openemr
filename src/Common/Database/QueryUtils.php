@@ -302,7 +302,7 @@ class QueryUtils
     /**
      * Shared getter for SQL selects.
      *
-     * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
+     * @param string $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map - Query information (where clause(s), join clause(s), order, data, etc).
      * @throws SqlQueryException If the query is invalid
      * @return array of associative arrays | one associative array.
@@ -337,29 +337,35 @@ class QueryUtils
         return $results;
     }
 
+    /**
+     * @return int
+     */
     public static function generateId()
     {
-        return $GLOBALS['adodb']['db']->GenID("sequences");
+        return self::getADODB()->GenID("sequences");
     }
 
+    /**
+     * @return int
+     */
     public static function ediGenerateId()
     {
-        return $GLOBALS['adodb']['db']->GenID("edi_sequences");
+        return self::getADODB()->GenID("edi_sequences");
     }
 
-    public static function startTransaction()
+    public static function startTransaction(): void
     {
-        $GLOBALS['adodb']['db']->BeginTrans();
+        self::getADODB()->BeginTrans();
     }
 
-    public static function commitTransaction()
+    public static function commitTransaction(): void
     {
-        $GLOBALS['adodb']['db']->CommitTrans();
+        self::getADODB()->CommitTrans();
     }
 
-    public static function rollbackTransaction()
+    public static function rollbackTransaction(): void
     {
-        $GLOBALS['adodb']['db']->RollbackTrans();
+        self::getADODB()->RollbackTrans();
     }
 
     /**
@@ -385,6 +391,9 @@ class QueryUtils
         }
     }
 
+    /**
+     * @return int
+     */
     public static function getLastInsertId()
     {
         // Return the correct last id generated using function
