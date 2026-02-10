@@ -42,7 +42,7 @@ trait SingletonTrait
     public static function getInstance(): static
     {
         if (!isset(static::$instances[static::class])) {
-            self::$instances[static::class] = static::createInstance();
+            static::$instances[static::class] = static::createInstance();
         }
 
         return static::$instances[static::class];
