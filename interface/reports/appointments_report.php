@@ -35,13 +35,12 @@ require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
-    Twig\TwigContainer,
 };
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SpreadSheetService;
 
 
@@ -52,8 +51,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Appointments Report", xl("Appointments Report"));
 }
 
 # Clear the pidList session whenever load this page.

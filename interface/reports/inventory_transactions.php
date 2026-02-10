@@ -15,12 +15,11 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -141,8 +140,7 @@ function inventoryTransactionsLineItem(array $row, bool $xfer = false): void
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory Transactions")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Inventory Transactions", xl("Inventory Transactions"));
 }
 
 // this is "" or "submit" or "export".

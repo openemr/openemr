@@ -27,12 +27,11 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -41,8 +40,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Collections Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Collections Report", xl("Collections Report"));
 }
 
 $alertmsg = '';

@@ -14,16 +14,14 @@
 
 require_once(__DIR__ . '/../globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 //
 if (!AclMain::aclCheckCore('acct', 'eob')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EDI History")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EDI History", xl("EDI History"));
 }
 
 ?>

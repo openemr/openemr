@@ -22,6 +22,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+// TODO: This is parameter validation, not authorization - see issue #10686
 if (empty($noteid)) {
     $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);

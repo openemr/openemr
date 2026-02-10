@@ -11,10 +11,9 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorizations.
 $auth_admin = AclMain::aclCheckCore('admin', 'drugs');
@@ -29,8 +28,7 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for inventory: Drug Inventory", xl("Drug Inventory"));
 }
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();

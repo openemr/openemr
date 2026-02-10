@@ -17,15 +17,13 @@ require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Clinical Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Clinical Reports", xl("Clinical Reports"));
 }
 
 if (!empty($_POST)) {

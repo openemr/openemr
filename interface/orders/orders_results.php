@@ -16,11 +16,10 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 
 // Indicates if we are entering in batch mode.
@@ -32,15 +31,13 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'sign');
 if (!$thisauth) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/sign: Procedure Results", xl("Procedure Results"));
 }
 
 // Check authorization for pending review.
 $reviewauth = AclMain::aclCheckCore('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/sign: Procedure Results", xl("Procedure Results"));
 }
 
 // Set pid for pending review.

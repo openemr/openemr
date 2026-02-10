@@ -12,17 +12,15 @@
 require_once("../globals.php");
 require_once("$srcdir/registry.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'forms')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Forms Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/forms: Forms Administration", xl("Forms Administration"));
 }
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {

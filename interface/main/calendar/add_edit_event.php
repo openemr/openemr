@@ -51,19 +51,18 @@ require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'] . '/group.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\Appointments\AppointmentSetEvent;
-use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Events\Appointments\AppointmentRenderEvent;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Edit/Add Event", xl("Edit/Add Event"));
 }
 
 /* Things that might be passed by our opener. */

@@ -18,14 +18,12 @@
 require_once('../globals.php');
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Lab Documents")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
 }
 
 $curdate = date_create(date("Y-m-d"));

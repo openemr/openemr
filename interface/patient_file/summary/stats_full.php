@@ -23,9 +23,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
@@ -45,8 +43,7 @@ if ($auth) {
         AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 } else {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for issue types: Patient Issues", xl("Patient Issues"));
 }
 
  // Collect parameter(s)

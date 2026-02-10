@@ -18,18 +18,16 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 // Ensure script doesn't time out
 set_time_limit(0);
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("External Data Loads")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: External Data Loads", xl("External Data Loads"));
 }
 
 $activeAccordionSection = $_GET['aas'] ?? '0';

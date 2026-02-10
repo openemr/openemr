@@ -13,14 +13,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
 }
 
 $pharmacyService = new PharmacyService();

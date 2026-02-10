@@ -10,26 +10,26 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
-use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
-use OpenEMR\Common\Acl\AccessDeniedException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use OpenEMR\Common\Logging\SystemLogger;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 try {
     $request = Request::createFromGlobals();
     $controllerRouter = new ControllerRouter();
     $response = $controllerRouter->route($request);
 } catch (AccessDeniedException | CsrfInvalidException $e) {
-    // Log the exception
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
-    // Send the error response
-    $response = new Response($contents, 403);
+    $response = AccessDeniedHelper::createDeniedResponse(
+        "ACL check failed for admin/super: Rules - " . $e->getMessage(),
+        xl("Rules")
+    );
 } catch (NotFoundHttpException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);

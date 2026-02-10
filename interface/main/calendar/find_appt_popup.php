@@ -22,19 +22,17 @@ require_once("$srcdir/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 
 <?php
  // check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
 
 // If the caller is updating an existing event, then get its ID so

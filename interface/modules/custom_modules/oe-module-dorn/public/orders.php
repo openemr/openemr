@@ -24,11 +24,10 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 
 //this is needed along with setupHeader() to get the pop up to appear
@@ -36,8 +35,7 @@ use OpenEMR\Modules\Dorn\ConnectorApi;
 $tab = "orders";
 $pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: DORN Orders", $pageTitle);
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 if (!empty($_POST)) {

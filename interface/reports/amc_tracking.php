@@ -15,15 +15,13 @@ require_once("../../library/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Automated Measure Calculations (AMC) Tracking")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Tracking", xl("Automated Measure Calculations (AMC) Tracking"));
 }
 
 if (!empty($_POST)) {

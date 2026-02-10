@@ -12,12 +12,11 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 
 if (!empty($_POST)) {
@@ -27,8 +26,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("IP Tracker")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
 $showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;

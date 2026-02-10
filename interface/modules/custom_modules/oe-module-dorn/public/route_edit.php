@@ -14,11 +14,10 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\CreateRouteFromPrimaryViewModel;
 use OpenEMR\Modules\Dorn\DisplayHelper;
@@ -26,8 +25,7 @@ use OpenEMR\Modules\Dorn\LabRouteSetup;
 use OpenEMR\Modules\Dorn\AddressBookAddEdit;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit/Add Procedure Provider", xl("Edit/Add Procedure Provider"));
 }
 
 $labGuid = "";

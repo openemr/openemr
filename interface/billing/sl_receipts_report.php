@@ -35,16 +35,14 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 //
 require_once('../forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Cash Receipts by Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
 }
 
 function is_clinic($code)

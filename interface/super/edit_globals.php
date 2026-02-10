@@ -23,14 +23,13 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -46,8 +45,7 @@ if (!$userMode) {
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configuration", xl("Configuration"));
     }
 }
 

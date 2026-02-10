@@ -12,11 +12,10 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Core\Header;
-    use OpenEMR\Core\OEGlobalsBag;
     use OpenEMR\Modules\ClaimRevConnector\EraPage;
 
     $tab = "eras";
@@ -25,8 +24,7 @@
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - ERAs")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - ERAs", xl("ClaimRev Connect - ERAs"));
 }
 
 $dlStatus = 2;

@@ -1165,8 +1165,7 @@ class C_Document extends Controller
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
-                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
-                exit;
+                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
             }
             $cur_pid = '0';
             $is_new = 1;
@@ -1182,8 +1181,7 @@ class C_Document extends Controller
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
-            echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Documents", xl("Documents"));
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);
