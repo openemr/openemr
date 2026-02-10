@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Events\Patient\Summary\Card;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CardModel implements CardInterface
@@ -50,7 +51,7 @@ class CardModel implements CardInterface
             $this->dispatcher = $opts['dispatcher'];
             unset($opts['dispatcher']);
         } else {
-            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $this->dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         }
         foreach ($opts as $prop => $val) {
             if (property_exists($this, $prop)) {

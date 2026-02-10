@@ -12,6 +12,7 @@
 
     namespace OpenEMR\Modules\ClaimRevConnector;
 
+    use OpenEMR\Core\OEGlobalsBag;
     use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 
@@ -26,7 +27,7 @@ class ConnectivityInfo
     public $defaultAccount;
     public function __construct()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $this->client_authority = $globalsConfig->getClientAuthority();
         $this->clientId = $globalsConfig->getClientId();

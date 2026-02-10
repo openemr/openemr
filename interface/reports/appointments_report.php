@@ -41,6 +41,7 @@ use OpenEMR\Common\{
     Twig\TwigContainer,
 };
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SpreadSheetService;
 
 
@@ -51,7 +52,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
     exit;
 }
 

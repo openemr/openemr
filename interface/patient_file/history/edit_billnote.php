@@ -16,9 +16,10 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -27,7 +28,7 @@ $feid = $_GET['feid'] + 0; // id from form_encounter table
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
     exit;
 }
 ?>

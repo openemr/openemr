@@ -21,6 +21,7 @@ if ($response !== true) {
 }
 
 use Dotenv\Dotenv;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
@@ -745,11 +746,7 @@ $globalsBag->set('layout_search_color', '#ff9919');
 
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table
-try {
-    $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', false, true);
-} catch (\Throwable $ex) {
-    error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
-}
+$checkModulesTableExists = QueryUtils::existsTable('modules');
 
 if (!empty($checkModulesTableExists)) {
     $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules

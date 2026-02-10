@@ -167,6 +167,51 @@ class SomeServiceTest extends TestCase
 }
 ```
 
+### Disallowed empty() (via phpstan-strict-rules)
+
+**Purpose:** Prevents use of the `empty()` language construct.
+
+**What it catches:**
+- `if (empty($var))` - Empty check on any variable
+- `empty($array['key'])` - Empty check on array access
+- `!empty($value)` - Negated empty checks
+
+**Rationale:**
+- **Surprising behavior** - `empty("0")` returns `true` (string "0" is considered empty)
+- **Silent failures** - `empty()` on undefined variables returns `true` without warning
+- **Type confusion** - `empty(0)`, `empty(0.0)`, `empty([])`, `empty(null)`, `empty(false)`, and `empty("")` all return `true`
+
+**Before (❌ Forbidden):**
+```php
+if (empty($value)) {
+    // What are we actually checking for?
+}
+```
+
+**After (✅ Recommended):**
+```php
+// Be explicit about what you're checking
+if ($value === null) {              // Check for null
+if ($value === '') {                // Check for empty string
+if ($value === null || $value === '') {  // Check for null or empty string
+if (count($array) === 0) {          // Check for empty array
+if (!$array) {                      // Boolean check on array (empty array is falsy)
+
+// For checking if a variable or key exists
+if (isset($var)) {                  // Check if variable is set and not null
+if (isset($array['key'])) {         // Check if array key exists and is not null
+if (array_key_exists('key', $array)) {  // Check if array key exists (even if null)
+```
+
+**Configuration:** This rule is provided by `phpstan/phpstan-strict-rules` with only `disallowedEmpty` enabled:
+
+```yaml
+parameters:
+  strictRules:
+    allRules: false
+    disallowedEmpty: true
+```
+
 ### ForbiddenCurlFunctionsRule
 
 **Purpose:** Prevents use of raw `curl_*` functions throughout the codebase.

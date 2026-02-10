@@ -443,7 +443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 12,
+    'count' => 10,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
@@ -488,7 +488,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
 ];
 $ignoreErrors[] = [
@@ -578,7 +578,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 19,
+    'count' => 17,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [

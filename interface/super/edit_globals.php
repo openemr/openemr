@@ -30,6 +30,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -45,7 +46,7 @@ if (!$userMode) {
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
+        echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
         exit;
     }
 }
@@ -230,7 +231,7 @@ function checkBackgroundServices(): void
          */
 
         // Get all the globals from DB
-        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
+        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
         // start transaction
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');

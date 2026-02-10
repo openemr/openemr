@@ -150,6 +150,94 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/autologin-no-pin.html',
         ];
+
+        // Appointments card test cases - verify display flag behavior
+        // When user lacks permission, demographics.php doesn't render the card at all.
+        // These tests verify the template correctly handles the display flags.
+
+        yield 'patient/card/appointments all sections hidden' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Add',
+                'btnLink'             => 'return newEvt()',
+                'linkMethod'          => 'javascript',
+                'appts'               => [],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => false,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => false,
+                'resNotNull'          => false,
+            ],
+            $fixtureDir . '/appointments-all-hidden.html',
+        ];
+
+        yield 'patient/card/appointments future only with empty list' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Add',
+                'btnLink'             => 'return newEvt()',
+                'linkMethod'          => 'javascript',
+                'appts'               => [],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => true,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => true,
+                'resNotNull'          => true,
+            ],
+            $fixtureDir . '/appointments-future-empty.html',
+        ];
+
+        yield 'patient/card/appointments with future appointments' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Add',
+                'btnLink'             => 'return newEvt()',
+                'linkMethod'          => 'javascript',
+                'appts'               => [
+                    [
+                        'pc_catid'      => 5,
+                        'pc_catname'    => 'Office Visit',
+                        'pc_hometext'   => '',
+                        'pc_recurrtype' => 0,
+                        'jsEvent'       => '123,456',
+                        'dayName'       => 'Monday',
+                        'pc_eventDate'  => '2026-03-15',
+                        'pc_eventTime'  => '10:00',
+                        'displayMeridiem' => 'AM',
+                        'uname'         => 'Dr. Smith',
+                        'pc_status'     => '-',
+                        'bgColor'       => '#ffffff',
+                    ],
+                ],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => true,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => true,
+                'resNotNull'          => true,
+            ],
+            $fixtureDir . '/appointments-with-future.html',
+        ];
     }
 
     /**

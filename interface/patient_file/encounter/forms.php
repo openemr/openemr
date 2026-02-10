@@ -39,6 +39,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
@@ -61,7 +62,7 @@ if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write
     exit();
 }
 
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 // instantiate the locator at the beginning so our file caching can be reused.
 $formLocator = new FormLocator();
 ?>
@@ -639,7 +640,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
@@ -653,7 +654,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     <div id="encounter_forms" class="container-xl">
         <div class='encounter-summary-container'>
             <?php
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
             $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
             $event->setGroupId($groupId ?? null);
             $event->setPid($pid ?? null);
@@ -1012,7 +1013,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             echo xlt("Not authorized to view this encounter");
         }
 
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
         $event->setGroupId($groupId ?? null);
         $event->setPid($pid ?? null);

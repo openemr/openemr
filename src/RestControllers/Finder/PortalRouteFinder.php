@@ -30,7 +30,7 @@ class PortalRouteFinder implements IRouteFinder
         // Implementation details would depend on the specific requirements of the application.
         // For example, you might want to add custom routes or modify existing ones.
         $restApiCreateEvent = new RestApiCreateEvent([], [], $routes, $request);
-        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
+        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE);
         $routes = $restApiCreateEvent->getPortalRouteMap();
         return $routes;
     }

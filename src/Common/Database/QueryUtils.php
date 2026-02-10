@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Database;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use Throwable;
 
 class QueryUtils
@@ -380,8 +381,15 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array|false
      */
-    public static function querySingleRow(string $sql, array $params = [], bool $log = true)
+    public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
+        /** @var mixed $params */
+        if (!is_array($params)) {
+            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+                'method' => __METHOD__,
+                'trace' => (new \Exception())->getTraceAsString(),
+            ]);
+        }
         $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
         return self::fetchArrayFromResultSet($result);
     }
@@ -395,7 +403,6 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
     public static function escapeLimit(string|int $limit)

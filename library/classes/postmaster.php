@@ -18,6 +18,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class MyMailer extends PHPMailer
 {
@@ -125,7 +126,7 @@ class MyMailer extends PHPMailer
 
                 if ($emailMethodConfigured) {
                     try {
-                        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+                        $twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
                         $twig = $twigContainer->getTwig();
                         if (!empty($ret['template_name'])) {
                             $templateData = json_decode((string) $ret['body'], true);

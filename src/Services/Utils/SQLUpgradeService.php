@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
@@ -224,9 +225,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -824,9 +826,9 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 

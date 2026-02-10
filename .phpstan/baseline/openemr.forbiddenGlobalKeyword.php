@@ -1973,7 +1973,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$GLOBALS\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
 ];
 $ignoreErrors[] = [

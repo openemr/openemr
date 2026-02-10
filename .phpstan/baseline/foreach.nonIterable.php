@@ -1178,7 +1178,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
@@ -1468,7 +1468,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
@@ -2568,7 +2568,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 7,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [

@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
@@ -395,7 +396,7 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
     exit;
 }
 

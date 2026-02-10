@@ -17,6 +17,7 @@ require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -34,19 +35,19 @@ try {
 } catch (AccessDeniedException | CsrfInvalidException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Alerts Log")]);
+    $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Alerts Log")]);
     // Send the error response
     $response = new Response($contents, 403);
 } catch (NotFoundHttpException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/404.html.twig');
+    $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
 } catch (\Throwable $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents =  (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/general_http_error.html.twig');
+    $contents =  (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/general_http_error.html.twig');
     // Send the error response
     $response = new Response($contents, 500);
 }

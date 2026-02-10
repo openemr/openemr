@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -32,7 +33,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
     exit;
 }
 // get various authorization levels
@@ -47,7 +48,7 @@ $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 ?>
 <!DOCTYPE>
 <html>

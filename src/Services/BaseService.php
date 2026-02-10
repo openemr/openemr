@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -72,7 +73,7 @@ class BaseService implements BaseServiceInterface
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     public function setSession(SessionInterface $session): void

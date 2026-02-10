@@ -17,10 +17,11 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Log")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Log")]);
     exit;
 }
 

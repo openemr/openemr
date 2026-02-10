@@ -14,12 +14,13 @@
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Core\OEGlobalsBag;
 
     $tab = "home";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Home")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Home")]);
     exit;
 }
 ?>

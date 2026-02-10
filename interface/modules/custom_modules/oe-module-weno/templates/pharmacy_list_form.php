@@ -23,11 +23,12 @@ require_once $GLOBALS['srcdir'] . '/options.inc.php';
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
     exit;
 }
 

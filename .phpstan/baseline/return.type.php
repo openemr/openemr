@@ -2477,7 +2477,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sqlQ\\(\\) should return recordset but returns mixed\\.$#',
+    'message' => '#^Function sqlQ\\(\\) should return recordset but returns OpenEMR\\\\Common\\\\Database\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -9565,11 +9565,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:post\\(\\) should return OpenEMR\\\\RestControllers\\\\a but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:filterServiceClassForResource\\(\\) should return string\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) should return array\\<array\\> but returns array\\<string, mixed\\>\\.$#',

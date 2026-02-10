@@ -72,24 +72,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/test.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Finder/FhirRouteFinder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Services\\\\FHIR\\\\FhirDocRefService constructor invoked with 1 parameter, 0 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Finder/PortalRouteFinder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Finder/StandardRouteFinder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:validate\\(\\) invoked with 1 parameter, 2 required\\.$#',

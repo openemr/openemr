@@ -28,6 +28,7 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use OpenEMR\Core\OEGlobalsBag;
 
 class Document extends ORDataObject
 {
@@ -249,7 +250,7 @@ class Document extends ORDataObject
             $this->populate();
         }
 
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     /**

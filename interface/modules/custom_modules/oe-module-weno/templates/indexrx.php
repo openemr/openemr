@@ -22,6 +22,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -29,7 +30,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 //ensure user has proper access permissions.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
     exit;
 }
 

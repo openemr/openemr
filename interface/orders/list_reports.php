@@ -32,11 +32,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
     exit;
 }
 

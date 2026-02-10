@@ -25,6 +25,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -33,7 +34,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SSL Certificate Administration")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SSL Certificate Administration")]);
     exit;
 }
 

@@ -3,6 +3,13 @@ ignore:
 - tests/Rector/          # Rector rules — run outside PHPUnit coverage
 - tests/eventdispatcher/ # Example modules for documentation
 
+# Strip environment-specific path prefixes from coverage reports so Codecov
+# can match them to repository files. See https://docs.codecov.com/docs/fixing-paths
+fixes:
+- '/var/www/localhost/htdocs/openemr/::'     # Apache Docker container
+- '/usr/share/nginx/html/openemr/::'         # nginx Docker container
+- '/home/runner/work/openemr/openemr/::'     # GitHub Actions runner (isolated tests)
+
 coverage:
   status:
     project:

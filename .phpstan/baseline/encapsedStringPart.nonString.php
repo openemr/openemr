@@ -962,6 +962,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$i \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$tabindex \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',

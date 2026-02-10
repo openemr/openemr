@@ -58,6 +58,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
@@ -65,7 +66,7 @@ use OpenEMR\Services\FacilityService;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
     exit;
 }
 
