@@ -469,7 +469,10 @@ class QueryUtils
             : (string) $GLOBALS['adodb']['db']->ErrorMsg();
     }
 
-    private static function getADODB(): \ADODB_mysqli_log
+    /**
+     * @return \ADODB_mysqli_log
+     */
+    private static function getADODB()
     {
         return $GLOBALS['adodb']['db'];
     }
