@@ -24,6 +24,7 @@ if ($response !== true) {
 
 use Dotenv\Dotenv;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
@@ -31,6 +32,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+
+$logger = new SystemLogger();
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
