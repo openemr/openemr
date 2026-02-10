@@ -5,7 +5,8 @@
  *
  * @link      http://www.open-emr.org
  *
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,5 +64,19 @@ class OEGlobalsBag extends ParameterBag
         }
 
         return array_key_exists($key, $GLOBALS);
+    }
+
+    /**
+     * Get the OpenEMR Kernel instance
+     *
+     * @throws \RuntimeException if the kernel is not initialized
+     */
+    public function getKernel(): Kernel
+    {
+        $kernel = $this->get('kernel');
+        if (!$kernel instanceof Kernel) {
+            throw new \RuntimeException('OpenEMR Kernel not initialized');
+        }
+        return $kernel;
     }
 }
