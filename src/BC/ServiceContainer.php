@@ -82,48 +82,47 @@ class ServiceContainer
     /**
      * @template T of object
      * @param class-string<T> $interface
-     * @param T $default
-     * @return T
+     * @return ?T
      */
-    private static function resolve(string $interface, object $default): object
+    private static function resolve(string $interface): ?object
     {
-        /** @var T */
-        return self::$overrides[$interface] ?? $default;
+        /** @var ?T */
+        return self::$overrides[$interface] ?? null;
     }
 
     public static function getClock(): ClockInterface
     {
-        return self::resolve(ClockInterface::class, SystemClock::fromSystemTimezone());
+        return self::resolve(ClockInterface::class) ?? SystemClock::fromSystemTimezone();
     }
 
     public static function getCrypto(): Crypto\CryptoInterface
     {
-        return self::resolve(Crypto\CryptoInterface::class, new Crypto\CryptoGen());
+        return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
     }
 
     public static function getLogger(): LoggerInterface
     {
-        return self::resolve(LoggerInterface::class, new Logging\SystemLogger());
+        return self::resolve(LoggerInterface::class) ?? new Logging\SystemLogger();
     }
 
     public static function getRequestFactory(): RequestFactoryInterface
     {
-        return self::resolve(RequestFactoryInterface::class, new Psr17Factory());
+        return self::resolve(RequestFactoryInterface::class) ?? new Psr17Factory();
     }
 
     public static function getResponseFactory(): ResponseFactoryInterface
     {
-        return self::resolve(ResponseFactoryInterface::class, new Psr17Factory());
+        return self::resolve(ResponseFactoryInterface::class) ?? new Psr17Factory();
     }
 
     public static function getServerRequestFactory(): ServerRequestFactoryInterface
     {
-        return self::resolve(ServerRequestFactoryInterface::class, new Psr17Factory());
+        return self::resolve(ServerRequestFactoryInterface::class) ?? new Psr17Factory();
     }
 
     public static function getStreamFactory(): StreamFactoryInterface
     {
-        return self::resolve(StreamFactoryInterface::class, new Psr17Factory());
+        return self::resolve(StreamFactoryInterface::class) ?? new Psr17Factory();
     }
 
     /**
@@ -141,11 +140,11 @@ class ServiceContainer
 
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface
     {
-        return self::resolve(UploadedFileFactoryInterface::class, new Psr17Factory());
+        return self::resolve(UploadedFileFactoryInterface::class) ?? new Psr17Factory();
     }
 
     public static function getUriFactory(): UriFactoryInterface
     {
-        return self::resolve(UriFactoryInterface::class, new Psr17Factory());
+        return self::resolve(UriFactoryInterface::class) ?? new Psr17Factory();
     }
 }
