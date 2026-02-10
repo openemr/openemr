@@ -99,35 +99,35 @@ class ServiceContainerTest extends TestCase
         $this->assertInstanceOf(UriFactoryInterface::class, $factory);
     }
 
-    public function testRegisterReturnsCustomInstance(): void
+    public function testOverrideReturnsCustomInstance(): void
     {
         ServiceContainer::reset();
         $customLogger = new NullLogger();
 
-        ServiceContainer::register(LoggerInterface::class, $customLogger);
+        ServiceContainer::override(LoggerInterface::class, $customLogger);
 
         $this->assertSame($customLogger, ServiceContainer::getLogger());
         ServiceContainer::reset();
     }
 
-    public function testRegisterLastWins(): void
+    public function testOverrideLastWins(): void
     {
         ServiceContainer::reset();
         $first = new NullLogger();
         $second = new NullLogger();
 
-        ServiceContainer::register(LoggerInterface::class, $first);
-        ServiceContainer::register(LoggerInterface::class, $second);
+        ServiceContainer::override(LoggerInterface::class, $first);
+        ServiceContainer::override(LoggerInterface::class, $second);
 
         $this->assertSame($second, ServiceContainer::getLogger());
         $this->assertNotSame($first, ServiceContainer::getLogger());
         ServiceContainer::reset();
     }
 
-    public function testRegisterThrowsOnTypeMismatch(): void
+    public function testOverrideThrowsOnTypeMismatch(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        ServiceContainer::register(LoggerInterface::class, new \stdClass());
+        ServiceContainer::override(LoggerInterface::class, new \stdClass());
     }
 }

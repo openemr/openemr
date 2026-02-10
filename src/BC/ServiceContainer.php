@@ -57,15 +57,17 @@ class ServiceContainer
     }
 
     /**
-     * Register a custom implementation for an interface.
+     * Override a service with a custom implementation.
      *
      * Modules can use this during bootstrap to provide alternative
-     * implementations of core services. Last registration wins.
+     * implementations of core services. Last override wins.
      *
-     * @param class-string $interface
+     * @template T of object
+     * @param class-string<T> $interface
+     * @param T $instance
      * @throws InvalidArgumentException if instance doesn't implement interface
      */
-    public static function register(string $interface, object $instance): void
+    public static function override(string $interface, object $instance): void
     {
         if (!is_a($instance, $interface)) {
             throw new InvalidArgumentException(sprintf(
