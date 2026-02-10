@@ -112,3 +112,7 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+#IfMissingColumn users_secure force_new_password
+ALTER TABLE `users_secure` ADD `force_new_password` TINYINT(1) NOT NULL DEFAULT 0;
+#EndIf

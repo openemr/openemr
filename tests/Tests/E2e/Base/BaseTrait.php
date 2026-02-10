@@ -20,6 +20,7 @@ use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use Symfony\Component\Panther\Client;
 
@@ -251,7 +252,7 @@ trait BaseTrait
 
     private function isUserExist(string $username): bool
     {
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+        $usernameDatabase = QueryUtils::querySingleRow("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
         if (($usernameDatabase['username'] ?? '') == $username) {
             return true;
         } else {
@@ -261,7 +262,7 @@ trait BaseTrait
 
     private function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
     {
-        $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
+        $patientDatabase = QueryUtils::querySingleRow("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
         if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
             return true;
         } else {
@@ -271,7 +272,7 @@ trait BaseTrait
 
     private function isEncounterExist(string $firstname, string $lastname, string $dob, string $sex): bool
     {
-        $patientDatabase = sqlQuery("SELECT `patient_data`.`fname`
+        $patientDatabase = QueryUtils::querySingleRow("SELECT `patient_data`.`fname`
                                      FROM `patient_data`
                                      INNER JOIN `form_encounter`
                                      ON `patient_data`.`pid` = `form_encounter`.`pid`

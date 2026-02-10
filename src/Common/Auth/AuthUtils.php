@@ -31,10 +31,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -771,6 +773,7 @@ class AuthUtils
             $updateSQL .= ", `login_fail_counter` = 0";
             $updateSQL .= ", `last_login_fail` = null";
             $updateSQL .= ", `auto_block_emailed` = 0";
+            $updateSQL .= ", `force_new_password` = 0";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
             if ($GLOBALS['password_history'] != 0) {
