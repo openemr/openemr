@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var with type DOMDocument is not subtype of type \\(DOMElement\\|false\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type mixed is not subtype of type array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
