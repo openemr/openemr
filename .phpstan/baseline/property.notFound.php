@@ -832,11 +832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$debug\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$fields\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',

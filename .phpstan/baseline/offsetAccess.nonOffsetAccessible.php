@@ -1812,41 +1812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 2 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 3 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 4 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 5 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 6 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',

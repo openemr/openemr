@@ -512,21 +512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$db might not be defined\\.$#',
-    'count' => 17,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
-    'count' => 29,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smarty might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/acl_test.php',

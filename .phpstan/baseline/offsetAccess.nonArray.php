@@ -18,11 +18,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
 ];

@@ -168,16 +168,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 20,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
 ];

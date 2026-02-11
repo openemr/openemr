@@ -102,7 +102,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$_db \\(object\\) does not accept default value of type string\\.$#',
+    'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$_db \\(ADOConnection\\) does not accept default value of type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
