@@ -70,13 +70,22 @@ function appendCurrentCommit(string $repoRoot, string $outputFile, string $metri
         $history = json_decode(file_get_contents($outputFile), true) ?? [];
     }
 
+    // Check if already up-to-date (current commit is already the last entry)
+    if (!empty($history)) {
+        $lastEntry = $history[count($history) - 1];
+        if ($lastEntry['commit'] === $commitHash) {
+            fwrite(STDERR, sprintf("Already up-to-date: %s\n", $commitHash));
+            return;
+        }
+    }
+
     // Remove categories from all existing entries (only latest gets categories)
     foreach ($history as &$entry) {
         unset($entry['categories']);
     }
     unset($entry);
 
-    // Remove duplicate if this commit already exists
+    // Remove duplicate if this commit exists elsewhere in history
     $history = array_values(array_filter($history, fn($e) => $e['commit'] !== $commitHash));
 
     // Build categories map (just count, not entries)
