@@ -41,6 +41,17 @@ use PDOException;
  * @internal
  *
  * @phpstan-type Bindings array<positive-int, string|int|float|bool|null>
+ *
+ * @phpstan-import-type Params from DriverManager
+ *
+ * @phpstan-type SqlConf array{
+ *   dbase: string,
+ *   port: int|string,
+ *   pass: string,
+ *   db_encoding: string,
+ *   host: string,
+ *   login: string,
+ * }
  */
 class Database
 {
@@ -77,31 +88,30 @@ class Database
      * Parses the <=8.0.0 (and probably later) db config files into a format
      * usable by `doctrine/dbal`.
      *
-     * @return array{
-     *   driver: 'pdo_mysql',
-     *   dbname: string,
-     *   host: string,
-     *   port: int,
-     *   user: string,
-     *   password: string,
-     *   charset: string,
-     *   driverOptions: array<PDO::MYSQL_*, string>,
-     * }
+     * @return Params
      */
     private static function readLegacyConfig(): array
     {
         $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
-        if (empty($sqlconf)) {
+        if (!isset($sqlconf) || !is_array($sqlconf)) {
             throw new LogicException(
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );
         }
+        /**
+         * This is a little loosey-goosey w/ the historic config format
+         * @var SqlConf $sqlconf
+         */
         $siteDir = $bag->getString('OE_SITE_DIR');
-        return self::translateLegacySqlconf($sqlconf, $siteDir);
+        return self::sqlconfToDbalParams($sqlconf, $siteDir);
     }
 
-    public static function translateLegacySqlconf(array $sqlconf, string $siteDir): array
+    /**
+     * @param SqlConf $sqlconf
+     * @return Params
+     */
+    public static function sqlconfToDbalParams(array $sqlconf, string $siteDir): array
     {
         // replicate the same ssl cert detection in a compatible format
 
@@ -109,7 +119,7 @@ class Database
             'driver' => 'pdo_mysql',
             'dbname' => $sqlconf['dbase'],
             'host' => $sqlconf['host'],
-            'port' => $sqlconf['port'],
+            'port' => (int) $sqlconf['port'],
             'user' => $sqlconf['login'],
             'password' => $sqlconf['pass'],
             'charset' => $sqlconf['db_encoding'],

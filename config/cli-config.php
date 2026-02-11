@@ -9,8 +9,11 @@
  *
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#advanced
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/custom-integration.html#custom-integration
+ *
+ * @phpstan-import-type SqlConf from Database
  */
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
@@ -23,23 +26,22 @@ $loader = new PhpFile('db/migration-config.php');
 $site = 'default'; // fixme: env or something
 
 
-$fml = function(string $site) {
+$getConnectionFromSqlconf = function(string $site): Connection {
     require __DIR__ . "/../sites/$site/sqlconf.php";
     assert(isset($sqlconf) && is_array($sqlconf));
-    $params = Database::translateLegacySqlconf($sqlconf, $site);
+    /** @var SqlConf $sqlconf */
+    $params = Database::sqlconfToDbalParams($sqlconf, $site);
     return DriverManager::getConnection($params);
-    var_dump(get_defined_vars());
-    exit;
 };
-$conn = $fml($site);
 
-// $conn = Database::instance()->getDbalConnection();
-$connL = new ExistingConnection(
+$conn = $getConnectionFromSqlconf($site);
+$connLoader = new ExistingConnection(
     connection: $conn,
 );
+
 $df = DependencyFactory::fromConnection(
     configurationLoader: $loader,
-    connectionLoader: $connL,
+    connectionLoader: $connLoader,
 );
 
 var_dump("READ CLI CONFIG");
