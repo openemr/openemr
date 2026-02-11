@@ -24,4 +24,3 @@ final class <className> extends AbstractMigration
         parent::down($schema);
     }
 }
-

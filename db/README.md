@@ -51,5 +51,3 @@ Doing so will lead to different installations having inconsistent schemas, which
 Make changes with a new migration that runs on top of the released migration.
 
 [^change]: Minor syntactical adjustments are OK as long as the produced schema does not change. Usually updating class imports due to a refactor, etc. This should still be fairly rare.
-
-
