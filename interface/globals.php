@@ -760,7 +760,6 @@ if (!empty($checkModulesTableExists)) {
         // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
         // registering event listeners, etc.
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
             $globalsBag->getKernel(),
             $globalsBag->getString('fileroot'),
