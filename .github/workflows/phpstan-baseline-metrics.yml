@@ -1,0 +1,71 @@
+name: PHPStan Baseline Metrics
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - '.phpstan/baseline/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-metrics:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+
+    - name: Extract Current Metrics
+      run: |
+        METRICS=$(php ci/phpstan-baseline-metrics.php)
+        echo "Total count: $(echo "$METRICS" | jq -r '.total_count')"
+        echo "Total entries: $(echo "$METRICS" | jq -r '.total_entries')"
+
+    - name: Update History
+      run: |
+        COMMIT_HASH=$(git rev-parse --short=10 HEAD)
+        COMMIT_DATE=$(git log -1 --format=%aI)
+        COMMIT_SUBJECT=$(git log -1 --format=%s)
+        METRICS=$(php ci/phpstan-baseline-metrics.php)
+
+        TOTAL_COUNT=$(echo "$METRICS" | jq -r '.total_count')
+        TOTAL_ENTRIES=$(echo "$METRICS" | jq -r '.total_entries')
+        CATEGORIES=$(echo "$METRICS" | jq '.categories | to_entries | map({(.key): .value.count}) | add')
+
+        # Create new entry
+        NEW_ENTRY=$(jq -n \
+          --arg commit "$COMMIT_HASH" \
+          --arg date "$COMMIT_DATE" \
+          --arg subject "$COMMIT_SUBJECT" \
+          --argjson total_count "$TOTAL_COUNT" \
+          --argjson total_entries "$TOTAL_ENTRIES" \
+          --argjson categories "$CATEGORIES" \
+          '{commit: $commit, date: $date, subject: $subject, total_count: $total_count, total_entries: $total_entries, categories: $categories}')
+
+        # Update history: remove categories from all but latest, avoid duplicates
+        jq --argjson entry "$NEW_ENTRY" '
+          map(del(.categories) | select(.commit != $entry.commit)) + [$entry]
+        ' docs/phpstan-baseline-history.json > docs/phpstan-baseline-history.json.tmp
+        mv docs/phpstan-baseline-history.json.tmp docs/phpstan-baseline-history.json
+
+    - name: Commit Updated History
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add docs/phpstan-baseline-history.json
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "chore(metrics): update PHPStan baseline history [skip ci]"
+          git push
+        fi
