@@ -15,9 +15,9 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
@@ -26,8 +26,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment: Amendments", xl("Amendments"));
 }
 $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
 $addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
@@ -42,8 +41,7 @@ if (isset($_POST['mode'])) {
     if ($_POST["amendment_id"] == "") {
         // New. Insert
         if (!$addAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment/addonly: Amendment Add", xl("Amendment Add"));
         }
         $query = "INSERT INTO amendments SET
 			amendment_date = ?,
@@ -68,8 +66,7 @@ if (isset($_POST['mode'])) {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
         if (!$editAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment/write: Amendment Edit", xl("Amendment Edit"));
         }
         $query = "UPDATE amendments SET
 			amendment_date = ?,

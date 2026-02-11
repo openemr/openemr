@@ -60,7 +60,7 @@ class SymfonyCommandRunner
     public function getEventDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->eventDispatcher)) {
-            $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         }
         return $this->eventDispatcher;
     }
@@ -103,7 +103,7 @@ class SymfonyCommandRunner
             // dispatch an event so modules can also add commands
             $this->getEventDispatcher()->dispatch($filterCommand, CommandRunnerFilterEvent::EVENT_NAME);
             return $filterCommand->getCommands();
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

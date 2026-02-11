@@ -17,10 +17,10 @@
 require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
@@ -395,8 +395,7 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Layout Editor", xl("Layout Editor"));
 }
 
 // Make a sorted version of the $datatypes array.
@@ -424,7 +423,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $field_id_original = trim((string) $iter['originalid']);
         $data_type = trim((string) $iter['datatype']);
         $listval = $data_type == 34 ? trim((string) $iter['contextName']) : trim((string) $iter['list_id']);
-        $action = $iter['action'];
+        $action = $iter['action'] ?? '';
         if ($action == 'value' || $action == 'hsval') {
             $action .= '=' . $iter['value'];
         }
@@ -469,7 +468,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "description = '"   . add_escape_custom(trim((string) $iter['desc']))      . "', " .
                 "codes = '"   . add_escape_custom(trim((string) $iter['codes']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(trim((string) $iter['validation']))   . "' " .
+                "validation = '"   . add_escape_custom(trim((string) ($iter['validation'] ?? '')))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
 
               setLayoutTimestamp($layout_id);

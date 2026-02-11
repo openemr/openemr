@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Common\Database;
 
-use OpenEMR\BC\Database;
+use ADORecordSet;
+use OpenEMR\Common\Logging\SystemLogger;
+use Throwable;
 
 class QueryUtils
 {
@@ -23,11 +25,11 @@ class QueryUtils
      * of columns that exist in a table.
      *
      * @param   string  $table sql table
-     * @return  array
+     * @return  string[]
      */
     public static function listTableFields($table)
     {
-        $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
+        $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
         $field_list = [];
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
@@ -37,16 +39,33 @@ class QueryUtils
         return $field_list;
     }
 
-    public static function escapeTableName($table)
+    public static function escapeTableName(string $table): string
     {
-        return \escape_table_name($table);
+        $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
+        $tables_array = [];
+        while ($row = self::fetchArrayFromResultSet($res)) {
+            $keys_return = array_keys($row);
+            $tables_array[] = $row[$keys_return[0]];
+        }
+
+        // Now can escape(via whitelisting) the sql table name
+        return \escape_identifier($table, $tables_array, true, false);
     }
 
-    public static function escapeColumnName($columnName, $tables = [])
+    /**
+     * @param string $columnName
+     * @param string[] $tables
+     */
+    public static function escapeColumnName($columnName, $tables = []): string
     {
         return \escape_sql_column_name($columnName, $tables);
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param mixed[] $binds
+     * @return list<array<mixed>>
+     */
     public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
@@ -54,36 +73,45 @@ class QueryUtils
             $binds = false;
         }
 
-        $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($sqlStatement, $binds);
+        $recordset = self::getADODB()->ExecuteNoLog($sqlStatement, $binds);
 
         if ($recordset === false) {
-            throw new SqlQueryException($sqlStatement, "Failed to execute statement. Error: "
-                . getSqlLastError() . " Statement: " . $sqlStatement);
+            $error = self::getLastError();
+            throw new SqlQueryException(
+                sqlStatement: $sqlStatement,
+                message: "Failed to execute statement. Error: " . $error . " Statement: " . $sqlStatement,
+                sqlError: $error,
+            );
         }
         $list = [];
-        while ($record = sqlFetchArray($recordset)) {
+        while ($record = self::fetchArrayFromResultSet($recordset)) {
             $list[] = $record;
         }
         return $list;
     }
     /**
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
-     * @param $sqlStatement
-     * @param $column string column you want returned
-     * @param array $binds
+     * @param string $sqlStatement
+     * @param string $column column you want returned
+     * @param mixed[] $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return array
+     * @return list<mixed>
      */
     public static function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[] = $record[$column] ?? null;
         }
         return $list;
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param string $column
+     * @param mixed[] $binds
+     */
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
@@ -95,11 +123,17 @@ class QueryUtils
         return null;
     }
 
+    /**
+     * @param string $sqlStatement
+     * @param mixed[] $binds
+     * @param bool $noLog
+     * @return list<array<mixed>>
+     */
     public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
-        while ($record = \sqlFetchArray($result)) {
+        while ($record = self::fetchArrayFromResultSet($result)) {
             $list[] = $record;
         }
         return $list;
@@ -107,17 +141,17 @@ class QueryUtils
 
     /**
      * Executes the sql statement and returns an associative array for a single column of a table
-     * @param $sqlStatement The statement to run
-     * @param $column The column you want returned
-     * @param array $binds
+     * @param string $sqlStatement The statement to run
+     * @param string $column The column you want returned
+     * @param mixed[] $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return array
+     * @return array<mixed>
      */
     public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
-        while ($record = sqlFetchArray($recordSet)) {
+        while ($record = self::fetchArrayFromResultSet($recordSet)) {
             $list[$column] = $record[$column] ?? null;
         }
         return $list;
@@ -131,12 +165,26 @@ class QueryUtils
      * It will act upon the object returned from the
      * sqlStatement() function (and sqlQ() function).
      *
-     * @param recordset $resultSet
-     * @return array
+     * @param ADORecordSet|false $resultSet
+     * @return array<mixed>|false
      */
     public static function fetchArrayFromResultSet($resultSet)
     {
-        return sqlFetchArray($resultSet);
+        //treat as an adodb recordset
+        if ($resultSet === false) {
+            return false;
+        }
+
+        if ($resultSet->EOF ?? '') {
+            return false;
+        }
+
+        //ensure it's an object (ie. is set)
+        if (!is_object($resultSet)) {
+            return false;
+        }
+
+        return $resultSet->FetchRow();
     }
 
     /**
@@ -150,23 +198,40 @@ class QueryUtils
      * The sqlFetchArray() function should be used to
      * utilize the return object.
      *
-     * @param  string  $statement  query
-     * @param  array   $binds      binded variables array (optional)
-     * @param  noLog   boolean     if true the sql statement bypasses the database logger, false logs the sql statement
+     * @param string $statement query
+     * @param mixed[] $binds binded variables array (optional)
+     * @param bool $noLog if true the sql statement bypasses the database logger, false logs the sql statement
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return recordset
+     * @return ADORecordSet
      */
     public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
-        if ($noLog) {
-            return \sqlStatementNoLog($statement, $binds, true);
-        } else {
-            return \sqlStatementThrowException($statement, $binds);
+        // Below line is to avoid a nasty bug in windows.
+        if (empty($binds)) {
+            $binds = false;
         }
+
+        //Run a adodb execute
+        // Note the auditSQLEvent function is embedded in the
+        //   Execute function.
+        if ($noLog) {
+            $recordset = self::getADODB()->ExecuteNoLog($statement, $binds);
+        } else {
+            $recordset = self::getADODB()->Execute($statement, $binds, true);
+        }
+        if ($recordset === false) {
+            $error = self::getLastError();
+            throw new SqlQueryException(
+                sqlStatement: $statement,
+                message: "Failed to execute statement. Error: " . $error . " Statement: " . $statement,
+                sqlError: $error,
+            );
+        }
+        return $recordset;
     }
 
     /**
-     * @param $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
+     * @param string $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
      * @return bool
      */
     public static function existsTable($tableName)
@@ -182,12 +247,12 @@ class QueryUtils
             // thrown which doesn't help us at all.
 
             $query = "SELECT 1 as id FROM " . $tableName . " LIMIT 1";
-            $statement = \sqlStatementNoLog($query, [], true);
+            $statement = self::sqlStatementThrowException($query, [], noLog: true);
             if ($statement !== false) {
                 unset($statement); // free the resource
                 return true;
             }
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // do nothing as we know the table doesn't exist
         }
         return false;
@@ -205,10 +270,10 @@ class QueryUtils
      * is specialized for insert function and will return
      * the last id generated from the insert.
      *
-     * @param  string   $statement  query
-     * @param  array    $binds      binded variables array (optional)
+     * @param string $statement query
+     * @param mixed[] $binds binded variables array (optional)
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
-     * @return integer  Last id generated from the sql insert command
+     * @return int Last id generated from the sql insert command
      */
     public static function sqlInsert($statement, $binds = [])
     {
@@ -220,9 +285,14 @@ class QueryUtils
         //Run a adodb execute
         // Note the auditSQLEvent function is embedded in the
         //   Execute function.
-        $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+        $recordset = self::getADODB()->Execute($statement, $binds, true);
         if ($recordset === false) {
-            throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
+            $error = self::getLastError();
+            throw new SqlQueryException(
+                sqlStatement: $statement,
+                message: "Insert failed. SQL error " . $error . " Query: " . $statement,
+                sqlError: $error,
+            );
         }
 
         // Return the correct last id generated using function
@@ -233,8 +303,14 @@ class QueryUtils
     /**
      * Shared getter for SQL selects.
      *
-     * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
-     * @param $map - Query information (where clause(s), join clause(s), order, data, etc).
+     * @param string $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
+     * @param array{
+     *   data?: mixed,
+     *   where?: string,
+     *   order?: string,
+     *   join?: string,
+     *   limit?: int,
+     * } $map - Query information (where clause(s), join clause(s), order, data, etc).
      * @throws SqlQueryException If the query is invalid
      * @return array of associative arrays | one associative array.
      */
@@ -253,11 +329,11 @@ class QueryUtils
         $sql .= !empty($order) ? " " . $order       : "";
         $sql .= !empty($limit) ? " LIMIT " . $limit : "";
 
-        $multipleResults = sqlStatementThrowException($sql, $data);
+        $multipleResults = self::sqlStatementThrowException($sql, $data);
 
         $results = [];
 
-        while ($row = sqlFetchArray($multipleResults)) {
+        while ($row = self::fetchArrayFromResultSet($multipleResults)) {
             array_push($results, $row);
         }
 
@@ -268,41 +344,90 @@ class QueryUtils
         return $results;
     }
 
-    public static function generateId(): int
+    /**
+     * @return int
+     */
+    public static function generateId()
     {
-        return Database::instance()->generateSequentialId('sequences');
+        return self::getADODB()->GenID("sequences");
     }
 
+    /**
+     * @return int
+     */
     public static function ediGenerateId()
     {
-        // @phpstan-ignore openemr.deprecatedSqlFunction
-        return \edi_generate_id();
+        return self::getADODB()->GenID("edi_sequences");
     }
 
-    public static function startTransaction()
+    public static function startTransaction(): void
     {
-        \sqlBeginTrans();
+        self::getADODB()->BeginTrans();
     }
 
-    public static function commitTransaction()
+    public static function commitTransaction(): void
     {
-        \sqlCommitTrans();
+        self::getADODB()->CommitTrans();
     }
 
-    public static function rollbackTransaction()
+    public static function rollbackTransaction(): void
     {
-        \sqlRollbackTrans();
+        self::getADODB()->RollbackTrans();
     }
 
+    /**
+     * Runs the $action within a database transaction, automatically committing
+     * it on success and rolling back if there's an exception.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function inTransaction(callable $action): mixed
+    {
+        self::startTransaction();
+
+        try {
+            $return = $action();
+
+            self::commitTransaction();
+            return $return;
+        } catch (Throwable $e) {
+            self::rollbackTransaction();
+            throw $e;
+        }
+    }
+
+    /**
+     * @return int
+     */
     public static function getLastInsertId()
     {
-        return \sqlGetLastInsertId();
+        // Return the correct last id generated using function
+        //   that is safe with the audit engine.
+        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
     }
 
-    public static function querySingleRow(string $sql, array $params = [])
+    /**
+     * Executes a query and returns the first row as an associative array.
+     *
+     * @param string $sql query
+     * @param mixed[] $params binded variables array (optional)
+     * @param bool $log if true the sql statement is logged, false bypasses the database logger
+     * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+     * @return array<mixed>|false
+     */
+    public static function querySingleRow(string $sql, $params = [], bool $log = true)
     {
-        $result = self::sqlStatementThrowException($sql, $params);
-        return \sqlFetchArray($result);
+        /** @var mixed $params */
+        if (!is_array($params)) {
+            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+                'method' => __METHOD__,
+                'trace' => (new \Exception())->getTraceAsString(),
+            ]);
+        }
+        $result = self::sqlStatementThrowException($sql, $params, noLog: !$log);
+        return self::fetchArrayFromResultSet($result);
     }
 
     /**
@@ -314,11 +439,41 @@ class QueryUtils
      * this is centralized to a function (in case need to upgrade this
      * function to support larger numbers in the future).
      *
-     * @param   string|int $s  Limit variable to be escaped.
      * @return  int     Escaped limit variable.
      */
     public static function escapeLimit(string|int $limit)
     {
         return \escape_limit($limit);
+    }
+
+    /**
+     * Returns the number of rows affected by the last INSERT, UPDATE, or DELETE query.
+     *
+     * @return int|false
+     */
+    public static function affectedRows()
+    {
+        return self::getADODB()->Affected_Rows();
+    }
+
+    /**
+     * Returns the last SQL error message from the database connection.
+     *
+     * Checks the audit engine's error state first, then falls back to
+     * ADODB's ErrorMsg().
+     */
+    public static function getLastError(): string
+    {
+        return !empty($GLOBALS['last_mysql_error'])
+            ? (string) $GLOBALS['last_mysql_error']
+            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+    }
+
+    /**
+     * @return \ADODB_mysqli_log
+     */
+    private static function getADODB()
+    {
+        return $GLOBALS['adodb']['db'];
     }
 }

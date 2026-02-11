@@ -142,7 +142,7 @@ class DownloadWenoPharmacies
 
             $connect->commit();
            // $connect->close();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $connect->rollback();
             error_log(text($e->getMessage()));
             return false;
@@ -189,7 +189,7 @@ class DownloadWenoPharmacies
 
         try {
             $zip = new ZipArchive();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error extracting zip file: ' . errorLogEscape($e->getMessage()));
             return "PHPError_install_zip_archive";
         }

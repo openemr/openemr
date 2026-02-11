@@ -126,7 +126,7 @@ class CarecoordinationTable extends AbstractTableGateway
     }
 
     /*
-     * List the documents uploaded by the user alogn with the matched data
+     * List the documents uploaded by the user along with the matched data
      *
      * @param    cat_title   Text    Category Name
      * @return   records     Array   List of CCDA imported to the system, pending approval
@@ -231,7 +231,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new Exception($e->getMessage());
         }
         // Document various sectional components

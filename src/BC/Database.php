@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\BC;
@@ -7,11 +15,14 @@ namespace OpenEMR\BC;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
+    Exception as DBALException,
+    Exception\DriverException,
     Result,
 };
 use LogicException;
 use OpenEMR\Core\OEGlobalsBag;
 use PDO;
+use PDOException;
 
 /**
  * Backwards-compatible wrapper for database operations. See
@@ -24,10 +35,12 @@ use PDO;
  * `ADOdb` and `laminas-db`. For now, continue to use the existing wrappers
  * (e.g. QueryUtils) for database interactions.
  *
- * In the future, the DBAL `Connection` may be made avaible through a DI
+ * In the future, the DBAL `Connection` may be made available through a DI
  * container, and/or something like `doctrine/orm` for most interactions.
  *
  * @internal
+ *
+ * @phpstan-type Bindings array<positive-int, string|int|float|bool|null>
  */
 class Database
 {
@@ -56,15 +69,30 @@ class Database
      * access should run through `Database::instance()`.
      */
     public function __construct(
-        private readonly Connection $connection,
+        private readonly Connection $conn,
     ) {
     }
 
+    /**
+     * Parses the <=8.0.0 (and probably later) db config files into a format
+     * usable by `doctrine/dbal`.
+     *
+     * @return array{
+     *   driver: 'pdo_mysql',
+     *   dbname: string,
+     *   host: string,
+     *   port: int,
+     *   user: string,
+     *   password: string,
+     *   charset: string,
+     *   driverOptions: array<PDO::MYSQL_*, string>,
+     * }
+     */
     private static function readLegacyConfig(): array
     {
         $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
-        if (empty($sqlconf)) {
+        if (!is_array($sqlconf)) {
             throw new LogicException(
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );
@@ -73,12 +101,12 @@ class Database
 
         $connParams = [
             'driver' => 'pdo_mysql',
-            'dbname' => $sqlconf['dbase'],
-            'host' => $sqlconf['host'],
-            'port' => $sqlconf['port'],
-            'user' => $sqlconf['login'],
-            'password' => $sqlconf['pass'],
-            'charset' => $sqlconf['db_encoding'],
+            'dbname' => is_string($sqlconf['dbase']) ? $sqlconf['dbase'] : '',
+            'host' => is_string($sqlconf['host']) ? $sqlconf['host'] : '',
+            'port' => is_int($sqlconf['port']) ? $sqlconf['port'] : 0,
+            'user' => is_string($sqlconf['login']) ? $sqlconf['login'] : '',
+            'password' => is_string($sqlconf['pass']) ? $sqlconf['pass'] : '',
+            'charset' => is_string($sqlconf['db_encoding']) ? $sqlconf['db_encoding'] : 'utf8mb4',
         ];
 
         $siteDir = $bag->getString('OE_SITE_DIR');
@@ -123,8 +151,13 @@ class Database
     /**
      * Returns the single row as an associative array, or null if there was no
      * result.
+     *
+     * This will NOT trigger a runtime error if the query has multiple rows.
+     *
+     * @param Bindings $bindings
+     * @return array<string, mixed>
      */
-    public function fetchOneRow(string $sql, array $bindings = []): ?array
+    public function fetchOneRow(string $sql, array $bindings): ?array
     {
         $row = $this->query($sql, $bindings)->fetchAssociative();
         if ($row === false) {
@@ -134,19 +167,50 @@ class Database
     }
 
     /**
-     * Performs a SELECT statement and returns the result
+     * Returns the entire dataset from the query, as a a list of associative
+     * arrays.
+     *
+     * e.g. SELECT a, b FROM foos would return something like this:
+     * [
+     *   ['a' => 'a1', 'b' => 'b1'],
+     *   ['a' => 'a2', 'b' => 'b2'],
+     * ]
+     *
+     * @param Bindings $bindings
+     * @return array<string, mixed>[]
      */
-    private function query(string $sql, array $bindings = []): Result
+    public function fetchAll(string $sql, array $bindings): array
     {
-        // TODO: middleware for logging, performance metrics, etc.
-        // error_log($sql);
+        return $this->query($sql, $bindings)->fetchAllAssociative();
+    }
 
-        $stmt = $this->connection->prepare($sql);
-        foreach ($bindings as $i => $binding) {
-            // SQL bindings are 1-indexed, not 0-indexed like the input
-            $stmt->bindValue($i + 1, $binding);
-        }
-        return $stmt->executeQuery();
+    /**
+     * Performs a SELECT statement and returns the result.
+     *
+     * Running any other type of query through this path is a logical error.
+     *
+     * @param Bindings $bindings
+     */
+    private function query(string $sql, array $bindings): Result
+    {
+        return $this->conn->executeQuery($sql, $bindings);
+    }
+
+    /**
+     * Performs a INSERT/UPDATE/DELETE statement and returns the number of rows
+     * affected.
+     *
+     * Running a SELECT statement through this path is a logical error.
+     *
+     * @param Bindings $bindings
+     *
+     * @return int The number of rows changed
+     */
+    public function execute(string $sql, array $bindings): int
+    {
+        // In practice, a SELECT here will return effectively the COUNT(), but
+        // don't do that.
+        return $this->conn->executeStatement($sql, $bindings);
     }
 
     /**
@@ -160,7 +224,72 @@ class Database
     {
         // Warning: table names cannot be parameterized.
         $query = sprintf('UPDATE %s SET id=LAST_INSERT_ID(id+1)', $table);
-        $_ = $this->connection->executeStatement($query);
-        return (int) $this->connection->lastInsertId();
+        $_ = $this->conn->executeStatement($query);
+        return (int) $this->conn->lastInsertId();
+    }
+
+    /**
+     * Runs the DB code in a way that downsamples catchable DBALExceptions into
+     * the legacy `HelpfulDie` crash path.
+     *
+     * More than any other methods, don't build any NEW code on top of this.
+     * It's just to bridge sql.inc.php.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function helpfulDieOnFailure(callable $action): mixed
+    {
+        try {
+            return $action();
+        } catch (DBALException $e) {
+            self::helpfulDieDbal($e);
+        }
+    }
+
+    // Down-convert an exception into a crash for extra backwards compat
+    private static function helpfulDieDbal(DBALException $e): never
+    {
+        if ($e instanceof DriverException) {
+            $sql = $e->getQuery()?->getSQL() ?? '(SQL not detected)';
+        } else {
+            $sql = '(SQL not detected)';
+        }
+        $sqlInfo = $e->getMessage();
+        if ($info = self::extractSqlErrorFromDBAL($e)) {
+            $sqlInfo = $info[2];
+        }
+        \HelpfulDie("query failed: $sql", $sqlInfo);
+    }
+
+    /**
+     * Extracts SQL error info from the dbal exception stack without direct access
+     * to the connection. For backwards-compatibility only, do not use outside of
+     * this file.
+     *
+     * Returns a tuple of [sqlstate code, driver error code, driver error message]
+     *
+     * @link https://www.php.net/manual/en/pdostatement.errorinfo.php
+     *
+     * @return array{
+     *   0: string,
+     *   1: string,
+     *   2: string,
+     * }
+     */
+    private static function extractSqlErrorFromDBAL(DBALException $e): ?array
+    {
+        while ($inner = $e->getPrevious()) {
+            $e = $inner;
+        }
+        if ($e instanceof PDOException) {
+            // When we bump PHPStan to a higher level, this will cause an
+            // error. Change to @phpst... to fix.
+            // phpstan-ignore-next-line (missing type info on errorInfo)
+            return $e->errorInfo;
+        }
+        // This shouldn't be reachable without very weird driver settings
+        return null;
     }
 }

@@ -2363,6 +2363,8 @@ final class EventAuditLoggerTest extends TestCase
      * Data provider for HTTP request tests
      *
      * @return array<string, array<string, string|int|null>>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function httpRequestDataProvider(): array
     {
@@ -2666,7 +2668,7 @@ final class EventAuditLoggerTest extends TestCase
         try {
             $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test login');
             $this->addToAssertionCount(1);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // If an exception is thrown, it should not be due to our test setup
             $this->fail('sendAtnaAuditMsg should handle connection failures gracefully: ' . $e->getMessage());
         }

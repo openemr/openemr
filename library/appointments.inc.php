@@ -2,7 +2,7 @@
 
 /**
  *
- * RM - allow multple providers to have been chosen
+ * RM - allow multiple providers to have been chosen
  *
  *
  * Holds library functions (and hashes) used by the appointment reporting module
@@ -143,7 +143,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
-        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE, 10);
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE);
         $boundFilter = $apptFilterEvent->getBoundFilter();
         $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
         $where .= " AND " . $boundFilter->getFilterClause();
@@ -229,28 +229,28 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $exdate = $event_recurrspec['exdate'];
 
                 [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
-        //        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-                $occurance = $event['pc_eventDate'];
+        //        $occurrence = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
+                $occurrence = $event['pc_eventDate'];
 
-                while ($occurance < $from_date) {
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                while ($occurrence < $from_date) {
+                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
 
-                while ($occurance <= $stopDate) {
+                while ($occurrence <= $stopDate) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
-                            // occurrance format == yyyy-mm-dd
+                            // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", (string) $occurance) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                 $excluded = true;
                             }
                         }
                     }
 
                     if ($excluded == false) {
-                        $event['pc_eventDate'] = $occurance;
+                        $event['pc_eventDate'] = $occurrence;
                         $event['pc_endDate'] = '0000-00-00';
                         $events2[] = $event;
                       //////
@@ -264,8 +264,8 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                     }
 
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
 
@@ -305,23 +305,23 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurance === -1);
+                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurrence === -1);
 
-                    if ($occurance >= $from_date && $occurance <= $stopDate) {
+                    if ($occurrence >= $from_date && $occurrence <= $stopDate) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
                         }
 
                         if ($excluded == false) {
-                            $event['pc_eventDate'] = $occurance;
+                            $event['pc_eventDate'] = $occurrence;
                             $event['pc_endDate'] = '0000-00-00';
                             $events2[] = $event;
                             //////

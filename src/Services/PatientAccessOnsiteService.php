@@ -31,6 +31,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -60,7 +61,7 @@ class PatientAccessOnsiteService
     {
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
-        $this->kernel = $GLOBALS['kernel'];
+        $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
         $this->logger = new SystemLogger();
     }
@@ -102,7 +103,7 @@ class PatientAccessOnsiteService
 
         $updatedEvent = $this->kernel->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_PRE) ?? $preUpdateEvent;
         $query_parameters = [$updatedEvent->getUsername(), $updatedEvent->getLoginUsername()];
-        $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
+        $hash = (new AuthHash())->passwordHash($clear_pass);
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');

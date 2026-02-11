@@ -29,7 +29,7 @@ class NetworkUtils
     public function isLoopbackAddress(string $url_or_host): bool
     {
         // Extract hostname from URL if needed
-        if (filter_var($url_or_host, FILTER_VALIDATE_URL)) {
+        if (ValidationUtils::isValidUrl($url_or_host)) {
             $parsed = parse_url($url_or_host);
             $host = $parsed['host'] ?? '';
         } else {

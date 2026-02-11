@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Gacl\GaclApi;
+use Psr\Log\LoggerInterface;
 
 class Installer
 {
@@ -60,8 +61,9 @@ class Installer
      * Initialize the Installer with configuration variables.
      *
      * @param array $cgi_variables Configuration array containing installation parameters
+     * @param LoggerInterface $logger Logger instance for error reporting
      */
-    public function __construct(array $cgi_variables)
+    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -139,8 +141,9 @@ class Installer
      * @param string $input_text Text to validate
      * @return bool True if text is safe, false otherwise
      */
-    public function char_is_valid(string $input_text): bool
+    public function char_is_valid(?string $input_text): bool
     {
+        $input_text ??= '';
         // to prevent php injection
         $input_text = trim($input_text);
         if ($input_text == '') {
@@ -160,8 +163,11 @@ class Installer
      * @param string $name Database name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function databaseNameIsValid(string $name): bool
+    public function databaseNameIsValid(?string $name): bool
     {
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }
@@ -174,8 +180,12 @@ class Installer
      * @param string $name Collation name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function collateNameIsValid(string $name): bool
+    public function collateNameIsValid(?string $name): bool
     {
+
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }
@@ -1442,7 +1452,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception) {
+            } catch (\Throwable) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1580,7 +1590,7 @@ $config = 1; /////////////
                 if ($showError) {
                     $error_mes = $this->mysqliError($this->dbh);
                     $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                    error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
+                    $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {error}", ['sql' => $sql, 'error' => $error_mes]);
                 }
                 return false;
             }
@@ -1588,7 +1598,7 @@ $config = 1; /////////////
         } catch (\mysqli_sql_exception $exception) {
             if ($showError) {
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $exception->getMessage();
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($exception->getMessage(), ENT_QUOTES));
+                $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {message}", ['sql' => $sql, 'message' => $exception->getMessage(), 'exception' => $exception]);
             }
             return false;
         }

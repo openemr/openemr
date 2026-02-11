@@ -12,9 +12,9 @@
 
 require_once(__DIR__ . "/../../../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -22,8 +22,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Setup", xl("Weno Setup"));
 }
 
 $boot = new ModuleService();
@@ -128,7 +127,7 @@ $vendors = $boot->getVendorGlobals();
 
                 if (isPersistEvent) {
                     const successMsg = <?php echo xlj('Auto Saved!'); ?>;
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                     isPersistEvent = false;
                     event.preventDefault();
                 }
@@ -162,23 +161,23 @@ $vendors = $boot->getVendorGlobals();
 
             if (isValidKey === 998 || isValidKey === 999) {
                 const warnMsg = "<?php echo xlt('Internet Connection Problem. Are you connected?'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === false) {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php echo xlt('The Encryption key did not pass validation. Clicking Reset button will reset your account encryption key.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else if (isValidKey === 900) {
                 $('#form_reset_key').addClass('d-none');
                 const warnMsg = "<?php echo xlt('Primary Admin Username and or Primary Admin Password is invalid. Try to reenter or correct in your Weno Dashboard.'); ?>";
-                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 5000, 'danger', 'lg');
             } else {
                 if (saveAction) {
                     const successMsg = "<?php echo xlt('Admin Settings Successfully Validated and Saved!'); ?>";
-                    syncAlertMsg(successMsg, 3000, 'success', 'lg');
+                    asyncAlertMsg(successMsg, 3000, 'success', 'lg');
                 }
                 if (saveActionPersist) {
                     const successMsg = "<?php echo xlt('Auto Saved!'); ?>";
-                    syncAlertMsg(successMsg, 1000, 'success');
+                    asyncAlertMsg(successMsg, 1000, 'success');
                 }
                 $('#form_reset_key').addClass('d-none');
             }

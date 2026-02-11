@@ -22,8 +22,9 @@ require_once("$srcdir/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 
 ?>
@@ -31,8 +32,7 @@ use OpenEMR\Core\Header;
 <?php
  // check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
 
 // If the caller is updating an existing event, then get its ID so
@@ -135,13 +135,17 @@ $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 $evslots = $catslots;
 if (isset($_REQUEST['evdur'])) {
     // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-    // if the event duration is less than or equal to zero, use the global calander interval
+    // if the event duration is less than or equal to zero, use the global calendar interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
-    if (intval($_REQUEST['evdur']) <= 0) {
-        $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']) <= 0 ? 10 : intval($GLOBALS['calendar_interval']);
+    $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
+    if ($evdur === false) {
+        $evdur = ValidationUtils::validateInt($GLOBALS['calendar_interval'], min: 1);
+        if ($evdur === false) {
+            $evdur = 10;
+        }
     }
 
-    $evslots = 60 * $_REQUEST['evdur'];
+    $evslots = 60 * $evdur;
     $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
 }
 

@@ -56,13 +56,6 @@ $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pri
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {
@@ -116,7 +109,7 @@ function echoServiceLines(): void
         echo " <tr>\n";
 
         echo "  <td class='billcell'>$strike1" . ($codetype == 'COPAY' ? xlt('COPAY') : text($codetype)) . $strike2;
-        // if the line to ouput is copay, show the date here passed as $ndc_info,
+        // if the line to output is copay, show the date here passed as $ndc_info,
         // since this variable is not applicable in the case of copay.
         if ($codetype == 'COPAY') {
             if (!empty($ndc_info)) {
@@ -1067,7 +1060,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     endFSCategory();
                                     $last_category = $fs_category;
                                     ++$i;
-                                    // can cleave either one or two spaces from fs_category, fs_option to accomodate more than 9 custom categories
+                                    // can cleave either one or two spaces from fs_category, fs_option to accommodate more than 9 custom categories
                                     $cleave_cat = is_numeric(substr((string) $fs_category, 0, 2)) ? 2 : 1;
                                     $cleave_opt = is_numeric(substr((string) $fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";

@@ -13,6 +13,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
 
@@ -53,7 +54,7 @@ class InsuranceCompanyRestController
             return $insuranceCompanyValidationHandlerResult;
         }
 
-        $addressValidationResult = $this->addressService->validate($data);
+        $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
             return $addressValidationHandlerResult;
@@ -71,7 +72,7 @@ class InsuranceCompanyRestController
             return $insuranceCompanyValidationHandlerResult;
         }
 
-        $addressValidationResult = $this->addressService->validate($data);
+        $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
             return $addressValidationHandlerResult;

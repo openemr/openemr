@@ -26,12 +26,15 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\Filesystem\Path;
+
+const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
@@ -41,6 +44,19 @@ $product_row = $productRegistration->getProductDialogStatus();
 $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
+
+// Check if telemetry is disabled via environment variable
+// Telemetry disable flag (set env var to: 1/true)
+$val = getenv(ENV_DISABLE_TELEMETRY);
+if ($val === false || $val === '') {
+    $val = $_ENV[ENV_DISABLE_TELEMETRY] ?? $_SERVER[ENV_DISABLE_TELEMETRY] ?? null;
+}
+$disableTelemetry = ($val !== null) && filter_var($val, FILTER_VALIDATE_BOOLEAN);
+if ($disableTelemetry) {
+    $allowRegisterDialog = false;
+    $allowTelemetry = false;
+}
+
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
@@ -68,7 +84,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
 ?>
 <!DOCTYPE html>
@@ -339,7 +355,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
-    // prepare newcrop globals that are used in creating the menu
+    // prepare Ensora eRx globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
         $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
@@ -371,7 +387,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         'openemr_name' => $GLOBALS['openemr_name']
     ]);
     // Collect the menu then build it
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
@@ -410,14 +426,18 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         min-height: 100% !important;
         height: 100% !important;
       }
+      #userdropdown.dropdown-menu {
+        white-space: nowrap;        /* prevents multi-line wrapping */
+        min-width: max-content;     /* expands to fit the widest item */
+      }
     </style>
 </head>
 
 <body class="min-vw-100">
     <?php
     // fire off an event here
-    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>

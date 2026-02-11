@@ -48,7 +48,7 @@ class UserCreatedEvent extends Event
 
     public function getUsername(): ?string
     {
-        // the username is a wierd post data from the usergroup_admin.php file and so we return that username
+        // the username is a weird post data from the usergroup_admin.php file and so we return that username
         // this is for legacy modules unfortunately as the naming convention violates the element of least surprise
         // principle
         return $this->userData['username'] ?? $this->userData['rumple'] ?? null;

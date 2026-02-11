@@ -132,7 +132,7 @@ class RulesPlanMappingEventHandlers
         $sql_st = "SELECT MAX(`seq`) AS max_seq " .
             "FROM `list_options` " .
             "WHERE `list_id` = 'clinical_plans'; ";
-        $res = sqlStatement($sql_st, null);
+        $res = sqlStatement($sql_st);
         $max_seq = 0;
 
         if ($res != null) {
@@ -236,7 +236,7 @@ class RulesPlanMappingEventHandlers
         $sql_st = "SELECT MAX(SUBSTR(clin_plans.id, 1, LOCATE('_plan', clin_plans.id)-1)) as max_planid " .
             "FROM `clinical_plans` clin_plans " .
             "WHERE clin_plans.id like '%_plan' AND SUBSTR(clin_plans.id, 1, LOCATE('_plan', clin_plans.id)) REGEXP '[0-9]+'; ";
-        $res = sqlStatement($sql_st, null);
+        $res = sqlStatement($sql_st);
 
         if ($res != null) {
             while ($row = sqlFetchArray($res)) {

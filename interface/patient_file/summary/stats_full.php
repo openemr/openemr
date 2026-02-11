@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,9 +19,10 @@ require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -37,11 +40,10 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('Not authorized'));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 } else {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for issue types: Patient Issues", xl("Patient Issues"));
 }
 
  // Collect parameter(s)
@@ -219,7 +221,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $canSelect = $btnDelete;
                     $btnAdd = false;
                     if (AclMain::aclCheckIssue($t, '', ['write', 'addonly'])) {
+                        // Check if we should use eRx interface for allergies/medications.
+                        // Only redirect to eRx.php if the user has an eRx role configured,
+                        // otherwise allow them to add allergies via the normal interface.
+                        $userHasErxRole = false;
                         if (in_array($t, ['allergy', 'medications']) && $GLOBALS['erx_enable']) {
+                            $erxRoleRow = QueryUtils::fetchSingleValue(
+                                "SELECT newcrop_user_role FROM users WHERE id = ?",
+                                'newcrop_user_role',
+                                [$_SESSION['authUserID']]
+                            );
+                            $userHasErxRole = $erxRoleRow !== null && $erxRoleRow !== '';
+                        }
+
+                        if ($userHasErxRole) {
                             $btnAdd = [
                                 'href' => '../../eRx.php?page=medentry',
                                 'onclick' => 'top.restoreSession()',

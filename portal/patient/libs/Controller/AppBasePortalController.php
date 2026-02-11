@@ -24,7 +24,7 @@ class AppBasePortalController extends PortalController
 
     /**
      * Init is called by the base controller before the action method
-     * is called.  This provided an oportunity to hook into the system
+     * is called.  This provided an opportunity to hook into the system
      * for all application actions.  This is a good place for authentication
      * code.
      */

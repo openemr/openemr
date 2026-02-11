@@ -29,7 +29,7 @@ use LogicException;
 trait SingletonTrait
 {
     /** @var array<class-string<static>, static> */
-    private static array $instances = [];
+    protected static array $instances = [];
 
     final public function __clone()
     {
@@ -42,7 +42,7 @@ trait SingletonTrait
     public static function getInstance(): static
     {
         if (!isset(static::$instances[static::class])) {
-            self::$instances[static::class] = static::createInstance();
+            static::$instances[static::class] = static::createInstance();
         }
 
         return static::$instances[static::class];

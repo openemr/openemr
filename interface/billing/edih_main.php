@@ -7,14 +7,23 @@
  * @link      http://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+
+// Access control - same permission required as edih_view.php
+if (!AclMain::aclCheckCore('acct', 'eob')) {
+    AccessDeniedHelper::deny('Unauthorized access to EDI history');
+}
 
 /**
  * this define is used to prevent direct access to the included scripts
@@ -23,7 +32,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 define('SITE_IN', 1);
 
 // define constants
-// since enounter digits are sequential, digit length should rarely change
+// since encounter digits are sequential, digit length should rarely change
 // however for a startup they may, or a "mask" value of 1000 or 10000
 // would be a good idea if there are problems with deciphering the pid-encounter
 // same idea for pid value, but since encounter is unique and always last, it is essential
@@ -99,7 +108,7 @@ if (!is_dir($edih_tmp_dir)) {
     }
 }
 
-// avoid unitialized variable error
+// avoid uninitialized variable error
 $html_str = '';
 // debug
 if (count($_GET)) {

@@ -17,14 +17,13 @@ set_time_limit(0);
 require_once '../globals.php';
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Install Code Set")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Install Code Set", xl("Install Code Set"));
 }
 
 $form_replace = !empty($_POST['form_replace']);

@@ -76,7 +76,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     public $name = null;
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $type = null;
@@ -113,7 +113,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getType()
@@ -122,7 +122,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */

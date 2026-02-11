@@ -20,7 +20,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  *
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
- * for creating a `<head>` element, but for now it sufficently handles the
+ * for creating a `<head>` element, but for now it sufficiently handles the
  * `setupHeader()`
  *
  * @package OpenEMR
@@ -99,11 +99,11 @@ class Header
         // we fire off events to grab any additional module scripts or css files that desire to adjust the currently executed script
         $scriptFilterEvent = new ScriptFilterEvent(basename((string) $scriptName));
         $scriptFilterEvent->setContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $apptScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent($scriptName);
         $styleFilterEvent->setContextArgument(StyleFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $apptStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
         // note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php {
 
         if (!empty($apptScripts->getScripts())) {
@@ -335,7 +335,7 @@ class Header
      *
      * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
+     * array, will replace the occurrence with the value of that key.
      *
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
@@ -365,7 +365,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
-        // make sure we clear out any attributes we don't want overriden
+        // make sure we clear out any attributes we don't want overridden
         if (isset($nodeAttributes['src'])) {
             unset($nodeAttributes['src']);
         }

@@ -96,7 +96,7 @@ class Api
         try {
             $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log(errorLogEscape($e->getMessage()));
             return false;
         }

@@ -98,7 +98,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      *
      * @param $filename
      * @param $location
-     * @param false $delete
+     * @param bool $delete
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {

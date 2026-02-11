@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../interface/globals.php");
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 $type = $_GET['type'];
 $document_id = $_GET['doc_id'];
@@ -27,7 +28,7 @@ $d = new Document($document_id);
 
 
 try {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     // can_access will check session if no params are passed.
     if (!$d->can_access()) {
         echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
@@ -53,7 +54,7 @@ try {
     $viewCCDAEvent->setContent($d->get_data());
     $viewCCDAEvent->setFormat("html");
 
-    $updatedViewCCDAEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($viewCCDAEvent, PatientDocumentViewCCDAEvent::EVENT_NAME);
+    $updatedViewCCDAEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($viewCCDAEvent, PatientDocumentViewCCDAEvent::EVENT_NAME);
 
     $content = $updatedViewCCDAEvent->getContent();
     if (empty($content)) {
@@ -61,8 +62,8 @@ try {
         echo $twig->getTwig()->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']);
         exit;
     }
-    echo $updatedViewCCDAEvent->getContent($content);
-} catch (\Exception $exception) {
+    echo $updatedViewCCDAEvent->getContent();
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller(
         "Failed to generate ccda for view",
         ['type' => $type, 'document_id' => $document_id, 'message' => $exception, 'trace' => $exception->getTraceAsString()]

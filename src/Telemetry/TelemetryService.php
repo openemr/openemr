@@ -4,7 +4,7 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
- * @copyright      Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,10 +20,10 @@ use OpenEMR\Services\VersionService;
 /**
  * Provides telemetry reporting functionality.
  *
- * @package OpenEMR\Telemetry
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR\Telemetry
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
 {
@@ -32,12 +32,15 @@ class TelemetryService
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository $repository
+     * @param ?TelemetryRepository     $repository
      * @param ?VersionServiceInterface $versionService
-     * @param ?LoggerInterface $logger
+     * @param ?LoggerInterface         $logger
      */
-    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
-    {
+    public function __construct(
+        protected ?TelemetryRepository $repository = new TelemetryRepository(),
+        protected ?VersionServiceInterface $versionService = new VersionService(),
+        protected ?LoggerInterface $logger = new SystemLogger(),
+    ) {
     }
 
     /**
@@ -123,21 +126,42 @@ class TelemetryService
     public function reportUsageData(): int|bool
     {
         if (empty($this->isTelemetryEnabled())) {
-            error_log("Telemetry is not enabled, so do not send a usage report.");
+            $this->logger->debug("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
         $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
-            error_log("Site UUID not found.");
-            return false;
+            $this->logger->warning("Site UUID not found.");
         }
 
-        // server geo data
-        $geo = $this->createGeoTelemetry();
-        $serverGeoData = $geo->getServerGeoData();
-        if (isset($serverGeoData['error'])) {
-            error_log("Error fetching server geolocation: " . $serverGeoData['error']);
+        // server geo data - don't let geo lookup failures prevent telemetry reporting
+        $serverGeoData = [];
+        try {
+            $geo = $this->createGeoTelemetry();
+            $serverGeoData = $geo->getServerGeoData();
+            if (isset($serverGeoData['error'])) {
+                $this->logger->warning("Telemetry: Unable to fetch server geolocation - {error}. Continuing with telemetry report.", ['error' => $serverGeoData['error']]);
+                // Use null values for geo data if lookup fails
+                $serverGeoData = [
+                    'country' => null,
+                    'region' => null,
+                    'city' => null,
+                    'latitude' => null,
+                    'longitude' => null,
+                    'error' => $serverGeoData['error']
+                ];
+            }
+        } catch (\Throwable $e) {
+            $this->logger->warning("Telemetry: Exception during geolocation lookup - {message}. Continuing with telemetry report.", ['message' => $e->getMessage(), 'exception' => $e]);
+            $serverGeoData = [
+                'country' => null,
+                'region' => null,
+                'city' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'error' => 'Exception: ' . $e->getMessage()
+            ];
         }
 
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
@@ -147,6 +171,9 @@ class TelemetryService
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
+        $populationData = $this->repository->fetchSitePopulationData();
+        $moduleCounts = $this->repository->fetchActiveModuleCounts();
+        $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
             'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
@@ -163,6 +190,9 @@ class TelemetryService
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
+            'populationData' => json_encode($populationData),
+            'moduleCounts' => json_encode($moduleCounts),
+            'enabledEncounterForms' => json_encode($encEnabledForms),
         ];
 
         $payload_data = [
@@ -176,20 +206,21 @@ class TelemetryService
         $response = $curlResult['response'];
         $httpStatus = $curlResult['httpStatus'];
         if (!empty($curlResult['error'])) {
-            error_log("cURL error: " . $curlResult['error']);
+            $this->logger->error("cURL error: {error}", ['error' => $curlResult['error']]);
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode((string) $response, true);
+            $responseData = json_decode((string)$response, true);
             if ($responseData) {
-                $this->repository->clearTelemetryData(); // clear telemetry data after successful report
+                $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                error_log("Error in response: " . json_encode($responseData));
+                $this->logger->error("Error in response: {response}", ['response' => json_encode($responseData)]);
             }
         } else {
-            error_log("HTTP error: " . $httpStatus);
+            $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
+        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => json_encode($serverGeoData)]);
         return $httpStatus;
     }
 
@@ -249,7 +280,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

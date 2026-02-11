@@ -54,7 +54,7 @@ if (!empty($_POST['add'])) {
         $sql = "INSERT INTO lang_languages SET lang_code=?, lang_description=?";
         sqlStatement($sql, [$_POST['lang_code'],$_POST['lang_name']]);
 
-        //insert into the log table - to allow persistant customizations
+        //insert into the log table - to allow persistent customizations
         insert_language_log($_POST['lang_name'], $_POST['lang_code'], '', '');
 
             echo xlt('Language definition added') . '<br />';

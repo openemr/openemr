@@ -68,7 +68,7 @@ if (config.install) {
 
 function log_error(isSuccess, err) {
     isSuccess = false;
-    console.error(logprefix + "An error occured! Check the log for details.");
+    console.error(logprefix + "An error occurred! Check the log for details.");
     // Log error to console
     console.error(err.toString().red);
     // Kills gulp on error since if we keep running it will

@@ -10,15 +10,18 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../globals.php');
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -97,25 +100,6 @@ function row_modify($table, $set, $where): void
 
         sqlStatement($query);
     }
-}
-
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
 }
 
 // Delete and undo product sales for a given patient or visit.
@@ -222,7 +206,7 @@ function popup_close() {
 
             if ($patient) {
                 if (!AclMain::aclCheckCore('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
-                    die(xlt("Not authorized!"));
+                    AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
                 row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
@@ -258,7 +242,7 @@ function popup_close() {
                 row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
             } elseif ($encounterid) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized encounter deletion attempt');
                 }
 
                 row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
@@ -274,7 +258,7 @@ function popup_close() {
                 row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
             } elseif ($formid) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized form deletion attempt');
                 }
 
                 $row = sqlQuery("SELECT * FROM forms WHERE id = ?", [$formid]);
@@ -286,7 +270,7 @@ function popup_close() {
                 row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
             } elseif ($issue) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized issue deletion attempt');
                 }
 
                 $ids = explode(",", (string) $issue);
@@ -297,7 +281,7 @@ function popup_close() {
                 }
             } elseif ($document) {
                 if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized document deletion attempt');
                 }
 
                 delete_document($document);
@@ -305,7 +289,7 @@ function popup_close() {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     // allow biller to delete misapplied payments
                     if (!AclMain::aclCheckCore('acct', 'bill')) {
-                        die("Not authorized!");
+                        AccessDeniedHelper::deny('Unauthorized payment deletion attempt');
                     }
                 }
 
@@ -383,7 +367,7 @@ function popup_close() {
                 }
             } elseif ($billing) {
                 if (!AclMain::aclCheckCore('acct', 'disc')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized billing deletion attempt');
                 }
 
                 [$patient_id, $encounter_id] = explode(".", (string) $billing);
@@ -418,7 +402,7 @@ function popup_close() {
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
             } elseif ($transaction) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
 
                 row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");

@@ -109,12 +109,6 @@ $logger = new SystemLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
-}
-
 function postToGet($arin)
 {
     $getstring = "";
@@ -130,43 +124,6 @@ function postToGet($arin)
 
     return $getstring;
 }
-
-function report_basename($pid)
-{
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(['.', ',', ' '], '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
-
-    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
-}
-
-function zip_content($source, $destination, $content = '', $create = true)
-{
-    if (!extension_loaded('zip')) {
-        return false;
-    }
-
-    $zip = new ZipArchive();
-    if ($create) {
-        if (!$zip->open($destination, ZipArchive::CREATE)) {
-            return false;
-        }
-    } else {
-        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
-            return false;
-        }
-    }
-
-    if (is_file($source) === true) {
-        $zip->addFromString(basename((string) $source), file_get_contents($source));
-    } elseif (!empty($content)) {
-        $zip->addFromString(basename((string) $source), $content);
-    }
-
-    return $zip->close();
-}
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -178,7 +135,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
 <?php } ?>
 
-<?php // do not show stuff from report.php in forms that is encaspulated
+<?php // do not show stuff from report.php in forms that is encapsulated
       // by div of navigateLink class. Specifically used for CAMOS, but
       // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
@@ -893,7 +850,7 @@ if ($printable) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $ptd = report_basename($pid);
     $fn = $ptd['base'] . ".pdf";
     $pdf->SetTitle(ucfirst((string) $ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
@@ -909,14 +866,14 @@ if ($PDF_OUTPUT) {
 
     try {
         $pdf->writeHTML($content); // convert html
-    } catch (Exception $exception) {
+    } catch (\Throwable $exception) {
         die(text($exception));
     }
 
     if ($PDF_OUTPUT == 1) {
         try {
             $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             die(text($exception));
         }
     }

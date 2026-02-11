@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -174,7 +175,7 @@ function postcalendar_userapi_buildView($args)
     $tpl = new pcSmarty();
 
     //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //diable caching completely
+    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -537,11 +538,11 @@ function postcalendar_userapi_buildView($args)
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
         $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
         $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
         $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
         $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
@@ -908,7 +909,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
@@ -1205,8 +1206,8 @@ function getBlockTime($time)
 }
 
 /*==========================
- * Gather up all the Events matching the arguements
- * Arguements can be:
+ * Gather up all the Events matching the arguments
+ * Arguments can be:
  *  start = starting date in m/d/Y format
  *  end = ending date in m/d/Y format
  *  viewtype = day|week|month|year
@@ -1293,11 +1294,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setEndDate($end_date);
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
-    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    if ($result instanceof CalendarUserGetEventsFilter) {
-        $days = $result->getEventsByDays();
-    }
-    return $days;
+    $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    return $result->getEventsByDays();
 }
 
 //===========================
@@ -1407,7 +1405,7 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
                                 if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
@@ -1470,7 +1468,7 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
-                // below a problem with overfow will occur so it is set to 1 to prevent this.
+                // below a problem with overflow will occur so it is set to 1 to prevent this.
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
@@ -1492,9 +1490,9 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }

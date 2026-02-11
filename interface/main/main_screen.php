@@ -400,7 +400,7 @@ if ($GLOBALS['login_into_facility']) {
     }
     $_SESSION['facilityId'] = $facility_id;
     if ($GLOBALS['set_facility_cookie']) {
-        // set cookie with facility for the calender screens
+        // set cookie with facility for the calendar screens
         setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
     }
 }

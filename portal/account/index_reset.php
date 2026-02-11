@@ -88,7 +88,7 @@ if (isset($_POST['submit'])) {
         $bind = [];
         $updateFields = [];
         if (!empty($password_new)) {
-            $new_hash = (new AuthHash('auth'))->passwordHash($password_new);
+            $new_hash = (new AuthHash())->passwordHash($password_new);
             unset($password_new);
             if (empty($new_hash)) {
                 // Something is seriously wrong
@@ -121,7 +121,7 @@ $vars = [
 ];
 try {
     echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     die(xlt("Failed to render twig file"));
 }

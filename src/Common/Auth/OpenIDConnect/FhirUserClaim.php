@@ -14,6 +14,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PractitionerService;
 
 class FhirUserClaim {
@@ -50,7 +51,7 @@ class FhirUserClaim {
 
     public function setFhirBaseUrl(string $fhirBaseUrl): void
     {
-        if (filter_var($fhirBaseUrl, FILTER_VALIDATE_URL)) {
+        if (ValidationUtils::isValidUrl($fhirBaseUrl)) {
             $this->fhirBaseUrl = $fhirBaseUrl;
         } else {
             throw OAuthServerException::invalidRequest('fhirBaseUrl', 'Invalid FHIR base URL provided.');

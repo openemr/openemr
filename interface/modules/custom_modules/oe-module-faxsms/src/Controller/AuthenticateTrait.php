@@ -74,7 +74,7 @@ trait AuthenticateTrait
             } else {
                 return $this->loginWithJWT();
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text($e->getMessage());
         }
     }
@@ -133,7 +133,7 @@ trait AuthenticateTrait
                     continue;
                 }
                 return js_escape(['error' => "API Error: " . text($e->getMessage()) . " - " . text($e->getCode())]);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape(['error' => "Error: " . text($e->getMessage())]);
             }
         }

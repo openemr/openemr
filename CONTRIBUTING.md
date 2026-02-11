@@ -83,6 +83,25 @@ npm run stylelint         # CSS/SCSS linting
 
 These provide higher memory limits than Docker devtools and are what CI runs.
 
+## Isolated Tests (no Docker required)
+
+Some tests run on the host without a database or Docker:
+
+```sh
+composer phpunit-isolated        # Run all isolated tests
+```
+
+This includes Twig template tests that verify compilation and rendering. If you
+modify a Twig template that has render test coverage, update the expected output
+fixtures:
+
+```sh
+composer update-twig-fixtures    # Regenerate fixture files
+```
+
+Review the diff before committing. See
+`tests/Tests/Isolated/Common/Twig/fixtures/render/README.md` for details.
+
 ## Code Contributions (local development)
 
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
@@ -480,7 +499,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker compose exec openemr /root/devtools setup-client-cert ssl
       ```
-    - To revert back to selfsigned certicates (ie. revert the changes required for client based certificates):
+    - To revert back to self-signed certificates (ie. revert the changes required for client based certificates):
       ```sh
       docker compose exec openemr /root/devtools on-self-signed-cert
       ```

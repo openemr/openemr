@@ -4,9 +4,11 @@
  * vitals C_FormVitals.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,14 +16,16 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Forms\FormVitals;
+use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\VitalsService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\VitalsService;
 
 class C_FormVitals
 {
@@ -355,7 +359,7 @@ class C_FormVitals
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
-        $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer($this->template_dir, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
         echo $twig->render("vitals.html.twig", $data);
     }
@@ -398,21 +402,12 @@ class C_FormVitals
             $_POST["BMI"] = ($weight / $height / $height) * 703;
         }
 
-        // TODO: this should go into the vitals form...
-        if ($_POST["BMI"] > 42) {
-            $_POST["BMI_status"] = 'Obesity III';
-        } elseif ($_POST["BMI"] > 34) {
-            $_POST["BMI_status"] = 'Obesity II';
-        } elseif ($_POST["BMI"] > 30) {
-            $_POST["BMI_status"] = 'Obesity I';
-        } elseif ($_POST["BMI"] > 27) {
-            $_POST["BMI_status"] = 'Overweight';
-        } elseif ($_POST["BMI"] > 25) {
-            $_POST["BMI_status"] = 'Normal BL';
-        } elseif ($_POST["BMI"] > 18.5) {
-            $_POST["BMI_status"] = 'Normal';
-        } elseif ($_POST["BMI"] > 10) {
-            $_POST["BMI_status"] = 'Underweight';
+        $bmi = $_POST["BMI"] ?? null;
+        if (is_numeric($bmi)) {
+            $bmiCategory = BmiCategory::fromBmi((float)$bmi);
+            if ($bmiCategory !== null) {
+                $_POST["BMI_status"] = $bmiCategory->value;
+            }
         }
 
         $temperature = $_POST["temperature"];

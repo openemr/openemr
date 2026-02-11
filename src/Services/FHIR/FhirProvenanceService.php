@@ -267,7 +267,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 // put our exception information here
                 $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
                 return $processingResult;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 $systemLogger = new SystemLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
                 $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
@@ -334,7 +334,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     $processingResult->addProcessingResult($results);
                 }
             }
-        } catch (Exception) {
+        } catch (\Throwable) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
         }
         return $processingResult;

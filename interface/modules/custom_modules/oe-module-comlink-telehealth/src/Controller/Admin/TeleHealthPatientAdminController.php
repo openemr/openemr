@@ -69,7 +69,7 @@ class TeleHealthPatientAdminController
 
     public function setupRegistrationCodeField($event)
     {
-        // we need to inject in the display of the registation code if the twig template is the display template
+        // we need to inject in the display of the registration code if the twig template is the display template
         $data = $event->getData() ?? [];
         $data['comlink_app_title'] = $this->globalConfig->getAppTitle();
 

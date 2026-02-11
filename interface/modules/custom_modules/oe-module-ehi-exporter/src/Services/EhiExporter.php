@@ -93,12 +93,12 @@ class EhiExporter
         $job = null;
         try {
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
                     return $job;
                 }
@@ -115,12 +115,12 @@ class EhiExporter
             $sql = "SELECT pid FROM patient_data"; // We do everything here
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
                     return $job;
                 }
@@ -137,12 +137,12 @@ class EhiExporter
         try {
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
             return $this->processJob($job);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
                     return $job;
                 }
@@ -157,12 +157,12 @@ class EhiExporter
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
             return $this->processJob($job);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
                     return $job;
                 }
@@ -335,7 +335,7 @@ class EhiExporter
             $updatedJobTask = $this->exportBreadthAlgorithm($jobTask);
             $updatedJobTask->setStatus("completed"); // we've finished the task
             $updatedJobTask = $this->taskService->update($updatedJobTask);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $updatedJobTask->error_message = $exception->getMessage();
             $updatedJobTask->setStatus('failed');
         }
@@ -481,7 +481,7 @@ class EhiExporter
 
         $tempDir = $GLOBALS['temporary_files_dir'];
         if (!file_exists($tempDir)) {
-            throw new \RuntimeException("Could not access globals temporary_files_dir location verify the property is set correctly and the webserver has write acess to the location");
+            throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }
 
         $zipName = uniqid('ehi-export-') . '.zip';

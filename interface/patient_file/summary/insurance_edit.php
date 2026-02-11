@@ -8,9 +8,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,17 +22,19 @@ require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Events\PatientDemographics\UpdateEvent;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-    die(xlt('Updating demographics is not authorized.'));
+    AccessDeniedHelper::deny('Updating demographics is not authorized');
 }
 
 // Session pid must be right or bad things can happen when demographics are saved!
@@ -46,21 +50,21 @@ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
+    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||
         !AclMain::aclCheckCore('patients', 'demo', '', 'write')
     ) {
-        die(xlt('Updating insurance is not authorized.'));
+        AccessDeniedHelper::deny('Updating insurance is not authorized');
     }
 
     if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
-        die(xlt('Adding insurance is not authorized.'));
+        AccessDeniedHelper::deny('Adding insurance is not authorized');
     }
 }
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
@@ -76,7 +80,7 @@ if ($GLOBALS['insurance_only_one']) {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
 }
 
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 //$insurance_info[0]['active'] = true;
 //$insuranceTypes = array_map(function($item) { return $item['type'];}, $insurance_info);
 //$insrender(uranceTypes = array_unique($insuranceTypes);
@@ -101,7 +105,7 @@ echo $twig->render(
         ,'country_list' => $GLOBALS['country_list']
         // policy_types is defined in patient.inc.php
         ,'policy_types' => $GLOBALS['policy_types']
-        ,'uspsVerifyAddress' => $GLOBALS['usps_apiv3_enable']
+        ,'uspsVerifyAddress' => $GLOBALS['usps_apiv3_client_id']
         ,'languageDirection' => $GLOBALS['language_direction'] ?? ''
         ,'rightJustifyLabels' => $GLOBALS['right_justify_labels_demographics']
     ]

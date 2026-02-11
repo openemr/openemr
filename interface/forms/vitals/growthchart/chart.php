@@ -179,7 +179,7 @@ if ($charttype == 'birth') {
     }
 
     $ageOffset = 0;
-    $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
+    $heightOffset = 15; // Subtract 15 because the graph starts at 15 inches
     $weightOffset = 3;  // graph starts at 3 lbs
     $WToffset = 0; //for wt and ht table at bottom half of HC graph
     $HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
@@ -638,7 +638,7 @@ foreach ($datapoints as $data) {
 
         // Draw Weight bullseye
         $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
-        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outter ring
+        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outer ring
         imagefilledellipse($im, (int) $x, (int) $y2, 5, 5, $color); //center dot
 
         if ($charttype == "birth") {

@@ -23,7 +23,7 @@ class MemCacheProxy extends CacheMemCache
     public $LastServerError = '';
 
     /**
-     * Acts as a proxy for a MemCache server and fails gracefull if the pool cannot be contacted
+     * Acts as a proxy for a MemCache server and fails gracefully if it cannot contact the pool
      *
      * @param
      *          array in host/port format: array('host1'=>'11211','host2'=>'11211')

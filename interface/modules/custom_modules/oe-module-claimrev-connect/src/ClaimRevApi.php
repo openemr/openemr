@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\UploadEdiFileContentModel;
 use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
 
@@ -28,7 +29,7 @@ class ClaimRevApi
     }
     public static function getAccessToken()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
 
         $authority = $globalsConfig->getClientAuthority();
@@ -63,7 +64,7 @@ class ClaimRevApi
 
     public static function uploadClaimFile($ediContents, $fileName, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -104,7 +105,7 @@ class ClaimRevApi
 
     public static function getReportFiles($reportType, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -137,7 +138,7 @@ class ClaimRevApi
     }
     public static function getDefaultAccount($token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -168,7 +169,7 @@ class ClaimRevApi
     }
     public static function searchClaims($claimSearch, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -203,7 +204,7 @@ class ClaimRevApi
     }
     public static function searchDownloadableFiles($downloadSearch, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -237,7 +238,7 @@ class ClaimRevApi
     }
     public static function getFileForDownload($objectId, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -268,7 +269,7 @@ class ClaimRevApi
     }
     public static function getEligibilityResult($originatingSystemId, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 
@@ -301,7 +302,7 @@ class ClaimRevApi
 
     public static function uploadEligibility($eligibility, $token)
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
 

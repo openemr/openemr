@@ -45,7 +45,7 @@ $phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map
-$facilities = cron_getFacilitiesMap();
+$facilities = cron_getFacilitiesMap($facilityService);
 //print_r($facilities);
 $fac_phone_map = $facilities['phone_map'];
 $fac_msg_map = $facilities['msg_map'];
@@ -111,67 +111,6 @@ for ($p = 0; $p < count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } elseif ($type == 'Email') {
-        $query .= " pc_sendalertemail='YES' ";
-        //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    } elseif ($type == 'Phone') {
-        $query .= " pc_sendalertsms='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
-}
-
-////////////////////////////////////////////////////////////////////
-// Function:    cron_getPhoneAlertpatientData
-// Purpose: get patient data for send to alert
-////////////////////////////////////////////////////////////////////
-function cron_getPhoneAlertpatientData($type, $trigger_hours)
-{
-
-    //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
-    if ($type == 'Phone') {
-        $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>''	and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
-
-        $check_date = date("Y-m-d", mktime(date("H") + $trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
-    }
-
-    $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,pd.phone_home,pd.hipaa_voice,";
-    $ssql .= " and (ope.pc_eventDate=?)";
-
-    $query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
-			ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
-			ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime,ope.pc_facility
-		from
-			openemr_postcalendar_events as ope ,patient_data as pd
-		where
-			ope.pc_pid=pd.pid $ssql
-		order by
-			ope.pc_eventDate,ope.pc_endDate,pd.pid";
-
-    $db_patient = (sqlStatement($query, [$check_date]));
-    $patient_array = [];
-    $cnt = 0;
-    while ($prow = sqlFetchArray($db_patient)) {
-        $patient_array[$cnt] = $prow;
-        $cnt++;
-    }
-
-    return $patient_array;
-}
-
-////////////////////////////////////////////////////////////////////
 // Function:    cron_InsertNotificationLogEntry
 // Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
@@ -207,31 +146,4 @@ function WriteLog($data): void
             fclose($fp);
         }
     }
-}
-////////////////////////////////////////////////////////////////////
-// Function:    cron_getFacilities
-// Purpose: get facilities data once and store in map
-////////////////////////////////////////////////////////////////////
-function cron_getFacilitiesMap()
-{
-    global $facilityService;
-    //get the facility_name-message map from Globals
-    $message_map = $GLOBALS['phone_appt_message'];
-    //create a new array to store facility_id to message map
-    $facility_msg_map = [];
-    $facility_phone_map = [];
-    //get facilities from the database
-
-    $facilities = $facilityService->getAllFacility();
-    foreach ($facilities as $prow) {
-        $facility_msg_map[$prow['id']] = $message_map[$prow['name']];
-        $facility_phone_map[$prow['id']] = $prow['phone'];
-    }
-
-    $facility_map = [
-        'msg_map' => $facility_msg_map,
-        'phone_map' => $facility_phone_map
-    ];
-
-    return $facility_map;
 }

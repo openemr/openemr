@@ -28,16 +28,15 @@ if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Procedure Orders and Reports", xl("Procedure Orders and Reports"));
 }
 
 $form_patient = !empty($_POST['form_patient']);
@@ -45,43 +44,6 @@ $processing_lab = $_REQUEST['form_lab_id'] ?? '';
 $start_form = false;
 if (!isset($_REQUEST['form_refresh']) && !isset($_REQUEST['form_process_labs']) && !isset($_REQUEST['form_manual'])) {
     $start_form = true;
-}
-
-/**
- * Get a list item title, translating if required.
- *
- * @param  string $listid List identifier.
- * @param  string $value List item identifier.
- * @return string  The item's title.
- */
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
-}
-
-/**
- * Adapt text to be suitable as the contents of a table cell.
- *
- * @param  string $s Input text.
- * @return string  Output text.
- */
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
 }
 
 $errmsg = '';

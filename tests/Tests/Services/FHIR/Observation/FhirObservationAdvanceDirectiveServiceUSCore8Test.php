@@ -277,6 +277,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'LOINC display must match expected');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function allSupportedCodesProvider(): array
     {
         // This will be populated in setUp, but we need to return static data
@@ -502,6 +503,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'Value display must match');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function valueSetCodesProvider(): array
     {
         return [

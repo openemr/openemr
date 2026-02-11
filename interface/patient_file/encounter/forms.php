@@ -13,14 +13,17 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
+
 /**
-* @global $srcdir
-* @global $attendant_type
-* @global $therapy_group
-* @global $pid
-* @global $userauthorized
-* @global $rootdir
-*/
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $attendant_type
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var int $therapy_group
+ */
+
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
@@ -39,6 +42,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
@@ -61,8 +65,8 @@ if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write
     exit();
 }
 
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-// instantiate the locator at the beginning so our file caching can be re-used.
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+// instantiate the locator at the beginning so our file caching can be reused.
 $formLocator = new FormLocator();
 ?>
 <!DOCTYPE html>
@@ -238,7 +242,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             if ($('#med_reconc_perf').prop('checked')) {
                 var mode = "complete";
             } else {
-                var mode = "uncomplete";
+                var mode = "incomplete";
             }
             top.restoreSession();
             $.post("../../../library/ajax/amc_misc_data.php",
@@ -525,7 +529,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 </head>
 <body>
 <nav>
-    <?php //DYNAMIC FORM RETREIVAL
+    <?php //DYNAMIC FORM RETRIEVAL
     require_once("$srcdir/registry.inc.php");
 
     $reg = getFormsByCategory();
@@ -639,7 +643,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
@@ -653,7 +657,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     <div id="encounter_forms" class="container-xl">
         <div class='encounter-summary-container'>
             <?php
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
             $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
             $event->setGroupId($groupId ?? null);
             $event->setPid($pid ?? null);
@@ -1012,7 +1016,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             echo xlt("Not authorized to view this encounter");
         }
 
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
         $event->setGroupId($groupId ?? null);
         $event->setPid($pid ?? null);

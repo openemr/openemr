@@ -551,7 +551,7 @@ class InsuranceService extends BaseService
                 }
             }
 
-            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
             $this->update($srcInsurance);
 
@@ -568,14 +568,14 @@ class InsuranceService extends BaseService
                 ,'target' => $targetInsurance
             ];
             $processingResult->addData($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $processingResult->addInternalError($e->getMessage());
         } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to rollback transaction " . $e->getMessage(),
                     ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
