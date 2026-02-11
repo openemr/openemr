@@ -18,6 +18,7 @@ $config = [
         'table_name' => 'migrations',
         'execution_time_column_name' => 'execution_duration_ms',
     ],
+    'custom_template' => 'db/migration-template.php.tpl',
 
 ];
 
