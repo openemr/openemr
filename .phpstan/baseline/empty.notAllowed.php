@@ -3624,11 +3624,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/BC/Database.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
 ];
 $ignoreErrors[] = [
