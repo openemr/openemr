@@ -862,12 +862,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$db_sms_msg with no value type specified in iterable type array\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms\\(\\) has parameter \\$db_sms_msg with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no value type specified in iterable type array\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms\\(\\) has parameter \\$prow with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
