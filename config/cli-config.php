@@ -2,6 +2,13 @@
 
 /**
  * Configuration for Doctrine Migrations
+ *
+ * Due to the way the bundled `vendor/bin/doctrine-migrations` script works,
+ * this file MUST live at this exact path or in the repository root. A future
+ * integration w/ CLI tooling may end up in a different location.
+ *
+ * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#advanced
+ * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/custom-integration.html#custom-integration
  */
 
 use Doctrine\DBAL\DriverManager;
