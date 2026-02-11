@@ -10662,83 +10662,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/note/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_default might not be defined\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_extremely might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_form_name might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_form_title might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_more might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_nearly might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_nosave_confirm might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_not might not be defined\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_q10 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_q10_2 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_several might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_somewhat might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_very might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$viewmode might not be defined\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
 ];
 $ignoreErrors[] = [
