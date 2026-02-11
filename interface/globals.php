@@ -217,7 +217,9 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
-if (empty($globalsBag)) {
+if (isset($globalsBag)) {
+    assert($globalsBag instanceof OEGlobalsBag);
+} else {
     // Initially this was too early. We now reinit at bottom to ensure all values are collected.
     $globalsBag = OEGlobalsBag::getInstance();
 }
@@ -666,7 +668,7 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
 if (empty($globalsBag->getString('qualified_site_addr'))) {
     $globalsBag->set(
         'qualified_site_addr',
-        rtrim($globalsBag->getString('site_addr_oath') . trim((string) $globalsBag->getString('webroot')), "/")
+        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
     );
 }
 
@@ -758,9 +760,8 @@ if (!empty($checkModulesTableExists)) {
         // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
         // registering event listeners, etc.
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->get('kernel'),
+            $globalsBag->getKernel(),
             $globalsBag->getString('fileroot'),
             $globalsBag->getString('baseModDir'),
             $globalsBag->getString('zendModDir')
