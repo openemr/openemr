@@ -77,66 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$ccd_out with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$format_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$requested_by with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$xml_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function outputMessage\\(\\) has parameter \\$message with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
