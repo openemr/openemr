@@ -3962,12 +3962,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete may not be defined in the global namespace\\.$#',
+    'message' => '#^Function amcInComplete may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe may not be defined in the global namespace\\.$#',
+    'message' => '#^Function amcInCompleteSafe may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];

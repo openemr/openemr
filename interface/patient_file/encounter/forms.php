@@ -239,7 +239,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             if ($('#med_reconc_perf').prop('checked')) {
                 var mode = "complete";
             } else {
-                var mode = "uncomplete";
+                var mode = "incomplete";
             }
             top.restoreSession();
             $.post("../../../library/ajax/amc_misc_data.php",
