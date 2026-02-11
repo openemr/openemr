@@ -12,6 +12,8 @@ declare(strict_types=1);
 return [
     'custom_template' => 'db/migration-template.php.tpl',
     'migrations_paths' => [
+        // A future version of this will integrate w/ the modules system and
+        // pull in any vended migrations from installed/active modules.
         'Db\\Migrations' => 'db/Migrations',
     ],
     'table_storage' => [
