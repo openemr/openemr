@@ -111,7 +111,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
      var mode = "complete_safe";
    }
    else {
-     var mode = "uncomplete_safe";
+     var mode = "incomplete_safe";
    }
    top.restoreSession();
    $.post( "../../library/ajax/amc_misc_data.php",
