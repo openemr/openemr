@@ -61,11 +61,9 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
         amcComplete($amc_id, $patient_id, $object_category, $object_id);
     } elseif ($mode == "complete_safe") {
         amcCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
-    } elseif ($mode == "incomplete" || $mode == "uncomplete") {
-        // "uncomplete" is accepted for backward compatibility but deprecated; use "incomplete" instead
+    } elseif ($mode == "incomplete") {
         amcInComplete($amc_id, $patient_id, $object_category, $object_id);
-    } elseif ($mode == "incomplete_safe" || $mode == "uncomplete_safe") {
-        // "uncomplete_safe" is accepted for backward compatibility but deprecated; use "incomplete_safe" instead
+    } elseif ($mode == "incomplete_safe") {
         amcInCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
     } elseif ($mode == "soc_provided") {
         amcSoCProvided($amc_id, $patient_id, $object_category, $object_id);
