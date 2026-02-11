@@ -307,15 +307,4 @@ class Database
         // This shouldn't be reachable without very weird driver settings
         return null;
     }
-
-    /**
-     * Expose the raw connection for use in migrations and future ORM tooling.
-     * This should never be used in user-space directly.
-     *
-     * @internal
-     */
-    public function getDbalConnection(): Connection
-    {
-        return $this->conn;
-    }
 }
