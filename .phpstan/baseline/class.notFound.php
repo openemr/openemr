@@ -312,11 +312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class ModulesApplication\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcherInterface\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
