@@ -19,6 +19,7 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 // Checks if the server's PHP version is compatible with OpenEMR:
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    http_response_code(500);
     die(htmlspecialchars($response));
 }
 
@@ -37,11 +38,13 @@ $logger = new SystemLogger();
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
+    http_response_code(500);
     $logger->critical('OpenEMR is not working since the php openssl module is not installed');
     die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
 }
 // Throw error if the openssl aes-256-cbc cipher is not available.
 if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
+    http_response_code(500);
     $logger->critical('OpenEMR is not working since the openssl aes-256-cbc cipher is not available');
     die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
 }
@@ -252,6 +255,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
+            http_response_code(400);
             die("Site ID is missing from session data!");
         }
 
@@ -265,6 +269,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string) $tmp)) {
+        http_response_code(400);
         echo "Invalid URL";
         $logger->warning("Request with site id '{site_id}' contains invalid characters.", ['site_id' => $tmp]);
         die();
@@ -378,6 +383,7 @@ try {
     $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
+    http_response_code(500);
     die();
 }
 
