@@ -12,7 +12,7 @@ We are in the process of overhauling CLI and module-related tooling, so this cov
 Run `vendor/bin/doctrine-migrations migration:generate`.
 Edit the file it creates.
 
-Migrations will automatially have a timestamp applied to the file name, and will be run in sequential order.
+Migrations will automatically have a timestamp applied to the file name, and will be run in sequential order.
 Be aware of the order of operations.
 
 Aim to limit any given migration to a single table if possible.
