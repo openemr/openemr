@@ -30,6 +30,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: '8.4'
       - name: Create sqlconf.php
         run: |
           cat > sites/default/sqlconf.php << 'EOF'
