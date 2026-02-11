@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Db\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * This is a special migration that exists to bootstrap the migration-tracking
+ * table (which doctrine/migrations manages).
+ *
+ * It intentionally does not make other changes.
+ */
+final class Version00000000000000 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Initial migration; establish migrations table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // Intentionally left blank
+    }
+
+    public function down(Schema $schema): void
+    {
+        // Intentionally left blank
+    }
+}
