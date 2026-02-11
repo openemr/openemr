@@ -13,15 +13,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set up autoloader as early as possible
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(__DIR__ . "/../src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    http_response_code(500);
     die(htmlspecialchars($response));
 }
 
 use Dotenv\Dotenv;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
@@ -30,14 +34,18 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
+$logger = new SystemLogger();
+
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
-    error_log("OPENEMR ERROR: OpenEMR is not working since the php openssl module is not installed.", 0);
+    http_response_code(500);
+    $logger->critical('OpenEMR is not working since the php openssl module is not installed');
     die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
 }
 // Throw error if the openssl aes-256-cbc cipher is not available.
 if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
-    error_log("OPENEMR ERROR: OpenEMR is not working since the openssl aes-256-cbc cipher is not available.", 0);
+    http_response_code(500);
+    $logger->critical('OpenEMR is not working since the openssl aes-256-cbc cipher is not available');
     die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
 }
 
@@ -97,11 +105,12 @@ $GLOBALS['http_ca_cert'] = $_ENV['OPENEMR_SETTING_http_ca_cert'] ?? false;
 
 // Debug logging for potentially problematic SSL configuration
 if (!empty($GLOBALS['http_ca_cert']) && !$GLOBALS['http_verify_ssl']) {
-    error_log(
+    $logger->warning(
         'OpenEMR SSL Configuration Warning: Custom CA certificate is configured ' .
-        '(http_ca_cert=' . $GLOBALS['http_ca_cert'] . ') but SSL verification is disabled ' .
+        '(http_ca_cert={http_ca_cert}) but SSL verification is disabled ' .
         '(http_verify_ssl=false). The CA certificate will be ignored. ' .
-        'This may indicate a configuration error.'
+        'This may indicate a configuration error.',
+        ['http_ca_cert' => $GLOBALS['http_ca_cert']]
     );
 }
 
@@ -193,18 +202,6 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
-// Includes composer autoload
-// Note this is skipped in special cases where the autoload has already been performed
-// Note this also brings in following library files:
-//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
-//  library/formdata.inc.php - Include sanitization/checking functions (for security)
-//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
-//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
-//  library/date_functions.php - Includes functions for date internationalization
-//  library/validation/validate_core.php - Includes functions for page validation
-//  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] . "/autoload.php";
-
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
 * If a session already exists, then this means portal or oauth2 or api is being used, which
@@ -258,6 +255,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
+            http_response_code(400);
             die("Site ID is missing from session data!");
         }
 
@@ -271,8 +269,9 @@ if (empty($siteId) || !empty($_GET['site'])) {
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string) $tmp)) {
+        http_response_code(400);
         echo "Invalid URL";
-        error_log("Request with site id '" . htmlspecialchars((string) $tmp, ENT_QUOTES) . "' contains invalid characters.");
+        $logger->warning("Request with site id '{site_id}' contains invalid characters.", ['site_id' => $tmp]);
         die();
     }
 
@@ -383,7 +382,8 @@ try {
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
 } catch (\Throwable $e) {
-    error_log(errorLogEscape($e->getMessage()));
+    $logger->error($e->getMessage(), ['exception' => $e]);
+    http_response_code(500);
     die();
 }
 
@@ -601,7 +601,7 @@ if (!empty($glrow)) {
             $compact_header = $GLOBALS['compact_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
+            $logger->warning("Missing theme file {path}", ['path' => $webserver_root . '/public/themes/' . $new_theme]);
         }
     }
 
@@ -618,7 +618,7 @@ if (!empty($glrow)) {
             $portal_css_header = $globalsBag->getString('portal_css_header');
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
+            $logger->warning("Missing theme file {path}", ['path' => $webserver_root . '/public/themes/' . $new_theme]);
         }
     }
     unset($temp_css_theme_name, $new_theme, $rtl_override, $rtl_portal_override, $portal_temp_css_theme_name);
@@ -768,9 +768,11 @@ if (!empty($checkModulesTableExists)) {
     } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
-        error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
+        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
+        die();
     } catch (\Throwable $ex) {
-        error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
+        http_response_code(500);
+        $logger->error($ex->getMessage(), ['exception' => $ex]);
         die();
     }
 }
@@ -780,9 +782,9 @@ if (!empty($checkModulesTableExists)) {
 $encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_GET['pid']);
+    SessionUtil::setSession('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_POST['pid']);
+    SessionUtil::setSession('pid', $_POST['pid']);
 }
 
 $pid = empty($session->get('pid')) ? 0 : $session->get('pid');

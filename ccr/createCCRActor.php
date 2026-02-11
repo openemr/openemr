@@ -21,6 +21,11 @@
  * @link    http://www.open-emr.org
  */
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Actors (created in createCCR.php)
+ */
+
 $result = getActorData();
 while ($row = sqlFetchArray($result[0])) {
     $e_Actor = $ccr->createElement('Actor');
