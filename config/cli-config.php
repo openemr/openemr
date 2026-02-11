@@ -10,7 +10,6 @@
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#advanced
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/custom-integration.html#custom-integration
  *
- * @phpstan-import-type SqlConf from Database
  */
 
 use Doctrine\DBAL\Connection;
@@ -26,10 +25,15 @@ $loader = new PhpFile('db/migration-config.php');
 $site = 'default'; // fixme: env or something
 
 
+/**
+ * @phpstan-import-type SqlConf from Database
+ */
 $getConnectionFromSqlconf = function(string $site): Connection {
     require __DIR__ . "/../sites/$site/sqlconf.php";
     assert(isset($sqlconf) && is_array($sqlconf));
-    /** @var SqlConf $sqlconf */
+    /**
+     * @var SqlConf $sqlconf
+     */
     $params = Database::sqlconfToDbalParams($sqlconf, $site);
     return DriverManager::getConnection($params);
 };
@@ -44,5 +48,4 @@ $df = DependencyFactory::fromConnection(
     connectionLoader: $connLoader,
 );
 
-var_dump("READ CLI CONFIG");
 return $df;
