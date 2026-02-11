@@ -668,7 +668,7 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
 if (empty($globalsBag->getString('qualified_site_addr'))) {
     $globalsBag->set(
         'qualified_site_addr',
-        rtrim($globalsBag->getString('site_addr_oath') . trim((string) $globalsBag->getString('webroot')), "/")
+        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
     );
 }
 
