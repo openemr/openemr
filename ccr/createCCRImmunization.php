@@ -24,6 +24,11 @@
     $result = getImmunizationData();
     $row = sqlFetchArray($result);
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Immunization (created in createCCR.php)
+ */
+
 do {
     $e_Immunization = $ccr->createElement('Immunization');
     $e_Immunizations->appendChild($e_Immunization);
