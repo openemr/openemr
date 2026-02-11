@@ -470,7 +470,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 *
 * @return integer
 */
-function generate_id()
+function generate_id(): int
 {
     return QueryUtils::generateId();
 }

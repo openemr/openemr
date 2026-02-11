@@ -92,7 +92,7 @@ class Database
     {
         $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
-        if (empty($sqlconf)) {
+        if (!is_array($sqlconf)) {
             throw new LogicException(
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );
@@ -101,12 +101,12 @@ class Database
 
         $connParams = [
             'driver' => 'pdo_mysql',
-            'dbname' => $sqlconf['dbase'],
-            'host' => $sqlconf['host'],
-            'port' => $sqlconf['port'],
-            'user' => $sqlconf['login'],
-            'password' => $sqlconf['pass'],
-            'charset' => $sqlconf['db_encoding'],
+            'dbname' => is_string($sqlconf['dbase']) ? $sqlconf['dbase'] : '',
+            'host' => is_string($sqlconf['host']) ? $sqlconf['host'] : '',
+            'port' => is_int($sqlconf['port']) ? $sqlconf['port'] : 0,
+            'user' => is_string($sqlconf['login']) ? $sqlconf['login'] : '',
+            'password' => is_string($sqlconf['pass']) ? $sqlconf['pass'] : '',
+            'charset' => is_string($sqlconf['db_encoding']) ? $sqlconf['db_encoding'] : 'utf8mb4',
         ];
 
         $siteDir = $bag->getString('OE_SITE_DIR');
