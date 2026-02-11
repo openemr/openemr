@@ -70,23 +70,36 @@ Edit `phpstan-baseline-annotations.json` to mark significant events:
 | `color` | No | Hex color (default: `#dc2626` red) |
 | `position` | No | `start` (top), `center`, or `end` (bottom) |
 
-## Regenerating History
+## Managing History
 
-To rebuild the history from scratch (e.g., after changing the data format):
+The `ci/phpstan-baseline-history.php` script has two modes:
+
+### Append (CI use)
+
+Appends the current commit's metrics to the history file:
 
 ```bash
-php ci/phpstan-baseline-history.php [since-commit]
+php ci/phpstan-baseline-history.php append
+```
+
+This is what the GitHub Actions workflow uses.
+
+### Rebuild (manual)
+
+Rebuilds the entire history by iterating through git commits:
+
+```bash
+php ci/phpstan-baseline-history.php rebuild [since-commit]
 ```
 
 The default starting commit is `4b6b18875973ab2cf78dcaad35f910cc5f06171f` (when the baseline format changed to PHP files).
 
-Note: This checks out each commit in sequence, so ensure your working directory is clean.
+Note: This checks out each commit in sequence, so ensure your working directory is clean (no uncommitted changes to tracked files).
 
 ## CI Workflow
 
 The `.github/workflows/phpstan-baseline-metrics.yml` workflow:
 
 - Triggers on pushes to master that modify `.phpstan/baseline/**`
-- Extracts metrics using `ci/phpstan-baseline-metrics.php`
-- Appends a new entry to the history file
+- Runs `php ci/phpstan-baseline-history.php append`
 - Commits the updated history with `[skip ci]` to avoid loops
