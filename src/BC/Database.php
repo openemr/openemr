@@ -94,7 +94,7 @@ class Database
     {
         $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
-        if (!isset($sqlconf) || !is_array($sqlconf)) {
+        if (!is_array($sqlconf)) {
             throw new LogicException(
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );

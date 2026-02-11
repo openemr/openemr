@@ -782,61 +782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method PageExecute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
-    'count' => 31,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug_text\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method del_acl\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_paging_data\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_schema_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method qstr\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method return_page\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../gacl/admin/acl_test.php',
@@ -935,76 +880,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method pageexecute\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method PageExecute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method SelectLimit\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method add_group_object\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug_text\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method del_group_object\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_group_data\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_paging_data\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_schema_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method qstr\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method return_page\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method GetRow\\(\\) on mixed\\.$#',

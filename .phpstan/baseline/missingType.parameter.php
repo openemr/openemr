@@ -77,66 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$ccd_out with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$format_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$requested_by with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$xml_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function outputMessage\\(\\) has parameter \\$message with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
@@ -17822,47 +17762,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
