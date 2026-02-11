@@ -112,10 +112,6 @@ for ($p = 0; $p < count($db_patient); $p++) {
 
 sqlClose();
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): void
 {
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_home'];
