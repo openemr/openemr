@@ -922,101 +922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\tLEFT JOIN\\\\t" and mixed results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\tSELECT a\\.id…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\tSELECT value…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\tSELECT\\\\ta\\.id,x…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\tSELECT\\\\t…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\\\t\\\\t\\\\t\\\\t\\\\tSELECT\\\\ta\\.acl…" and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(a\\.allow LIKE \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(a\\.enabled LIKE \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(a\\.return…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(c\\.value\\)…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(r\\.value\\)…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(rg\\.name\\)…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(x\\.value\\)…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(lower\\(xg\\.name\\)…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'a\\.section_value\\=\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'ac\\.section_value\\=\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'ar\\.section_value\\=\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'ax\\.section_value\\=\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
@@ -1077,48 +982,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'aro\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'aro_groups\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'aro_sections\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'axo\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'axo_groups\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'axo_sections\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'groups_aro_map\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'groups_axo_map\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
 ];
 $ignoreErrors[] = [

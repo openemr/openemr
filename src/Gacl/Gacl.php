@@ -67,7 +67,7 @@ class Gacl {
     /** @var string The database name */
     public $_db_name = '';
 
-    /** @var object An ADODB database connector object */
+    /** @var \ADOConnection An ADODB database connector object */
     public $_db = '';
 
     /** @var boolean The utf8 encoding flag */

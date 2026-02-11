@@ -34,6 +34,16 @@ require_once "$srcdir/patient.inc.php";
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var array $code_types
+ * @var string $BS_COL_CLASS
+ */
+
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
