@@ -97,6 +97,12 @@ class Database
                 'sqlconf empty or missing. Was interface/globals.php included?'
             );
         }
+        $siteDir = $bag->getString('OE_SITE_DIR');
+        return self::translateLegacySqlconf($sqlconf, $siteDir);
+    }
+
+    public static function translateLegacySqlconf(array $sqlconf, string $siteDir): array
+    {
         // replicate the same ssl cert detection in a compatible format
 
         $connParams = [
@@ -109,7 +115,6 @@ class Database
             'charset' => $sqlconf['db_encoding'],
         ];
 
-        $siteDir = $bag->getString('OE_SITE_DIR');
         $options = self::inferSslOptions($siteDir);
         $connParams['driverOptions'] = $options;
 
@@ -291,5 +296,16 @@ class Database
         }
         // This shouldn't be reachable without very weird driver settings
         return null;
+    }
+
+    /**
+     * Expose the raw connection for use in migrations and future ORM tooling.
+     * This should never be used in user-space directly.
+     *
+     * @internal
+     */
+    public function getDbalConnection(): Connection
+    {
+        return $this->conn;
     }
 }
