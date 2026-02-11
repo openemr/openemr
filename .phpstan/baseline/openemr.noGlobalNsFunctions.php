@@ -3942,6 +3942,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function amcInComplete may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function amcNoSoCProvided may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
@@ -3958,16 +3968,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function amcTrackingRequest may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
