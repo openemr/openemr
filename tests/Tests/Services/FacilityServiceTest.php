@@ -166,4 +166,5 @@ class FacilityServiceTest extends TestCase
         $actualResult = $this->facilityService->getFacilityForUser(1);
         $this->assertNotNull($actualResult);
     }
+
 }
