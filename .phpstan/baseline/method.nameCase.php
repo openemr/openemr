@@ -62,6 +62,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method ADOConnection\\:\\:qStr\\(\\) with incorrect case\\: qstr$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',

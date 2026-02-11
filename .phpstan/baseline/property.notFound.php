@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$_maxRecordCount\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property Profiler\\:\\:\\$output_enabled\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',

@@ -188,21 +188,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_max_select_box_items on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/edit_group.php',
 ];
