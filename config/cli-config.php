@@ -6,23 +6,12 @@
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use OpenEMR\BC\Database;
 
-$config = [
-    'migrations_paths' => [
-        'Db\\Migrations' => 'db/Migrations',
-    ],
-    'table_storage' => [
-        'table_name' => 'migrations',
-        'execution_time_column_name' => 'execution_duration_ms',
-    ],
-    'custom_template' => 'db/migration-template.php.tpl',
-
-];
-
-$loader = new ConfigurationArray($config);
+$loader = new PhpFile('db/migration-config.php');
 
 $site = 'default'; // fixme: env or something
 
