@@ -26,7 +26,7 @@
 
 /**
  * @var \DOMDocument $ccr (created in createCCR.php)
- * @var \DOMDocument $e_Immunization (created in createCCR.php)
+ * @var \DOMDocument $e_Immunizations (created in createCCR.php)
  */
 
 do {

@@ -87,11 +87,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Immunizations might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',

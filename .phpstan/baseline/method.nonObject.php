@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
