@@ -10,6 +10,10 @@
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#advanced
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/custom-integration.html#custom-integration
  *
+ * @phpstan-import-type SqlConf from Database
+ * (note: this has no effect in the current version of PHPStan; I want to
+ * refine this format furtuer which will eliminate the problem. For now it's
+ * baselined)
  */
 
 use Doctrine\DBAL\Connection;
@@ -25,9 +29,6 @@ $loader = new PhpFile('db/migration-config.php');
 $site = 'default'; // fixme: env or something
 
 
-/**
- * @phpstan-import-type SqlConf from Database
- */
 $getConnectionFromSqlconf = function(string $site): Connection {
     require __DIR__ . "/../sites/$site/sqlconf.php";
     assert(isset($sqlconf) && is_array($sqlconf));
