@@ -27,29 +27,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 110,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 110,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 29,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
@@ -57,39 +37,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 17,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 39,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 38,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
@@ -97,44 +47,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 28,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 33,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 39,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 38,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',

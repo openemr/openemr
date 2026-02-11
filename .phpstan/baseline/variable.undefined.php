@@ -72,29 +72,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 110,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Actors might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$oemrID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Alerts might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
@@ -107,69 +87,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_ccr might not be defined\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Immunizations might not be defined\\.$#',
+    'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 39,
     'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Medications might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sourceID might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Problems might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 33,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Procedures might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
@@ -178,16 +108,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$authorID might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 39,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Results might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRResult.php',
 ];
