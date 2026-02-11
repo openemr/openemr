@@ -3,10 +3,10 @@
 ## [8.0.0](https://github.com/openemr/openemr/milestone/23?closed=1) - 2026-02-11
 
 ### Added
--  Fixes #10233 cqm reporting period and deps updates ([#10234](https://github.com/openemr/openemr/pull/10234))
 -  add HTI-1 pronouns to demographics ([#10201](https://github.com/openemr/openemr/issues/10201))
 
 ### Fixed
+-  Fixes #10233 cqm reporting period and deps updates ([#10234](https://github.com/openemr/openemr/pull/10234))
 - Add cache-buster to refactored payment JS scripts ([#10156](https://github.com/openemr/openemr/issues/10156))
 - Break when adding a new patient. (appears secondary to session breakage) ([#10529](https://github.com/openemr/openemr/issues/10529))
 - Catch all for various bug fixes. ([#9995](https://github.com/openemr/openemr/issues/9995))
