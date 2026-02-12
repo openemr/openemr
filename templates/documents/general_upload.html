@@ -10,8 +10,29 @@
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
 
+<script>
+    function checkFileSize() {
+        var fileInput = document.querySelector('input[type="file"]');
+        var totalSize = 0;
+
+        // Get the size of the selected file
+        for (var i = 0; i < fileInput.files.length; i++) {
+            totalSize += fileInput.files[i].size;
+        }
+
+        // Check if the file size exceeds the maximum allowed size.
+        if (totalSize > 64000000) {
+            alert('Total file size exceeds the maximum limit of 64MB.');
+            // Prevent form submission
+            return false;
+        }
+        // Allow form submission
+        return true;
+    }
+</script>
+
 <div class="col-sm-12">
-    <form class="form" method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+    <form class="form" method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return checkFileSize()">
         <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
         <h3>{if !empty($error)}{$error|text|nl2br}{/if}</h3>
         {if (!($patient_id > 0))}
