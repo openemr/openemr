@@ -39,6 +39,9 @@ use Twig\Environment;
  * wrapper rather than inline `new`/`instance`/`factory`/etc calls, and
  * referencing interfaces instead of implementations, should ease the eventual
  * migration.
+ *
+ * Prefer the static methods in this class over `new`ing the underlying
+ * utilities directly.
  */
 class ServiceContainer
 {
