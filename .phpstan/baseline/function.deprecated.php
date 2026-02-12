@@ -1,13 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 334 errors
-
 $ignoreErrors = [];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
@@ -58,11 +51,6 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
@@ -425,11 +413,6 @@ use CodeTypesService\\:\\:collectCodeTypes\\(\\)$#',
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
@@ -730,34 +713,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/user_settings.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Company.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/PhoneNumber.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Provider.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function checkUserSetting\\(\\)\\:
@@ -845,11 +803,6 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:checkUserSetting$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/Address.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 18 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getGlobalSettingSectionConfiguration\\(\\) of class OpenEMR\\\\Modules\\\\WenoModule\\\\WenoGlobalConfig\\:

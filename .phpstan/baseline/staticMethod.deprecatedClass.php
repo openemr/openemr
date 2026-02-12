@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 4 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method file\\(\\) of deprecated class Lcobucci\\\\JWT\\\\Signer\\\\Key\\\\LocalFileReference\\:

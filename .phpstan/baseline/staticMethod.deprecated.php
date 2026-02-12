@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 75 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
@@ -12,12 +10,84 @@ Returns a new instance from a file path\\.$#',
     'path' => __DIR__ . '/../../contrib/util/billing/load_fee_schedule.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method formatPhone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>formatLocal\\(\\) instead$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toE164\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>toE164\\(\\) instead$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
 since version 9\\.27\\.0
 
 Returns a new instance from a file path\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toHL7Phone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>toHL7\\(\\) instead$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
+Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/collections_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toHL7Phone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>toHL7\\(\\) instead$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/reports/immunization_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromString\\(\\) of class League\\\\Csv\\\\AbstractCsv\\:
@@ -114,10 +184,22 @@ use createProcessingResultResponse\\(\\) instead\\.$#',
     'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method forUnsecuredSigner\\(\\) of class Lcobucci\\\\JWT\\\\Configuration\\:
 Deprecated since v4\\.3$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method formatPhone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
+Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>formatLocal\\(\\) instead$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/PhoneNumberService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:

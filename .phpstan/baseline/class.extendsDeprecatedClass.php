@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 4 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Class Application\\\\Helper\\\\Javascript extends deprecated class Laminas\\\\View\\\\Helper\\\\AbstractHelper\\:
