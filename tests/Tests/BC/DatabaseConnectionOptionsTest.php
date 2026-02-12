@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\BC;
 
 use InvalidArgumentException;
-use LogicException;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -261,7 +260,7 @@ class DatabaseConnectionOptionsTest extends TestCase
         self::assertSame('utf8mb4', $options->charset);
     }
 
-    public function testFromSqlconfWithSslPaths(): void
+    public function testFromSqlconfWithSslConfig(): void
     {
         $sqlconf = [
             'dbase' => 'openemr',
@@ -270,13 +269,15 @@ class DatabaseConnectionOptionsTest extends TestCase
             'host' => 'localhost',
             'port' => '3306',
         ];
-        $sslPaths = [
+        $ssl = [
             'ca' => '/path/to/ca.pem',
-            'cert' => '/path/to/cert.pem',
-            'key' => '/path/to/key.pem',
+            'clientCert' => [
+                'cert' => '/path/to/cert.pem',
+                'key' => '/path/to/key.pem',
+            ],
         ];
 
-        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $sslPaths);
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $ssl);
 
         self::assertSame('/path/to/ca.pem', $options->sslCaPath);
         self::assertSame([
@@ -294,59 +295,6 @@ class DatabaseConnectionOptionsTest extends TestCase
             $this->cleanupTempDir($dir);
         }
         $this->tempDirs = [];
-    }
-
-    public function testInferSslPathsWithCaOnly(): void
-    {
-        $siteDir = $this->createTempSiteDir();
-        $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        file_put_contents($certDir . '/mysql-ca', 'ca-content');
-
-        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
-
-        self::assertSame([
-            'ca' => $certDir . '/mysql-ca',
-        ], $paths);
-    }
-
-    public function testInferSslPathsWithFullCerts(): void
-    {
-        $siteDir = $this->createTempSiteDir();
-        $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        file_put_contents($certDir . '/mysql-ca', 'ca');
-        file_put_contents($certDir . '/mysql-cert', 'cert');
-        file_put_contents($certDir . '/mysql-key', 'key');
-
-        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
-
-        self::assertSame([
-            'ca' => $certDir . '/mysql-ca',
-            'cert' => $certDir . '/mysql-cert',
-            'key' => $certDir . '/mysql-key',
-        ], $paths);
-    }
-
-    public function testInferSslPathsRejectsMismatchedCertKey(): void
-    {
-        $siteDir = $this->createTempSiteDir();
-        $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        file_put_contents($certDir . '/mysql-cert', 'cert');
-
-        $this->expectException(LogicException::class);
-        DatabaseConnectionOptions::inferSslPaths($siteDir);
-    }
-
-    public function testInferSslPathsReturnsEmptyWhenNoCerts(): void
-    {
-        $siteDir = $this->createTempSiteDir();
-        mkdir($siteDir . '/documents/certificates', 0755, true);
-
-        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
-
-        self::assertSame([], $paths);
     }
 
     public function testForSiteLoadsConfigFile(): void
@@ -396,6 +344,7 @@ PHP
             \RecursiveIteratorIterator::CHILD_FIRST,
         );
         foreach ($files as $file) {
+            /** @var \SplFileInfo $file */
             if ($file->isDir()) {
                 rmdir($file->getRealPath());
             } else {

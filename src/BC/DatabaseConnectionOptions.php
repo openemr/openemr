@@ -36,13 +36,21 @@ use SensitiveParameter;
  *   socket?: string,
  *   db_encoding?: string,
  * }
+ * @phpstan-type ClientCert array{
+ *   cert: string,
+ *   key: string,
+ * }
+ * @phpstan-type SslConfig array{
+ *   ca?: string,
+ *   clientCert?: ClientCert,
+ * }
  */
 final readonly class DatabaseConnectionOptions
 {
     private const REDACTED = '[REDACTED]';
 
     /**
-     * @param array{cert: string, key: string}|null $sslClientCert Client cert/key pair for mTLS
+     * @param ClientCert|null $sslClientCert Client cert/key pair for mTLS
      */
     public function __construct(
         public string $dbname,
@@ -100,43 +108,35 @@ final readonly class DatabaseConnectionOptions
      * Creates options from a pre-parsed sqlconf array.
      *
      * @param SqlConf $sqlconf
-     * @param array{ca?: string, cert?: string, key?: string} $sslPaths
+     * @param SslConfig $ssl
      */
-    public static function fromSqlconf(array $sqlconf, array $sslPaths = []): self
+    public static function fromSqlconf(array $sqlconf, array $ssl = []): self
     {
         $host = $sqlconf['host'] ?? null;
         $port = isset($sqlconf['port']) ? (int) $sqlconf['port'] : null;
         $unixSocket = $sqlconf['socket'] ?? null;
 
-        $sslClientCert = null;
-        if (isset($sslPaths['cert'], $sslPaths['key'])) {
-            $sslClientCert = [
-                'cert' => $sslPaths['cert'],
-                'key' => $sslPaths['key'],
-            ];
-        }
-
         return new self(
             dbname: $sqlconf['dbase'],
+            charset: $sqlconf['db_encoding'] ?? 'utf8mb4',
             user: $sqlconf['login'],
             password: $sqlconf['pass'],
             host: $host,
             port: $port,
             unixSocket: $unixSocket,
-            charset: $sqlconf['db_encoding'] ?? 'utf8mb4',
-            sslCaPath: $sslPaths['ca'] ?? null,
-            sslClientCert: $sslClientCert,
+            sslCaPath: $ssl['ca'] ?? null,
+            sslClientCert: $ssl['clientCert'] ?? null,
         );
     }
 
     /**
      * Detects MySQL SSL certificate files in site directory.
      *
-     * @return array{ca?: string, cert?: string, key?: string}
+     * @return SslConfig
      */
-    public static function inferSslPaths(string $siteDir): array
+    private static function inferSslPaths(string $siteDir): array
     {
-        $paths = [];
+        $config = [];
 
         $certDir = sprintf('%s/documents/certificates', $siteDir);
         $caFile = sprintf('%s/mysql-ca', $certDir);
@@ -144,7 +144,7 @@ final readonly class DatabaseConnectionOptions
         $key = sprintf('%s/mysql-key', $certDir);
 
         if (file_exists($caFile)) {
-            $paths['ca'] = $caFile;
+            $config['ca'] = $caFile;
         }
         if (file_exists($cert) || file_exists($key)) {
             if (!file_exists($cert) || !file_exists($key)) {
@@ -152,11 +152,13 @@ final readonly class DatabaseConnectionOptions
                     'MySQL cert or key file missing. You need both or neither.'
                 );
             }
-            $paths['cert'] = $cert;
-            $paths['key'] = $key;
+            $config['clientCert'] = [
+                'cert' => $cert,
+                'key' => $key,
+            ];
         }
 
-        return $paths;
+        return $config;
     }
 
     /**
