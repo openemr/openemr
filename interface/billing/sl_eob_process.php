@@ -213,7 +213,7 @@ function getOldDetail(array &$prev, string $ptname, string $invnumber, string $d
  * @param array $out The ERA output data containing check information
  * @return void
  */
-function era_callback_check(array &$out): void
+function eob_process_eob_process_era_callback_check(array &$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
@@ -290,7 +290,7 @@ function era_callback_check(array &$out): void
  * @param array $out The ERA output data containing claim information
  * @return void
  */
-function era_callback(array &$out): void
+function eob_process_era_callback(array &$out): void
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
@@ -845,7 +845,7 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
 
     $alertmsg = (
         ParseERA::parseERAForCheck($eraFilePath)
-        . ParseERA::parseERA($eraFilePath, 'era_callback')
+        . ParseERA::parseERA($eraFilePath, 'eob_process_era_callback')
     );
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';

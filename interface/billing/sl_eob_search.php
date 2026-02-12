@@ -157,7 +157,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 }
 
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function era_callback(&$out): void
+function eob_search_era_callback(&$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging
@@ -955,7 +955,7 @@ if (
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
                                 $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
