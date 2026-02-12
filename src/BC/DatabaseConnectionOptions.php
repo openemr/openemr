@@ -57,7 +57,7 @@ final readonly class DatabaseConnectionOptions
         public string $charset,
         public string $user,
         #[SensitiveParameter]
-        private string $password,
+        public string $password,
         public ?string $host = null,
         public ?int $port = null,
         public ?string $unixSocket = null,
