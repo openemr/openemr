@@ -20,7 +20,7 @@ use Mpdf\Mpdf;
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
-function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
+function labcorp_ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
 {
 
     $styleSheet =  <<<STYLES
@@ -777,5 +777,5 @@ STYLES;
     }
 }
 if ($_REQUEST['debug']) {
-    ereqForm($pid, $encounter, $form_id);
+    labcorp_ereqForm($pid, $encounter, $form_id);
 }
