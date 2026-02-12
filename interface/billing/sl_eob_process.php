@@ -213,7 +213,7 @@ function getOldDetail(array &$prev, string $ptname, string $invnumber, string $d
  * @param array $out The ERA output data containing check information
  * @return void
  */
-function eob_process_eob_process_era_callback_check(array &$out): void
+function eob_process_era_callback_check(array &$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
