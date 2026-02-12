@@ -177,4 +177,74 @@ class DatabaseConnectionOptionsTest extends TestCase
             unixSocket: '/var/run/mysqld/mysqld.sock',
         );
     }
+
+    public function testFromSqlconfWithHostAndPort(): void
+    {
+        $sqlconf = [
+            'dbase' => 'my-database',
+            'login' => 'fancy-user',
+            'pass' => 'secret',
+            'host' => '192.168.0.76',
+            'port' => '3307',
+            'db_encoding' => 'utf8mb4',
+        ];
+
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf);
+
+        self::assertSame('my-database', $options->dbname);
+        self::assertSame('fancy-user', $options->user);
+        self::assertSame('192.168.0.76', $options->host);
+        self::assertSame(3307, $options->port);
+        self::assertNull($options->unixSocket);
+        self::assertSame('utf8mb4', $options->charset);
+    }
+
+    public function testFromSqlconfWithUnixSocket(): void
+    {
+        $sqlconf = [
+            'dbase' => 'openemr',
+            'login' => 'root',
+            'pass' => 'secret',
+            'socket' => '/var/run/mysqld/mysqld.sock',
+            'db_encoding' => 'utf8mb4',
+        ];
+
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf);
+
+        self::assertSame('/var/run/mysqld/mysqld.sock', $options->unixSocket);
+        self::assertNull($options->host);
+        self::assertNull($options->port);
+    }
+
+    public function testFromSqlconfDefaultsCharset(): void
+    {
+        $sqlconf = [
+            'dbase' => 'openemr',
+            'login' => 'root',
+            'pass' => 'secret',
+            'host' => 'localhost',
+            'port' => '3306',
+            // db_encoding intentionally missing
+        ];
+
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf);
+
+        self::assertSame('utf8mb4', $options->charset);
+    }
+
+    public function testFromSqlconfWithDriverOptions(): void
+    {
+        $sqlconf = [
+            'dbase' => 'openemr',
+            'login' => 'root',
+            'pass' => 'secret',
+            'host' => 'localhost',
+            'port' => '3306',
+        ];
+        $driverOptions = [PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem'];
+
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $driverOptions);
+
+        self::assertSame($driverOptions, $options->driverOptions);
+    }
 }
