@@ -28,7 +28,6 @@ class BbCreateStaffTest extends PantherTestCase
     use LoginTrait;
     use UserAddTrait;
 
-    private $client;
     private $crawler;
 
     protected function setUp(): void

@@ -87,7 +87,7 @@ class DeviceService extends BaseService
         }
 
         try {
-            $dataSet = json_decode($json, JSON_THROW_ON_ERROR);
+            $dataSet = json_decode((string) $json, JSON_THROW_ON_ERROR);
             $standardElements = $dataSet['standard_elements'] ?? [];
             unset($record['udi_data']); // don't send back the JSON array
             $record['udi_di'] = $standardElements['di'] ?? null;

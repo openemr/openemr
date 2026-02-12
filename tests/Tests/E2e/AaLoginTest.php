@@ -30,7 +30,6 @@ class AaLoginTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     #[Test]
