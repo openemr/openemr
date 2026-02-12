@@ -49,7 +49,7 @@ function patient_reminder_widget($patient_id, $dateTarget = ''): void
     update_reminders($dateTarget, $patient_id);
 
   // Fetch the active reminders
-    $listReminders = fetch_reminders($patient_id);
+    $listReminders = patient_fetch_reminders($patient_id);
 
     if (empty($listReminders)) {
         // No reminders to show.
@@ -245,8 +245,8 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
 
   // For logging purposes only:
   //  Collect number active of active and unsent reminders
-    $logging['total_pre_active_reminders'] = count(fetch_reminders($patient_id_complete));
-    $logging['total_pre_unsent_reminders'] = count(fetch_reminders($patient_id_complete, 'unsent'));
+    $logging['total_pre_active_reminders'] = count(patient_fetch_reminders($patient_id_complete));
+    $logging['total_pre_unsent_reminders'] = count(patient_fetch_reminders($patient_id_complete, 'unsent'));
 
   // Migrate reminders into the patient_reminders table
     $logging['number_new_reminders'] = 0;
@@ -287,7 +287,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
 
   // Inactivate reminders that no longer exist
   // Go through each active reminder and ensure it is in the current list
-    $sqlReminders = fetch_reminders($patient_id_complete);
+    $sqlReminders = patient_fetch_reminders($patient_id_complete);
     $logging['number_inactivated_reminders'] = 0;
     foreach ($sqlReminders as $row) {
         $inactivateFlag = true;
@@ -315,8 +315,8 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
 
   // For logging purposes only:
   //  Collect number of active and unsent reminders
-    $logging['total_post_active_reminders'] = count(fetch_reminders($patient_id_complete));
-    $logging['total_post_unsent_reminders'] = count(fetch_reminders($patient_id_complete, 'unsent'));
+    $logging['total_post_active_reminders'] = count(patient_fetch_reminders($patient_id_complete));
+    $logging['total_post_unsent_reminders'] = count(patient_fetch_reminders($patient_id_complete, 'unsent'));
 
     return $logging;
 }
@@ -343,7 +343,7 @@ function send_reminders()
     $logging = [];
 
   // Collect active reminders that have not yet been sent.
-    $active_unsent_reminders = fetch_reminders('', 'unsent');
+    $active_unsent_reminders = patient_fetch_reminders('', 'unsent');
     $logging['total_pre_unsent_reminders'] = count($active_unsent_reminders);
 
   // Send the unsent reminders
@@ -427,7 +427,7 @@ function send_reminders()
 
   // For logging purposes only:
   //  Collect active reminders that have not yet been sent.
-    $logging['total_post_unsent_reminders'] = count(fetch_reminders('', 'unsent'));
+    $logging['total_post_unsent_reminders'] = count(patient_fetch_reminders('', 'unsent'));
 
     return $logging;
 }
@@ -441,7 +441,7 @@ function send_reminders()
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.
  * @return array                 Returns an array of reminders.
  */
-function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
+function patient_fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
 {
 
     $arraySqlBind = [];

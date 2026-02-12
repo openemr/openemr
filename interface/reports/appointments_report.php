@@ -127,7 +127,7 @@ function fetch_rule_txt($list_id, $option_id): array|false
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date): array
+function appointments_fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = [];
@@ -613,7 +613,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $rems = [];
                 if ($patient_id && $incl_reminders) {
                     // collect reminders first, so can skip it if empty
-                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                    $rems = appointments_fetch_reminders($patient_id, $appointment['pc_eventDate']);
                 }
                 ?>
                 <?php
