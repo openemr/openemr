@@ -18,6 +18,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\Address;
@@ -39,6 +40,9 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * @phpstan-import-type PatientDataRow from TableTypes
+ */
 class PatientService extends BaseService
 {
     public const TABLE_NAME = 'patient_data';
@@ -249,7 +253,9 @@ class PatientService extends BaseService
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Get the data before update to send to the event listener
-        $dataBeforeUpdate = $this->findByPid($data['pid']);
+        /** @var int $pid */
+        $pid = $data['pid'];
+        $dataBeforeUpdate = $this->findByPid($pid);
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
@@ -342,6 +348,10 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
+    /**
+     * @param array<string, mixed> $record
+     * @return array<string, mixed>
+     */
     protected function createResultRecordFromDatabaseResult($record)
     {
         if (!empty($record['uuid'])) {
@@ -631,11 +641,13 @@ class PatientService extends BaseService
     /**
      * Given a pid, find the patient record
      *
-     * @param $pid
+     * @param int $pid
+     * @return PatientDataRow
      */
     public function findByPid($pid)
     {
         $table = PatientService::TABLE_NAME;
+        /** @var PatientDataRow $patientRow */
         $patientRow = self::selectHelper("SELECT * FROM `$table`", [
             'where' => 'WHERE pid = ?',
             'limit' => 1,

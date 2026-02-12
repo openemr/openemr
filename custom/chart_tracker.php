@@ -116,6 +116,9 @@ if (!empty($row)) {
     $current_location = xlt('Unassigned');
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
+        if ($user === false) {
+            throw new \RuntimeException("User not found for ct_userid: " . json_encode($ct_userid));
+        }
         $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . oeFormatDateTime($row['ct_when'], "global", true));
     } elseif ($ct_location) {
         $current_location = generate_display_field(['data_type' => '1','list_id' => 'chartloc'], $ct_location);
