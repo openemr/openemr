@@ -20,6 +20,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -27,6 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 }
 
 $facilityService = new FacilityService();
+$listService = new ListService();
 
 $alertmsg = '';
 $use_validate_js = 1;
@@ -46,6 +48,7 @@ $args = [
     'alertMsg' => trim($alertmsg) ? true : false,
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),
+    'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),
     'mode' => 'add',
 ];
 

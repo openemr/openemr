@@ -77,66 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$ccd_out with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$format_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$requested_by with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitCCD\\(\\) has parameter \\$xml_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$recipient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function transmitMessage\\(\\) has parameter \\$verifyFinalDelivery with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function outputMessage\\(\\) has parameter \\$message with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
@@ -1342,17 +1282,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$prow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -17742,6 +17682,51 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function amcNoSoCProvided\\(\\) has parameter \\$amc_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
@@ -17818,51 +17803,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function amcTrackingRequest\\(\\) has parameter \\$start with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
@@ -30047,17 +29987,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$prow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
@@ -37917,87 +37857,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:__construct\\(\\) has parameter \\$modulePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:__construct\\(\\) has parameter \\$webRootPath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:__construct\\(\\) has parameter \\$zendModulePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:bootstrapCustomModules\\(\\) has parameter \\$customModulePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:bootstrapCustomModules\\(\\) has parameter \\$eventDispatcher with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:bootstrapCustomModules\\(\\) has parameter \\$webRootPath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:checkModuleScriptPathForEnabledModule\\(\\) has parameter \\$modType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:checkModuleScriptPathForEnabledModule\\(\\) has parameter \\$modulePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:checkModuleScriptPathForEnabledModule\\(\\) has parameter \\$webRootPath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:isFileReadableWithRetry\\(\\) has parameter \\$filePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:isFileReadableWithRetry\\(\\) has parameter \\$retries with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:isFileReadableWithRetry\\(\\) has parameter \\$wait with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:isSafeModuleFileForInclude\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:loadCustomModule\\(\\) has parameter \\$eventDispatcher with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:loadCustomModule\\(\\) has parameter \\$module with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:oemr_zend_load_modules_from_db\\(\\) has parameter \\$webRootPath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:oemr_zend_load_modules_from_db\\(\\) has parameter \\$zendConfigurationPath with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];

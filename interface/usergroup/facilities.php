@@ -68,7 +68,8 @@ $columns = [
     "oid" => true,
     "iban" => true,
     "info" => true,
-    "inactive" => true
+    "inactive" => true,
+    "organization_type" => true
 ];
 
 $values = [];

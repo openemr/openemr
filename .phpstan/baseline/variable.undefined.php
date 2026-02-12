@@ -72,29 +72,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 110,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Actors might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$oemrID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Alerts might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRAlerts.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
@@ -107,69 +87,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_ccr might not be defined\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../ccr/createCCRHeader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Immunizations might not be defined\\.$#',
+    'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRImmunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 39,
     'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Medications might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sourceID might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRMedication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Problems might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../ccr/createCCRProblem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 33,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Procedures might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRProcedure.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sourceID might not be defined\\.$#',
@@ -180,26 +110,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$authorID might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ccr might not be defined\\.$#',
-    'count' => 39,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$e_Results might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/createCCRResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$extension might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$text_out might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$policies_by_payer_id might not be defined\\.$#',
@@ -512,21 +422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$db might not be defined\\.$#',
-    'count' => 17,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
-    'count' => 29,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smarty might not be defined\\.$#',
-    'count' => 32,
-    'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/acl_test.php',
@@ -607,16 +502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$db might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
-    'count' => 22,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$i might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
@@ -624,11 +509,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$selected_object_array might not be defined\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smarty might not be defined\\.$#',
-    'count' => 20,
     'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
 ];
 $ignoreErrors[] = [
@@ -4482,23 +4362,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/CAMOS/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$BS_COL_CLASS might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$code_types might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$date_init might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$encounter might not be defined\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -4517,16 +4382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -4534,11 +4389,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$svccount might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$userauthorized might not be defined\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -10722,83 +10572,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/note/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_default might not be defined\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_extremely might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_form_name might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_form_title might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_more might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_nearly might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_nosave_confirm might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_not might not be defined\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_q10 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_q10_2 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_several might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_somewhat might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$str_very might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$viewmode might not be defined\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
 ];
 $ignoreErrors[] = [
@@ -12337,11 +12112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$eligibilityData might not be defined\\.$#',
-    'count' => 69,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/quick_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$receiver might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
@@ -13302,42 +13072,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$attendant_type might not be defined\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$encounter might not be defined\\.$#',
-    'count' => 23,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$groupId might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$therapy_group might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$userauthorized might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];

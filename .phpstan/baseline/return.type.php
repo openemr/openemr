@@ -1182,11 +1182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Listener\\\\Listener\\:\\:z_xla\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Model\\\\Application\\:\\:getInputFilter\\(\\) should return Laminas\\\\InputFilter\\\\InputFilterInterface but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/Application.php',
@@ -3232,11 +3227,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/BC/Database.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\BC\\\\Database\\:\\:readLegacyConfig\\(\\) should return array\\{driver\\: \'pdo_mysql\', dbname\\: string, host\\: string, port\\: int, user\\: string, password\\: string, charset\\: string, driverOptions\\: array\\<1000\\|1001\\|1002\\|1003\\|1004\\|1005\\|1006\\|1007\\|1008\\|1009\\|1010\\|1011\\|1012\\|1013\\|1014\\|1015, string\\>\\} but returns array\\{driver\\: \'pdo_mysql\', dbname\\: mixed, host\\: mixed, port\\: mixed, user\\: mixed, password\\: mixed, charset\\: mixed, driverOptions\\: array\\<1000\\|1001\\|1002\\|1003\\|1004\\|1005\\|1006\\|1007\\|1008\\|1009\\|1010\\|1011\\|1012\\|1013\\|1014\\|1015, string\\>\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/BC/Database.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaim\\:\\:getEncounter\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
@@ -3634,11 +3624,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormLocator\\:\\:findFile\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormLocator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormLocator\\:\\:locateFile\\(\\) should return string but returns mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Forms/FormLocator.php',
 ];
 $ignoreErrors[] = [
@@ -4075,6 +4060,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\Kernel\\:\\:getEventDispatcher\\(\\) should return Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface but returns object\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Kernel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:oemr_zend_load_modules_from_db\\(\\) should return array\\<string\\> but returns list\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\OEHttpKernel\\:\\:getEventDispatcher\\(\\) should return Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface but returns mixed\\.$#',

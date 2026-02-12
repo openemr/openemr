@@ -47,6 +47,12 @@ jobs:
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     - name: PHPStan Analyze
       run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+    # Changes to baseline through anything other than the native generator tend
+    # to lead to merge conflicts and weird diffs, typically from sort order.
+    - name: Ensure baseline is stable
+      run: |
+        composer phpstan-baseline
+        git diff --exit-code .phpstan/baseline/
     - name: PHPStan Baseline
       if: failure()
       run: composer run phpstan-baseline

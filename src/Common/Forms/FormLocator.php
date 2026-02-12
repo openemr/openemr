@@ -67,6 +67,7 @@ class FormLocator
         // AI GENERATED CODE: HEADER END
         $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
 
+        /** @var string */
         $finalPath = $filteredEvent->getFormIncludePath();
         if ($finalPath != $initialFilename) {
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {

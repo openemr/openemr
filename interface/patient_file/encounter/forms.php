@@ -13,14 +13,17 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
+
 /**
-* @global $srcdir
-* @global $attendant_type
-* @global $therapy_group
-* @global $pid
-* @global $userauthorized
-* @global $rootdir
-*/
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $attendant_type
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var int $therapy_group
+ */
+
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
@@ -239,7 +242,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             if ($('#med_reconc_perf').prop('checked')) {
                 var mode = "complete";
             } else {
-                var mode = "uncomplete";
+                var mode = "incomplete";
             }
             top.restoreSession();
             $.post("../../../library/ajax/amc_misc_data.php",
