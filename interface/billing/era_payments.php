@@ -46,7 +46,10 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 $Processed = 0;
-function era_payments_callback(&$out): void
+/**
+ * @param array $out
+ */
+function era_payments_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     ++$eracount;

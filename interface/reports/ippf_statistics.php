@@ -169,8 +169,14 @@ function ippf_stats_getListTitle($list, $option)
     return $row['title'];
 }
 
-// Usually this generates one cell, but allows for two or more.
-//
+/**
+ * Usually this generates one cell, but allows for two or more.
+ *
+ * @param string|array $data
+ * @param bool $right
+ * @param string $class
+ * @param int $colspan
+ */
 function ippf_stats_genAnyCell($data, $right = false, $class = '', $colspan = 1): void
 {
     global $cellcount, $form_output;
@@ -204,13 +210,22 @@ function ippf_stats_genAnyCell($data, $right = false, $class = '', $colspan = 1)
     }
 }
 
+/**
+ * @param string|array $data
+ * @param bool $right
+ * @param int $colspan
+ */
 function ippf_stats_genHeadCell($data, $right = false, $colspan = 1): void
 {
     ippf_stats_genAnyCell($data, $right, 'dehead');
 }
 
-// Create an HTML table cell containing a numeric value, and track totals.
-//
+/**
+ * Create an HTML table cell containing a numeric value, and track totals.
+ *
+ * @param int|float|string $num
+ * @param int $cnum
+ */
 function ippf_stats_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;

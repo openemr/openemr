@@ -47,9 +47,13 @@ $transaction = $_REQUEST['transaction'] ?? '';
 
 $info_msg = "";
 
-// Delete rows, with logging, for the specified table using the
-// specified WHERE clause.
-//
+/**
+ * Delete rows, with logging, for the specified table using the
+ * specified WHERE clause.
+ *
+ * @param string $table
+ * @param string $where
+ */
 function deleter_row_delete($table, $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -84,9 +88,14 @@ function deleter_row_delete($table, $where): void
     }
 }
 
-// Deactivate rows, with logging, for the specified table using the
-// specified SET and WHERE clauses.
-//
+/**
+ * Deactivate rows, with logging, for the specified table using the
+ * specified SET and WHERE clauses.
+ *
+ * @param string $table
+ * @param string $set
+ * @param string $where
+ */
 function deleter_row_modify($table, $set, $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();

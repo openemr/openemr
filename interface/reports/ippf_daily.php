@@ -51,8 +51,13 @@ $atotals = [];
 
 $cellcount = 0;
 
-// Usually this generates one cell, but allows for two or more.
-//
+/**
+ * Usually this generates one cell, but allows for two or more.
+ *
+ * @param string|array $data
+ * @param bool $right
+ * @param string $class
+ */
 function ippf_daily_genAnyCell($data, $right = false, $class = ''): void
 {
     global $cellcount, $form_output;
@@ -84,13 +89,21 @@ function ippf_daily_genAnyCell($data, $right = false, $class = ''): void
     }
 }
 
+/**
+ * @param string|array $data
+ * @param bool $right
+ */
 function ippf_daily_genHeadCell($data, $right = false): void
 {
     ippf_daily_genAnyCell($data, $right, 'dehead');
 }
 
-// Create an HTML table cell containing a numeric value, and track totals.
-//
+/**
+ * Create an HTML table cell containing a numeric value, and track totals.
+ *
+ * @param int|float|string $num
+ * @param int $cnum
+ */
 function ippf_daily_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;

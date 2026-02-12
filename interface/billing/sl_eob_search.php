@@ -156,8 +156,12 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function eob_search_era_callback(&$out): void
+/**
+ * This is called back by ParseERA::parseERA() if we are processing X12 835's.
+ *
+ * @param array $out
+ */
+function eob_search_era_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging

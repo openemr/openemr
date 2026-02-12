@@ -34,6 +34,10 @@ $disabled = $ordtype ? "disabled" : '';
 $labid = $_GET['labid'] ?? 0;
 $info_msg = "";
 
+/**
+ * @param string $name
+ * @return string
+ */
 function types_invalue($name)
 {
     $fld = formData($name, "P", true);

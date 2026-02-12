@@ -127,10 +127,11 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): voi
     $db_loginsert = ( sqlStatement($sql_loginsert, [$prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date("Y-m-d H:i:s")]));
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    WriteLog
-// Purpose: written log into file
-////////////////////////////////////////////////////////////////////
+/**
+ * Write log into file.
+ *
+ * @param string $data
+ */
 function sms_reminder_WriteLog($data): void
 {
     $log_file = $GLOBALS['phone_reminder_log_dir'];

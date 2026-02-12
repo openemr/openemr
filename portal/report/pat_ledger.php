@@ -39,6 +39,12 @@ $enc_bal = $total_bal = 0;
 $bgcolor = "#FFFFDD";
 $orow = 0;
 
+/**
+ * @param string $pat
+ * @param string $from_dt
+ * @param string $to_dt
+ * @return array
+ */
 function portal_GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
     $all = [];
@@ -66,6 +72,11 @@ function portal_GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     return ($all);
 }
 
+/**
+ * @param string $thisData
+ * @param string $thisList
+ * @return string
+ */
 function portal_List_Look($thisData, $thisList)
 {
     if ($thisList == 'occurrence') {
@@ -93,6 +104,11 @@ function portal_List_Look($thisData, $thisList)
     return $dispValue;
 }
 
+/**
+ * @param string $enc
+ * @param string $pat
+ * @return array
+ */
 function portal_GetAllCredits($enc = '', $pat = '')
 {
     $all = [];
@@ -129,6 +145,11 @@ function portal_PrintEncFooter(): void
     echo "</tr>\n";
 }
 
+/**
+ * @param array $detail
+ * @param string $pat
+ * @param bool $unassigned
+ */
 function portal_PrintCreditDetail($detail, $pat, $unassigned = false): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;

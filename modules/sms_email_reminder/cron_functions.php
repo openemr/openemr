@@ -146,10 +146,11 @@ function cron_SendMail($to, $subject, $vBody, $from)
     return $mstatus;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    WriteLog
-// Purpose: written log into file
-////////////////////////////////////////////////////////////////////
+/**
+ * Write log into file.
+ *
+ * @param string $data
+ */
 function cron_WriteLog($data): void
 {
     global $log_folder_path;

@@ -28,6 +28,10 @@ if (!empty($_POST)) {
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01'); // From date filter
 $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
 
+/**
+ * @param array $data
+ * @return array
+ */
 function destroyed_processData($data)
 {
     $data['inventory_id'] = [$data['inventory_id']];
@@ -39,6 +43,12 @@ function destroyed_processData($data)
     $data['destroy_notes'] = [$data['destroy_notes']];
     return $data;
 }
+
+/**
+ * @param array $d1
+ * @param array $d2
+ * @return array
+ */
 function destroyed_mergeData($d1, $d2)
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
@@ -50,6 +60,10 @@ function destroyed_mergeData($d1, $d2)
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
+
+/**
+ * @param array $row
+ */
 function destroyed_mapToTable($row): void
 {
     if ($row) {

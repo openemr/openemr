@@ -112,6 +112,10 @@ function generateEmptyTd($n): void
     }
     echo $temp;
 }
+/**
+ * @param array $data
+ * @return array
+ */
 function inventory_processData($data)
 {
     $data['inventory_id'] = [$data['inventory_id']];
@@ -122,6 +126,12 @@ function inventory_processData($data)
     $data['expiration'] = [$data['expiration']];
     return $data;
 }
+
+/**
+ * @param array $d1
+ * @param array $d2
+ * @return array
+ */
 function inventory_mergeData($d1, $d2)
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
@@ -132,6 +142,10 @@ function inventory_mergeData($d1, $d2)
     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
     return $d1;
 }
+
+/**
+ * @param array $row
+ */
 function inventory_mapToTable($row): void
 {
     global $auth_admin, $auth_lots;
