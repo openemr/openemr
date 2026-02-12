@@ -7302,5 +7302,79 @@ return [
         $return = (new PrescriptionRestController())->getOne($uuid);
 
         return $return;
+    },
+
+    /**
+     *  @OA\Post(
+     *      path="/api/prescription",
+     *      description="Creates a new prescription",
+     *      tags={"standard"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(property="patient_id", type="integer", description="Patient ID"),
+     *                  @OA\Property(property="drug", type="string", description="Drug name"),
+     *                  @OA\Property(property="dosage", type="string", description="Dosage"),
+     *                  @OA\Property(property="quantity", type="string", description="Quantity"),
+     *                  @OA\Property(property="provider_id", type="integer", description="Provider ID")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/prescription" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        return (new PrescriptionRestController())->post($data, $request);
+    },
+
+    /**
+     *  @OA\Delete(
+     *      path="/api/prescription/{id}",
+     *      description="Deletes a prescription",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The id for the prescription.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "DELETE /api/prescription/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        return (new PrescriptionRestController())->delete($id);
     }
 ];
