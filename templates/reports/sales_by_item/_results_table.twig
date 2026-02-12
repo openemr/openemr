@@ -1,0 +1,62 @@
+{% if rows | length > 0 %}
+    <div class="report-results-section">
+        <table class="table table-sm sales-table">
+            {% include 'reports/sales_by_item/_table_header.twig' %}
+            <tbody>
+                {% for row in rows %}
+                    {% if row.type == 'item' %}
+                        {# Detail row #}
+                        <tr class="detail-row">
+                            <td>{{ row.item.category | xlt }}</td>
+                            <td>{{ row.item.description | xlt }}</td>
+                            {% if show_details %}
+                                <td>{{ row.item.transactionDate }}</td>
+                            {% endif %}
+                            <td class="text-right">{{ row.item.quantity }}</td>
+                            <td class="text-right currency">${{ "%.2f" | format(row.item.amount) }}</td>
+                        </tr>
+                    {% elseif row.type == 'product_total' %}
+                        {# Product subtotal #}
+                        <tr class="product-total-row">
+                            <td colspan="{% if show_details %}3{% else %}2{% endif %}">
+                                {{ 'Total for' | xlt }} <strong>{{ row.product | xlt }}</strong>
+                            </td>
+                            <td class="text-right"><strong>{{ row.quantity }}</strong></td>
+                            <td class="text-right currency"><strong>${{ "%.2f" | format(row.total) }}</strong></td>
+                        </tr>
+                    {% elseif row.type == 'category_total' %}
+                        {# Category subtotal #}
+                        <tr class="category-total-row">
+                            <td colspan="{% if show_details %}3{% else %}2{% endif %}">
+                                <strong>{{ 'Total for category' | xlt }} {{ row.category | xlt }}</strong>
+                            </td>
+                            <td class="text-right"><strong>{{ row.quantity }}</strong></td>
+                            <td class="text-right currency"><strong>${{ "%.2f" | format(row.total) }}</strong></td>
+                        </tr>
+                    {% elseif row.type == 'grand_total' %}
+                        {# Grand total #}
+                        <tr class="grand-total-row">
+                            <td colspan="{% if show_details %}3{% else %}2{% endif %}">
+                                <strong>{{ 'Grand Total' | xlt }}</strong>
+                            </td>
+                            <td class="text-right"><strong>{{ row.quantity }}</strong></td>
+                            <td class="text-right currency"><strong>${{ "%.2f" | format(row.total) }}</strong></td>
+                        </tr>
+                    {% elseif row.type == 'product_row' %}
+                        {# Summary product row (no detail items) #}
+                        <tr class="product-total-row">
+                            <td>{{ row.category | xlt }}</td>
+                            <td>{{ row.product | xlt }}</td>
+                            <td class="text-right"><strong>{{ row.quantity }}</strong></td>
+                            <td class="text-right currency"><strong>${{ "%.2f" | format(row.total) }}</strong></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        {{ 'No sales data found for the selected criteria.' | xlt }}
+    </div>
+{% endif %}
