@@ -112,16 +112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogImportBuild.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'authUserID\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/ModuleService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'facilityId\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 0 on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
