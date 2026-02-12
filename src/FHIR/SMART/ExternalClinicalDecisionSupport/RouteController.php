@@ -201,7 +201,7 @@ class RouteController
                 $dsiService->updateEvidenceDSIAttributes($service->getId(), $this->session->get('authUserID'), $fields);
             }
             $status = "success";
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("Error saving service", ['exception' => $e]);
             $status = "failed";
         }

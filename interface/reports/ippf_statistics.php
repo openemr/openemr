@@ -16,9 +16,9 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -31,8 +31,7 @@ if (!empty($_POST)) {
 // Might want something different here.
 //
 if (!AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Report", xl("Report"));
 }
 
 $facilityService = new FacilityService();
@@ -157,46 +156,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $arr_titles[$fid] = [];
 }
 
-// Compute age in years given a DOB and "as of" date.
-//
-function getAge($dob, $asof = '')
-{
-    if (empty($asof)) {
-        $asof = date('Y-m-d');
-    }
-
-    $a1 = explode('-', substr((string) $dob, 0, 10));
-    $a2 = explode('-', substr((string) $asof, 0, 10));
-    $age = $a2[0] - $a1[0];
-    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
-        --$age;
-    }
-
-  // echo "<!-- $dob $asof $age -->\n"; // debugging
-    return $age;
-}
-
 $cellcount = 0;
-
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
 
 function getListTitle($list, $option)
 {
@@ -888,8 +848,8 @@ function process_visit($row): void
       $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
       while ($drow = sqlFetchArray($dres)) {
         $a = explode('|', $drow['field_value']);
-        foreach ($a as $methid) {
-        if (empty($methid)) continue;
+        foreach ($a as $method) {
+        if (empty($method)) continue;
         $crow = sqlQuery("SELECT title FROM list_options WHERE " .
           "list_id = 'contrameth' AND option_id = '$methid'");
         $key = $crow['title'];

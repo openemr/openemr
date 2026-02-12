@@ -34,34 +34,6 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
-function OpenTag($tag): void
-{
-    global $out, $indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    ++$indent;
-    $out .= "<$tag>\n";
-}
-
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
-}
-
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", (string) $field);
-}
-
  // Translate sex.
 function Sex($field)
 {
@@ -71,12 +43,6 @@ function Sex($field)
     }
 
     return $sex;
-}
-
- // Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
 }
 
  // Add an insurance section.
@@ -200,7 +166,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("mname", $row['mname']);
  custom_xml_Add("title", $row['title']);
  custom_xml_Add("ss", Digits($row['ss']));
- custom_xml_Add("dob", LWDate($row['DOB']));
+ custom_xml_Add("dob", fixDate($row['DOB']));
  custom_xml_Add("sex", Sex($row['sex']));
  custom_xml_Add("street", $row['street']);
  custom_xml_Add("city", $row['city']);
@@ -224,7 +190,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);
  custom_xml_Add("homeless", $row['homeless']);
- custom_xml_Add("financial_review", LWDate(substr((string) $row['financial_review'], 0, 10)));
+ custom_xml_Add("financial_review", fixDate(substr((string) $row['financial_review'], 0, 10)));
  custom_xml_Add("genericname1", $row['genericname1']);
  custom_xml_Add("genericval1", $row['genericval1']);
  custom_xml_Add("genericname2", $row['genericname2']);

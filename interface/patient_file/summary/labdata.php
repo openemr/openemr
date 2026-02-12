@@ -37,17 +37,16 @@ require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Labs")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Labs", xl("Labs"));
 }
 
 // Set the path to this script

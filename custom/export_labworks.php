@@ -39,12 +39,6 @@ function custom_labworks_Add($field)
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", (string) $field);
-}
-
  // Translate sex.
 function Sex($field)
 {

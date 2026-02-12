@@ -1,5 +1,6 @@
 {
   "symbol-whitelist": [
+    "ADODB_mysqli_log",
     "AmcItemizedActionData",
     "Application\\Model\\ApplicationTable",
     "BillingExport",
@@ -9,6 +10,7 @@
     "Carecoordination\\Model\\EncounterccdadispatchTable",
     "FPDF_FONTPATH",
     "GenericProductRegistrationException",
+    "HelpfulDie",
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
@@ -47,9 +49,9 @@
     "getCodeDescription",
     "getFormsByCategory",
     "getListItemTitle",
+    "getPatientData",
     "getPatientFullNameAsString",
     "getRegistryEntryByDirectory",
-    "getSqlLastError",
     "getSmokeCodes",
     "getUserSetting",
     "get_db",

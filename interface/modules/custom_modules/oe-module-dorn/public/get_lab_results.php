@@ -14,9 +14,9 @@
 
     require_once __DIR__ . "/../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Core\Header;
     use OpenEMR\Modules\Dorn\ReceiveHl7Results;
 
@@ -33,8 +33,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Get Lab Results", xl("Get Lab Results"));
 }
 
 $resultsGuid = $_REQUEST['resultGuid'];

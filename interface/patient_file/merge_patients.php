@@ -19,9 +19,9 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -36,8 +36,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Merge Patients", xl("Merge Patients"));
 }
 ?>
 <!DOCTYPE html>

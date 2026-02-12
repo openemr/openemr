@@ -31,6 +31,7 @@ use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +42,7 @@ if (!$encounter) { // comes from globals.php
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 // Defaults for new orders.
 $provider_id = getProviderIdOfEncounter($encounter);
@@ -114,49 +115,6 @@ function get_lab_name($id): string
         $gbl_lab = 'missingName';
     }
     return $gbl_lab;
-}
-
-if (!function_exists('ucname')) {
-    function ucname($string): string
-    {
-        $string = ucwords(strtolower((string) $string));
-        foreach (['-', '\''] as $delimiter) {
-            if (str_contains($string, $delimiter)) {
-                $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
-            }
-        }
-        return $string;
-    }
-}
-
-function cbvalue($cbname): string
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
-}
-
-function QuotedOrNull($fld)
-{
-    if (empty($fld)) {
-        return null;
-    }
-
-    return $fld;
 }
 
 function getListOptions($list_id, $fieldnames = ['option_id', 'title', 'seq']): array
@@ -236,12 +194,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "performer_type = ?, " .
         "location_id = ?";
 
-    // REPLACE THE $set_array variable with this updated version:
     $set_array = [
-        QuotedOrNull($_POST['form_date_ordered']),
+        empty($_POST['form_date_ordered']) ? null : $_POST['form_date_ordered'],
         (int)$_POST['form_provider_id'],
         $ppid,
-        QuotedOrNull($_POST['form_date_collected']),
+        empty($_POST['form_date_collected']) ? null : $_POST['form_date_collected'],
         $_POST['form_order_priority'],
         $_POST['form_order_status'],
         $_POST['form_billing_type'],
@@ -258,11 +215,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         (int)$_POST['form_account_facility'],
         (int)$_POST['form_collector_id'],
         trim((string) $_POST['procedure_type_names']),
-        // NEW US Core 8.0 fields
+        // US Core 8.0 fields
         trim($_POST['form_order_intent'] ?? 'order'),
-        QuotedOrNull($_POST['form_scheduled_date']),
-        QuotedOrNull($_POST['form_scheduled_start']),
-        QuotedOrNull($_POST['form_scheduled_end']),
+        empty($_POST['form_scheduled_date']) ? null : $_POST['form_scheduled_date'],
+        empty($_POST['form_scheduled_start']) ? null : $_POST['form_scheduled_start'],
+        empty($_POST['form_scheduled_end']) ? null : $_POST['form_scheduled_end'],
         trim($_POST['form_performer_type'] ?? ''),
         (int)($_POST['form_location_id'] ?? 0),
     ];
@@ -872,7 +829,7 @@ if (!empty($row['lab_id'])) {
             let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
-            // wierdly all of our mapped ids use array indexes as part of the id.
+            // weirdly all of our mapped ids use array indexes as part of the id.
             let remapIds = function (node) {
                 node.id = remapArrayIndex(node.id);
             };
@@ -912,13 +869,13 @@ if (!empty($row['lab_id'])) {
             nullableFunction('.itemTransport', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 getDetails(event, boundLineCount);
             });
             nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 selectProcedureCode(boundLineCount);
             });
             nullableFunction('.search-current-diagnoses', 'click', function (event) {
@@ -934,7 +891,7 @@ if (!empty($row['lab_id'])) {
             });
 
             nullableFunction('.sel-proc-type', 'click', function (event) {
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 sel_proc_type(boundLineCount);
             });
             nullableFunction('.sel-proc-type', 'focus', function (event) {

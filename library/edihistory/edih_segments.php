@@ -649,7 +649,7 @@ function edih_277_text($segments, $delimiter, $stpos = '')
     $str_html = '';
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         //debug
-        csv_edihist_log('edih_277_text: invlid segments');
+        csv_edihist_log('edih_277_text: invalid segments');
         $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }

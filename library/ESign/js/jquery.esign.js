@@ -119,7 +119,7 @@
 				var maskHeight = $(document).height();
 				var maskWidth = $(window).width();
 
-				// Set heigth and width to mask to fill up the whole screen
+				// Set height and width to mask to fill up the whole screen
 				$('#esign-mask').css({'width':maskWidth,'height':maskHeight});
 
 				//transition effect

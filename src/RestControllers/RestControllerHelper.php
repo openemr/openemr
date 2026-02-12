@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Core\OEGlobalsBag;
 use Http\Message\Encoding\GzipEncodeStream;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
@@ -550,7 +551,7 @@ class RestControllerHelper
      */
     private static function getResponseForPayload($payload)
     {
-        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload)) {
+        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload) || is_bool($payload)) {
             $response = new JsonResponse($payload);
         } else if ($payload instanceof \Stringable || is_string($payload)) {
             $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
@@ -590,8 +591,9 @@ class RestControllerHelper
      */
     private static function filterServiceClassForResource(string $resource, ?string $serviceClass)
     {
-        if (!empty($GLOBALS['kernel'])) {
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $dispatcher = $globalsBag->getKernel()->getEventDispatcher();
             $event = $dispatcher->dispatch(new RestApiResourceServiceEvent($resource, $serviceClass), RestApiResourceServiceEvent::EVENT_HANDLE);
             return $event->getServiceClass();
         }

@@ -20,15 +20,14 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Sales by Item")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Sales by Item", xl("Sales by Item"));
 }
 
 if (!empty($_POST)) {
@@ -47,15 +46,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = (!empty($_POST['form_details'])) ? true : false;
 } else {
     $form_details = false;
-}
-
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
 }
 
 /**

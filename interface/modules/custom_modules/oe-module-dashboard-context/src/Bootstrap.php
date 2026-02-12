@@ -105,7 +105,7 @@ class Bootstrap
         try {
             $controller = new ContextWidgetController();
             echo $controller->renderWidget();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering widget", ['error' => $e->getMessage()]);
         }
     }
@@ -145,7 +145,7 @@ class Bootstrap
             // This will appear between the page title and the action buttons
             // Let modules be modules ...
             $event->appendTitleNavContent($navHtml);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering navbar widget", ['error' => $e->getMessage()]);
         }
 

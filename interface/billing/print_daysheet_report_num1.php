@@ -19,14 +19,13 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Manager")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
 //global variables:
@@ -109,7 +108,7 @@ if (!isset($_GET["mode"])) {
             $itero = [];
 
             if ($ret = getBillsBetweendayReport($code_type)) {
-            // checking to see if there is any information in the array if not display a message (located after this if statment)
+            // checking to see if there is any information in the array if not display a message (located after this if statement)
                 $anypats = count($ret);
                 $run_provider = 0;
                 $old_pid = -1;
@@ -124,7 +123,7 @@ if (!isset($_GET["mode"])) {
                     $catch_provider[] = $iter['provider_id'];
                 }
 
-            //This statment uniques the arrays removing duplicates
+            //This statement uniques the arrays removing duplicates
 
                 $user_list = array_unique($catch_user);
                 $provider_list = array_unique($catch_provider);
@@ -132,7 +131,7 @@ if (!isset($_GET["mode"])) {
             // reorder the list starting with array element zero
                 $user_final_list = array_values($user_list);
                 $provider_final_list = array_values($provider_list);
-            // sort array in assending order
+            // sort array in ascending order
                 sort($user_final_list);
                 sort($provider_final_list);
                 $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
@@ -146,7 +145,7 @@ if (!isset($_GET["mode"])) {
                 }
 
                 foreach ($all4 as $iter) {
-                    // Case statment to tally information by user
+                    // Case statement to tally information by user
                     switch ($iter['user']) {
                         case $user_final_list[0]:
                             $us0_user = $iter['user'];
@@ -570,7 +569,7 @@ if (!isset($_GET["mode"])) {
                             break;
                     }
 
-                    // Case statment to tally information by Provider
+                    // Case statement to tally information by Provider
                     switch ($iter['provider_id']) {
                         case $provider_final_list[0]:
                             $pro0_user = $iter['provider_id'];
@@ -1217,7 +1216,7 @@ if (!isset($_GET["mode"])) {
                 ?><p><?php echo xlt('No Data to Process')?></p><?php
             }
 
-            // TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
+            // TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
             if ($run_provider != 1) {
                 if ($us0_fee != 0 || $us0_inspay != 0 || $us0_insadj != 0 || $us0_patadj != 0 || $us0_patpay != 0 || $us0_insref != 0 || $us0_patref != 0) {
                     $user_info['user'][$k] = $us0_user;

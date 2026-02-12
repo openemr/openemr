@@ -1065,7 +1065,7 @@ class Smarty_Legacy
         } elseif(isset($this->_tpl_vars[$name])) {
             return $this->_tpl_vars[$name];
         } else {
-            // var non-existant, return valid reference
+            // var non-existent, return valid reference
             $_tmp = null;
             return $_tmp;
         }
@@ -1085,7 +1085,7 @@ class Smarty_Legacy
         } else if(isset($this->_config[0]['vars'][$name])) {
             return $this->_config[0]['vars'][$name];
         } else {
-            // var non-existant, return valid reference
+            // var non-existent, return valid reference
             $_tmp = null;
             return $_tmp;
         }

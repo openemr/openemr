@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,9 +18,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -172,8 +174,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplicate Patient Management")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Duplicate Patient Management", xl("Duplicate Patient Management"));
 }
 
 $calc_count = calculateScores();
@@ -306,17 +307,38 @@ $score_calculate = getDupScoreSQL();
                     updateDupScore($_POST['form_toppid']);
                 }
 
+                // Track displayed patients to avoid showing the same patient in multiple groups
+                $displayed = [];
                 $query = "SELECT * FROM patient_data WHERE dupscore > 12 " . "ORDER BY dupscore DESC, pid DESC LIMIT 100";
                 $res1 = sqlStatement($query);
                 while ($row1 = sqlFetchArray($res1)) {
-                    displayRow($row1);
+                    // Skip if this patient was already shown as part of another group
+                    if (isset($displayed[$row1['pid']])) {
+                        continue;
+                    }
+                    // Use symmetric comparison (p2.pid != p1.pid) to find all matches,
+                    // not just lower PIDs. This allows detecting duplicates when a patient
+                    // with a lower PID is edited to match one with a higher PID.
                     $query = "SELECT p2.*, ($score_calculate) AS myscore " .
                         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-                        "p1.pid = ? AND p2.pid < p1.pid AND ($score_calculate) > 12 " .
+                        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1 AND ($score_calculate) > 12 " .
                         "ORDER BY myscore DESC, p2.pid DESC";
                     $res2 = sqlStatement($query, [$row1['pid']]);
+                    $matches = [];
                     while ($row2 = sqlFetchArray($res2)) {
-                        displayRow($row2, $row1['pid']);
+                        // Skip matches already displayed in a previous group
+                        if (!isset($displayed[$row2['pid']])) {
+                            $matches[] = $row2;
+                        }
+                    }
+                    // Only display this group if there are actual matches (prevents orphans)
+                    if (count($matches) > 0) {
+                        displayRow($row1);
+                        $displayed[$row1['pid']] = true;
+                        foreach ($matches as $row2) {
+                            displayRow($row2, $row1['pid']);
+                            $displayed[$row2['pid']] = true;
+                        }
                     }
                 }
                 ?>

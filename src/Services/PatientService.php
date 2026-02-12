@@ -18,6 +18,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -42,6 +43,35 @@ class PatientService extends BaseService
 {
     public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
+
+    /**
+     * Columns allowed for sorting in patient search API.
+     * This whitelist prevents SQL injection via the _sort parameter.
+     */
+    private const ALLOWED_SORT_COLUMNS = [
+        'id',
+        'pid',
+        'pubpid',
+        'title',
+        'fname',
+        'lname',
+        'mname',
+        'DOB',
+        'sex',
+        'street',
+        'city',
+        'state',
+        'postal_code',
+        'country_code',
+        'phone_home',
+        'phone_cell',
+        'phone_biz',
+        'email',
+        'status',
+        'date',
+        'regdate',
+        'last_updated',
+    ];
 
     /**
      * In the case where a patient doesn't have a picture uploaded,
@@ -153,7 +183,7 @@ class PatientService extends BaseService
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE);
         $data = $beforePatientCreatedEvent->getPatientData();
 
         $query = $this->buildInsertColumns($data);
@@ -165,7 +195,7 @@ class PatientService extends BaseService
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE);
 
         // If we have a result-set from our insert, return the PID,
         // otherwise return false
@@ -230,7 +260,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -244,7 +274,7 @@ class PatientService extends BaseService
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
 
             return $data;
         } else {
@@ -276,7 +306,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -299,15 +329,15 @@ class PatientService extends BaseService
 
             $originalData = [];
             if ($dataBeforeUpdate->hasData()) {
-                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+                $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
             }
             // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
-            // we need the uuid to be the same binary fomrat as the other event firing.
+            // we need the uuid to be the same binary format as the other event firing.
             if (!empty($originalData['uuid'])) {
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
             $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
         }
         return $processingResult;
     }
@@ -357,7 +387,7 @@ class PatientService extends BaseService
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
-            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            // for backwards compatibility, we will make sure we do exact matches on the keys using string comparisons if no object is used
             foreach ($search as $field => $key) {
                 if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
@@ -442,7 +472,10 @@ class PatientService extends BaseService
 
         if (!empty($config)) {
             $pagination = $config->getPagination();
-            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig(
+                $config,
+                self::ALLOWED_SORT_COLUMNS
+            );
             $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
         } else {
             $orderBy = "";
@@ -786,7 +819,7 @@ class PatientService extends BaseService
                 $months_since_birthday = 12 - $dobmonth + $monthnow;
                 $days_since_dobday = $daynow - $dobday;
             }
-        } else // if patient has had birthday this calandar year
+        } else // if patient has had birthday this calendar year
         {
             $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {

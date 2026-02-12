@@ -16,16 +16,15 @@ require_once(__DIR__ . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Pdf\Config_Mpdf;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Order Results", xl("Order Results"));
 }
 
 $orderid = intval($_GET['orderid']);
@@ -34,7 +33,7 @@ $finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
     if (!AclMain::aclCheckCore('patients', 'sign')) {
-        die(xlt('Not authorized to sign results'));
+        AccessDeniedHelper::deny('Not authorized to sign order results');
     }
 
   // When signing results we are careful to sign only those reports that were

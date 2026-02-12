@@ -14,6 +14,7 @@
  * @author    Robert Down <robertdown@live.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
@@ -22,6 +23,7 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,9 +41,10 @@ use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 use OpenEMR\Events\Patient\Summary\Card\RenderModel;
@@ -77,7 +80,7 @@ if (!isset($pid)) {
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
@@ -95,14 +98,14 @@ if (isset($_GET['set_pid'])) {
 // Note: it would eventually be a good idea to move this into
 // it's own module that people can remove / add if they don't
 // want smart support in their system.
-$smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
+$smartLaunchController = new SMARTLaunchController(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
 $hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
@@ -934,7 +937,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             var EncounterIdArray = [];
             var Count = 0;
                 <?php
-            //Encounter details are stored to javacript as array.
+            //Encounter details are stored to javascript as array.
                 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                 " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
                 if (sqlNumRows($result4) > 0) {
@@ -978,7 +981,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         border-radius: 0;
       }
 
-      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
+      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interrupting
          the UI. This should be configurable and should go in a more appropriate place
       .pami-list {
           max-height: 200px;
@@ -1052,7 +1055,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
-    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE, 10);
+    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
@@ -1072,7 +1075,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1350,7 +1353,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     // if anyone wants to render anything before the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, 10);
+                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
@@ -1529,7 +1532,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, 10);
+                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
 
                     // This generates a section similar to Vitals for each LBF form that
                     // supports charting.  The form ID is used as the "widget label".
@@ -1852,7 +1855,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            // Note the translaution occurs here instead of in teh Twig file for some specific concatenation needs
+                            // Note the translaution occurs here instead of in the Twig file for some specific concatenation needs
                             $etitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
                                 $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;
@@ -1990,29 +1993,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     // END of past appointments
 
-                    // Display the Appt card
-                    $id = "appointments_ps_expand";
-                    $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
-                    echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
-                        'title' => xl("Appointments"),
-                        'id' => $id,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                        'btnLabel' => "Add",
-                        'btnLink' => "return newEvt()",
-                        'linkMethod' => "javascript",
-                        'appts' => $appts,
-                        'recurrAppts' => $recurr,
-                        'pastAppts' => $past_appts,
-                        'displayAppts' => $displayAppts,
-                        'displayRecurrAppts' => $displayRecurrAppts,
-                        'displayPastAppts' => $displayPastAppts,
-                        'extraApptDate' => $extraApptDate,
-                        'therapyGroupCategories' => $therapyGroupCategories,
-                        'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
-                        'resNotNull' => $resNotNull,
-                        'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                        'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                    ]);
+                    // Display the Appt card only if user has permission
+                    if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
+                        $id = "appointments_ps_expand";
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
+                        echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
+                            'title' => xl("Appointments"),
+                            'id' => $id,
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'btnLabel' => "Add",
+                            'btnLink' => "return newEvt()",
+                            'linkMethod' => "javascript",
+                            'appts' => $appts ?? [],
+                            'recurrAppts' => $recurr,
+                            'pastAppts' => $past_appts ?? [],
+                            'displayAppts' => $displayAppts,
+                            'displayRecurrAppts' => $displayRecurrAppts,
+                            'displayPastAppts' => $displayPastAppts,
+                            'extraApptDate' => $extraApptDate ?? '',
+                            'therapyGroupCategories' => $therapyGroupCategories ?? [],
+                            'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
+                            'resNotNull' => $resNotNull,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ]);
+                    }
 
                     echo "<div id=\"stats_div\"></div>";
 

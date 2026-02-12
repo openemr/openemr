@@ -25,6 +25,7 @@ use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;
@@ -133,7 +134,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
@@ -227,7 +228,7 @@ class C_Prescription extends Controller
             $this->assign("INTERACTION", $interaction);
         }
 
-        // flag to indicate the CAMOS form is regsitered and active
+        // flag to indicate the CAMOS form is registered and active
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
         $vars = $this->getTemplateVars();
@@ -249,7 +250,7 @@ class C_Prescription extends Controller
         }
         // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
         $vars['printPrescriptionId'] = $printPrescriptionId;
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 
@@ -459,7 +460,7 @@ class C_Prescription extends Controller
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    // Now it is configureable. Change value in
+    // Now it is configurable. Change value in
     //     Administration->Globals->Rx
         if ($GLOBALS['rx_enable_DEA']) {
             if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {

@@ -36,10 +36,10 @@ require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -60,8 +60,7 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
 // When automatically including lists used in selected layouts, these lists are not included.
@@ -518,25 +517,13 @@ if ($form_step == 1) {
 
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
 
-    if ($GLOBALS['include_de_identification'] == 1) {
-        //include routines during backup when de-identification is enabled
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --routines" .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    } else {
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-        " -h " . escapeshellarg((string) $sqlconf["host"]) .
-        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
-        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg((string) $sqlconf["dbase"]);
-    }
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
+    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+    " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+    escapeshellarg((string) $sqlconf["dbase"]);
 
     $auto_continue = true;
 }
@@ -771,7 +758,7 @@ if ($form_step == 102) {
         }
         if (!empty($form_sel_lists)) {
             foreach ($form_sel_lists as $listid) {
-                // skip if have backtic(s)
+                // skip if have backtick(s)
                 if (str_contains((string) $listid, '`')) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
                     continue;
@@ -810,7 +797,7 @@ if ($form_step == 102) {
             $do_history_repair = false;
             $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
-                // skip if have backtic(s)
+                // skip if have backtick(s)
                 if (str_contains((string) $layoutid, '`')) {
                     echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
                     continue;

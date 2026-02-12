@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -32,5 +33,5 @@ function oe_module_custom_patient_menu(PatientMenuEvent $menuEvent)
 }
 
 // Listen for the menu update event so we can dynamically add our patient privacy menu item
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 $eventDispatcher->addListener(PatientMenuEvent::MENU_UPDATE, 'oe_module_custom_patient_menu');

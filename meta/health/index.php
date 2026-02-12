@@ -58,6 +58,8 @@ try {
             //
             // Skip authentication - health checks must work without a session
             $ignoreAuth = true;
+            // Skip audit logging - health checks should not pollute the audit log
+            $skipAuditLog = true;
             require_once __DIR__ . "/../../interface/globals.php";
 
             // Run full health checks

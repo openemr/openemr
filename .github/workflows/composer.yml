@@ -27,31 +27,10 @@ jobs:
     - name: "Checkout Code"
       uses: actions/checkout@v6
 
-    - name: "Setup PHP"
-      uses: shivammathur/setup-php@v2
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        coverage: none
-
-    - name: "Get composer cache directory"
-      id: composer-cache
-      run: |
-        {
-          printf 'dir='
-          composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
-
-    - name: "Composer Cache"
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
-
-    - name: "Composer Install"
-      run: composer install --prefer-dist --no-progress
 
     - name: "Validate Composer"
       run: composer validate --strict

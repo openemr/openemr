@@ -18,6 +18,7 @@
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -42,6 +43,7 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
         exit();
     }
 }
+assert(isset($pid)); // Set by globals.php via session; PHPStan can't see through require_once
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
@@ -62,9 +64,13 @@ $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 $cryptoGen = new CryptoGen();
 
+$recorder = new Recorder();
+
 $appsql = new ApplicationTable();
-$pid = $_REQUEST['pid'] ?? $pid;
-$pid = ($_REQUEST['hidden_patient_code'] ?? null) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+if (!$isPortal) {
+    $pid = $_REQUEST['pid'] ?? $pid;
+    $pid = ($_REQUEST['hidden_patient_code'] ?? 0) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+}
 $recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
 $adminUser = '';
 $portalPatient = '';
@@ -88,94 +94,6 @@ if ($edata) {
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 
-// Display a row of data for an encounter.
-//
-$var_index = 0;
-$sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
-{
-    global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
-    global $var_index;
-    $var_index++;
-    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
-    $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
-        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
-    echo " </tr>\n";
-
-    $sum_charges += (float)$charges * 1;
-    $sum_ptpaid += (float)$ptpaid * -1;
-    $sum_inspaid += (float)$inspaid * -1;
-    $sum_duept += (float)$duept * 1;
-    $sum_patcopay += (float)$patcopay * 1;
-    $sum_copay += (float)$copay * 1;
-    $sum_balance += (float)$balance * 1;
-}
-
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", [$value
-        ]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-// echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
-}
-
 $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
@@ -187,7 +105,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
-    $form_pid = $_POST['form_pid'];
+    $form_pid = $isPortal ? $pid : $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
@@ -245,14 +163,20 @@ if ($_POST['form_save'] ?? '') {
                         [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                    $insrt_id = sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                        " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
-                    );
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'memo' => '',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
@@ -343,49 +267,37 @@ if ($_POST['form_save'] ?? '') {
                                 $amount = 0;
                             }
 
-                            sqlBeginTrans();
-                            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                            sqlStatement(
-                                "insert into ar_activity set " .
-                                "pid = ?" .
-                                ", encounter = ?" .
-                                ", sequence_no = ?" .
-                                ", code_type = ?" .
-                                ", code = ?" .
-                                ", modifier = ?" .
-                                ", payer_type = ?" .
-                                ", post_time = now() " .
-                                ", post_user = ?" .
-                                ", session_id = ?" .
-                                ", pay_amount = ?" .
-                                ", adj_amount = ?" .
-                                ", account_code = 'PP'",
-                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
-                            );
-                            sqlCommitTrans();
+                            $recorder->recordActivity([
+                                'patientId' => $form_pid,
+                                'encounterId' => $enc,
+                                'codeType' => $Codetype,
+                                'code' => $Code,
+                                'modifier' => $Modifier,
+                                'payerType' => 0,
+                                'postUser' => $session->get('authUserID'),
+                                'sessionId' => $payment_id,
+                                'payAmount' => $insert_value,
+                                'adjustmentAmount' => '0.0',
+                                'memo' => '',
+                                'accountCode' => 'PP',
+                            ]);
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
-                        sqlBeginTrans();
-                        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                        sqlStatement(
-                            "insert into ar_activity set " .
-                            "pid = ?" .
-                            ", encounter = ?" .
-                            ", sequence_no = ?" .
-                            ", code_type = ?" .
-                            ", code = ?" .
-                            ", modifier = ?" .
-                            ", payer_type = ?" .
-                            ", post_time = now() " .
-                            ", post_user = ?" .
-                            ", session_id = ?" .
-                            ", pay_amount = ?" .
-                            ", adj_amount = ?" .
-                            ", account_code = 'PP'",
-                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
-                        );
-                        sqlCommitTrans();
+                        $recorder->recordActivity([
+                            'patientId' => $form_pid,
+                            'encounterId' => $enc,
+                            'codeType' => $Codetype,
+                            'code' => $Code,
+                            'modifier' => $Modifier,
+                            'payerType' => 0,
+                            'postUser' => $session->get('authUserID'),
+                            'sessionId' => $payment_id,
+                            'payAmount' => $amount,
+                            'adjustmentAmount' => '0.0',
+                            'memo' => '',
+                            'accountCode' => 'PP',
+                        ]);
                     }
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -397,7 +309,7 @@ if ($_POST['form_save'] ?? '') {
 
 if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     if (($_REQUEST['receipt'] ?? null)) {
-        $form_pid = $_GET['patient'];
+        $form_pid = $isPortal ? $pid : $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
 
@@ -541,7 +453,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             echo json_encode($amsg);
         ?>;
         var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_public_key'))); ?>;
-        var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -647,7 +558,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     let msg = <?php $amsg = xl('Payment successfully sent for review and posting to your account.') . "\n" .
                         xl("You will be notified when the payment transaction is confirmed.") . "\n" .
                         xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
-                        echo json_encode($amsg); // backward compatable 5.0.1
+                        echo json_encode($amsg); // backward compatible 5.0.1
                     ?>;
                     alert(msg);
                     window.location.reload(false);
@@ -703,7 +614,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
         function getAuth() {
             let authnum = document.getElementById("check_number").value;
-            authnum = prompt(<?php echo xlj('Please enter card comfirmation authorization'); ?>, authnum);
+            authnum = prompt(<?php echo xlj('Please enter card confirmation authorization'); ?>, authnum);
             if (authnum != null) {
                 document.getElementById("check_number").value = authnum;
             }
@@ -880,7 +791,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             while ($brow = sqlFetchArray($bres)) {
                 $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
-                    $encs[$key] = ['encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
+                    $encs[$key] = [
+                        'encounter' => $brow['encounter'],
+                        'date' => $brow['encdate'],
+                        'last_level_closed' => $brow['last_level_closed'],
+                        'charges' => 0,
+                        'payments' => 0,
+                        'reason' => $brow['reason'],
+                        'code_type' => $brow['code_type'],
+                        'code' => $brow['code'],
                     ];
                 }
 
@@ -936,7 +855,12 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             ksort($encs, SORT_NUMERIC);
 
+            // Don't use $encs key as index, it's an identifier not a sequential
+            // value
+            $idx = 0;
+            $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
             foreach ($encs as $value) {
+                $idx++;
                 $enc = $value['encounter'];
                 $reason = $value['reason'];
                 $dispdate = $value['date'];
@@ -986,8 +910,47 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
-                echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
-            }
+                $balance = 0;
+                if ($duept == 0) {
+                    $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                }
+
+                // Update running totals before rendering the table row
+                $sum_charges += (float)$value['charges'];
+                $sum_ptpaid += -1 * (float)$dpayment_pat;
+                $sum_inspaid += (float)($dpayment + $dadjustment);
+                $sum_duept += (float)$duept;
+                $sum_patcopay += (float)$patcopay;
+                $sum_copay += (float)$inscopay;
+                $sum_balance += $balance;
+                ?>
+<tr id="tr_<?=$idx?>">
+    <td class="detail"><?=text(oeFormatShortDate($dispdate))?></td>
+    <td class="detail" id="<?=attr($dispdate)?>" align='left'><?=text($enc)?>: <?=text($reason)?></td>
+    <td class="detail" align="center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="detail" align="center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="detail" align="center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="detail" align="center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="detail" align="center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="detail" align="center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="detail" align="center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="detail" align="center">
+        <input
+            class="form-control amount_field"
+            data-encounter-id="<?=$enc?>"
+            data-code="<?=attr($value['code'])?>"
+            data-code-type="<?=attr($value['code_type'])?>"
+            name="form_upay[<?=$enc?>]"
+            id="paying_<?=$idx?>"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                <?php
+            } // end foreach($encs)
 
             // Continue with display of the data entry form.
             ?>
@@ -1053,7 +1016,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
-                    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                    echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
                 }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
@@ -1082,7 +1045,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1151,7 +1114,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
                                 <div class="form-group">
@@ -1237,7 +1200,12 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
+        //
+        // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
+        <script>
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
+        </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
 
@@ -1248,6 +1216,19 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
+            echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
+        echo '<script type="text/javascript">';
+        echo $twig->render('payments/rainforest.js', [
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'endpoint' => 'portal_payment.rainforest.php',
+        ]);
+        echo '</script>';
     }
     ?>
 

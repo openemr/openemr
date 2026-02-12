@@ -12,12 +12,14 @@
 
 namespace Immunization\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
+use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Immunization\Form\ImmunizationForm;
-use Application\Listener\Listener;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\PhoneNumberService;
 
 class ImmunizationController extends AbstractActionController
 {
@@ -100,9 +102,9 @@ class ImmunizationController extends AbstractActionController
 
             foreach ($form_code as $code) {
                 // Validate that code is an integer to prevent SQL injection
-                $code = trim((string) $code);
-                if (!empty($code) && is_numeric($code) && $code > 0) {
-                    $valid_codes[] = (int)$code;
+                $validCode = ValidationUtils::validateInt(trim((string) $code), min: 1);
+                if ($validCode !== false) {
+                    $valid_codes[] = $validCode;
                 }
             }
 
@@ -372,24 +374,24 @@ class ImmunizationController extends AbstractActionController
                             $r['pubpid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss'] . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
                             "|" . // 4. (B) Alternate PID
                             $r['patientname'] . "^^^^L|" . // 5.R. Name
-                            $guardianname . "|" . // 6. Mather Maiden Name
+                            $guardianname . "|" . // 6. Mother's Maiden Name
                             $r['DOB'] . "|" . // 7. Date, time of birth
                             $r['sex'] . "|" . // 8. Sex
                             "|" . // 9.B Patient Alias
                             $race . "|" . // 10. Race // Ram change
                             $r['address'] . "^L" . "|" . // 11. Address. Default to address type  Mailing Address(M)
                             "|" . // 12. county code
-                            "^PRN^PH^^^" . $this->format_phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-                            "^WPN^PH^^^" . $this->format_phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
+                            "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+                            "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
                             $r['language'] . "|" . // 15. Primary language
                             $r['status'] . "|" . // 16. Marital status
                             "|" . // 17. Religion
                             "|" . // 18. patient Account Number
                             "|" . // 19.B SSN Number
                             "|" . // 20.B Driver license number
-                            "|" . // 21. Mathers Identifier
+                            "|" . // 21. Mother's Identifier
                             $ethnicity . "|" . // 22. Ethnic Group
-                            "|" . // 23. Birth Plase
+                            "|" . // 23. Birthplace
                             "|" . // 24. Multiple birth indicator
                             "|" . // 25. Birth order
                             "|" . // 26. Citizenship
@@ -417,7 +419,7 @@ class ImmunizationController extends AbstractActionController
                         $protection_indicator = $this->getImmunizationTable()->getNotes($r['protect_indicator'], 'yesno');
                         if ($publicity_code || $protection_indicator || $imm_registry_status_code) {
                             $content .= "PD1|" . // Patient Additional Demographic Segment
-                                "|" . // 1. Living Dependancy
+                                "|" . // 1. Living Dependency
                                 "|" . // 2. Living Arrangement
                                 $r['fac_name'] . "|" . // 3. Patient Primary Facility
                                 $r['primary_care_provider_details'] . "|" . // 4. Patient Primary Care Provider NPI and Provider name
@@ -456,8 +458,8 @@ class ImmunizationController extends AbstractActionController
                                 $guardianname . "^^^^^L|" .  // 2. Legal Name of next of kin
                                 $guardian_relationship_code . "^" . $r['guardianrelationship'] . "^HL70063|" . // 3. Relationship of next of kin with patient
                                 $r['guardian_address'] . "|" . // 4. Address of next of kin
-                                "^PRN^PH^^^" . $this->format_phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
-                                "^WPN^PH^^^" . $this->format_phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
+                                "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
+                                "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
                                 "|" . //7. Contact Role
                                 "|" . //8. Start Date
                                 "|" . //9. End Date
@@ -468,7 +470,7 @@ class ImmunizationController extends AbstractActionController
                                 "|" . //14. Marital status
                                 $r['guardiansex'] . "|" . //  15. Administrative Sex of next of kin
                                 "|" . // 16. Date, time of birth of next of kin
-                                "|" . //17. Living Dependancy
+                                "|" . //17. Living Dependency
                                 "|" . //18. Ambulatory Status
                                 "|" . //19. Citizenship
                                 "|" . // 20. Primary Language
@@ -779,21 +781,6 @@ class ImmunizationController extends AbstractActionController
         }
 
         return $cvx_code;
-    }
-
-    /**
-     *
-     * @param   $phone      String          phone number
-     * @return              String          formatted phone
-     */
-    public function format_phone($phone)
-    {
-        $phone = preg_replace("/[^0-9]/", "", (string) $phone);
-        return match (strlen((string) $phone)) {
-            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
-            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
-            default => $this->tr("000 0000000"),
-        };
     }
 
     /*

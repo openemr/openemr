@@ -93,7 +93,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
                     if ($responseType instanceof IdTokenSMARTResponse) {
                         $responseType->setContextForNewTokens($decodedContext);
                     }
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                         , 'tokenId' => $oldRefreshToken['access_token_id']]);
                 }
@@ -114,7 +114,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     public function validateScopes($scopes, $redirectUri = null)
     {
-        // TODO: @adunsulag I'm not sure this funciton is needed anymore since we now validate against the
+        // TODO: @adunsulag I'm not sure this function is needed anymore since we now validate against the
         // entire server supported scopes.
         $this->getSystemLogger()->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
         $scopeRepo = $this->scopeRepository;

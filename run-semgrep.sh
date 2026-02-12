@@ -66,6 +66,14 @@ declare -a EXCLUDES=(
     "--exclude=node_modules"
     "--exclude=tests"
     "--exclude=ccdaservice/node_modules"
+    "--exclude=Documentation"
+    "--exclude=*.mustache"
+)
+
+# Exclude default p/php rules that we override in semgrep.yaml with OpenEMR sanitizers
+declare -a EXCLUDE_RULES=(
+    "--exclude-rule=php.lang.security.injection.echoed-request.echoed-request"
+    "--exclude-rule=php.lang.security.injection.printed-request.printed-request"
 )
 
 # Build output arguments
@@ -106,12 +114,14 @@ else
     CONFIG_ARGS+=(
         "--config=p/php"
         "--config=p/security-audit"
+        "--config=p/javascript"
+        "--config=p/nodejs"
         "--config=/src/semgrep.yaml"
     )
-    echo "Config: p/php p/security-audit semgrep.yaml"
+    echo "Config: p/php p/security-audit p/javascript p/nodejs semgrep.yaml"
 fi
 
-echo "Running Semgrep on OpenEMR PHP code..."
+echo "Running Semgrep on OpenEMR code..."
 if [[ -n "${SEVERITY}" ]]; then
     echo "Severity filter: ${SEVERITY}"
 fi
@@ -130,6 +140,7 @@ docker run --rm \
     "${FORMAT_ARG[@]}" \
     --no-git-ignore \
     "${EXCLUDES[@]}" \
+    "${EXCLUDE_RULES[@]}" \
     "${EXTRA_EXCLUDES[@]}" \
     "${OUTPUT_ARGS[@]}" \
     .

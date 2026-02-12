@@ -237,7 +237,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     public $supportingInfo = [];
 
     /**
-     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provence.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
+     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provenance.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public $relevantHistory = [];
@@ -838,7 +838,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provence.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
+     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provenance.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public function getRelevantHistory()
@@ -847,7 +847,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provence.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
+     * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provenance.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $relevantHistory
      * @return $this
      */

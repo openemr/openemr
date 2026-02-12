@@ -199,7 +199,7 @@ function textArray(array $arr, $depth = 0)
  * NOTE: This can be used as a "generic" HTML escape since it does maximal
  * quoting.  However, some HTML and XML contexts (CDATA) don't provide
  * escape mechanisms.  Also, further pre- or post-escaping might need to
- * be done when embdedded other languages (like JavaScript) inside HTML /
+ * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
  * @param string $text The string to escape, possibly including (&), (<),
@@ -236,9 +236,8 @@ function hsc_private_xl_or_warn($key)
 /**
  * Translate via xl() and then escape via text().
  *
- * @param string $key The string to escape, possibly including "&", "<",
- *                    or ">".
- * @return string The string, with "&", "<", and ">" escaped.
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, with "&", "<", and ">" escaped.
  */
 function xlt($key)
 {
@@ -248,9 +247,8 @@ function xlt($key)
 /**
  * Translate via xl() and then escape via attr().
  *
- * @param string $key The string to escape, possibly including (&), (<),
- *                    (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, with (&), (<), (>), ("), and (') escaped.
  */
 function xla($key)
 {
@@ -260,7 +258,7 @@ function xla($key)
 /**
  * Translate via xl() and then escape via js_escape() for use with JavaScript literals.
  *
- * @param string $key The string to translate and escape.
+ * @param literal-string $key The string to translate and escape.
  * @return string The translated string escaped for JavaScript.
  */
 function xlj($key)
@@ -271,7 +269,7 @@ function xlj($key)
 /**
  * Translate via xl() and then escape via xmlEscape() for use in XML contexts.
  *
- * @param string $key The string to translate and escape.
+ * @param literal-string $key The string to translate and escape.
  * @return string The translated string, escaped for XML contexts.
  */
 function xlx($key)

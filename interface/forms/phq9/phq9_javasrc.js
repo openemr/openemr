@@ -38,23 +38,23 @@ function manage_question_10(value)
     if ((phq9_score > 0) && q10_gone) {
         question = document.createElement("i");  // create the node to hold question 10
         question.class = "label";
-        var menue = document.createElement("select");  // create 'select' element, to hold the menue
+        var menu = document.createElement("select");  // create 'select' element, to hold the menu
         // set some of the parameters
-        menue.name = "difficulty";
-        menue.onchange = "record_score_q10(my_form.difficulty.value);";
-        menue.length = 5;
-        create_q10(question, menue); // populate question 10 and menue - do in main page as it requires php
+        menu.name = "difficulty";
+        menu.onchange = "record_score_q10(my_form.difficulty.value);";
+        menu.length = 5;
+        create_q10(question, menu); // populate question 10 and menu - do in main page as it requires php
         // set the default value - if new it's 'select answer', else it's previous value
         if (value == "undef") {
-            menue.options[4].defaultSelected = true;
+            menu.options[4].defaultSelected = true;
         } else {
             // else we can use value as an index
-            menue.options[Number(value)].defaultSelected = true;
+            menu.options[Number(value)].defaultSelected = true;
         }
-        //    display the question and  menue in the reserved place
+        //    display the question and  menu in the reserved place
         place = document.getElementById("q10_place");
         place.parentNode.appendChild(question, place);
-        place.parentNode.appendChild(menue, place);
+        place.parentNode.appendChild(menu, place);
         q10_gone = false;
     } else if (phq9_score == 0 && !q10_gone) {    //take question 10 off the displayed form
         document.my_form.difficulty.remove();
@@ -96,7 +96,7 @@ function update_score(index, new_score)
             phq9_score = phq9_score + Number(all_scores[index]);
         }
     }
-    // decide which explanatory string to dispay for the new score
+    // decide which explanatory string to display for the new score
     if (phq9_score == 0) {
         explanation = str_score_analysis[0];
     } else if (phq9_score < 5) {

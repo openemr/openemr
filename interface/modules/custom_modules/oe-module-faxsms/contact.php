@@ -35,7 +35,7 @@ $isForward = ($clientApp->getRequest('mode', false) == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
 $isUniversal = (int)$clientApp->getRequest('isUniversal', false);
 
-$isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+$isSMTP = !empty($GLOBALS['SMTP_HOST'] ?? null);
 $isOnetime = (int)$clientApp->getRequest('isOnetime', false);
 
 if ($isUniversal) {

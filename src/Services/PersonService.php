@@ -88,7 +88,7 @@ class PersonService extends BaseService
             }
 
             $processingResult->addData($personArray);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Exception during person creation", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -129,7 +129,7 @@ class PersonService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to update person");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error updating person", [
                 'id' => $personId,
                 'error' => $e->getMessage()
@@ -155,7 +155,7 @@ class PersonService extends BaseService
             } else {
                 $processingResult->addInternalError("Person not found");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error getting person", [
                 'id' => $personId,
                 'error' => $e->getMessage()
@@ -189,7 +189,7 @@ class PersonService extends BaseService
 
             $this->getLogger()->info("Person deleted", ['id' => $personId]);
             $processingResult->addData(['deleted' => true, 'id' => $personId]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting person", [
                 'id' => $personId,
                 'error' => $e->getMessage()
@@ -228,7 +228,7 @@ class PersonService extends BaseService
             // Create new person if not found
             $dataToCreate = array_merge($searchCriteria, $createData);
             return $this->create($dataToCreate);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error in findOrCreate", ['error' => $e->getMessage()]);
             $processingResult->addInternalError($e->getMessage());
         }
@@ -291,7 +291,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error searching persons", ['error' => $e->getMessage()]);
             $processingResult->addInternalError($e->getMessage());
         }
@@ -346,7 +346,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error finding related persons", [
                 'patient_id' => $patientId,
                 'error' => $e->getMessage()
@@ -398,7 +398,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error finding related persons", [
                 'foreign_table' => $targetTable,
                 'foreign_id' => $targetID,
@@ -437,7 +437,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error getting person relationships", [
                 'person_id' => $personId,
                 'error' => $e->getMessage()

@@ -30,6 +30,7 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 
@@ -478,11 +479,11 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     }
     $scriptFilterEvent = new ScriptFilterEvent('pnadmin.php');
     $scriptFilterEvent->setContextArgument('viewtype', 'admin');
-    $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+    $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
     $styleFilterEvent = new StyleFilterEvent('pnadmin.php');
     $styleFilterEvent->setContextArgument('viewtype', 'admin');
-    $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+    $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
     $tpl->assign('globals', $GLOBALS);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());

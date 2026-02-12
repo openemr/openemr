@@ -2,6 +2,7 @@
 Fax and SMS feature for OpenEMR that currently supports Twilio SMS and etherFAX for faxing.
 ## Install Module
 
+#### If upgrading to new version, use the Sql Button in the Module Manager FaxSMS entry to update the database tables. Or click trash can icon to unregister and then Install Button. All previous setting are maintained.
 - To turn on and setup vendor accounts goto the top menu Modules->Manage Modules then click Unregistered button to display all currently unregistered modules.
 - Find the FaxSMS Module item and click the Register button.
 - From the Registered tab find and click the Install button then Enable the module.

@@ -4,6 +4,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 
 class C_DocumentCategory extends Controller
@@ -17,7 +18,7 @@ class C_DocumentCategory extends Controller
     {
         parent::__construct();
         $this->document_categories = [];
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&document_category&");
         $this->link = $GLOBALS['webroot'] . "/controller.php?" . "document_category&";
         $this->assign("STYLE", $GLOBALS['style']);
@@ -49,7 +50,7 @@ class C_DocumentCategory extends Controller
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
         return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 

@@ -14,11 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -32,9 +34,12 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getString('srcdir') . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -54,9 +59,8 @@ $isAdmin = true;
 $is_authorized = true;
 if (!AclMain::aclCheckForm($_GET["formname"])) {
     $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-    $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-    exit;
+    $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
 }
 
 // General error trap. Echo and die.
@@ -75,7 +79,7 @@ try {
         if (empty($form)) {
             throw new RuntimeException("Can not find encounter form.");
         }
-        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
         $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
         // if empty form will revert to the backup response stored with form.
         if (!empty($qr)) {
@@ -123,7 +127,7 @@ try {
     if ($questionnaire_form == 'New Questionnaire') {
         $q_list = $service->getQuestionnaireList(true);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $msg = "<p style='color: red; font-size: 1.25rem;'>" . xlt("Can not continue") . ": " . text($e->getMessage()) . "</p>";
     die($msg);
 }
@@ -152,9 +156,9 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    $theme = stripos((string) $GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)$GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
 } else {
-    $theme = stripos((string) $GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)$GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
 }
 
 if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
@@ -547,7 +551,7 @@ if ($isModule || $isDashboard || $isPortal) {
         $(function () {
             window.addEventListener("message", (e) => {
                 if (e.origin !== window.location.origin) {
-                    syncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
+                    asyncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {
@@ -556,7 +560,7 @@ if ($isModule || $isDashboard || $isPortal) {
                         e.preventDefault();
                         document.forms[0].submit();
                     } else {
-                        syncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
+                        asyncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
                         return false;
                     }
                 }

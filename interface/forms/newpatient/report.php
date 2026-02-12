@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
@@ -27,7 +28,7 @@ use OpenEMR\Services\PatientService;
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
     $res = sqlStatement("select e.*, f.name as facility_name from form_encounter as e join facility as f on f.id = e.facility_id where e.pid=? and e.id=?", [$pid,$id]);
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
+    $twig = new TwigContainer(__DIR__, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     $encounters = [];
     $userService = new UserService();

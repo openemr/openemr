@@ -87,7 +87,7 @@ class JWTClientAuthenticationService
 
 
     /**
-     * Allows the http client that retrieves jwks to be overriden.  Useful for unit testing
+     * Allows the http client that retrieves jwks to be overridden.  Useful for unit testing
      * @param ClientInterface $client
      */
     public function setHttpClient(ClientInterface $client)
@@ -96,7 +96,7 @@ class JWTClientAuthenticationService
     }
 
     /**
-     * Allows the http client that retrieves jwks to be overriden.  Useful for unit testing
+     * Allows the http client that retrieves jwks to be overridden.  Useful for unit testing
      * @return ClientInterface
      */
     public function getHttpClient(): ClientInterface

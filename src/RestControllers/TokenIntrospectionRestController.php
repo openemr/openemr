@@ -441,7 +441,7 @@ class TokenIntrospectionRestController {
                 $result['exp'] = $result['exp']->getTimestamp();
             }
         }
-        catch (Exception $exception) {
+        catch (\Throwable $exception) {
             // something else went wrong
             $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
             // something else went wrong

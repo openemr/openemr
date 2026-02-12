@@ -3,6 +3,13 @@
 # - "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
 # - "Tests": Tests that require a database and initialization before they can run or pass.
 # This workflow runs the kind that requires initialization.
+#
+# Matrix strategy:
+# - Pull requests: Only PHP 8.2 configurations (oldest supported) for faster feedback
+# - Push to master/rel-*: All configurations
+#
+# Coverage is collected for one configuration (apache_82_118 on PRs, apache_84_114 on push).
+# Full coverage across ALL configurations runs in the scheduled nightly workflow.
 
 name: Test All Configurations
 
@@ -32,9 +39,13 @@ jobs:
 
     - name: Collect Docker Dirs
       id: docker-dirs
+      env:
+        IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
       ##
       # Collect the docker directory names from ci subdirectories
       # and compute display names for each configuration.
+      # For PRs, only include PHP 8.2 configs (oldest supported version).
+      # For pushes to master/rel-*, include all configs.
       run: |
         shopt -s nullglob
         shopt -s extglob
@@ -42,13 +53,27 @@ jobs:
         dirs=( ci/!(compose-shared-*)/docker-compose.yml )
         dirs=( "${dirs[@]%/docker-compose.yml}" )
         dirs=( "${dirs[@]#ci/}" )
-        ci/parse_docker_dir.sh "${dirs[@]}" |
-          jq -rc 'map({
-            docker_dir: .output.docker_dir,
-            display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
-            save_composer_cache: .output.save_composer_cache,
-            save_node_cache: .output.save_node_cache
-          }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+
+        if [[ "${IS_PULL_REQUEST}" = "true" ]]; then
+          # For PRs: filter to only PHP 8.2 configurations
+          ci/parse_docker_dir.sh "${dirs[@]}" |
+            jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
+              docker_dir: .output.docker_dir,
+              php: .output.php,
+              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+              save_composer_cache: .output.save_composer_cache,
+              save_node_cache: .output.save_node_cache
+            }) | map(select(.php == "8.2")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+        else
+          # For pushes: include all configurations
+          ci/parse_docker_dir.sh "${dirs[@]}" |
+            jq -rc 'map({
+              docker_dir: .output.docker_dir,
+              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+              save_composer_cache: .output.save_composer_cache,
+              save_node_cache: .output.save_node_cache
+            }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+        fi
     outputs:
       configs: ${{ steps.docker-dirs.outputs.configs }}
   build:
@@ -63,7 +88,8 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for apache_84_114 only
-      enable_coverage: ${{ matrix.config.docker_dir == 'apache_84_114' }}
+      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_84_114 on push
+      # Full coverage for all configs runs in scheduled nightly workflow
+      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_84_114') }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}

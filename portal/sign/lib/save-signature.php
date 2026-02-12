@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,6 +38,15 @@ if ($isPortal) {
         // authorized by patient portal
         $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
+
+        // Portal users can only create patient signatures, not admin signatures
+        if ($type === 'admin-signature') {
+            echo js_escape("error: unauthorized signature type");
+            exit();
+        }
+
+        // Portal users can only sign for themselves - override any user value from POST
+        $user = $req_pid;
     } else {
         SessionUtil::portalSessionCookieDestroy();
         echo js_escape("error invalid session,");

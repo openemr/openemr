@@ -185,7 +185,7 @@ class CodeTypesService
 
     /**
      * @param       $code
-     * @param false $useOid
+     * @param bool $useOid
      * @return string|null
      */
     public function getSystemForCode($code, $useOid = false)
@@ -290,7 +290,7 @@ class CodeTypesService
 
     /**
      * @param string $codeType
-     * @param false  $useOid
+     * @param bool  $useOid
      * @return string|null
      */
     public function getSystemForCodeType($codeType, $useOid = false)

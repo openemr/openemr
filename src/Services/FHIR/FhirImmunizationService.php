@@ -113,7 +113,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
                 $display = "patient objection";
 
                 // we are leaving these here just to document these values as PATOBJ corresponds to both patient or
-                // guardian objection.  Other doesn't have a correspondance, and patient decision is already handled.
+                // guardian objection.  Other doesn't have a correspondence, and patient decision is already handled.
                 switch ($dataRecord['refusal_reason_cdc_nip_code']) {
                     case '00': // Parental exemption
                         break;

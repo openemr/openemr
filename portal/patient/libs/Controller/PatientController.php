@@ -133,7 +133,7 @@ class PatientController extends AppBasePortalController
             $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(false, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
         return $output->rows;
@@ -175,7 +175,7 @@ class PatientController extends AppBasePortalController
             $output->pageSize = $output->totalResults;
             $output->currentPage = 1;
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -189,7 +189,7 @@ class PatientController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
             $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -310,7 +310,7 @@ class PatientController extends AppBasePortalController
                 $patient->Save(true);
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -394,7 +394,7 @@ class PatientController extends AppBasePortalController
                 $this->CloseAudit($patient);
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -411,7 +411,7 @@ class PatientController extends AppBasePortalController
             $audit['pending_action'] = "completed";
             $audit['action_taken'] = "accept";
             $audit['status'] = "closed";
-            $audit['narrative'] = "Changes reviewed and commited to demographics.";
+            $audit['narrative'] = "Changes reviewed and committed to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
             $audit['action_user'] = $session->get('authUserID', "0");
@@ -426,7 +426,7 @@ class PatientController extends AppBasePortalController
                 $audit['date'] = $edata['date'] ?? null;
                 $appsql->portalAudit('update', $edata['id'], $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -441,7 +441,7 @@ class PatientController extends AppBasePortalController
             $patient->Delete();
             $output = new stdClass();
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

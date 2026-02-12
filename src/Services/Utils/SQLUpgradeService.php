@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
@@ -224,9 +225,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -689,7 +691,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
@@ -799,13 +801,18 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
                     $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -819,9 +826,9 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 
@@ -1446,7 +1453,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } catch (SqlQueryException $e) {
             $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
@@ -1483,7 +1490,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $this->flush_echo();
 
         // we need to grab all of the uuid mappings for care team and join them with patient_data
-        $commited = false;
+        $committed = false;
         try {
             QueryUtils::startTransaction();
             $fromClause = "FROM patient_data pd
@@ -1495,8 +1502,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                 um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
-            $uuidRecords = QueryUtils::fetchRecords("Select * from uuid_mapping WHERE resource='CareTeam'", [], true);
+            $this->cleanupCareTeamUUIDMappingsForPatientData();
+
             // now do patient history
             $fromClause = "FROM patient_history ph
                 LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
@@ -1507,9 +1514,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
+            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
             QueryUtils::commitTransaction();
-            $commited = true;
+            $committed = true;
         } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
@@ -1519,7 +1526,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             }
         } // we let errors percolate up
         finally {
-            if (!$commited) {
+            if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
         }
@@ -1547,7 +1554,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
-                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE fui.field_id='provider_id' AND u.id = ? ", [$providerId]);
+                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE (fui.id IS NULL OR fui.field_id='provider_id') AND u.id = ? ", [$providerId]);
             $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
             if (!empty($facilitiesIds)) {
                 // intersect user role facilities with care team facilities
@@ -1616,14 +1623,31 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
     }
 
-    protected function cleanupCareTeamUUidMappings(string $fromClause)
-    {
-        $uuidUpdates = "UPDATE uuid_registry SET mapped=0 WHERE uuid IN (select um.uuid " . $fromClause . ")";
-        QueryUtils::sqlStatementThrowException($uuidUpdates, [], true);
-        // we're going to keep the uuid mappings for care teams for historical reference
-        // or if we ever need to recover the data.  Fortunately with uuid_registry.mapped = 0 there won't be
-        // any impact on normal operations.
-//        $uuidDeletes = "DELETE FROM uuid_mapping WHERE uuid IN (select um.uuid " . $fromClause . ")";
-//        QueryUtils::sqlStatementThrowException($uuidDeletes, [], true);
+    private function cleanupCareTeamUUIDMappingsForPatientData() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_data pd ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL)
+            OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientHistory() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_history ph ON um.target_uuid = ph.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL)
+            OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
     }
 }

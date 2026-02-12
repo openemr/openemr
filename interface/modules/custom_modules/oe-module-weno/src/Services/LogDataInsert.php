@@ -51,7 +51,7 @@ class LogDataInsert
                 $insertdata['provider_id'],
                 $insertdata['prescriptionguid']
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -88,7 +88,7 @@ class LogDataInsert
                 $updatedata['provider_id'],
                 $updatedata['prescriptionguid']
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }

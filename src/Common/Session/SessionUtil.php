@@ -69,6 +69,8 @@ use OpenEMR\Common\Session\Predis\SentinelUtil;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Cookie;
+use SessionHandlerInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class SessionUtil
 {
@@ -89,14 +91,28 @@ class SessionUtil
 
     private static array $SESSION_INSTANCES = [];
 
+    private static ?SessionHandlerInterface $sessionHandler;
+
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
 
     public static function sessionStartWrapper(array $settings = []): bool
     {
-        if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
-            (new SentinelUtil(self::DEFAULT_GC_MAXLIFETIME))->configure();
+        // TODO: @adunsulag do we want to silently fail here or throw an exception?
+        if (\PHP_SESSION_ACTIVE === session_status()) {
+            // cannot start session as headers already sent or session already active
+            // inspiration for this came from Symfony's NativeSessionStorage::start()
+            throw new \RuntimeException('Failed to start the session: already started by PHP.');
+        }
+
+        $saveHandler = self::getSessionHandler();
+        if (isset($saveHandler)) {
+            $success = session_set_save_handler($saveHandler, true);
+            if (!$success) {
+                (new SystemLogger())->errorLogCaller("Failed to set session handler for Predis Sentinel.");
+                throw new \RuntimeException("Failed to set session handler for Predis Sentinel.");
+            }
+            (new SystemLogger())->debug("Successfully set session handler for Predis Sentinel.");
         }
         return session_start($settings);
     }
@@ -150,6 +166,12 @@ class SessionUtil
 
     public static function unsetSession($session_key_or_array): void
     {
+        // Since our default is read_and_close the session shouldn't be active here.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            // ensure the session file is written from a previous
+            // session open for write.
+            session_write_close();
+        }
         self::coreSessionStart($GLOBALS['webroot'], false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
@@ -172,6 +194,12 @@ class SessionUtil
 
     public static function setUnsetSession($setArray, $unsetArray): void
     {
+        // Since our default is read_and_close the session shouldn't be active here.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            // ensure the session file is written from a previous
+            // session open for write.
+            session_write_close();
+        }
         self::coreSessionStart($GLOBALS['webroot'], false);
         foreach ($setArray as $key => $value) {
             $_SESSION[$key] = $value;
@@ -204,8 +232,7 @@ class SessionUtil
         }
 
         $settings = SessionConfigurationBuilder::forPortal();
-
-        $storage = new NativeSessionStorage($settings);
+        $storage = self::getSessionStorage($settings);
         $session = new Session($storage);
         if (!$session->isStarted()) {
             $session->start();
@@ -218,14 +245,6 @@ class SessionUtil
         return $session;
     }
 
-    public static function portalPredisSessionStart(): void
-    {
-        $settings = SessionConfigurationBuilder::forPortal();
-        self::sessionStartWrapper($settings);
-
-        (new SystemLogger())->debug("SessionUtil: started portal predis session");
-    }
-
     public static function portalSessionCookieDestroy(): void
     {
         if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
@@ -236,19 +255,6 @@ class SessionUtil
             }
         }
         (new SystemLogger())->debug("SessionUtil: destroyed portal session");
-    }
-
-    public static function apiSessionStart($web_root): void
-    {
-        $settings = SessionConfigurationBuilder::forApi($web_root);
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started api session");
-    }
-
-    public static function apiSessionCookieDestroy(): void
-    {
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed api session");
     }
 
     public static function switchToOAuthSession($web_root): void
@@ -317,7 +323,7 @@ class SessionUtil
             self::APP_COOKIE_NAME,
             $appType,
             [
-                'expires' => time() + 3600,
+                'expires' => time() + 31536000, // 1 year
                 'path' => '/',
                 // This permits the app cookie to work in non-https dev environments. It's not a sensitive value.
                 'secure' => false,
@@ -332,8 +338,30 @@ class SessionUtil
         return $_COOKIE['App'] ?? '';
     }
 
-    public static function isPredisSession(): bool
-    {
-        return !empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel";
+    /**
+     * Get the session storage instance based on environment settings.
+     * @param array $sessionSettings
+     * @return SessionStorageInterface The session storage instance to use.
+     */
+    private static function getSessionStorage(array $sessionSettings): SessionStorageInterface {
+        // return the Symfony NativeSessionStorage with appropriate handler
+        return new NativeSessionStorage($sessionSettings, self::getSessionHandler());
+    }
+
+    /**
+     * Get the session handler based on environment settings.
+     * @return SessionHandlerInterface|null
+     */
+    public static function getSessionHandler(): ?SessionHandlerInterface {
+        if (!isset(self::$sessionHandler)) {
+            // handler defaults to symfony default handler, but if using predis sentinel, then get that handler
+            $handler = null;
+            if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+                (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
+                $handler = (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
+            }
+            self::$sessionHandler = $handler;
+        }
+        return self::$sessionHandler;
     }
 }

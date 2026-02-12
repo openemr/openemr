@@ -12,16 +12,15 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
 
     $tab = "claims";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Claims")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - Claims", xl("ClaimRev Connect - Claims"));
 }
 ?>
 
@@ -279,7 +278,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Payed Amt"); ?>:
+                                    <?php echo xlt("Paid Amt"); ?>:
                                     </div>
                                     <div class="col">
                                     <?php echo text($data->payerPaidAmount); ?>

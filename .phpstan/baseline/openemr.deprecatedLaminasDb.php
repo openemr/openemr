@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 65 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Adapter\\\\Adapter" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
