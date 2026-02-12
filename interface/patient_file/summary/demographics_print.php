@@ -200,7 +200,7 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
-function end_cell(): void
+function demographics_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -209,10 +209,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function demographics_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    demographics_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -223,11 +223,11 @@ function end_row(): void
     }
 }
 
-function end_group(): void
+function demographics_end_group(): void
 {
     global $last_group;
     if (strlen((string) $last_group) > 0) {
-        end_row();
+        demographics_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
@@ -259,7 +259,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle a data category (group) change.
     if (strcmp((string) $this_group, (string) $last_group) != 0) {
-        end_group();
+        demographics_end_group();
 
         // if (strlen($last_group) > 0) echo "<br />\n";
 
@@ -286,7 +286,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle starting of a new row.
     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-        end_row();
+        demographics_end_row();
         echo "  <tr>";
     }
 
@@ -296,7 +296,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle starting of a new label cell.
     if ($titlecols > 0) {
-        end_cell();
+        demographics_end_cell();
         echo "<td colspan='" . attr($titlecols) . "' ";
         echo "class='lcols" . attr($titlecols) . " stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {
@@ -320,7 +320,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Handle starting of a new data cell.
     if ($datacols > 0) {
-        end_cell();
+        demographics_end_cell();
         echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under'";
         /*****************************************************************
         // Underline is wanted only for fill-in-the-blank data types.
@@ -348,7 +348,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 }
 
-end_group();
+demographics_end_group();
 
 // Ending the last nobreak section for html2pdf.
 // TODO - now use mPDF, so should test if still need this fix
