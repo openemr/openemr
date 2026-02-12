@@ -17682,6 +17682,51 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function amcNoSoCProvided\\(\\) has parameter \\$amc_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
@@ -17758,51 +17803,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function amcTrackingRequest\\(\\) has parameter \\$start with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$amc_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$date_created with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_category with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete\\(\\) has parameter \\$amc_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_category with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
