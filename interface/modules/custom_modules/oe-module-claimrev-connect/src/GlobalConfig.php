@@ -111,25 +111,6 @@ class GlobalConfig
         return $this->getGlobalSetting(self::CONFIG_AUTO_SEND_CLAIM_FILES);
     }
 
-
-
-
-    public function getTextOption()
-    {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
-    }
-
-    /**
-     * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
-     *
-     * @return bool|string
-     */
-    public function getEncryptedOption()
-    {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
-    }
-
     public function getGlobalSetting($settingKey)
     {
         return $this->globalsArray[$settingKey] ?? null;

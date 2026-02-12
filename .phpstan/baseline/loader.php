@@ -34,7 +34,6 @@ return ['includes' => [
     __DIR__ . '/class.notFound.php',
     __DIR__ . '/classConstant.deprecated.php',
     __DIR__ . '/classConstant.nonObject.php',
-    __DIR__ . '/classConstant.notFound.php',
     __DIR__ . '/classConstant.unused.php',
     __DIR__ . '/clone.nonObject.php',
     __DIR__ . '/constant.deprecated.php',
