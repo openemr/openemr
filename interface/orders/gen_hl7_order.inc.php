@@ -42,7 +42,7 @@ use OpenEMR\Common\Orders\Hl7OrderResult;
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date = '')
+function default_loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -79,7 +79,7 @@ function loadPayerInfo($pid, $date = '')
  * @return Hl7OrderResult  Result object containing HL7 text and optional lab-specific requisition data.
  * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order(int $orderid): Hl7OrderResult
+function default_gen_hl7_order(int $orderid): Hl7OrderResult
 {
 
   // Delimiters
@@ -200,7 +200,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
     $d0;
 
   // Insurance stuff.
-    $payers = loadPayerInfo($porow['pid'], $porow['date_ordered']);
+    $payers = default_loadPayerInfo($porow['pid'], $porow['date_ordered']);
     $setid = 0;
     foreach ($payers as $payer) {
         $payer_object = $payer['object'];
@@ -383,7 +383,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function send_hl7_order($ppid, $out)
+function default_send_hl7_order($ppid, $out)
 {
     global $srcdir;
 
