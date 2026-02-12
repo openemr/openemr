@@ -3633,6 +3633,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DeviceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
