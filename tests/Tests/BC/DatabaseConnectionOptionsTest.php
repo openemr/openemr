@@ -53,6 +53,7 @@ class DatabaseConnectionOptionsTest extends TestCase
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             unixSocket: '/var/run/mysqld/mysqld.sock',
@@ -65,32 +66,55 @@ class DatabaseConnectionOptionsTest extends TestCase
         self::assertArrayNotHasKey('port', $params);
     }
 
-    public function testToDbalParamsWithDriverOptions(): void
+    public function testToDbalParamsWithSslCaOnly(): void
     {
-        $driverOptions = [
-            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
-            PDO::MYSQL_ATTR_SSL_CERT => '/path/to/cert.pem',
-            PDO::MYSQL_ATTR_SSL_KEY => '/path/to/key.pem',
-        ];
-
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
             port: 3306,
-            driverOptions: $driverOptions,
+            sslCaPath: '/path/to/ca.pem',
         );
 
         $params = $options->toDbalParams();
 
-        self::assertSame($driverOptions, $params['driverOptions'] ?? null);
+        self::assertSame([
+            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
+        ], $params['driverOptions'] ?? null);
+    }
+
+    public function testToDbalParamsWithFullSsl(): void
+    {
+        $options = new DatabaseConnectionOptions(
+            dbname: 'testdb',
+            charset: 'utf8mb4',
+            user: 'testuser',
+            password: 'secret',
+            host: 'localhost',
+            port: 3306,
+            sslCaPath: '/path/to/ca.pem',
+            sslClientCert: [
+                'cert' => '/path/to/cert.pem',
+                'key' => '/path/to/key.pem',
+            ],
+        );
+
+        $params = $options->toDbalParams();
+
+        self::assertSame([
+            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
+            PDO::MYSQL_ATTR_SSL_CERT => '/path/to/cert.pem',
+            PDO::MYSQL_ATTR_SSL_KEY => '/path/to/key.pem',
+        ], $params['driverOptions'] ?? null);
     }
 
     public function testDebugInfoRedactsPassword(): void
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'super-secret-password',
             host: 'localhost',
@@ -133,6 +157,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
         );
@@ -145,6 +170,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -158,6 +184,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             port: 3306,
@@ -171,6 +198,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
+            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -233,7 +261,7 @@ class DatabaseConnectionOptionsTest extends TestCase
         self::assertSame('utf8mb4', $options->charset);
     }
 
-    public function testFromSqlconfWithDriverOptions(): void
+    public function testFromSqlconfWithSslPaths(): void
     {
         $sqlconf = [
             'dbase' => 'openemr',
@@ -242,11 +270,19 @@ class DatabaseConnectionOptionsTest extends TestCase
             'host' => 'localhost',
             'port' => '3306',
         ];
-        $driverOptions = [PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem'];
+        $sslPaths = [
+            'ca' => '/path/to/ca.pem',
+            'cert' => '/path/to/cert.pem',
+            'key' => '/path/to/key.pem',
+        ];
 
-        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $driverOptions);
+        $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $sslPaths);
 
-        self::assertSame($driverOptions, $options->driverOptions);
+        self::assertSame('/path/to/ca.pem', $options->sslCaPath);
+        self::assertSame([
+            'cert' => '/path/to/cert.pem',
+            'key' => '/path/to/key.pem',
+        ], $options->sslClientCert);
     }
 
     /** @var list<string> */
@@ -260,21 +296,21 @@ class DatabaseConnectionOptionsTest extends TestCase
         $this->tempDirs = [];
     }
 
-    public function testInferSslOptionsWithCaOnly(): void
+    public function testInferSslPathsWithCaOnly(): void
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
         mkdir($certDir, 0755, true);
         file_put_contents($certDir . '/mysql-ca', 'ca-content');
 
-        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
 
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => $certDir . '/mysql-ca',
-        ], $options);
+            'ca' => $certDir . '/mysql-ca',
+        ], $paths);
     }
 
-    public function testInferSslOptionsWithFullCerts(): void
+    public function testInferSslPathsWithFullCerts(): void
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
@@ -283,16 +319,16 @@ class DatabaseConnectionOptionsTest extends TestCase
         file_put_contents($certDir . '/mysql-cert', 'cert');
         file_put_contents($certDir . '/mysql-key', 'key');
 
-        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
 
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => $certDir . '/mysql-ca',
-            PDO::MYSQL_ATTR_SSL_CERT => $certDir . '/mysql-cert',
-            PDO::MYSQL_ATTR_SSL_KEY => $certDir . '/mysql-key',
-        ], $options);
+            'ca' => $certDir . '/mysql-ca',
+            'cert' => $certDir . '/mysql-cert',
+            'key' => $certDir . '/mysql-key',
+        ], $paths);
     }
 
-    public function testInferSslOptionsRejectsMismatchedCertKey(): void
+    public function testInferSslPathsRejectsMismatchedCertKey(): void
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
@@ -300,23 +336,22 @@ class DatabaseConnectionOptionsTest extends TestCase
         file_put_contents($certDir . '/mysql-cert', 'cert');
 
         $this->expectException(LogicException::class);
-        DatabaseConnectionOptions::inferSslOptions($siteDir);
+        DatabaseConnectionOptions::inferSslPaths($siteDir);
     }
 
-    public function testInferSslOptionsReturnsEmptyWhenNoCerts(): void
+    public function testInferSslPathsReturnsEmptyWhenNoCerts(): void
     {
         $siteDir = $this->createTempSiteDir();
         mkdir($siteDir . '/documents/certificates', 0755, true);
 
-        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+        $paths = DatabaseConnectionOptions::inferSslPaths($siteDir);
 
-        self::assertSame([], $options);
+        self::assertSame([], $paths);
     }
 
     public function testForSiteLoadsConfigFile(): void
     {
-        $sitesBase = $this->createTempSiteDir();
-        $siteDir = $sitesBase . '/testsite';
+        $siteDir = $this->createTempSiteDir();
         mkdir($siteDir, 0755, true);
 
         file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
@@ -332,7 +367,7 @@ $sqlconf = [
 PHP
         );
 
-        $options = DatabaseConnectionOptions::forSite('testsite', $sitesBase);
+        $options = DatabaseConnectionOptions::forSite($siteDir);
 
         self::assertSame('testdb', $options->dbname);
         self::assertSame('testuser', $options->user);
@@ -340,7 +375,8 @@ PHP
         self::assertSame(3306, $options->port);
         self::assertNull($options->unixSocket);
         self::assertSame('latin1', $options->charset);
-        self::assertSame([], $options->driverOptions);
+        self::assertNull($options->sslCaPath);
+        self::assertNull($options->sslClientCert);
     }
 
     private function createTempSiteDir(): string

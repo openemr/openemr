@@ -21,7 +21,6 @@ use Doctrine\DBAL\{
 };
 use LogicException;
 use OpenEMR\Core\OEGlobalsBag;
-use PDO;
 use PDOException;
 
 /**
@@ -80,57 +79,15 @@ class Database
     private static function readLegacyConfig(): DatabaseConnectionOptions
     {
         $bag = OEGlobalsBag::getInstance();
-        $sqlconf = $bag->get('sqlconf');
-        if (!is_array($sqlconf)) {
+
+        $siteDir = $bag->getString('OE_SITE_DIR');
+        if ($siteDir === '') {
             throw new LogicException(
-                'sqlconf empty or missing. Was interface/globals.php included?'
+                'OE_SITE_DIR not set. Was interface/globals.php included?'
             );
         }
 
-        $siteDir = $bag->getString('OE_SITE_DIR');
-        $driverOptions = self::inferSslOptions($siteDir);
-
-        return new DatabaseConnectionOptions(
-            dbname: $sqlconf['dbase'],
-            user: $sqlconf['login'],
-            password: $sqlconf['pass'],
-            host: $sqlconf['host'],
-            port: ((int)$sqlconf['port']) ?? 3306,
-            charset: $sqlconf['db_encoding'],
-            driverOptions: $driverOptions,
-        );
-    }
-
-    /**
-     * Inspects the filesystem for MySQL certificate files in
-     * OE_SITE_DIR/documents/certificates and, if present, returns PDO SSL
-     * options to use them.
-     *
-     * @param string $siteDir The currently-active site directory (OE_SITE_DIR,
-     * typically speaking).
-     *
-     * @return array<PDO::MYSQL_*, string>
-     */
-    private static function inferSslOptions(string $siteDir): array
-    {
-        $options = [];
-
-        $certDir = sprintf('%s/documents/certificates', $siteDir);
-        $caFile = sprintf('%s/mysql-ca', $certDir);
-        $cert = sprintf('%s/mysql-cert', $certDir);
-        $key = sprintf('%s/mysql-key', $certDir);
-        if (file_exists($caFile)) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
-        }
-        if (file_exists($cert) || file_exists($key)) {
-            if (!file_exists($cert) || !file_exists($key)) {
-                throw new LogicException('MySQL cert or key file missing. You need both or neither.');
-            }
-            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
-            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
-        }
-
-        return $options;
+        return DatabaseConnectionOptions::forSite($siteDir);
     }
 
     /**

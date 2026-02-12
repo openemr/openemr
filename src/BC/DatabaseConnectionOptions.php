@@ -20,11 +20,11 @@ use RuntimeException;
 use SensitiveParameter;
 
 /**
- * Represents database connection options for Doctrine DBAL.
- *
  * This class provides a type-safe way to configure database connections while
  * ensuring that sensitive values (password) are protected from leaking in
  * stack traces, var_dump(), and error logs.
+ *
+ * @internal
  *
  * @phpstan-import-type Params from DriverManager
  * @phpstan-type SqlConf array{
@@ -42,18 +42,19 @@ final readonly class DatabaseConnectionOptions
     private const REDACTED = '[REDACTED]';
 
     /**
-     * @param array<int, mixed> $driverOptions PDO driver options (e.g., SSL certs)
+     * @param array{cert: string, key: string}|null $sslClientCert Client cert/key pair for mTLS
      */
     public function __construct(
         public string $dbname,
+        public string $charset,
         public string $user,
         #[SensitiveParameter]
         private string $password,
         public ?string $host = null,
         public ?int $port = null,
         public ?string $unixSocket = null,
-        public ?string $charset = null,
-        public array $driverOptions = [],
+        public ?string $sslCaPath = null,
+        public ?array $sslClientCert = null,
     ) {
         $hasHost = $host !== null;
         $hasPort = $port !== null;
@@ -82,33 +83,38 @@ final readonly class DatabaseConnectionOptions
     /**
      * Creates options for a site by loading its sqlconf.php file.
      *
-     * @param string $siteName Site identifier (e.g., 'default')
-     * @param string|null $sitesBasePath Override path to sites directory
+     * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
+     * @param literal-string $configFile Config filename to load
      */
     public static function forSite(
-        string $siteName,
-        ?string $sitesBasePath = null,
+        string $siteDir,
+        string $configFile = 'sqlconf.php',
     ): self {
-        $sitesBasePath ??= dirname(__DIR__, 2) . '/sites';
-        $siteDir = $sitesBasePath . '/' . $siteName;
+        $sqlconf = self::loadSqlconf($siteDir, $configFile);
+        $sslPaths = self::inferSslPaths($siteDir);
 
-        $sqlconf = self::loadSqlconf($siteDir);
-        $driverOptions = self::inferSslOptions($siteDir);
-
-        return self::fromSqlconf($sqlconf, $driverOptions);
+        return self::fromSqlconf($sqlconf, $sslPaths);
     }
 
     /**
      * Creates options from a pre-parsed sqlconf array.
      *
      * @param SqlConf $sqlconf
-     * @param array<int, mixed> $driverOptions
+     * @param array{ca?: string, cert?: string, key?: string} $sslPaths
      */
-    public static function fromSqlconf(array $sqlconf, array $driverOptions = []): self
+    public static function fromSqlconf(array $sqlconf, array $sslPaths = []): self
     {
         $host = $sqlconf['host'] ?? null;
         $port = isset($sqlconf['port']) ? (int) $sqlconf['port'] : null;
         $unixSocket = $sqlconf['socket'] ?? null;
+
+        $sslClientCert = null;
+        if (isset($sslPaths['cert'], $sslPaths['key'])) {
+            $sslClientCert = [
+                'cert' => $sslPaths['cert'],
+                'key' => $sslPaths['key'],
+            ];
+        }
 
         return new self(
             dbname: $sqlconf['dbase'],
@@ -118,18 +124,19 @@ final readonly class DatabaseConnectionOptions
             port: $port,
             unixSocket: $unixSocket,
             charset: $sqlconf['db_encoding'] ?? 'utf8mb4',
-            driverOptions: $driverOptions,
+            sslCaPath: $sslPaths['ca'] ?? null,
+            sslClientCert: $sslClientCert,
         );
     }
 
     /**
      * Detects MySQL SSL certificate files in site directory.
      *
-     * @return array<int, string>
+     * @return array{ca?: string, cert?: string, key?: string}
      */
-    public static function inferSslOptions(string $siteDir): array
+    public static function inferSslPaths(string $siteDir): array
     {
-        $options = [];
+        $paths = [];
 
         $certDir = sprintf('%s/documents/certificates', $siteDir);
         $caFile = sprintf('%s/mysql-ca', $certDir);
@@ -137,7 +144,7 @@ final readonly class DatabaseConnectionOptions
         $key = sprintf('%s/mysql-key', $certDir);
 
         if (file_exists($caFile)) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
+            $paths['ca'] = $caFile;
         }
         if (file_exists($cert) || file_exists($key)) {
             if (!file_exists($cert) || !file_exists($key)) {
@@ -145,19 +152,20 @@ final readonly class DatabaseConnectionOptions
                     'MySQL cert or key file missing. You need both or neither.'
                 );
             }
-            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
-            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
+            $paths['cert'] = $cert;
+            $paths['key'] = $key;
         }
 
-        return $options;
+        return $paths;
     }
 
     /**
+     * @param literal-string $configFile
      * @return SqlConf
      */
-    private static function loadSqlconf(string $siteDir): array
+    private static function loadSqlconf(string $siteDir, string $configFile): array
     {
-        $sqlconfPath = $siteDir . '/sqlconf.php';
+        $sqlconfPath = $siteDir . '/' . $configFile;
         if (!file_exists($sqlconfPath)) {
             throw new RuntimeException("sqlconf.php not found at: $sqlconfPath");
         }
@@ -202,12 +210,18 @@ final readonly class DatabaseConnectionOptions
             $params['unix_socket'] = $this->unixSocket;
         }
 
-        if ($this->charset !== null) {
-            $params['charset'] = $this->charset;
-        }
+        $params['charset'] = $this->charset;
 
-        if ($this->driverOptions !== []) {
-            $params['driverOptions'] = $this->driverOptions;
+        $driverOptions = [];
+        if ($this->sslCaPath !== null) {
+            $driverOptions[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;
+        }
+        if ($this->sslClientCert !== null) {
+            $driverOptions[PDO::MYSQL_ATTR_SSL_CERT] = $this->sslClientCert['cert'];
+            $driverOptions[PDO::MYSQL_ATTR_SSL_KEY] = $this->sslClientCert['key'];
+        }
+        if ($driverOptions !== []) {
+            $params['driverOptions'] = $driverOptions;
         }
 
         return $params;
@@ -229,7 +243,8 @@ final readonly class DatabaseConnectionOptions
             'port' => $this->port,
             'unixSocket' => $this->unixSocket,
             'charset' => $this->charset,
-            'driverOptions' => $this->driverOptions,
+            'sslCaPath' => $this->sslCaPath,
+            'sslClientCert' => $this->sslClientCert,
         ];
     }
 }
