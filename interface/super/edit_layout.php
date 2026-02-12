@@ -408,7 +408,12 @@ $sorted_datatypes = $datatypes;
 natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
+// AI/Claude Code change: Validate against known layouts to prevent any tainted user input from propagating.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
+if ($layout_id !== '' && !isset($layouts[$layout_id])) {
+    $layout_id = '';
+}
+// End of AI/Claude Code change
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
@@ -453,28 +458,42 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                     $field_id = $field_id_original;
                 }
             }
-            sqlStatement("UPDATE layout_options SET " .
-                "field_id = '"      . add_escape_custom($field_id)      . "', " .
-                "source = '"        . add_escape_custom(trim((string) $iter['source']))    . "', " .
-                "title = '"         . add_escape_custom($iter['title'])     . "', " .
-                "group_id = '"    . add_escape_custom(trim((string) $iter['group']))     . "', " .
-                "seq = '"           . add_escape_custom(trim((string) $iter['seq']))      . "', " .
-                "uor = '"           . add_escape_custom(trim((string) $iter['uor']))       . "', " .
-                "fld_length = '"    . add_escape_custom(trim((string) $iter['lengthWidth']))    . "', " .
-                "fld_rows = '"    . add_escape_custom(trim((string) $iter['lengthHeight']))    . "', " .
-                "max_length = '"    . add_escape_custom(trim((string) $iter['maxSize']))    . "', "                             .
-                "titlecols = '"     . add_escape_custom(trim((string) $iter['titlecols'])) . "', " .
-                "datacols = '"      . add_escape_custom(trim((string) $iter['datacols']))  . "', " .
-                "data_type= '" . add_escape_custom($data_type) . "', "                                .
-                "list_id= '"        . add_escape_custom($listval)   . "', " .
-                "list_backup_id= '"        . add_escape_custom(trim((string) $iter['list_backup_id']))   . "', " .
-                "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
-                "default_value = '" . add_escape_custom(trim((string) $iter['default']))   . "', " .
-                "description = '"   . add_escape_custom(trim((string) $iter['desc']))      . "', " .
-                "codes = '"   . add_escape_custom(trim((string) $iter['codes']))      . "', " .
-                "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(trim((string) ($iter['validation'] ?? '')))   . "' " .
-                "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
+            // AI/Claude Code change: refactored to use query parameters
+            sqlStatement(
+                "UPDATE layout_options SET " .
+                "field_id = ?, source = ?, title = ?, group_id = ?, " .
+                "seq = ?, uor = ?, fld_length = ?, fld_rows = ?, " .
+                "max_length = ?, titlecols = ?, datacols = ?, data_type = ?, " .
+                "list_id = ?, list_backup_id = ?, edit_options = ?, " .
+                "default_value = ?, description = ?, codes = ?, " .
+                "conditions = ?, validation = ? " .
+                "WHERE form_id = ? AND field_id = ?",
+                [
+                    $field_id,
+                    trim((string) $iter['source']),
+                    $iter['title'],
+                    trim((string) $iter['group']),
+                    trim((string) $iter['seq']),
+                    trim((string) $iter['uor']),
+                    trim((string) $iter['lengthWidth']),
+                    trim((string) $iter['lengthHeight']),
+                    trim((string) $iter['maxSize']),
+                    trim((string) $iter['titlecols']),
+                    trim((string) $iter['datacols']),
+                    $data_type,
+                    $listval,
+                    trim((string) $iter['list_backup_id']),
+                    encodeModifier($iter['edit_options'] ?? null),
+                    trim((string) $iter['default']),
+                    trim((string) $iter['desc']),
+                    trim((string) $iter['codes']),
+                    $conditions,
+                    trim((string) ($iter['validation'] ?? '')),
+                    $layout_id,
+                    $field_id_original,
+                ]
+            );
+            // End of AI/Claude Code changes
 
               setLayoutTimestamp($layout_id);
         }
@@ -487,31 +506,36 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? trim((string) $_POST['contextName']) : trim((string) $_POST['newlistid']);
-    sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
-      ", max_length, list_id, list_backup_id " .
-      ") VALUES ( " .
-      "'"  . add_escape_custom(trim((string) $_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newsource'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newid'])) . "'" .
-      ",'" . add_escape_custom($_POST['newtitle']) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newfieldgroupid'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newseq'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newuor'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newtitlecols'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdatacols'])) . "'" .
-      ",'" . add_escape_custom($data_type) . "'"                                  .
-        ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdefault'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newcodes'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdesc'])) . "'" .
-      ",'"    . add_escape_custom(trim((string) $_POST['newmaxSize']))    . "'"  .
-      ",'" . add_escape_custom($listval) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newbackuplistid'])) . "'" .
-      " )");
+    // AI/Claude Code change: refactored to use query parameters
+    sqlStatement(
+        "INSERT INTO layout_options (" .
+        " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
+        ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
+        ", max_length, list_id, list_backup_id " .
+        ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            trim((string) $_POST['layout_id']),
+            trim((string) $_POST['newsource']),
+            trim((string) $_POST['newid']),
+            $_POST['newtitle'],
+            trim((string) $_POST['newfieldgroupid']),
+            trim((string) $_POST['newseq']),
+            trim((string) $_POST['newuor']),
+            trim((string) $_POST['newlengthWidth']),
+            trim((string) $_POST['newlengthHeight']),
+            trim((string) $_POST['newtitlecols']),
+            trim((string) $_POST['newdatacols']),
+            $data_type,
+            encodeModifier($_POST['newedit_options'] ?? null),
+            trim((string) $_POST['newdefault']),
+            trim((string) $_POST['newcodes']),
+            trim((string) $_POST['newdesc']),
+            trim((string) $_POST['newmaxSize']),
+            $listval,
+            trim((string) $_POST['newbackuplistid']),
+        ]
+    );
+    // End of AI/Claude Code changes
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
@@ -519,19 +543,18 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         CsrfUtils::csrfNotVerified();
     }
     // Move field(s) to a new group in the layout
-    $sqlstmt = "UPDATE layout_options SET " .
-                " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
-                " WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
-    $comma = "";
-    foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-        $comma = ", ";
-    }
-    $sqlstmt .= ")";
-    //echo $sqlstmt;
-    sqlStatement($sqlstmt);
+    // AI/Claude Code change: refactored to use query parameters
+    $fields = explode(" ", (string) $_POST['selectedfields']);
+    $placeholders = implode(", ", array_fill(0, count($fields), "?"));
+    $params = array_merge(
+        [$_POST['targetgroup'], $_POST['layout_id']],
+        $fields
+    );
+    sqlStatement(
+        "UPDATE layout_options SET group_id = ? WHERE form_id = ? AND field_id IN ($placeholders)",
+        $params
+    );
+    // End of AI/Claude Code changes
     setLayoutTimestamp($layout_id);
 } elseif (($_POST['formaction'] ?? '') == "copytolayout" && $layout_id && !empty($_POST['targetlayout'])) {
     // Copy field(s) to the specified group in another layout.
@@ -575,26 +598,26 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         CsrfUtils::csrfNotVerified();
     }
     // Delete a field from a specific group
-    $sqlstmt = "DELETE FROM layout_options WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
-    $comma = "";
-    $cntr = 0;
+    // AI/Claude Code change: refactored to use query parameters
+    $fieldsToDelete = [];
     foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
         if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
-            $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-            $comma = ", ";
-            $cntr++;
+            $fieldsToDelete[] = $onefield;
         }
     }
-    $sqlstmt .= ")";
-    if (!empty($cntr)) {
-        sqlStatement($sqlstmt);
+    if (!empty($fieldsToDelete)) {
+        $placeholders = implode(", ", array_fill(0, count($fieldsToDelete), "?"));
+        $params = array_merge([$_POST['layout_id']], $fieldsToDelete);
+        sqlStatement(
+            "DELETE FROM layout_options WHERE form_id = ? AND field_id IN ($placeholders)",
+            $params
+        );
         foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
             addOrDeleteColumn($layout_id, $onefield, false);
         }
         setLayoutTimestamp($layout_id);
     }
+    // End of AI/Claude Code changes
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
