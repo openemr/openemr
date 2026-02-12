@@ -444,7 +444,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
             $info = $backtrace[$level];
             echo "<br />" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
             if ($level > 1) {
-                $args = array_map('get_debug_type', $info["args"]);
+                $args = array_map(get_debug_type(...), $info["args"]);
                 echo "(" . text(implode(", ", $args)) . ")";
             }
         }
