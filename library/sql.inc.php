@@ -427,39 +427,30 @@ function sqlNumRows($r)
 */
 function HelpfulDie($statement, $sqlerr = ''): never
 {
-
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
-
     if (!($GLOBALS['sql_string_no_show_screen'] ?? '')) {
         echo "<p><font color='red'>ERROR:</font> " . text($statement) . "</p>";
     }
-
     $logMsg = "SQL Error with statement:" . $statement;
-
     if ($sqlerr) {
-        if (!$GLOBALS['sql_string_no_show_screen'] ?? '') {
-             echo "<p>Error: <font color='red'>" . text($sqlerr) . "</font></p>";
+        if (!($GLOBALS['sql_string_no_show_screen'] ?? '')) {
+            echo "<p>Error: <font color='red'>" . text($sqlerr) . "</font></p>";
         }
-
         $logMsg .= "--" . $sqlerr;
     }//if error
-
     $backtrace = debug_backtrace();
-
-    if (!$GLOBALS['sql_string_no_show_screen'] ?? '') {
+    if (!($GLOBALS['sql_string_no_show_screen'] ?? '')) {
         for ($level = 1; $level < count($backtrace); $level++) {
             $info = $backtrace[$level];
             echo "<br />" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
             if ($level > 1) {
-                echo "(" . text(implode(",", $info["args"])) . ")";
+                $args = array_map(get_debug_type(...), $info["args"]);
+                echo "(" . text(implode(", ", $args)) . ")";
             }
         }
     }
-
     $logMsg .= "==>" . $backtrace[1]["file"] . " at " . $backtrace[1]["line"] . ":" . $backtrace[1]["function"];
-
     error_log(errorLogEscape($logMsg));
-
     exit(1);
 }
 
