@@ -84,7 +84,7 @@ class JsonWebKeyParser
                 $result['active'] = false;
                 $result['status'] = 'failed_verification';
             }
-        } catch (Exception) {
+        } catch (\Throwable) {
             $result['active'] = false;
             $result['status'] = 'invalid_signature';
         }

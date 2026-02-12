@@ -21,11 +21,11 @@ require_once("$srcdir/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -47,8 +47,7 @@ if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("List Editor")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: List Editor", xl("List Editor"));
 }
 
 // Compute a current checksum of the data from the database for the given list.

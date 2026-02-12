@@ -131,7 +131,7 @@ function execute_background_service_calls(): void
             continue;
         }
 
-        $acquiredLock =  generic_sql_affected_rows();
+        $acquiredLock =  \OpenEMR\Common\Database\QueryUtils::affectedRows();
         if ($acquiredLock < 1) {
             continue; //service is already running or not due yet
         }
@@ -147,7 +147,7 @@ function execute_background_service_calls(): void
         //use try/catch in case service functions throw an unexpected Exception
         try {
             $service['function']();
-        } catch (Exception) {
+        } catch (\Throwable) {
           //do nothing
         }
 

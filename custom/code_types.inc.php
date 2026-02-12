@@ -53,6 +53,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -237,7 +238,7 @@ if (!$isStaticAnalysis) {
     /**
      * @var EventDispatcher
      */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     $externalCodesEvent = new ExternalCodesCreatedEvent($ct_external_options);
     $eventDispatcher->dispatch($externalCodesEvent, ExternalCodesCreatedEvent::EVENT_HANDLE);
     $ct_external_options = $externalCodesEvent->getExternalCodeData();

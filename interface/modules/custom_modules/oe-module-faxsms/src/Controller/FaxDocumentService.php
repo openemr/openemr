@@ -438,7 +438,7 @@ class FaxDocumentService
             error_log("FaxDocumentService.insertInboundFaxToQueue(): Successfully stored fax {$jobId} (patient_id={$patientId}, document_id={$documentId})");
 
             return (int)$recordId;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("FaxDocumentService.insertInboundFaxToQueue(): ERROR - " . $e->getMessage());
             throw new FaxDocumentException("Failed to insert inbound fax to queue: " . $e->getMessage(), 0, $e);
         }

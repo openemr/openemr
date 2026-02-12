@@ -15,6 +15,7 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -29,7 +30,7 @@ $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH form');
 }
 
 $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());

@@ -46,7 +46,7 @@ class ApplicationTable
         try {
             $return = sqlStatement($sql, $params);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -67,7 +67,7 @@ class ApplicationTable
             $sql = "Select * From onsite_portal_activity Where  id = ?";
             $return = sqlStatementNoLog($sql, $recid);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->errorHandler($e, $sql);
         }
         if ($result === true) {
@@ -93,7 +93,7 @@ class ApplicationTable
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $audit);
             }
@@ -186,7 +186,7 @@ class ApplicationTable
 
             $return = sqlStatementNoLog($logsql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $logsql, $audit);
             }
@@ -332,8 +332,8 @@ class ApplicationTable
         $temp = explode(' ', (string) $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
-        $output_format = ApplicationTable::dateFormat($output_format);
-        $input_format = ApplicationTable::dateFormat($input_format);
+        $output_format = $this->dateFormat($output_format);
+        $input_format = $this->dateFormat($input_format);
 
         preg_match("/[^ymd]/", (string) $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];

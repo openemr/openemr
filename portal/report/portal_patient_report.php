@@ -138,7 +138,7 @@ try {
 } catch (SyntaxError $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
     echo $twig->render("error/general_http_error.html.twig", []);
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 }

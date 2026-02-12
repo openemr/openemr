@@ -10,13 +10,14 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once dirname(__FILE__, 4) . "/globals.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
-$kernel = $GLOBALS['kernel'];
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $globalConfig = $bootstrap->getGlobalConfig();
 $subscriptionId = $globalConfig->getGlobalSetting(TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID) ?? '';

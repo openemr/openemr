@@ -31,6 +31,7 @@ use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +42,7 @@ if (!$encounter) { // comes from globals.php
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 // Defaults for new orders.
 $provider_id = getProviderIdOfEncounter($encounter);
@@ -114,15 +115,6 @@ function get_lab_name($id): string
         $gbl_lab = 'missingName';
     }
     return $gbl_lab;
-}
-
-function QuotedOrNull($fld)
-{
-    if (empty($fld)) {
-        return null;
-    }
-
-    return $fld;
 }
 
 function getListOptions($list_id, $fieldnames = ['option_id', 'title', 'seq']): array
@@ -202,12 +194,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "performer_type = ?, " .
         "location_id = ?";
 
-    // REPLACE THE $set_array variable with this updated version:
     $set_array = [
-        QuotedOrNull($_POST['form_date_ordered']),
+        empty($_POST['form_date_ordered']) ? null : $_POST['form_date_ordered'],
         (int)$_POST['form_provider_id'],
         $ppid,
-        QuotedOrNull($_POST['form_date_collected']),
+        empty($_POST['form_date_collected']) ? null : $_POST['form_date_collected'],
         $_POST['form_order_priority'],
         $_POST['form_order_status'],
         $_POST['form_billing_type'],
@@ -224,11 +215,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         (int)$_POST['form_account_facility'],
         (int)$_POST['form_collector_id'],
         trim((string) $_POST['procedure_type_names']),
-        // NEW US Core 8.0 fields
+        // US Core 8.0 fields
         trim($_POST['form_order_intent'] ?? 'order'),
-        QuotedOrNull($_POST['form_scheduled_date']),
-        QuotedOrNull($_POST['form_scheduled_start']),
-        QuotedOrNull($_POST['form_scheduled_end']),
+        empty($_POST['form_scheduled_date']) ? null : $_POST['form_scheduled_date'],
+        empty($_POST['form_scheduled_start']) ? null : $_POST['form_scheduled_start'],
+        empty($_POST['form_scheduled_end']) ? null : $_POST['form_scheduled_end'],
         trim($_POST['form_performer_type'] ?? ''),
         (int)($_POST['form_location_id'] ?? 0),
     ];

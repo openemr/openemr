@@ -26,7 +26,8 @@ class SqlQueryException extends \RuntimeException
         private $sqlStatement = "",
         $message = "",
         $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
+        public readonly string $sqlError = "",
     ) {
         parent::__construct($message, $code, $previous);
     }

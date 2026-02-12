@@ -284,7 +284,7 @@ class EtherFaxActions extends AppDispatch
                 }
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
         }
         $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
@@ -385,7 +385,7 @@ class EtherFaxActions extends AppDispatch
                     }
                 }
                 $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape('Error: ' . $e->getMessage());
             }
         }
@@ -563,7 +563,7 @@ class EtherFaxActions extends AppDispatch
 
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return "Error: Retrieving Fax:\n" . $e->getMessage();
         }
 
@@ -809,7 +809,7 @@ class EtherFaxActions extends AppDispatch
                 $pinfo = str_replace("|||", " ", $row['patient_info']);
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 

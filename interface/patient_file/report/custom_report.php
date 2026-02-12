@@ -29,9 +29,9 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
@@ -41,8 +41,7 @@ use OpenEMR\Services\FacilityService;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Custom Report", xl("Custom Report"));
 }
 
 $facilityService = new FacilityService();
@@ -582,18 +581,18 @@ function getContent()
                                             $itpl = $pdf->importPage($i + 1);
                                             $pdf->useTemplate($itpl);
                                         }
-                                    } catch (Exception) {
+                                    } catch (\Throwable) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
-                                        //
-                                        unlink($from_file_tmp_name);
                                         $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
-                                        $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
+                                        $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp ?? '');
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
                                         $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
                                     } finally {
-                                        unlink($from_file_tmp_name);
+                                        if (isset($from_file_tmp_name)) {
+                                            unlink($from_file_tmp_name);
+                                        }
                                         // Make sure whatever follows is on a new page. Maybe!
                                         // okay if not a series of pdfs so if so need @todo
                                         if (empty($err)) {

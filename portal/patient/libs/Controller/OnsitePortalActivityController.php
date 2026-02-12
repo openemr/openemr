@@ -97,7 +97,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -117,7 +117,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 throw new Exception($error);
             }
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -168,7 +168,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -224,7 +224,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -245,7 +245,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

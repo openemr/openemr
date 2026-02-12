@@ -16,15 +16,14 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
 $facilityService = new FacilityService();
@@ -60,23 +59,6 @@ function AddIfPresent($tag, $text): void
     if (isset($text) && $text !== '') {
         Add($tag, $text);
     }
-}
-
-// Translate sex.
-function Sex($field)
-{
-  /*******************************************************************
-  $sex = strtoupper(substr(trim($field), 0, 1));
-  if ($sex != "M" && $sex != "F") $sex = "U";
-  return $sex;
-  *******************************************************************/
-    return mappedOption('sex', $field);
-}
-
-// Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
 }
 
 function xmlTime($str, $default = '9999-12-31T23:59:59')
@@ -571,7 +553,7 @@ if (!empty($form_submit)) {
         Add('Children', 0 + getTextListValue($hrow['genobshist'], 'nlc'));   // number of living children
         Add('Abortions', 0 + getTextListValue($hrow['genabohist'], 'nia'));   // number of induced abortions
         Add('Education', $education);
-        Add('Demo5', Sex($row['sex']));
+        Add('Demo5', mappedOption('sex', $row['sex']));
 
         // Things included if they are present (July 2010)
         AddIfPresent('City', $row['city']);

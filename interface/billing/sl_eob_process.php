@@ -24,6 +24,7 @@ use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 
 /** @var int $debug */
@@ -233,9 +234,9 @@ function era_callback_check(array &$out): void
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
             $bgcolor = $check_count % 2 === 1 ? '#ddddff' : '#ffdddd';
 
-            $rs = sqlQ("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
+            $records = QueryUtils::fetchRecords("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
 
-            if (sqlNumRows($rs) > 0) {
+            if (!empty($records)) {
                 $bgcolor = '#ff0000';
                 $WarningFlag = true;
             }
@@ -851,14 +852,12 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
           $StringPrint = 'No';
         if (is_countable($InsertionId)) {
             foreach ($InsertionId as $key => $value) {
-                $rs = sqlQ("select pay_total from ar_session where session_id=?", [$value]);
-                $row = sqlFetchArray($rs);
+                $row = QueryUtils::querySingleRow("select pay_total from ar_session where session_id=?", [$value]);
                 $pay_total = $row['pay_total'];
-                $rs = sqlQ(
+                $row = QueryUtils::querySingleRow(
                     "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
                     [$value]
                 );
-                $row = sqlFetchArray($rs);
                 $pay_amount = $row['sum_pay_amount'];
 
                 if (($pay_total - $pay_amount) <> 0) {

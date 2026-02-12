@@ -34,6 +34,17 @@ require_once "$srcdir/patient.inc.php";
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var array $code_types
+ * @var string $BS_COL_CLASS
+ */
+
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -59,7 +70,7 @@ function end_cell(): void
 
 function end_row(): void
 {
-    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
+    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
     end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {
@@ -194,7 +205,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
-        die(xlt('Access denied'));
+        AccessDeniedHelper::deny('Unauthorized access to LBF form');
     }
 }
 

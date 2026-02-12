@@ -68,7 +68,7 @@ try {
         $gc->GetContext(),
         $gc->GetRouter()
     );
-} catch (exception $ex) {
+} catch (\Throwable $ex) {
     // This is the global error handler which will be called in the event of
     // uncaught errors.  If the endpoint appears to be an API request then
     // render it as JSON, otherwise attempt to render a friendly HTML page
@@ -91,7 +91,7 @@ try {
 
         try {
             $gc->GetRenderEngine()->display("DefaultErrorFatal.tpl");
-        } catch (Exception $ex2) {
+        } catch (\Throwable $ex2) {
             // this means there is an error with the template, in which case we can't display it nicely
             echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
             echo "<h1>Fatal Error:</h1>\n";

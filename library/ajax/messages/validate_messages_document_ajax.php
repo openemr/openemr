@@ -18,6 +18,7 @@ require_once("$srcdir/pid.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -25,12 +26,11 @@ $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
 try {
-    $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
-        http_response_code(403);
-        CsrfUtils::csrfNotVerified(true, true, false);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: function () use ($twig, $format): void {
+            echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
+        });
     }
 
 
@@ -68,7 +68,7 @@ try {
     } else {
         echo xlt("No errors found, Document(s) passed Import Validation");
     }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     if (isset($twig)) {
         http_response_code(500);

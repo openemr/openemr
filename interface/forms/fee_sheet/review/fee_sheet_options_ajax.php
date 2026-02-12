@@ -15,12 +15,11 @@
 require_once("../../../globals.php");
 require_once("fee_sheet_options_queries.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    header("HTTP/1.0 403 Forbidden");
-    echo "Not authorized for billing";
-    return false;
+    AccessDeniedHelper::deny('Unauthorized access to fee sheet options');
 }
 
 $pricelevel = $_REQUEST['pricelevel'] ?? 'standard';

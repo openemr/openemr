@@ -7,11 +7,12 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,9 +37,10 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
-        echo xlt("Not authorized");
-        SessionUtil::portalSessionCookieDestroy();
-        exit;
+        AccessDeniedHelper::deny(
+            'Unauthorized handler in patient portal document library',
+            beforeExit: SessionUtil::portalSessionCookieDestroy(...),
+        );
     }
 } else {
     SessionUtil::portalSessionCookieDestroy();
@@ -67,7 +69,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo $msg;
 }
 // confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -100,7 +102,7 @@ if ($dispose == $_POST['audit_delete'] ?? null) {
                 ;
                 echo js_escape(['success' => false, 'message' => 'Failed to update or delete record.']);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Rollback on error
             QueryUtils::rollbackTransaction();
             echo js_escape(['success' => false, 'message' => $e->getMessage()]);
@@ -170,10 +172,10 @@ try {
             echo $file;
             $logit->portalLog('fetched PDF', $cpid, ('document:' . $form_filename));
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             die(text($e->getMessage()));
         }
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     die(text($e->getMessage()));
 }

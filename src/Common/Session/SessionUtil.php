@@ -166,6 +166,12 @@ class SessionUtil
 
     public static function unsetSession($session_key_or_array): void
     {
+        // Since our default is read_and_close the session shouldn't be active here.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            // ensure the session file is written from a previous
+            // session open for write.
+            session_write_close();
+        }
         self::coreSessionStart($GLOBALS['webroot'], false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
@@ -188,6 +194,12 @@ class SessionUtil
 
     public static function setUnsetSession($setArray, $unsetArray): void
     {
+        // Since our default is read_and_close the session shouldn't be active here.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            // ensure the session file is written from a previous
+            // session open for write.
+            session_write_close();
+        }
         self::coreSessionStart($GLOBALS['webroot'], false);
         foreach ($setArray as $key => $value) {
             $_SESSION[$key] = $value;

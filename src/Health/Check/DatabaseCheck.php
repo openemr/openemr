@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Health\Check;
 
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Health\HealthCheckInterface;
 use OpenEMR\Health\HealthCheckResult;
 
@@ -29,34 +29,13 @@ class DatabaseCheck implements HealthCheckInterface
     public function check(): HealthCheckResult
     {
         try {
-            $globals = OEGlobalsBag::getInstance();
-            $adodb = $globals->get('adodb');
-
-            if (!is_array($adodb) || !isset($adodb['db'])) {
-                return new HealthCheckResult(
-                    $this->getName(),
-                    false,
-                    'Database connection not initialized'
-                );
-            }
-
-            $db = $adodb['db'];
-            $result = $db->Execute("SELECT 1");
-
-            if ($result === false) {
-                return new HealthCheckResult(
-                    $this->getName(),
-                    false,
-                    'Failed to execute query'
-                );
-            }
-
+            QueryUtils::sqlStatementThrowException("SELECT 1", [], noLog: true);
             return new HealthCheckResult($this->getName(), true);
         } catch (\Throwable $e) {
             return new HealthCheckResult(
                 $this->getName(),
                 false,
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }

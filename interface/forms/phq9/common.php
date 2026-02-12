@@ -15,6 +15,25 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("phq9.inc.php"); //common strings
 require_once("$srcdir/api.inc.php");
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $viewmode
+ * @var string $str_default
+ * @var string $str_not
+ * @var string $str_several
+ * @var string $str_more
+ * @var string $str_nearly
+ * @var string $str_somewhat
+ * @var string $str_very
+ * @var string $str_extremely
+ * @var string $str_nosave_confirm
+ * @var string $str_form_name
+ * @var string $str_form_title
+ * @var string $str_q10
+ * @var string $str_q10_2
+ */
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 

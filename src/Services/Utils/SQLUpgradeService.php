@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
@@ -224,9 +225,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -689,7 +691,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
@@ -799,13 +801,18 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
                     $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -819,9 +826,9 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 
@@ -1446,7 +1453,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } catch (SqlQueryException $e) {
             $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
