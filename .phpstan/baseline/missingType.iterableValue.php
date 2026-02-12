@@ -4852,11 +4852,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\CqmClient\\:\\:getHealth\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
