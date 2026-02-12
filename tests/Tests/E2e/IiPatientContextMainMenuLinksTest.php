@@ -32,7 +32,6 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $client;
     private $crawler;
 
     #[DataProvider('menuLinkProvider')]

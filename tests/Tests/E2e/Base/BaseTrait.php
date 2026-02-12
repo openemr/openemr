@@ -25,6 +25,8 @@ use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
+    private Client $client;
+
     private function base(): void
     {
         $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
@@ -147,6 +149,9 @@ trait BaseTrait
 
     private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
     {
+        // Wait for the active tab element to exist first (handles page transitions)
+        $this->client->waitFor(XpathsConstants::ACTIVE_TAB);
+
         // Wait for each loading indicator to disappear from the live DOM
         if (str_contains($loading, '||')) {
             foreach (explode('||', $loading) as $loadingText) {

@@ -113,6 +113,7 @@ return ['includes' => [
     __DIR__ . '/offsetAccess.nonOffsetAccessible.php',
     __DIR__ . '/offsetAccess.notFound.php',
     __DIR__ . '/offsetAssign.dimType.php',
+    __DIR__ . '/offsetAssign.valueType.php',
     __DIR__ . '/openemr.deprecatedLaminasDb.php',
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
