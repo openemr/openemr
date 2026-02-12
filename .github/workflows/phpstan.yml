@@ -40,22 +40,71 @@ jobs:
       uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: "phpstan-result-cache-${{ github.run_id }}"
+        key: phpstan-result-cache-${{ github.run_id }}
         restore-keys: |
           phpstan-result-cache-
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
+    # Use CI config which sets reportUnmatchedIgnoredErrors: false so this step
+    # only fails for NEW errors, not stale baseline entries.
     - name: PHPStan Analyze
-      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
-    # Changes to baseline through anything other than the native generator tend
-    # to lead to merge conflicts and weird diffs, typically from sort order.
-    - name: Ensure baseline is stable
+      id: analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze -c .phpstan/phpstan.ci.neon --error-format=github
+    - name: PHPStan Errors Summary
+      if: failure() && steps.analyze.outcome == 'failure'
       run: |
-        composer phpstan-baseline
-        git diff --exit-code .phpstan/baseline/
-    - name: PHPStan Baseline
-      if: failure()
-      run: composer run phpstan-baseline
+        {
+          echo '## ❌ PHPStan Errors Introduced'
+          echo
+          echo 'New errors were introduced that are not in the baseline.'
+          echo
+          echo '### Run PHPStan locally'
+          echo
+          echo '| Method | Command |'
+          echo '|--------|---------|'
+          # shellcheck disable=SC2016
+          echo '| Pre-commit hook | `prek install` or `pre-commit install` (runs automatically on commit) |'
+          # shellcheck disable=SC2016
+          echo '| Composer | `composer phpstan` |'
+          # shellcheck disable=SC2016
+          echo '| Docker | `openemr-cmd pst` |'
+        } >> "$GITHUB_STEP_SUMMARY"
+    # Regenerate baseline for artifact upload (runs always).
+    - name: Regenerate PHPStan Baseline
+      if: always()
+      run: composer phpstan-baseline
+    # Check for baseline drift. Only meaningful when analysis passed - if analysis
+    # failed, the baseline will differ due to the new errors.
+    - name: Ensure baseline is stable
+      if: steps.analyze.outcome == 'success'
+      run: |
+        if git diff --exit-code .phpstan/baseline/; then
+          echo '## ✅ PHPStan Passed' >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+        {
+          echo '## ❌ PHPStan Baseline Needs Regeneration'
+          echo
+          echo 'Your PR does not introduce new errors, but the baseline files are out'
+          echo 'of sync. This can mean the baseline was manually edited'
+          echo 'or errors were fixed but the baseline was not regenerated.'
+          echo
+          echo '### Quick fix'
+          echo
+          echo 'Apply the regenerated baseline from this workflow:'
+          echo
+          echo '```bash'
+          echo "gh run download $GITHUB_RUN_ID --name phpstan-baseline-php${{ matrix.php-version }} -D .phpstan/baseline/"
+          echo '```'
+          echo
+          echo 'Then commit and push the changes.'
+          echo
+          echo '### Regenerate locally'
+          echo
+          # shellcheck disable=SC2016
+          echo 'Or run `composer phpstan-baseline` to regenerate the baseline locally.'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit 1
     # Upload the resulting baseline as an artifact. This is intended mostly for
     # debugging and isn't actively used by GH workflows.
     - name: Upload PHPStan Baseline
