@@ -21807,11 +21807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/sql\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',

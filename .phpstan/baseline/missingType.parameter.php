@@ -36702,16 +36702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:get\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:set\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PatientSessionUtil\\:\\:setPid\\(\\) has parameter \\$new_pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/PatientSessionUtil.php',
@@ -36720,16 +36710,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionTracker\\:\\:processSessionThrottleDown\\(\\) has parameter \\$throttleDownWaitMilliseconds with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionTracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:coreSessionStart\\(\\) has parameter \\$read_only with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:coreSessionStart\\(\\) has parameter \\$web_root with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:oauthSessionStart\\(\\) has parameter \\$web_root with no type specified\\.$#',
@@ -36743,26 +36723,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:setSession\\(\\) has parameter \\$session_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:setUnsetSession\\(\\) has parameter \\$setArray with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:setUnsetSession\\(\\) has parameter \\$unsetArray with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:switchToCoreSession\\(\\) has parameter \\$read_only with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:switchToCoreSession\\(\\) has parameter \\$web_root with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];

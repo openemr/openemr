@@ -3777,11 +3777,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:getId\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:getAppCookie\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
