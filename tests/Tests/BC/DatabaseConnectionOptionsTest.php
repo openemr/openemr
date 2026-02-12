@@ -38,13 +38,13 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
-        self::assertSame('pdo_mysql', $params['driver']);
-        self::assertSame('testdb', $params['dbname']);
-        self::assertSame('testuser', $params['user']);
-        self::assertSame('secret', $params['password']);
-        self::assertSame('db.example.com', $params['host']);
-        self::assertSame(3307, $params['port']);
-        self::assertSame('utf8mb4', $params['charset']);
+        self::assertSame('pdo_mysql', $params['driver'] ?? null);
+        self::assertSame('testdb', $params['dbname'] ?? null);
+        self::assertSame('testuser', $params['user'] ?? null);
+        self::assertSame('secret', $params['password'] ?? null);
+        self::assertSame('db.example.com', $params['host'] ?? null);
+        self::assertSame(3307, $params['port'] ?? null);
+        self::assertSame('utf8mb4', $params['charset'] ?? null);
         self::assertArrayNotHasKey('unix_socket', $params);
     }
 
@@ -59,7 +59,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
-        self::assertSame('/var/run/mysqld/mysqld.sock', $params['unix_socket']);
+        self::assertSame('/var/run/mysqld/mysqld.sock', $params['unix_socket'] ?? null);
         self::assertArrayNotHasKey('host', $params);
         self::assertArrayNotHasKey('port', $params);
     }
@@ -83,7 +83,7 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
-        self::assertSame($driverOptions, $params['driverOptions']);
+        self::assertSame($driverOptions, $params['driverOptions'] ?? null);
     }
 
     public function testDebugInfoRedactsPassword(): void
