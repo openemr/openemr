@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\BC;
 
 use InvalidArgumentException;
+use LogicException;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -246,5 +247,95 @@ class DatabaseConnectionOptionsTest extends TestCase
         $options = DatabaseConnectionOptions::fromSqlconf($sqlconf, $driverOptions);
 
         self::assertSame($driverOptions, $options->driverOptions);
+    }
+
+    /** @var list<string> */
+    private array $tempDirs = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->tempDirs as $dir) {
+            $this->cleanupTempDir($dir);
+        }
+        $this->tempDirs = [];
+    }
+
+    public function testInferSslOptionsWithCaOnly(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+
+        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+
+        self::assertSame([
+            PDO::MYSQL_ATTR_SSL_CA => $certDir . '/mysql-ca',
+        ], $options);
+    }
+
+    public function testInferSslOptionsWithFullCerts(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-ca', 'ca');
+        file_put_contents($certDir . '/mysql-cert', 'cert');
+        file_put_contents($certDir . '/mysql-key', 'key');
+
+        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+
+        self::assertSame([
+            PDO::MYSQL_ATTR_SSL_CA => $certDir . '/mysql-ca',
+            PDO::MYSQL_ATTR_SSL_CERT => $certDir . '/mysql-cert',
+            PDO::MYSQL_ATTR_SSL_KEY => $certDir . '/mysql-key',
+        ], $options);
+    }
+
+    public function testInferSslOptionsRejectsMismatchedCertKey(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-cert', 'cert');
+
+        $this->expectException(LogicException::class);
+        DatabaseConnectionOptions::inferSslOptions($siteDir);
+    }
+
+    public function testInferSslOptionsReturnsEmptyWhenNoCerts(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir . '/documents/certificates', 0755, true);
+
+        $options = DatabaseConnectionOptions::inferSslOptions($siteDir);
+
+        self::assertSame([], $options);
+    }
+
+    private function createTempSiteDir(): string
+    {
+        $dir = sys_get_temp_dir() . '/test-site-' . uniqid();
+        $this->tempDirs[] = $dir;
+        return $dir;
+    }
+
+    private function cleanupTempDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST,
+        );
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
+            } else {
+                unlink($file->getRealPath());
+            }
+        }
+        rmdir($dir);
     }
 }
