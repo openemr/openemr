@@ -18,7 +18,6 @@ use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
@@ -29,7 +28,6 @@ use Psr\Http\Message\{
     UploadedFileFactoryInterface,
     UriFactoryInterface,
 };
-use Twig\Environment;
 
 /**
  * Utility class for accessing common system services.
@@ -125,21 +123,6 @@ class ServiceContainer
     public static function getStreamFactory(): StreamFactoryInterface
     {
         return self::resolve(StreamFactoryInterface::class) ?? new Psr17Factory();
-    }
-
-    /**
-     * Get a configured Twig environment.
-     *
-     * @param string|null $path Additional template path to include alongside
-     *                          the default /templates directory
-     */
-    public static function getTwig(?string $path = null): Environment
-    {
-        if (($env = self::resolve(Environment::class)) !== null) {
-            return $env;
-        }
-        $kernel = OEGlobalsBag::getInstance()->getKernel();
-        return (new TwigContainer($path, $kernel))->getTwig();
     }
 
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface

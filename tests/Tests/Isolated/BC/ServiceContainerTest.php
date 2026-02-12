@@ -4,7 +4,6 @@
  * ServiceContainer Smoke Tests
  *
  * Tests that ServiceContainer methods return the expected interface types.
- * getTwig() is excluded as it requires global state.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
