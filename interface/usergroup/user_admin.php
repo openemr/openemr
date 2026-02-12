@@ -20,16 +20,17 @@ require_once("../globals.php");
 require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Events\User\UserEditRenderEvent;
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -40,8 +41,7 @@ if (!empty($_GET)) {
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit User")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit User", xl("Edit User"));
 }
 
 if (!$_GET["id"]) {
@@ -290,7 +290,7 @@ function toggle_password() {
         // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
         // generate additional rows / table columns which locks us into that format.
         $preRenderEvent = new UserEditRenderEvent('user_admin.php', $_GET['id']);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
         ?>
     </td>
 </tr>
@@ -484,7 +484,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector($iter["main_menu_role"]);
     ?>
   </td>
@@ -633,7 +633,7 @@ foreach ($list_acl_groups as $value) {
             // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
             // generate additional rows / table columns which locks us into that format.
             $postRenderEvent = new UserEditRenderEvent('user_admin.php', $_GET['id']);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($postRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($postRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
             ?>
         </td>
     </tr>

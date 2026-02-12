@@ -3,6 +3,9 @@ includes:
   - baseline/loader.php
 parameters:
   reportUnmatchedIgnoredErrors: true
+  strictRules:
+    allRules: false
+    disallowedEmpty: true
   scanDirectories:
     - ../vendor/adodb/adodb-php
   scanFiles:

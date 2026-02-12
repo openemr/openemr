@@ -57,10 +57,10 @@ require_once("$srcdir/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
@@ -91,8 +91,7 @@ if (
     !AclMain::aclCheckCore('acct', 'bill') &&
     !AclMain::aclCheckCore('acct', 'disc')
 ) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Client Receipt")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill or acct/disc: Client Receipt", xl("Client Receipt"));
 }
 
 // This will be used for SQL timestamps that we write.
@@ -1789,8 +1788,7 @@ if (!$encounter_id) {
 
 // Form requires billing permission.
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 // We have $patient_id and $encounter_id. Generate checksum if not already done.

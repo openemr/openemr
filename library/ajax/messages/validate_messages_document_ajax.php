@@ -18,6 +18,7 @@ require_once("$srcdir/pid.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -25,7 +26,7 @@ $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
 try {
-    $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
         CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: function () use ($twig, $format): void {
             echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);

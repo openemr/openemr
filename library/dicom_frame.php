@@ -18,14 +18,15 @@
 
 require_once('../interface/globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'docs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dicom Viewer")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Dicom Viewer", xl("Dicom Viewer"));
 }
 
 $web_path = $_REQUEST['web_path'] ?? null;
@@ -41,7 +42,7 @@ if ($web_path) {
     $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => $GLOBALS['assets_static_relative']
     ,'web_root' => $web_root

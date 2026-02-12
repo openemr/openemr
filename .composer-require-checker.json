@@ -1,5 +1,6 @@
 {
   "symbol-whitelist": [
+    "ADODB_mysqli_log",
     "AmcItemizedActionData",
     "Application\\Model\\ApplicationTable",
     "BillingExport",
@@ -52,7 +53,6 @@
     "getPatientFullNameAsString",
     "getRegistryEntryByDirectory",
     "getSmokeCodes",
-    "getSqlLastError",
     "getUserSetting",
     "get_db",
     "get_patient_balance",

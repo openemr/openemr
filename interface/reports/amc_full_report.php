@@ -16,6 +16,7 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
@@ -184,7 +185,7 @@ $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "
 
 // Collect the back variable, if pertinent
 $back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 $report_view = collectReportDatabase($report_id);
 if (!empty($report_view)) {

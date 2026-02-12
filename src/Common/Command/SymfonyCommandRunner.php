@@ -60,7 +60,7 @@ class SymfonyCommandRunner
     public function getEventDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->eventDispatcher)) {
-            $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         }
         return $this->eventDispatcher;
     }

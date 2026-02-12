@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/** @var stdClass $eligibilityData Passed from eligibility.php */
+
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 if (property_exists($eligibilityData, 'payerInfo')) {

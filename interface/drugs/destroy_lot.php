@@ -15,9 +15,9 @@
 require_once("../globals.php");
 require_once("drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $drug_id = $_REQUEST['drug'];
@@ -25,8 +25,7 @@ $lot_id  = $_REQUEST['lot'];
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Destroy Lot")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Destroy Lot", xl("Destroy Lot"));
 }
 
 if (!$drug_id) {

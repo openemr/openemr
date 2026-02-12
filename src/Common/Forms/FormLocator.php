@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
@@ -64,8 +65,9 @@ class FormLocator
         $event->setIsLayoutBasedForm($isLBF);
 
         // AI GENERATED CODE: HEADER END
-        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
+        $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
 
+        /** @var string */
         $finalPath = $filteredEvent->getFormIncludePath();
         if ($finalPath != $initialFilename) {
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {

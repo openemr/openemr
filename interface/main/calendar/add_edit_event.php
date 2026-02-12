@@ -51,18 +51,18 @@ require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'] . '/group.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
-use OpenEMR\Events\Appointments\AppointmentSetEvent;
-use OpenEMR\Events\Appointments\AppointmentRenderEvent;
-use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
+use OpenEMR\Events\Appointments\AppointmentRenderEvent;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Edit/Add Event", xl("Edit/Add Event"));
 }
 
 /* Things that might be passed by our opener. */
@@ -108,7 +108,7 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 /**
  * @var EventDispatcherInterface $eventDispatcher
  */
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 ?>
 <!DOCTYPE html>
@@ -735,7 +735,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new multi appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $e2f;  //setting the appointment id to an object
-        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE);
     } else {
         /* =======================================================
      *                    INSERT NEW EVENT(S)
@@ -745,7 +745,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new single appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $eid;  //setting the appointment id to an object
-        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE);
     }
 
         // done with EVENT insert/update statements
@@ -763,7 +763,7 @@ if (!empty($_POST['form_action'])) {
     if (isset($eid)) {
         $closeEvent->setAppointmentId($eid);
     }
-    $event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($closeEvent, AppointmentDialogCloseEvent::EVENT_NAME);
+    $event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($closeEvent, AppointmentDialogCloseEvent::EVENT_NAME);
     // listeners can stop the window from closing if they want to add any additional workflow steps
     // to the calendar appointment flow for their own workflow dialogs here they will need
     // to implement the dialog closing and duplicate the logic of what happens here in this closing event.
@@ -1020,7 +1020,7 @@ function sel_patient() {
 
 // This invokes javascript listener.
 <?php
-$eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_JAVASCRIPT, 10);
+$eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_JAVASCRIPT);
 ?>
 
 // This is for callback by the find-group popup.
@@ -1439,7 +1439,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
             </div>
             <?php
                 // This invokes render below patient listener.
-                $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BELOW_PATIENT, 10);
+                $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BELOW_PATIENT);
             ?>
         </div>
     </div> <!-- End Jumbotron !-->
@@ -1753,7 +1753,7 @@ if (empty($_GET['prov'])) { ?>
 </div>
 <?php
     // This invokes render below patient listener.
-    $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BEFORE_ACTION_BAR, 10);
+    $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BEFORE_ACTION_BAR);
 ?>
 <div class="form-row mx-2">
     <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">

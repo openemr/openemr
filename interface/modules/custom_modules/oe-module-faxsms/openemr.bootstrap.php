@@ -23,6 +23,7 @@
  */
 
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
@@ -54,7 +55,7 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
 /**
  * @global EventDispatcherInterface $dispatcher Injected by the OpenEMR module loader;
  */
-$dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 $isUserPermissionOverride = BootstrapService::getVendorGlobal('oeenable_users_permissions') ?? false;
 
@@ -331,5 +332,5 @@ if ($allowSMSButtons) {
 }
 
 if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail || $allowVoice)) {
-    (new NotificationEventListener($eventDispatcher, $GLOBALS['kernel']))->subscribeToEvents();
+    (new NotificationEventListener($eventDispatcher, OEGlobalsBag::getInstance()->getKernel()))->subscribeToEvents();
 }

@@ -17,14 +17,13 @@ require_once("../globals.php");
 require_once("$srcdir/registry.inc.php");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'batchcom')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("BatchCom")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/batchcom: BatchCom", xl("BatchCom"));
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)

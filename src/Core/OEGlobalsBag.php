@@ -5,37 +5,25 @@
  *
  * @link      http://www.open-emr.org
  *
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Core;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use function array_key_exists;
 
-class OEGlobalsBag extends ParameterBag
+/** @final */ class OEGlobalsBag extends ParameterBag
 {
-    private static ?OEGlobalsBag $instance = null;
+    use SingletonTrait;
 
-    /**
-     * Get the singleton instance of OEGlobalsBag
-     *
-     * @return OEGlobalsBag
-     */
-    public static function getInstance(): OEGlobalsBag
+    protected static function createInstance(): static
     {
-        if (null === self::$instance) {
-            self::$instance = new OEGlobalsBag($GLOBALS);
-        }
-
-        return self::$instance;
-    }
-
-    public function __construct(array $parameters = [])
-    {
-        parent::__construct($parameters);
+        return new self($GLOBALS);
     }
 
     public function set(string $key, mixed $value): void
@@ -63,5 +51,27 @@ class OEGlobalsBag extends ParameterBag
         }
 
         return array_key_exists($key, $GLOBALS);
+    }
+
+    /**
+     * Check if the kernel is initialized and is the correct type
+     */
+    public function hasKernel(): bool
+    {
+        return $this->get('kernel') instanceof Kernel;
+    }
+
+    /**
+     * Get the OpenEMR Kernel instance
+     *
+     * @throws \RuntimeException if the kernel is not initialized
+     */
+    public function getKernel(): Kernel
+    {
+        $kernel = $this->get('kernel');
+        if (!$kernel instanceof Kernel) {
+            throw new \RuntimeException('OpenEMR Kernel not initialized');
+        }
+        return $kernel;
     }
 }

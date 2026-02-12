@@ -337,6 +337,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/public/index.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$provider_info on left side of \\?\\?\\= always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Services/ModuleService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$file_mime on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/contact.php',
@@ -490,6 +495,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$optionsStr on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$pid on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$from_title on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -697,6 +707,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$mainObservations on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientPortalService.php',
@@ -740,6 +755,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$v on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$records on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$DateValue on left side of \\?\\? always exists and is not nullable\\.$#',
