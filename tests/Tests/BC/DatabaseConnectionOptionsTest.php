@@ -313,6 +313,36 @@ class DatabaseConnectionOptionsTest extends TestCase
         self::assertSame([], $options);
     }
 
+    public function testForSiteLoadsConfigFile(): void
+    {
+        $sitesBase = $this->createTempSiteDir();
+        $siteDir = $sitesBase . '/testsite';
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'latin1',
+];
+PHP
+        );
+
+        $options = DatabaseConnectionOptions::forSite('testsite', $sitesBase);
+
+        self::assertSame('testdb', $options->dbname);
+        self::assertSame('testuser', $options->user);
+        self::assertSame('127.0.0.1', $options->host);
+        self::assertSame(3306, $options->port);
+        self::assertNull($options->unixSocket);
+        self::assertSame('latin1', $options->charset);
+        self::assertSame([], $options->driverOptions);
+    }
+
     private function createTempSiteDir(): string
     {
         $dir = sys_get_temp_dir() . '/test-site-' . uniqid();

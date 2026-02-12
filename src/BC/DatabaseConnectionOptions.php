@@ -14,6 +14,9 @@ namespace OpenEMR\BC;
 
 use Doctrine\DBAL\DriverManager;
 use InvalidArgumentException;
+use LogicException;
+use PDO;
+use RuntimeException;
 use SensitiveParameter;
 
 /**
@@ -24,6 +27,15 @@ use SensitiveParameter;
  * stack traces, var_dump(), and error logs.
  *
  * @phpstan-import-type Params from DriverManager
+ * @phpstan-type SqlConf array{
+ *   dbase: string,
+ *   login: string,
+ *   pass: string,
+ *   host?: string,
+ *   port?: int|string,
+ *   socket?: string,
+ *   db_encoding?: string,
+ * }
  */
 final readonly class DatabaseConnectionOptions
 {
@@ -65,6 +77,102 @@ final readonly class DatabaseConnectionOptions
                 'Must specify either host/port or unixSocket'
             );
         }
+    }
+
+    /**
+     * Creates options for a site by loading its sqlconf.php file.
+     *
+     * @param string $siteName Site identifier (e.g., 'default')
+     * @param string|null $sitesBasePath Override path to sites directory
+     */
+    public static function forSite(
+        string $siteName,
+        ?string $sitesBasePath = null,
+    ): self {
+        $sitesBasePath ??= dirname(__DIR__, 2) . '/sites';
+        $siteDir = $sitesBasePath . '/' . $siteName;
+
+        $sqlconf = self::loadSqlconf($siteDir);
+        $driverOptions = self::inferSslOptions($siteDir);
+
+        return self::fromSqlconf($sqlconf, $driverOptions);
+    }
+
+    /**
+     * Creates options from a pre-parsed sqlconf array.
+     *
+     * @param SqlConf $sqlconf
+     * @param array<int, mixed> $driverOptions
+     */
+    public static function fromSqlconf(array $sqlconf, array $driverOptions = []): self
+    {
+        $host = $sqlconf['host'] ?? null;
+        $port = isset($sqlconf['port']) ? (int) $sqlconf['port'] : null;
+        $unixSocket = $sqlconf['socket'] ?? null;
+
+        return new self(
+            dbname: $sqlconf['dbase'],
+            user: $sqlconf['login'],
+            password: $sqlconf['pass'],
+            host: $host,
+            port: $port,
+            unixSocket: $unixSocket,
+            charset: $sqlconf['db_encoding'] ?? 'utf8mb4',
+            driverOptions: $driverOptions,
+        );
+    }
+
+    /**
+     * Detects MySQL SSL certificate files in site directory.
+     *
+     * @return array<int, string>
+     */
+    public static function inferSslOptions(string $siteDir): array
+    {
+        $options = [];
+
+        $certDir = sprintf('%s/documents/certificates', $siteDir);
+        $caFile = sprintf('%s/mysql-ca', $certDir);
+        $cert = sprintf('%s/mysql-cert', $certDir);
+        $key = sprintf('%s/mysql-key', $certDir);
+
+        if (file_exists($caFile)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
+        }
+        if (file_exists($cert) || file_exists($key)) {
+            if (!file_exists($cert) || !file_exists($key)) {
+                throw new LogicException(
+                    'MySQL cert or key file missing. You need both or neither.'
+                );
+            }
+            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
+            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return SqlConf
+     */
+    private static function loadSqlconf(string $siteDir): array
+    {
+        $sqlconfPath = $siteDir . '/sqlconf.php';
+        if (!file_exists($sqlconfPath)) {
+            throw new RuntimeException("sqlconf.php not found at: $sqlconfPath");
+        }
+
+        $loader = static function (string $path): array {
+            require $path;
+            if (!isset($sqlconf) || !is_array($sqlconf)) {
+                throw new RuntimeException('sqlconf.php did not define $sqlconf array');
+            }
+            return $sqlconf;
+        };
+
+        /** @var SqlConf $result */
+        $result = $loader($sqlconfPath);
+        return $result;
     }
 
     /**
