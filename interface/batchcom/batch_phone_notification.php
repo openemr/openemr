@@ -105,7 +105,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
     }
 
     //echo $strMsg;
-    WriteLog($strMsg);
+    batchcom_WriteLog($strMsg);
 }
 
 sqlClose();
@@ -129,7 +129,7 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): voi
 // Function:    WriteLog
 // Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
-function WriteLog($data): void
+function batchcom_WriteLog($data): void
 {
     $log_file = $GLOBALS['phone_reminder_log_dir'];
 

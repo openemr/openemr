@@ -57,7 +57,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $cnt .= "\nBody : \n" . $vBody . "\n";
 
         if (1) {
-            //WriteLog($cnt);
+            //cron_WriteLog($cnt);
         }
 
         $mstatus = true;
@@ -150,7 +150,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
 // Function:    WriteLog
 // Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
-function WriteLog($data): void
+function cron_WriteLog($data): void
 {
     global $log_folder_path;
 
@@ -196,7 +196,7 @@ function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
     $cnt .= "\nSubject : " . $subject;
     $cnt .= "\nBody : \n" . $vBody . "\n";
     if (1) {
-        //WriteLog($cnt);
+        //cron_WriteLog($cnt);
     }
 
     $mstatus = true;
