@@ -278,10 +278,6 @@ function cron_getNotificationData($type)
     return $db_email_msg;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg): void
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;

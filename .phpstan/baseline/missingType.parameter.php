@@ -1267,17 +1267,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$prow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -29667,17 +29667,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no type specified\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$prow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];

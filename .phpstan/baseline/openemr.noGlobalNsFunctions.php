@@ -417,7 +417,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -2362,7 +2362,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
@@ -7302,7 +7302,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/uuid.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];

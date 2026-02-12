@@ -98,7 +98,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         $strMsg = "\n========================" . $type . " || " . date("Y-m-d H:i:s") . "=========================";
         $strMsg .= "\nPhone reminder sent successfully: {$prow['fname']} | {$prow['lname']} |	| {$prow['phone_home']} | {$appt_date} | {$appt_time} ";
         // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($prow, $greeting, $phone_url);
+        cron_InsertNotificationLogEntryBatchcom($prow, $greeting, $phone_url);
 
     //update entry >> pc_sendalertsms='Yes'
         cron_updateentry($type, $prow['pid'], $prow['pc_eid']);
@@ -110,11 +110,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
 
 sqlClose();
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
-function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): void
+function cron_InsertNotificationLogEntryBatchcom($prow, $phone_msg, $phone_gateway): void
 {
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_home'];
 
