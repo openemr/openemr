@@ -334,6 +334,151 @@ PHP
         return $dir;
     }
 
+    public function testForSiteDetectsSslCaOnly(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'utf8mb4',
+];
+PHP
+        );
+
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertSame($certDir . '/mysql-ca', $options->sslCaPath);
+        self::assertNull($options->sslClientCert);
+    }
+
+    public function testForSiteDetectsFullSslCerts(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'utf8mb4',
+];
+PHP
+        );
+
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+        file_put_contents($certDir . '/mysql-cert', 'cert-content');
+        file_put_contents($certDir . '/mysql-key', 'key-content');
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertSame($certDir . '/mysql-ca', $options->sslCaPath);
+        self::assertSame([
+            'cert' => $certDir . '/mysql-cert',
+            'key' => $certDir . '/mysql-key',
+        ], $options->sslClientCert);
+    }
+
+    public function testForSiteRejectsMismatchedCertWithoutKey(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'utf8mb4',
+];
+PHP
+        );
+
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-cert', 'cert-content');
+        // mysql-key intentionally missing
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('MySQL cert or key file missing');
+
+        DatabaseConnectionOptions::forSite($siteDir);
+    }
+
+    public function testForSiteRejectsMismatchedKeyWithoutCert(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'utf8mb4',
+];
+PHP
+        );
+
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-key', 'key-content');
+        // mysql-cert intentionally missing
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('MySQL cert or key file missing');
+
+        DatabaseConnectionOptions::forSite($siteDir);
+    }
+
+    public function testForSiteWithNoCertificates(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+    'db_encoding' => 'utf8mb4',
+];
+PHP
+        );
+
+        // No certificates directory created
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertNull($options->sslCaPath);
+        self::assertNull($options->sslClientCert);
+    }
+
     private function cleanupTempDir(string $dir): void
     {
         if (!is_dir($dir)) {
