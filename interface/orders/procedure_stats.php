@@ -87,7 +87,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 $cellcount = 0;
 
-function getListTitle($list, $option)
+function proc_stats_getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
     "list_id = ? AND option_id = ? AND activity = 1", [$list, $option]);
@@ -517,7 +517,7 @@ if (!empty($_POST['form_submit'])) {
             proc_stats_genHeadCell(xl('45+'), true);
         } elseif (!empty($arr_show[$value]['list_id'])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                proc_stats_genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
+                proc_stats_genHeadCell(proc_stats_getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {

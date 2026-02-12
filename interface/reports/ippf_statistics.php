@@ -158,7 +158,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 $cellcount = 0;
 
-function getListTitle($list, $option)
+function ippf_stats_getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
     "list_id = ? AND option_id = ?", [$list, $option]);
@@ -1556,7 +1556,7 @@ if ($_POST['form_submit']) {
             ippf_stats_genHeadCell(xl('45+'), true);
         } elseif ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                ippf_stats_genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
+                ippf_stats_genHeadCell(ippf_stats_getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
