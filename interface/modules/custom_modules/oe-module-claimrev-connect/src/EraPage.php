@@ -16,6 +16,7 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\EraSearch;
+use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
 
 class EraPage
 {
@@ -45,6 +46,7 @@ class EraPage
      *
      * @param string $id ERA identifier (alphanumeric and hyphens only)
      * @throws \InvalidArgumentException If the ID format is invalid
+     * @throws ClaimRevApiException If the API call fails
      */
     public static function downloadEra(string $id)
     {
