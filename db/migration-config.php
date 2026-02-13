@@ -19,7 +19,7 @@ return [
     'migrations_paths' => [
         // A future version of this will integrate w/ the modules system and
         // pull in any vended migrations from installed/active modules.
-        'Db\\Migrations' => 'db/Migrations',
+        'OpenEMR\\Core\\Migrations' => 'db/Migrations',
     ],
     'table_storage' => [
         'table_name' => 'migrations',
