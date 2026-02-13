@@ -19,8 +19,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\RestControllers\Config\RestConfig;
-
 /**
  *  @OA\Info(title="OpenEMR API", version="8.0.1")
  *  @OA\Server(url="/apis/default/")
@@ -317,17 +315,3 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *      )
  *  )
  */
-
-// Lets keep our controller classes with the routes.
-//
-
-// Note some Http clients may not send auth as json so a function
-// is implemented to determine and parse encoding on auth route's.
-
-// Note that the api route is only for users role
-//  (there is a mechanism in place to ensure only user role can access the api route)
-RestConfig::$ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php";
-
-RestConfig::$FHIR_ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
-
-RestConfig::$PORTAL_ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_portal.inc.php";
