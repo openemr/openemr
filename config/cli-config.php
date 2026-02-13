@@ -40,9 +40,7 @@ $connLoader = new ExistingConnection(
     connection: $conn,
 );
 
-$df = DependencyFactory::fromConnection(
+return DependencyFactory::fromConnection(
     configurationLoader: $loader,
     connectionLoader: $connLoader,
 );
-
-return $df;
