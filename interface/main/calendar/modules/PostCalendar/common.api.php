@@ -506,19 +506,12 @@ function &postcalendar_userapi_getCategories()
             pc_dailylimit,pc_end_date_flag,pc_end_date_type,pc_end_date_freq,
             pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec FROM $cat_table
             ORDER BY pc_catname";
-    $result = $dbconn->Execute($sql);
-
-    if ($dbconn->ErrorNo() != 0) {
-        return [];
-    }
-
-    if (!isset($result)) {
-        return [];
-    }
+    $result = $conn->executeQuery($sql);
 
     $categories = [];
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
-        [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $result->fields;
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
+        [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $row;
 
         $categories[$i]['id']     = $catid;
         $categories[$i]['name']   = $catname;
@@ -547,7 +540,6 @@ function &postcalendar_userapi_getCategories()
         $categories[$i++]['dailylimit'] = $limit;
     }
 
-    $result->Close();
     return $categories;
 }
 
@@ -560,18 +552,14 @@ function &postcalendar_userapi_getTopics()
     $sql = "SELECT $topics_column[topicid], $topics_column[topictext], $topics_column[topicname]
             FROM $topics_table
             ORDER BY $topics_column[topictext]";
-    $topiclist = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        return false;
-    }
+    $result = $conn->executeQuery($sql);
 
     $data = [];
     $i = 0;
-    for (; !$topiclist->EOF; $topiclist->MoveNext()) {
-        [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $topiclist->fields;
+    foreach ($result->iterateNumeric() as $row) {
+        [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $row;
     }
 
-    $topiclist->Close();
     return $data;
 }
 
