@@ -22,7 +22,7 @@ use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
-use OpenEMR\BC\Database;
+use OpenEMR\BC\DatabaseConnectionOptions;
 
 $loader = new PhpFile('db/migration-config.php');
 
@@ -30,13 +30,9 @@ $site = 'default'; // fixme: env or something
 
 
 $getConnectionFromSqlconf = function(string $site): Connection {
-    require __DIR__ . "/../sites/$site/sqlconf.php";
-    assert(isset($sqlconf) && is_array($sqlconf));
-    /**
-     * @var SqlConf $sqlconf
-     */
-    $params = Database::sqlconfToDbalParams($sqlconf, $site);
-    return DriverManager::getConnection($params);
+    $siteDir = __DIR__ . "/../sites/$site";
+    $connOpts = DatabaseConnectionOptions::forSite($siteDir);
+    return DriverManager::getConnection($connOpts->toDbalParams());
 };
 
 $conn = $getConnectionFromSqlconf($site);
