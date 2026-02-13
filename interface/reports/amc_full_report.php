@@ -206,6 +206,9 @@ if (!empty($report_view)) {
         // grab the provider
         $userService = new \OpenEMR\Services\UserService();
         $provider = $userService->getUser($report_view['provider']);
+        if ($provider === false) {
+            throw new \RuntimeException("Provider not found: " . json_encode($report_view['provider']));
+        }
         $providerTitle = ($provider['lname'] ?? '') . ',' . ($provider['fname'] ?? '')
             . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';
         $subTitle = xl("Individual Calculation Method") . ' - ' . trim($providerTitle);

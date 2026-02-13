@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 class EraSearch
@@ -25,6 +26,9 @@ class EraSearch
         return $data;
     }
 
+    /**
+     * @throws ClaimRevApiException
+     */
     public static function downloadEra($objectId)
     {
         $token = ClaimRevApi::getAccessToken();

@@ -21,7 +21,6 @@ use Doctrine\DBAL\{
 };
 use LogicException;
 use OpenEMR\Core\OEGlobalsBag;
-use PDO;
 use PDOException;
 
 /**
@@ -41,17 +40,6 @@ use PDOException;
  * @internal
  *
  * @phpstan-type Bindings array<positive-int, string|int|float|bool|null>
- *
- * @phpstan-import-type Params from DriverManager
- *
- * @phpstan-type SqlConf array{
- *   dbase: string,
- *   port: int|string,
- *   pass: string,
- *   db_encoding: string,
- *   host: string,
- *   login: string,
- * }
  */
 class Database
 {
@@ -68,8 +56,8 @@ class Database
     public static function instance(): Database
     {
         if (self::$instance === null) {
-            $params = self::readLegacyConfig();
-            $connection = DriverManager::getConnection($params);
+            $options = self::readLegacyConfig();
+            $connection = DriverManager::getConnection($options->toDbalParams());
             self::$instance = new self($connection);
         }
         return self::$instance;
@@ -87,80 +75,19 @@ class Database
     /**
      * Parses the <=8.0.0 (and probably later) db config files into a format
      * usable by `doctrine/dbal`.
-     *
-     * @return Params
      */
-    private static function readLegacyConfig(): array
+    private static function readLegacyConfig(): DatabaseConnectionOptions
     {
         $bag = OEGlobalsBag::getInstance();
-        $sqlconf = $bag->get('sqlconf');
-        if (!is_array($sqlconf)) {
+
+        $siteDir = $bag->getString('OE_SITE_DIR');
+        if ($siteDir === '') {
             throw new LogicException(
-                'sqlconf empty or missing. Was interface/globals.php included?'
+                'OE_SITE_DIR not set. Was interface/globals.php included?'
             );
         }
-        /**
-         * This is a little loosey-goosey w/ the historic config format
-         * @var SqlConf $sqlconf
-         */
-        $siteDir = $bag->getString('OE_SITE_DIR');
-        return self::sqlconfToDbalParams($sqlconf, $siteDir);
-    }
 
-    /**
-     * @param SqlConf $sqlconf
-     * @return Params
-     */
-    public static function sqlconfToDbalParams(array $sqlconf, string $siteDir): array
-    {
-        // replicate the same ssl cert detection in a compatible format
-
-        $connParams = [
-            'driver' => 'pdo_mysql',
-            'dbname' => $sqlconf['dbase'],
-            'host' => $sqlconf['host'],
-            'port' => (int) $sqlconf['port'],
-            'user' => $sqlconf['login'],
-            'password' => $sqlconf['pass'],
-            'charset' => $sqlconf['db_encoding'],
-        ];
-
-        $options = self::inferSslOptions($siteDir);
-        $connParams['driverOptions'] = $options;
-
-        return $connParams;
-    }
-
-    /**
-     * Inspects the filesystem for MySQL certificate files in
-     * OE_SITE_DIR/documents/certificates and, if present, returns PDO SSL
-     * options to use them.
-     *
-     * @param string $siteDir The currently-active site directory (OE_SITE_DIR,
-     * typically speaking).
-     *
-     * @return array<PDO::MYSQL_*, string>
-     */
-    private static function inferSslOptions(string $siteDir): array
-    {
-        $options = [];
-
-        $certDir = sprintf('%s/documents/certificates', $siteDir);
-        $caFile = sprintf('%s/mysql-ca', $certDir);
-        $cert = sprintf('%s/mysql-cert', $certDir);
-        $key = sprintf('%s/mysql-key', $certDir);
-        if (file_exists($caFile)) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
-        }
-        if (file_exists($cert) || file_exists($key)) {
-            if (!file_exists($cert) || !file_exists($key)) {
-                throw new LogicException('MySQL cert or key file missing. You need both or neither.');
-            }
-            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
-            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
-        }
-
-        return $options;
+        return DatabaseConnectionOptions::forSite($siteDir);
     }
 
     /**

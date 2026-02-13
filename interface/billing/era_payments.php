@@ -9,9 +9,11 @@
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +29,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -38,6 +41,10 @@ $check_date = $_POST['check_date'] ?? '';
 $post_to_date = $_POST['post_to_date'] ?? '';
 $deposit_date = $_POST['deposit_date'] ?? '';
 $type_code = $_POST['type_code'] ?? '';
+$confirm_overwrite = is_string($_POST['confirm_overwrite'] ?? null) ? $_POST['confirm_overwrite'] : '';
+$pending_era_temp = is_string($_POST['pending_era_temp'] ?? null) ? $_POST['pending_era_temp'] : '';
+$pending_eraname = is_string($_POST['pending_eraname'] ?? null) ? $_POST['pending_eraname'] : '';
+$showOverwriteConfirm = false;
 
 //===============================================================================
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.
@@ -61,31 +68,88 @@ function era_callback(&$out): void
     }
 }
 //===============================================================================
+// Validate pending_eraname matches expected pattern (YYYYMMDD_controlnum_payerid)
+// to prevent path traversal. Only alphanumeric and underscores are allowed.
+$validEraName = $pending_eraname !== '' && preg_match('/^[0-9]{8}_[0-9]+_[0-9]+$/', $pending_eraname) === 1;
+
+// Handle confirmed overwrite from pending upload
+if ($confirm_overwrite === 'yes' && $validEraName) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+    $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
+    // basename() strips path components; realpath() resolves symlinks and verifies existence
+    $safeName = basename($pending_eraname);
+    $expectedTempFile = "$eraDir/.pending_$safeName.edi";
+    $realTempFile = realpath($expectedTempFile);
+    $realEraDir = realpath($eraDir);
+    // Verify file exists and is within the ERA directory
+    if ($realTempFile !== false && $realEraDir !== false
+        && str_starts_with($realTempFile, $realEraDir . DIRECTORY_SEPARATOR)
+    ) {
+        $eraname = $safeName;
+        $erafullname = "$eraDir/$safeName.edi";
+        rename($realTempFile, $erafullname);
+        $alertmsg .= xl("File overwritten successfully.") . ' ';
+    }
+} elseif ($confirm_overwrite === 'no' && $validEraName) {
+    // User cancelled - clean up temp file
+    $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
+    // basename() strips path components; realpath() resolves symlinks and verifies existence
+    $safeName = basename($pending_eraname);
+    $expectedTempFile = "$eraDir/.pending_$safeName.edi";
+    $realTempFile = realpath($expectedTempFile);
+    $realEraDir = realpath($eraDir);
+    // Verify file exists and is within the ERA directory
+    if ($realTempFile !== false && $realEraDir !== false
+        && str_starts_with($realTempFile, $realEraDir . DIRECTORY_SEPARATOR)
+    ) {
+        unlink($realTempFile);
+    }
+    $alertmsg .= xl("Upload cancelled.") . ' ';
+}
+//===============================================================================
   // Handle X12 835 file upload.
-if (!empty($_FILES['form_erafile']['size'])) {
+elseif (!empty($_FILES['form_erafile']['size'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $tmp_name = $_FILES['form_erafile']['tmp_name'];
+    $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
+    if (!is_string($tmp_name)) {
+        $alertmsg .= xl("Invalid file upload") . " ";
+    } else {
     // Handle .zip extension if present.  Probably won't work on Windows.
-    if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-        rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg((string) $tmp_name));
-        unlink("$tmp_name.zip");
-    }
-    $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
-    $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
-    if (is_file($erafullname)) {
-        $alertmsg .=  xl("Warning") . ': ' . xl("Set") . ' ' . $eraname . ' ' . xl("was already uploaded") . ' ';
-        if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
-            $Processed = 1;
-            $alertmsg .=  xl("and processed.") . ' ';
+        if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
+            rename($tmp_name, "$tmp_name.zip");
+            exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
+            unlink("$tmp_name.zip");
+        }
+        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+
+    // Ensure the ERA directory exists
+        $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
+        if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
+            $alertmsg .= xl("Cannot create ERA directory") . " ";
+        }
+
+        $erafullname = "$eraDir/$eraname.edi";
+        if (is_file($erafullname)) {
+            // File exists - ask user for confirmation before overwriting
+            // Move temp file to a persistent temp location so it survives the request
+            $pending_era_temp = "$eraDir/.pending_$eraname.edi";
+            rename($tmp_name, $pending_era_temp);
+            $pending_eraname = $eraname;
+            $showOverwriteConfirm = true;
+
+            if (is_file("$eraDir/$eraname.html")) {
+                $Processed = 1;
+            }
         } else {
-            $alertmsg .=  xl("but not yet processed.") . ' ';
-        };
-    }
-    rename($tmp_name, $erafullname);
+            // File doesn't exist - proceed normally
+            rename($tmp_name, $erafullname);
+        }
+    } // end is_string($tmp_name)
 } // End 835 upload
 //===============================================================================
 
@@ -127,7 +191,12 @@ if (!empty($_FILES['form_erafile']['size'])) {
        alert(after_value);
       }
         <?php
-        if (!empty($_FILES['form_erafile']['size'])) {
+        // Only open the processing popup if:
+        // 1. A new file was uploaded and doesn't need confirmation, OR
+        // 2. User confirmed the overwrite
+        $shouldOpenPopup = (!empty($_FILES['form_erafile']['size']) && !$showOverwriteConfirm)
+            || ($confirm_overwrite === 'yes' && $pending_eraname);
+        if ($shouldOpenPopup) {
             ?>
             var f = document.forms[0];
             var debug = <?php echo js_escape(($_REQUEST['form_without'] ?? null) * 1); ?> ;
@@ -335,11 +404,54 @@ if (!empty($_FILES['form_erafile']['size'])) {
                     <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>" />
                     <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>" />
                     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
+                    <input type="hidden" name="confirm_overwrite" id="confirm_overwrite" value="" />
+                    <input type="hidden" name="pending_era_temp" id="pending_era_temp" value="<?php echo attr($pending_era_temp); ?>" />
+                    <input type="hidden" name="pending_eraname" id="pending_eraname" value="<?php echo attr($pending_eraname); ?>" />
                 </form>
             </div>
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
+
+    <!-- Overwrite Confirmation Modal -->
+    <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="overwriteConfirmModalLabel"><?php echo xlt('File Already Exists'); ?></h5>
+                </div>
+                <div class="modal-body">
+                    <p><?php echo xlt('An ERA file with the name'); ?> <strong><?php echo text($pending_eraname); ?></strong> <?php echo xlt('has already been uploaded.'); ?></p>
+                    <?php if ($Processed) { ?>
+                        <p class="text-warning"><strong><?php echo xlt('Warning'); ?>:</strong> <?php echo xlt('This file has already been processed.'); ?></p>
+                    <?php } else { ?>
+                        <p class="text-info"><?php echo xlt('This file has not yet been processed.'); ?></p>
+                    <?php } ?>
+                    <p><?php echo xlt('Do you want to overwrite the existing file?'); ?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cancelOverwrite();"><?php echo xlt('Cancel'); ?></button>
+                    <button type="button" class="btn btn-danger" onclick="confirmOverwrite();"><?php echo xlt('Overwrite'); ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function confirmOverwrite() {
+        document.getElementById('confirm_overwrite').value = 'yes';
+        document.forms[0].submit();
+    }
+    function cancelOverwrite() {
+        document.getElementById('confirm_overwrite').value = 'no';
+        document.forms[0].submit();
+    }
+    <?php if ($showOverwriteConfirm) { ?>
+    $(document).ready(function() {
+        $('#overwriteConfirmModal').modal('show');
+    });
+    <?php } ?>
+    </script>
 </body>
 </html>
