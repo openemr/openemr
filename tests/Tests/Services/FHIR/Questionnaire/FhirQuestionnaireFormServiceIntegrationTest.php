@@ -27,7 +27,7 @@ use Exception;
 
 class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 {
-    private ?SessionInterface $session;
+    private SessionInterface $session;
 
     protected function setUp(): void
     {

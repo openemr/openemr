@@ -28,7 +28,7 @@ $scparams = session_get_cookie_params();
 // called just prior to invoking any server script that requires correct
 // session data.  onclick="top.restoreSession()" usually does the job.
 //
-var oemr_session_name = <?php echo json_encode(urlencode($session->getName())); ?>;
+var oemr_session_name = <?php echo json_encode(urlencode((string)$session->getName())); ?>;
 var oemr_session_id   = <?php echo json_encode(urlencode($session->getId())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
 
