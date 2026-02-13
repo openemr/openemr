@@ -159,4 +159,3 @@ UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = '
 #IfRow2D list_options list_id ethrace option_id declne_to_specfy
 UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'ethrace' AND `option_id` = 'declne_to_specfy';
 #EndIf
-
