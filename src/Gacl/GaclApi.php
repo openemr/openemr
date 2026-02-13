@@ -1411,7 +1411,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         if ($row_count > 1) {
             $this->debug_text("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
@@ -1557,7 +1557,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         if ($row_count > 1) {
             $this->debug_text("get_group_parent_id(): Returned $row_count rows, can only return one. Please make your names unique.");
@@ -1609,7 +1609,7 @@ class GaclApi extends Gacl {
             return FALSE;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         switch ($row_count) {
             case 1:
@@ -1910,7 +1910,7 @@ class GaclApi extends Gacl {
             return FALSE;
         }
 
-        if ($rs->RecordCount() != 1) {
+        if ($rs->recordCount() != 1) {
             $this->debug_text('add_group_object(): Value ('. $object_value .') OR Section value ('. $object_section_value .') is invalid. Does this object exist?');
             return FALSE;
         }
@@ -2724,7 +2724,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        if ($rs->RecordCount() < 1) {
+        if ($rs->recordCount() < 1) {
             $this->debug_text('get_object_data(): Returned  '. $row_count .' rows');
             return FALSE;
         }
@@ -2787,7 +2787,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         if ($row_count > 1) {
             $this->debug_text("get_object_id(): Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
@@ -2855,7 +2855,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         if ($row_count > 1) {
             $this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one.");
@@ -3018,7 +3018,7 @@ class GaclApi extends Gacl {
             return FALSE;
         }
 
-        if ($rs->RecordCount() != 1) {
+        if ($rs->recordCount() != 1) {
             // Section is invalid
             $this->debug_text("add_object(): Section Value: $section_value Object Type ($object_type) does not exist, this is required");
             return false;
@@ -3423,7 +3423,7 @@ class GaclApi extends Gacl {
             return FALSE;
         }
 
-        $row_count = $rs->RecordCount();
+        $row_count = $rs->recordCount();
 
         // If only one row is returned
         if ($row_count == 1) {
