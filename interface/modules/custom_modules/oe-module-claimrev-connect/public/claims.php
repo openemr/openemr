@@ -95,6 +95,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
         <?php
             $datas = [];
         if (isset($_POST['SubmitButton'])) { //check if form was submitted
+            /** @var array<string, mixed> $_POST */
             $datas = ClaimsPage::searchClaims($_POST);
             if ($datas == null) {
                 $datas = [];
