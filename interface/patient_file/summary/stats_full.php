@@ -230,10 +230,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // otherwise allow them to add allergies via the normal interface.
                         $userHasErxRole = false;
                         if (in_array($t, ['allergy', 'medications']) && $GLOBALS['erx_enable']) {
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             $erxRoleRow = QueryUtils::fetchSingleValue(
                                 "SELECT newcrop_user_role FROM users WHERE id = ?",
                                 'newcrop_user_role',
-                                [$_SESSION['authUserID']]
+                                [$session->get('authUserID')]
                             );
                             $userHasErxRole = $erxRoleRow !== null && $erxRoleRow !== '';
                         }
