@@ -1,6 +1,10 @@
 --
 -- Database: `openemr`
 --
+-- Keep v_database in sync with $v_database in version.php.
+-- CI will fail if they don't match.
+-- v_database: 533
+--
 
 --
 -- Table structure for table `addresses`
