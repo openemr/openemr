@@ -21,11 +21,11 @@ Exercise good judgment when to make mode widespread changes within a single migr
 
 ## Applying Migrations
 
-Run `vendor/bin/doctrine-migrations migrate`, and follow the prompts.
-
 > [!WARNING]
 > This will result in schema changes to your database.
 > Certain changes may take a long time to execute, which could lead to service interruptions.
+
+Run `vendor/bin/doctrine-migrations migrate`, and follow the prompts.
 
 ### Reverting a Migration
 
@@ -35,12 +35,12 @@ Run `vendor/bin/doctrine-migrations migrate`, and follow the prompts.
 Under some circumstances, you may need to roll back a migration.
 This is _mostly_ used during development where you are iterating on the final schema changes, and should be very rare in production environments.
 
-Run `vendor/bin/doctrine-migrations migrate prev` to run the "down" migration.
+Run `vendor/bin/doctrine-migrations migrate prev` to run the "down" path of the most recent migration.
 
 > [!NOTE]
 > Not all migrations will support a roll back procedure.
 
-To continue rolling back changes, you may run the same command more tha one time.
+To continue rolling back changes, you may run the same command more than one time.
 The CLI also supports migrating to a specific version; see its built-in help system for details.
 
 ## Changing a Migration
@@ -48,6 +48,6 @@ The CLI also supports migrating to a specific version; see its built-in help sys
 Once a migration script has made it into a tagged release, **it may not be altered again**[^change].
 Doing so will lead to different installations having inconsistent schemas, which makes management and development _extremely_ error-prone.
 
-Make changes with a new migration that runs on top of the released migration.
+Make changes with a new migration that runs on top of the released migration to "roll forward" to the desired state.
 
 [^change]: Minor syntactical adjustments are OK as long as the produced schema does not change. Usually updating class imports due to a refactor, etc. This should still be fairly rare.
