@@ -62,12 +62,12 @@ if ($formid > 0) {
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
         (new SystemLogger())->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
-            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
+            ['user-id' => $session->get('authUserID') ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );
         EventAuditLogger::getInstance()->newEvent(
             "security-access",
-            $_SESSION['authUser'] ?? '',
-            $_SESSION['authProvider'] ?? '',
+            $session->get('authUser') ?? '',
+            $session->get('authProvider') ?? '',
             0,
             "Unauthorized attempt to view LBF form " . $formid . " for pid " . $patientid
         );

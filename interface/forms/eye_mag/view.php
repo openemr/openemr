@@ -76,12 +76,12 @@ if ($id > 0) {
     if ((int) $formOwner['pid'] !== $pid || (int) $formOwner['encounter'] !== $encounter) {
         (new SystemLogger())->warning(
             "An attempt was made to view an eye form belonging to a different patient or encounter",
-            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
+            ['user-id' => $session->get('authUserID') ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
         );
         EventAuditLogger::getInstance()->newEvent(
             "security-access",
-            $_SESSION['authUser'] ?? '',
-            $_SESSION['authProvider'] ?? '',
+            $session->get('authUser') ?? '',
+            $session->get('authProvider') ?? '',
             0,
             "Unauthorized attempt to view eye form " . $id . " for pid " . $pid
         );

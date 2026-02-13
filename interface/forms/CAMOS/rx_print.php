@@ -62,7 +62,7 @@ $siglineValue = match ($_GET['sigline'] ?? 'plain') {
     'signed' => $sigline['signed'],
     default => $sigline['plain'],
 };
-$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", [$_SESSION['pid']]);
+$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", [$session->get('pid')]);
 if ($result = sqlFetchArray($query)) {
     $patient_name = $result['fname'] . ' ' . $result['lname'];
     $patient_address = $result['street'];
