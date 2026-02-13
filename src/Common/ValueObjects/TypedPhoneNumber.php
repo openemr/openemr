@@ -59,6 +59,14 @@ final readonly class TypedPhoneNumber
     }
 
     /**
+     * Delegate to the underlying PhoneNumber for global/international formatting.
+     */
+    public function formatGlobal(): string
+    {
+        return $this->phoneNumber->formatGlobal();
+    }
+
+    /**
      * Delegate to the underlying PhoneNumber for E.164.
      */
     public function toE164(): string
