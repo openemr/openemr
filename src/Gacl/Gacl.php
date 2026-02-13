@@ -43,17 +43,17 @@ class Gacl {
     /*
     --- Private properties ---
     */
-    /** @var boolean Enables Debug output if true */
-    private $_debug = FALSE;
+    /** Enables Debug output if true */
+    private bool $_debug = FALSE;
 
     /*
     --- Database configuration. ---
     */
-    /** @var string Prefix for all the phpgacl tables in the database */
-    public $_db_table_prefix = 'gacl_';
+    /**  Prefix for all the phpgacl tables in the database */
+    public string $_db_table_prefix = 'gacl_';
 
     /** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-    private $_db_type = 'mysqli';
+    private string $_db_type = 'mysqli';
 
     /** @var string The database server */
     private $_db_host = '';
@@ -68,12 +68,12 @@ class Gacl {
     private $_db_name = '';
 
     /** @var \ADOConnection An ADODB database connector object */
-    private $_db = '';
+    private $_db;
 
-    /** @var boolean The utf8 encoding flag */
+    /** @var string The utf8 encoding flag */
     private $_db_encoding_setting = '';
 
-    /** @var object An ADODB database connector object */
+    /** @var \ADOConnection An ADODB database connector object */
     protected $db;
 
     /*
@@ -81,24 +81,24 @@ class Gacl {
      *      Alternatively you could wait for the cache to expire.
      */
 
-    /** @var boolean Caches queries if true */
-    protected $_caching = FALSE;
+    /** Caches queries if true */
+    protected bool $_caching = FALSE;
 
-    /** @var boolean Force cache to expire */
-    protected $_force_cache_expire = TRUE;
+    /** Force cache to expire */
+    protected bool $_force_cache_expire = TRUE;
 
-    /** @var string The directory for cache file to eb written (ensure write permission are set) */
-    private $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
+    /** The directory for cache file to eb written (ensure write permission are set) */
+    private string $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 
-    /** @var int The time for the cache to expire in seconds - 600 == Ten Minutes */
-    private $_cache_expire_time=600;
+    /** The time for the cache to expire in seconds - 600 == Ten Minutes */
+    private int $_cache_expire_time=600;
 
-    /** @var string A switch to put acl_check into '_group_' mode */
-    private $_group_switch = '_group_';
+    /** A switch to put acl_check into '_group_' mode */
+    private string $_group_switch = '_group_';
 
     /**
      * Constructor
-     * @param array An array of options to override the class defaults
+     * @param ?array $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
 
