@@ -1096,7 +1096,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function clickOptionsMigrate()
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $site_id = $session->get('site_id');
+        $site_id = (string) $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
         if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
             $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");

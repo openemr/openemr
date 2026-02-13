@@ -74,11 +74,11 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param = null, mixed $default = null): mixed
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($param) {
@@ -122,14 +122,14 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      * @return $this
      */
-    public function setSession($key, $value): static
+    public function setSession(string $key, $value): static
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        // ensure write is allowed by using utility.
+        // ensure writing is allowed by using utility.
         $session->set($key, $value);
         return $this;
     }

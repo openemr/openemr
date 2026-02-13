@@ -39,7 +39,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
         AccessDeniedHelper::deny(
             'Unauthorized handler in patient portal document library',
-            beforeExit: SessionWrapperFactory::getInstance()->destroyPortalSession(),
+            beforeExit: SessionWrapperFactory::getInstance()->destroyPortalSession(...),
         );
     }
 } else {

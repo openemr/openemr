@@ -513,7 +513,7 @@ function toencounter(enc, datestr, topframe) {
                 <div class="main-section mb-5 mt-10">
                     <div class="section-2">
                         <p style="font-weight:600;">
-                            <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
+                            <bold class="bg-color"><?php echo text((string)$frow['name']) ?></bold> <br /> <br />
                             <?php echo text($frow['street']) ?><br />
                             <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?><br />
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
@@ -1366,10 +1366,10 @@ function make_insurance() {
     <td class="text-right">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=text($enc)?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=text($enc)?>]"
+            name="form_upay[<?=attr($enc)?>]"
             id="paying_<?=$idx?>"
             value=""
             onchange="coloring();calctotal()"

@@ -44,7 +44,7 @@ $menuLogo = $logoService->getLogo('core/menu/primary/');
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductDialogStatus();
-$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
+$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? false;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 
@@ -71,10 +71,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
+$token_main_php = $session->get('token_main_php');
 if (
-    (empty($session->get('token_main_php'))) ||
-    (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $session->get('token_main_php'))
+    $token_main_php === null ||
+    (!array_key_exists('token_main', $_GET) || $_GET['token_main'] === '') ||
+    $_GET['token_main'] !== $token_main_php
 ) {
 // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
@@ -538,7 +539,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     // fire off an event here
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 
-    if (!empty($allowRegisterDialog)) { // disable if running unit tests.
+    if ($allowRegisterDialog !== false) { // disable if running unit tests.
         // Include the product registration js, telemetry and usage data reporting dialog
         echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => $webroot]);
     }

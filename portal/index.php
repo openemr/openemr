@@ -111,7 +111,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => text($_GET['service_auth']),
             'target' => text($_GET['target'] ?? null),
-            'csrf_token' => text(CsrfUtils::collectCsrfToken('autologin', $session)),
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
@@ -648,14 +648,14 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                                     continue; // skip the dummy language
                                 }
                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                    text($iter['trans_lang_description']) . "</option>\n";
+                                    text((string) $iter['trans_lang_description']) . "</option>\n";
                             } else {
                                 if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
                                     if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                        text($iter['trans_lang_description']) . "</option>\n";
+                                        text((string) $iter['trans_lang_description']) . "</option>\n";
                                 }
                             }
                         }

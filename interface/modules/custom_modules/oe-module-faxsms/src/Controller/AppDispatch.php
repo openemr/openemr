@@ -131,11 +131,11 @@ abstract class AppDispatch
     abstract function fetchReminderCount(): string|bool;
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -169,18 +169,18 @@ class PatientPortalService
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($param) {
-            return $session->get($param, $default);
+            return $session->get((string) $param, $default);
         }
 
         return $session->all(); // TODO @zmilan: should this be array or session object?
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed
      */
-    public function getRequest($param = null, $default = null): mixed
+    public function getRequest(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $_REQUEST[$param] ?? $default;

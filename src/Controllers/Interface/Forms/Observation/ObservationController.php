@@ -369,7 +369,7 @@ class ObservationController
             $sql = "SELECT id FROM questionnaire_response WHERE response_id = ? OR id = ?";
             $result = QueryUtils::fetchSingleValue($sql, 'id', [$numericId, $numericId]);
 
-            return $result ? (int)$result : null;
+            return $result ?: null;
         } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
                 'fhir_id' => $fhirId,

@@ -151,7 +151,7 @@ if (isset($_POST['new_login_session_management'])) {
     $isTOTP = false;
     while ($row1 = sqlFetchArray($res1)) {
         $registrationAttempt = true;
-        if ($row1['method'] == 'U2F') {
+        if ($row1['method'] === 'U2F') {
             $isU2F = true;
             $regobj = json_decode((string) $row1['var1']);
             $regs[json_encode($regobj->keyHandle)] = $row1['name'];

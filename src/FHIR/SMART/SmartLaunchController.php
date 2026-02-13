@@ -51,8 +51,8 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if (empty($GLOBALS['rest_fhir_api'])) {
-            // do not show patient summary widget if fhir portal is off
+        if ((int)$GLOBALS['rest_fhir_api'] !== 1) {
+            // do not show a patient summary widget if fhir portal is off
             return;
         }
 
@@ -198,7 +198,7 @@ class SmartLaunchController
     {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
         $token->setIntent($intent);
-        if (empty($intent)) {
+        if ($intent === null) {
             $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
         }
         $token->setIntent($intent);
