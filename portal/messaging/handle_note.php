@@ -20,7 +20,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // ensure patient is bootstrapped (if sent)
