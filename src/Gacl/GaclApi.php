@@ -1019,7 +1019,7 @@ class GaclApi extends Gacl {
                     if (!is_object($rs))
                     {
                         $this->debug_db('add_acl');
-                        $this->db->RollBackTrans();
+                        $this->db->RollbackTrans();
                         return FALSE;
                     }
                 }
@@ -1028,7 +1028,7 @@ class GaclApi extends Gacl {
 
         if (!is_object($result)) {
             $this->debug_db('add_acl');
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return false;
         }
 
@@ -1060,7 +1060,7 @@ class GaclApi extends Gacl {
                     if (empty($object_id))
                     {
                         $this->debug_text('add_acl(): '. strtoupper($map) . " Object Section Value: $section_value Value: $value DOES NOT exist in the database. Skipping...");
-                        $this->db->RollBackTrans();
+                        $this->db->RollbackTrans();
                         return false;
                     }
 
@@ -1070,7 +1070,7 @@ class GaclApi extends Gacl {
                     if (!is_object($rs))
                     {
                         $this->debug_db('add_acl');
-                        $this->db->RollBackTrans();
+                        $this->db->RollbackTrans();
                         return false;
                     }
                 }
@@ -1092,7 +1092,7 @@ class GaclApi extends Gacl {
 
                 if (empty($group_data)) {
                     $this->debug_text('add_acl(): '. strtoupper($map) . " Group: $group_id DOES NOT exist in the database. Skipping...");
-                    $this->db->RollBackTrans();
+                    $this->db->RollbackTrans();
                     return false;
                 }
 
@@ -1101,7 +1101,7 @@ class GaclApi extends Gacl {
 
                 if (!is_object($rs)) {
                     $this->debug_db('add_acl');
-                    $this->db->RollBackTrans();
+                    $this->db->RollbackTrans();
                     return false;
                 }
             }
@@ -1199,7 +1199,7 @@ class GaclApi extends Gacl {
 
             if (!is_object($rs)) {
                 $this->debug_db('del_acl');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return false;
             }
         }
@@ -1211,7 +1211,7 @@ class GaclApi extends Gacl {
 
         if (!is_object($rs)) {
             $this->debug_db('del_acl');
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return false;
         }
 
@@ -1706,13 +1706,13 @@ class GaclApi extends Gacl {
 
             if (!is_object($rs)) {
                 $this->debug_db('add_group');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
 
             if ($rs->RowCount() > 0) {
                 $this->debug_text('add_group (): A root group already exists.');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
 
@@ -1731,13 +1731,13 @@ class GaclApi extends Gacl {
 
             if (!is_array($row)) {
                 $this->debug_db('add_group');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
 
             if (empty($row)) {
                 $this->debug_text('add_group (): Parent ID: '. $parent_id .' not found.');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
 
@@ -1750,7 +1750,7 @@ class GaclApi extends Gacl {
 
             if (!is_object($rs)) {
                 $this->debug_db('add_group');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
 
@@ -1759,7 +1759,7 @@ class GaclApi extends Gacl {
 
             if (!is_object($rs)) {
                 $this->debug_db('add_group');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return FALSE;
             }
         }
@@ -1769,7 +1769,7 @@ class GaclApi extends Gacl {
 
         if (!is_object($rs)) {
             $this->debug_db('add_group');
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return FALSE;
         }
 
@@ -2173,7 +2173,7 @@ class GaclApi extends Gacl {
 
         if ($rebuilt === FALSE) {
             $this->debug_text('rebuild_tree(): Error rebuilding tree!');
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return FALSE;
         }
 
@@ -2458,7 +2458,7 @@ class GaclApi extends Gacl {
         if (!$success) {
 
             $this->debug_db('del_group');
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return false;
         }
 
@@ -3238,7 +3238,7 @@ class GaclApi extends Gacl {
 
                 if (!is_object($rs)) {
                     $this->debug_db('edit_object');
-                    $this->db->RollBackTrans();
+                    $this->db->RollbackTrans();
                     return false;
                 }
             }
@@ -3270,7 +3270,7 @@ class GaclApi extends Gacl {
 
                     if (!is_object($rs)) {
                         $this->debug_db('edit_object');
-                        $this->db->RollBackTrans();
+                        $this->db->RollbackTrans();
                         return false;
                     }
 
@@ -3308,7 +3308,7 @@ class GaclApi extends Gacl {
 
             if (!is_object($rs)) {
                 $this->debug_db('edit_object');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return false;
             }
 
@@ -3335,7 +3335,7 @@ class GaclApi extends Gacl {
             // The Object is referenced somewhere (group or acl), can't delete it
 
             $this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode('', $groups_ids).") or ACLs (".@implode(",", $acl_ids).")");
-            $this->db->RollBackTrans();
+            $this->db->RollbackTrans();
             return false;
         } else {
             // The Object is NOT referenced anywhere, delete it
@@ -3345,7 +3345,7 @@ class GaclApi extends Gacl {
 
             if ( !is_object($rs) ) {
                 $this->debug_db('edit_object');
-                $this->db->RollBackTrans();
+                $this->db->RollbackTrans();
                 return false;
             }
 
