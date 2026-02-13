@@ -15,6 +15,7 @@ namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -22,6 +23,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Exception;
 
 /**
@@ -33,10 +35,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
     const QUESTIONNAIRE_NAME = 'PHPUnit Integration Test Questionnaire';
     const QUESTIONNAIRE_NAME_2 = 'PHPUnit Integration Test Questionnaire 2';
 
-    /**
-     * @var array Saved off session storage while we run this test.
-     */
-    private array $originalSession;
+    private SessionInterface $session;
 
     /**
      * @var FhirQuestionnaireResponseFormService
@@ -62,8 +61,8 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         parent::setUp();
 
         // Store original session
-        $this->originalSession = $_SESSION;
-        $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->session->set('authUserID', QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id'));
 
         $this->service = new FhirQuestionnaireResponseFormService();
         $this->service->setSystemLogger(new SystemLogger(Level::Critical));
@@ -80,7 +79,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         parent::tearDown();
 
         // Restore session
-        $_SESSION = $this->originalSession;
+        $this->session->clear();
 
         // Clean up database records - AI Generated cleanup
         $this->cleanupTestData();
