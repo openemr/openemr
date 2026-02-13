@@ -78,20 +78,17 @@ function smarty_function_pc_filter($args, &$smarty): void
 	 			FROM $pntable[postcalendar_events], users where users.id=pc_aid
 				ORDER BY pc_aid";
 
-        $result = $dbconn->Execute($sql);
-        if ($result !== false) {
-            $useroptions  = "<select multiple='multiple' size='3' name=\"pc_username[]\" class=\"$class\">";
-            $useroptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_USERS . "</option>";
-            $selected = $pc_username == '__PC_ALL__' ? 'selected="selected"' : '';
-            $useroptions .= "<option value=\"__PC_ALL__\" class=\"$class\" $selected>" . _PC_FILTER_USERS_ALL . "</option>";
-            for (; !$result->EOF; $result->MoveNext()) {
-                $sel = $pc_username == $result->fields[0] ? 'selected="selected"' : '';
-                $useroptions .= "<option value=\"" . $result->fields[0] . "\" $sel class=\"$class\">" . $result->fields[1] . ", " . $result->fields[2] . "</option>";
-            }
-
-            $useroptions .= '</select>';
-            $result->Close();
+        $result = $conn->executeQuery($sql);
+        $useroptions  = "<select multiple='multiple' size='3' name=\"pc_username[]\" class=\"$class\">";
+        $useroptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_USERS . "</option>";
+        $selected = $pc_username == '__PC_ALL__' ? 'selected="selected"' : '';
+        $useroptions .= "<option value=\"__PC_ALL__\" class=\"$class\" $selected>" . _PC_FILTER_USERS_ALL . "</option>";
+        foreach ($result->iterateNumeric() as $row) {
+            $sel = $pc_username == $row[0] ? 'selected="selected"' : '';
+            $useroptions .= "<option value=\"" . $row[0] . "\" $sel class=\"$class\">" . $row[1] . ", " . $row[2] . "</option>";
         }
+
+        $useroptions .= '</select>';
     }
 
     //================================================================
