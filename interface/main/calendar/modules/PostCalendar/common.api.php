@@ -498,7 +498,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
 function &postcalendar_userapi_getCategories()
 {
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
     $cat_table = $pntable['postcalendar_categories'];
     $sql = "SELECT pc_catid,pc_catname,pc_constant_id,pc_catcolor,pc_catdesc,
@@ -553,7 +553,7 @@ function &postcalendar_userapi_getCategories()
 
 function &postcalendar_userapi_getTopics()
 {
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
     $topics_table = $pntable['topics'];
     $topics_column = &$pntable['topics_column'];

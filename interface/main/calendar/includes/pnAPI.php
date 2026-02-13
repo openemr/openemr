@@ -97,7 +97,7 @@ function pnConfigInit()
 {
     global $pnconfig;
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $table = $pntable['module_vars'];
@@ -149,7 +149,7 @@ function pnConfigGetVar($name)
         /*
          * Fetch base data
          */
-        [$dbconn] = pnDBGetConn();
+        $conn = pnDBGetConn();
         $pntable = pnDBGetTables();
 
         $table = $pntable['module_vars'];

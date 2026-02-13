@@ -621,7 +621,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -877,7 +877,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];

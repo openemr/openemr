@@ -45,7 +45,7 @@ function pnModGetVar($modname, $name)
         return $pnmodvar[$modname][$name];
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulevarstable = $pntable['module_vars'];
@@ -85,7 +85,7 @@ function pnModSetVar($modname, $name, $value)
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $curvar = pnModGetVar($modname, $name);
@@ -136,7 +136,7 @@ function pnModGetIDFromName($module)
         return $modid[$module];
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -180,7 +180,7 @@ function pnModGetInfo($modid)
         return $modinfo[$modid];
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -228,7 +228,7 @@ function pnModAPILoad($modname, $type = 'user')
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     if (!empty($loaded["$modname$type"])) {
@@ -295,7 +295,7 @@ function pnModDBInfoLoad($modname, $directory = '')
 
     // Get the directory if we don't already have it
     if (empty($directory)) {
-        [$dbconn] = pnDBGetConn();
+        $conn = pnDBGetConn();
         $pntable = pnDBGetTables();
         $modulestable = $pntable['modules'];
         $modulescolumn = &$pntable['modules_column'];
@@ -346,7 +346,7 @@ function pnModLoad($modname, $type = 'user')
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -545,7 +545,7 @@ function pnModAvailable($modname)
         }
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
