@@ -31,6 +31,7 @@ use OpenEMR\Services\PatientAccessOnsiteService;
 function displayLogin($patient_id, $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
+    $message = text($message);
     if ($emailFlag) {
         $message = xlt("Email was sent to following address") . ": " .
             text($patientData['email']) . "\n\n" .
@@ -62,7 +63,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
+    $forced_reset_disable = $option == '2' ? (int)($_POST['forced_reset_disable'] ?? 0) : $option;
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
