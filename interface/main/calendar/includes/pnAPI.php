@@ -89,11 +89,8 @@ define('_PN_CONFIG_MODULE', '/PNConfig');
 /**
  * get all configuration variable into $pnconfig
  * will be removed on .8
- * @param none
- * @returns true|false
- * @return none
  */
-function pnConfigInit()
+function pnConfigInit(): bool
 {
     global $pnconfig;
 
