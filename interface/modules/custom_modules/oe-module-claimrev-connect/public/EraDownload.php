@@ -30,19 +30,30 @@ $rawEraId = $_GET['eraId'] ?? null;
 $eraId = is_string($rawEraId) ? $rawEraId : '';
 
 try {
-    $fileViewModel = EraPage::downloadEra($eraId);
+    $fileData = EraPage::downloadEra($eraId);
 } catch (\InvalidArgumentException) {
     http_response_code(400);
     echo xlt('Invalid ERA ID format');
     exit;
 }
 
+if ($fileData === false) {
+    http_response_code(404);
+    echo xlt('ERA file not found');
+    exit;
+}
+
+/** @var string */
+$fileText = $fileData['fileText'] ?? '';
+/** @var string */
+$fileName = $fileData['fileName'] ?? 'download.txt';
+
 header("Pragma: public");
 header("Expires: 0");
 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 header("Content-Type: application/edi-x12");
-header("Content-Length: " . strlen((string) $fileViewModel->fileText));
-header('Content-Disposition: attachment; filename="' . $fileViewModel->fileName . '"');
+header("Content-Length: " . strlen($fileText));
+header('Content-Disposition: attachment; filename="' . $fileName . '"');
 header("Content-Description: File Transfer");
-echo (string) $fileViewModel->fileText; // nosemgrep: echoed-request
+echo $fileText; // nosemgrep: echoed-request
 exit;

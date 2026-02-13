@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$token\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EmailClient\\:\\:\\$appKey\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',

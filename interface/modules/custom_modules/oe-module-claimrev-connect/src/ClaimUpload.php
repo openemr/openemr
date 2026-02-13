@@ -1,20 +1,21 @@
 <?php
 
 /**
+ * Claim file upload service for ClaimRev.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+namespace OpenEMR\Modules\ClaimRevConnector;
 
-    use OpenEMR\Services\BaseService;
-    use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
-    use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
+use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
+use OpenEMR\Services\BaseService;
 
 class ClaimUpload extends BaseService
 {
@@ -50,31 +51,36 @@ class ClaimUpload extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public static function sendWaitingFiles()
+    public static function sendWaitingFiles(): void
     {
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
-        $x12_remote['messages'] = [];
 
-        $token = ClaimRevApi::GetAccessToken();
+        try {
+            $api = ClaimRevApi::makeFromGlobals();
+        } catch (ClaimRevAuthenticationException) {
+            // Mark all waiting files as login error
+            foreach ($x12_remotes as $x12_remote) {
+                $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
+                $x12_remote['messages'] = 'Invalid Username or Password.';
+                $remoteTracker->update($x12_remote);
+            }
+            return;
+        }
 
         foreach ($x12_remotes as $x12_remote) {
-            if (false === $token) {
-                $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
-                $x12_remote['messages'] = "Invalid Username or Password.";
-                $remoteTracker->update($x12_remote);
-                continue;
-            }
-
+            /** @var string */
             $x12_remoteFilename = $x12_remote['x12_filename'];
-            // Make sure local claim file exists and can we have permission to read it
-            $claim_file = $x12_remote['x12_sftp_local_dir'] . $x12_remoteFilename;
+            // Make sure local claim file exists and we have permission to read it
+            /** @var string */
+            $localDir = $x12_remote['x12_sftp_local_dir'];
+            $claim_file = $localDir . $x12_remoteFilename;
             if (!file_exists($claim_file)) {
-                $claim_file = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/" . $x12_remoteFilename;
+                $claim_file = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/' . $x12_remoteFilename;
             }
 
             $claim_file_contents = file_get_contents($claim_file);
-            if (false === $claim_file_contents) {
+            if ($claim_file_contents === false) {
                 $x12_remote['status'] = self::STATUS_CLAIM_FILE_ERROR;
                 $x12_remote['messages'] = "Could not open local claim file: `$claim_file`";
                 $remoteTracker->update($x12_remote);
@@ -86,14 +92,16 @@ class ClaimUpload extends BaseService
             $remoteTracker->update($x12_remote);
 
             // Upload the file
-            if (false === ClaimRevApi::uploadClaimFile($claim_file_contents, $x12_remoteFilename, $token)) {
+            try {
+                $api->uploadClaimFile($claim_file_contents, $x12_remoteFilename);
+            } catch (ClaimRevApiException) {
                 $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
-                $x12_remote['messages'] = "Could not upload file.";
+                $x12_remote['messages'] = 'Could not upload file.';
                 $remoteTracker->update($x12_remote);
                 continue;
             }
 
-            // Change status from waiting to in-progress
+            // Change status to success
             $x12_remote['status'] = self::STATUS_SUCCESS;
             $remoteTracker->update($x12_remote);
         }

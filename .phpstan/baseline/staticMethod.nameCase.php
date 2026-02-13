@@ -7,31 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) with incorrect case\\: GetAccessToken$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) with incorrect case\\: GetAccessToken$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) with incorrect case\\: GetAccessToken$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) with incorrect case\\: GetAccessToken$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) with incorrect case\\: GetAccessToken$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to static method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) with incorrect case\\: rollBackTransaction$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',

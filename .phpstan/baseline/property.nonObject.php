@@ -592,16 +592,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fileName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/EraDownload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fileText on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/EraDownload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$billedAmount on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
@@ -757,16 +747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$access_token on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$isError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$originatingSystemId on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
@@ -797,61 +777,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$claimRevResultId on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$eligibility on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$individuals on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$isFatalError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$mappedData on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$raw271 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$responseMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$retryLater on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityTransfer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ediType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fileName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerNumber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$description on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
@@ -870,16 +795,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$validRequestIndicator on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fileName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fileText on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$benefitAdditionalInfos on mixed\\.$#',

@@ -1252,41 +1252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$api_server has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$clientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_authority has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_scope has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_secret has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$defaultAccount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$hasToken has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$industryCode has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
