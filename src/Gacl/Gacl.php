@@ -436,7 +436,7 @@ class Gacl {
             //AND   ac.acl_id=a.id
             $query .= '
 					WHERE		a.enabled=1
-						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
+						AND		(ac.section_value='. $this->db->Quote($aco_section_value) .' AND ac.value='. $this->db->Quote($aco_value) .')';
 
             // if we are querying an aro group
             if ($aro_section_value == $this->_group_switch) {
@@ -452,7 +452,7 @@ class Gacl {
                 $order_by[] = '(rg.rgt-rg.lft) ASC';
             } else {
                 $query .= '
-						AND		((ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+						AND		((ar.section_value='. $this->db->Quote($aro_section_value) .' AND ar.value='. $this->db->Quote($aro_value) .')';
 
                 if ( isset ($sql_aro_group_ids) ) {
                     $query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
@@ -484,7 +484,7 @@ class Gacl {
                 if ($axo_section_value == '' AND $axo_value == '') {
                     $query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
                 } else {
-                    $query .= '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value='. $this->db->quote($axo_value) .')';
+                    $query .= '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
                 }
 
                 if (isset($sql_axo_group_ids)) {
@@ -637,13 +637,13 @@ class Gacl {
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
                 $where = '
-					WHERE		g1.value=' . $this->db->quote( $value );
+					WHERE		g1.value=' . $this->db->Quote( $value );
             } else {
                 $query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
 
                 $where = '
-					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
+					WHERE		(o.section_value='. $this->db->Quote($section_value) .' AND o.value='. $this->db->Quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
 						AND		g1.id=gm.group_id';
             }
@@ -660,7 +660,7 @@ class Gacl {
                 $query .= ','. $group_table .' g3';
 
                 $where .= '
-						AND		g3.value='. $this->db->quote( $root_group ) .'
+						AND		g3.value='. $this->db->Quote( $root_group ) .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
             } else {
                 $where .= '

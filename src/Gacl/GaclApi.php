@@ -311,7 +311,7 @@ class GaclApi extends Gacl {
             if ($aco_section_value == NULL AND $aco_value == NULL) {
                 $where_query[] = '(ac.section_value IS NULL AND ac.value IS NULL)';
             } else {
-                $where_query[] = '(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
+                $where_query[] = '(ac.section_value='. $this->db->Quote($aco_section_value) .' AND ac.value='. $this->db->Quote($aco_value) .')';
             }
         }
 
@@ -323,7 +323,7 @@ class GaclApi extends Gacl {
             if ($aro_section_value == NULL AND $aro_value == NULL) {
                 $where_query[] = '(ar.section_value IS NULL AND ar.value IS NULL)';
             } else {
-                $where_query[] = '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+                $where_query[] = '(ar.section_value='. $this->db->Quote($aro_section_value) .' AND ar.value='. $this->db->Quote($aro_value) .')';
             }
         }
 
@@ -335,7 +335,7 @@ class GaclApi extends Gacl {
             if ($axo_section_value == NULL AND $axo_value == NULL) {
                 $where_query[] = '(ax.section_value IS NULL AND ax.value IS NULL)';
             } else {
-                $where_query[] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value='. $this->db->quote($axo_value) .')';
+                $where_query[] = '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
             }
         }
 
@@ -345,7 +345,7 @@ class GaclApi extends Gacl {
 				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON a.id=arg.acl_id
 				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON arg.group_id=rg.id';
 
-            $where_query[] = $aro_group_name == NULL ? '(rg.name IS NULL)' : '(rg.name='. $this->db->quote($aro_group_name) .')';
+            $where_query[] = $aro_group_name == NULL ? '(rg.name IS NULL)' : '(rg.name='. $this->db->Quote($aro_group_name) .')';
         }
 
         // AXO Group
@@ -354,13 +354,13 @@ class GaclApi extends Gacl {
 				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON a.id=axg.acl_id
 				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON axg.group_id=xg.id';
 
-            $where_query[] = $axo_group_name == NULL ? '(xg.name IS NULL)' : '(xg.name='. $this->db->quote($axo_group_name) .')';
+            $where_query[] = $axo_group_name == NULL ? '(xg.name IS NULL)' : '(xg.name='. $this->db->Quote($axo_group_name) .')';
         }
         if ($return_value != FALSE) {
             if ($return_value == NULL) {
                 $where_query[] = '(a.return_value IS NULL)';
             } else {
-                $where_query[] = '(a.return_value='. $this->db->quote($return_value) .')';
+                $where_query[] = '(a.return_value='. $this->db->Quote($return_value) .')';
             }
         }
 
@@ -675,7 +675,7 @@ class GaclApi extends Gacl {
         }
 
         //Grab ACL information
-        $query = "select id, allow, enabled, return_value, note from ".$this->_db_table_prefix."acl where id = " . $this->db->quote($acl_id);
+        $query = "select id, allow, enabled, return_value, note from ".$this->_db_table_prefix."acl where id = " . $this->db->Quote($acl_id);
         $acl_row = $this->db->GetRow($query);
 
         // return false if not found
@@ -688,7 +688,7 @@ class GaclApi extends Gacl {
 
         //Grab selected ACO's
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
-							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->quote($acl_id);
+							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -704,7 +704,7 @@ class GaclApi extends Gacl {
 
         //Grab selected ARO's
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aro_map a, ".$this->_db_table_prefix."aro b, ".$this->_db_table_prefix."aro_sections c
-							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->quote($acl_id);
+							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -720,7 +720,7 @@ class GaclApi extends Gacl {
 
         //Grab selected AXO's
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."axo_map a, ".$this->_db_table_prefix."axo b, ".$this->_db_table_prefix."axo_sections c
-							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->quote($acl_id);
+							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -736,13 +736,13 @@ class GaclApi extends Gacl {
 
         //Grab selected ARO groups.
         $retarr['aro_groups'] = [];
-        $query = "select distinct group_id from ".$this->_db_table_prefix."aro_groups_map where  acl_id = " . $this->db->quote($acl_id);
+        $query = "select distinct group_id from ".$this->_db_table_prefix."aro_groups_map where  acl_id = " . $this->db->Quote($acl_id);
         $retarr['aro_groups'] = $this->db->GetCol($query);
         //showarray($selected_groups);
 
         //Grab selected AXO groups.
         $retarr['axo_groups'] = [];
-        $query = "select distinct group_id from ".$this->_db_table_prefix."axo_groups_map where  acl_id = " . $this->db->quote($acl_id);
+        $query = "select distinct group_id from ".$this->_db_table_prefix."axo_groups_map where  acl_id = " . $this->db->Quote($acl_id);
         $retarr['axo_groups'] = $this->db->GetCol($query);
         //showarray($selected_groups);
 
@@ -801,7 +801,7 @@ class GaclApi extends Gacl {
             //Move the below line in to the LEFT JOIN above for PostgreSQL sake.
             //'ac1' => 'ac.acl_id=a.id',
             $where_query = [
-                'ac2' => '(ac.section_value=' . $this->db->quote($aco_section_value) . ' AND ac.value IN (\'' . implode('\',\'', array_map(add_escape_custom(...), $aco_value_array)) . '\'))'
+                'ac2' => '(ac.section_value=' . $this->db->Quote($aco_section_value) . ' AND ac.value IN (\'' . implode('\',\'', array_map(add_escape_custom(...), $aco_value_array)) . '\'))'
             ];
 
             //ARO
@@ -820,7 +820,7 @@ class GaclApi extends Gacl {
                 //Move the below line in to the LEFT JOIN above for PostgreSQL sake.
                 //$where_query['ar1'] = 'ar.acl_id=a.id';
 
-                $where_query['ar2'] = '(ar.section_value=' . $this->db->quote($aro_section_value) . ' AND ar.value IN (' . implode('\',\'', array_map(add_escape_custom(...), $aro_value_array)) . '\'))';
+                $where_query['ar2'] = '(ar.section_value=' . $this->db->Quote($aro_section_value) . ' AND ar.value IN (' . implode('\',\'', array_map(add_escape_custom(...), $aro_value_array)) . '\'))';
 
                 if (is_array($axo_array) AND count($axo_array) > 0) {
                     foreach ($axo_array as $axo_section_value => $axo_value_array) {
@@ -836,7 +836,7 @@ class GaclApi extends Gacl {
 
                         //$where_query['ax1'] = 'ax.acl_id=x.id';
                         $where_query['ax1'] = 'ax.acl_id=a.id';
-                        $where_query['ax2'] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value IN (' . implode('\',\'', array_map(add_escape_custom(...), $axo_value_array)) . '\'))';
+                        $where_query['ax2'] = '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value IN (' . implode('\',\'', array_map(add_escape_custom(...), $axo_value_array)) . '\'))';
 
                         $where  = 'WHERE ' . implode(' AND ', $where_query);
 
@@ -959,7 +959,7 @@ class GaclApi extends Gacl {
                     $query = "
 						SELECT value
 						FROM $acl_sections_table
-						WHERE order_value = " . $this->db->quote($acl_section_order_value);
+						WHERE order_value = " . $this->db->Quote($acl_section_order_value);
                     $section_value = $this->db->GetOne($query);
 
                     if ( empty($section_value) ) {
@@ -987,12 +987,12 @@ class GaclApi extends Gacl {
             //the transaction will fail.
             $this->db->BeginTrans();
 
-            $query = 'INSERT INTO '.$this->_db_table_prefix.'acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES('. $this->db->quote($acl_id) .','. $this->db->quote($section_value) .','. $this->db->quote($allow) .','. $this->db->quote($enabled) .','. $this->db->quote($return_value) .', '. $this->db->quote($note) .','. time() .')';
+            $query = 'INSERT INTO '.$this->_db_table_prefix.'acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES('. $this->db->Quote($acl_id) .','. $this->db->Quote($section_value) .','. $this->db->Quote($allow) .','. $this->db->Quote($enabled) .','. $this->db->Quote($return_value) .', '. $this->db->Quote($note) .','. time() .')';
             $result = $this->db->Execute($query);
         } else {
             $section_sql = '';
             if ( !empty($section_value) ) {
-                $section_sql = 'section_value='. $this->db->quote ($section_value) .',';
+                $section_sql = 'section_value='. $this->db->Quote ($section_value) .',';
             }
 
             $this->db->BeginTrans();
@@ -1001,19 +1001,19 @@ class GaclApi extends Gacl {
             $query  = '
 				UPDATE	'. $this->_db_table_prefix .'acl
 				SET             ' . $section_sql . '
-						allow='. $this->db->quote($allow) .',
-						enabled='. $this->db->quote($enabled) .',
-						return_value='. $this->db->quote($return_value) .',
-						note='. $this->db->quote($note) .',
+						allow='. $this->db->Quote($allow) .',
+						enabled='. $this->db->Quote($enabled) .',
+						return_value='. $this->db->Quote($return_value) .',
+						note='. $this->db->Quote($note) .',
 						updated_date='. time() .'
-				WHERE	id='. $this->db->quote($acl_id);
+				WHERE	id='. $this->db->Quote($acl_id);
             $result = $this->db->Execute($query);
 
             if ($result) {
                 $this->debug_text("Update completed without error, delete mappings...");
                 //Delete all mappings so they can be re-inserted.
                 foreach (['aco_map', 'aro_map', 'axo_map', 'aro_groups_map', 'axo_groups_map'] as $map) {
-                    $query = 'DELETE FROM '. $this->_db_table_prefix . $map .' WHERE acl_id='. $this->db->quote($acl_id);
+                    $query = 'DELETE FROM '. $this->_db_table_prefix . $map .' WHERE acl_id='. $this->db->Quote($acl_id);
                     $rs = $this->db->Execute($query);
 
                     if (!is_object($rs))
@@ -1064,7 +1064,7 @@ class GaclApi extends Gacl {
                         return false;
                     }
 
-                    $query  = 'INSERT INTO '. $this->_db_table_prefix . $map .'_map (acl_id,section_value,value) VALUES ('. $this->db->quote($acl_id) .', '. $this->db->quote($section_value) .', '. $this->db->quote($value) .')';
+                    $query  = 'INSERT INTO '. $this->_db_table_prefix . $map .'_map (acl_id,section_value,value) VALUES ('. $this->db->Quote($acl_id) .', '. $this->db->Quote($section_value) .', '. $this->db->Quote($value) .')';
                     $rs = $this->db->Execute($query);
 
                     if (!is_object($rs))
@@ -1096,7 +1096,7 @@ class GaclApi extends Gacl {
                     return false;
                 }
 
-                $query  = 'INSERT INTO '. $this->_db_table_prefix . $map .'_groups_map (acl_id,group_id) VALUES ('. $this->db->quote($acl_id) .', '. $this->db->quote($group_id) .')';
+                $query  = 'INSERT INTO '. $this->_db_table_prefix . $map .'_groups_map (acl_id,group_id) VALUES ('. $this->db->Quote($acl_id) .', '. $this->db->Quote($group_id) .')';
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -1194,7 +1194,7 @@ class GaclApi extends Gacl {
 
         // Delete all mappings to the ACL first
         foreach (['aco_map', 'aro_map', 'axo_map', 'aro_groups_map', 'axo_groups_map'] as $map) {
-            $query  = 'DELETE FROM '. $this->_db_table_prefix . $map .' WHERE acl_id='. $this->db->quote($acl_id);
+            $query  = 'DELETE FROM '. $this->_db_table_prefix . $map .' WHERE acl_id='. $this->db->Quote($acl_id);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -1205,7 +1205,7 @@ class GaclApi extends Gacl {
         }
 
         // Delete the ACL
-        $query  = 'DELETE FROM '. $this->_db_table_prefix .'acl WHERE id='. $this->db->quote($acl_id);
+        $query  = 'DELETE FROM '. $this->_db_table_prefix .'acl WHERE id='. $this->db->Quote($acl_id);
         $this->debug_text('delete query: '. $query);
         $rs = $this->db->Execute($query);
 
@@ -1400,9 +1400,9 @@ class GaclApi extends Gacl {
 
         $query = 'SELECT id FROM '. $table .' WHERE ';
         if ( !empty($value) ) {
-            $query .= ' value='. $this->db->quote($value);
+            $query .= ' value='. $this->db->Quote($value);
         } else {
-            $query .= ' name='. $this->db->quote($name);
+            $query .= ' name='. $this->db->Quote($name);
         }
         $rs = $this->db->Execute($query);
 
@@ -1466,9 +1466,9 @@ class GaclApi extends Gacl {
         match (strtoupper((string) $recurse)) {
             'RECURSE' => $query .= '
 				LEFT JOIN 	'. $table .' g2 ON g2.lft<g1.lft AND g2.rgt>g1.rgt
-				WHERE		g2.id='. $this->db->quote($group_id),
+				WHERE		g2.id='. $this->db->Quote($group_id),
             default => $query .= '
-				WHERE		g1.parent_id='. $this->db->quote($group_id),
+				WHERE		g1.parent_id='. $this->db->Quote($group_id),
         };
 
         $query .= '
@@ -1513,7 +1513,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query  = 'SELECT id, parent_id, value, name, lft, rgt FROM '. $table .' WHERE id='. $this->db->quote($group_id);
+        $query  = 'SELECT id, parent_id, value, name, lft, rgt FROM '. $table .' WHERE id='. $this->db->Quote($group_id);
         //$rs = $this->db->Execute($query);
         $row = $this->db->GetRow($query);
 
@@ -1549,7 +1549,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query = 'SELECT parent_id FROM '. $table .' WHERE id='. $this->db->quote($id);
+        $query = 'SELECT parent_id FROM '. $table .' WHERE id='. $this->db->Quote($id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -1726,7 +1726,7 @@ class GaclApi extends Gacl {
             }
 
             // grab parent details from database
-            $query = 'SELECT id, lft, rgt FROM '. $table .' WHERE id='. $this->db->quote($parent_id);
+            $query = 'SELECT id, lft, rgt FROM '. $table .' WHERE id='. $this->db->Quote($parent_id);
             $row = $this->db->GetRow($query);
 
             if (!is_array($row)) {
@@ -1745,7 +1745,7 @@ class GaclApi extends Gacl {
             $parent_rgt = &$row[2];
 
             // make room for the new group
-            $query  = 'UPDATE '. $table .' SET rgt=rgt+2 WHERE rgt>='. $this->db->quote($parent_rgt);
+            $query  = 'UPDATE '. $table .' SET rgt=rgt+2 WHERE rgt>='. $this->db->Quote($parent_rgt);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -1754,7 +1754,7 @@ class GaclApi extends Gacl {
                 return FALSE;
             }
 
-            $query  = 'UPDATE '. $table .' SET lft=lft+2 WHERE lft>'. $this->db->quote($parent_rgt);
+            $query  = 'UPDATE '. $table .' SET lft=lft+2 WHERE lft>'. $this->db->Quote($parent_rgt);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -1764,7 +1764,7 @@ class GaclApi extends Gacl {
             }
         }
 
-        $query = 'INSERT INTO '. $table .' (id,parent_id,name,value,lft,rgt) VALUES ('. $this->db->quote($insert_id) .','. $this->db->quote($parent_id) .','. $this->db->quote($name) .','. $this->db->quote($value) .','. $this->db->quote($parent_rgt) .','. $this->db->quote($parent_rgt + 1) .')';
+        $query = 'INSERT INTO '. $table .' (id,parent_id,name,value,lft,rgt) VALUES ('. $this->db->Quote($insert_id) .','. $this->db->Quote($parent_id) .','. $this->db->Quote($name) .','. $this->db->Quote($value) .','. $this->db->Quote($parent_rgt) .','. $this->db->Quote($parent_rgt + 1) .')';
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -1827,12 +1827,12 @@ class GaclApi extends Gacl {
 				JOIN		'. $group_table .' g1 ON g1.lft>=g2.lft AND g1.rgt<=g2.rgt
 				JOIN		'. $map_table .' gm ON gm.group_id=g1.id
 				JOIN		'. $object_table .' o ON o.id=gm.'. $group_type .'_id
-				WHERE		g2.id='. $this->db->quote($group_id);
+				WHERE		g2.id='. $this->db->Quote($group_id);
         } else {
             $query .= '
 				FROM		'. $map_table .' gm
 				JOIN		'. $object_table .' o ON o.id=gm.'. $group_type .'_id
-				WHERE		gm.group_id='. $this->db->quote($group_id);
+				WHERE		gm.group_id='. $this->db->Quote($group_id);
         }
 
         $rs = $this->db->Execute($query);
@@ -1900,9 +1900,9 @@ class GaclApi extends Gacl {
         $query  = '
 				SELECT		o.id AS id,g.id AS group_id,gm.group_id AS `member`
 				FROM		'. $object_table .' o
-				LEFT JOIN	'. $group_table .' g ON g.id='. $this->db->quote($group_id) .'
+				LEFT JOIN	'. $group_table .' g ON g.id='. $this->db->Quote($group_id) .'
 				LEFT JOIN	'. $table .' gm ON (gm.'. $group_type .'_id=o.id AND gm.group_id=g.id)
-				WHERE		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
+				WHERE		(o.section_value='. $this->db->Quote($object_section_value) .' AND o.value='. $this->db->Quote($object_value) .')';
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -1931,7 +1931,7 @@ class GaclApi extends Gacl {
 
         $object_id = $row[0];
 
-        $query = 'INSERT INTO '. $table .' (group_id,'. $group_type .'_id) VALUES ('. $this->db->quote($group_id) .','. $this->db->quote($object_id) .')';
+        $query = 'INSERT INTO '. $table .' (group_id,'. $group_type .'_id) VALUES ('. $this->db->Quote($group_id) .','. $this->db->Quote($object_id) .')';
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -1989,7 +1989,7 @@ class GaclApi extends Gacl {
             return FALSE;
         }
 
-        $query = 'DELETE FROM '. $table .' WHERE group_id='. $this->db->quote($group_id) .' AND '. $group_type .'_id='. $this->db->quote($object_id);
+        $query = 'DELETE FROM '. $table .' WHERE group_id='. $this->db->Quote($group_id) .' AND '. $group_type .'_id='. $this->db->Quote($object_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2084,17 +2084,17 @@ class GaclApi extends Gacl {
 
         // update name if it is specified.
         if (!empty($name)) {
-            $set[] = 'name='. $this->db->quote($name);
+            $set[] = 'name='. $this->db->Quote($name);
         }
 
         // update parent_id if it is specified.
         if (!empty($parent_id)) {
-            $set[] = 'parent_id='. $this->db->quote($parent_id);
+            $set[] = 'parent_id='. $this->db->Quote($parent_id);
         }
 
         // update value if it is specified.
         if (!empty($value)) {
-            $set[] = 'value='. $this->db->quote($value);
+            $set[] = 'value='. $this->db->Quote($value);
         }
 
         if (empty($set)) {
@@ -2104,7 +2104,7 @@ class GaclApi extends Gacl {
 
         $this->db->BeginTrans();
 
-        $query  = 'UPDATE '. $table .' SET '. implode(',', $set) .' WHERE id='. $this->db->quote($group_id);
+        $query  = 'UPDATE '. $table .' SET '. implode(',', $set) .' WHERE id='. $this->db->Quote($group_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2196,7 +2196,7 @@ class GaclApi extends Gacl {
         $this->debug_text("_rebuild_tree(): Table: $table Group ID: $group_id Left: $left");
 
         // get all children of this node
-        $query = 'SELECT id FROM '. $table .' WHERE parent_id='. $this->db->quote($group_id);
+        $query = 'SELECT id FROM '. $table .' WHERE parent_id='. $this->db->Quote($group_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2221,7 +2221,7 @@ class GaclApi extends Gacl {
 
         // we've got the left value, and now that we've processed
         // the children of this node we also know the right value
-        $query  = 'UPDATE '. $table .' SET lft='. $this->db->quote($left) .', rgt='. $this->db->quote($right) .' WHERE id='. $this->db->quote($group_id);
+        $query  = 'UPDATE '. $table .' SET lft='. $this->db->Quote($left) .', rgt='. $this->db->Quote($right) .' WHERE id='. $this->db->Quote($group_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2269,7 +2269,7 @@ class GaclApi extends Gacl {
         }
 
         // Get details of this group
-        $query = 'SELECT id, parent_id, name, lft, rgt FROM '. $table .' WHERE id='. $this->db->quote($group_id);
+        $query = 'SELECT id, parent_id, name, lft, rgt FROM '. $table .' WHERE id='. $this->db->Quote($group_id);
         $group_details = $this->db->GetRow($query);
 
         if (!is_array($group_details)) {
@@ -2289,7 +2289,7 @@ class GaclApi extends Gacl {
 
         // prevent deletion of root group & reparent of children if it has more than one immediate child
         if ($parent_id == 0) {
-            $query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $this->db->quote($group_id);
+            $query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $this->db->Quote($group_id);
             $child_count = $this->db->GetOne($query);
 
             if (($child_count > 1) AND $reparent_children) {
@@ -2309,7 +2309,7 @@ class GaclApi extends Gacl {
             case !is_array($children_ids):
             case count($children_ids) == 0:
                 // remove acl maps
-                $query = 'DELETE FROM '. $groups_map_table .' WHERE group_id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $groups_map_table .' WHERE group_id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2317,7 +2317,7 @@ class GaclApi extends Gacl {
                 }
 
                 // remove group object maps
-                $query = 'DELETE FROM '. $groups_object_map_table .' WHERE group_id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $groups_object_map_table .' WHERE group_id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2325,7 +2325,7 @@ class GaclApi extends Gacl {
                 }
 
                 // remove group
-                $query = 'DELETE FROM '. $table .' WHERE id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $table .' WHERE id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2333,14 +2333,14 @@ class GaclApi extends Gacl {
                 }
 
                 // move all groups right of deleted group left by width of deleted group
-                $query = 'UPDATE '. $table .' SET lft=lft-' . ($right-$left+1) . ' WHERE lft>'. $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET lft=lft-' . ($right-$left+1) . ' WHERE lft>'. $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
                     break;
                 }
 
-                $query = 'UPDATE '. $table .' SET rgt=rgt-' . ($right-$left+1) . ' WHERE rgt>'. $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET rgt=rgt-' . ($right-$left+1) . ' WHERE rgt>'. $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2351,7 +2351,7 @@ class GaclApi extends Gacl {
                 break;
             case $reparent_children == TRUE:
                 // remove acl maps
-                $query = 'DELETE FROM '. $groups_map_table .' WHERE group_id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $groups_map_table .' WHERE group_id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2359,7 +2359,7 @@ class GaclApi extends Gacl {
                 }
 
                 // remove group object maps
-                $query = 'DELETE FROM '. $groups_object_map_table .' WHERE group_id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $groups_object_map_table .' WHERE group_id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2367,7 +2367,7 @@ class GaclApi extends Gacl {
                 }
 
                 // remove group
-                $query = 'DELETE FROM '. $table .' WHERE id='. $this->db->quote($group_id);
+                $query = 'DELETE FROM '. $table .' WHERE id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2375,7 +2375,7 @@ class GaclApi extends Gacl {
                 }
 
                 // set parent of immediate children to parent group
-                $query = 'UPDATE '. $table .' SET parent_id='. $this->db->quote($parent_id) .' WHERE parent_id='. $this->db->quote($group_id);
+                $query = 'UPDATE '. $table .' SET parent_id='. $this->db->Quote($parent_id) .' WHERE parent_id='. $this->db->Quote($group_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2383,7 +2383,7 @@ class GaclApi extends Gacl {
                 }
 
                 // move all children left by 1
-                $query = 'UPDATE '. $table .' SET lft=lft-1, rgt=rgt-1 WHERE lft>'. $this->db->quote($left) .' AND rgt<'. $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET lft=lft-1, rgt=rgt-1 WHERE lft>'. $this->db->Quote($left) .' AND rgt<'. $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2391,14 +2391,14 @@ class GaclApi extends Gacl {
                 }
 
                 // move all groups right of deleted group left by 2
-                $query = 'UPDATE '. $table .' SET lft=lft-2 WHERE lft>'. $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET lft=lft-2 WHERE lft>'. $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
                     break;
                 }
 
-                $query = 'UPDATE '. $table .' SET rgt=rgt-2 WHERE rgt>'. $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET rgt=rgt-2 WHERE rgt>'. $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2437,14 +2437,14 @@ class GaclApi extends Gacl {
                 }
 
                 // move all groups right of deleted group left by width of deleted group
-                $query = 'UPDATE '. $table .' SET lft=lft-'. ($right - $left + 1) . ' WHERE lft>' . $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET lft=lft-'. ($right - $left + 1) . ' WHERE lft>' . $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
                     break;
                 }
 
-                $query = 'UPDATE '. $table .' SET rgt=rgt-'. ($right - $left + 1) . ' WHERE rgt>' . $this->db->quote($right);
+                $query = 'UPDATE '. $table .' SET rgt=rgt-'. ($right - $left + 1) . ' WHERE rgt>' . $this->db->Quote($right);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -2523,7 +2523,7 @@ class GaclApi extends Gacl {
         $where = [];
 
         if (!empty($section_value)) {
-            $where[] = 'section_value='. $this->db->quote($section_value);
+            $where[] = 'section_value='. $this->db->Quote($section_value);
         }
 
         if ($return_hidden==0 AND $object_type != 'acl') {
@@ -2646,7 +2646,7 @@ class GaclApi extends Gacl {
         $where = [];
 
         if (!empty($section_value)) {
-            $where[] = 'section_value='. $this->db->quote($section_value);
+            $where[] = 'section_value='. $this->db->Quote($section_value);
         }
 
         if ($return_hidden==0) {
@@ -2716,7 +2716,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query  = 'SELECT section_value,value,order_value,name,hidden FROM '. $table .' WHERE id='. $this->db->quote($object_id);
+        $query  = 'SELECT section_value,value,order_value,name,hidden FROM '. $table .' WHERE id='. $this->db->Quote($object_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2779,7 +2779,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query = 'SELECT id FROM '. $table .' WHERE section_value='. $this->db->quote($section_value) .' AND value='. $this->db->quote($value);
+        $query = 'SELECT id FROM '. $table .' WHERE section_value='. $this->db->Quote($section_value) .' AND value='. $this->db->Quote($value);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2847,7 +2847,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query = 'SELECT section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
+        $query = 'SELECT section_value FROM '. $table .' WHERE id='. $this->db->Quote($object_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -2924,7 +2924,7 @@ class GaclApi extends Gacl {
         }
 
         $query .= '
-				WHERE		gm.'. $object_type .'_id='. $this->db->quote($object_id);
+				WHERE		gm.'. $object_type .'_id='. $this->db->Quote($object_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3009,8 +3009,8 @@ class GaclApi extends Gacl {
         $query  = '
 			SELECT		CASE WHEN o.id IS NULL THEN 0 ELSE 1 END AS object_exists
 			FROM		'. $object_sections_table .' s
-			LEFT JOIN	'. $table .' o ON (s.value=o.section_value AND o.value='. $this->db->quote($value) .')
-			WHERE		s.value='. $this->db->quote($section_value);
+			LEFT JOIN	'. $table .' o ON (s.value=o.section_value AND o.value='. $this->db->Quote($value) .')
+			WHERE		s.value='. $this->db->Quote($section_value);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3032,7 +3032,7 @@ class GaclApi extends Gacl {
         }
 
         $insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
-        $query = 'INSERT INTO '. $table .' (id,section_value,value,order_value,name,hidden) VALUES('. $this->db->quote($insert_id) .','. $this->db->quote($section_value) .','. $this->db->quote($value) .','. $this->db->quote($order) .','. $this->db->quote($name) .','. $this->db->quote($hidden) .')';
+        $query = 'INSERT INTO '. $table .' (id,section_value,value,order_value,name,hidden) VALUES('. $this->db->Quote($insert_id) .','. $this->db->Quote($section_value) .','. $this->db->Quote($value) .','. $this->db->Quote($order) .','. $this->db->Quote($name) .','. $this->db->Quote($hidden) .')';
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3105,17 +3105,17 @@ class GaclApi extends Gacl {
         $this->db->BeginTrans();
 
         //Get old value in case it changed, before we do the update.
-        $query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
+        $query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $this->db->Quote($object_id);
         $old = $this->db->GetRow($query);
 
         $query  = '
 			UPDATE	'. $table .'
-			SET		section_value='. $this->db->quote($section_value) .',
-					value='. $this->db->quote($value) .',
-					order_value='. $this->db->quote($order) .',
-					name='. $this->db->quote($name) .',
-					hidden='. $this->db->quote($hidden) .'
-			WHERE	id='. $this->db->quote($object_id);
+			SET		section_value='. $this->db->Quote($section_value) .',
+					value='. $this->db->Quote($value) .',
+					order_value='. $this->db->Quote($order) .',
+					name='. $this->db->Quote($name) .',
+					hidden='. $this->db->Quote($hidden) .'
+			WHERE	id='. $this->db->Quote($object_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3131,10 +3131,10 @@ class GaclApi extends Gacl {
 
             $query  = '
 				UPDATE	'. $object_map_table .'
-				SET		value='. $this->db->quote($value) .',
-						section_value='. $this->db->quote($section_value) .'
-				WHERE	section_value='. $this->db->quote($old[1]) .'
-					AND	value='. $this->db->quote($old[0]);
+				SET		value='. $this->db->Quote($value) .',
+						section_value='. $this->db->Quote($section_value) .'
+				WHERE	section_value='. $this->db->Quote($old[1]) .'
+					AND	value='. $this->db->Quote($old[0]);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -3206,7 +3206,7 @@ class GaclApi extends Gacl {
         $this->db->BeginTrans();
 
         // Get Object section_value/value (needed to look for referencing objects)
-        $query = 'SELECT section_value,value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
+        $query = 'SELECT section_value,value FROM '. $table .' WHERE id='. $this->db->Quote($object_id);
         $object = $this->db->GetRow($query);
 
         if (empty($object)) {
@@ -3219,7 +3219,7 @@ class GaclApi extends Gacl {
         $value = $object[1];
 
         // Get ids of acl referencing the Object (if any)
-        $query = "SELECT acl_id FROM $object_map_table WHERE value=" . $this->db->quote($value) . " AND section_value=" . $this->db->quote($section_value);
+        $query = "SELECT acl_id FROM $object_map_table WHERE value=" . $this->db->Quote($value) . " AND section_value=" . $this->db->Quote($section_value);
         $acl_ids = $this->db->GetCol($query);
 
         if ($erase) {
@@ -3233,7 +3233,7 @@ class GaclApi extends Gacl {
                 // ACO might me "groupable" too
 
                 // Get rid of groups_map referencing the Object
-                $query = 'DELETE FROM '. $object_group_table .' WHERE '. $object_type .'_id='. $this->db->quote($object_id);
+                $query = 'DELETE FROM '. $object_group_table .' WHERE '. $object_type .'_id='. $this->db->Quote($object_id);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -3265,7 +3265,7 @@ class GaclApi extends Gacl {
                     // In these cases the acl MUST NOT be deleted
 
                     // Get rid of $object_id map referencing erased objects
-                    $query = "DELETE FROM $object_map_table WHERE section_value=" . $this->db->quote($section_value) . " AND value=" . $this->db->quote($value);
+                    $query = "DELETE FROM $object_map_table WHERE section_value=" . $this->db->Quote($section_value) . " AND value=" . $this->db->Quote($value);
                     $this->db->Execute($query);
 
                     if (!is_object($rs)) {
@@ -3303,7 +3303,7 @@ class GaclApi extends Gacl {
             } // End of if ($acl_ids)
 
             // Finally delete the Object itself
-            $query = "DELETE FROM $table WHERE id=" . $this->db->quote($object_id);
+            $query = "DELETE FROM $table WHERE id=" . $this->db->Quote($object_id);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -3327,7 +3327,7 @@ class GaclApi extends Gacl {
             // you must explicitly remove the object from its groups before
             // deleting it (don't know if this is really needed, anyway it's safer ;-)
 
-            $query = 'SELECT group_id FROM '. $object_group_table .' WHERE '. $object_type .'_id='. $this->db->quote($object_id);
+            $query = 'SELECT group_id FROM '. $object_group_table .' WHERE '. $object_type .'_id='. $this->db->Quote($object_id);
             $groups_ids = $this->db->GetCol($query);
         }
 
@@ -3340,7 +3340,7 @@ class GaclApi extends Gacl {
         } else {
             // The Object is NOT referenced anywhere, delete it
 
-            $query = "DELETE FROM $table WHERE id=" . $this->db->quote($object_id);
+            $query = "DELETE FROM $table WHERE id=" . $this->db->Quote($object_id);
             $rs = $this->db->Execute($query);
 
             if ( !is_object($rs) ) {
@@ -3407,13 +3407,13 @@ class GaclApi extends Gacl {
 
         // limit by value if specified
         if (!empty($value)) {
-            $query .= $where .'value='. $this->db->quote($value);
+            $query .= $where .'value='. $this->db->Quote($value);
             $where = ' AND ';
         }
 
         // only use name if asked, this is SLOW
         if (!empty($name)) {
-            $query .= $where .'name='. $this->db->quote($name);
+            $query .= $where .'name='. $this->db->Quote($name);
         }
 
         $rs = $this->db->Execute($query);
@@ -3500,7 +3500,7 @@ class GaclApi extends Gacl {
         }
 
         $insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_sections_seq',10);
-        $query = 'insert into '. $object_sections_table .' (id,value,order_value,name,hidden) VALUES( '. $this->db->quote($insert_id) .', '. $this->db->quote($value) .', '. $this->db->quote($order) .', '. $this->db->quote($name) .', '. $this->db->quote($hidden) .')';
+        $query = 'insert into '. $object_sections_table .' (id,value,order_value,name,hidden) VALUES( '. $this->db->Quote($insert_id) .', '. $this->db->Quote($value) .', '. $this->db->Quote($order) .', '. $this->db->Quote($name) .', '. $this->db->Quote($hidden) .')';
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3582,15 +3582,15 @@ class GaclApi extends Gacl {
         $this->db->BeginTrans();
 
         //Get old value in case it changed, before we do the update.
-        $query = "select value from $object_sections_table where id=" . $this->db->quote($object_section_id);
+        $query = "select value from $object_sections_table where id=" . $this->db->Quote($object_section_id);
         $old_value = $this->db->GetOne($query);
 
         $query = "update $object_sections_table set
-																value=" . $this->db->quote($value) . ",
-																order_value=" .$this->db->quote($order) . ",
-																name=" . $this->db->quote($name) . ",
-																hidden=" . $this->db->quote($hidden) . "
-													where   id=" . $this->db->quote($object_section_id);
+																value=" . $this->db->Quote($value) . ",
+																order_value=" .$this->db->Quote($order) . ",
+																name=" . $this->db->Quote($name) . ",
+																hidden=" . $this->db->Quote($hidden) . "
+													where   id=" . $this->db->Quote($object_section_id);
         $rs = $this->db->Execute($query);
 
         if (!is_object($rs)) {
@@ -3606,8 +3606,8 @@ class GaclApi extends Gacl {
                 $this->debug_text("edit_object_section(): Value Changed, update other tables.");
 
                 $query = "update $table set
-																section_value=" . $this->db->quote($value) . "
-													where section_value = " . $this->db->quote($old_value);
+																section_value=" . $this->db->Quote($value) . "
+													where section_value = " . $this->db->Quote($old_value);
                 $rs = $this->db->Execute($query);
 
                 if (!is_object($rs)) {
@@ -3619,8 +3619,8 @@ class GaclApi extends Gacl {
                 } else {
                     if (!empty($object_map_table)) {
                         $query = "update $object_map_table set
-																		section_value=" . $this->db->quote($value) . "
-															where section_value = " . $this->db->quote($old_value);
+																		section_value=" . $this->db->Quote($value) . "
+															where section_value = " . $this->db->Quote($old_value);
                         $rs = $this->db->Execute($query);
 
                         if ( !is_object($rs) ) {
@@ -3697,7 +3697,7 @@ class GaclApi extends Gacl {
         }
 
         // Get the value of the section
-        $query="SELECT value FROM $object_sections_table WHERE id=" . $this->db->quote($object_section_id);
+        $query="SELECT value FROM $object_sections_table WHERE id=" . $this->db->Quote($object_section_id);
         $section_value = $this->db->GetOne($query);
 
         // Get all objects ids in the section
@@ -3729,7 +3729,7 @@ class GaclApi extends Gacl {
         } else {
             // The section is empty (or emptied by this method)
 
-            $query = "DELETE FROM $object_sections_table where id=" . $this->db->quote($object_section_id);
+            $query = "DELETE FROM $object_sections_table where id=" . $this->db->Quote($object_section_id);
             $rs = $this->db->Execute($query);
 
             if (!is_object($rs)) {
@@ -3791,7 +3791,7 @@ class GaclApi extends Gacl {
             return false;
         }
 
-        $query = "SELECT id, value, order_value, name, hidden FROM $table WHERE value=" . $this->db->quote($section_value);
+        $query = "SELECT id, value, order_value, name, hidden FROM $table WHERE value=" . $this->db->Quote($section_value);
         $row = $this->db->GetRow($query);
 
         if ($row) {
