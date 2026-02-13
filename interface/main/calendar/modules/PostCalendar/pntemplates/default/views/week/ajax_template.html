@@ -22,7 +22,7 @@
 $timeslotHeightVal=20;
 $timeslotHeightUnit="px";
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $authUserID = $session->get('authUserID');
 $facilities = getUserFacilities($authUserID); // from users_facility
 $pc_facility = $session->get('pc_facility');

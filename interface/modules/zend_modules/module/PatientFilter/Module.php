@@ -112,17 +112,19 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user['username']);
-        if (count($patientsToHide)) {
-            $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
-            foreach ($patientsToHide as $patientToHide) {
-                $filterString .= "?,";
+        if ($user !== false) {
+            $patientsToHide = $this->getBlacklist($user['username']);
+            if (count($patientsToHide)) {
+                $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
+                foreach ($patientsToHide as $patientToHide) {
+                    $filterString .= "?,";
+                }
+                $filterString = rtrim($filterString, ",");
+                $filterString .= "))";
+                $boundFilter = $appointmentsFilterEvent->getBoundFilter();
+                $boundFilter->setFilterClause($filterString);
+                $boundFilter->setBoundValues($patientsToHide);
             }
-            $filterString = rtrim($filterString, ",");
-            $filterString .= "))";
-            $boundFilter = $appointmentsFilterEvent->getBoundFilter();
-            $boundFilter->setFilterClause($filterString);
-            $boundFilter->setBoundValues($patientsToHide);
         }
 
         return $appointmentsFilterEvent;
