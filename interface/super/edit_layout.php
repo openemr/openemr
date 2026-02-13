@@ -288,7 +288,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom((string) $field_id) . "'");
     $column_exists = !empty($tmp);
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -409,7 +409,7 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 // AI/Claude Code change: Validate against known layouts to prevent any tainted user input from propagating.
-$layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
+$layout_id = empty($_REQUEST['layout_id']) ? '' : (string) $_REQUEST['layout_id'];
 if ($layout_id !== '' && !isset($layouts[$layout_id])) {
     $layout_id = '';
 }
@@ -1577,7 +1577,7 @@ if ($layout_id) {
     );
     $language_choice = $session->get('language_choice');
     while ($row = sqlFetchArray($res)) {
-        $group_id = $row['grp_group_id'];
+        $group_id = (string) $row['grp_group_id'];
         // Skip if this is the top level layout and (as expected) it has no fields.
         if ($group_id === '' && empty($row['form_id'])) {
             continue;
@@ -1596,11 +1596,11 @@ if ($layout_id) {
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
-            for ($i = 1; $i <= strlen((string) $group_id); ++$i) {
+            for ($i = 1, $iMax = strlen($group_id); $i <= $iMax; ++$i) {
                 if ($gdispname) {
                     $gdispname .= ' / ';
                 }
-                $gdispname .= $grparr[substr((string) $group_id, 0, $i)]['grp_title'];
+                $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 

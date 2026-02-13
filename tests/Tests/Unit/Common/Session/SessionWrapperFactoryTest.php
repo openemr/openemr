@@ -80,16 +80,6 @@ class SessionWrapperFactoryTest extends TestCase
     }
 
     /**
-     * Helper to set a private property on the factory via reflection
-     */
-    private function setFactoryProperty(SessionWrapperFactory $factory, string $property, mixed $value): void
-    {
-        $reflection = new ReflectionClass($factory);
-        $prop = $reflection->getProperty($property);
-        $prop->setValue($factory, $value);
-    }
-
-    /**
      * Helper to get a private property from the factory via reflection
      */
     private function getFactoryProperty(SessionWrapperFactory $factory, string $property): mixed
