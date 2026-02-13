@@ -1710,7 +1710,7 @@ class GaclApi extends Gacl {
                 return FALSE;
             }
 
-            if ($rs->RowCount() > 0) {
+            if ($rs->rowCount() > 0) {
                 $this->debug_text('add_group (): A root group already exists.');
                 $this->db->RollbackTrans();
                 return FALSE;
@@ -2730,7 +2730,7 @@ class GaclApi extends Gacl {
         }
 
         // Return all objects
-        return $rs->GetRows();
+        return $rs->getRows();
     }
 
     /**
