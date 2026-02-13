@@ -35,8 +35,12 @@ function postcalendar_adminapi_updateCategories($args)
     }
 
     $conn = pnDBGetConn();
-    foreach ($updates as $update) {
-        $conn->executeStatement($update);
+    try {
+        foreach ($updates as $update) {
+            $conn->executeStatement($update);
+        }
+    } catch (Doctrine\DBAL\Exception $e) {
+        return false;
     }
 
     return true;
@@ -49,7 +53,11 @@ function postcalendar_adminapi_deleteCategories($args)
     }
 
     $conn = pnDBGetConn();
-    $conn->executeStatement($delete);
+    try {
+        $conn->executeStatement($delete);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return false;
+    }
 
     return true;
 }
@@ -70,25 +78,29 @@ function postcalendar_adminapi_addCategories($args)
                                 pc_end_date_freq,pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec)
                                 VALUES ('',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    $conn->executeStatement($sql, [
-        $name,
-        trim($constantid),
-        trim($desc),
-        $color,
-        $repeat,
-        $spec,
-        $recurrfreq,
-        $duration,
-        $limitid,
-        $end_date_flag,
-        $end_date_type,
-        $end_date_freq,
-        $end_all_day,
-        $value_cat_type,
-        $active,
-        $sequence,
-        $aco,
-    ]);
+    try {
+        $conn->executeStatement($sql, [
+            $name,
+            trim($constantid),
+            trim($desc),
+            $color,
+            $repeat,
+            $spec,
+            $recurrfreq,
+            $duration,
+            $limitid,
+            $end_date_flag,
+            $end_date_type,
+            $end_date_freq,
+            $end_all_day,
+            $value_cat_type,
+            $active,
+            $sequence,
+            $aco,
+        ]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return false;
+    }
 
     return true;
 }

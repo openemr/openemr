@@ -54,7 +54,11 @@ function pnModGetVar($modname, $name)
               FROM $modulevarstable
               WHERE $modulevarscolumn[modname] = ?
               AND $modulevarscolumn[name] = ?";
-    $value = $conn->fetchOne($query, [$modname, $name]);
+    try {
+        $value = $conn->fetchOne($query, [$modname, $name]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($value === false) {
         $pnmodvar[$modname][$name] = false;
@@ -85,19 +89,23 @@ function pnModSetVar($modname, $name, $value)
 
     $modulevarstable = $pntable['module_vars'];
     $modulevarscolumn = &$pntable['module_vars_column'];
-    if (!isset($curvar)) {
-        $query = "INSERT INTO $modulevarstable
-                     ($modulevarscolumn[modname],
-                      $modulevarscolumn[name],
-                      $modulevarscolumn[value])
-                  VALUES (?, ?, ?)";
-        $conn->executeStatement($query, [$modname, $name, $value]);
-    } else {
-        $query = "UPDATE $modulevarstable
-                  SET $modulevarscolumn[value] = ?
-                  WHERE $modulevarscolumn[modname] = ?
-                  AND $modulevarscolumn[name] = ?";
-        $conn->executeStatement($query, [$value, $modname, $name]);
+    try {
+        if (!isset($curvar)) {
+            $query = "INSERT INTO $modulevarstable
+                         ($modulevarscolumn[modname],
+                          $modulevarscolumn[name],
+                          $modulevarscolumn[value])
+                      VALUES (?, ?, ?)";
+            $conn->executeStatement($query, [$modname, $name, $value]);
+        } else {
+            $query = "UPDATE $modulevarstable
+                      SET $modulevarscolumn[value] = ?
+                      WHERE $modulevarscolumn[modname] = ?
+                      AND $modulevarscolumn[name] = ?";
+            $conn->executeStatement($query, [$value, $modname, $name]);
+        }
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
     }
 
     global $pnmodvar;
@@ -130,7 +138,11 @@ function pnModGetIDFromName($module)
     $query = "SELECT $modulescolumn[id]
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
-    $id = $conn->fetchOne($query, [$module]);
+    try {
+        $id = $conn->fetchOne($query, [$module]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($id === false) {
         $modid[$module] = false;
@@ -173,7 +185,11 @@ function pnModGetInfo($modid)
                      $modulescolumn[version]
               FROM $modulestable
               WHERE $modulescolumn[id] = ?";
-    $row = $conn->fetchNumeric($query, [$modid]);
+    try {
+        $row = $conn->fetchNumeric($query, [$modid]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($row === false) {
         $modinfo[$modid] = false;
@@ -217,7 +233,11 @@ function pnModAPILoad($modname, $type = 'user')
                      $modulescolumn[state]
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
-    $row = $conn->fetchNumeric($query, [$modname]);
+    try {
+        $row = $conn->fetchNumeric($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($row === false) {
         return false;
@@ -271,7 +291,11 @@ function pnModDBInfoLoad($modname, $directory = '')
         $sql = "SELECT $modulescolumn[directory]
                 FROM $modulestable
                 WHERE $modulescolumn[name] = ?";
-        $directory = $conn->fetchOne($sql, [$modname]);
+        try {
+            $directory = $conn->fetchOne($sql, [$modname]);
+        } catch (Doctrine\DBAL\Exception $e) {
+            return false;
+        }
         if ($directory === false) {
             return false;
         }
@@ -323,7 +347,11 @@ function pnModLoad($modname, $type = 'user')
                      $modulescolumn[state]
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
-    $row = $conn->fetchNumeric($query, [$modname]);
+    try {
+        $row = $conn->fetchNumeric($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($row === false) {
         return false;
@@ -510,7 +538,11 @@ function pnModAvailable($modname)
     $query = "SELECT $modulescolumn[state]
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
-    $state = $conn->fetchOne($query, [$modname]);
+    try {
+        $state = $conn->fetchOne($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception $e) {
+        return;
+    }
 
     if ($state === false) {
         $modstate[$modname] = _PNMODULE_STATE_MISSING;

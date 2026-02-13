@@ -506,7 +506,12 @@ function &postcalendar_userapi_getCategories()
             pc_dailylimit,pc_end_date_flag,pc_end_date_type,pc_end_date_freq,
             pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec FROM $cat_table
             ORDER BY pc_catname";
-    $result = $conn->executeQuery($sql);
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        $categories = [];
+        return $categories;
+    }
 
     $categories = [];
     $i = 0;
@@ -552,7 +557,12 @@ function &postcalendar_userapi_getTopics()
     $sql = "SELECT $topics_column[topicid], $topics_column[topictext], $topics_column[topicname]
             FROM $topics_table
             ORDER BY $topics_column[topictext]";
-    $result = $conn->executeQuery($sql);
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        $data = false;
+        return $data;
+    }
 
     $data = [];
     $i = 0;

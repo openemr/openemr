@@ -107,9 +107,13 @@ function pnConfigInit(): bool
                      $columns[value]
               FROM $table
               WHERE $columns[modname]= ?";
-    $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+    try {
+        $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+        $rows = $result->fetchAllNumeric();
+    } catch (Doctrine\DBAL\Exception $e) {
+        return false;
+    }
 
-    $rows = $result->fetchAllNumeric();
     if (empty($rows)) {
         return false;
     }
@@ -153,7 +157,11 @@ function pnConfigGetVar($name)
                   FROM $table
                   WHERE $columns[modname]= ?
                     AND $columns[name]= ?";
-        $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+        try {
+            $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+        } catch (Doctrine\DBAL\Exception $e) {
+            return false;
+        }
 
         if ($value === false) {
             return false;
