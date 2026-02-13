@@ -689,25 +689,17 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //  END SEARCH FUNCTIONALITY
   //======================================================================
   //echo "<Br />sql: $sql<br />";
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
-    }
+    $result = $conn->executeQuery($sql);
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // get the results from the query
         //RM include address
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
+        $tmp = [];
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -818,8 +810,6 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -1006,25 +996,17 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
-    }
+    $result = $conn->executeQuery($sql);
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
 
         // get the results from the query
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
+        $tmp = [];
         [
             $tmp['eid'],
             $tmp['uname'],
@@ -1067,7 +1049,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_name'],
             $tmp['group_type'],
             $tmp['group_status'],
-        ] = $result->fields;
+        ] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1180,8 +1162,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
