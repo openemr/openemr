@@ -109,20 +109,15 @@ function pnConfigInit()
     $query = "SELECT $columns[name],
                      $columns[value]
               FROM $table
-              WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'";
-    $dbresult = $dbconn->Execute($query);
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $columns[modname]= ?";
+    $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+
+    $rows = $result->fetchAllNumeric();
+    if (empty($rows)) {
         return false;
     }
 
-    if ($dbresult->EOF) {
-        $dbresult->Close();
-        return false;
-    }
-
-    while (!$dbresult->EOF) {
-        [$k, $v] = $dbresult->fields;
-        $dbresult->MoveNext();
+    foreach ($rows as [$k, $v]) {
         if (
             !in_array($k, ['dbtype', 'dbhost', 'dbuname', 'dbpass', 'dbname', 'system', 'prefix', 'encoded'])
         ) {
@@ -130,7 +125,6 @@ function pnConfigInit()
         }
     }
 
-    $dbresult->Close();
     return true;
 }
 
@@ -160,37 +154,23 @@ function pnConfigGetVar($name)
          */
         $query = "SELECT $columns[value]
                   FROM $table
-                  WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'
-                    AND $columns[name]='" . pnVarPrepForStore($name) . "'";
-        $dbresult = $dbconn->Execute($query);
+                  WHERE $columns[modname]= ?
+                    AND $columns[name]= ?";
+        $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
 
-        /*
-         * In any case of error return false
-         */
-        if ($dbconn->ErrorNo() != 0) {
-            return false;
-        }
-
-        if ($dbresult->EOF) {
-            $dbresult->Close();
+        if ($value === false) {
             return false;
         }
 
         /*
          * Get data
          */
-        [$result] = $dbresult->fields;
-        $result = unserialize($result, ['allowed_classes' => false]);
+        $result = unserialize($value, ['allowed_classes' => false]);
 
         /*
          * Some caching
          */
         $pnconfig[$name] = $result;
-
-        /*
-         * That's all folks
-         */
-        $dbresult->Close();
     }
 
     return $result;
