@@ -292,4 +292,10 @@ class Database
         // This shouldn't be reachable without very weird driver settings
         return null;
     }
+
+    /** @deprecated */
+    public function getDbalConnection(): Connection
+    {
+        return $this->conn;
+    }
 }
