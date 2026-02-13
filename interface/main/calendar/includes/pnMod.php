@@ -52,21 +52,14 @@ function pnModGetVar($modname, $name)
     $modulevarscolumn = &$pntable['module_vars_column'];
     $query = "SELECT $modulevarscolumn[value]
               FROM $modulevarstable
-              WHERE $modulevarscolumn[modname] = '" . pnVarPrepForStore($modname) . "'
-              AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulevarscolumn[modname] = ?
+              AND $modulevarscolumn[name] = ?";
+    $value = $conn->fetchOne($query, [$modname, $name]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($value === false) {
         $pnmodvar[$modname][$name] = false;
         return;
     }
-
-    [$value] = $result->fields;
-    $result->Close();
 
     $pnmodvar[$modname][$name] = $value;
     return $value;
@@ -97,21 +90,14 @@ function pnModSetVar($modname, $name, $value)
                      ($modulevarscolumn[modname],
                       $modulevarscolumn[name],
                       $modulevarscolumn[value])
-                  VALUES
-                     ('" . pnVarPrepForStore($modname) . "',
-                      '" . pnVarPrepForStore($name) . "',
-                      '" . pnVarPrepForStore($value) . "');";
+                  VALUES (?, ?, ?)";
+        $conn->executeStatement($query, [$modname, $name, $value]);
     } else {
         $query = "UPDATE $modulevarstable
-                  SET $modulevarscolumn[value] = '" . pnVarPrepForStore($value) . "'
-                  WHERE $modulevarscolumn[modname] = '" . pnVarPrepForStore($modname) . "'
-                  AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
-    }
-
-    $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
-        return;
+                  SET $modulevarscolumn[value] = ?
+                  WHERE $modulevarscolumn[modname] = ?
+                  AND $modulevarscolumn[name] = ?";
+        $conn->executeStatement($query, [$value, $modname, $name]);
     }
 
     global $pnmodvar;
@@ -143,20 +129,13 @@ function pnModGetIDFromName($module)
     $modulescolumn = &$pntable['modules_column'];
     $query = "SELECT $modulescolumn[id]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($module) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulescolumn[name] = ?";
+    $id = $conn->fetchOne($query, [$module]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($id === false) {
         $modid[$module] = false;
         return false;
     }
-
-    [$id] = $result->fields;
-    $result->Close();
 
     $modid[$module] = $id;
     return $id;
@@ -193,20 +172,15 @@ function pnModGetInfo($modid)
                      $modulescolumn[description],
                      $modulescolumn[version]
               FROM $modulestable
-              WHERE $modulescolumn[id] = '" . pnVarPrepForStore($modid) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulescolumn[id] = ?";
+    $row = $conn->fetchNumeric($query, [$modid]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($row === false) {
         $modinfo[$modid] = false;
         return false;
     }
 
-    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $result->fields;
-    $result->Close();
+    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $row;
 
     $modinfo[$modid] = $resarray;
     return $resarray;
@@ -242,19 +216,14 @@ function pnModAPILoad($modname, $type = 'user')
                      $modulescolumn[directory],
                      $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulescolumn[name] = ?";
+    $row = $conn->fetchNumeric($query, [$modname]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($row === false) {
         return false;
     }
 
-    [$name, $directory, $state] = $result->fields;
-    $result->Close();
+    [$name, $directory, $state] = $row;
 
     [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
 
@@ -301,18 +270,11 @@ function pnModDBInfoLoad($modname, $directory = '')
         $modulescolumn = &$pntable['modules_column'];
         $sql = "SELECT $modulescolumn[directory]
                 FROM $modulestable
-                WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-        $result = $dbconn->Execute($sql);
-        if ($dbconn->ErrorNo() != 0) {
-            return;
-        }
-
-        if ($result->EOF) {
+                WHERE $modulescolumn[name] = ?";
+        $directory = $conn->fetchOne($sql, [$modname]);
+        if ($directory === false) {
             return false;
         }
-
-        $directory = $result->fields[0];
-        $result->Close();
     }
 
     // Load the database definition if required
@@ -360,19 +322,14 @@ function pnModLoad($modname, $type = 'user')
     $query = "SELECT $modulescolumn[directory],
                      $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulescolumn[name] = ?";
+    $row = $conn->fetchNumeric($query, [$modname]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($row === false) {
         return false;
     }
 
-    [$directory, $state] = $result->fields;
-    $result->Close();
+    [$directory, $state] = $row;
 
     // Load the module and module language files
     [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
@@ -552,20 +509,13 @@ function pnModAvailable($modname)
     $modulescolumn = &$pntable['modules_column'];
     $query = "SELECT $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
+              WHERE $modulescolumn[name] = ?";
+    $state = $conn->fetchOne($query, [$modname]);
 
-    if ($dbconn->ErrorNo() != 0) {
-        return;
-    }
-
-    if ($result->EOF) {
+    if ($state === false) {
         $modstate[$modname] = _PNMODULE_STATE_MISSING;
         return false;
     }
-
-    [$state] = $result->fields;
-    $result->Close();
 
     $modstate[$modname] = $state;
     if ($state == _PNMODULE_STATE_ACTIVE) {
