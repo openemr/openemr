@@ -1682,11 +1682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$_db_encoding_setting \\(bool\\) does not accept string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$_db_host \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
@@ -1707,7 +1702,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$db \\(object\\) does not accept ADOConnection\\|false\\.$#',
+    'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$db \\(ADOConnection\\) does not accept ADOConnection\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

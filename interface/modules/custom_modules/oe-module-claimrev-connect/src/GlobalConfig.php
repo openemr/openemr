@@ -10,7 +10,9 @@
  * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -49,18 +51,20 @@ class GlobalConfig
 
     /**
      * Returns true if all of the settings have been configured.  Otherwise it returns false.
-     *
-     * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
-        // $keys = [self::CONFIG_OPTION_TEXT, self::CONFIG_OPTION_ENCRYPTED];
-        // foreach ($keys as $key) {
-        //     $value = $this->getGlobalSetting($key);
-        //     if (empty($value)) {
-        //         return false;
-        //     }
-        // }
+        $requiredKeys = [
+            self::CONFIG_OPTION_ENVIRONMENT,
+            self::CONFIG_OPTION_CLIENTID,
+            self::CONFIG_OPTION_CLIENTSECRET,
+        ];
+        foreach ($requiredKeys as $key) {
+            $value = $this->getGlobalSetting($key);
+            if ($value === null || $value === '') {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -109,25 +113,6 @@ class GlobalConfig
     public function getAutoSendFiles()
     {
         return $this->getGlobalSetting(self::CONFIG_AUTO_SEND_CLAIM_FILES);
-    }
-
-
-
-
-    public function getTextOption()
-    {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
-    }
-
-    /**
-     * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
-     *
-     * @return bool|string
-     */
-    public function getEncryptedOption()
-    {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
     }
 
     public function getGlobalSetting($settingKey)

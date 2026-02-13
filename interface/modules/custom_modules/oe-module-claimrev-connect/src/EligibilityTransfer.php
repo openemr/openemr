@@ -116,14 +116,14 @@ class EligibilityTransfer extends BaseService
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
                 // Create a directory
-                mkdir($savePath, 0777, true);
+                mkdir($savePath, 0750, true);
             }
 
             $fileText = $raw271;
             $fileName = $result->claimRevResultId;
             $filePathName =  $savePath . $fileName . '.txt';
             file_put_contents($filePathName, $fileText);
-            chmod($filePathName, 0777);
+            chmod($filePathName, 0640);
         }
 
         if ($result->retryLater) {
