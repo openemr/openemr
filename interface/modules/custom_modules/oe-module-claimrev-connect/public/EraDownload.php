@@ -18,6 +18,7 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\EraPage;
+use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     AccessDeniedHelper::denyWithTemplate(
@@ -34,6 +35,10 @@ try {
 } catch (\InvalidArgumentException) {
     http_response_code(400);
     echo xlt('Invalid ERA ID format');
+    exit;
+} catch (ClaimRevApiException) {
+    http_response_code(500);
+    echo xlt('Failed to download ERA file. Please try again later.');
     exit;
 }
 
