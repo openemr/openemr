@@ -434,7 +434,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         if (!empty($race)) {
             $record = $this->getCachedListOption('race', $race);
-            if ($race === 'declne_to_specfy') { // TODO: we should rename this misspelled value in the database
+            if ($race === 'decline_to_specify' || $race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
@@ -474,7 +474,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if (!empty($record)) {
                 $textExtension->setValueString($record['title']);
                 // the only possible options for ombCategory are hispanic or not hispanic
-                if ($record['option_id'] != 'declne_to_specfy') {
+                if ($record['option_id'] != 'decline_to_specify' && $record['option_id'] != 'declne_to_specfy') {
                     $coding = new FHIRCoding();
                     $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
                     $coding->setCode($record['notes']);
