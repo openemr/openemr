@@ -31,7 +31,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
     const QUESTIONNAIRE_NAME_1 = 'PHPUnit Test Questionnaire';
     const QUESTIONNAIRE_NAME_2 = 'blah blah blah';
 
-    private SessionInterface $session;
+    private readonly SessionInterface $session;
 
     private readonly string $questionnaireTemplate;
 
