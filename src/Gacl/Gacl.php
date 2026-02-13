@@ -50,7 +50,7 @@ class Gacl {
     --- Database configuration. ---
     */
     /** @var string Prefix for all the phpgacl tables in the database */
-    private $_db_table_prefix = 'gacl_';
+    public $_db_table_prefix = 'gacl_';
 
     /** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
     private $_db_type = 'mysqli';
@@ -74,7 +74,7 @@ class Gacl {
     private $_db_encoding_setting = '';
 
     /** @var object An ADODB database connector object */
-    private $db;
+    protected $db;
 
     /*
      * NOTE:    This cache must be manually cleaned each time ACL's are modified.
@@ -82,10 +82,10 @@ class Gacl {
      */
 
     /** @var boolean Caches queries if true */
-    private $_caching = FALSE;
+    protected $_caching = FALSE;
 
     /** @var boolean Force cache to expire */
-    private $_force_cache_expire = TRUE;
+    protected $_force_cache_expire = TRUE;
 
     /** @var string The directory for cache file to eb written (ensure write permission are set) */
     private $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
