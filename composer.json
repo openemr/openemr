@@ -131,6 +131,7 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "iamcal/sql-parser": "^0.7.0",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",

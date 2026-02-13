@@ -14,6 +14,7 @@
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
+    "iamcal\\SQLParser",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
     "OpenEMR\\Common\\Utils\\Error",

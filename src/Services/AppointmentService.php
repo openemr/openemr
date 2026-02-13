@@ -610,6 +610,9 @@ class AppointmentService extends BaseService
 
         $userService = new UserService();
         $user = $userService->getUser($appointment['pc_aid']);
+        if ($user === false) {
+            throw new \RuntimeException("User not found for appointment");
+        }
         $authGroup = $userService->getAuthGroupForUser($user['username']);
 
         $pos_code = QueryUtils::fetchSingleValue(

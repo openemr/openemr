@@ -1,0 +1,83 @@
+# Validates that TableTypes.php PHPStan type definitions match database.sql
+#
+# This workflow ensures that changes to database schema (sql/database.sql)
+# are reflected in the generated PHPStan type aliases. If this check fails,
+# regenerate TableTypes.php using the command shown in the job summary.
+name: PHPStan Types
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - sql/database.sql
+    - src/Common/Database/TableTypes.php
+    - src/Common/Command/GeneratePhpstanTypesCommand.php
+    - bin/generate-phpstan-types.php
+    - .github/workflows/phpstan-types.yml
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - sql/database.sql
+    - src/Common/Database/TableTypes.php
+    - src/Common/Command/GeneratePhpstanTypesCommand.php
+    - bin/generate-phpstan-types.php
+    - .github/workflows/phpstan-types.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check-phpstan-types:
+    name: Check TableTypes.php is up-to-date
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.2'
+
+    - name: Regenerate TableTypes.php
+      run: |
+        php bin/generate-phpstan-types.php sql/database.sql \
+          patient_data users form_encounter insurance_data billing \
+          > src/Common/Database/TableTypes.php
+
+    - name: Check for differences
+      run: |
+        if ! git diff --exit-code src/Common/Database/TableTypes.php; then
+          {
+            echo "## ❌ TableTypes.php is out of date"
+            echo ""
+            echo "The generated PHPStan types do not match \`database.sql\`."
+            echo ""
+            echo "### How to fix"
+            echo ""
+            echo "Run this command from the repository root and commit the result:"
+            echo ""
+            echo "\`\`\`bash"
+            echo "php bin/generate-phpstan-types.php sql/database.sql \\"
+            echo "  patient_data users form_encounter insurance_data billing \\"
+            echo "  > src/Common/Database/TableTypes.php"
+            echo "\`\`\`"
+            echo ""
+            echo "### What changed"
+            echo ""
+            echo "\`\`\`diff"
+            git diff src/Common/Database/TableTypes.php
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+        echo "## ✅ TableTypes.php is up-to-date" >> "$GITHUB_STEP_SUMMARY"
