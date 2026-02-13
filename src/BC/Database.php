@@ -21,7 +21,6 @@ use Doctrine\DBAL\{
 };
 use LogicException;
 use OpenEMR\Core\OEGlobalsBag;
-use PDO;
 use PDOException;
 
 /**
@@ -57,8 +56,8 @@ class Database
     public static function instance(): Database
     {
         if (self::$instance === null) {
-            $params = self::readLegacyConfig();
-            $connection = DriverManager::getConnection($params);
+            $options = self::readLegacyConfig();
+            $connection = DriverManager::getConnection($options->toDbalParams());
             self::$instance = new self($connection);
         }
         return self::$instance;
@@ -76,76 +75,19 @@ class Database
     /**
      * Parses the <=8.0.0 (and probably later) db config files into a format
      * usable by `doctrine/dbal`.
-     *
-     * @return array{
-     *   driver: 'pdo_mysql',
-     *   dbname: string,
-     *   host: string,
-     *   port: int,
-     *   user: string,
-     *   password: string,
-     *   charset: string,
-     *   driverOptions: array<PDO::MYSQL_*, string>,
-     * }
      */
-    private static function readLegacyConfig(): array
+    private static function readLegacyConfig(): DatabaseConnectionOptions
     {
         $bag = OEGlobalsBag::getInstance();
-        $sqlconf = $bag->get('sqlconf');
-        if (!is_array($sqlconf)) {
-            throw new LogicException(
-                'sqlconf empty or missing. Was interface/globals.php included?'
-            );
-        }
-        // replicate the same ssl cert detection in a compatible format
-
-        $connParams = [
-            'driver' => 'pdo_mysql',
-            'dbname' => is_string($sqlconf['dbase']) ? $sqlconf['dbase'] : '',
-            'host' => is_string($sqlconf['host']) ? $sqlconf['host'] : '',
-            'port' => is_int($sqlconf['port']) ? $sqlconf['port'] : 0,
-            'user' => is_string($sqlconf['login']) ? $sqlconf['login'] : '',
-            'password' => is_string($sqlconf['pass']) ? $sqlconf['pass'] : '',
-            'charset' => is_string($sqlconf['db_encoding']) ? $sqlconf['db_encoding'] : 'utf8mb4',
-        ];
 
         $siteDir = $bag->getString('OE_SITE_DIR');
-        $options = self::inferSslOptions($siteDir);
-        $connParams['driverOptions'] = $options;
-
-        return $connParams;
-    }
-
-    /**
-     * Inspects the filesystem for MySQL certificate files in
-     * OE_SITE_DIR/documents/certificates and, if present, returns PDO SSL
-     * options to use them.
-     *
-     * @param string $siteDir The currently-active site directory (OE_SITE_DIR,
-     * typically speaking).
-     *
-     * @return array<PDO::MYSQL_*, string>
-     */
-    private static function inferSslOptions(string $siteDir): array
-    {
-        $options = [];
-
-        $certDir = sprintf('%s/documents/certificates', $siteDir);
-        $caFile = sprintf('%s/mysql-ca', $certDir);
-        $cert = sprintf('%s/mysql-cert', $certDir);
-        $key = sprintf('%s/mysql-key', $certDir);
-        if (file_exists($caFile)) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
-        }
-        if (file_exists($cert) || file_exists($key)) {
-            if (!file_exists($cert) || !file_exists($key)) {
-                throw new LogicException('MySQL cert or key file missing. You need both or neither.');
-            }
-            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
-            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
+        if ($siteDir === '') {
+            throw new LogicException(
+                'OE_SITE_DIR not set. Was interface/globals.php included?'
+            );
         }
 
-        return $options;
+        return DatabaseConnectionOptions::forSite($siteDir);
     }
 
     /**
