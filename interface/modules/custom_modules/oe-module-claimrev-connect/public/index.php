@@ -65,9 +65,9 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
                 <h6><?php echo xlt("Support/Sales"); ?></h6>
                 <ul>
-                    <li> <?php echo xlt("Call"); ?>: <a href="tel:9189430020">1-918-943-0020</a>   </li>
-                    <li> <?php echo xlt("Email Support"); ?>: <a href="mailto:support@claimrev.com">support@claimrev.com</a> </li>
-                    <li> <?php echo xlt("Email Sales"); ?>: <a href="mailto:sales@claimrev.com">sales@claimrev.com</a> </li>
+                    <li><?php echo xlt("Call"); ?>: <a href="tel:9189430020">1-918-943-0020</a></li>
+                    <li><?php echo xlt("Email Support"); ?>: <a href="mailto:support@claimrev.com">support@claimrev.com</a></li>
+                    <li><?php echo xlt("Email Sales"); ?>: <a href="mailto:sales@claimrev.com">sales@claimrev.com</a></li>
                 </ul>
             </div>
 
