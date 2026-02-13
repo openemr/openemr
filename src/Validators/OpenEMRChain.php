@@ -18,10 +18,7 @@ use Particle\Validator\Chain;
 
 class OpenEMRChain extends Chain
 {
-    /**
-     * @return $this
-     */
-    public function listOption($listId)
+    public function listOption($listId): self
     {
         return $this->addRule(new ListOptionRule($listId));
     }

@@ -19,8 +19,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 use OpenEMR\Validators\OpenEMRParticleValidator;
 use OpenEMR\Validators\OpenEMRChain;
 use Particle\Validator\Validator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class OpenEMRParticleValidatorTest extends TestCase
 {
     private OpenEMRParticleValidator $validator;
