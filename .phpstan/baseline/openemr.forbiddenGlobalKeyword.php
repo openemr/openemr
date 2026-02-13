@@ -1957,7 +1957,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Session/PatientSessionUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$sqlconf, \\$disable_utf8_flag\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$disable_utf8_flag\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

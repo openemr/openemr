@@ -59,6 +59,7 @@ class DatabaseConnectionFactory
         $dir = $root . '/vendor/adodb/adodb-php';
         // require_once $dir . '/adodb.inc.php';
         // adodb is in composer autoload_files path
+        // adodb-pager.inc.php?
         require_once $dir . '/drivers/adodb-mysqli.inc.php';
         require_once $root . '/library/ADODB_mysqli_log.php';
     }

@@ -20,6 +20,12 @@
 
 namespace OpenEMR\Gacl;
 
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+};
+use OpenEMR\Core\OEGlobalsBag;
+
 /*
  * Path to ADODB.
  */
@@ -30,9 +36,9 @@ if ( !defined('ADODB_DIR') ) {
 //openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
 // also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(__DIR__ . "/../../library/sqlconf.php");
-require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+// require_once(__DIR__ . "/../../library/sqlconf.php");
+// require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
+// require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 
 class Gacl {
     /*
@@ -51,21 +57,6 @@ class Gacl {
     */
     /**  Prefix for all the phpgacl tables in the database */
     public string $_db_table_prefix = 'gacl_';
-
-    /** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-    private string $_db_type = 'mysqli';
-
-    /** @var string The database server */
-    private $_db_host = '';
-
-    /** @var string The database user name */
-    private $_db_user = '';
-
-    /** @var string The database user password */
-    private $_db_password = '';
-
-    /** @var string The database name */
-    private $_db_name = '';
 
     /** @var \ADOConnection An ADODB database connector object */
     private $_db;
@@ -98,11 +89,10 @@ class Gacl {
 
     /**
      * Constructor
-     * @param ?array $options An array of options to override the class defaults
+     * @param array $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
-
-        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time'];
+        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
 
         //Values supplied in $options array overwrite those in the config file.
         if ( file_exists($this->config_file) ) {
@@ -129,14 +119,22 @@ class Gacl {
             }
         }
 
+        $bag = OEGlobalsBag::getInstance();
+        $site = $bag->getString('OE_SITE_DIR');
+        $dbConfig = DatabaseConnectionOptions::forSite($site);
+
+        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+            $persistent = true;
+        } else {
+            $persistent = false;
+        }
+
+        $db = DatabaseConnectionFactory::createAdodb($dbConfig, persistent: $persistent);
+
+        global $disable_utf8_flag;
         //collect openemr sql info from include at top of script - bm 05-2009
-        global $sqlconf, $disable_utf8_flag;
-        $this->_db_host = $sqlconf["host"];
-        $this->_db_user = $sqlconf["login"];
-        $this->_db_password = $sqlconf["pass"];
-        $this->_db_name = $sqlconf["dbase"];
         if (!$disable_utf8_flag) {
-            if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
+            if ($dbConfig->charset === 'utf8mb4') {
                 $this->_db_encoding_setting = "utf8mb4";
             } else {
                 $this->_db_encoding_setting = "utf8";
@@ -145,45 +143,17 @@ class Gacl {
             $this->_db_encoding_setting = "";
         }
 
-        require_once( ADODB_DIR .'/adodb.inc.php');
-        require_once( ADODB_DIR .'/adodb-pager.inc.php');
+        // require_once( ADODB_DIR .'/adodb.inc.php');
+        // require_once( ADODB_DIR .'/adodb-pager.inc.php');
 
+        // fixme: just read this straight out of $options arg
         if (is_object($this->_db)) {
             $this->db = &$this->_db;
         } else {
-            $this->db = ADONewConnection($this->_db_type);
+            $this->db = $db;
             //Use NUM for slight performance/memory reasons.
             $this->db->SetFetchMode(ADODB_FETCH_NUM);
 
-            // Set mysql to use ssl, if applicable.
-            // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-            // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-                if (defined('MYSQLI_CLIENT_SSL')) {
-                    if (
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-                    ) {
-                        // with client side certificate/key
-                        $this->db->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                        $this->db->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    } else {
-                        // without client side certificate/key
-                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    }
-                    $this->db->clientFlags = MYSQLI_CLIENT_SSL;
-                }
-            }
-
-            // Port to be used in connection
-            $this->db->port = $sqlconf["port"];
-
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-                $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-            } else {
-                $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-            }
             // Modified 5/2009 by BM for UTF-8 project
             if ($this->_db_encoding_setting == "utf8mb4") {
                 $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
@@ -735,4 +705,3 @@ class Gacl {
         }
     }
 }
-?>
