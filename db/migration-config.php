@@ -7,6 +7,11 @@ declare(strict_types=1);
  *
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#configuration
  *
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 return [
