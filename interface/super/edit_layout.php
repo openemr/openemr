@@ -288,7 +288,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom((string) $field_id) . "'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", [(string) $field_id]); // AI/Claude Code refactored to parametrized query
     $column_exists = !empty($tmp);
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
