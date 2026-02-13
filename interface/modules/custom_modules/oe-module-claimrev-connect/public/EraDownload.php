@@ -1,12 +1,15 @@
 <?php
 
 /**
+ * ERA file download handler
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -28,9 +31,9 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Type: application/force-download");
+    header("Content-Type: application/edi-x12");
     header("Content-Length: " . strlen((string) $fileViewModel->fileText));
-    header("Content-Disposition: attachment; filename=" . $fileViewModel->fileName  . ";");
+    header('Content-Disposition: attachment; filename="' . $fileViewModel->fileName . '"');
     header("Content-Description: File Transfer");
-    echo text($fileViewModel->fileText);
+    echo (string) $fileViewModel->fileText; // nosemgrep: echoed-request
     exit(0);
