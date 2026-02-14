@@ -19,6 +19,10 @@
 
 require_once(__DIR__ . "/sqlconf.php");
 
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+};
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -55,38 +59,12 @@ $ADODB_LASTDB = 'mysqli_log';
 // Skip database connection during static analysis
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
-    $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
-// Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
-// which is needed to import data in the Administration->Other->External Data Loads feature.
-// (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-    $database->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
-    $database->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
-// Set mysql to use ssl, if applicable.
-// Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-// Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-        if (defined('MYSQLI_CLIENT_SSL')) {
-            if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-            ) {
-                // with client side certificate/key
-                $database->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                $database->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                $database->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            } else {
-                // without client side certificate/key
-                $database->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            }
-            $database->clientFlags = MYSQLI_CLIENT_SSL;
-        }
-    }
-    $database->port = $port;
+    $config = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
+    $persistent = false;
     if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
-        $database->PConnect($host, $login, $pass, $dbase);
-    } else {
-        $database->connect($host, $login, $pass, $dbase);
+        $persistent = true;
     }
+    $database = DatabaseConnectionFactory::createAdodb($config, $persistent);
     $GLOBALS['adodb']['db'] = $database;
     $GLOBALS['dbh'] = $database->_connectionID;
 
@@ -98,27 +76,6 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
             echo "Check that you can ping the server " . text($host) . ".<p>";
         }
         HelpfulDie("Could not connect to server!", QueryUtils::getLastError());
-    }
-
-// Modified 5/2009 by BM for UTF-8 project ---------
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
-            if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
-            }
-        } else {
-            $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
-            if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
-            }
-        }
-    }
-
-// Turn off STRICT SQL
-    $sql_strict_set_success = $database->ExecuteNoLog("SET sql_mode = ''");
-    if (!$sql_strict_set_success) {
-        error_log("Unable to set strict sql setting: " . errorLogEscape(QueryUtils::getLastError()), 0);
     }
 
 // set up associations in adodb calls (not sure why above define
