@@ -508,7 +508,7 @@ function &postcalendar_userapi_getCategories()
             ORDER BY pc_catname";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         $categories = [];
         return $categories;
     }
@@ -559,7 +559,7 @@ function &postcalendar_userapi_getTopics()
             ORDER BY $topics_column[topictext]";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         $data = false;
         return $data;
     }

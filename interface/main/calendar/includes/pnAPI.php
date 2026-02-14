@@ -110,7 +110,7 @@ function pnConfigInit(): bool
     try {
         $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
         $rows = $result->fetchAllNumeric();
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
@@ -159,7 +159,7 @@ function pnConfigGetVar($name)
                     AND $columns[name]= ?";
         try {
             $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
-        } catch (Doctrine\DBAL\Exception $e) {
+        } catch (Doctrine\DBAL\Exception) {
             return false;
         }
 

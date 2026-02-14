@@ -39,7 +39,7 @@ function postcalendar_adminapi_updateCategories($args)
         foreach ($updates as $update) {
             $conn->executeStatement($update);
         }
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
@@ -55,7 +55,7 @@ function postcalendar_adminapi_deleteCategories($args)
     $conn = pnDBGetConn();
     try {
         $conn->executeStatement($delete);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
@@ -81,8 +81,8 @@ function postcalendar_adminapi_addCategories($args)
     try {
         $conn->executeStatement($sql, [
             $name,
-            trim($constantid),
-            trim($desc),
+            trim((string) $constantid),
+            trim((string) $desc),
             $color,
             $repeat,
             $spec,
@@ -98,7 +98,7 @@ function postcalendar_adminapi_addCategories($args)
             $sequence,
             $aco,
         ]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 

@@ -56,7 +56,7 @@ function pnModGetVar($modname, $name)
               AND $modulevarscolumn[name] = ?";
     try {
         $value = $conn->fetchOne($query, [$modname, $name]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
@@ -104,7 +104,7 @@ function pnModSetVar($modname, $name, $value)
                       AND $modulevarscolumn[name] = ?";
             $conn->executeStatement($query, [$value, $modname, $name]);
         }
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
@@ -140,7 +140,7 @@ function pnModGetIDFromName($module)
               WHERE $modulescolumn[name] = ?";
     try {
         $id = $conn->fetchOne($query, [$module]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
@@ -187,7 +187,7 @@ function pnModGetInfo($modid)
               WHERE $modulescolumn[id] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modid]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
@@ -293,7 +293,7 @@ function pnModDBInfoLoad($modname, $directory = '')
                 WHERE $modulescolumn[name] = ?";
         try {
             $directory = $conn->fetchOne($sql, [$modname]);
-        } catch (Doctrine\DBAL\Exception $e) {
+        } catch (Doctrine\DBAL\Exception) {
             return false;
         }
         if ($directory === false) {
@@ -540,7 +540,7 @@ function pnModAvailable($modname)
               WHERE $modulescolumn[name] = ?";
     try {
         $state = $conn->fetchOne($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 

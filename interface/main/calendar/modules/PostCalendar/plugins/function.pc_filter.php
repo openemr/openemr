@@ -90,7 +90,7 @@ function smarty_function_pc_filter($args, &$smarty): void
             }
 
             $useroptions .= '</select>';
-        } catch (Doctrine\DBAL\Exception $e) {
+        } catch (Doctrine\DBAL\Exception) {
             // Query failed - leave $useroptions undefined like old behavior
         }
     }
