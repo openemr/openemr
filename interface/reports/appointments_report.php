@@ -500,13 +500,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $appointments = array_merge($appointments, $availableSlots);
     }
 
+    /** @var array<int, array<string, mixed>> $appointments */
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
         // RM generate csv file with same column headers row as used in the report itself
         $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB', 'Type', 'Status'];
         $csvfields = [];
-        for ($i = 0, $iMax = count($appointments); $i < $iMax; ++$i) {
+        $iMax = count($appointments);
+        for ($i = 0; $i < $iMax; ++$i) {
               $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
               $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
               $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;

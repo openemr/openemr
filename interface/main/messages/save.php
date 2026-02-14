@@ -234,6 +234,7 @@ if ($_REQUEST['action'] == "process") {
     }
     $pc_eidList = json_decode((string) $_POST['pc_eid'], true);
     $pidList = json_decode((string) $_POST['parameter'], true);
+    $sessionSetArray = [];
     $sessionSetArray['pc_eidList'] = $pc_eidList[0];
     $sessionSetArray['pidList'] = $pidList;
     SessionUtil::setSession($sessionSetArray);

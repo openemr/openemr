@@ -29,7 +29,9 @@ if (!$thisauth) {
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$orderid = (int)$_GET['orderid'];
+/** @var string|int $rawOrderId */
+$rawOrderId = $_GET['orderid'];
+$orderid = intval($rawOrderId);
 
 $finals_only = empty($_POST['form_showall']);
 

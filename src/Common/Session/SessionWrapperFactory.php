@@ -40,7 +40,7 @@ class SessionWrapperFactory
 
     public function getActiveSession(): SessionInterface
     {
-        if ($this->isSessionActive()) {
+        if ($this->activeSession !== null) {
             return $this->activeSession;
         }
 

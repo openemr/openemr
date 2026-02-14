@@ -67,10 +67,8 @@ namespace OpenEMR\Common\Session;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Cookie;
 use SessionHandlerInterface;
-use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class SessionUtil
 {
@@ -88,8 +86,6 @@ class SessionUtil
     public const OAUTH_WEBROOT = '/oauth2/';
 
     public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
-
-    private static array $SESSION_INSTANCES = [];
 
     private static ?SessionHandlerInterface $sessionHandler;
 
@@ -117,7 +113,10 @@ class SessionUtil
         return session_start($settings);
     }
 
-    public static function setSession($session_key_or_array, $session_value = null): void
+    /**
+     * @param string|array<string, mixed> $session_key_or_array
+     */
+    public static function setSession(string|array $session_key_or_array, $session_value = null): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
@@ -140,7 +139,10 @@ class SessionUtil
         ]);
     }
 
-    public static function unsetSession($session_key_or_array): void
+    /**
+     * @param string|array<int, string> $session_key_or_array
+     */
+    public static function unsetSession(string|array $session_key_or_array): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
@@ -161,6 +163,10 @@ class SessionUtil
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $setArray
+     * @param array<int, string> $unsetArray
+     */
     public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
@@ -267,16 +273,6 @@ class SessionUtil
     public static function getAppCookie(): string
     {
         return $_COOKIE['App'] ?? '';
-    }
-
-    /**
-     * Get the session storage instance based on environment settings.
-     * @param array $sessionSettings
-     * @return SessionStorageInterface The session storage instance to use.
-     */
-    private static function getSessionStorage(array $sessionSettings): SessionStorageInterface {
-        // return the Symfony NativeSessionStorage with appropriate handler
-        return new NativeSessionStorage($sessionSettings, self::getSessionHandler());
     }
 
     /**
