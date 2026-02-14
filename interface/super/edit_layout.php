@@ -54,6 +54,7 @@ function collectLayoutNames($condition, $mapping = ''): void
         $layouts[$grow['grp_form_id']] = [$tmp, $grow['grp_title']];
     }
 }
+/** @var array<string, array{string, mixed}> $layouts */
 $layouts = [];
 collectLayoutNames("grp_form_id NOT LIKE 'LBF%' AND grp_form_id NOT LIKE 'LBT%'", xl('Core'));
 collectLayoutNames("grp_form_id LIKE 'LBT%'", xl('Transactions'));

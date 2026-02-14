@@ -51,7 +51,9 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if ((int)$GLOBALS['rest_fhir_api'] !== 1) {
+        /** @var string|int $restFhirApi */
+        $restFhirApi = $GLOBALS['rest_fhir_api'];
+        if (intval($restFhirApi) !== 1) {
             // do not show a patient summary widget if fhir portal is off
             return;
         }

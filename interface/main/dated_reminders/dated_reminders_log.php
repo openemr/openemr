@@ -24,6 +24,8 @@
 ?>
 <?php
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var int $authUserID */
+$authUserID = $session->get('authUserID');
 /*
     -------------------  HANDLE POST ---------------------
 */
@@ -34,7 +36,7 @@ if ($_GET) {
 
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = [(int)$session->get('authUserID')];
+            $_GET['sentTo'] = [$authUserID];
         }
     }
 
@@ -145,7 +147,7 @@ if ($_GET) {
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
         <?php
         $allUsers = [];
-        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [(int)$session->get('authUserID')]);
+        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [$authUserID]);
         for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
             $allUsers[] = $uRow;
         }
@@ -189,7 +191,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                        <option value="<?php echo attr((int)$session->get('authUserID')); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {
@@ -208,7 +210,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                        <option value="<?php echo attr((int)$session->get('authUserID')); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {

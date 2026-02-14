@@ -363,11 +363,11 @@ abstract class AppDispatch
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
-    public function setSession($key, $value): static
+    public function setSession(string $key, $value): static
     {
         // ensure write is allowed by using utility.
         SessionUtil::setSession($key, $value);

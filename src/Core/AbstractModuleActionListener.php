@@ -28,8 +28,6 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
-
 /**
  *
  */
@@ -42,7 +40,6 @@ abstract class AbstractModuleActionListener
     private $_post;
     private $_server;
     private $_cookies;
-    private $_session;
 
     public function __construct()
     {
@@ -51,7 +48,6 @@ abstract class AbstractModuleActionListener
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     /**

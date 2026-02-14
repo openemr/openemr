@@ -1413,7 +1413,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    private function updateLayoutEditOptions(string $mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
@@ -1434,9 +1434,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
                     $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos((string)$mode, 'add') !== false) {
+                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos((string)$mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {

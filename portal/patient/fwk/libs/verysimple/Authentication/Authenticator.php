@@ -42,12 +42,12 @@ class Authenticator
      * @access public
      * @return IAuthenticatable || null
      */
-    public static function GetCurrentUser($guid = "CURRENT_USER")
+    public static function GetCurrentUser(string $guid = "CURRENT_USER")
     {
         if (self::$user == null) {
             self::Init();
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $sessionGuid = $session->get((string) $guid);
+            $sessionGuid = $session->get($guid);
             if (!empty($sessionGuid)) {
                 self::$user = unserialize($sessionGuid);
             }
@@ -61,16 +61,16 @@ class Authenticator
      * UnsetAllSessionVars will be called before setting the current user
      *
      * @param IAuthenticatable $user
-     * @param mixed $guid
+     * @param string $guid
      *          a unique id for this session
      *
      */
-    public static function SetCurrentUser(IAuthenticatable $user, $guid = "CURRENT_USER")
+    public static function SetCurrentUser(IAuthenticatable $user, string $guid = "CURRENT_USER")
     {
         self::UnsetAllSessionVars(); // this calls Init so we don't have to here
         self::$user = $user;
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $session->set((string) $guid, serialize($user));
+        $session->set($guid, serialize($user));
     }
 
     /**

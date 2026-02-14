@@ -203,24 +203,21 @@ if ($t1 && !$t2) {
     $displaySmallLogo = 3;
 }
 
-$cookie = '';
-if ($session) {
-    $sid = urlencode($session->getId());
-    $sname = urlencode($session->getName());
-    $scparams = session_get_cookie_params();
-    $domain = $scparams['domain'];
-    $path = $scparams['path'];
-    $oldDate = gmdate('Y', strtotime("-1 years"));
-    $expires = gmdate(DATE_RFC1123, $oldDate);
-    $sameSite = empty($scparams['samesite']) ? '' : $scparams['samesite'];
-    $cookie = "{$sname}={$sid}; path={$path}; domain={$domain}; expires={$expires}";
+$sid = urlencode($session->getId());
+$sname = urlencode($session->getName());
+$scparams = session_get_cookie_params();
+$domain = $scparams['domain'];
+$path = $scparams['path'];
+$oldDate = gmdate('Y', strtotime("-1 years"));
+$expires = gmdate(DATE_RFC1123, $oldDate);
+$sameSite = empty($scparams['samesite']) ? '' : $scparams['samesite'];
+$cookie = "{$sname}={$sid}; path={$path}; domain={$domain}; expires={$expires}";
 
-    if ($sameSite) {
-        $cookie .= "; SameSite={$sameSite}";
-    }
-
-    $cookie = json_encode($cookie);
+if ($sameSite) {
+    $cookie .= "; SameSite={$sameSite}";
 }
+
+$cookie = json_encode($cookie);
 
 if ($_GET['testing_mode'] ?? 0 == 1) {
     $session->set('testing_mode', 1);
@@ -246,7 +243,7 @@ $viewArgs = [
     'displayTagline' => $globalsBag->get('show_tagline_on_login'),
     'tagline' => $globalsBag->get('login_tagline_text'),
     'displayAck' => $globalsBag->get('display_acknowledgements_on_login'),
-    'hasSession' => $session !== null,
+    'hasSession' => true,
     'cookieText' => $cookie,
     'regConstants' => json_encode(['webroot' => $globalsBag->get('webroot')]),
     'siteID' => $session->get('site_id'),

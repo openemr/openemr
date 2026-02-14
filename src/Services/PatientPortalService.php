@@ -160,16 +160,16 @@ class PatientPortalService
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed $default
      * If param not valid then entire super is returned.
      * @return mixed
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(?string $param = null, mixed $default = null): mixed
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($param) {
-            return $session->get((string) $param, $default);
+            return $session->get($param, $default);
         }
 
         return $session->all(); // TODO @zmilan: should this be array or session object?

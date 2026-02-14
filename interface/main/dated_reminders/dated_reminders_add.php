@@ -96,7 +96,7 @@ if ($_POST) {
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
         isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
-        isset($_POST['priority']) and (int)$_POST['priority'] <= 3 and
+        isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
         isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
@@ -347,9 +347,9 @@ if (isset($this_message['pid'])) {
                                     </small>
                                 </label>
                                 <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
-                                    <option value="<?php echo attr((int)$session->get('authUserID')); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($session->get('authUserID'))); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php //
-                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [(int)$session->get('authUserID')]);
+                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($session->get('authUserID'))]);
                                     for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
                                         echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                                     }

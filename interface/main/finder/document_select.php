@@ -42,7 +42,9 @@ $searchArray = [];
 $pid = $_REQUEST['pid'] ?? $session->get('pid') ?? null;
 $patientName = "";
 if (!empty($_REQUEST['pid'])) {
-    $pid = (int)$_REQUEST['pid'];
+    /** @var string|int $rawPid */
+    $rawPid = $_REQUEST['pid'];
+    $pid = intval($rawPid);
     $patientService = new PatientService();
     $patientArray = $patientService->findByPid($pid);
     if (!empty($patientArray)) {

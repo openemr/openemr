@@ -513,7 +513,7 @@ function toencounter(enc, datestr, topframe) {
                 <div class="main-section mb-5 mt-10">
                     <div class="section-2">
                         <p style="font-weight:600;">
-                            <bold class="bg-color"><?php echo text((string)$frow['name']) ?></bold> <br /> <br />
+                            <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
                             <?php echo text($frow['street']) ?><br />
                             <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?><br />
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
@@ -1256,7 +1256,7 @@ function make_insurance() {
                                 //Bringing on top the Today always
                                 foreach ($encs as $value) {
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $gottoday = true;
                                         break;
                                     }
@@ -1299,7 +1299,7 @@ function make_insurance() {
                                     $idx++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $dispdate = date("Y-m-d");
                                         $gottoday = true;
                                     }
