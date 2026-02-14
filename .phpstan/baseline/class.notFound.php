@@ -1669,11 +1669,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\$property of method OnsiteActivityViewMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method OnsiteActivityViewMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
 ];
 $ignoreErrors[] = [
