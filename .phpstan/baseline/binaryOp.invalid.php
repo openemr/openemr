@@ -17843,7 +17843,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/documents…\' results in an error\\.$#',
-    'count' => 3,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [

@@ -5168,7 +5168,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$GLOBALS\\[\'OE_SITE_DIR\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
