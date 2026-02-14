@@ -6,6 +6,10 @@ namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
 
+/**
+ * @deprecated New code should use existing DB tooling and not directly create
+ * new connections.
+ */
 class DatabaseConnectionFactory
 {
     public static function createAdodb(
@@ -50,6 +54,30 @@ class DatabaseConnectionFactory
                 argDatabaseName: $config->dbname,
             );
         }
+
+        // Configure the charset. This doesn't precisely match the previous
+        // behavior, but should handle any current installation and not disrupt
+        // upgrades.
+        $charset = strtolower($config->charset);
+        if ($charset !== 'utf8mb4') {
+            // You're running something pretty weird and probably broken. Emit
+            // a clear warning.
+            if ($charset !== 'utf8') {
+                trigger_error(
+                    'DB configured to use an unsupported character set. ' .
+                    'Only `utf8mb4` (preferred) and `utf8` (discouraged) are supported. ' .
+                    'Ignoring configuration and using `utf8`.',
+                    E_USER_DEPRECATED,
+                );
+            }
+            $charset = 'utf8';
+        }
+        $conn->ExecuteNoLog("SET NAMES '$charset'");
+        // "Turn off STRICT SQL"
+        $conn->ExecuteNoLog("SET sql_mode = ''");
+
+        // Other paths may end up customizing this further.
+
         return $conn;
     }
 
