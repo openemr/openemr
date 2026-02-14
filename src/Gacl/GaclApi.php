@@ -690,7 +690,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = $rs->GetRows();
+        $rows = is_object($rs) ? $rs->GetRows() : [];
 
         $retarr['aco'] = [];
         foreach ($rows as $row) {
@@ -706,7 +706,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aro_map a, ".$this->_db_table_prefix."aro b, ".$this->_db_table_prefix."aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = $rs->GetRows();
+        $rows = is_object($rs) ? $rs->GetRows() : [];
 
         $retarr['aro'] = [];
         foreach ($rows as $row) {
@@ -722,7 +722,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."axo_map a, ".$this->_db_table_prefix."axo b, ".$this->_db_table_prefix."axo_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = $rs->GetRows();
+        $rows = is_object($rs) ? $rs->GetRows() : [];
 
         $retarr['axo'] = [];
         foreach ($rows as $row) {
@@ -3266,7 +3266,7 @@ class GaclApi extends Gacl {
 
                     // Get rid of $object_id map referencing erased objects
                     $query = "DELETE FROM $object_map_table WHERE section_value=" . $this->db->Quote($section_value) . " AND value=" . $this->db->Quote($value);
-                    $this->db->Execute($query);
+                    $rs = $this->db->Execute($query);
 
                     if (!is_object($rs)) {
                         $this->debug_db('edit_object');
@@ -3277,7 +3277,7 @@ class GaclApi extends Gacl {
                     // Find the "orphaned" acl. I mean acl referencing the erased Object (map)
                     // not referenced anymore by other objects
 
-                    $sql_acl_ids = implode(",", $acl_ids);
+                    $sql_acl_ids = implode(",", (array)$acl_ids);
 
                     $query = '
 						SELECT		a.id
@@ -3292,7 +3292,7 @@ class GaclApi extends Gacl {
 
                 } // End of else section of "if ($object_type == "aco")"
 
-                if ($orphan_acl_ids) {
+                if (is_array($orphan_acl_ids) && !empty($orphan_acl_ids)) {
                     // If there are orphaned acls get rid of them
 
                     foreach ($orphan_acl_ids as $acl) {
@@ -3331,10 +3331,10 @@ class GaclApi extends Gacl {
             $groups_ids = $this->db->GetCol($query);
         }
 
-        if ( ( isset($acl_ids) AND !empty($acl_ids) ) OR ( isset($groups_ids) AND !empty($groups_ids) ) ) {
+        if ( !empty($acl_ids) OR !empty($groups_ids) ) {
             // The Object is referenced somewhere (group or acl), can't delete it
 
-            $this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode('', $groups_ids).") or ACLs (".@implode(",", $acl_ids).")");
+            $this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (" . implode('', (array)$groups_ids) . ") or ACLs (" . implode(",", (array)$acl_ids) . ")");
             $this->db->RollbackTrans();
             return false;
         } else {
