@@ -243,8 +243,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_dob     = $row['dob'];
         $msg_type        = $row['title'];
         $msg_status      = $row['message_status'];
-        $username        = $userService->getUser($row['update_by']);
-        $update_by       = $username['username'];
+        $updateById      = $row['update_by'];
+        if ($updateById) {
+            $userRecord = $userService->getUser($updateById);
+            if ($userRecord === false) {
+                throw new \RuntimeException("User not found for update_by: " . json_encode($updateById));
+            }
+            $update_by = $userRecord['username'];
+        } else {
+            $update_by = '';
+        }
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';
