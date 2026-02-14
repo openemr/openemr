@@ -10,13 +10,13 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 **************************************************************************/
 
 /**
- * class Patient
+ * class PrescriptionPatient
  *
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
-class Patient extends ORDataObject
+class PrescriptionPatient extends ORDataObject
 {
     public $pubpid;
     public $lname;
@@ -86,4 +86,4 @@ class Patient extends ORDataObject
     {
         return $this->date_of_birth;
     }
-} // end of Patient
+} // end of PrescriptionPatient
