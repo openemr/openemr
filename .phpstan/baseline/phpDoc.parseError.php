@@ -3500,11 +3500,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array An array of options to override the class defaults\\)\\: Unexpected token "An", expected variable at offset 43 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array An named array of arrays, each element in the format aro_section_value\\=\\>array\\(aro_value1,aro_value1,\\.\\.\\.\\)\\)\\: Unexpected token "An", expected variable at offset 145 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
