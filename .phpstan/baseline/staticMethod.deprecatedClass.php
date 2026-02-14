@@ -8,6 +8,13 @@ please use \\{@see InMemory\\} instead$#',
     'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionCommand.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method createAdodb\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
+New code should use existing DB tooling and not directly create
+new connections\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method file\\(\\) of deprecated class Lcobucci\\\\JWT\\\\Signer\\\\Key\\\\LocalFileReference\\:
 please use \\{@see InMemory\\} instead$#',
     'count' => 2,
