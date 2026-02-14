@@ -39,7 +39,13 @@ $enc_bal = $total_bal = 0;
 $bgcolor = "#FFFFDD";
 $orow = 0;
 
-function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
+/**
+ * @param string $pat
+ * @param string $from_dt
+ * @param string $to_dt
+ * @return array
+ */
+function portal_GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
     $all = [];
     if (!$pat) {
@@ -66,7 +72,12 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     return ($all);
 }
 
-function List_Look($thisData, $thisList)
+/**
+ * @param string $thisData
+ * @param string $thisList
+ * @return string
+ */
+function portal_List_Look($thisData, $thisList)
 {
     if ($thisList == 'occurrence') {
         if (!$thisData || $thisData == '') {
@@ -93,7 +104,12 @@ function List_Look($thisData, $thisList)
     return $dispValue;
 }
 
-function GetAllCredits($enc = '', $pat = '')
+/**
+ * @param string $enc
+ * @param string $pat
+ * @return array
+ */
+function portal_GetAllCredits($enc = '', $pat = '')
 {
     $all = [];
     if (!$enc || !$pat) {
@@ -115,7 +131,7 @@ function GetAllCredits($enc = '', $pat = '')
     return ($all);
 }
 
-function PrintEncFooter(): void
+function portal_PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr bgcolor='#DDFFFF'>";
@@ -129,7 +145,12 @@ function PrintEncFooter(): void
     echo "</tr>\n";
 }
 
-function PrintCreditDetail($detail, $pat, $unassigned = false): void
+/**
+ * @param array $detail
+ * @param string $pat
+ * @param bool $unassigned
+ */
+function portal_PrintCreditDetail($detail, $pat, $unassigned = false): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;
@@ -143,10 +164,10 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
         $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
         $print .= "<td class='detail'></td>";
-        $method = List_Look($pmt['payment_method'], 'payment_method');
+        $method = portal_List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
+        $memo = $unassigned ? portal_List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -180,7 +201,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
 
         $print .= "<td class='detail'>" .
             text($pmt_date) . "/" . text($payer) . "</td>";
-        $type = List_Look($pmt['payment_type'], 'payment_type');
+        $type = portal_List_Look($pmt['payment_type'], 'payment_type');
         $print .= "<td class='detail'>" . text($type) . "</td>";
         if ($unassigned) {
             $pmt_amt = $pmt['pay_total'] - $pmt['applied'];
@@ -461,7 +482,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                     $csv = '';
                     if ($erow['encounter'] != $prev_encounter_id) {
                         if ($prev_encounter_id != -1) {
-                            $credits = GetAllCredits($prev_encounter_id, $pid);
+                            $credits = portal_GetAllCredits($prev_encounter_id, $pid);
                             if (count($credits) > 0) {
                                 if (!$hdr_printed) {
                                     PrintEncHeader(
@@ -471,11 +492,11 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                                     );
                                 }
 
-                                PrintCreditDetail($credits, $pid);
+                                portal_PrintCreditDetail($credits, $pid);
                             }
 
                             if ($hdr_printed) {
-                                PrintEncFooter();
+                                portal_PrintEncFooter();
                             }
 
                             $hdr_printed = false;
@@ -532,7 +553,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 }
 
                 if ($prev_encounter_id != -1) {
-                    $credits = GetAllCredits($prev_encounter_id, $pid);
+                    $credits = portal_GetAllCredits($prev_encounter_id, $pid);
                     if (count($credits) > 0) {
                         if (!$hdr_printed) {
                             PrintEncHeader(
@@ -542,23 +563,23 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                             );
                         }
 
-                        PrintCreditDetail($credits, $pid);
+                        portal_PrintCreditDetail($credits, $pid);
                     }
 
                     if ($hdr_printed) {
-                        PrintEncFooter();
+                        portal_PrintEncFooter();
                     }
                 }
 
                 // This is the end of the encounter/charge loop -
-                $uac = GetAllUnapplied($pid, $from_date, $to_date);
+                $uac = portal_GetAllUnapplied($pid, $from_date, $to_date);
                 if (count($uac) > 0) {
                     if ($orow) {
                         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
                         echo "<tr class='bg-white'><td colspan='9'></td></tr>\n";
                     }
 
-                    PrintCreditDetail($uac, $pid, true);
+                    portal_PrintCreditDetail($uac, $pid, true);
                 }
 
                 if ($orow) {

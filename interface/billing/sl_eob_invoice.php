@@ -308,7 +308,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
         if ($ALLOW_DELETE && !$debug) {
             if (!empty($_POST['form_del']) && is_array($_POST['form_del'])) {
                 foreach ($_POST['form_del'] as $arseq => $dummy) {
-                    row_modify(
+                    payment_row_modify(
                         "ar_activity",
                         "deleted = NOW()",
                         "pid = '" . add_escape_custom($patient_id) .

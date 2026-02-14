@@ -38,6 +38,7 @@
     "display_layout_tabs_data",
     "edi_generate_id",
     "edih_271_codes",
+    "eob_process_era_callback_check",
     "era_callback_check",
     "fetchEvents",
     "fixDate",

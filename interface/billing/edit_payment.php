@@ -52,7 +52,7 @@ if (isset($_POST["mode"])) {
         $Modifier = $DeletePaymentDistributionIdArray[4];
         $Codetype = $DeletePaymentDistributionIdArray[5];
         //delete and log that action
-        row_modify(
+        payment_row_modify(
             "ar_activity",
             "deleted = NOW()",
             "session_id = '" . add_escape_custom($payment_id) . "' AND " .

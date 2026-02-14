@@ -1142,11 +1142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and "\\\\n\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=…" results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
@@ -8308,7 +8303,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 16,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
@@ -8602,18 +8597,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'name \\= \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/restoreSession\\.php\' results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 13,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
@@ -9557,11 +9542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\.\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\:\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
@@ -9619,11 +9599,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/restoreSession\\.php\' results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\.\' results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
 $ignoreErrors[] = [
@@ -12497,23 +12472,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'INSERT INTO users \\(…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'UPDATE users SET…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'type_options_js\\[\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 71,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
 $ignoreErrors[] = [
@@ -17967,11 +17932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and "\\\\n\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=…" results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
@@ -18049,11 +18009,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between "\\\\nTo \\: " and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between "\\\\n\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=\\=…" and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
 $ignoreErrors[] = [
@@ -18297,7 +18252,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\+" between int\\|string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
@@ -18308,6 +18263,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between int and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\-" between mixed and 1 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];

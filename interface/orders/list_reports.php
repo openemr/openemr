@@ -56,8 +56,8 @@ if (!empty($_POST['form_xmit'])) {
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
         try {
-            $result = gen_hl7_order($formid);
-            $errmsg = send_hl7_order($ppid, $result->hl7);
+            $result = default_gen_hl7_order($formid);
+            $errmsg = default_send_hl7_order($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }

@@ -131,10 +131,14 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
     echo " </tr>\n";
 }
 
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function normal_generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
     global $sl_err, $sl_cash_acc, $details, $facilityService;
@@ -481,7 +485,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     </body>
     </html>
     <?php // echoing the closing tags for receipts
-} // end function generate_receipt()
+} // end function normal_generate_receipt()
 ?>
     <?php
 
@@ -748,14 +752,14 @@ function generate_receipt($patient_id, $encounter = 0): void
             "WHERE pid = ? AND encounter = ?", [$invoice_refno,$form_pid,$form_encounter]);
         }
 
-        generate_receipt($form_pid, $form_encounter);
+        normal_generate_receipt($form_pid, $form_encounter);
         exit();
     }
 
     // If an encounter ID was given, then we must generate a receipt.
     //
     if (!empty($_GET['enc'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        normal_generate_receipt($patient_id, $_GET['enc']);
         exit();
     }
 
@@ -780,7 +784,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // If there are none, just redisplay the last receipt and exit.
     //
     if (sqlNumRows($bres) == 0 && sqlNumRows($dres) == 0) {
-        generate_receipt($patient_id);
+        normal_generate_receipt($patient_id);
         exit();
     }
 

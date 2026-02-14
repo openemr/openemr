@@ -112,6 +112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-empty\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',

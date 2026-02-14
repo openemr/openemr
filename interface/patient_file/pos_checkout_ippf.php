@@ -106,9 +106,14 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Get a list item's title, translated if appropriate.
-//
-function getListTitle($list, $option)
+/**
+ * Get a list item's title, translated if appropriate.
+ *
+ * @param string $list
+ * @param string $option
+ * @return string
+ */
+function checkout_getListTitle($list, $option)
 {
     $row = sqlQuery(
         "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
@@ -410,7 +415,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     // Resolve the payment method portion of the memo to display properly.
     if (!empty($method)) {
         $tmp = explode(' ', (string) $method, 2);
-        $method = getListTitle('paymethod', $tmp[0]);
+        $method = checkout_getListTitle('paymethod', $tmp[0]);
         if (isset($tmp[1])) {
             // If the description is not interesting then let it hold the check number
             // or similar, otherwise append that to the payment method.
@@ -470,12 +475,14 @@ function invoiceChecksum($pid, $encounter)
     return (0 + $row1['checksum']) ^ (0 + $row2['checksum']) ^ (0 + $row3['checksum']) ^ (0 + $row4['checksum']);
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function ippf_generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;
     global $web_root, $webserver_root, $code_types;
@@ -1102,7 +1109,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     <?php
 }
 
-// end function generate_receipt()
+// end function ippf_generate_receipt()
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -1703,7 +1710,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // "Checked out".
     updateAppointmentStatus($patient_id, $dosdate, '>');
 
-    generate_receipt($patient_id, $encounter_id);
+    ippf_generate_receipt($patient_id, $encounter_id);
     exit();
 }
 
@@ -1730,7 +1737,7 @@ if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
 //
 if ($patient_id && !empty($_GET['enc'])) {
     if (empty($_GET['pdf'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        ippf_generate_receipt($patient_id, $_GET['enc']);
     } else {
         // PDF receipt is requested. In this case we are probably in a new window.
         require_once($GLOBALS['OE_SITE_DIR'] . "/" . $GLOBALS['gbl_custom_receipt']);
@@ -1782,7 +1789,7 @@ if (!$encounter_id) {
 // If there are none, just redisplay the last receipt and exit.
 //
 if (!$encounter_id) {
-    generate_receipt($patient_id);
+    ippf_generate_receipt($patient_id);
     exit();
 }
 

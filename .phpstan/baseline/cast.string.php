@@ -53,7 +53,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 11,
+    'count' => 10,
     'path' => __DIR__ . '/../../custom/export_labworks.php',
 ];
 $ignoreErrors[] = [
@@ -68,7 +68,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
@@ -2773,7 +2773,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [

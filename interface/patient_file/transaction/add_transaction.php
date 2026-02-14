@@ -122,7 +122,7 @@ if ($mode) {
 
 $CPR = 4; // cells per row
 
-function end_cell(): void
+function transaction_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -131,10 +131,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function transaction_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    transaction_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -145,11 +145,11 @@ function end_row(): void
     }
 }
 
-function end_group(): void
+function transaction_end_group(): void
 {
     global $last_group;
     if (strlen((string) $last_group) > 0) {
-        end_row();
+        transaction_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
@@ -554,7 +554,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle a data category (group) change.
                             if (strcmp((string) $this_group, (string) $last_group) != 0) {
-                                end_group();
+                                transaction_end_group();
                                 $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
@@ -570,7 +570,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new row.
                             if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                                end_row();
+                                transaction_end_row();
                                 echo " <tr>";
                             }
 
@@ -580,7 +580,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new label cell.
                             if ($titlecols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td width='70' valign='top' colspan='" . attr($titlecols) . "'";
                                 echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
                                 if ($cell_count == 2) {
@@ -608,7 +608,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new data cell.
                             if ($datacols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
                                 // This ID is used by action conditions.
                                 echo " id='value_id_" . attr($field_id) . "'";
@@ -625,7 +625,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo "</div>";
                         }
 
-                        end_group();
+                        transaction_end_group();
                         ?>
                     </div><!-- end of tabContainer div -->
                 </div><!-- end of DEM div -->
