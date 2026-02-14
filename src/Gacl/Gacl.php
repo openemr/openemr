@@ -33,13 +33,6 @@ if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
 
-//openemr configuration file - bm - 05-2009
-// to collect sql database login info and the utf8 flag
-// also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-// require_once(__DIR__ . "/../../library/sqlconf.php");
-// require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
-// require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-
 class Gacl {
     /*
     --- phpGACL Configuration path/file ---
@@ -131,21 +124,6 @@ class Gacl {
 
         $db = DatabaseConnectionFactory::createAdodb($dbConfig, persistent: $persistent);
 
-        global $disable_utf8_flag;
-        //collect openemr sql info from include at top of script - bm 05-2009
-        if (!$disable_utf8_flag) {
-            if ($dbConfig->charset === 'utf8mb4') {
-                $this->_db_encoding_setting = "utf8mb4";
-            } else {
-                $this->_db_encoding_setting = "utf8";
-            }
-        } else {
-            $this->_db_encoding_setting = "";
-        }
-
-        // require_once( ADODB_DIR .'/adodb.inc.php');
-        // require_once( ADODB_DIR .'/adodb-pager.inc.php');
-
         // fixme: just read this straight out of $options arg
         if (is_object($this->_db)) {
             $this->db = &$this->_db;
@@ -153,26 +131,6 @@ class Gacl {
             $this->db = $db;
             //Use NUM for slight performance/memory reasons.
             $this->db->SetFetchMode(ADODB_FETCH_NUM);
-
-            // Modified 5/2009 by BM for UTF-8 project
-            if ($this->_db_encoding_setting == "utf8mb4") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8MB4 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
-            } elseif ($this->_db_encoding_setting == "utf8") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
-            }
-                // ---------------------------------------
-
-            //Turn off STRICT SQL
-            $sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
-            if (!$sql_strict_set_success) {
-                error_log("Unable to set strict sql setting: " . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-            }
 
             if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
                 error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
