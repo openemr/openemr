@@ -34,12 +34,13 @@ function postcalendar_adminapi_updateCategories($args)
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
-    foreach ($updates as $update) {
-        $result = $dbconn->Execute($update);
-        if ($result === false) {
-            return false;
+    $conn = pnDBGetConn();
+    try {
+        foreach ($updates as $update) {
+            $conn->executeStatement($update);
         }
+    } catch (Doctrine\DBAL\Exception) {
+        return false;
     }
 
     return true;
@@ -51,9 +52,10 @@ function postcalendar_adminapi_deleteCategories($args)
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
-    $result = $dbconn->Execute($delete);
-    if ($result === false) {
+    $conn = pnDBGetConn();
+    try {
+        $conn->executeStatement($delete);
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
@@ -66,42 +68,37 @@ function postcalendar_adminapi_addCategories($args)
         return false;
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
-
-    $name = pnVarPrepForStore($name);
-    $constantid = trim(pnVarPrepForStore($constantid));
-    $desc = trim(pnVarPrepForStore($desc));
-    $value_cat_type = pnVarPrepForStore($value_cat_type);
-    $color = pnVarPrepForStore($color);
-    $recurrtype = pnVarPrepForStore($repeat);
-    $recurrspec = pnVarPrepForStore($spec);
-    $recurrfreq = pnVarPrepForStore($recurrfreq);
-    $duration = pnVarPrepForStore($duration);
-    $limitid = pnVarPrepForStore($limitid);
-    $end_date_flag = pnVarPrepForStore($end_date_flag);
-    $end_date_type = pnVarPrepForStore($end_date_type);
-    $end_date_freq = pnVarPrepForStore($end_date_freq);
-    $end_all_day = pnVarPrepForStore($end_all_day);
-    $active = pnVarPrepForStore($active);
-    $sequence = pnVarPrepForStore($sequence);
-    $aco = pnVarPrepForStore($aco);
 
     $sql = "INSERT INTO $pntable[postcalendar_categories]
                                 (pc_catid,pc_catname,pc_constant_id,pc_catdesc,pc_catcolor,
                                 pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
-    							pc_dailylimit,pc_end_date_flag,pc_end_date_type,
-    							pc_end_date_freq,pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec)
-                                VALUES ('','$name','$constantid','$desc','$color',
-                                '$recurrtype','$recurrspec','$recurrfreq',
-                                '$duration','$limitid','$end_date_flag','$end_date_type',
-                                '$end_date_freq','$end_all_day','$value_cat_type','$active','$sequence','$aco')";
+                                pc_dailylimit,pc_end_date_flag,pc_end_date_type,
+                                pc_end_date_freq,pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec)
+                                VALUES ('',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-
-    //print "sql is $sql \n";
-    $result = $dbconn->Execute($sql);
-    if ($result === false) {
-        print $dbconn->ErrorMsg();
+    try {
+        $conn->executeStatement($sql, [
+            $name,
+            trim((string) $constantid),
+            trim((string) $desc),
+            $color,
+            $repeat,
+            $spec,
+            $recurrfreq,
+            $duration,
+            $limitid,
+            $end_date_flag,
+            $end_date_type,
+            $end_date_freq,
+            $end_all_day,
+            $value_cat_type,
+            $active,
+            $sequence,
+            $aco,
+        ]);
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
