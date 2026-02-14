@@ -82,7 +82,7 @@ class Gacl {
 
     /**
      * Constructor
-     * @param array $options An array of options to override the class defaults
+     * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
         $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
