@@ -6,6 +6,10 @@ namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
 
+/**
+ * @deprecated New code should use existing DB tooling and not directly create
+ * new connections.
+ */
 class DatabaseConnectionFactory
 {
     public static function createAdodb(
