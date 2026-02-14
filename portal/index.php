@@ -643,19 +643,21 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                         foreach ($result3 as $iter) {
+                            /** @var string $transLangDesc */
+                            $transLangDesc = $iter['trans_lang_description'];
                             if ($globalsBag->get('language_menu_showall')) {
                                 if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                     continue; // skip the dummy language
                                 }
                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                    text((string) $iter['trans_lang_description']) . "</option>\n";
+                                    text($transLangDesc) . "</option>\n";
                             } else {
                                 if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
                                     if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                        text((string) $iter['trans_lang_description']) . "</option>\n";
+                                        text($transLangDesc) . "</option>\n";
                                 }
                             }
                         }

@@ -28,7 +28,7 @@ require_once('../../../library/amc.php');
 use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
 use OpenEMR\Services\PatientAccessOnsiteService;
 
-function displayLogin($patient_id, $message, $emailFlag)
+function displayLogin($patient_id, string $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     $message = text($message);
@@ -63,15 +63,19 @@ if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $forced_reset_disable = $option == '2' ? (int)($_POST['forced_reset_disable'] ?? 0) : $option;
+    /** @var string|int $rawForcedResetDisable */
+    $rawForcedResetDisable = $_POST['forced_reset_disable'] ?? 0;
+    $forced_reset_disable = $option == '2' ? intval($rawForcedResetDisable) : $option;
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
+        /** @var string $plainMessage */
+        $plainMessage = $emailResult['plainMessage'];
         if ($emailResult['success']) {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], true));
+            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, true));
         } else {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], false));
+            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, false));
         }
     }
 }

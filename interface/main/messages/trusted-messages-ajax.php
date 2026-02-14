@@ -75,7 +75,9 @@ if (!CsrfUtils::verifyCsrfToken($csrf, session: $session)) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
         }
-        $verifyMessageReceived = (int)($_REQUEST['verifyMessageReceived'] ?? 0) == 1;
+        /** @var string|int $rawVerify */
+        $rawVerify = $_REQUEST['verifyMessageReceived'] ?? 0;
+        $verifyMessageReceived = intval($rawVerify) == 1;
         $isValid = true;
     } catch (AccessDeniedException $error) {
         http_response_code(401);
