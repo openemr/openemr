@@ -1,12 +1,14 @@
 <?php
 
 /**
+ * Claims search page for ClaimRev integration
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,12 +19,15 @@ use OpenEMR\Modules\ClaimRevConnector\ClaimSearchModel;
 
 class ClaimsPage
 {
-    public static function searchClaims($postData)
+    /**
+     * @param array<string, mixed> $postData
+     */
+    public static function searchClaims(array $postData)
     {
-        $firstName = $_POST['patFirstName'];
-        $lastName = $_POST['patLastName'];
-        $startDate = $_POST['startDate'];
-        $endDate = $_POST['endDate'];
+        $firstName = $postData['patFirstName'] ?? '';
+        $lastName = $postData['patLastName'] ?? '';
+        $startDate = $postData['startDate'] ?? '';
+        $endDate = $postData['endDate'] ?? '';
 
         $model = new ClaimSearchModel();
         $model->patientFirstName = $firstName;
