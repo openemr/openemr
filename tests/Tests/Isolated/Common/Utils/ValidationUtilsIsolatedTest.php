@@ -30,7 +30,7 @@ class ValidationUtilsIsolatedTest extends TestCase
      * - 'input': Various input formats for the same number
      * - 'e164': Expected E.164 format
      * - 'national': Expected national digits (10 digits for NANP)
-     * - 'formatted': Expected formatLocal() output
+     * - 'formatted': Array with 'local' (formatLocal) and 'global' (formatGlobal) expected output
      * - 'hl7': Expected HL7 format (for NANP numbers)
      * - 'parts': Expected toParts() output (for NANP numbers)
      * - 'region': Default region for parsing (defaults to 'US')
@@ -40,7 +40,10 @@ class ValidationUtilsIsolatedTest extends TestCase
             'input' => ['2125551234', '212-555-1234', '(212) 555-1234', '212.555.1234', '212 555 1234', '+1 212 555 1234', '+12125551234', '1-212-555-1234'],
             'e164' => '+12125551234',
             'national' => '2125551234',
-            'formatted' => '212-555-1234',
+            'formatted' => [
+                'local' => '(212) 555-1234',
+                'global' => '+1 212-555-1234'
+            ],
             'hl7' => '212^5551234',
             'parts' => ['area_code' => '212', 'prefix' => '555', 'number' => '1234'],
         ],
@@ -48,7 +51,10 @@ class ValidationUtilsIsolatedTest extends TestCase
             'input' => ['3105551234', '310-555-1234', '(310) 555-1234', '310.555.1234', '310   555   1234', '+1 (310) 555-1234'],
             'e164' => '+13105551234',
             'national' => '3105551234',
-            'formatted' => '310-555-1234',
+            'formatted' => [
+                'local' => '(310) 555-1234',
+                'global' => '+1 310-555-1234'
+            ],
             'hl7' => '310^5551234',
             'parts' => ['area_code' => '310', 'prefix' => '555', 'number' => '1234'],
         ],
@@ -57,7 +63,10 @@ class ValidationUtilsIsolatedTest extends TestCase
             'input' => ['2128675309', '212-867-5309', '(212) 867-5309', '+1-212-867-5309'],
             'e164' => '+12128675309',
             'national' => '2128675309',
-            'formatted' => '212-867-5309',
+            'formatted' => [
+                'local' => '(212) 867-5309',
+                'global' => '+1 212-867-5309'
+            ],
             'hl7' => '212^8675309',
             'parts' => ['area_code' => '212', 'prefix' => '867', 'number' => '5309'],
         ],
@@ -66,32 +75,47 @@ class ValidationUtilsIsolatedTest extends TestCase
             'input' => ['5551234567', '555-123-4567', '(555) 123-4567'],
             'e164' => '+15551234567',
             'national' => '5551234567',
-            'formatted' => '555-123-4567',
+            'formatted' => [
+                'local' => '(555) 123-4567',
+                'global' => '+1 555-123-4567'
+            ],
             'valid' => false,
             'possible' => true,
         ],
         'uk_london' => [
             'input' => ['+44 20 7946 0958', '+442079460958'],
             'e164' => '+442079460958',
-            'formatted' => '020 7946 0958',
+            'formatted' => [
+                'local' => '020 7946 0958',
+                'global' => '+44 20 7946 0958'
+            ],
             'region' => 'GB',
         ],
         'de_berlin' => [
             'input' => ['+49 30 12345678', '+493012345678'],
             'e164' => '+493012345678',
-            'formatted' => '030 12345678',
+            'formatted' => [
+                'local' => '030 12345678',
+                'global' => '+49 30 12345678'
+            ],
             'region' => 'DE',
         ],
         'au_sydney' => [
             'input' => ['+61 2 1234 5678', '+61212345678'],
             'e164' => '+61212345678',
-            'formatted' => '(02) 1234 5678',
+            'formatted' => [
+                'local' => '(02) 1234 5678',
+                'global' => '+61 2 1234 5678'
+            ],
             'region' => 'AU',
         ],
         'fr_paris' => [
             'input' => ['+33 1 23 45 67 89', '+33123456789'],
             'e164' => '+33123456789',
-            'formatted' => '01 23 45 67 89',
+            'formatted' => [
+                'local' => '01 23 45 67 89',
+                'global' => '+33 1 23 45 67 89'
+            ],
             'region' => 'FR',
         ],
     ];
@@ -565,7 +589,28 @@ class ValidationUtilsIsolatedTest extends TestCase
             if (!isset($data['formatted'])) {
                 continue;
             }
-            yield $name => [$data['input'][0], $data['region'] ?? 'US', $data['formatted']];
+            if (!isset($data['formatted']['local'])) {
+                continue;
+            }
+            yield $name => [$data['input'][0], $data['region'] ?? 'US', $data['formatted']['local']];
+        }
+    }
+
+    /**
+     * Provides phone numbers with expected formatGlobal() output.
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function formatGlobalProvider(): iterable
+    {
+        foreach (self::PHONE_NUMBERS as $name => $data) {
+            if (!isset($data['formatted'])) {
+                continue;
+            }
+            if (!isset($data['formatted']['global'])) {
+                continue;
+            }
+            yield $name => [$data['input'][0], $data['region'] ?? 'US', $data['formatted']['global']];
         }
     }
 
@@ -654,6 +699,13 @@ class ValidationUtilsIsolatedTest extends TestCase
     {
         $phone = PhoneNumber::parse($input, $region);
         $this->assertSame($expectedFormatted, $phone->formatLocal());
+    }
+
+    #[DataProvider('formatGlobalProvider')]
+    public function testPhoneNumberFormatGlobal(string $input, string $region, string $expectedFormatted): void
+    {
+        $phone = PhoneNumber::parse($input, $region);
+        $this->assertSame($expectedFormatted, $phone->formatGlobal());
     }
 
     #[DataProvider('hl7Provider')]
