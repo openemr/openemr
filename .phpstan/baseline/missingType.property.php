@@ -6372,11 +6372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PortalController\\:\\:\\$GUID has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property PortalController\\:\\:\\$Phreezer has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
@@ -25453,11 +25448,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:\\$_server has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/AbstractModuleActionListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:\\$_session has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/AbstractModuleActionListener.php',
 ];

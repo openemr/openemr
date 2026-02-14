@@ -1433,7 +1433,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
@@ -1803,7 +1803,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 67,
+    'count' => 66,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [

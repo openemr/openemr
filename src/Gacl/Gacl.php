@@ -101,7 +101,7 @@ class Gacl {
 
     /**
      * Constructor
-     * @param ?array $options An array of options to override the class defaults
+     * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
 
