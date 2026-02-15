@@ -49,12 +49,11 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession(); // TODO @zmilan: check what to do with this one
+        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            self::$_apiModule = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = new CryptoGen();
         $this->dispatchActions();
@@ -74,8 +73,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -138,8 +136,7 @@ abstract class AppDispatch
     public function getSession(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            return $session->get($param) ?? $default;
+            return $this->_session->get($param) ?? $default;
         }
 
         return $this->_session;

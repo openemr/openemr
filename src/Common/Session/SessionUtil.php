@@ -118,7 +118,6 @@ class SessionUtil
      */
     public static function setSession(string|array $session_key_or_array, $session_value = null): void
     {
-        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (is_array($session_key_or_array)) {
@@ -141,7 +140,6 @@ class SessionUtil
      */
     public static function unsetSession(string|array $session_key_or_array): void
     {
-        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (is_array($session_key_or_array)) {
@@ -163,7 +161,6 @@ class SessionUtil
      */
     public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
-        // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         foreach ($setArray as $key => $value) {
             $session->set($key, $value);
