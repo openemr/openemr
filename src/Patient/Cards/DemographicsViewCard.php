@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Common\Acl\AclMain;
@@ -30,13 +31,14 @@ class DemographicsViewCard extends CardModel
 
     private function setupOpts(array $opts)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $opts['acl'] = ['patients', 'demo'];
         $opts['title'] = xl('Demographics');
         $opts['btnLink'] = 'demographics_full.php';
         $opts['linkMethod'] = 'html';
         $opts['edit'] = true;
         $opts['add'] = false;
-        $opts['requireRestore'] = (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false;
+        $opts['requireRestore'] = !$session->has('patient_portal_onsite_two');
         $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0;
         $opts['identifier'] = self::CARD_ID;
         $opts['templateFile'] = self::TEMPLATE_FILE;
@@ -56,8 +58,9 @@ class DemographicsViewCard extends CardModel
     {
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $auth = ACLMain::aclCheckCore('patients', 'demo', '', 'write');
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $viewArgs = [
-            'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
+            'requireRestore' => !$session->has('patient_portal_onsite_two'),
             'initiallyCollapsed' => getUserSetting("demographics_ps_expand") == 0,
             'tabID' => "DEM",
             'title' => xl("Demographics"),

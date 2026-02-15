@@ -41,7 +41,7 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $globalsBag = OEGlobalsBag::getInstance();
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
@@ -97,7 +97,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -399,7 +399,7 @@ function printlog_before_print() {
 function deleteme() {
     const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
@@ -1072,7 +1072,7 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1252,7 +1252,7 @@ function make_insurance() {
                                 //Bringing on top the Today always
                                 foreach ($encs as $value) {
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $gottoday = true;
                                         break;
                                     }
@@ -1295,7 +1295,7 @@ function make_insurance() {
                                     $idx++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $dispdate = date("Y-m-d");
                                         $gottoday = true;
                                     }
@@ -1362,10 +1362,10 @@ function make_insurance() {
     <td class="text-right">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
+            name="form_upay[<?=attr($enc)?>]"
             id="paying_<?=$idx?>"
             value=""
             onchange="coloring();calctotal()"
@@ -1843,7 +1843,7 @@ function make_insurance() {
             }
             echo '<script type="text/javascript">';
             echo $twig->render('payments/rainforest.js', [
-                'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+                'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session),
                 'endpoint' => 'front_payment.rainforest.php',
             ]);
             echo '</script>';

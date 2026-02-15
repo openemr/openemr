@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
@@ -51,7 +52,8 @@ function downloadWenoPharmacy(): void
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
 
-    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
     error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
 }
 
@@ -104,10 +106,11 @@ function downloadWenoPrescriptionLog(): void
  */
 function handleDownloadError(string $errorMessage): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(
         "pharmacy_background",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         ($errorMessage)
     );

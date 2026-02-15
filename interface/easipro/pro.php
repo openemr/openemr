@@ -17,11 +17,13 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Easipro\Easipro;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,7 +55,7 @@ use OpenEMR\OeUI\OemrUI;
                 url: "../../library/ajax/easipro_util.php",
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'list_forms'
                 },
                 dataType: "json",
@@ -206,7 +208,7 @@ use OpenEMR\OeUI\OemrUI;
                             url: "../../library/ajax/easipro_util.php",
                             type: "POST",
                             data: {
-                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                                 'function': 'order_form',
                                 'formOID': formOID
                             },
@@ -237,7 +239,7 @@ use OpenEMR\OeUI\OemrUI;
                 url: "../../library/ajax/easipro_util.php",
                 type: 'POST',
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'request_assessment',
                     'formOID': formOID,
                     'formName': formName,

@@ -21,6 +21,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PhoneNumberService;
 
@@ -28,8 +29,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -331,7 +333,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     </div>
 
     <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <div id="report_parameters">
             <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             <input type='hidden' name='form_get_hl7' id='form_get_hl7' value='' />
@@ -488,7 +490,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
-            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const params = new URLSearchParams({
                 data: data,
                 csrf_token_form: csrf_token

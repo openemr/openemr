@@ -14,6 +14,8 @@
 // See sample code in: interface/patient_tracker/patient_tracker_status.php
 // This updates the patient tracker board as well as the appointment.
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
 function updateAppointmentStatus($pid, $encdate, $newstatus): void
@@ -40,6 +42,8 @@ function updateAppointmentStatus($pid, $encdate, $newstatus): void
             return;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $encounter = todaysEncounterCheck(
             $pid,
             $tmp['pc_eventDate'],
@@ -55,7 +59,7 @@ function updateAppointmentStatus($pid, $encdate, $newstatus): void
             $tmp['pc_startTime'],
             $appt_eid,
             $pid,
-            $_SESSION["authUser"],
+            $session->get('authUser'),
             $newstatus,
             $tmp['pc_room'],
             $encounter

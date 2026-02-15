@@ -18,6 +18,7 @@ namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 class OAuth2KeyConfig
@@ -100,18 +101,21 @@ class OAuth2KeyConfig
      */
     public function configKeyPairs(): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser') ?? '';
+        $authProvider = $session->get('authProvider') ?? '';
         //  collect the encryption key from database (confirm existence) and ensure it can by properly decrypted
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
         if (!empty($eKey['name']) && ($eKey['name'] == 'oauth2key')) {
             $this->oaEncryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
             if (empty($this->oaEncryptionKey)) {
                 // if decrypted key is empty, then critical error and must log and exit
-                EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted");
+                EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted");
                 throw new OAuth2KeyException("oauth2 encryption key was blank after it was decrypted");
             }
         } else {
             // oauth2key is missing so must log and exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key is missing");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, "oauth2 ConfigKeyPairs: oauth2 encryption key is missing");
             throw new OAuth2KeyException("oauth2 encryption key is missing");
         }
         // collect the passphrase from database (confirm existence) and ensure it can by properly decrypted
@@ -120,18 +124,18 @@ class OAuth2KeyConfig
             $this->passphrase = $this->cryptoGen->decryptStandard($pKey['value']);
             if (empty($this->passphrase)) {
                 // if decrypted pssphrase is empty, then critical error and must log and exit
-                EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 passphrase was blank after it was decrypted");
+                EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, "oauth2 ConfigKeyPairs: oauth2 passphrase was blank after it was decrypted");
                 throw new OAuth2KeyException("oauth2 passphrase was blank after it was decrypted");
             }
         } else {
             // oauth2passphrase is missing so must log and exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 passphrase is missing");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, "oauth2 ConfigKeyPairs: oauth2 passphrase is missing");
             throw new OAuth2KeyException("oauth2 passphrase is missing");
         }
         // confirm existence of key pair
         if (!file_exists($this->privateKey) || !file_exists($this->publicKey)) {
             // key pair is missing so must log and exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 keypair is missing");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, "oauth2 ConfigKeyPairs: oauth2 keypair is missing");
             throw new OAuth2KeyException("oauth2 keypair is missing");
         }
     }
@@ -188,17 +192,20 @@ class OAuth2KeyConfig
         // Delete keys if they exist
         $this->deleteKeys();
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser') ?? '';
+        $authProvider = $session->get('authProvider') ?? '';
         // Generate encryption key
         $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
         if (empty($this->oaEncryptionKey)) {
             // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 encryption key generation");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, $logLabel . "random generator broken during oauth2 encryption key generation");
             throw new OAuth2KeyException("random generator broken during oauth2 encryption key generation");
         }
         $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
         if (empty($this->oaEncryptionKey)) {
             // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "base64 encoding broken during oauth2 encryption key generation");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, $logLabel . "base64 encoding broken during oauth2 encryption key generation");
             throw new OAuth2KeyException("base64 encoding broken during oauth2 encryption key generation");
         }
 
@@ -206,7 +213,7 @@ class OAuth2KeyConfig
         $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
         if (empty($this->passphrase)) {
             // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 key passphrase generation");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, $logLabel . "random generator broken during oauth2 key passphrase generation");
             throw new OAuth2KeyException("random generator broken during oauth2 key passphrase generation");
         }
         $keysConfig = [
@@ -224,7 +231,7 @@ class OAuth2KeyConfig
             }
             error_log($msg_error);
             // if unable to create keys, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "key generation broken OPEN_SSL: $msgEnv" . $msg_error);
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, $logLabel . "key generation broken OPEN_SSL: $msgEnv" . $msg_error);
             throw new OAuth2KeyException("key generation broken OPEN_SSL: $msgEnv" . $msg_error);
         }
         $privkey = '';
@@ -233,7 +240,7 @@ class OAuth2KeyConfig
         $pubkey = $pubkey["key"];
         if (empty($privkey) || empty($pubkey)) {
             // if unable to construct keys, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "key construction broken during oauth2");
+            EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 0, $logLabel . "key construction broken during oauth2");
             throw new OAuth2KeyException("key construction broken during oauth2");
         }
 
@@ -244,6 +251,6 @@ class OAuth2KeyConfig
         chmod($this->publicKey, 0660);
         sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
         sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
-        EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 1, $logLabel . "Successful");
+        EventAuditLogger::getInstance()->newEvent("oauth2", $authUser, $authProvider, 1, $logLabel . "Successful");
     }
 }

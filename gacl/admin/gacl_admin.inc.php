@@ -50,7 +50,7 @@ if ( file_exists($config_file) ) {
     unset($config);
 }
 
-$gacl_api = new GaclAdminApi($gacl_options);
+$gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
 $gacl = &$gacl_api;
 

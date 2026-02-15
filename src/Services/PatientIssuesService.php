@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\CompositeSearchField;
@@ -276,7 +277,8 @@ class PatientIssuesService extends BaseService
         if (!empty($uuid)) {
             return $uuid; // already connected
         }
-        $userCreatorId ??= $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userCreatorId ??= $session->get('authUserID');
         $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
         $query = "INSERT INTO issue_encounter ( `uuid`, pid, list_id, encounter, resolved, created_by, updated_by) VALUES (?,?,?,?,?,?,?)";
         QueryUtils::sqlInsert($query, [$uuid, $pid, $issueId, $encounter, $resolved,$userCreatorId,$userCreatorId]);

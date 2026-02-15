@@ -154,7 +154,9 @@ class PatientService extends BaseService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-        return $pid['pid'] === null ? 1 : intval($pid['pid']);
+        /** @var int|string|null $pidValue */
+        $pidValue = $pid['pid'];
+        return $pidValue === null ? 1 : (int) $pidValue;
     }
 
     /**
@@ -168,7 +170,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -251,7 +253,7 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
         /** @var int $pid */
         $pid = $data['pid'];
@@ -937,7 +939,7 @@ class PatientService extends BaseService
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $row = sqlQuery($query, $curUser['id']);
+        $row = sqlQuery($query, [$curUser['id']]);
         $rp = ($row) ? unserialize($row['patients']) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position

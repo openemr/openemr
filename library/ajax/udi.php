@@ -15,11 +15,13 @@ require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\MedicalDevice\MedicalDevice;
 
 header('Content-type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'udi')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'udi', $session)) {
     CsrfUtils::csrfNotVerified(false);
 }
 

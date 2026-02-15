@@ -46,6 +46,7 @@ abstract class PortalController
     protected $Smarty;
     private $_router;
     private $_cu;
+    /** @var string */
     public $GUID;
     public $DebugOutput = "";
     public $UnitTestMode = false;

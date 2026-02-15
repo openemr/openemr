@@ -537,7 +537,7 @@ class RequestUtil
      */
     public static function GetPersisted($fieldname, $default = "", $escape = false)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (isset($_REQUEST [$fieldname])) {
             $session->set("_PERSISTED_" . $fieldname, self::Get($fieldname, $default, $escape));
         }

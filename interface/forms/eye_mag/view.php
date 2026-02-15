@@ -23,7 +23,10 @@ include_once("../../forms/eye_mag/php/eye_mag_functions.php");
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_name   = "eye_mag";
 $form_folder = "eye_mag";
@@ -41,7 +44,7 @@ $refresh     = $_REQUEST['refresh'] ?? null;
 
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
-$result = sqlStatement($query, [$_SESSION['authUserID']]);
+$result = sqlStatement($query, [$session->get('authUserID')]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
@@ -73,12 +76,12 @@ if ($id > 0) {
     if ((int) $formOwner['pid'] !== $pid || (int) $formOwner['encounter'] !== $encounter) {
         (new SystemLogger())->warning(
             "An attempt was made to view an eye form belonging to a different patient or encounter",
-            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
+            ['user-id' => $session->get('authUserID') ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
         );
         EventAuditLogger::getInstance()->newEvent(
             "security-access",
-            $_SESSION['authUser'] ?? '',
-            $_SESSION['authProvider'] ?? '',
+            $session->get('authUser') ?? '',
+            $session->get('authProvider') ?? '',
             0,
             "Unauthorized attempt to view eye form " . $id . " for pid " . $pid
         );

@@ -25,12 +25,13 @@
 require_once("../../globals.php");
 require_once('../../../library/amc.php');
 
-use OpenEMR\Common\{Csrf\CsrfUtils,};
+use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
 use OpenEMR\Services\PatientAccessOnsiteService;
 
-function displayLogin($patient_id, $message, $emailFlag)
+function displayLogin($patient_id, string $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
+    $message = text($message);
     if ($emailFlag) {
         $message = xlt("Email was sent to following address") . ": " .
             text($patientData['email']) . "\n\n" .
@@ -56,20 +57,25 @@ if ($option == '2') {
     $forced_reset_disable = 1; // sets database to ignore force reset on login
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $credMessage = '';
-if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
+    /** @var string|int $rawForcedResetDisable */
+    $rawForcedResetDisable = $_POST['forced_reset_disable'] ?? 0;
+    $forced_reset_disable = $option == '2' ? intval($rawForcedResetDisable) : $option;
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
+        /** @var string $plainMessage */
+        $plainMessage = $emailResult['plainMessage'];
         if ($emailResult['success']) {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], true));
+            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, true));
         } else {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], false));
+            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, false));
         }
     }
 }
@@ -78,7 +84,7 @@ $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
     'credMessage' => $credMessage
-    , 'csrfToken' => CsrfUtils::collectCsrfToken()
+    , 'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
     , 'fname' => $credentials['fname']
     , 'portal_username' => $credentials['portal_username']
     , 'id' => $credentials['id']

@@ -33,14 +33,16 @@ require_once($GLOBALS['srcdir'] . '/amc.php');
 require_once($GLOBALS['fileroot'] . '/interface/eRxSOAP.php');
 require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 set_time_limit(0);
 $GLOBALS_REF = $GLOBALS;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eRxSOAP = new eRxSOAP();
 $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
-    ->setAuthUserId($_SESSION['authUserID']);
+    ->setAuthUserId($session->get('authUserID'));
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);

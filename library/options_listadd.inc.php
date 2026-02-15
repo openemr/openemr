@@ -23,7 +23,9 @@
 // TODO: Convert this to a modal or a dialog
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 
@@ -170,7 +172,7 @@ $(function () {
         // upon returning successfully, refresh the list box and select
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     listid: listid,
              newitem: newitem,
              newitem_abbr: newitem_abbr},

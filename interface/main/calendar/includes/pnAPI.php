@@ -34,6 +34,8 @@
  *        Patch for php 4.2.x or greater
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 if (ini_get('register_globals') != 1) {
     $supers = ['_REQUEST',
                             '_ENV',
@@ -279,7 +281,9 @@ function pnDBInit()
     }
     $dbconn->port = $dbport;
 
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get('enable_database_connection_pooling'))) && empty($GLOBALS['connection_pooling_off'])) {
         $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
     } else {
         $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);

@@ -21,6 +21,7 @@ class HttpSessionFactory implements SessionFactoryInterface
     public const SESSION_TYPE_API = 'api';
 
     public const SESSION_TYPE_CORE = 'core';
+    public const SESSION_TYPE_PORTAL = 'portal';
     public const DEFAULT_SESSION_TYPE = self::SESSION_TYPE_OAUTH;
 
     /**
@@ -30,9 +31,24 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     private bool $useBridge = false;
 
+    /**
+     * Keys in $_SESSION that should not be copied into the Symfony session as
+     * regular attributes. This includes OpenEMR session-name keys (used as
+     * AttributeBag storage keys) and Symfony-internal bag storage keys that are
+     * automatically managed by the Session component.
+     */
+    private const SESSION_INTERNAL_KEYS = [
+        SessionUtil::OAUTH_SESSION_ID,
+        SessionUtil::API_SESSION_ID,
+        SessionUtil::CORE_SESSION_ID,
+        SessionUtil::PORTAL_SESSION_ID,
+        '_symfony_flashes', // Symfony FlashBag storage key
+        '_sf2_meta',        // Symfony MetadataBag storage key
+    ];
+
     public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
-        if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE])) {
+        if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }
         $this->sessionType = $sessionType;
@@ -52,7 +68,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         $settings = $this->getSessionSettings();
         $sessionKey = $this->getSessionKey();
         $sessionHandler = $this->getSessionHandlerInterface($settings);
-        if ($this->useBridge) {
+        if ($this->useBridge || session_status() === PHP_SESSION_ACTIVE) {
             // Use the existing session bridge if it exists
             $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
         } else {
@@ -60,7 +76,9 @@ class HttpSessionFactory implements SessionFactoryInterface
         }
         $storage = $sessionStorageFactory->createStorage($this->request);
         $session = new Session($storage, new AttributeBag($sessionKey));
-        $session->start();
+        if (!$session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
+            $session->start();
+        }
         $this->populateSessionFromGlobals($session);
         return $session;
     }
@@ -70,6 +88,7 @@ class HttpSessionFactory implements SessionFactoryInterface
             self::SESSION_TYPE_OAUTH => SessionConfigurationBuilder::forOAuth($this->web_root),
             self::SESSION_TYPE_API => SessionConfigurationBuilder::forApi($this->web_root),
             self::SESSION_TYPE_CORE => SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly),
+            self::SESSION_TYPE_PORTAL => SessionConfigurationBuilder::forPortal(),
             default => throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}"),
         };
     }
@@ -79,6 +98,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         return match ($this->sessionType) {
             self::SESSION_TYPE_OAUTH => SessionUtil::OAUTH_SESSION_ID,
             self::SESSION_TYPE_API => SessionUtil::API_SESSION_ID,
+            self::SESSION_TYPE_PORTAL => SessionUtil::PORTAL_SESSION_ID,
             default => SessionUtil::CORE_SESSION_ID,
         };
     }
@@ -108,7 +128,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         // while we migrate the sessions to testable objects.
         if (!empty($_SESSION)) {
             foreach ($_SESSION as $key => $value) {
-                if (!in_array($key, [SessionUtil::OAUTH_SESSION_ID, SessionUtil::API_SESSION_ID, SessionUtil::CORE_SESSION_ID])) { // Avoid overwriting session name
+                if (!in_array($key, self::SESSION_INTERNAL_KEYS)) {
                     $session->set($key, $value);
                 }
             }

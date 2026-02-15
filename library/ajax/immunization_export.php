@@ -13,17 +13,21 @@
 
 require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
+    Acl\AclMain,
+    Csrf\CsrfUtils,
+    Logging\SystemLogger,
+    Session\SessionWrapperFactory,
+};
 use OpenEMR\Services\SpreadSheetService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

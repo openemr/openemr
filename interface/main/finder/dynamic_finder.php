@@ -22,6 +22,7 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -72,6 +73,8 @@ while ($row = sqlFetchArray($res)) {
     ++$colcount;
 }
 $loading = "";
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -349,7 +352,7 @@ $loading = "";
             {
                 target: target,
                 setting: val,
-                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>"
             }
         );
     }

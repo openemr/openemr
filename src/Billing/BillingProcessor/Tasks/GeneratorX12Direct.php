@@ -28,6 +28,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
 {
@@ -283,6 +284,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
             }
 
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Build the download URLs for our claim files so we can present them to the
             // user for download.
             $html .= "<ul class='list-group'>";
@@ -295,7 +297,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
-                    '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());
+                    '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session));
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>

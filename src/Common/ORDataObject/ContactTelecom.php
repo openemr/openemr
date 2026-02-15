@@ -14,6 +14,7 @@ namespace OpenEMR\Common\ORDataObject;
 
 use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactTelecom extends ORDataObject implements \JsonSerializable
@@ -47,9 +48,10 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
     public function __construct(private $id = "")
     {
         parent::__construct("contact_telecom");
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->setThrowExceptionOnError(true);
         $this->rank = 1;
-        $this->author = $_SESSION['authUser'];
+        $this->author = $session->get('authUser');
         $this->status = self::STATUS_ACTIVE;
         $this->use = self::DEFAULT_USE;
         $this->system = self::DEFAULT_SYSTEM;

@@ -23,6 +23,9 @@ namespace OpenEMR\Gacl;
 /*
  * Path to ADODB.
  */
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
@@ -98,7 +101,7 @@ class Gacl {
 
     /**
      * Constructor
-     * @param ?array $options An array of options to override the class defaults
+     * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
 
@@ -179,7 +182,8 @@ class Gacl {
             // Port to be used in connection
             $this->db->port = $sqlconf["port"];
 
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get('enable_database_connection_pooling'))) && empty($GLOBALS['connection_pooling_off'])) {
                 $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
             } else {
                 $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
