@@ -119,17 +119,14 @@ class SessionUtil
     public static function setSession(string|array $session_key_or_array, $session_value = null): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
-        $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
-        $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $key => $value) {
-                $coreSession->set($key, $value);
-                $portalSession->set($key, $value);
+                $session->set($key, $value);
             }
         } else {
-            $coreSession->set($session_key_or_array, $session_value);
-            $portalSession->set($session_key_or_array, $session_value);
+            $session->set($session_key_or_array, $session_value);
 
         }
 
@@ -145,17 +142,14 @@ class SessionUtil
     public static function unsetSession(string|array $session_key_or_array): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
-        $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
-        $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
-                $coreSession->remove($value);
-                $portalSession->remove($value);
+                $session->remove($value);
             }
         } else {
-            $coreSession->remove($session_key_or_array);
-            $portalSession->remove($session_key_or_array);
+            $session->remove($session_key_or_array);
         }
 
         (new SystemLogger())->debug("SessionUtil: unset session value", [
@@ -170,16 +164,13 @@ class SessionUtil
     public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
         // TODO @zmilan: rethink this, since last one will be active session and it could be wrong one for App in use
-        $coreSession = SessionWrapperFactory::getInstance()->getCoreSession();
-        $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         foreach ($setArray as $key => $value) {
-            $coreSession->set($key, $value);
-            $portalSession->set($key, $value);
+            $session->set($key, $value);
         }
 
         foreach ($unsetArray as $value) {
-            $coreSession->remove($value);
-            $portalSession->remove($value);
+            $session->remove($value);
         }
 
         (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
@@ -188,8 +179,7 @@ class SessionUtil
 
     public static function portalSessionCookieDestroy(): void
     {
-        $portalSession = SessionWrapperFactory::getInstance()->getPortalSession();
-        $portalSession->invalidate();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
 
         (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }

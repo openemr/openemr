@@ -384,6 +384,7 @@ class SessionWrapperFactoryTest extends TestCase
 
     /**
      * Test that destroyPortalSession invalidates and clears the active session
+     * when a portal PHP session is active
      */
     public function testDestroyPortalSessionClearsSession(): void
     {
@@ -394,6 +395,13 @@ class SessionWrapperFactoryTest extends TestCase
         $factory->setActiveSession($mockSession);
 
         $this->assertTrue($factory->isSessionActive(), 'Session should be active before destroy');
+
+        // Start a real PHP session with portal session name so destroy condition is met
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
 
         $factory->destroyPortalSession();
 
@@ -409,6 +417,7 @@ class SessionWrapperFactoryTest extends TestCase
 
     /**
      * Test that destroyCoreSession invalidates and clears the active session
+     * when a core PHP session is active
      */
     public function testDestroyCoreSessionClearsSession(): void
     {
@@ -420,6 +429,13 @@ class SessionWrapperFactoryTest extends TestCase
 
         $this->assertTrue($factory->isSessionActive(), 'Session should be active before destroy');
 
+        // Start a real PHP session with core session name so destroy condition is met
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
         $factory->destroyCoreSession();
 
         $this->assertFalse(
@@ -429,6 +445,58 @@ class SessionWrapperFactoryTest extends TestCase
         $this->assertNull(
             $this->getFactoryProperty($factory, 'activeSession'),
             'activeSession should be null after core session destroy'
+        );
+    }
+
+    /**
+     * Test that destroyPortalSession does NOT invalidate a core session
+     */
+    public function testDestroyPortalSessionDoesNotDestroyCoreSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->never())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        // Start a real PHP session with core session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
+        $factory->destroyPortalSession();
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should remain true — core session must not be destroyed by destroyPortalSession'
+        );
+    }
+
+    /**
+     * Test that destroyCoreSession does NOT invalidate a portal session
+     */
+    public function testDestroyCoreSessionDoesNotDestroyPortalSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->never())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        // Start a real PHP session with portal session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
+
+        $factory->destroyCoreSession();
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should remain true — portal session must not be destroyed by destroyCoreSession'
         );
     }
 
@@ -632,9 +700,7 @@ class SessionWrapperFactoryTest extends TestCase
 
     /**
      * Test that destroyCoreSession clears the injected active session
-     *
-     * Verifies that destroy properly cleans up the active session,
-     * preventing stale API sessions from persisting.
+     * when the PHP session is a core session
      */
     public function testDestroyCoreSessionClearsInjectedActiveSession(): void
     {
@@ -647,6 +713,13 @@ class SessionWrapperFactoryTest extends TestCase
         // Verify the injected session is returned
         $this->assertSame($mockApiSession, $factory->getActiveSession());
 
+        // Start a real PHP session with core session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
         $factory->destroyCoreSession();
 
         $this->assertFalse(
@@ -657,9 +730,7 @@ class SessionWrapperFactoryTest extends TestCase
 
     /**
      * Test that destroyPortalSession clears the injected active session
-     *
-     * Verifies that destroy properly cleans up the active session,
-     * preventing stale OAuth sessions from persisting.
+     * when the PHP session is a portal session
      */
     public function testDestroyPortalSessionClearsInjectedActiveSession(): void
     {
@@ -671,6 +742,13 @@ class SessionWrapperFactoryTest extends TestCase
 
         // Verify the injected session is returned
         $this->assertSame($mockOAuthSession, $factory->getActiveSession());
+
+        // Start a real PHP session with portal session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
 
         $factory->destroyPortalSession();
 
