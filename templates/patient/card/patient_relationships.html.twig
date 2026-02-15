@@ -1,0 +1,183 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+
+<div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
+{% if relationships|length == 0 %}
+    <div class="list-group-item p-0 pl-1">
+        {{ "No relationships recorded"|xlt }}
+    </div>
+{% else %}
+    {% for rel in relationships %}
+        <div class="list-group-item py-1 px-1 d-flex justify-content-between align-items-center">
+            <div>
+                <strong>
+                    {% if rel.entity.getPatientId() == patient_id %}
+                        {{ rel.related_name|text }}
+                    {% else %}
+                        {{ rel.patient_name|text }}
+                    {% endif %}
+                </strong>
+                <small class="text-muted ml-2">{{ rel.relationship_title|text }}</small>
+                {% if rel.entity.getNotes() %}
+                    <br><small class="text-muted">{{ rel.entity.getNotes()|text }}</small>
+                {% endif %}
+            </div>
+            {% if auth %}
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteRelationship('{{ rel.entity.getId() }}')">
+                    <i class="fa fa-trash"></i>
+                </button>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+
+{% if auth %}
+<!-- Add Relationship Modal -->
+<div class="modal fade" id="addRelationshipModal" tabindex="-1" role="dialog" aria-labelledby="addRelationshipModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="addRelationshipModalLabel">{{ "Add Patient Relationship"|xlt }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addRelationshipForm">
+                    <div class="form-group">
+                        <label for="related_patient">{{ "Related Patient"|xlt }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="related_patient_name" placeholder="{{ "Click to search for patient..."|xlt }}" readonly />
+                            <input type="hidden" id="related_patient_id" name="related_patient_id" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="selectPatient()">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="relationship_type">{{ "Relationship Type"|xlt }}</label>
+                        <select class="form-control" id="relationship_type" name="relationship_type" required>
+                            <option value="">{{ "Select relationship type"|xlt }}</option>
+                            {% for type in relationship_types %}
+                                <option value="{{ type.option_id|attr }}">{{ type.title|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">{{ "Notes"|xlt }} ({{ "Optional"|xlt }})</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ "Cancel"|xlt }}</button>
+                <button type="button" class="btn btn-primary" onclick="saveRelationship()">{{ "Save"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// AI-generated JavaScript for patient relationships
+function showAddRelationshipModal() {
+    $('#addRelationshipModal').modal('show');
+}
+
+function selectPatient() {
+    // Use OpenEMR's patient search popup
+    const url = top.webroot_url + '/interface/main/calendar/find_patient_popup.php';
+    dlgopen(url, '_blank', 500, 400, '', '', {
+        buttons: [
+            {text: '{{ "OK"|xlt }}', close: true, style: 'btn-primary btn-sm'},
+            {text: '{{ "Cancel"|xlt }}', close: true, style: 'btn-secondary btn-sm'}
+        ],
+        type: 'iframe'
+    });
+}
+
+function setpatient(pid, lname, fname, dob) {
+    // This function will be called when the patient search dialog closes with selected patient data
+    if (pid) {
+        $('#related_patient_id').val(pid);
+        $('#related_patient_name').val((fname + ' ' + lname).trim());
+    }
+}
+
+function saveRelationship() {
+    const formData = {
+        related_patient_id: $('#related_patient_id').val(),
+        relationship_type: $('#relationship_type').val(),
+        notes: $('#notes').val(),
+        csrf_token_form: '{{ csrf_token|raw }}'
+    };
+
+    if (!formData.related_patient_id || !formData.relationship_type) {
+        alert('{{ "Please select a patient and relationship type"|xlt }}');
+        return;
+    }
+
+    $.ajax({
+        url: top.webroot_url + '/interface/patient_file/summary/patient_relationships_ajax.php',
+        method: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                $('#addRelationshipModal').modal('hide');
+                // Reload the page to show the new relationship
+                location.reload();
+            } else {
+                alert('{{ "Error creating relationship"|xlt }}: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function(xhr) {
+            alert('{{ "Error creating relationship"|xlt }}: ' + xhr.statusText);
+        }
+    });
+}
+
+function deleteRelationship(relationshipId) {
+    if (!confirm('{{ "Are you sure you want to delete this relationship?"|xlt }}')) {
+        return;
+    }
+
+    $.ajax({
+        url: top.webroot_url + '/interface/patient_file/summary/patient_relationships_ajax.php',
+        method: 'POST',
+        data: {
+            action: 'delete',
+            relationship_id: relationshipId,
+            csrf_token_form: '{{ csrf_token|raw }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Reload the page to remove the relationship
+                location.reload();
+            } else {
+                alert('{{ "Error deleting relationship"|xlt }}: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function(xhr) {
+            alert('{{ "Error deleting relationship"|xlt }}: ' + xhr.statusText);
+        }
+    });
+}
+
+// Override the card's Add button to show the modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Find the Add button for this card and override its click
+    const addButton = document.querySelector('#{{ id }}').closest('.card').querySelector('.fa-plus');
+    if (addButton) {
+        const linkElement = addButton.closest('a');
+        if (linkElement) {
+            linkElement.setAttribute('onclick', 'showAddRelationshipModal(); return false;');
+        }
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}
