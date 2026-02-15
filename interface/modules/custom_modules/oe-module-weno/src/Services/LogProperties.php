@@ -89,8 +89,8 @@ class LogProperties
         $workday = date("l");
         $from = $workday == 'Monday' ? date("Y-m-d", strtotime("-2 days")) : date("Y-m-d", strtotime("yesterday"));
         // Retrieve the last sync date
-        $lastSync = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;")['created_at'];
-        $lastSync = date("Y-m-d", strtotime((string) $lastSync));
+        $lastSyncRow = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;");
+        $lastSync = $lastSyncRow ? date("Y-m-d", strtotime($lastSyncRow['created_at'])) : $from;
         // Ensure `to` is today and `from` defaults to yesterday or earlier
         $to = date("Y-m-d", strtotime("tomorrow"));
         // Ensure `from` and `to` are within a 7-day range

@@ -25,7 +25,7 @@ use OpenEMR\Events\Messaging\SendSmsEvent;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getPortalSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
@@ -36,9 +36,8 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 } else {
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
-    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (empty($session->get('authUserID'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
