@@ -139,8 +139,8 @@ $authorizeduser = $session->get('authorizeduser');
 
  //==================================
  //FACILITY FILTERING (CHEMED)
-if ( $facilities ) {
-    $provinfo = getProviderInfo('%', true, $facilities);
+if ( $pc_facility ) {
+    $provinfo = getProviderInfo('%', true, $pc_facility);
  } else {
     $provinfo = getProviderInfo();
  }
