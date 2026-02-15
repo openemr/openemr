@@ -163,7 +163,7 @@ class PatientPortalService
      * @param string|null $param
      * @param mixed $default
      * If param not valid then entire super is returned.
-     * @return mixed
+     * @return mixed|null
      */
     public function getSession(?string $param = null, mixed $default = null): mixed
     {
@@ -172,7 +172,7 @@ class PatientPortalService
             return $session->get($param, $default);
         }
 
-        return $session->all(); // TODO @zmilan: should this be array or session object?
+        return $session;
     }
 
     /**
