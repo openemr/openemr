@@ -17,6 +17,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Services\PhoneNumberService;
@@ -36,7 +37,8 @@ abstract class AppDispatch
     protected CryptoGen $crypto;
     protected $_currentAction;
     protected $credentials;
-    private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
+    private $_request, $_response, $_query, $_post, $_server, $_cookies;
+    private SessionInterface $_session;
     protected $authUser;
 
     /**

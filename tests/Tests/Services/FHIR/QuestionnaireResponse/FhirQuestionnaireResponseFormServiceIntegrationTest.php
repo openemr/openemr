@@ -314,6 +314,9 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $this->testPatientData = $result->getFirstDataResult();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getQuestionnaireTemplate(): array
     {
         return [

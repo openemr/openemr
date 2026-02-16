@@ -50,6 +50,7 @@ if ( file_exists($config_file) ) {
     unset($config);
 }
 
+/** @var array<string, mixed>|null $gacl_options */
 $gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
 $gacl = &$gacl_api;
@@ -58,7 +59,7 @@ $db = &$gacl->db;
 
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
-$smarty->setTemplateDir($gacl_options['smarty_template_dir']);
+$smarty->setTemplateDir($gacl_options['smarty_template_dir'] ?? '');
 $smarty->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl');
 
 /*
