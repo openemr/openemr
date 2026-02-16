@@ -567,11 +567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$gacl_options might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/gacl_admin.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$db might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/group_admin.php',
