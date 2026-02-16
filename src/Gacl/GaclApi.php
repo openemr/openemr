@@ -690,7 +690,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = is_object($rs) ? $rs->GetRows() : [];
+        $rows = is_object($rs) ? $rs->getRows() : [];
 
         $retarr['aco'] = [];
         foreach ($rows as $row) {
@@ -706,7 +706,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aro_map a, ".$this->_db_table_prefix."aro b, ".$this->_db_table_prefix."aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = is_object($rs) ? $rs->GetRows() : [];
+        $rows = is_object($rs) ? $rs->getRows() : [];
 
         $retarr['aro'] = [];
         foreach ($rows as $row) {
@@ -722,7 +722,7 @@ class GaclApi extends Gacl {
         $query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."axo_map a, ".$this->_db_table_prefix."axo b, ".$this->_db_table_prefix."axo_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = " . $this->db->Quote($acl_id);
         $rs = $this->db->Execute($query);
-        $rows = is_object($rs) ? $rs->GetRows() : [];
+        $rows = is_object($rs) ? $rs->getRows() : [];
 
         $retarr['axo'] = [];
         foreach ($rows as $row) {
@@ -2708,11 +2708,6 @@ class GaclApi extends Gacl {
 
         if (empty($object_id) ) {
             $this->debug_text("get_object_data(): Object ID ($object_id) is empty, this is required");
-            return false;
-        }
-
-        if (empty($object_type) ) {
-            $this->debug_text("get_object_data(): Object Type ($object_type) is empty, this is required");
             return false;
         }
 
