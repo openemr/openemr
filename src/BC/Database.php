@@ -58,6 +58,10 @@ class Database
         if (self::$instance === null) {
             $options = self::readLegacyConfig();
             $connection = DriverManager::getConnection($options->toDbalParams());
+            // Legacy: disable strict SQL mode for backwards compatibility
+            // When this becomes generalized to future code, this should NOT
+            // run (or it should explicitly set full strict)
+            $connection->executeStatement("SET sql_mode = ''");
             self::$instance = new self($connection);
         }
         return self::$instance;
