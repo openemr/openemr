@@ -39,18 +39,20 @@ window.close =
                 wframe.setCallBack(call, args);
             }
             var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            var modalInstance = null;
             if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
-                var modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
-                if (modalInstance) {
-                    modalInstance.hide();
-                    // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
-                    setTimeout(function() {
-                        top.jQuery('.modal-backdrop').remove();
-                        top.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
-                        dialogModal.remove();
-                    }, 300);
-                }
+                modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
             }
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            // BS5: Always ensure cleanup happens regardless of getInstance result
+            // Cross-frame modal events may not fire properly, so we force cleanup
+            setTimeout(function() {
+                top.jQuery('.modal-backdrop').remove();
+                top.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                dialogModal.remove();
+            }, 300);
         }
 
     };
@@ -71,18 +73,20 @@ var dlgclose =
                 wframe.setCallBack(call, args);
             }
             var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            var modalInstance = null;
             if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
-                var modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
-                if (modalInstance) {
-                    modalInstance.hide();
-                    // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
-                    setTimeout(function() {
-                        top.jQuery('.modal-backdrop').remove();
-                        top.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
-                        dialogModal.remove();
-                    }, 300);
-                }
+                modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
             }
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            // BS5: Always ensure cleanup happens regardless of getInstance result
+            // Cross-frame modal events may not fire properly, so we force cleanup
+            setTimeout(function() {
+                top.jQuery('.modal-backdrop').remove();
+                top.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                dialogModal.remove();
+            }, 300);
         }
 
     };
