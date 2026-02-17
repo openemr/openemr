@@ -1546,7 +1546,7 @@ function make_insurance() {
                     <!-- Body  -->
                     <div class="modal-footer">
                         <div class="button-group">
-                            <button type="button" class="btn btn-default" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                             <?php
                             if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
                                 <button id="payAurhorizeNet" class="btn btn-primary"
