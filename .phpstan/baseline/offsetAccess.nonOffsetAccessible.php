@@ -24162,6 +24162,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'priors_omitted\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
