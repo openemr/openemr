@@ -393,7 +393,6 @@ try {
 require_once(__DIR__ . "/../library/sql.inc.php");
 $globalsBag->set("adodb", $GLOBALS['adodb'] ?? null);
 $globalsBag->set("dbh", $GLOBALS['dbh'] ?? null);
-$globalsBag->set("disable_utf8_flag", $disable_utf8_flag ?? false);
 
 // Include the version file
 require_once(__DIR__ . "/../version.php");
@@ -406,18 +405,9 @@ $globalsBag->set("v_database", $v_database ?? null);
 $globalsBag->set("v_acl", $v_acl ?? null);
 $globalsBag->set("v_js_includes", $v_js_includes ?? null);
 
-// Collecting the utf8 disable flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
-// then set to iso-8859-1.
-if (!$disable_utf8_flag) {
-    ini_set('default_charset', 'utf-8');
-    $HTML_CHARSET = "UTF-8";
-    mb_internal_encoding('UTF-8');
-} else {
-    ini_set('default_charset', 'iso-8859-1');
-    $HTML_CHARSET = "ISO-8859-1";
-    mb_internal_encoding('ISO-8859-1');
-}
+ini_set('default_charset', 'utf-8');
+$HTML_CHARSET = "UTF-8";
+mb_internal_encoding('UTF-8');
 
 // Defaults for specific applications.
 $globalsBag->set('weight_loss_clinic', false);

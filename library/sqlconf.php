@@ -45,7 +45,6 @@ if (OEGlobalsBag::getInstance()->hasKernel()) {
         $pass = $configEntity->getPass();
         $dbase = $configEntity->getDatabaseName();
         $db_encoding = $configEntity->getEncoding();
-        $disable_utf8_flag = $configEntity->getDisableUTF8();
         $config = $configEntity->getConfig();
     }
 }

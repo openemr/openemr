@@ -64,11 +64,4 @@ interface SqlConfigInterface
      * @return integer
      */
     public function getConfig(): int;
-
-    /**
-     * Get whether or not to disable UTF-8 (Probably always 0)
-     *
-     * @return integer
-     */
-    public function getDisableUTF8(): int;
 }
