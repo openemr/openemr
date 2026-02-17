@@ -952,16 +952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/add_edit_lot.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function inventory_mergeData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function inventory_processData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
@@ -7922,11 +7912,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function proc_provider_invalue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function proc_stats_getListTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
@@ -8025,11 +8010,6 @@ $ignoreErrors[] = [
     'message' => '#^Function storeNote\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function types_invalue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function dataFixup\\(\\) has no return type specified\\.$#',
@@ -8230,16 +8210,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getInsName\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function destroyed_mergeData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function destroyed_processData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function format_cvx_code\\(\\) has no return type specified\\.$#',
@@ -8570,11 +8540,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Therapy_groups_participants\\:\\:updateParticipant\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addrbook_invalue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function do_visit_form\\(\\) has no return type specified\\.$#',
@@ -19985,21 +19950,6 @@ $ignoreErrors[] = [
     'message' => '#^Function recursive_remove_directory\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function portal_GetAllCredits\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function portal_GetAllUnapplied\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function portal_List_Look\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function postToGet\\(\\) has no return type specified\\.$#',
