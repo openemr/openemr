@@ -27,12 +27,14 @@ const ContextAdmin = {
     bindEvents: function() {
         const self = this;
 
-        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
-            const target = $(e.target).attr('href');
-            if (target === '#users') self.loadUsers();
-            else if (target === '#roles') self.loadRoleDefaults();
-            else if (target === '#stats') self.loadStats();
-            else if (target === '#audit') self.loadAuditLog();
+        document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function(el) {
+            el.addEventListener('shown.bs.tab', function(e) {
+                const target = $(e.target).attr('href');
+                if (target === '#users') self.loadUsers();
+                else if (target === '#roles') self.loadRoleDefaults();
+                else if (target === '#stats') self.loadStats();
+                else if (target === '#audit') self.loadAuditLog();
+            });
         });
 
         $('#btnCreateContext').on('click', () => self.showContextModal());
@@ -96,7 +98,7 @@ const ContextAdmin = {
                                 ${this.escapeHtml(ctx.context_name)}
                                 <span class="badge ${badgeClass} float-end">${badgeText}</span>
                             </h6>
-                            <p class="card-text small text-muted">${this.escapeHtml(ctx.description || '')}</p>
+                            <p class="card-text small text-body-secondary">${this.escapeHtml(ctx.description || '')}</p>
                             <p class="card-text small"><strong>Key:</strong> ${this.escapeHtml(ctx.context_key)}</p>
                             ${!isSystem ? `
                                 <div class="btn-group btn-group-sm">
@@ -146,7 +148,11 @@ const ContextAdmin = {
             $(this).closest('.widget-item').toggleClass('active', $(this).is(':checked'));
         });
 
-        $('#contextModal').modal('show');
+        const modalEl = document.getElementById('contextModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     saveContext: function() {
@@ -179,7 +185,21 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#contextModal').modal('hide');
+                    const modalEl = document.getElementById('contextModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                            // BS5: Ensure backdrop is removed after hide
+                            setTimeout(function() {
+                                var backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) { backdrop.remove(); }
+                                document.body.classList.remove('modal-open');
+                                document.body.style.paddingRight = '';
+                                document.body.style.overflow = '';
+                            }, 300);
+                        }
+                    }
                     self.loadAdminConfig();
                     self.showAlert(isEdit ? 'Context updated' : 'Context created', 'success');
                 } else {
@@ -267,7 +287,7 @@ const ContextAdmin = {
             $tbody.append(`
                 <tr class="${isLocked ? 'user-row locked' : 'user-row'}">
                     <td><input type="checkbox" class="user-select" value="${user.id}"></td>
-                    <td>${this.escapeHtml(user.name)} <small class="text-muted">(${this.escapeHtml(user.username)})</small></td>
+                    <td>${this.escapeHtml(user.name)} <small class="text-body-secondary">(${this.escapeHtml(user.username)})</small></td>
                     <td>${this.escapeHtml(user.facility_name || '-')}</td>
                     <td>${this.escapeHtml(this.config.userTypes[user.user_type] || user.user_type || '-')}</td>
                     <td>${this.escapeHtml(contextLabel)}</td>
@@ -292,7 +312,11 @@ const ContextAdmin = {
         $('#assignUserName').text(user.name);
         $('#assignContext').val(user.active_context);
         $('#assignLock').prop('checked', false);
-        $('#assignModal').modal('show');
+        const modalEl = document.getElementById('assignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     assignContext: function() {
@@ -312,7 +336,21 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#assignModal').modal('hide');
+                    const modalEl = document.getElementById('assignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                            // BS5: Ensure backdrop is removed after hide
+                            setTimeout(function() {
+                                var backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) { backdrop.remove(); }
+                                document.body.classList.remove('modal-open');
+                                document.body.style.paddingRight = '';
+                                document.body.style.overflow = '';
+                            }, 300);
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert('Context assigned', 'success');
                 }
@@ -327,7 +365,11 @@ const ContextAdmin = {
             return;
         }
         $('#bulkSelectedCount').text(selected.length);
-        $('#bulkAssignModal').modal('show');
+        const modalEl = document.getElementById('bulkAssignModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     },
 
     bulkAssign: function() {
@@ -349,7 +391,21 @@ const ContextAdmin = {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#bulkAssignModal').modal('hide');
+                    const modalEl = document.getElementById('bulkAssignModal');
+                    if (modalEl) {
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                            // BS5: Ensure backdrop is removed after hide
+                            setTimeout(function() {
+                                var backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) { backdrop.remove(); }
+                                document.body.classList.remove('modal-open');
+                                document.body.style.paddingRight = '';
+                                document.body.style.overflow = '';
+                            }, 300);
+                        }
+                    }
                     self.loadUsers();
                     self.showAlert(response.success_count + ' of ' + response.total_count + ' users updated', 'success');
                 }
@@ -563,7 +619,17 @@ const ContextAdmin = {
             </div>
         `);
         $('body').append($alert);
-        setTimeout(() => $alert.alert('close'), 3000);
+        setTimeout(() => {
+            var alertEl = $alert[0];
+            if (alertEl) {
+                var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                if (bsAlert) {
+                    bsAlert.close();
+                } else {
+                    $alert.remove();
+                }
+            }
+        }, 3000);
     },
 
     escapeHtml: function(text) {

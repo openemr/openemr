@@ -166,7 +166,21 @@
                         self.config.widgets = widgets;
                         self.applyWidgetVisibility();
                         self.showNotification('Settings saved', 'success', '', '', true);
-                        $('#contextSettingsModal').modal('hide');
+                        const modalEl = document.getElementById('contextSettingsModal');
+                        if (modalEl) {
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) {
+                                modal.hide();
+                                // BS5: Ensure backdrop is removed after hide
+                                setTimeout(function() {
+                                    var backdrop = document.querySelector('.modal-backdrop');
+                                    if (backdrop) { backdrop.remove(); }
+                                    document.body.classList.remove('modal-open');
+                                    document.body.style.paddingRight = '';
+                                    document.body.style.overflow = '';
+                                }, 300);
+                            }
+                        }
                     } else {
                         self.showNotification('Failed to save settings', 'error', '', '', true);
                     }
@@ -203,7 +217,11 @@
 
         openSettingsModal: function () {
             this.updateSettingsModal();
-            $('#contextSettingsModal').modal('show');
+            const modalEl = document.getElementById('contextSettingsModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
         },
 
         updateSettingsModal: function () {
@@ -315,7 +333,15 @@
 
             $('body').append($alert);
             setTimeout(function () {
-                $alert.alert('close');
+                var alertEl = $alert[0];
+                if (alertEl) {
+                    var bsAlert = bootstrap.Alert.getInstance(alertEl);
+                    if (bsAlert) {
+                        bsAlert.close();
+                    } else {
+                        $alert.remove();
+                    }
+                }
             }, 3000);
         },
 

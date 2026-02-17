@@ -729,6 +729,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     var modalInstance = bsRef.Modal.getInstance(dlgContainer[0]);
                     if (modalInstance && typeof modalInstance.hide === 'function') {
                         modalInstance.hide();
+                        // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
+                        setTimeout(function() {
+                            where.jQuery('.modal-backdrop').remove();
+                            where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                            dlgContainer.remove();
+                        }, 300);
                         return;
                     }
                 }
@@ -812,7 +818,15 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 var bsRef = (where.bootstrap && where.bootstrap.Modal) ? where.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
                 if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
                     var modalInstance = bsRef.Modal.getInstance(dlgContainer[0]);
-                    if (modalInstance) { modalInstance.hide(); }
+                    if (modalInstance) {
+                        modalInstance.hide();
+                        // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
+                        setTimeout(function() {
+                            where.jQuery('.modal-backdrop').remove();
+                            where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                            dlgContainer.remove();
+                        }, 300);
+                    }
                 }
                 return false;
             };
