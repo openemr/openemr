@@ -44,7 +44,6 @@ if (OEGlobalsBag::getInstance()->hasKernel()) {
         $login = $configEntity->getUser();
         $pass = $configEntity->getPass();
         $dbase = $configEntity->getDatabaseName();
-        $db_encoding = $configEntity->getEncoding();
         $config = $configEntity->getConfig();
     }
 }

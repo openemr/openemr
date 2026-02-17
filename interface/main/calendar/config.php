@@ -22,7 +22,6 @@ require_once(__DIR__ . "/../../../vendor/adodb/adodb-php/drivers/adodb-mysqli.in
 
 // Modified 5/2009 by BM for UTF-8 project
 global $host,$port,$login,$pass,$dbase;
-$pnconfig['db_encoding'] = "utf8mb4";
 
 // ---------------------------------------
 

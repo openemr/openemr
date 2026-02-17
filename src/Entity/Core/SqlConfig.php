@@ -45,11 +45,6 @@ class SqlConfig implements SqlConfigInterface
     /**
      * {@inheritDoc}
      */
-    private $encoding;
-
-    /**
-     * {@inheritDoc}
-     */
     private $config;
 
     /**
@@ -78,10 +73,6 @@ class SqlConfig implements SqlConfigInterface
 
         if (array_key_exists('databaseName', $opts)) {
             $this->databaseName = $opts['databaseName'];
-        }
-
-        if (array_key_exists('encoding', $opts)) {
-            $this->encoding = $opts['encoding'];
         }
 
         if (array_key_exists('config', $opts)) {
@@ -127,14 +118,6 @@ class SqlConfig implements SqlConfigInterface
     public function getDatabaseName(): string
     {
         return $this->databaseName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getEncoding(): string
-    {
-        return $this->encoding;
     }
 
     /**
