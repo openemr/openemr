@@ -12,6 +12,9 @@
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * add ability to output results as a csv file. version 1.0 Ruth Moulton
+ */
  */
 
 require_once("../globals.php");
@@ -26,6 +29,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $first_time = true;
+$group = 1;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -36,7 +40,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
  */
 function displayRow($row, $pid = ''): void
 {
-    global $first_time;
+    global $first_time, $group;
 
     if (empty($pid)) {
         $pid = $row['pid'];
@@ -53,6 +57,8 @@ function displayRow($row, $pid = ''): void
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
+            $group++;
+            if (empty($_POST['form_csvexport'])) { //rm - don't put the next line into the csv file
             echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
         }
     }
@@ -84,6 +90,22 @@ function displayRow($row, $pid = ''): void
         $highlight_text = xlt('Merge To');
     }
     echo "<tr class='$highlight_class'>";
+    /* rm - output the line to the csv file if requested, otherwise display */
+    if (!empty($_POST['form_csvexport'])) {
+            echo csvEscape(text($group)) . ',';
+            echo csvEscape(text($myscore)) . ',';
+            echo csvEscape($row['pid']) . ',';
+            echo csvEscape($row['id']) . ',';
+            echo csvEscape(text($ptname)) . ',';
+            // format dates by users preference
+            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
+            echo csvEscape($row['ss']) . ',';
+            echo csvEscape($row['email']) . ',';
+            echo csvEscape(text($phones)) . ',';
+            echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
+            echo csvEscape(text($facname)) . ',';
+             echo csvEscape($row['street']) . "\n";
+    } else {
     ?>
     <td>
         <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
@@ -127,7 +149,8 @@ function displayRow($row, $pid = ''): void
     </td>
     </tr>
     <?php
-}
+        } //rm - else display
+    } // function displayRow
 
 /**
  * @return int
