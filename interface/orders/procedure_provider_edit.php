@@ -41,7 +41,7 @@ $ppid = $_REQUEST['ppid'];
 
 $info_msg = "";
 
-function invalue($name)
+function proc_provider_invalue($name)
 {
     $fld = add_escape_custom(trim((string) $_POST[$name]));
     return "'$fld'";
@@ -113,21 +113,21 @@ function onvalue($name)
         }
         $sets =
             "name = '" . add_escape_custom($org_name) . "', " .
-            "lab_director = " . invalue('form_name') . ", " .
-            "npi = " . invalue('form_npi') . ", " .
-            "send_app_id = " . invalue('form_send_app_id') . ", " .
-            "send_fac_id = " . invalue('form_send_fac_id') . ", " .
-            "recv_app_id = " . invalue('form_recv_app_id') . ", " .
-            "recv_fac_id = " . invalue('form_recv_fac_id') . ", " .
-            "DorP = " . invalue('form_DorP') . ", " .
-            "direction = " . invalue('form_direction') . ", " .
-            "protocol = " . invalue('form_protocol') . ", " .
-            "remote_host = " . invalue('form_remote_host') . ", " .
-            "login = " . invalue('form_login') . ", " .
-            "password = " . invalue('form_password') . ", " .
-            "orders_path = " . invalue('form_orders_path') . ", " .
-            "results_path = " . invalue('form_results_path') . ", " .
-            "notes = " . invalue('form_notes') . ", " .
+            "lab_director = " . proc_provider_invalue('form_name') . ", " .
+            "npi = " . proc_provider_invalue('form_npi') . ", " .
+            "send_app_id = " . proc_provider_invalue('form_send_app_id') . ", " .
+            "send_fac_id = " . proc_provider_invalue('form_send_fac_id') . ", " .
+            "recv_app_id = " . proc_provider_invalue('form_recv_app_id') . ", " .
+            "recv_fac_id = " . proc_provider_invalue('form_recv_fac_id') . ", " .
+            "DorP = " . proc_provider_invalue('form_DorP') . ", " .
+            "direction = " . proc_provider_invalue('form_direction') . ", " .
+            "protocol = " . proc_provider_invalue('form_protocol') . ", " .
+            "remote_host = " . proc_provider_invalue('form_remote_host') . ", " .
+            "login = " . proc_provider_invalue('form_login') . ", " .
+            "password = " . proc_provider_invalue('form_password') . ", " .
+            "orders_path = " . proc_provider_invalue('form_orders_path') . ", " .
+            "results_path = " . proc_provider_invalue('form_results_path') . ", " .
+            "notes = " . proc_provider_invalue('form_notes') . ", " .
             "active = " . onvalue('form_active');
 
         if ($ppid) {
