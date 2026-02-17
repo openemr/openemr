@@ -4117,11 +4117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getDisableUTF8\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getEncoding\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',

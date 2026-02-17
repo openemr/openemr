@@ -11902,11 +11902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_definition.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'def_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
@@ -11927,11 +11922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_manage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'def_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
@@ -11945,11 +11935,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'lang_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/language.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
@@ -12323,7 +12308,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
 ];
 $ignoreErrors[] = [
@@ -39657,11 +39642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/address_display.php',
@@ -41410,11 +41390,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'user_name\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/secure_chat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
@@ -46843,11 +46818,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allow\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

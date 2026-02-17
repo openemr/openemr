@@ -11187,11 +11187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$disable_utf8_flag might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$portal_temp_css_theme_name might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/globals.php',
@@ -11217,19 +11212,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/csv/translation_utilities.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$disable_utf8_flag might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_definition.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$go might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$disable_utf8_flag might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_manage.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
@@ -16905,11 +16890,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$disable_utf8_flag might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sn might not be defined\\.$#',
