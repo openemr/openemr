@@ -53,7 +53,7 @@ $cellcount = 0;
 
 // Usually this generates one cell, but allows for two or more.
 //
-function ippf_daily_genAnyCell($data, $right = false, $class = ''): void
+function ippf_daily_genAnyCell($data, bool $right = false, string $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -84,7 +84,7 @@ function ippf_daily_genAnyCell($data, $right = false, $class = ''): void
     }
 }
 
-function ippf_daily_genHeadCell($data, $right = false): void
+function ippf_daily_genHeadCell($data, bool $right = false): void
 {
     ippf_daily_genAnyCell($data, $right, 'dehead');
 }

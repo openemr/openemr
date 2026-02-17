@@ -41,7 +41,7 @@ $ppid = $_REQUEST['ppid'];
 
 $info_msg = "";
 
-function proc_provider_invalue($name)
+function proc_provider_invalue(string $name): string
 {
     $fld = add_escape_custom(trim((string) $_POST[$name]));
     return "'$fld'";

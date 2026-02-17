@@ -112,7 +112,7 @@ function generateEmptyTd($n): void
     }
     echo $temp;
 }
-function inventory_processData($data)
+function inventory_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -122,7 +122,7 @@ function inventory_processData($data)
     $data['expiration'] = [$data['expiration']];
     return $data;
 }
-function inventory_mergeData($d1, $d2)
+function inventory_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);

@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01'); // From date filter
 $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
 
-function destroyed_processData($data)
+function destroyed_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -39,7 +39,7 @@ function destroyed_processData($data)
     $data['destroy_notes'] = [$data['destroy_notes']];
     return $data;
 }
-function destroyed_mergeData($d1, $d2)
+function destroyed_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);

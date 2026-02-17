@@ -100,7 +100,7 @@ function proc_stats_getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function proc_stats_genAnyCell($data, $right = false, $class = ''): void
+function proc_stats_genAnyCell($data, bool $right = false, string $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -131,7 +131,7 @@ function proc_stats_genAnyCell($data, $right = false, $class = ''): void
     }
 }
 
-function proc_stats_genHeadCell($data, $right = false): void
+function proc_stats_genHeadCell($data, bool $right = false): void
 {
     proc_stats_genAnyCell($data, $right, 'dehead');
 }

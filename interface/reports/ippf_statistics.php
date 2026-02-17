@@ -171,7 +171,7 @@ function ippf_stats_getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function ippf_stats_genAnyCell($data, $right = false, $class = '', $colspan = 1): void
+function ippf_stats_genAnyCell($data, bool $right = false, string $class = '', int $colspan = 1): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -204,7 +204,7 @@ function ippf_stats_genAnyCell($data, $right = false, $class = '', $colspan = 1)
     }
 }
 
-function ippf_stats_genHeadCell($data, $right = false, $colspan = 1): void
+function ippf_stats_genHeadCell($data, bool $right = false, int $colspan = 1): void
 {
     ippf_stats_genAnyCell($data, $right, 'dehead');
 }
