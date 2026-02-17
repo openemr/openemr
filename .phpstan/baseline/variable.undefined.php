@@ -12767,11 +12767,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$patient_id$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
