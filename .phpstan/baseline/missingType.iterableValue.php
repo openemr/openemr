@@ -15872,6 +15872,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Common\\\\Utils\\\\ValidationUtilsIsolatedTest\\:\\:formatGlobalProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Common\\\\Utils\\\\ValidationUtilsIsolatedTest\\:\\:formatLocalProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php',
