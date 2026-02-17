@@ -1747,22 +1747,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mapToTable\\(\\) has parameter \\$row with no type specified\\.$#',
+    'message' => '#^Function inventory_mapToTable\\(\\) has parameter \\$row with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData\\(\\) has parameter \\$d1 with no type specified\\.$#',
+    'message' => '#^Function inventory_mergeData\\(\\) has parameter \\$d1 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData\\(\\) has parameter \\$d2 with no type specified\\.$#',
+    'message' => '#^Function inventory_mergeData\\(\\) has parameter \\$d2 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function processData\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function inventory_processData\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
@@ -3232,12 +3232,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function row_delete\\(\\) has parameter \\$table with no type specified\\.$#',
+    'message' => '#^Function eye_mag_row_delete\\(\\) has parameter \\$table with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function row_delete\\(\\) has parameter \\$where with no type specified\\.$#',
+    'message' => '#^Function eye_mag_row_delete\\(\\) has parameter \\$where with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
@@ -14147,57 +14147,57 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function invalue\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function onvalue\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
+    'message' => '#^Function proc_provider_invalue\\(\\) has parameter \\$name with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function proc_stats_genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
+    'message' => '#^Function proc_stats_genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
+    'message' => '#^Function proc_stats_getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
+    'message' => '#^Function proc_stats_getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
@@ -14487,12 +14487,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function invalue\\(\\) has parameter \\$name with no type specified\\.$#',
+    'message' => '#^Function recursiveDelete\\(\\) has parameter \\$typeid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function recursiveDelete\\(\\) has parameter \\$typeid with no type specified\\.$#',
+    'message' => '#^Function types_invalue\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
@@ -14508,6 +14508,31 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function delete_drug_sales\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_delete\\(\\) has parameter \\$table with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_delete\\(\\) has parameter \\$where with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_modify\\(\\) has parameter \\$set with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_modify\\(\\) has parameter \\$table with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_modify\\(\\) has parameter \\$where with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
@@ -14528,31 +14553,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function form_delete\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_delete\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_delete\\(\\) has parameter \\$where with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_modify\\(\\) has parameter \\$set with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_modify\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_modify\\(\\) has parameter \\$where with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
@@ -14817,6 +14817,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function checkout_getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function checkout_getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function generate_layout_display_field\\(\\) has parameter \\$currvalue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
@@ -14832,32 +14842,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_receipt\\(\\) has parameter \\$encounter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_receipt\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function invoiceChecksum\\(\\) has parameter \\$encounter with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function invoiceChecksum\\(\\) has parameter \\$pid with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_generate_receipt\\(\\) has parameter \\$encounter with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_generate_receipt\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
@@ -15017,12 +15017,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_receipt\\(\\) has parameter \\$encounter with no type specified\\.$#',
+    'message' => '#^Function normal_generate_receipt\\(\\) has parameter \\$encounter with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_receipt\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'message' => '#^Function normal_generate_receipt\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
@@ -15427,12 +15427,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) has parameter \\$appt_date with no type specified\\.$#',
+    'message' => '#^Function appointments_fetch_reminders\\(\\) has parameter \\$appt_date with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) has parameter \\$pid with no type specified\\.$#',
+    'message' => '#^Function appointments_fetch_reminders\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -15472,22 +15472,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mapToTable\\(\\) has parameter \\$row with no type specified\\.$#',
+    'message' => '#^Function destroyed_mapToTable\\(\\) has parameter \\$row with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData\\(\\) has parameter \\$d1 with no type specified\\.$#',
+    'message' => '#^Function destroyed_mergeData\\(\\) has parameter \\$d1 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData\\(\\) has parameter \\$d2 with no type specified\\.$#',
+    'message' => '#^Function destroyed_mergeData\\(\\) has parameter \\$d2 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function processData\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function destroyed_processData\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
@@ -15582,37 +15582,37 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
+    'message' => '#^Function ippf_daily_genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
@@ -15647,51 +15647,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$colspan with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$colspan with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getAbortionMethod\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
@@ -15703,16 +15658,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getGcacClientStatus\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -15733,6 +15678,61 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function hadRecentAbService\\(\\) has parameter \\$pid with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genAnyCell\\(\\) has parameter \\$class with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genAnyCell\\(\\) has parameter \\$colspan with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genAnyCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genAnyCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genHeadCell\\(\\) has parameter \\$colspan with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genHeadCell\\(\\) has parameter \\$data with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genHeadCell\\(\\) has parameter \\$right with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genNumCell\\(\\) has parameter \\$cnum with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genNumCell\\(\\) has parameter \\$num with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_getListTitle\\(\\) has parameter \\$list with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -16452,7 +16452,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/users_model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function invalue\\(\\) has parameter \\$name with no type specified\\.$#',
+    'message' => '#^Function addrbook_invalue\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
@@ -28307,7 +28307,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) has parameter \\$patient_id with no type specified\\.$#',
+    'message' => '#^Function patient_fetch_reminders\\(\\) has parameter \\$patient_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
@@ -30182,27 +30182,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay\\(\\) has parameter \\$catid with no type specified\\.$#',
+    'message' => '#^Function portal_doOneDay\\(\\) has parameter \\$catid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay\\(\\) has parameter \\$duration with no type specified\\.$#',
+    'message' => '#^Function portal_doOneDay\\(\\) has parameter \\$duration with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay\\(\\) has parameter \\$prefcatid with no type specified\\.$#',
+    'message' => '#^Function portal_doOneDay\\(\\) has parameter \\$prefcatid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay\\(\\) has parameter \\$starttime with no type specified\\.$#',
+    'message' => '#^Function portal_doOneDay\\(\\) has parameter \\$starttime with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay\\(\\) has parameter \\$udate with no type specified\\.$#',
+    'message' => '#^Function portal_doOneDay\\(\\) has parameter \\$udate with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
@@ -32092,52 +32092,52 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllCredits\\(\\) has parameter \\$enc with no type specified\\.$#',
+    'message' => '#^Function portal_GetAllCredits\\(\\) has parameter \\$enc with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllCredits\\(\\) has parameter \\$pat with no type specified\\.$#',
+    'message' => '#^Function portal_GetAllCredits\\(\\) has parameter \\$pat with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllUnapplied\\(\\) has parameter \\$from_dt with no type specified\\.$#',
+    'message' => '#^Function portal_GetAllUnapplied\\(\\) has parameter \\$from_dt with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllUnapplied\\(\\) has parameter \\$pat with no type specified\\.$#',
+    'message' => '#^Function portal_GetAllUnapplied\\(\\) has parameter \\$pat with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllUnapplied\\(\\) has parameter \\$to_dt with no type specified\\.$#',
+    'message' => '#^Function portal_GetAllUnapplied\\(\\) has parameter \\$to_dt with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function List_Look\\(\\) has parameter \\$thisData with no type specified\\.$#',
+    'message' => '#^Function portal_List_Look\\(\\) has parameter \\$thisData with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function List_Look\\(\\) has parameter \\$thisList with no type specified\\.$#',
+    'message' => '#^Function portal_List_Look\\(\\) has parameter \\$thisList with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function PrintCreditDetail\\(\\) has parameter \\$detail with no type specified\\.$#',
+    'message' => '#^Function portal_PrintCreditDetail\\(\\) has parameter \\$detail with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function PrintCreditDetail\\(\\) has parameter \\$pat with no type specified\\.$#',
+    'message' => '#^Function portal_PrintCreditDetail\\(\\) has parameter \\$pat with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function PrintCreditDetail\\(\\) has parameter \\$unassigned with no type specified\\.$#',
+    'message' => '#^Function portal_PrintCreditDetail\\(\\) has parameter \\$unassigned with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];

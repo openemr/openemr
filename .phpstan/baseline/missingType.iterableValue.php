@@ -1717,7 +1717,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Function appointments_fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -2637,7 +2637,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Function patient_fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
