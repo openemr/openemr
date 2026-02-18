@@ -75,7 +75,7 @@ class ForbiddenFunctionsRule implements Rule
         $message = self::FORBIDDEN_FUNCTIONS[$functionName];
 
         // Determine error identifier and tip based on function type
-        if (in_array($functionName, ['call_user_func', 'call_user_func_array'])) {
+        if (in_array($functionName, ['call_user_func', 'call_user_func_array'], true)) {
             return [
                 RuleErrorBuilder::message($message)
                     ->identifier('openemr.legacyCallUserFunc')

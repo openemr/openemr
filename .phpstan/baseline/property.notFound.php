@@ -932,11 +932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/CompositeSearchField.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property PhpParser\\\\Node\\:\\:\\$name\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$additional_users\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',

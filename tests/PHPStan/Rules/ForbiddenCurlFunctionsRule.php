@@ -49,7 +49,7 @@ class ForbiddenCurlFunctionsRule implements Rule
         $functionName = $node->name->toString();
 
         // Check if it's a curl_* function
-        if (!preg_match(self::CURL_FUNCTION_PATTERN, $functionName)) {
+        if (preg_match(self::CURL_FUNCTION_PATTERN, $functionName) !== 1) {
             return [];
         }
 
