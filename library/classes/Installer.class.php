@@ -1603,7 +1603,6 @@ $config = 1; /////////////
 
         $config = new DatabaseConnectionOptions(
             dbname: $dbname,
-            charset: 'utf8mb4',
             user: $user,
             password: $password,
             host: $server,
