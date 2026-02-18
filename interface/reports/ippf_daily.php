@@ -53,7 +53,7 @@ $cellcount = 0;
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = ''): void
+function ippf_daily_genAnyCell($data, bool $right = false, string $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -84,14 +84,14 @@ function genAnyCell($data, $right = false, $class = ''): void
     }
 }
 
-function genHeadCell($data, $right = false): void
+function ippf_daily_genHeadCell($data, bool $right = false): void
 {
-    genAnyCell($data, $right, 'dehead');
+    ippf_daily_genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum): void
+function ippf_daily_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -99,7 +99,7 @@ function genNumCell($num, $cnum): void
         $num = '&nbsp;';
     }
 
-    genAnyCell($num, true, 'detail');
+    ippf_daily_genAnyCell($num, true, 'detail');
 }
 
 // If we are doing the CSV export then generate the needed HTTP headers.
@@ -347,20 +347,20 @@ if ($_POST['form_submit']) {
 
   // Generate headings.
     genStartRow("bgcolor='#dddddd'");
-    genHeadCell(xl('Method'));
-    genHeadCell(xl('New Clients'), true);
-    genHeadCell(xl('Old Clients'), true);
-    genHeadCell(xl('Total Clients'), true);
-    genHeadCell(xl('Contra Clients'), true);
-  // genHeadCell(xl('O.A.F.V.'       ), true);
-    genHeadCell(xl('Pap Smear'), true);
-    genHeadCell(xl('Preg Test'), true);
-    genHeadCell(xl('Dr Check'), true);
-    genHeadCell(xl('Dr Visit'), true);
-    genHeadCell(xl('Advice'), true);
-    genHeadCell(xl('Couns by Method'), true);
-    genHeadCell(xl('Infert Couns'), true);
-    genHeadCell(xl('STD/AIDS Couns'), true);
+    ippf_daily_genHeadCell(xl('Method'));
+    ippf_daily_genHeadCell(xl('New Clients'), true);
+    ippf_daily_genHeadCell(xl('Old Clients'), true);
+    ippf_daily_genHeadCell(xl('Total Clients'), true);
+    ippf_daily_genHeadCell(xl('Contra Clients'), true);
+  // ippf_daily_genHeadCell(xl('O.A.F.V.'       ), true);
+    ippf_daily_genHeadCell(xl('Pap Smear'), true);
+    ippf_daily_genHeadCell(xl('Preg Test'), true);
+    ippf_daily_genHeadCell(xl('Dr Check'), true);
+    ippf_daily_genHeadCell(xl('Dr Visit'), true);
+    ippf_daily_genHeadCell(xl('Advice'), true);
+    ippf_daily_genHeadCell(xl('Couns by Method'), true);
+    ippf_daily_genHeadCell(xl('Infert Couns'), true);
+    ippf_daily_genHeadCell(xl('STD/AIDS Couns'), true);
     genEndRow();
 
     $encount = 0;
@@ -368,10 +368,10 @@ if ($_POST['form_submit']) {
     foreach ($areport as $varr) {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
         genStartRow("bgcolor='" . attr($bgcolor) . "'");
-        genAnyCell($varr[0], false, 'detail');
+        ippf_daily_genAnyCell($varr[0], false, 'detail');
         // Generate data and accumulate totals for this row.
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
-            genNumCell($varr[$cnum + 1], $cnum);
+            ippf_daily_genNumCell($varr[$cnum + 1], $cnum);
         }
 
         genEndRow();
@@ -380,9 +380,9 @@ if ($_POST['form_submit']) {
     if ($form_output != 3) {
         // Generate the line of totals.
         genStartRow("bgcolor='#dddddd'");
-        genHeadCell(xl('Totals'));
+        ippf_daily_genHeadCell(xl('Totals'));
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
-            genHeadCell($atotals[$cnum], true);
+            ippf_daily_genHeadCell($atotals[$cnum], true);
         }
 
         genEndRow();

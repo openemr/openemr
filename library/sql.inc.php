@@ -36,7 +36,6 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
  * @var string $login
  * @var string $pass
  * @var string $dbase
- * @var bool $disable_utf8_flag
  * @var string $secure_host
  * @var string $secure_port
  * @var string $secure_login
