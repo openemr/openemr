@@ -68,18 +68,22 @@ class HttpSessionFactory implements SessionFactoryInterface
         $settings = $this->getSessionSettings();
         $sessionKey = $this->getSessionKey();
         $sessionHandler = $this->getSessionHandlerInterface($settings);
-        if ($this->useBridge || session_status() === PHP_SESSION_ACTIVE) {
-            // Use the existing session bridge if it exists
-            $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
-        } else {
-            $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
-        }
+//        TODO @zmilan: Test if it works now without this part
+//        if ($this->useBridge || session_status() === PHP_SESSION_ACTIVE) {
+//            // Use the existing session bridge if it exists
+//            $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
+//        } else {
+//            $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
+//        }
+        $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
+
         $storage = $sessionStorageFactory->createStorage($this->request);
         $session = new Session($storage, new AttributeBag($sessionKey));
-        if (!$session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
-            $session->start();
-        }
-        $this->populateSessionFromGlobals($session);
+//        TODO @zmilan: Test if this works now without native session
+//        if (!$session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
+//            $session->start();
+//        }
+//        $this->populateSessionFromGlobals($session);
         return $session;
     }
     private function getSessionSettings(): array
@@ -121,17 +125,18 @@ class HttpSessionFactory implements SessionFactoryInterface
         return $sessionHandler;
     }
 
-    private function populateSessionFromGlobals(SessionInterface $session): void
-    {
-        // Populate session from global $_SESSION if it exists
-        // we don't right now support multiple session bags so we can handle this backwards compatibility
-        // while we migrate the sessions to testable objects.
-        if (!empty($_SESSION)) {
-            foreach ($_SESSION as $key => $value) {
-                if (!in_array($key, self::SESSION_INTERNAL_KEYS)) {
-                    $session->set($key, $value);
-                }
-            }
-        }
-    }
+//    TODO @zmilan: Test if this works now without this part
+//    private function populateSessionFromGlobals(SessionInterface $session): void
+//    {
+//        // Populate session from global $_SESSION if it exists
+//        // we don't right now support multiple session bags so we can handle this backwards compatibility
+//        // while we migrate the sessions to testable objects.
+//        if (!empty($_SESSION)) {
+//            foreach ($_SESSION as $key => $value) {
+//                if (!in_array($key, self::SESSION_INTERNAL_KEYS)) {
+//                    $session->set($key, $value);
+//                }
+//            }
+//        }
+//    }
 }
