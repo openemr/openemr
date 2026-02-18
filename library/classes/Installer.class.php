@@ -263,7 +263,7 @@ class Installer
      */
     public function root_database_connection(): bool
     {
-        $this->dbh = $this->connect_to_database($this->root, $this->rootpass, $this->port);
+        $this->dbh = $this->connect_to_database($this->root, $this->rootpass);
         if ($this->dbh) {
             return true;
         } else {
@@ -282,7 +282,7 @@ class Installer
      */
     public function user_database_connection(): bool
     {
-        $this->dbh = $this->connect_to_database($this->login, $this->pass, $this->port, $this->dbname);
+        $this->dbh = $this->connect_to_database($this->login, $this->pass, $this->dbname);
         if (! $this->dbh) {
             $this->error_message = "unable to connect to database as user: '$this->login'";
             return false;
@@ -1581,7 +1581,7 @@ $config = 1; /////////////
         }
     }
 
-    protected function connect_to_database(string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
+    protected function connect_to_database(string $user, string $password, string $dbname = ''): mysqli|false
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
 
@@ -1606,7 +1606,7 @@ $config = 1; /////////////
             user: $user,
             password: $password,
             host: $this->server,
-            port: (int) $port !== 0 ? (int) $port : 3306,
+            port: (int) $this->port !== 0 ? (int) $this->port : 3306,
             sslCaPath: $sslCaPath,
             sslClientCert: $sslClientCert,
         );
