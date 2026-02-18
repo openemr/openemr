@@ -1294,13 +1294,9 @@ function debug($local_var): void
     exit;
 }
 
-/**
- * From original issue.php
- *
- * @param string $table
- * @param string $where
- */
-function eye_mag_row_delete($table, $where): void
+/* From original issue.php */
+
+function eye_mag_row_delete(string $table, string $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);

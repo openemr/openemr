@@ -441,7 +441,7 @@ function send_reminders()
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.
  * @return array                 Returns an array of reminders.
  */
-function patient_fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
+function patient_fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*'): array
 {
 
     $arraySqlBind = [];

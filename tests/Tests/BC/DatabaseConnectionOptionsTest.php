@@ -302,6 +302,8 @@ class DatabaseConnectionOptionsTest extends TestCase
         $siteDir = $this->createTempSiteDir();
         mkdir($siteDir, 0755, true);
 
+        // db_encoding is explicitly set to a non-utf8mb4 value to verify
+        // that legacy config values are ignored and utf8mb4 is always used
         file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
 <?php
 $sqlconf = [
@@ -322,7 +324,7 @@ PHP
         self::assertSame('127.0.0.1', $options->host);
         self::assertSame(3306, $options->port);
         self::assertNull($options->unixSocket);
-        self::assertSame('latin1', $options->charset);
+        self::assertSame('utf8mb4', $options->charset);
         self::assertNull($options->sslCaPath);
         self::assertNull($options->sslClientCert);
     }

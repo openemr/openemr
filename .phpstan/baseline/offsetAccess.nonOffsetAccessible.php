@@ -2282,7 +2282,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gs_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'isa_control_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'payer_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/era_payments.php',
 ];
@@ -3597,6 +3612,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gs_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'guardiansname\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -3619,6 +3639,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ins_paid\' on mixed\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'isa_control_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'isa_sender_id\' on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -3657,6 +3687,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'our_claim_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pageHeight\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -3669,6 +3704,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'patient\' on mixed\\.$#',
     'count' => 3,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'payer_id\' on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -4100,6 +4140,81 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'unit\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'active\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'consumable\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'dispensable\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'drug_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'expiration\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'form\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'inventory_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lot_number\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ndc_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'on_hand\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'size\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'unit\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
@@ -11787,11 +11902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_definition.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'def_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
@@ -11812,11 +11922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/lang_manage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'def_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
@@ -11830,11 +11935,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'lang_id\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/language.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
@@ -12207,11 +12307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbhost\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
@@ -12400,11 +12495,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ss\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/find_patient_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbhost\' on mixed\\.$#',
@@ -23717,18 +23807,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset int on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<min, 8\\> on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
 $ignoreErrors[] = [
@@ -24048,6 +24133,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'patient_id\' on array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
@@ -29167,6 +29257,56 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'destroy_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'destroy_method\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'destroy_notes\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'destroy_witness\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'drug_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'inventory_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lot_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ndc_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'on_hand\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
@@ -29362,7 +29502,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset int on mixed\\.$#',
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
@@ -29472,18 +29612,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset int on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<min, 8\\> on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 6,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
@@ -39502,11 +39637,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/address_display.php',
@@ -41257,11 +41387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/secure_chat.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
@@ -41482,7 +41607,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'message' => '#^Cannot access offset \\(int\\|string\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
@@ -41590,16 +41715,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'table_args\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset unknown on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
@@ -42375,11 +42490,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/sqlconf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbase\' on mixed\\.$#',
@@ -46688,11 +46798,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allow\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
@@ -55505,16 +55610,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../templates/super/rules/controllers/log/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'autoload\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'files\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'Authorization\' on mixed\\.$#',

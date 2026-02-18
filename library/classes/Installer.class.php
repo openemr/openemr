@@ -724,14 +724,11 @@ class Installer
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
         $this->writeToFile($fd, $string) or $it_died++;
-        $this->writeToFile($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        $this->writeToFile($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
         $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
         $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
         $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
         $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
         $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
-        $this->writeToFile($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -741,7 +738,6 @@ $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;
 $sqlconf["pass"] = $pass;
 $sqlconf["dbase"] = $dbase;
-$sqlconf["db_encoding"] = $db_encoding;
 
 //////////////////////////
 //////////////////////////

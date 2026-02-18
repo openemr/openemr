@@ -40,11 +40,7 @@ $type = $_REQUEST['type'] ?? '';
 
 $info_msg = "";
 
-/**
- * @param string $name
- * @return string
- */
-function addrbook_invalue($name)
+function addrbook_invalue(string $name): string
 {
     if (empty($_POST[$name])) {
         return "''";

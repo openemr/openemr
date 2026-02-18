@@ -45,17 +45,7 @@ class SqlConfig implements SqlConfigInterface
     /**
      * {@inheritDoc}
      */
-    private $encoding;
-
-    /**
-     * {@inheritDoc}
-     */
     private $config;
-
-    /**
-     * {@inheritDoc}
-     */
-    private $disableUTF8;
 
     /**
      * Constructor can accept an associative array of key/value pairs to help auto-populate object properties. Key name
@@ -85,16 +75,8 @@ class SqlConfig implements SqlConfigInterface
             $this->databaseName = $opts['databaseName'];
         }
 
-        if (array_key_exists('encoding', $opts)) {
-            $this->encoding = $opts['encoding'];
-        }
-
         if (array_key_exists('config', $opts)) {
             $this->config = $opts['config'];
-        }
-
-        if (array_key_exists('disableUTF8', $opts)) {
-            $this->disableUTF8 = $opts['disableUTF8'];
         }
     }
 
@@ -141,24 +123,8 @@ class SqlConfig implements SqlConfigInterface
     /**
      * {@inheritDoc}
      */
-    public function getEncoding(): string
-    {
-        return $this->encoding;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getConfig(): int
     {
         return $this->config;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDisableUTF8(): int
-    {
-        return $this->disableUTF8;
     }
 }

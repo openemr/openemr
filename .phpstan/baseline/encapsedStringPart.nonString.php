@@ -4862,6 +4862,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$set \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/payment.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/payment.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$where \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/payment.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$assigned_to \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
