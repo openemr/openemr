@@ -32,13 +32,14 @@ class DatabaseConnectionFactory
             );
         }
 
+        // TODO: Sockets support (do all paths at once)
+
         $mysqli->real_connect(
-            hostname: $config->host ?? '',
+            hostname: $config->host,
             username: $config->user,
             password: $config->password,
             database: $config->dbname,
-            port: $config->port ?? 3306,
-            socket: $config->unixSocket ?? '',
+            port: $config->port,
             flags: $flags,
         );
 
