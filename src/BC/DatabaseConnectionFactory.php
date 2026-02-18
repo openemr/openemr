@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
+use mysqli;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create
@@ -62,6 +63,41 @@ class DatabaseConnectionFactory
         // Other paths may end up customizing this further.
 
         return $conn;
+    }
+
+    public static function createMysqli(
+        DatabaseConnectionOptions $config,
+    ): mysqli {
+        $mysqli = new mysqli();
+        $mysqli->options(MYSQLI_READ_DEFAULT_GROUP, 0);
+        $mysqli->options(MYSQLI_OPT_LOCAL_INFILE, 1);
+
+        $flags = 0;
+        if ($config->sslCaPath !== null) {
+            $flags = MYSQLI_CLIENT_SSL;
+            $mysqli->ssl_set(
+                $config->sslClientCert['key'] ?? null,
+                $config->sslClientCert['cert'] ?? null,
+                $config->sslCaPath,
+                null,
+                null,
+            );
+        }
+
+        // TODO: Sockets support (do all paths at once)
+
+        $mysqli->real_connect(
+            hostname: $config->host,
+            username: $config->user,
+            password: $config->password,
+            database: $config->dbname,
+            port: $config->port,
+            flags: $flags,
+        );
+
+        $mysqli->query("SET NAMES '$config->charset'");
+        $mysqli->query("SET sql_mode = ''");
+        return $mysqli;
     }
 
     private static function loadAdodbClasses(): void
