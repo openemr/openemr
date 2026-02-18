@@ -164,7 +164,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
-            ->with('localhost', 'root', 'password', '3306')
+            ->with('root', 'password')
             ->willReturn($mockMysqli);
 
         $result = $mockInstaller->root_database_connection();
@@ -179,7 +179,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
-            ->with('localhost', 'root', 'password', '3306')
+            ->with('root', 'password')
             ->willReturn(false);
 
         $result = $mockInstaller->root_database_connection();
@@ -195,7 +195,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
-            ->with('localhost', 'root', 'password', '3306')
+            ->with('root', 'password')
             ->willReturn($mockMysqli);
 
         $result = $mockInstaller->root_database_connection();
@@ -211,7 +211,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
-            ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
+            ->with('openemr', 'openemr', 'openemr')
             ->willReturn($mockMysqli);
 
         $result = $mockInstaller->user_database_connection();
@@ -226,7 +226,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
-            ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
+            ->with('openemr', 'openemr', 'openemr')
             ->willReturn(false);
 
         $result = $mockInstaller->user_database_connection();
