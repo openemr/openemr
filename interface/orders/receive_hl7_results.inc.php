@@ -1570,6 +1570,9 @@ function poll_hl7_results(&$info, $labs = 0)
             }
 
             $files = $sftp->nlist($pathname);
+            if (!is_array($files)) {
+                $files = [];
+            }
             foreach ($files as $file) {
                 if (str_starts_with((string) $file, '.')) {
                     continue;

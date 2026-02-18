@@ -55,24 +55,7 @@ class DatabaseConnectionFactory
             );
         }
 
-        // Configure the charset. This doesn't precisely match the previous
-        // behavior, but should handle any current installation and not disrupt
-        // upgrades.
-        $charset = strtolower($config->charset);
-        if ($charset !== 'utf8mb4') {
-            // You're running something pretty weird and probably broken. Emit
-            // a clear warning.
-            if ($charset !== 'utf8') {
-                trigger_error(
-                    'DB configured to use an unsupported character set. ' .
-                    'Only `utf8mb4` (preferred) and `utf8` (discouraged) are supported. ' .
-                    'Ignoring configuration and using `utf8`.',
-                    E_USER_DEPRECATED,
-                );
-            }
-            $charset = 'utf8';
-        }
-        $conn->ExecuteNoLog("SET NAMES '$charset'");
+        $conn->ExecuteNoLog("SET NAMES '$config->charset'");
         // "Turn off STRICT SQL"
         $conn->ExecuteNoLog("SET sql_mode = ''");
 
@@ -84,11 +67,10 @@ class DatabaseConnectionFactory
     private static function loadAdodbClasses(): void
     {
         $root = dirname(__DIR__, 2);
-        $dir = $root . '/vendor/adodb/adodb-php';
-        // require_once $dir . '/adodb.inc.php';
-        // adodb is in composer autoload_files path
-        // adodb-pager.inc.php?
-        require_once $dir . '/drivers/adodb-mysqli.inc.php';
+        $adoDir = $root . '/vendor/adodb/adodb-php';
+        // adodb.inc.php is in composer autoload_files path
+        require_once $adoDir . '/drivers/adodb-mysqli.inc.php';
+        // adodb-pager.inc.php was included but seems never used
         require_once $root . '/library/ADODB_mysqli_log.php';
     }
 }

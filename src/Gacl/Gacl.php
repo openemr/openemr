@@ -54,9 +54,6 @@ class Gacl {
     /** @var \ADOConnection An ADODB database connector object */
     private $_db;
 
-    /** @var string The utf8 encoding flag */
-    private $_db_encoding_setting = '';
-
     /** @var \ADOConnection An ADODB database connector object */
     protected $db;
 
@@ -241,7 +238,7 @@ class Gacl {
     * @param string The ACO value
     * @param array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
     * @return mixed The same data format as inputted.
-    \*======================================================================*/
+     */
     function acl_check_array($aco_section_value, $aco_value, $aro_array) {
         /*
             Input Array:

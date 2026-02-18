@@ -32,7 +32,6 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
  * @var string $login
  * @var string $pass
  * @var string $dbase
- * @var bool $disable_utf8_flag
  * @var string $secure_host
  * @var string $secure_port
  * @var string $secure_login
@@ -100,19 +99,9 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         HelpfulDie("Could not connect to server!", QueryUtils::getLastError());
     }
 
-// Modified 5/2009 by BM for UTF-8 project ---------
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
-            if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
-            }
-        } else {
-            $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
-            if (!$success_flag) {
-                error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
-            }
-        }
+    $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
+    if (!$success_flag) {
+        error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(QueryUtils::getLastError()), 0);
     }
 
 // Turn off STRICT SQL

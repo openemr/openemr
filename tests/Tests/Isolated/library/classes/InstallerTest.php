@@ -2256,7 +2256,7 @@ class InstallerTest extends TestCase
             ->willReturn($mockFileHandle);
 
         // All writeToFile calls should succeed
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturn(10); // Simulate successful writes
 
@@ -2347,12 +2347,12 @@ class InstallerTest extends TestCase
 
         // Simulate some write failures - return false for some calls
         $writeCallCount = 0;
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
-                // Fail on calls 3 and 7 to simulate partial write failures
-                return ($writeCallCount === 3 || $writeCallCount === 7) ? false : 10;
+                // Fail on calls 3 and 5 to simulate partial write failures
+                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : 10;
             });
 
         $mockInstaller->method('closeFile')->willReturn(false); // Also fail closeFile
@@ -2389,7 +2389,7 @@ class InstallerTest extends TestCase
 
         // Capture the content being written
         $writtenContent = [];
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
                 $writtenContent[] = $data;
@@ -2409,7 +2409,6 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('dbuser', $allContent);
         $this->assertStringContainsString('dbpass', $allContent);
         $this->assertStringContainsString('mydb', $allContent);
-        $this->assertStringContainsString('utf8mb4', $allContent);
         $this->assertStringContainsString('$config = 1', $allContent);
 
         fclose($mockFileHandle);
@@ -2470,12 +2469,12 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate exactly 5 write failures
+        // Simulate exactly 3 write failures (every even call out of 7 total)
         $writeCallCount = 0;
         $mockInstaller->method('writeToFile')
             ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
-                // Fail on calls 2, 4, 6, 8, 10
+                // Fail on calls 2, 4, 6
                 return ($writeCallCount % 2 === 0) ? false : 10;
             });
 
@@ -2484,7 +2483,7 @@ class InstallerTest extends TestCase
         $result = $mockInstaller->write_configuration_file();
 
         $this->assertFalse($result);
-        $this->assertStringContainsString("ERROR. Couldn't write 5 lines to config file", $mockInstaller->error_message);
+        $this->assertStringContainsString("ERROR. Couldn't write 3 lines to config file", $mockInstaller->error_message);
 
         fclose($mockFileHandle);
     }
