@@ -338,7 +338,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
                 // Displays name
 
-                print "<tr><td colspan='10'><hr><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
+                print "<tr><td colspan='10'><hr><span class='fw-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
                 if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {

@@ -234,7 +234,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
                                         <input type="checkbox"
                                                name="health_concerns[]"
                                                value="<?php echo attr($concern['id']); ?>"
-                                               class="form-check-input mr-2">
+                                               class="form-check-input me-2">
                                         <?php echo text($concern['title']); ?>
                                     <?php if (!empty($concern['diagnosis'])) : ?>
                                         <div class="concern-description">

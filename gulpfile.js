@@ -13,7 +13,7 @@ const gulpif = require('gulp-if');
 const prefix = require('autoprefixer');
 const postcss = require('gulp-postcss');
 const rename = require('gulp-rename');
-const sass = require('gulp-dart-sass');
+const sass = require('gulp-sass')(require('sass'));
 const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
@@ -471,8 +471,8 @@ function install(done) {
                 gulp.src("node_modules/" + key + "/locales/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/locales")
                 );
-            } else if (key == "bootstrap" || key == "bootstrap-rtl") {
-                // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
+            } else if (key == "bootstrap") {
+                // bootstrap is special and need to copy dist and scss
                 gulp.src("node_modules/" + key + "/dist/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/dist")
                 );

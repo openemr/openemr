@@ -219,7 +219,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
         echo "  <td>";
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
         if ($result_abnormal && strtolower((string) $result_abnormal) != 'no') {
-            echo "<p class='font-weight-bold text-danger'>$tmp</p>";
+            echo "<p class='fw-bold text-danger'>$tmp</p>";
         } else {
             echo $tmp;
         }
@@ -447,9 +447,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     <div class='labres table-responsive'>
         <table class="table table-sm">
             <tr>
-                <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Patient ID'); ?></td>
+                <td class="fw-bold text-nowrap" width='5%'><?php echo xlt('Patient ID'); ?></td>
                 <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-                <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
+                <td class="fw-bold text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
                 <td width='45%'>
                     <?php
                     if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
@@ -471,27 +471,27 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 </td>
             </tr>
             <tr>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Patient Name'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Patient Name'); ?></td>
                 <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Ordered By'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Ordered By'); ?></td>
                 <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Date'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Order Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Print Date'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Print Date'); ?></td>
                 <td><?php echo text(oeFormatShortDate(date('Y-m-d'))); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate(substr((string) $orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Lab'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Lab'); ?></td>
                 <td><?php echo myCellText($orow['labname']); ?></td>
-                <td class="font-weight-bold text-nowrap"><?php echo xlt('Receiving Fac.'); ?></td>
+                <td class="fw-bold text-nowrap"><?php echo xlt('Receiving Fac.'); ?></td>
                 <td><?php echo myCellText($orow['rcvfacid']); ?></td>
                 <!-- replaced specimen with receiving facility -->
             </tr>
@@ -512,9 +512,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         <br/>
         <table class="table table-sm table-striped">
             <tr class='head'>
-                <td class="font-weight-bold align-middle" rowspan='2'><?php echo xlt('Ordered Procedure'); ?></td>
-                <td class="font-weight-bold" colspan='5'><?php echo xlt('Report'); ?></td>
-                <td class="font-weight-bold" colspan='7'><?php echo xlt('Results'); ?></td>
+                <td class="fw-bold align-middle" rowspan='2'><?php echo xlt('Ordered Procedure'); ?></td>
+                <td class="fw-bold" colspan='5'><?php echo xlt('Report'); ?></td>
+                <td class="fw-bold" colspan='7'><?php echo xlt('Results'); ?></td>
             </tr>
             <tr class='head'>
                 <td><?php echo xlt('Reported'); ?></td>
@@ -660,7 +660,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     }
                     ?>
                 </td>
-                <td class="border-0 text-right align-top">
+                <td class="border-0 text-end align-top">
                     <?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */) { ?>
                         <input type='submit' class='btn btn-primary' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
                                title='<?php echo xla('Include all values reported for each result code'); ?>'/>

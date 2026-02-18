@@ -299,15 +299,15 @@ $side-calendar-date-padding: 0.3rem !default;
     margin-right: 0.25rem;
     opacity: 0.5;
     padding: 0;
-    text-shadow: $close-text-shadow;
+    text-shadow: 0 1px 0 #fff; // BS5: $close-text-shadow removed
 
-    @include hover() {
+    &:hover {
       color: $white;
       text-decoration: none;
     }
 
     &:not(:disabled):not(.disabled) {
-      @include hover-focus() {
+      &:hover, &:focus {
         opacity: 0.75;
       }
     }
@@ -562,7 +562,7 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     #bottomLeft {
-      background-color: var(--white);
+      background-color: var(--bs-white);
       height: 100%;
       top: 4.78rem;
       width: 100%;

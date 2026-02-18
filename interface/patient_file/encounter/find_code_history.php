@@ -159,9 +159,7 @@ function get_history_codes($pid)
 <body>
     <div class="container-fluid sticky-top">
         <div class="input-group bg-white">
-            <div class="input-group-prepend">
-                <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
-            </div>
+            <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="d-none">
@@ -181,12 +179,12 @@ function get_history_codes($pid)
                         echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
-                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggleClass("d-none");return false;'><?php echo xlt('Dismiss') ?></button>
+                    <button class='btn btn-sm btn-success float-end' onclick='$("#tips").toggleClass("d-none");return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>
         <div class="spinner-border" role="status">
-            <span class="sr-only"><?php echo xlt('Loading'); ?>...</span>
+            <span class="visually-hidden"><?php echo xlt('Loading'); ?>...</span>
         </div>
     </div>
     <div class="container-fluid">

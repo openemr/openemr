@@ -147,10 +147,10 @@ function showLineItem(
                 <td colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
                     <?php echo xlt('Total for ') . text($paymethod); ?>
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     <?php echo text(FormatMoney::getBucks($methodadjtotal)); ?>
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     <?php echo text(FormatMoney::getBucks($methodpaytotal)); ?>
                 </td>
             </tr>
@@ -195,11 +195,11 @@ function showLineItem(
         if ($showing_ppd) {
             $dos = substr((string) $pferow['date'], 0, 10);
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text($pferow['lname']) . ", " . text($pferow['fname']) . " " . text($pferow['mname']);
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             if ($payer_type) {
                 $ptarr = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'];
                 $insrow = getInsuranceDataByDate(
@@ -213,7 +213,7 @@ function showLineItem(
 
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text(oeFormatShortDate($dos)) . "\n";
             echo "  </td>\n";
         }
@@ -358,9 +358,9 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div id="report_parameters">
-    <div class="form-row col-md-6">
+    <div class="row gx-2 col-md-6">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-        <div class="form-group auto">
+        <div class="mb-3 auto">
             <label for='form_report_by'><?php echo xlt('Report by'); ?></label>
             <?php echo " <select name='form_report_by' id='form_report_by' class='form-control'>\n";
             foreach (
@@ -381,13 +381,13 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo "   </select>&nbsp;\n";
             ?>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for='form_facility'><?php echo xlt('Facility'); ?></label>
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
         </div>
     </div>
-    <div class="form-row col-md-6">
-        <div class="form-group col-auto">
+    <div class="row gx-2 col-md-6">
+        <div class="mb-3 col-auto">
             <label for='form_provider'><?php echo xlt('Provider'); ?></label>
             <?php echo xlt('Provider'); ?>:
                 <td>
@@ -417,7 +417,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                     ?>
                 </td>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_proc_codefull">
             <?php
             if (!$GLOBALS['simplified_demographics']) {
@@ -433,8 +433,8 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             } ?> />
         </div>
     </div>
-    <div class="form-row col-md-6">
-        <div class="form-group col-auto">
+    <div class="row gx-2 col-md-6">
+        <div class="mb-3 col-auto">
             <label for='form_use_edate'>
                 <select name='form_use_edate' class='form-control'>
                     <option value='0'><?php echo xlt('Payment Date'); ?></option>
@@ -442,7 +442,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 </select>
             </label>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <div class="form-check">
                 <input class="form-check-input" type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?> />
                 <label class="form-check-label">
@@ -450,20 +450,20 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 </label>
             </div>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_from_date">
                 <?php echo xlt('From'); ?>
             </label>
             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_to_date">
                 <?php echo xlt('To{{Range}}'); ?>
             </label>
             <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
         </div>
     </div>
-    <div class="form-row col-md-2 mb-2">
+    <div class="row gx-2 col-md-2 mb-2">
         <div class="btn-group col-auto" role="group">
             <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                 <?php echo xlt('Submit'); ?>
@@ -511,10 +511,10 @@ if (!empty($_POST['form_refresh'])) {
         <th scope="col">
             <?php echo xlt('Procedure')?>
         </th>
-        <th class="text-right" scope="col">
+        <th class="text-end" scope="col">
             <?php echo xlt('Adjustments')?>
         </th>
-        <th class="text-right" scope="col"">
+        <th class="text-end" scope="col"">
             <?php echo xlt('Payments')?>
         </th>
     </tr>
@@ -739,10 +739,10 @@ if (!empty($_POST['form_refresh'])) {
                 <td colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
                     <?php echo xlt('Total for ') . text($paymethod); ?>
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     <?php echo text(FormatMoney::getBucks($methodadjtotal)); ?>
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     <?php echo text(FormatMoney::getBucks($methodpaytotal)); ?>
                 </td>
             </tr>
@@ -758,10 +758,10 @@ if (!empty($_POST['form_refresh'])) {
                     <td colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
                         <?php echo text($key); ?>
                     </td>
-                    <td class="text-right">
+                    <td class="text-end">
                         <?php echo text(FormatMoney::getBucks($value[1])); ?>
                     </td>
-                    <td class="text-right">
+                    <td class="text-end">
                         <?php echo text(FormatMoney::getBucks($value[0])); ?>
                     </td>
                 </tr>
@@ -773,10 +773,10 @@ if (!empty($_POST['form_refresh'])) {
             <td colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
                 <?php echo xlt('Grand Total') ?>
             </td>
-            <td class="text-right">
+            <td class="text-end">
                 <?php echo text(FormatMoney::getBucks($grandadjtotal)); ?>
             </td>
-            <td class="text-right">
+            <td class="text-end">
                 <?php echo text(FormatMoney::getBucks($grandpaytotal)); ?>
             </td>
         </tr>

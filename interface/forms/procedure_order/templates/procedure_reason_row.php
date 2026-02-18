@@ -18,7 +18,7 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label><?php echo xlt("Reason Code"); ?></label>
                         <input class="code-selector-popup form-control"
                                name="form_proc_reason_code[<?php echo attr($i); ?>]" type="text" value="<?php echo attr($oprow['reason_code'] ?? ""); ?>"
@@ -27,7 +27,7 @@
                         <p class="code-selector-text-display <?php echo empty($oprow['ob_reason_text']) ? "d-none" : ''; ?>"><?php echo text($oprow['reason_text'] ?? ""); ?></p>
                         <input type="hidden" name="form_proc_reason_code_text[<?php echo attr($i); ?>]" class="code-selector-text" value="<?php echo attr($oprow['reason_text'] ?? ""); ?>" />
                     </div>
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label><?php echo xlt("Reason Status"); ?></label>
                         <select name="form_proc_reason_status[<?php echo attr($i); ?>]" class="form-control">
                             <?php foreach ($reasonCodeStatii as $code => $codeDesc) : ?>
@@ -39,7 +39,7 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label><?php echo xlt("Reason Start Date"); ?></label>
                         <input type='text' id="form_proc_reason_low_<?php echo attr($i) ?>"
                                name='form_proc_reason_date_low[<?php echo attr($i); ?>]'
@@ -47,7 +47,7 @@
                                value='<?php echo attr($oprow["reason_date_low"] ?? ''); ?>'
                                title='<?php echo xla('yyyy-mm-dd HH:MM Start date for reason'); ?>' />
                     </div>
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-6 mb-3">
                         <label><?php echo xlt("Reason End Date (leave empty if reason does not end)"); ?></label>
                         <input type='text' id="form_proc_reason_high_<?php echo attr($i); ?>"
                                name='form_proc_reason_date_high[<?php echo attr($i); ?>]'

@@ -15,7 +15,7 @@
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-fld="fld_value"><?php echo text($criteria->getTitle()); ?></span>
     <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
 </p>

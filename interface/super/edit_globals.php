@@ -351,7 +351,7 @@ function checkBackgroundServices(): void
         }
       }
 
-      .striped .row.form-group:nth-child(even) {
+      .striped .row.mb-3:nth-child(even) {
         background: var(--light);
       }
     </style>
@@ -406,9 +406,7 @@ function checkBackgroundServices(): void
                                 $placeholder = !$userMode ? xla('Search configuration') : xla('Search user settings');
                                 ?>
                                 <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo(!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
-                                <span class="input-group-append">
-                            <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
-                        </span>
+                                <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
                             </div><!-- /input-group -->
                         </div>
                         <br />
@@ -441,9 +439,9 @@ function checkBackgroundServices(): void
                                         if ($userMode) {
                                             echo "<div class='row'>";
                                             echo "<div class='col-sm-4'>&nbsp</div>";
-                                            echo "<div class='col-sm-4 font-weight-bold'>" . xlt('User Specific Setting') . "</div>";
-                                            echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default Setting') . "</div>";
-                                            echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default') . "</div>";
+                                            echo "<div class='col-sm-4 fw-bold'>" . xlt('User Specific Setting') . "</div>";
+                                            echo "<div class='col-sm-2 fw-bold'>" . xlt('Default Setting') . "</div>";
+                                            echo "<div class='col-sm-2 fw-bold'>" . xlt('Default') . "</div>";
                                             echo "</div>";
                                         }
 
@@ -496,9 +494,9 @@ function checkBackgroundServices(): void
                                                 }
 
                                                 if ($userMode) {
-                                                    echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                    echo " <div class='row mb-3" . $srch_cl . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
                                                 } else {
-                                                    echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                    echo " <div class='row mb-3" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
                                                 }
 
                                                 if (is_array($fldtype)) {

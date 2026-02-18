@@ -1,7 +1,7 @@
 {# Provider Selection #}
 <div class="col-sm">
-    <div class="form-group">
-        <label for="provider_id" class="text-right">{{ "Encounter Provider"|xlt }}:</label>
+    <div class="mb-3">
+        <label for="provider_id" class="text-end">{{ "Encounter Provider"|xlt }}:</label>
         {# Note provider_id change will update facility info in javascript #}
         <select name="provider_id" id="provider_id" class="form-control">
             {% for provider in providers %}

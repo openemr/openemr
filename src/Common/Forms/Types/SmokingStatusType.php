@@ -53,7 +53,7 @@ class SmokingStatusType implements IOptionFormType {
             " size='$fldlength'" .
             " class='under form-control'" .
             " value='$smoking_status_title' /></td>";
-        $printView .= "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
+        $printView .= "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
 
         $printView .= "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
@@ -302,7 +302,7 @@ class SmokingStatusType implements IOptionFormType {
             ($disabled ? ['disabled' => 'disabled'] : null)
         );
         $formView .= "</td>";
-        $formView .= "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
+        $formView .= "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
 
         // current
         $formView .= "<td class='text'><input type='radio'" .

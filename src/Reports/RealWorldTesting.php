@@ -26,17 +26,17 @@ class RealWorldTesting
     public function renderReport(): string
     {
         $output = text(xl('Date') . ': ' . oeFormatShortDate()) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 1') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 1') . '</span><br />';
         $output .= text($this->metric1()) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 2') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 2') . '</span><br />';
         $output .= nl2br(text(implode("\n", $this->metric2()))) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 3') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 3') . '</span><br />';
         $output .= text($this->metric3()) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 4') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 4') . '</span><br />';
         $output .= text($this->metric4()) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 5') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 5') . '</span><br />';
         $output .= nl2br(text(implode("\n", $this->metric5()))) . '<br /><br />';
-        $output .= "<span class='font-weight-bold'>" . xlt('Metric 6') . '</span><br />';
+        $output .= "<span class='fw-bold'>" . xlt('Metric 6') . '</span><br />';
         $output .= text($this->metric6()) . '<br /><br />';
         return $output;
     }

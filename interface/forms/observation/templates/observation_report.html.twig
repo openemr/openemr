@@ -45,7 +45,7 @@
             {% if formattedObs.subObservations is not empty %}
             {% for subObs in formattedObs.subObservations %}
             <tr>
-                <td class='text-center border p-1 pl-3'>{{ subObs.code|text }}</td>
+                <td class='text-center border p-1 ps-3'>{{ subObs.code|text }}</td>
                 <td class='text-center border p-1'>{{ subObs.description|text }}</td>
                 <td class='text-center border p-1'>{{ subObs.date|oeFormatDateTime|text }}</td>
                 <td class='text-center border p-1'>{{ subObs.ob_value|text }}</td>

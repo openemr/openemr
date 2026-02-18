@@ -109,19 +109,19 @@ function checkAll(bx) {
             <div class="col-12">
                 <h2><?php echo xlt('Labs'); ?></h2>
                 <?php if (!$printable) { ?>
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col-md">
                         <a href='../summary/demographics.php' class='btn btn-secondary btn-back' onclick='top.restoreSession()'>
                             <span><?php echo xlt('Back to Patient') ?></span>
                         </a>
                     </div>
-                    <div class="col-md text-right">
+                    <div class="col-md text-end">
                         <input type='checkbox' onclick="checkAll(this)" /> <?php echo xlt('Toggle All'); ?>
                     </div>
                 </div>
                 <?php } ?>
             </div>
-            <div class='col-12 jumbotron py-4 mt-3' id='labdata'>
+            <div class='col-12 bg-body-tertiary rounded-3 py-4 mt-3' id='labdata'>
                 <?php
                 // some patient data...
                 $spell  = "SELECT * ";
@@ -140,7 +140,7 @@ function checkAll(bx) {
                         <table class="table">
                             <tr>
                                 <td><?php echo xlt('Patient'); ?></td>
-                                <td class="font-weight-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
+                                <td class="fw-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt('Patient ID') ?></td>
@@ -212,7 +212,7 @@ function checkAll(bx) {
                         <hr/>
                         <!-- Choose output mode [list vs. matrix] -->
                         <h3><?php echo xlt('Select output'); ?>:</h3>
-                        <div class="form-row">
+                        <div class="row gx-2">
                             <div class="form-check form-check-inline">
                                 <?php
                                 echo "<td><input type='radio' name='mode' ";
