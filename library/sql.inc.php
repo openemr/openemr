@@ -43,10 +43,6 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
  * @var string $secure_dbase
  */
 
-require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-require_once(__DIR__ . "/ADODB_mysqli_log.php");
-
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }
