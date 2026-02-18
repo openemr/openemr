@@ -24687,4 +24687,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormVitalsTest.php',
 ];
 
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'/apis/default/api…\' and mixed results in an error\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

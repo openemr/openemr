@@ -11682,4 +11682,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Rx/RxListTest.php',
 ];
 
+
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:createPatient\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:createAllergy\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:createCondition\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

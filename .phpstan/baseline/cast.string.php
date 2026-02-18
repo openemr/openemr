@@ -4217,4 +4217,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/CommonTest.php',
 ];
 
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
