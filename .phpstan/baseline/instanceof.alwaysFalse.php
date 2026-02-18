@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationInsuranceService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Instanceof between PhpParser\\\\Node\\\\Expr\\|PhpParser\\\\Node\\\\Identifier and PhpParser\\\\Node\\\\Name will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

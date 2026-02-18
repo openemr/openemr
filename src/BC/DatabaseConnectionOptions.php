@@ -34,7 +34,6 @@ use SensitiveParameter;
  *   host?: string,
  *   port?: int|string,
  *   socket?: string,
- *   db_encoding?: string,
  * }
  * @phpstan-type ClientCert array{
  *   cert: string,
@@ -118,7 +117,7 @@ final readonly class DatabaseConnectionOptions
 
         return new self(
             dbname: $sqlconf['dbase'],
-            charset: $sqlconf['db_encoding'] ?? 'utf8mb4',
+            charset: 'utf8mb4',
             user: $sqlconf['login'],
             password: $sqlconf['pass'],
             host: $host,

@@ -541,8 +541,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $form_type = $_REQUEST['form_type'];
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
         if ($deletion == 1) {
-            row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
-            row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
@@ -1296,7 +1296,7 @@ function debug($local_var): void
 
 /* From original issue.php */
 
-function row_delete($table, $where): void
+function eye_mag_row_delete(string $table, string $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);

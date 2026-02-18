@@ -38,67 +38,64 @@ class Gacl {
     /*
     --- phpGACL Configuration path/file ---
     */
-    public $config_file = '';
+    private $config_file = '';
 
     /*
     --- Private properties ---
     */
-    /** @var boolean Enables Debug output if true */
-    public $_debug = FALSE;
+    /** Enables Debug output if true */
+    private bool $_debug = FALSE;
 
     /*
     --- Database configuration. ---
     */
-    /** @var string Prefix for all the phpgacl tables in the database */
-    public $_db_table_prefix = 'gacl_';
+    /**  Prefix for all the phpgacl tables in the database */
+    public string $_db_table_prefix = 'gacl_';
 
     /** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-    public $_db_type = 'mysqli';
+    private string $_db_type = 'mysqli';
 
     /** @var string The database server */
-    public $_db_host = '';
+    private $_db_host = '';
 
     /** @var string The database user name */
-    public $_db_user = '';
+    private $_db_user = '';
 
     /** @var string The database user password */
-    public $_db_password = '';
+    private $_db_password = '';
 
     /** @var string The database name */
-    public $_db_name = '';
+    private $_db_name = '';
 
     /** @var \ADOConnection An ADODB database connector object */
-    public $_db = '';
+    private $_db;
 
-    /** @var boolean The utf8 encoding flag */
-    public $_db_encoding_setting = '';
-
-    /** @var object An ADODB database connector object */
-    public $db;
+    /** @var \ADOConnection An ADODB database connector object */
+    protected $db;
 
     /*
      * NOTE:    This cache must be manually cleaned each time ACL's are modified.
      *      Alternatively you could wait for the cache to expire.
      */
 
-    /** @var boolean Caches queries if true */
-    public $_caching = FALSE;
+    /** Caches queries if true */
+    protected bool $_caching = FALSE;
 
-    /** @var boolean Force cache to expire */
-    public $_force_cache_expire = TRUE;
+    /** Force cache to expire */
+    protected bool $_force_cache_expire = TRUE;
 
-    /** @var string The directory for cache file to eb written (ensure write permission are set) */
-    public $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
+    /** The directory for cache file to eb written (ensure write permission are set) */
+    private string $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 
-    /** @var int The time for the cache to expire in seconds - 600 == Ten Minutes */
-    public $_cache_expire_time=600;
+    /** The time for the cache to expire in seconds - 600 == Ten Minutes */
+    private int $_cache_expire_time=600;
 
-    /** @var string A switch to put acl_check into '_group_' mode */
-    public $_group_switch = '_group_';
+    /** A switch to put acl_check into '_group_' mode */
+    private string $_group_switch = '_group_';
 
     /**
      * Constructor
-     * @param array An array of options to override the class defaults
+     * @param ?array $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
 
@@ -130,20 +127,11 @@ class Gacl {
         }
 
         //collect openemr sql info from include at top of script - bm 05-2009
-        global $sqlconf, $disable_utf8_flag;
+        global $sqlconf;
         $this->_db_host = $sqlconf["host"];
         $this->_db_user = $sqlconf["login"];
         $this->_db_password = $sqlconf["pass"];
         $this->_db_name = $sqlconf["dbase"];
-        if (!$disable_utf8_flag) {
-            if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-                $this->_db_encoding_setting = "utf8mb4";
-            } else {
-                $this->_db_encoding_setting = "utf8";
-            }
-        } else {
-            $this->_db_encoding_setting = "";
-        }
 
         require_once( ADODB_DIR .'/adodb.inc.php');
         require_once( ADODB_DIR .'/adodb-pager.inc.php');
@@ -184,19 +172,10 @@ class Gacl {
             } else {
                 $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
             }
-            // Modified 5/2009 by BM for UTF-8 project
-            if ($this->_db_encoding_setting == "utf8mb4") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8MB4 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
-            } elseif ($this->_db_encoding_setting == "utf8") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
+            $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
+            if (!$success_flag) {
+                error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8MB4 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
             }
-                // ---------------------------------------
 
             //Turn off STRICT SQL
             $sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
@@ -436,7 +415,7 @@ class Gacl {
             //AND   ac.acl_id=a.id
             $query .= '
 					WHERE		a.enabled=1
-						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
+						AND		(ac.section_value='. $this->db->Quote($aco_section_value) .' AND ac.value='. $this->db->Quote($aco_value) .')';
 
             // if we are querying an aro group
             if ($aro_section_value == $this->_group_switch) {
@@ -452,7 +431,7 @@ class Gacl {
                 $order_by[] = '(rg.rgt-rg.lft) ASC';
             } else {
                 $query .= '
-						AND		((ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+						AND		((ar.section_value='. $this->db->Quote($aro_section_value) .' AND ar.value='. $this->db->Quote($aro_value) .')';
 
                 if ( isset ($sql_aro_group_ids) ) {
                     $query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
@@ -484,7 +463,7 @@ class Gacl {
                 if ($axo_section_value == '' AND $axo_value == '') {
                     $query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
                 } else {
-                    $query .= '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value='. $this->db->quote($axo_value) .')';
+                    $query .= '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
                 }
 
                 if (isset($sql_axo_group_ids)) {
@@ -637,13 +616,13 @@ class Gacl {
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
                 $where = '
-					WHERE		g1.value=' . $this->db->quote( $value );
+					WHERE		g1.value=' . $this->db->Quote( $value );
             } else {
                 $query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
 
                 $where = '
-					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
+					WHERE		(o.section_value='. $this->db->Quote($section_value) .' AND o.value='. $this->db->Quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
 						AND		g1.id=gm.group_id';
             }
@@ -660,7 +639,7 @@ class Gacl {
                 $query .= ','. $group_table .' g3';
 
                 $where .= '
-						AND		g3.value='. $this->db->quote( $root_group ) .'
+						AND		g3.value='. $this->db->Quote( $root_group ) .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
             } else {
                 $where .= '
