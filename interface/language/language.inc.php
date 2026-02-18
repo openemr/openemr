@@ -23,18 +23,8 @@ function check_pattern($data, $pat)
 //
 function insert_language_log($lang_desc, $lang_code, $cons_name, $def): void
 {
-    global $disable_utf8_flag, $sqlconf;
-
-  // set up the mysql collation string to ensure case is sensitive in the mysql queries
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $case_sensitive_collation = "COLLATE utf8mb4_bin";
-        } else {
-            $case_sensitive_collation = "COLLATE utf8_bin";
-        }
-    } else {
-        $case_sensitive_collation = "COLLATE latin1_bin";
-    }
+    // set up the mysql collation string to ensure case is sensitive in the mysql queries
+    $case_sensitive_collation = "COLLATE utf8mb4_bin";
 
 
     if ($cons_name == '') {

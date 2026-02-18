@@ -2155,29 +2155,29 @@
         },
         {
             "name": "knplabs/knp-snappy",
-            "version": "v1.5.1",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/snappy.git",
-                "reference": "3dd138e9e47de91cd2e056c5e6e1a0dd72547ee7"
+                "reference": "af73003db677563fa982b50c1aec4d1e2b2f30b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/3dd138e9e47de91cd2e056c5e6e1a0dd72547ee7",
-                "reference": "3dd138e9e47de91cd2e056c5e6e1a0dd72547ee7",
+                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/af73003db677563fa982b50c1aec4d1e2b2f30b2",
+                "reference": "af73003db677563fa982b50c1aec4d1e2b2f30b2",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1",
                 "psr/log": "^2.0||^3.0",
-                "symfony/process": "^5.0||^6.0||^7.0"
+                "symfony/process": "^5.0||^6.0||^7.0||^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
                 "pedrotroller/php-cs-custom-fixer": "^2.19",
                 "phpstan/phpstan": "^1.0.0",
                 "phpstan/phpstan-phpunit": "^1.0.0",
-                "phpunit/phpunit": "^8.5"
+                "phpunit/phpunit": "^9.6.29"
             },
             "type": "library",
             "extra": {
@@ -2216,9 +2216,9 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/snappy/issues",
-                "source": "https://github.com/KnpLabs/snappy/tree/v1.5.1"
+                "source": "https://github.com/KnpLabs/snappy/tree/v1.6.0"
             },
-            "time": "2025-01-06T16:53:26+00:00"
+            "time": "2026-02-13T12:50:40+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -12558,16 +12558,16 @@
         },
         {
             "name": "ergebnis/composer-normalize",
-            "version": "2.49.0",
+            "version": "2.50.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ergebnis/composer-normalize.git",
-                "reference": "84f3b39dd5d5847a21ec7ca83fc80af97d3ab65c"
+                "reference": "80971fe24ff10709789942bcbe9368b2c704097c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/84f3b39dd5d5847a21ec7ca83fc80af97d3ab65c",
-                "reference": "84f3b39dd5d5847a21ec7ca83fc80af97d3ab65c",
+                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/80971fe24ff10709789942bcbe9368b2c704097c",
+                "reference": "80971fe24ff10709789942bcbe9368b2c704097c",
                 "shasum": ""
             },
             "require": {
@@ -12583,18 +12583,18 @@
             "require-dev": {
                 "composer/composer": "^2.9.4",
                 "ergebnis/license": "^2.7.0",
-                "ergebnis/php-cs-fixer-config": "^6.58.2",
-                "ergebnis/phpstan-rules": "^2.12.0",
+                "ergebnis/php-cs-fixer-config": "^6.59.0",
+                "ergebnis/phpstan-rules": "^2.13.1",
                 "ergebnis/phpunit-slow-test-detector": "^2.20.0",
                 "ergebnis/rector-rules": "^1.9.0",
                 "fakerphp/faker": "^1.24.1",
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^2.1.33",
+                "phpstan/phpstan": "^2.1.38",
                 "phpstan/phpstan-deprecation-rules": "^2.0.3",
                 "phpstan/phpstan-phpunit": "^2.0.12",
-                "phpstan/phpstan-strict-rules": "^2.0.7",
-                "phpunit/phpunit": "^9.6.20",
-                "rector/rector": "^2.3.4",
+                "phpstan/phpstan-strict-rules": "^2.0.8",
+                "phpunit/phpunit": "^9.6.33",
+                "rector/rector": "^2.3.5",
                 "symfony/filesystem": "^5.4.41"
             },
             "type": "composer-plugin",
@@ -12638,7 +12638,7 @@
                 "security": "https://github.com/ergebnis/composer-normalize/blob/main/.github/SECURITY.md",
                 "source": "https://github.com/ergebnis/composer-normalize"
             },
-            "time": "2026-01-26T17:38:13+00:00"
+            "time": "2026-02-09T20:57:47+00:00"
         },
         {
             "name": "ergebnis/json",
@@ -13129,16 +13129,16 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "6.6.4",
+            "version": "v6.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "2eeb75d21cf73211335888e7f5e6fd7440723ec7"
+                "reference": "6fea66c7204683af437864e7c4e7abf383d14bc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/2eeb75d21cf73211335888e7f5e6fd7440723ec7",
-                "reference": "2eeb75d21cf73211335888e7f5e6fd7440723ec7",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/6fea66c7204683af437864e7c4e7abf383d14bc0",
+                "reference": "6fea66c7204683af437864e7c4e7abf383d14bc0",
                 "shasum": ""
             },
             "require": {
@@ -13198,9 +13198,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/6.6.4"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/v6.7.2"
             },
-            "time": "2025-12-19T15:01:32+00:00"
+            "time": "2026-02-15T15:06:22+00:00"
         },
         {
             "name": "localheinz/diff",
@@ -13906,11 +13906,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.38",
+            "version": "2.1.39",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dfaf1f530e1663aa167bc3e52197adb221582629",
-                "reference": "dfaf1f530e1663aa167bc3e52197adb221582629",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
+                "reference": "c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
                 "shasum": ""
             },
             "require": {
@@ -13955,25 +13955,25 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-30T17:12:46+00:00"
+            "time": "2026-02-11T14:48:56+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-deprecation-rules.git",
-                "reference": "468e02c9176891cc901143da118f09dc9505fc2f"
+                "reference": "6b5571001a7f04fa0422254c30a0017ec2f2cacc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-deprecation-rules/zipball/468e02c9176891cc901143da118f09dc9505fc2f",
-                "reference": "468e02c9176891cc901143da118f09dc9505fc2f",
+                "url": "https://api.github.com/repos/phpstan/phpstan-deprecation-rules/zipball/6b5571001a7f04fa0422254c30a0017ec2f2cacc",
+                "reference": "6b5571001a7f04fa0422254c30a0017ec2f2cacc",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4 || ^8.0",
-                "phpstan/phpstan": "^2.1.15"
+                "phpstan/phpstan": "^2.1.39"
             },
             "require-dev": {
                 "php-parallel-lint/php-parallel-lint": "^1.2",
@@ -13998,24 +13998,27 @@
                 "MIT"
             ],
             "description": "PHPStan rules for detecting usage of deprecated classes, methods, properties, constants and traits.",
+            "keywords": [
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-deprecation-rules/issues",
-                "source": "https://github.com/phpstan/phpstan-deprecation-rules/tree/2.0.3"
+                "source": "https://github.com/phpstan/phpstan-deprecation-rules/tree/2.0.4"
             },
-            "time": "2025-05-14T10:56:57+00:00"
+            "time": "2026-02-09T13:21:14+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
-            "version": "2.0.12",
+            "version": "2.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-phpunit.git",
-                "reference": "e4c5a22bf43d3d2bd5a780ad261a622ff62c49a4"
+                "reference": "6ab598e1bc106e6827fd346ae4a12b4a5d634c32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-phpunit/zipball/e4c5a22bf43d3d2bd5a780ad261a622ff62c49a4",
-                "reference": "e4c5a22bf43d3d2bd5a780ad261a622ff62c49a4",
+                "url": "https://api.github.com/repos/phpstan/phpstan-phpunit/zipball/6ab598e1bc106e6827fd346ae4a12b4a5d634c32",
+                "reference": "6ab598e1bc106e6827fd346ae4a12b4a5d634c32",
                 "shasum": ""
             },
             "require": {
@@ -14051,29 +14054,32 @@
                 "MIT"
             ],
             "description": "PHPUnit extensions and rules for PHPStan",
+            "keywords": [
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-phpunit/issues",
-                "source": "https://github.com/phpstan/phpstan-phpunit/tree/2.0.12"
+                "source": "https://github.com/phpstan/phpstan-phpunit/tree/2.0.16"
             },
-            "time": "2026-01-22T13:40:00+00:00"
+            "time": "2026-02-14T09:05:21+00:00"
         },
         {
             "name": "phpstan/phpstan-strict-rules",
-            "version": "2.0.8",
+            "version": "2.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-strict-rules.git",
-                "reference": "1ed9e626a37f7067b594422411539aa807190573"
+                "reference": "1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/1ed9e626a37f7067b594422411539aa807190573",
-                "reference": "1ed9e626a37f7067b594422411539aa807190573",
+                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f",
+                "reference": "1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4 || ^8.0",
-                "phpstan/phpstan": "^2.1.29"
+                "phpstan/phpstan": "^2.1.39"
             },
             "require-dev": {
                 "php-parallel-lint/php-parallel-lint": "^1.2",
@@ -14099,11 +14105,14 @@
                 "MIT"
             ],
             "description": "Extra strict and opinionated rules for PHPStan",
+            "keywords": [
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-strict-rules/issues",
-                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.0.8"
+                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.0.10"
             },
-            "time": "2026-01-27T08:10:25+00:00"
+            "time": "2026-02-11T14:17:32+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -14454,16 +14463,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.52",
+            "version": "11.5.53",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "b287d32c26f78768e391843c5a59395f24b62605"
+                "reference": "a997a653a82845f1240d73ee73a8a4e97e4b0607"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b287d32c26f78768e391843c5a59395f24b62605",
-                "reference": "b287d32c26f78768e391843c5a59395f24b62605",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a997a653a82845f1240d73ee73a8a4e97e4b0607",
+                "reference": "a997a653a82845f1240d73ee73a8a4e97e4b0607",
                 "shasum": ""
             },
             "require": {
@@ -14536,7 +14545,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.52"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.53"
             },
             "funding": [
                 {
@@ -14560,7 +14569,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-08T07:05:14+00:00"
+            "time": "2026-02-10T12:28:25+00:00"
         },
         {
             "name": "ramsey/conventional-commits",
@@ -16730,5 +16739,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

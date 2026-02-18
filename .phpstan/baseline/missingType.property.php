@@ -4017,41 +4017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/POSRef.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$date_of_birth has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$dob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$fname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$lname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$mname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$provider has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$pubpid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Person\\:\\:\\$first_name has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Person.class.php',
@@ -4320,6 +4285,41 @@ $ignoreErrors[] = [
     'message' => '#^Property Prescription\\:\\:\\$updated_by has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$date_of_birth has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$dob has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$fname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$lname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$mname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$provider has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$pubpid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Provider\\:\\:\\$federal_drug_id has no type specified\\.$#',
@@ -9355,16 +9355,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewCriteriaDAO\\:\\:\\$Utitle_NotEquals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewCriteriaDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$FM has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$KM has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$FM has no type specified\\.$#',
@@ -22999,196 +22989,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTaken has no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTakenTime has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionUser has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Active has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Activity has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Authorized has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$CareTeam has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Checksum has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$City has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Date has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Dob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Facility has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Fname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Lname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Mname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Narrative has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PatientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PendingAction has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PhysicianType has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PostalCode has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Providerid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Pubpid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$RefProviderid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Referrerid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$RequireAudit has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ss has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$State has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Status has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Street has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$TableAction has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$TableArgs has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Title has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ufname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ulname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Umname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Username has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Utitle has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTaken has no type specified\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
 ];
 $ignoreErrors[] = [
@@ -30033,16 +29833,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$databaseName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$disableUTF8 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$encoding has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
 ];

@@ -38,7 +38,7 @@ class ForbiddenCurlFunctionsRule implements Rule
 
     /**
      * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -49,7 +49,7 @@ class ForbiddenCurlFunctionsRule implements Rule
         $functionName = $node->name->toString();
 
         // Check if it's a curl_* function
-        if (!preg_match(self::CURL_FUNCTION_PATTERN, $functionName)) {
+        if (preg_match(self::CURL_FUNCTION_PATTERN, $functionName) !== 1) {
             return [];
         }
 

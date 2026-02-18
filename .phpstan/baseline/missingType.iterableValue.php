@@ -102,6 +102,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function inventory_mergeData\\(\\) has parameter \\$d1 with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function inventory_mergeData\\(\\) has parameter \\$d2 with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function inventory_mergeData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function inventory_processData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function inventory_processData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method eRxGlobals\\:\\:__construct\\(\\) has parameter \\$configuration with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
@@ -1712,7 +1737,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Function appointments_fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -1720,6 +1745,31 @@ $ignoreErrors[] = [
     'message' => '#^Function fetch_rule_txt\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function destroyed_mergeData\\(\\) has parameter \\$d1 with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function destroyed_mergeData\\(\\) has parameter \\$d2 with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function destroyed_mergeData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function destroyed_processData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function destroyed_processData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function inventoryActivityLineItem\\(\\) has parameter \\$qtys with no value type specified in iterable type array\\.$#',
@@ -2632,7 +2682,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Function patient_fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
@@ -3560,6 +3610,21 @@ $ignoreErrors[] = [
     'message' => '#^Method AppBasePortalController\\:\\:SimpleObjectParams\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function portal_GetAllCredits\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function portal_GetAllUnapplied\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function portal_PrintCreditDetail\\(\\) has parameter \\$detail with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
@@ -15275,16 +15340,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Validators\\\\Rules\\\\ListOptionRule\\:\\:\\$messageTemplates type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/Rules/ListOptionRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkFunctionCall\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkStaticCall\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AllergyIntoleranceFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',
