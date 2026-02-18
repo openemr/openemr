@@ -32,7 +32,7 @@ class NoCoversAnnotationOnClassRule implements Rule
 
     /**
      * @param Class_ $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {

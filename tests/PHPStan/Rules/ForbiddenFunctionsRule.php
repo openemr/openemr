@@ -57,7 +57,7 @@ class ForbiddenFunctionsRule implements Rule
 
     /**
      * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {

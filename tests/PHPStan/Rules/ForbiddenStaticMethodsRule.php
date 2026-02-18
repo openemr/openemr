@@ -43,11 +43,11 @@ class ForbiddenStaticMethodsRule implements Rule
 
     /**
      * @param StaticCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!($node->name instanceof Name)) {
+        if (!($node->name instanceof Identifier)) {
             return [];
         }
         if (!($node->class instanceof Name)) {
@@ -55,7 +55,7 @@ class ForbiddenStaticMethodsRule implements Rule
         }
 
         $className = $node->class->toString();
-        $functionName = $node->name->toString();
+        $functionName = $node->name->name;
 
         // Check if the class has any deprecated methods
         if (!array_key_exists($className, self::FORBIDDEN_METHODS)) {
