@@ -120,7 +120,6 @@ final readonly class DatabaseConnectionOptions
 
         return new self(
             dbname: $sqlconf['dbase'],
-            charset: 'utf8mb4',
             user: $sqlconf['login'],
             password: $sqlconf['pass'],
             host: $host,
