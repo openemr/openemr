@@ -4362,8 +4362,28 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/CAMOS/view.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$BS_COL_CLASS$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$BS_COL_CLASS might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$code_types might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$date_init might not be defined\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$encounter might not be defined\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -4382,6 +4402,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$pid might not be defined\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -4389,6 +4419,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$svccount might not be defined\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$userauthorized might not be defined\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [

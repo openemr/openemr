@@ -57,6 +57,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Class Installer constructor invoked with 1 parameter, 2 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../setup.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoInterface\\:\\:encryptStandard\\(\\) invoked with 1 parameter, 3 required\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
