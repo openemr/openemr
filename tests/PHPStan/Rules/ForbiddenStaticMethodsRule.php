@@ -11,6 +11,7 @@
 
 namespace OpenEMR\PHPStan\Rules;
 
+use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Database\QueryUtils;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
@@ -27,6 +28,7 @@ class ForbiddenStaticMethodsRule implements Rule
 {
     /**
      * Map of forbidden classes and static methods to their error messages
+     * @var array<class-string, array<string, string>>
      */
     private const FORBIDDEN_METHODS = [
         QueryUtils::class => [
@@ -34,6 +36,17 @@ class ForbiddenStaticMethodsRule implements Rule
             'commitTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
             'rollbackTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
         ],
+        SystemClock::class => [
+            'fromSystemTimezone' => 'Use ServiceContainer::getClock() instead.',
+        ],
+    ];
+
+    /**
+     * Classes that are exempt from this rule
+     * @var list<class-string>
+     */
+    private const EXEMPT_CLASSES = [
+        'OpenEMR\BC\ServiceContainer',
     ];
 
     public function getNodeType(): string
@@ -43,11 +56,11 @@ class ForbiddenStaticMethodsRule implements Rule
 
     /**
      * @param StaticCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!($node->name instanceof Name)) {
+        if (!($node->name instanceof Identifier)) {
             return [];
         }
         if (!($node->class instanceof Name)) {
@@ -55,7 +68,16 @@ class ForbiddenStaticMethodsRule implements Rule
         }
 
         $className = $node->class->toString();
-        $functionName = $node->name->toString();
+        $functionName = $node->name->name;
+
+        // Check if we're in an exempt class
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection !== null) {
+            $currentClass = $classReflection->getName();
+            if (in_array($currentClass, self::EXEMPT_CLASSES, true)) {
+                return [];
+            }
+        }
 
         // Check if the class has any deprecated methods
         if (!array_key_exists($className, self::FORBIDDEN_METHODS)) {
@@ -63,8 +85,8 @@ class ForbiddenStaticMethodsRule implements Rule
         }
 
         // If it does, check if the actual call is one of them
-        $forbiddenClassMethods = self::FORBIDDEN_METHODS[$className];
-        if (!array_key_exists($functionName, $forbiddenClassMethods)) {
+        $suggestion = self::FORBIDDEN_METHODS[$className][$functionName] ?? null;
+        if ($suggestion === null) {
             return [];
         }
 
@@ -72,7 +94,7 @@ class ForbiddenStaticMethodsRule implements Rule
             '%s::%s() is deprecated. %s',
             $className,
             $functionName,
-            $forbiddenClassMethods[$functionName],
+            $suggestion,
         );
 
         return [

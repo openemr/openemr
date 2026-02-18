@@ -2032,6 +2032,36 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobTaskService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobTaskService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobTaskService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/phone-services/voice_webhook.php',
@@ -3115,6 +3145,16 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
@@ -4542,6 +4582,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin_add.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Lcobucci\\\\Clock\\\\SystemClock\\:\\:fromSystemTimezone\\(\\) is deprecated\\. Use ServiceContainer\\:\\:getClock\\(\\) instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/webhooks/payment/rainforest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../ippf_upgrade.php',
@@ -5030,6 +5075,21 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/X12Partner.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/postmaster.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/postmaster.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
@@ -5842,6 +5902,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -6155,6 +6230,21 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
@@ -6902,9 +6992,39 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
@@ -7037,6 +7157,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Reports/RealWorldTesting.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) instead of sqlQueryNoLog\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
@@ -7160,6 +7295,36 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
@@ -7340,6 +7505,21 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
@@ -7722,6 +7902,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
     'count' => 24,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
@@ -7770,6 +7965,51 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/BackgroundTaskManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',

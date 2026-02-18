@@ -1627,11 +1627,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenMethodsRule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenStaticMethodsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\StaticCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\NoCoversAnnotationOnClassRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Class_\\>\\:\\:processNode\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/PHPStan/Rules/NoCoversAnnotationOnClassRule.php',
