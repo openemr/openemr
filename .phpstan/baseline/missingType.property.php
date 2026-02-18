@@ -29837,16 +29837,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$disableUTF8 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$encoding has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$host has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
