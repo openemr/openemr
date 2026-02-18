@@ -3,8 +3,7 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method createMysqli\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
-New code should use existing DB tooling and not directly create
-new connections\\.$#',
+New code should use existing DB tooling and not directly create new connections\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
@@ -16,8 +15,7 @@ please use \\{@see InMemory\\} instead$#',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method createAdodb\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
-New code should use existing DB tooling and not directly create
-new connections\\.$#',
+New code should use existing DB tooling and not directly create new connections\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

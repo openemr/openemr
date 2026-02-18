@@ -9,8 +9,7 @@ use mysqli;
 use RuntimeException;
 
 /**
- * @deprecated New code should use existing DB tooling and not directly create
- * new connections.
+ * @deprecated New code should use existing DB tooling and not directly create new connections.
  */
 class DatabaseConnectionFactory
 {
