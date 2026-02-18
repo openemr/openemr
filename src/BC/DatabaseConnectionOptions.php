@@ -49,6 +49,7 @@ final readonly class DatabaseConnectionOptions
     private const REDACTED = '[REDACTED]';
 
     /**
+     * @param literal-string $charset
      * @param ClientCert|null $sslClientCert Client cert/key pair for mTLS
      */
     public function __construct(
