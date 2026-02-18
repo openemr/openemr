@@ -98,7 +98,7 @@ class RouteController
         $serviceId = $request->get('serviceId', '');
         $csrfToken = $request->get('csrf_token', '');
 
-        if (CsrfUtils::verifyCsrfToken($csrfToken, $this->session) === false) {
+        if (CsrfUtils::verifyCsrfToken($csrfToken, session: $this->session) === false) {
             return $this->notFoundAction($request);
         }
         if (empty(trim((string) $serviceId))) {

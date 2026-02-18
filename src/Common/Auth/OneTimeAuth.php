@@ -377,7 +377,7 @@ class OneTimeAuth
         $extend = ($auth['actions']['extend_portal_visit'] ?? 1) ? 1 : 0;
         $this->session->set('portal_visit_extended', $extend);
 
-        CsrfUtils::setupCsrfKey(session: $this->session);
+        CsrfUtils::setupCsrfKey($this->session);
         header('Location: ' . $auth['redirect']);
 
         // allows logging and any other processing to be handled on the return
