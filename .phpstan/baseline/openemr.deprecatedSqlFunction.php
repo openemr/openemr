@@ -6492,6 +6492,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sql_upgrade.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Lcobucci\\\\Clock\\\\SystemClock\\:\\:fromSystemTimezone\\(\\) is deprecated\\. Use ServiceContainer\\:\\:getClock\\(\\) instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/ServiceContainer.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
