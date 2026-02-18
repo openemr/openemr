@@ -16,20 +16,116 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
-use OpenEMR\Tests\E2e\Base\BaseTrait;
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
-use OpenEMR\Tests\E2e\Login\LoginTrait;
+use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
 
+/**
+ * Main menu links test with shared browser session.
+ *
+ * This test class uses a single browser session for all test cases,
+ * logging in once in setUpBeforeClass() and reusing the session for
+ * all menu link tests. This significantly reduces test execution time
+ * compared to creating a fresh session for each test case.
+ */
 class HhMainMenuLinksTest extends PantherTestCase
 {
-    use BaseTrait;
-    use LoginTrait;
+    private static ?Client $sharedClient = null;
 
     private $crawler;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$sharedClient = self::createSharedClient();
+        self::performSharedLogin();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$sharedClient !== null) {
+            self::$sharedClient->quit();
+            self::$sharedClient = null;
+        }
+    }
+
+    private static function createSharedClient(): Client
+    {
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+
+        if ($useGrid === "true") {
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 0);
+            $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
+
+            $capabilities = DesiredCapabilities::chrome();
+
+            $chromeArgs = [
+                '--window-size=1920,1080',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ];
+
+            if ($forceHeadless === "true") {
+                $chromeArgs[] = '--headless';
+            }
+
+            $capabilities->setCapability('goog:chromeOptions', [
+                'args' => $chromeArgs
+            ]);
+
+            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            $capabilities->setCapability('pageLoadStrategy', 'normal');
+
+            $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
+            $client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
+
+            $client->manage()->timeouts()->implicitlyWait($implicitWait);
+            $client->manage()->timeouts()->pageLoadTimeout($pageLoadTimeout);
+        } else {
+            $client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
+            $client->manage()->window()->maximize();
+        }
+
+        return $client;
+    }
+
+    private static function performSharedLogin(): void
+    {
+        $crawler = self::$sharedClient->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
+        $form = $crawler->filter('#login_form')->form();
+        $form['authUser'] = LoginTestData::username;
+        $form['clearPass'] = LoginTestData::password;
+        self::$sharedClient->submit($form);
+
+        // Wait for app to be ready (Knockout.js bindings applied)
+        self::$sharedClient->wait(30)->until(fn($driver) => $driver->executeScript(
+            'return document.getElementById("mainMenu")?.children.length > 0'
+        ));
+
+        fwrite(STDERR, "[E2E] Shared session login complete\n");
+    }
+
+    /**
+     * Initial login test - verifies shared session is working.
+     * Other tests depend on this to ensure proper test ordering.
+     */
+    public function testLoginAuthorized(): void
+    {
+        // Verify the shared session is logged in
+        $title = self::$sharedClient->getTitle();
+        $this->assertSame('OpenEMR', $title, 'Shared session login FAILED');
+    }
 
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
@@ -37,8 +133,6 @@ class HhMainMenuLinksTest extends PantherTestCase
     public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading = ''): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
-            // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
-            //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
 
@@ -46,19 +140,63 @@ class HhMainMenuLinksTest extends PantherTestCase
             $loading = "Loading";
         }
 
-        $this->base();
-        try {
-            $this->login(LoginTestData::username, LoginTestData::password);
-            $this->goToMainMenuLink($menuLink);
-            $this->assertActiveTab($expectedTabTitle, $loading);
-        } catch (\Throwable $e) {
-            // Close client
-            $this->client->quit();
-            // re-throw the exception
-            throw $e;
+        // Use the shared client - no login needed
+        $this->goToMainMenuLink($menuLink);
+        $this->assertActiveTab($expectedTabTitle, $loading);
+    }
+
+    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
+    {
+        $client = self::$sharedClient;
+
+        $client->waitFor(XpathsConstants::ACTIVE_TAB);
+
+        foreach (explode('||', $loading) as $loadingText) {
+            $client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
         }
-        // Close client
-        $this->client->quit();
+
+        $this->crawler = $client->refreshCrawler();
+        if ($looseTabTitle) {
+            $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");
+        } else {
+            $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
+        }
+    }
+
+    private function goToMainMenuLink(string $menuLink): void
+    {
+        $client = self::$sharedClient;
+
+        // Ensure on main page (not in an iframe)
+        $client->switchTo()->defaultContent();
+
+        $menuLinkSequenceArray = explode('||', $menuLink);
+        $counter = 0;
+        foreach ($menuLinkSequenceArray as $menuLinkItem) {
+            if ($counter == 0) {
+                if (count($menuLinkSequenceArray) > 1) {
+                    $xpath = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkItem . '"]';
+                } else {
+                    $xpath = '//div[@id="mainMenu"]/div/div/div[text()="' . $menuLinkItem . '"]';
+                }
+            } elseif ($counter == 1) {
+                if (count($menuLinkSequenceArray) == 2) {
+                    $xpath = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+                } else {
+                    $xpath = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
+                }
+            } else {
+                $xpath = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+            }
+
+            $element = $client->wait(30)->until(
+                WebDriverExpectedCondition::elementToBeClickable(
+                    WebDriverBy::xpath($xpath)
+                )
+            );
+            $element->click();
+            $counter++;
+        }
     }
 
     /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
