@@ -764,7 +764,7 @@ STP2TBLTOP1;
                                     <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
-                                    <select name='collate' id=='collate' class='form-control'>
+                                    <select name='collate' id='collate' class='form-control'>
                                         <option selected value='utf8mb4_general_ci'>
                                             General (Recommended)
                                         </option>
