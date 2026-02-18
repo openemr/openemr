@@ -10,7 +10,6 @@ require_once("verysimple/DB/DatabaseConfig.php");
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Core\OEGlobalsBag;
-use RuntimeException;
 
 /**
  * An implementation of IDataDriver that communicates with
