@@ -57,18 +57,12 @@ class InstallerTest extends TestCase
             'mysqliErrno',
             'mysqliError',
             'mysqliFetchArray',
-            'mysqliInit',
             'mysqliNumRows',
             'mysqliQuery',
-            'mysqliRealConnect',
-            'mysqliSelectDb',
-            'mysqliSslSet',
             'newGaclApi',
             'openFile',
             'recurse_copy',
             'scanDir',
-            'set_collation',
-            'set_sql_strict',
             'totpClassExists',
             'touchFile',
             'unlinkFile',
@@ -173,10 +167,6 @@ class InstallerTest extends TestCase
             ->with('localhost', 'root', 'password', '3306')
             ->willReturn($mockMysqli);
 
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
-
         $result = $mockInstaller->root_database_connection();
 
         $this->assertTrue($result);
@@ -192,34 +182,10 @@ class InstallerTest extends TestCase
             ->with('localhost', 'root', 'password', '3306')
             ->willReturn(false);
 
-        $mockInstaller->expects($this->never())
-            ->method('set_sql_strict');
-
         $result = $mockInstaller->root_database_connection();
 
         $this->assertFalse($result);
         $this->assertEquals('unable to connect to database as root', $mockInstaller->error_message);
-    }
-
-    public function testRootDatabaseConnectionFailsWhenSqlStrictFails(): void
-    {
-        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('connect_to_database')
-            ->with('localhost', 'root', 'password', '3306')
-            ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(false);
-
-        $result = $mockInstaller->root_database_connection();
-
-        $this->assertFalse($result);
-        $this->assertEquals('unable to set strict sql setting', $mockInstaller->error_message);
-        $this->assertEquals($mockMysqli, $mockInstaller->dbh);
     }
 
     public function testRootDatabaseConnectionWithSSLCertificates(): void
@@ -231,10 +197,6 @@ class InstallerTest extends TestCase
             ->method('connect_to_database')
             ->with('localhost', 'root', 'password', '3306')
             ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
 
         $result = $mockInstaller->root_database_connection();
 
@@ -251,19 +213,6 @@ class InstallerTest extends TestCase
             ->method('connect_to_database')
             ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
             ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliSelectDb')
-            ->with($mockMysqli, 'openemr')
-            ->willReturn(true);
 
         $result = $mockInstaller->user_database_connection();
 
@@ -286,86 +235,9 @@ class InstallerTest extends TestCase
         $this->assertEquals("unable to connect to database as user: 'openemr'", $mockInstaller->error_message);
     }
 
-    public function testUserDatabaseConnectionFailsWhenSqlStrictFails(): void
-    {
-        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('connect_to_database')
-            ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
-            ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(false);
-
-        $result = $mockInstaller->user_database_connection();
-
-        $this->assertFalse($result);
-        $this->assertEquals('unable to set strict sql setting', $mockInstaller->error_message);
-    }
-
-    public function testUserDatabaseConnectionFailsWhenCollationFails(): void
-    {
-        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('connect_to_database')
-            ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
-            ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(false);
-
-        $result = $mockInstaller->user_database_connection();
-
-        $this->assertFalse($result);
-        $this->assertEquals('unable to set sql collation', $mockInstaller->error_message);
-    }
-
-    public function testUserDatabaseConnectionFailsWhenSelectDbFails(): void
-    {
-        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('connect_to_database')
-            ->with('localhost', 'openemr', 'openemr', '3306', 'openemr')
-            ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliSelectDb')
-            ->with($mockMysqli, 'openemr')
-            ->willReturn(false);
-
-        $result = $mockInstaller->user_database_connection();
-
-        $this->assertFalse($result);
-        $this->assertEquals("unable to select database: 'openemr'", $mockInstaller->error_message);
-    }
-
     public function testCreateDatabaseSuccess(): void
     {
         $mockInstaller = $this->createMockInstaller();
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
 
         $mockInstaller->expects($this->once())
             ->method('execute_sql')
@@ -382,10 +254,6 @@ class InstallerTest extends TestCase
         $mockInstaller = $this->createMockInstaller(['collate' => 'utf8mb4_unicode_ci']);
 
         $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
             ->method('execute_sql')
             ->with("create database openemr character set utf8mb4 collate utf8mb4_unicode_ci")
             ->willReturn(true);
@@ -398,10 +266,6 @@ class InstallerTest extends TestCase
     public function testCreateDatabaseWithLegacyCollation(): void
     {
         $mockInstaller = $this->createMockInstaller(['collate' => 'utf8_general_ci']);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
 
         $mockInstaller->expects($this->once())
             ->method('execute_sql')
@@ -420,10 +284,6 @@ class InstallerTest extends TestCase
         $mockInstaller = $this->createMockInstaller();
 
         $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
             ->method('execute_sql')
             ->with("create database openemr character set utf8mb4 collate utf8mb4_general_ci")
             ->willReturn(false);
@@ -436,10 +296,6 @@ class InstallerTest extends TestCase
     public function testCreateDatabaseWithDifferentDbName(): void
     {
         $mockInstaller = $this->createMockInstaller(['dbname' => 'test_db']);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
 
         $mockInstaller->expects($this->once())
             ->method('execute_sql')
@@ -455,10 +311,6 @@ class InstallerTest extends TestCase
     {
         // Create installer with invalid collation name containing illegal characters
         $mockInstaller = $this->createMockInstaller(['collate' => 'utf8@invalid!']);
-
-        // create_database will die before getting here.
-        $mockInstaller->expects($this->never())
-            ->method('set_collation');
 
         // Expect die() to be called with the error message for invalid collation
         $mockInstaller->expects($this->once())
@@ -2840,17 +2692,11 @@ class InstallerTest extends TestCase
             'mysqliErrno',
             'mysqliError',
             'mysqliFetchArray',
-            'mysqliInit',
             'mysqliNumRows',
             'mysqliQuery',
-            'mysqliRealConnect',
-            'mysqliSelectDb',
-            'mysqliSslSet',
             'newGaclApi',
             'openFile',
             'recurse_copy',
-            'set_collation',
-            'set_sql_strict',
             'totpClassExists',
             'touchFile',
             'unlinkFile',
@@ -3038,6 +2884,7 @@ class InstallerTest extends TestCase
         $mockMethods = [
             'atEndOfFile',
             'closeFile',
+            'createMysqliConnection',
             'createTotpInstance',
             'cryptoGenClassExists',
             'die',
@@ -3052,17 +2899,11 @@ class InstallerTest extends TestCase
             'mysqliErrno',
             'mysqliError',
             'mysqliFetchArray',
-            'mysqliInit',
             'mysqliNumRows',
             'mysqliQuery',
-            'mysqliRealConnect',
-            'mysqliSelectDb',
-            'mysqliSslSet',
             'newGaclApi',
             'openFile',
             'recurse_copy',
-            'set_collation',
-            'set_sql_strict',
             'totpClassExists',
             'touchFile',
             'unlinkFile',
@@ -3081,34 +2922,15 @@ class InstallerTest extends TestCase
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
         $mockMysqli = $this->createMock(mysqli::class);
 
-        // Mock mysqliInit to return mock mysqli object
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
-
         // No SSL certificates exist
         $mockInstaller->expects($this->once())
             ->method('fileExists')
             ->willReturn(false);
 
-        // Mock successful connection
+        // Mock successful connection via factory
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->with(
-                $mockMysqli,
-                'localhost',
-                'root',
-                'password',
-                '',
-                3306,
-                '',
-                0  // No SSL flags
-            )
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
+            ->method('createMysqliConnection')
+            ->willReturn($mockMysqli);
 
         $result = $mockInstaller->root_database_connection();
 
@@ -3122,56 +2944,16 @@ class InstallerTest extends TestCase
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
         $mockMysqli = $this->createMock(mysqli::class);
 
-        // Mock mysqliInit to return mock mysqli object
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
-
         // Mock fileExists calls for SSL certificates
         // First call checks mysql-ca (exists), then mysql-key (doesn't exist, short-circuits)
         $mockInstaller->expects($this->exactly(2))
             ->method('fileExists')
             ->willReturnOnConsecutiveCalls(true, false);
 
-        // Mock SSL setup (CA only, no client certs)
+        // Mock successful connection via factory
         $mockInstaller->expects($this->once())
-            ->method('mysqliSslSet')
-            ->with(
-                $mockMysqli,
-                null,  // no key
-                null,  // no cert
-                $this->stringContains('mysql-ca'),  // CA file
-                null,
-                null
-            );
-
-        // Mock successful SSL connection
-        $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->with(
-                $mockMysqli,
-                'localhost',
-                'openemr',
-                'openemr',
-                'openemr',
-                3306,
-                '',
-                MYSQLI_CLIENT_SSL  // SSL flags
-            )
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_collation')
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliSelectDb')
-            ->with($mockMysqli, 'openemr')
-            ->willReturn(true);
+            ->method('createMysqliConnection')
+            ->willReturn($mockMysqli);
 
         $result = $mockInstaller->user_database_connection();
 
@@ -3185,44 +2967,15 @@ class InstallerTest extends TestCase
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
         $mockMysqli = $this->createMock(mysqli::class);
 
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
-
         // All SSL certificates exist
         $mockInstaller->expects($this->exactly(3))
             ->method('fileExists')
             ->willReturn(true);
 
-        // Mock SSL setup with client certificates
+        // Mock successful connection via factory
         $mockInstaller->expects($this->once())
-            ->method('mysqliSslSet')
-            ->with(
-                $mockMysqli,
-                $this->stringContains('mysql-key'),
-                $this->stringContains('mysql-cert'),
-                $this->stringContains('mysql-ca'),
-                null,
-                null
-            );
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->with(
-                $mockMysqli,
-                'localhost',
-                'root',
-                'password',
-                '',
-                3306,
-                '',
-                MYSQLI_CLIENT_SSL
-            )
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
+            ->method('createMysqliConnection')
+            ->willReturn($mockMysqli);
 
         $result = $mockInstaller->root_database_connection();
 
@@ -3230,24 +2983,21 @@ class InstallerTest extends TestCase
         $this->assertEquals($mockMysqli, $mockInstaller->dbh);
     }
 
-    // Test connect_to_database - Connection failure
+    // Test connect_to_database - Connection failure via exception
     public function testConnectToDatabaseConnectionFailure(): void
     {
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
 
         $mockInstaller->expects($this->once())
             ->method('fileExists')
             ->willReturn(false);
 
-        // Mock connection failure
+        $exception = new mysqli_sql_exception('Connection refused', 2002);
+
+        // Mock connection failure via exception
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->willReturn(false);
+            ->method('createMysqliConnection')
+            ->willThrowException($exception);
 
         $result = $mockInstaller->root_database_connection();
 
@@ -3256,14 +3006,11 @@ class InstallerTest extends TestCase
     }
 
     // Test connect_to_database - Exception handling
+    // Note: root_database_connection overwrites the detailed error message,
+    // so we just verify the connection fails and the generic message is set
     public function testConnectToDatabaseExceptionHandling(): void
     {
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
 
         $mockInstaller->expects($this->once())
             ->method('fileExists')
@@ -3273,12 +3020,13 @@ class InstallerTest extends TestCase
 
         // Mock connection throwing exception
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
+            ->method('createMysqliConnection')
             ->willThrowException($exception);
 
         $result = $mockInstaller->root_database_connection();
 
         $this->assertFalse($result);
+        // root_database_connection overwrites the detailed error message
         $this->assertStringContainsString('unable to connect to database as root', $mockInstaller->error_message);
     }
 
@@ -3289,31 +3037,13 @@ class InstallerTest extends TestCase
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
-
-        $mockInstaller->expects($this->once())
             ->method('fileExists')
             ->willReturn(false);
 
-        // Expect custom port to be used
+        // Mock successful connection via factory
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->with(
-                $mockMysqli,
-                'localhost',
-                'root',
-                'password',
-                '',
-                3307,  // Custom port
-                '',
-                0
-            )
-            ->willReturn(true);
-
-        $mockInstaller->expects($this->once())
-            ->method('set_sql_strict')
-            ->willReturn(true);
+            ->method('createMysqliConnection')
+            ->willReturn($mockMysqli);
 
         $result = $mockInstaller->root_database_connection();
 
@@ -3321,15 +3051,9 @@ class InstallerTest extends TestCase
     }
 
     // Test connect_to_database exception handling through user_database_connection
-    // (preserves the original error message from connect_to_database)
     public function testConnectToDatabaseExceptionHandlingViaUser(): void
     {
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
 
         $mockInstaller->expects($this->once())
             ->method('fileExists')
@@ -3339,7 +3063,7 @@ class InstallerTest extends TestCase
 
         // Mock connection throwing exception
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
+            ->method('createMysqliConnection')
             ->willThrowException($exception);
 
         $result = $mockInstaller->user_database_connection();
@@ -3353,20 +3077,17 @@ class InstallerTest extends TestCase
     public function testConnectToDatabaseRegularFailureViaUser(): void
     {
         $mockInstaller = $this->createMockInstallerWithoutConnectToDatabase();
-        $mockMysqli = $this->createMock(mysqli::class);
-
-        $mockInstaller->expects($this->once())
-            ->method('mysqliInit')
-            ->willReturn($mockMysqli);
 
         $mockInstaller->expects($this->once())
             ->method('fileExists')
             ->willReturn(false);
 
-        // Mock connection failure
+        $exception = new mysqli_sql_exception('Connection refused', 2002);
+
+        // Mock connection failure via exception
         $mockInstaller->expects($this->once())
-            ->method('mysqliRealConnect')
-            ->willReturn(false);
+            ->method('createMysqliConnection')
+            ->willThrowException($exception);
 
         $result = $mockInstaller->user_database_connection();
 

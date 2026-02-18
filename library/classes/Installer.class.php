@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -263,11 +265,6 @@ class Installer
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
-            if (!$this->set_sql_strict()) {
-                $this->error_message = 'unable to set strict sql setting';
-                return false;
-            }
-
             return true;
         } else {
             $this->error_message = 'unable to connect to database as root';
@@ -291,21 +288,6 @@ class Installer
             return false;
         }
 
-        if (! $this->set_sql_strict()) {
-            $this->error_message = 'unable to set strict sql setting';
-            return false;
-        }
-
-        if (! $this->set_collation()) {
-            $this->error_message = 'unable to set sql collation';
-            return false;
-        }
-
-        if (! $this->mysqliSelectDb($this->dbh, $this->dbname)) {
-            $this->error_message = "unable to select database: '$this->dbname'";
-            return false;
-        }
-
         return true;
     }
 
@@ -324,7 +306,6 @@ class Installer
             $this->collate = 'utf8mb4_general_ci';
         }
         $sql .= " character set utf8mb4 collate " . $this->escapeCollateName($this->collate);
-        $this->set_collation();
 
         return $this->execute_sql($sql);
     }
@@ -1603,82 +1584,52 @@ $config = 1; /////////////
     protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $mysqlSsl = false;
-        $mysqli = $this->mysqliInit();
+
+        // Build SSL configuration using wrapper methods for testability
+        $sslCaPath = null;
+        $sslClientCert = null;
         if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
-            $mysqlSsl = true;
+            $sslCaPath = $pathToCerts . "mysql-ca";
             if (
                 $this->fileExists($pathToCerts . "mysql-key") &&
                 $this->fileExists($pathToCerts . "mysql-cert")
             ) {
-                // with client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    $pathToCerts . "mysql-key",
-                    $pathToCerts . "mysql-cert",
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            } else {
-                // without client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    null,
-                    null,
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
+                $sslClientCert = [
+                    'key' => $pathToCerts . "mysql-key",
+                    'cert' => $pathToCerts . "mysql-cert",
+                ];
             }
         }
+
+        $config = new DatabaseConnectionOptions(
+            dbname: $dbname,
+            charset: 'utf8mb4',
+            user: $user,
+            password: $password,
+            host: $server,
+            port: (int) $port !== 0 ? (int) $port : 3306,
+            sslCaPath: $sslCaPath,
+            sslClientCert: $sslClientCert,
+        );
+
         try {
-            $ok = $this->mysqliRealConnect(
-                $mysqli,
-                $server,
-                $user,
-                $password,
-                $dbname,
-                (int)$port != 0 ? (int)$port : 3306,
-                '',
-                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
-            );
+            return $this->createMysqliConnection($config);
         } catch (mysqli_sql_exception $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
         }
-        if (!$ok) {
-            $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
-            return false;
-        }
-        return $mysqli;
     }
 
     /**
-     * Disable strict SQL mode for installation.
+     * Create a mysqli connection using the factory.
      *
-     * Turns off MySQL strict mode to allow legacy SQL patterns
-     * during installation.
+     * Separated for testability.
      *
-     * @return mysqli_result|bool Result of SQL execution
+     * @codeCoverageIgnore
      */
-    protected function set_sql_strict()
+    protected function createMysqliConnection(DatabaseConnectionOptions $config): mysqli
     {
-        // Turn off STRICT SQL
-        return $this->execute_sql("SET sql_mode = ''");
-    }
-
-    /**
-     * Set database character encoding to UTF8MB4.
-     *
-     * Configures the connection to use UTF8MB4 character set
-     * for proper Unicode support.
-     *
-     * @return mysqli_result|bool Result of SQL execution
-     */
-    protected function set_collation()
-    {
-        return $this->execute_sql("SET NAMES 'utf8mb4'");
+        return DatabaseConnectionFactory::createMysqli($config);
     }
 
    /**
@@ -2208,18 +2159,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_init to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return mysqli|false
-     */
-    protected function mysqliInit(): mysqli|false
-    {
-        return mysqli_init();
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2244,58 +2183,6 @@ SETHLP;
     protected function mysqliQuery(mysqli $mysql, string $query): mysqli_result|bool
     {
         return mysqli_query($mysql, $query);
-    }
-
-    /**
-     * Wrapper for mysqli_real_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $database
-     * @param int $port
-     * @param string $socket
-     * @param int $flags
-     * @return bool
-     */
-    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
-    {
-        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
-    }
-
-    /**
-     * Wrapper for mysqli_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $mysql
-     * @param string $dbname
-     * @return bool
-     */
-    protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
-    {
-        return mysqli_select_db($mysql, $dbname);
-    }
-
-    /**
-     * Wrapper for mysqli_ssl_set to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param ?string $key
-     * @param ?string $cert
-     * @param ?string $ca
-     * @param ?string $capath
-     * @param ?string $cipher
-     * @return bool
-     */
-    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
-    {
-        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
     }
 
     /**

@@ -12,6 +12,41 @@ use ADODB_mysqli_log;
  */
 class DatabaseConnectionFactory
 {
+    public static function createMysqli(
+        DatabaseConnectionOptions $config,
+    ): \mysqli {
+        $mysqli = new \mysqli();
+        $mysqli->options(MYSQLI_READ_DEFAULT_GROUP, 0);
+        $mysqli->options(MYSQLI_OPT_LOCAL_INFILE, 1);
+
+        $flags = 0;
+        if ($config->sslCaPath !== null) {
+            $flags = MYSQLI_CLIENT_SSL;
+            $mysqli->ssl_set(
+                $config->sslClientCert['key'] ?? null,
+                $config->sslClientCert['cert'] ?? null,
+                $config->sslCaPath,
+                null,
+                null,
+            );
+        }
+
+        $mysqli->real_connect(
+            hostname: $config->host ?? '',
+            username: $config->user,
+            password: $config->password,
+            database: $config->dbname,
+            port: $config->port ?? 3306,
+            socket: $config->unixSocket ?? '',
+            flags: $flags,
+        );
+
+        $mysqli->query("SET NAMES '$config->charset'");
+        $mysqli->query("SET sql_mode = ''");
+
+        return $mysqli;
+    }
+
     public static function createAdodb(
         DatabaseConnectionOptions $config,
         bool $persistent = false,
