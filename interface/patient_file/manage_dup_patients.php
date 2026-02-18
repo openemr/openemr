@@ -13,9 +13,9 @@
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
- * add ability to output results as a csv file. version 1.0 Ruth Moulton
+ * add ability to output results as a csv file.  Ruth Moulton
  */
- */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
@@ -30,6 +30,7 @@ use OpenEMR\Services\FacilityService;
 
 $first_time = true;
 $group = 1;
+
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -58,8 +59,9 @@ function displayRow($row, $pid = ''): void
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
             $group++;
-            if (empty($_POST['form_csvexport'])) { //rm - don't put the next line into the csv file
+       if (empty($_POST['form_csvexport'])) { //rm - don't put the next line into the csv file
             echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            }
         }
     }
 
@@ -89,23 +91,23 @@ function displayRow($row, $pid = ''): void
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
-    echo "<tr class='$highlight_class'>";
-    /* rm - output the line to the csv file if requested, otherwise display */
+
     if (!empty($_POST['form_csvexport'])) {
             echo csvEscape(text($group)) . ',';
             echo csvEscape(text($myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
             echo csvEscape($row['id']) . ',';
             echo csvEscape(text($ptname)) . ',';
-            // format dates by users preference
+            // rm - format dates by users preference
             echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
             echo csvEscape($row['ss']) . ',';
             echo csvEscape($row['email']) . ',';
             echo csvEscape(text($phones)) . ',';
             echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
-            echo csvEscape(text($facname)) . ',';
+            echo csvEscape(text($fac_name)) . ',';
              echo csvEscape($row['street']) . "\n";
     } else {
+            echo "<tr class='$highlight_class'>";
     ?>
     <td>
         <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
@@ -203,6 +205,19 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 $calc_count = calculateScores();
 $score_calculate = getDupScoreSQL();
 
+// rm - In the case of CSV export only, a download will be forced. set up parameters
+if (!empty($_POST['form_csvexport'])) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+    $today = text($today);
+    $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
+   // header("Content-Disposition: attachment; filename=" . $filename . '"'); //rm 'attachment' forces the download
+    header("Content-Disposition: attachment; filename=" . $filename); //rm 'attachment' forces the download
+    header("Content-Description: File Transfer");
+} else {
 ?>
 <!DOCTYPE html>
 <html>
@@ -264,6 +279,7 @@ $score_calculate = getDupScoreSQL();
                 form.submit();
             }
         }
+
     </script>
 </head>
 <body class="container-fluid bg-light text-dark">
@@ -276,7 +292,27 @@ $score_calculate = getDupScoreSQL();
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
+                <button class="btn btn-sm btn-primary btn-file" type='submit'  name='form_csvexport' value='CSV' ><?php echo xla('Generate a CSV File'); ?></button>
             </div>
+            <?php } //end of html without csv parameter setup
+
+// either put out headings to the screen or to the csv file
+if (!empty($_POST['form_csvexport'])) {
+        // CSV column headings
+        echo csvEscape(xl('Group')) . ',';
+        echo csvEscape(xl('Score')) . ',';
+        echo csvEscape(xl('PID')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Name')) . ',';
+        echo csvEscape(xl('DOB')) . ',';
+        echo csvEscape(xl('SSN')) . ',';
+        echo csvEscape(xl('Email')) . ',';
+        echo csvEscape(xl('Telephone')) . ',';
+        echo csvEscape(xl('Registered')) . ',';
+        echo csvEscape(xl('Home Facility')) . ',';
+        echo csvEscape(xl('Address')) . "\n";
+} else {
+    ?>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
                 <thead class="thead-dark text-center">
                 <tr>
@@ -319,7 +355,7 @@ $score_calculate = getDupScoreSQL();
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <?php
+                <?php } //rm - end of html column headers
                 $form_action = $_POST['form_action'] ?? '';
                 if ($form_action == 'U') {
                     sqlStatement(
@@ -364,6 +400,7 @@ $score_calculate = getDupScoreSQL();
                         }
                     }
                 }
+                if (empty($_POST['form_csvexport'])) {
                 ?>
                 </tbody>
             </table>
@@ -380,3 +417,6 @@ $score_calculate = getDupScoreSQL();
     </form>
 </body>
 </html>
+   <?php
+}  // rm end of not csv
+?>
