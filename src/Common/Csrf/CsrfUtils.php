@@ -45,7 +45,7 @@ class CsrfUtils
     //  $subject allows creation of different csrf tokens:
     //    Using 'api' for the internal api csrf token
     //    Using 'default' for everything else (for now)
-    public static function collectCsrfToken($subject = 'default', ?SessionInterface $session): false|string
+    public static function collectCsrfToken($subject = 'default', ?SessionInterface $session = null): false|string
     {
         $privateKey = $session?->get('csrf_private_key', null);
         if (empty($privateKey)) {
@@ -56,7 +56,7 @@ class CsrfUtils
     }
 
     // Function to verify a csrf_token
-    public static function verifyCsrfToken($token, $subject = 'default', ?SessionInterface $session): bool
+    public static function verifyCsrfToken($token, $subject = 'default', ?SessionInterface $session = null): bool
     {
         $currentToken = self::collectCsrfToken($subject, $session);
 
