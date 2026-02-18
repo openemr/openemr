@@ -2487,11 +2487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\$node of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenMethodsRule\\:\\:processNode\\(\\) has invalid type OpenEMR\\\\PHPStan\\\\Rules\\\\FuncCall\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenMethodsRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setAuthToken\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
