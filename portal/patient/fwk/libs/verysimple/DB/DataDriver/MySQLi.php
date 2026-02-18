@@ -7,8 +7,10 @@ require_once("verysimple/DB/ISqlFunction.php");
 require_once("verysimple/DB/DatabaseException.php");
 require_once("verysimple/DB/DatabaseConfig.php");
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\BC\DatabaseConnectionFactory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Core\OEGlobalsBag;
+use RuntimeException;
 
 /**
  * An implementation of IDataDriver that communicates with
@@ -59,91 +61,20 @@ class DataDriverMySQLi implements IDataDriver
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
-    function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
+    function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = ''): \mysqli
     {
-        if (! function_exists("mysqli_connect")) {
-            throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
-        }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        // Important: this completely ignores the parameters in favor of the
+        // standard options reading/parsing. They're sourced from the same
+        // place so it doesn't really matter.
         $globalsBag = OEGlobalsBag::getInstance();
-            // if the port is provided in the connection string then strip it out and provide it as a separate param
-        $hostAndPort = explode(":", $connectionstring);
-        $host = $hostAndPort [0];
-        $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
+        $config = DatabaseConnectionOptions::forSite($globalsBag->getString('OE_SITE_DIR'));
 
-        if ((!empty($globalsBag->get("enable_database_connection_pooling")) || !empty($session->get("enable_database_connection_pooling"))) && empty($globalsBag->get('connection_pooling_off'))) {
-            $host = "p:" . $host;
-        }
-
-        $connection = @mysqli_init();
-        if (is_null($connection)) {
-            throw new DatabaseException("Error connecting to database: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
-        }
-
-        //Below was added by OpenEMR to support mysql ssl
-        $oeSiteDir = $globalsBag->getString('OE_SITE_DIR');
-        $mysqlSsl = false;
-        if (defined('MYSQLI_CLIENT_SSL') && file_exists("$oeSiteDir/documents/certificates/mysql-ca")) {
-            $mysqlSsl = true;
-            if (
-                file_exists("$oeSiteDir/documents/certificates/mysql-key") &&
-                file_exists("$oeSiteDir/documents/certificates/mysql-cert")
-            ) {
-                // with client side certificate/key
-                mysqli_ssl_set(
-                    $connection,
-                    "$oeSiteDir/documents/certificates/mysql-key",
-                    "$oeSiteDir/documents/certificates/mysql-cert",
-                    "$oeSiteDir/documents/certificates/mysql-ca",
-                    null,
-                    null
-                );
-            } else {
-                // without client side certificate/key
-                mysqli_ssl_set(
-                    $connection,
-                    null,
-                    null,
-                    "$oeSiteDir/documents/certificates/mysql-ca",
-                    null,
-                    null
-                );
-            }
-        }
-        if ($mysqlSsl) {
-            $ok = mysqli_real_connect(
-                $connection,
-                $host,
-                $username,
-                $password,
-                $database,
-                $port,
-                null,
-                MYSQLI_CLIENT_SSL
-            );
-        } else {
-            $ok = mysqli_real_connect(
-                $connection,
-                $host,
-                $username,
-                $password,
-                $database,
-                $port
-            );
-        }
-
-        if (!$ok) {
-            throw new DatabaseException("Error connecting to database: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
-        }
-
-        if ($charset) {
-            mysqli_set_charset($connection, $charset);
-
-            if (mysqli_connect_errno()) {
-                throw new DatabaseException("Unable to set charset: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
-            }
+        try {
+            $connection = DatabaseConnectionFactory::createMysqli($config);
+        } catch (RuntimeException $e) {
+            throw new DatabaseException($e->getMessage(), DatabaseException::$CONNECTION_ERROR);
         }
 
         if ($bootstrap) {
@@ -155,12 +86,6 @@ class DataDriverMySQLi implements IDataDriver
                     throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }
-        }
-
-        if (!empty($globalsBag->getString('debug_ssl_mysql_connection'))) {
-            $sslTestCipher = mysqli_query($connection, "SHOW STATUS LIKE 'Ssl_cipher';");
-            error_log("CHECK SSL CIPHER IN PATIENT PORTAL MYSQLI: " . htmlspecialchars(print_r(mysqli_fetch_assoc($sslTestCipher), true), ENT_QUOTES));
-            mysqli_free_result($sslTestCipher);
         }
 
         return $connection;
