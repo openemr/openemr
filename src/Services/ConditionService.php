@@ -127,10 +127,10 @@ class ConditionService extends BaseService
         // FHIR api will send an already populated TokenSearchField
         if (!empty($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+            unset($search["puuid"]);
         }
 
         foreach ($search as $key => $value) {
-            if ($key === "puuid" && isset($newSearch["puuid"])) { continue; }
             if (!$value instanceof ISearchField) {
                 $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
