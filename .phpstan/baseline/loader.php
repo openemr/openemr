@@ -118,6 +118,7 @@ return ['includes' => [
     __DIR__ . '/openemr.forbiddenErrorLog.php',
     __DIR__ . '/openemr.forbiddenGlobalKeyword.php',
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
+    __DIR__ . '/openemr.forbiddenInstantiation.php',
     __DIR__ . '/openemr.noGlobalNsFunctions.php',
     __DIR__ . '/parameter.defaultValue.php',
     __DIR__ . '/parameter.notFound.php',
