@@ -130,6 +130,7 @@ class ConditionService extends BaseService
         }
 
         foreach ($search as $key => $value) {
+            if ($key === "puuid" && isset($newSearch["puuid"])) { continue; }
             if (!$value instanceof ISearchField) {
                 $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
