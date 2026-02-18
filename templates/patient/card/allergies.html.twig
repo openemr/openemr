@@ -37,7 +37,7 @@ list_group_container_class_list with an array of strings representing class name
 {% else %}
     {% set severityAlarms = ["severe", "life_threatening_severity", "fatal"] %}
     {% for l in list %}
-        {% set classes = (l.severity_al in severityAlarms) ? 'bg-warning font-weight-bold px-1' : '' %}
+        {% set classes = (l.severity_al in severityAlarms) ? 'bg-warning fw-bold px-1' : '' %}
         <div class="list-group-item p-1">
             <div class="d-flex w-100 justify-content-between">
                 {% set _severity = getListItemTitle('severity_ccda', l.severity_al) %}

@@ -1242,7 +1242,7 @@ if (
                         lbf_new_end_row();
 
                         if ($USING_BOOTSTRAP) {
-                            $tmp = 'form-row';
+                            $tmp = 'row g-3';
                             if ($prepend_blank_row) {
                                 $tmp .= ' mt-3';
                             }

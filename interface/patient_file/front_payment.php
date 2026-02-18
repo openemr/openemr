@@ -1272,7 +1272,7 @@ function make_insurance() {
     <td class="text-center" id="td_copay_1"></td>
     <td class="text-center" id="balance_1"></td>
     <td class="text-center" id="duept_1"></td>
-    <td class="text-right">
+    <td class="text-end">
         <input
             class="form-control amount_field"
             data-encounter-id=""
@@ -1359,7 +1359,7 @@ function make_insurance() {
     <td class="text-center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
     <td class="text-center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
     <td class="text-center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
-    <td class="text-right">
+    <td class="text-end">
         <input
             class="form-control amount_field"
             data-encounter-id="<?=$enc?>"

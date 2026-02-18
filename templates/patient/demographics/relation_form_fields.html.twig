@@ -37,7 +37,7 @@
         border-radius: 0.25rem;
     }
 
-    .form_relations .text-danger.font-weight-bold {
+    .form_relations .text-danger.fw-bold {
         animation: pulse 1s infinite;
     }
 
@@ -369,12 +369,12 @@
 
                     // Visual warning at 950 characters
                     if (this.value.length > 950) {
-                        countSpan.classList.add('text-danger', 'font-weight-bold');
+                        countSpan.classList.add('text-danger', 'fw-bold');
                     } else if (this.value.length > 900) {
-                        countSpan.classList.add('text-warning', 'font-weight-bold');
+                        countSpan.classList.add('text-warning', 'fw-bold');
                         countSpan.classList.remove('text-danger');
                     } else {
-                        countSpan.classList.remove('text-danger', 'text-warning', 'font-weight-bold');
+                        countSpan.classList.remove('text-danger', 'text-warning', 'fw-bold');
                     }
                 });
             }

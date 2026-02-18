@@ -496,7 +496,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             $('<div>', {class: 'dialog-body'}).append(
                                 $('<input>', {type: 'hidden', id: 'contextId', value: isEdit ? contextData.id : ''}),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextName + ' *'),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextName + ' *'),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -505,7 +505,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     })
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextKey),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextKey),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -516,7 +516,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     })
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.description),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.description),
                                     $('<textarea>', {
                                         class: 'form-control',
                                         id: 'contextDescription',
@@ -524,7 +524,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     }).text(isEdit ? (contextData.description || '') : '')
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.widgetConfig),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.widgetConfig),
                                     $widgetGrid
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -740,7 +740,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                 $('<input>', {type: 'hidden', id: 'assignUserId', value: userId}),
                                 $('<p>').append($('<strong>').text(self.xl.user + ': '), $('<span>').text(userName)),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.context),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.context),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -820,7 +820,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                     $('<span>').text(selected.length + ' ' + self.xl.usersSelected)
                                 ),
                                 $('<div>', {class: 'mb-3'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextToAssign),
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextToAssign),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(

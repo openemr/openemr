@@ -380,7 +380,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <?php if ($focustitles[0] == "Allergies") :
                                     $l = new ListService();
                                     $sev = $l->getListOption('severity_ccda', $row['severity_al']);
-                                    $hgl = (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) ? 'bg-warning font-weight-bold px-1' : '';
+                                    $hgl = (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) ? 'bg-warning fw-bold px-1' : '';
                                     ?>
                                 <span class="me-3 <?php echo attr($hgl); ?>">
                                     <?php echo text($sev['title']); ?>

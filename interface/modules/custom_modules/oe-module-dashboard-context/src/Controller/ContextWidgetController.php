@@ -419,7 +419,7 @@ class ContextWidgetController
                     var $leftCol = $('<div>', { class: 'col-md-7' });
                     $leftCol.append($('<h6>', { class: 'border-bottom pb-2 mb-3' }).append(
                         document.createTextNode(self.xl.currentContext + ': '),
-                        $('<span>', { class: 'text-primary font-weight-bold' }).text(contextLabel)
+                        $('<span>', { class: 'text-primary fw-bold' }).text(contextLabel)
                     ));
                     $leftCol.append($('<p>', { class: 'text-muted small' }).text(self.xl.selectWidgets));
                     $leftCol.append($('<div>', { class: 'widget-grid', style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;' }).html(widgetToggles));
@@ -429,7 +429,7 @@ class ContextWidgetController
                     $rightCol.append($('<h6>', { class: 'border-bottom pb-2 mb-3' }).text(self.xl.createCustom));
                     $rightCol.append(
                         $('<div>', { class: 'mb-3' }).append(
-                            $('<label>', { class: 'font-weight-bold' }).text(self.xl.contextName),
+                            $('<label>', { class: 'fw-bold' }).text(self.xl.contextName),
                             $('<input>', { type: 'text', class: 'form-control form-control-sm', id: 'navCustomContextName' })
                         ),
                         $('<div>', { class: 'mb-3' }).append(
@@ -914,7 +914,7 @@ class ContextWidgetController
                         var $leftCol = $('<div>', {class: 'col-md-7'});
                         $leftCol.append($('<h6>', {class: 'border-bottom pb-2 mb-3'}).append(
                             document.createTextNode(self.xl.currentContext + ': '),
-                            $('<span>', {class: 'text-primary font-weight-bold', id: 'currentContextLabel'}).text(contextLabel)
+                            $('<span>', {class: 'text-primary fw-bold', id: 'currentContextLabel'}).text(contextLabel)
                         ));
                         $leftCol.append($('<p>', {class: 'text-muted small'}).text(self.xl.selectWidgets));
                         $leftCol.append($('<div>', {class: 'widget-grid'}).html(widgetToggles));
@@ -924,7 +924,7 @@ class ContextWidgetController
                         $rightCol.append($('<h6>', {class: 'border-bottom pb-2 mb-3'}).text(self.xl.createCustom));
                         $rightCol.append(
                             $('<div>', {class: 'mb-3'}).append(
-                                $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextName),
+                                $('<label>', {class: 'fw-bold'}).text(self.xl.contextName),
                                 $('<input>', {type: 'text', class: 'form-control form-control-sm', id: 'customContextName'})
                             ),
                             $('<div>', {class: 'mb-3'}).append(

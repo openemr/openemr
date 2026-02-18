@@ -171,7 +171,7 @@ if (empty($_REQUEST['site']) && $allow_multisite_setup && empty($state)) {
             <div class="row">
                 <div class="col-12">
                     <h3 class="mb-3 border-bottom">Optional Site ID Selection</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>
                             Most OpenEMR installations support only one site.  If that is
                             true for you then ignore the rest of this text and just click Continue.
@@ -205,7 +205,7 @@ if (empty($_REQUEST['site']) && $allow_multisite_setup && empty($state)) {
                         <br />
                         <form method='post'>
                             <input type='hidden' name='state' value='0' />
-                            <div class="form-row">
+                            <div class="row g-3">
                                 <div class="col-auto">
                                     Site ID:
                                 </div>
@@ -497,7 +497,7 @@ function cloneClicked() {
             if ($state == 7) {
                 ?>
             <h3 class="mb-3 border-bottom">Final step - Success</h3>
-            <div class="jumbotron p-5">
+            <div class="bg-body-tertiary rounded-3 p-5">
             <p>Congratulations! OpenEMR is now installed.</p>
             <ul>
                 <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
@@ -564,7 +564,7 @@ ENDDIV;
                     $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state2'));
                     $step1 = <<<STP1
                     <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use. For me to create the database, you will need to supply the MySQL root password.</p>
                         <br />
                         <p class='p-1 bg-warning'>$caution: clicking on <span class="fw-bold">Proceed to Step 2</span> may delete or cause damage to existing data on your system. Before you continue <span class="fw-bold">please backup your data</span>.</p>
@@ -608,7 +608,7 @@ STP1;
                     $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state3'));
                     $step2top = <<<STP2TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the
                             <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u>
                             </a> manual file.
@@ -1094,7 +1094,7 @@ SOURCESITEBOT;
                 </fieldset>
                         <p class='mt-4 mark'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
                         <p class='p-1 bg-success text-white oe-spinner' style='visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
-                        <div class="form-row">
+                        <div class="row g-3">
                             <div class="col-12">
                                 <button type='submit' id='create_db_button' value='Continue' class='wait btn btn-primary'>
                                     <i class="fas fa-chevron-right"></i>  Create DB and User
@@ -1188,7 +1188,7 @@ STP2TBLBOT;
                     }
 
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Creating Database and First User</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
 
                     // Skip below if database shell has already been created.
                     if ($inst != 2) {
@@ -1453,7 +1453,7 @@ TOTP;
                     }
                                 $btn_text_esc = text($btn_text);
                                 $form_bottom = <<<FRMBOT
-                                <div class="form-row">
+                                <div class="row g-3">
                                     <div class="col-12">
                                         <button type='submit' id='step-4-btn' class="btn btn-primary" value='Continue'>
                                             <i class="fas fa-chevron-right"></i>  $btn_text_esc
@@ -1471,7 +1471,7 @@ FRMBOT;
                     $state_esc = text($state);
                     $step4_top = <<<STP4TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Configure PHP</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                     <p>Configuration of PHP...</p>
                     <p>We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:</p>
                     <ul>
@@ -1603,7 +1603,7 @@ STP4TOP;
                         <input name='port' type='hidden' value='" . attr($installer->port) . "' />
                         <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
                         <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
-                        <div class='form-row'>
+                        <div class='row g-3'>
                             <div class='col-12'>
                                 <button type='submit' class='btn btn-primary' value='Continue'>
                                     <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
@@ -1622,7 +1622,7 @@ STP4TOP;
                     $docsDirectoryGlob = text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory)));
                     $openemrDirectory = text(realpath(__DIR__));
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Web Server</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
                     echo "<p>Select your web server configuration to see the required setup instructions.</p>";
 
                     echo "
@@ -1719,7 +1719,7 @@ STP4TOP;
                         <input name='port' type='hidden' value='" . attr($installer->port) . "' />
                         <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
                         <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
-                        <div class='form-row'>
+                        <div class='row g-3'>
                             <div class='col-12'>
                                 <button type='submit' class='btn btn-primary' value='Continue'>
                                     <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
@@ -1733,7 +1733,7 @@ STP4TOP;
                 case 6:
                     $_SESSION['bootstrapStateInSetup'] = 7;
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Select a Theme</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
                     echo "<p>Select a theme for OpenEMR...</p>\n";
                     $btn_text = "Proceed to Final Step";
                     $installer->displaySelectedThemeDiv();
@@ -1781,7 +1781,7 @@ STP4TOP;
                 default:
                     $top = <<<TOP
                         <h3 class="mb-3 border-bottom">Pre Install - Checking File and Directory Permissions</h3>
-                            <div class="jumbotron p-5">
+                            <div class="bg-body-tertiary rounded-3 p-5">
                                 <p>
                                     Welcome to OpenEMR. This utility will step you through the installation and configuration of OpenEMR for your practice.
                                 </p>
