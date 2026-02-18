@@ -19,32 +19,21 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
-require_once __DIR__ . "/../../../vendor/autoload.php";
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
 
-require_once "../../globals.php";
-require_once "$srcdir/api.inc.php";
-require_once "$srcdir/forms.inc.php";
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/patient.inc.php";
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
-require_once "$srcdir/FeeSheetHtml.class.php";
+require_once("../../globals.php");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once("$srcdir/FeeSheetHtml.class.php");
 
-/**
- * @var string $srcdir
- * @var string $rootdir
- * @var int $pid
- * @var int $encounter
- * @var int $userauthorized
- * @var array $code_types
- * @var string $BS_COL_CLASS
- */
-
-use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -205,7 +194,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
-        AccessDeniedHelper::deny('Unauthorized access to LBF form');
+        die(xlt('Access denied'));
     }
 }
 
@@ -216,7 +205,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 if (!$from_trend_form) {
     $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
-        include_once $fname;
+        include_once($fname);
     }
 }
 
@@ -446,7 +435,7 @@ if (
 
     </style>
 
-    <?php require_once "{$GLOBALS['srcdir']}/options.js.php"; ?>
+    <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -477,7 +466,7 @@ if (
             }
 
             $(".select-dropdown").select2({
-                theme: "bootstrap-5",
+                theme: "bootstrap4",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
@@ -518,7 +507,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -527,7 +516,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -536,7 +525,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -545,7 +534,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -554,7 +543,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -563,7 +552,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -742,8 +731,8 @@ if (
                 "<?php echo addslashes((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0 text-end'>" + price + "&nbsp;</td>" +
-                "<td class='text border-top-0 text-end'>" +
+                "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_bill[" + lino + "][del]' value='1' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code_type]' value='" + code_type + "' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code]'      value='" + code + "' />" +
@@ -765,11 +754,11 @@ if (
                 "<td class='text border-top-0'>" +
                 "<select class='form-control' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0 text-end'>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='text' class='form-control' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0 text-end'>" + price + "&nbsp;</td>" +
-                "<td class='text border-top-0 text-end'>" +
+                "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_prod[" + lino + "][del]'     value='1' />" +
                 "<input type='hidden'   name='form_fs_prod[" + lino + "][drug_id]' value='" + code + "' />" +
                 "<input type='hidden'   name='form_fs_prod[" + lino + "][price]'   value='" + price + "' />" +
@@ -785,7 +774,7 @@ if (
             trelem.innerHTML =
                 "<td class='text border-top-0'>" + code + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
-                "<td class='text border-top-0 text-end'>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_bill[" + lino + "][del]' value='1' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code_type]' value='" + code_type + "' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code]'      value='" + code + "' />" +
@@ -925,8 +914,7 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
-                      } ?>>
+    echo " style='background-color:var(--white)'"; } ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
@@ -1171,7 +1159,7 @@ if (
                         if (strlen((string) $gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
-                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='me-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                             if ($display_style == 'block') {
                                 echo " checked";
                             }
@@ -1191,21 +1179,21 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='$BS_COL_CLASS-$bs_cols fw-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
                             echo " <table cellspacing='0' cellpadding='0' class='border-0 lbfdata'>\n";
                             if ($subtitle) {
                                 // There is a group subtitle so show it.
-                                echo "<tr><td class='fw-bold border-top-0 text-primary' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
-                                echo "<tr><td class='fw-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
+                                echo "<tr><td class='font-weight-bold border-top-0 text-primary' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
+                                echo "<tr><td class='font-weight-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
                             }
 
                             // Initialize historical data array and write date headers.
                             if ($formhistory > 0) {
                                 echo " <tr>";
-                                echo "<td colspan='" . attr($CPR) . "' class='fw-bold border-top-0 text-end'>";
+                                echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>";
                                 if (empty($is_lbf)) {
                                     // Including actual date per IPPF request 2012-08-23.
                                     echo text(oeFormatShortDate(substr((string) $enrow['date'], 0, 10)));
@@ -1227,7 +1215,7 @@ if (
                                 // We sort these sensibly, however only the encounter date is shown here;
                                 // at some point we may wish to show also the data entry date/time.
                                 while ($hrow = sqlFetchArray($hres)) {
-                                    echo "<td colspan='" . attr($CPR) . "' class='fw-bold border-top-0 text-end'>&nbsp;" .
+                                    echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>&nbsp;" .
                                         text(oeFormatShortDate(substr((string) $hrow['date'], 0, 10))) . "</td>\n";
                                     $historical_ids[$hrow['form_id']] = '';
                                 }
@@ -1242,7 +1230,7 @@ if (
                         lbf_new_end_row();
 
                         if ($USING_BOOTSTRAP) {
-                            $tmp = 'row gx-2';
+                            $tmp = 'form-row';
                             if ($prepend_blank_row) {
                                 $tmp .= ' mt-3';
                             }
@@ -1334,7 +1322,7 @@ if (
                         $tmp = ' text';
                         if (isOption($edit_options, 'DS')) {
                             $tmp .= ' RS';
-                        } elseif (isOption($edit_options, 'DO')) {
+                        } else if (isOption($edit_options, 'DO')) {
                             $tmp .= ' RO';
                         }
                         if ($USING_BOOTSTRAP) {
@@ -1351,7 +1339,7 @@ if (
                             }
                             echo ">";
                             foreach ($historical_ids as $key => $dummy) {
-                                $historical_ids[$key] .= "<td colspan='" . attr($datacols) . "' class='text border-top-0 align-top text-end'>";
+                                $historical_ids[$key] .= "<td colspan='" . attr($datacols) . "' class='text border-top-0 align-top text-right'>";
                             }
                         }
                         $cell_count += $datacols;
@@ -1398,7 +1386,7 @@ if (
 
                 if (isset($LBF_SERVICES_SECTION)) {
                     // Create the checkbox and div for the Services Section.
-                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_services' value='1' " .
+                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_services' value='1' " .
                         "onclick='return divclick(this, \"div_fs_services\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1448,7 +1436,7 @@ if (
 
                     // A row for Search, Add Package, Main Provider.
                     $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
-                    echo "<p class='fw-bold'>";
+                    echo "<p class='font-weight-bold'>";
                     echo "<input type='button' value='" . xla('Search Services') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />&nbsp;&nbsp;\n";
                     $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
                     if (sqlNumRows($fscres)) {
@@ -1491,10 +1479,10 @@ if (
                     // Generate a line for each service already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_services_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 fw-bold' colspan='2'>" . xlt('Services Provided') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Provider') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Price') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Services Provided') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Provider') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     foreach ($fs->serviceitems as $lino => $li) {
                         // Skip diagnoses; those would be in the Diagnoses section below.
@@ -1511,8 +1499,8 @@ if (
                                 $li['provid']
                             ) .
                             "  &nbsp;</td>\n";
-                        echo "  <td class='border-top-0 text text-end'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
-                        echo "  <td class='border-top-0 text text-end'>\n" .
+                        echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
+                        echo "  <td class='border-top-0 text text-right'>\n" .
                             "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                             "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                         foreach ($li['hidden'] as $hname => $hvalue) {
@@ -1528,7 +1516,7 @@ if (
 
                 if (isset($LBF_PRODUCTS_SECTION)) {
                     // Create the checkbox and div for the Products Section.
-                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_products' value='1' " .
+                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_products' value='1' " .
                         "onclick='return divclick(this, \"div_fs_products\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1582,18 +1570,18 @@ if (
 
                     // A row for Search
                     $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
-                    echo "<p class='fw-bold'>";
+                    echo "<p class='font-weight-bold'>";
                     echo "<input type='button' value='" . xla('Search Products') . "' onclick='sel_related(null,\"PROD\")' />&nbsp;&nbsp;";
                     echo "</p>\n";
 
                     // Generate a line for each product already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_products_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Products Provided') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Warehouse') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Quantity') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Price') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Products Provided') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Warehouse') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Quantity') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     $fs->loadProductItems();
                     foreach ($fs->productitems as $lino => $li) {
@@ -1602,11 +1590,11 @@ if (
                         echo "  <td class='border-top-0 text'>" .
                             $fs->genWarehouseSelect("form_fs_prod[$lino][warehouse]", '', $li['warehouse'], false, $li['hidden']['drug_id'], true) .
                             "  &nbsp;</td>\n";
-                        echo "  <td class='border-top-0 text text-end'>" .
+                        echo "  <td class='border-top-0 text text-right'>" .
                             "<input class='form-control' type='text' name='form_fs_prod[" . attr($lino) . "][units]' size='3' value='" . attr($li['units']) . "' />" .
                             "&nbsp;</td>\n";
-                        echo "  <td class='border-top-0 text text-end'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
-                        echo "  <td class='border-top-0 text text-end'>\n" .
+                        echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
+                        echo "  <td class='border-top-0 text text-right'>\n" .
                             "   <input type='checkbox' name='form_fs_prod[" . attr($lino) . "][del]' " .
                             "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                         foreach ($li['hidden'] as $hname => $hvalue) {
@@ -1622,7 +1610,7 @@ if (
 
                 if (isset($LBF_DIAGS_SECTION)) {
                     // Create the checkbox and div for the Diagnoses Section.
-                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_diags' value='1' " .
+                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_diags' value='1' " .
                         "onclick='return divclick(this, \"div_fs_diags\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1672,15 +1660,15 @@ if (
 
                     // A row for Search.
                     $ctype = collect_codetypes('diagnosis', 'csv');
-                    echo "<p class='fw-bold'>";
+                    echo "<p class='font-weight-bold'>";
                     echo "<input type='button' class='btn btn-primary' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />";
                     echo "</p>\n";
 
                     // Generate a line for each diagnosis already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_diags_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 fw-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 fw-bold text-end'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     // Start from 1000 to avoid collisions caused by sharing form_fs_bill[]  with services.
                     // Keep track of only diagnoses to avoid gaps and thus potential collisions with newly added diagnoses.
@@ -1694,7 +1682,7 @@ if (
                         echo "  <td class='border-top-0 text'>" . text($li['code']) . "&nbsp;</td>\n";
                         echo "  <td class='border-top-0 text'>" . text($li['code_text']) . "&nbsp;</td>\n";
                         // The Diagnoses section shares the form_fs_bill array with the Services section.
-                        echo "  <td class='border-top-0 text text-end'>\n" .
+                        echo "  <td class='border-top-0 text text-right'>\n" .
                             "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                             "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                         foreach ($li['hidden'] as $hname => $hvalue) {
