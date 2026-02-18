@@ -17,6 +17,8 @@ use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common;
 
 /**
  * @implements Rule<New_>
@@ -28,9 +30,9 @@ class ForbiddenInstantiationsRule implements Rule
      * @var array<class-string, string>
      */
     private const FORBIDDEN_CLASSES = [
-        'OpenEMR\Common\Logging\SystemLogger' => 'ServiceContainer::getLogger()',
-        'OpenEMR\Common\Crypto\CryptoGen' => 'ServiceContainer::getCrypto()',
-        'OpenEMR\Common\Http\Psr17Factory' => 'ServiceContainer::get*Factory()',
+        Common\Logging\SystemLogger::class => ServiceContainer::class . '::getLogger()',
+        Common\Crypto\CryptoGen::class => ServiceContainer::class . '::getCrypto()',
+        Common\Http\Psr17Factory::class => ServiceContainer::class . '::get{PsrType}Factory()',
     ];
 
     /**
@@ -38,8 +40,7 @@ class ForbiddenInstantiationsRule implements Rule
      * @var list<class-string>
      */
     private const EXEMPT_CLASSES = [
-        'OpenEMR\BC\ServiceContainer',
-        'OpenEMR\Common\Logging\SystemLoggerAwareTrait',
+        ServiceContainer::class,
     ];
 
     public function getNodeType(): string
