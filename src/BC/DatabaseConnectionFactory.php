@@ -6,6 +6,7 @@ namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
 use mysqli;
+use RuntimeException;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create
@@ -65,6 +66,9 @@ class DatabaseConnectionFactory
         return $conn;
     }
 
+    /**
+     * @throws RuntimeException if a connection could not be established
+     */
     public static function createMysqli(
         DatabaseConnectionOptions $config,
     ): mysqli {
@@ -76,17 +80,17 @@ class DatabaseConnectionFactory
         if ($config->sslCaPath !== null) {
             $flags = MYSQLI_CLIENT_SSL;
             $mysqli->ssl_set(
-                $config->sslClientCert['key'] ?? null,
-                $config->sslClientCert['cert'] ?? null,
-                $config->sslCaPath,
-                null,
-                null,
+                key: $config->sslClientCert['key'] ?? null,
+                certificate: $config->sslClientCert['cert'] ?? null,
+                ca_certificate: $config->sslCaPath,
+                ca_path: null,
+                cipher_algos: null,
             );
         }
 
         // TODO: Sockets support (do all paths at once)
 
-        $mysqli->real_connect(
+        $success = $mysqli->real_connect(
             hostname: $config->host,
             username: $config->user,
             password: $config->password,
@@ -95,7 +99,15 @@ class DatabaseConnectionFactory
             flags: $flags,
         );
 
-        $mysqli->query("SET NAMES '$config->charset'");
+        if (!$success) {
+            throw new RuntimeException(
+                sprintf('Could not connect to the database (%s)',  $mysqli->connect_error),
+                $mysqli->connect_errno,
+            );
+        }
+
+        // This is preferred over SET NAMES since it also influences escaping
+        $mysqli->set_charset($config->charset);
         $mysqli->query("SET sql_mode = ''");
         return $mysqli;
     }
