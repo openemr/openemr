@@ -24162,6 +24162,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'priors_omitted\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
@@ -41749,16 +41754,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset unknown on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
 ];
 $ignoreErrors[] = [
@@ -55660,16 +55655,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../templates/super/rules/controllers/log/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'autoload\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'files\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'Authorization\' on mixed\\.$#',

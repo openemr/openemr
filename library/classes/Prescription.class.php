@@ -219,7 +219,7 @@ class Prescription extends ORDataObject
             $this->pharmacist = new Person();
             // default provider is the current user
             $this->provider = new Provider($_SESSION['authUserID']);
-            $this->patient = new Patient();
+            $this->patient = new PrescriptionPatient();
             $this->start_date = date("Y-m-d");
             $this->date_added = date("Y-m-d H:i:s");
             $this->date_modified = date("Y-m-d H:i:s");
@@ -735,7 +735,7 @@ class Prescription extends ORDataObject
     function set_patient_id($id)
     {
         if (is_numeric($id)) {
-            $this->patient = new Patient($id);
+            $this->patient = new PrescriptionPatient($id);
         }
     }
     function get_patient_id()

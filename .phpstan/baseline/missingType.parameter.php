@@ -19557,11 +19557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/PQRIXml.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Patient\\:\\:__construct\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Person\\:\\:__construct\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Person.class.php',
@@ -19880,6 +19875,11 @@ $ignoreErrors[] = [
     'message' => '#^Method Prescription\\:\\:toString\\(\\) has parameter \\$html with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method PrescriptionPatient\\:\\:__construct\\(\\) has parameter \\$id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Provider\\:\\:__construct\\(\\) has parameter \\$id with no type specified\\.$#',

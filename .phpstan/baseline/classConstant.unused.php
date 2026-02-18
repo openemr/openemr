@@ -46,10 +46,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Constant OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenStaticMethodsRule\\:\\:FORBIDDEN_METHODS is unused\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -15282,16 +15282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/Rules/ListOptionRule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkFunctionCall\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:checkStaticCall\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AllergyIntoleranceFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AllergyIntoleranceFhirApiTest.php',
