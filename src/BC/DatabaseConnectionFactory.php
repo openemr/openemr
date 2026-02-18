@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
+use mysqli;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create
@@ -14,8 +15,8 @@ class DatabaseConnectionFactory
 {
     public static function createMysqli(
         DatabaseConnectionOptions $config,
-    ): \mysqli {
-        $mysqli = new \mysqli();
+    ): mysqli {
+        $mysqli = new mysqli();
         $mysqli->options(MYSQLI_READ_DEFAULT_GROUP, 0);
         $mysqli->options(MYSQLI_OPT_LOCAL_INFILE, 1);
 
