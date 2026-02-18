@@ -11,14 +11,14 @@
 
 namespace OpenEMR\PHPStan\Rules;
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common;
 
 /**
  * @implements Rule<New_>

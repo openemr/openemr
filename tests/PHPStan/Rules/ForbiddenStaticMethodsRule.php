@@ -28,6 +28,7 @@ class ForbiddenStaticMethodsRule implements Rule
 {
     /**
      * Map of forbidden classes and static methods to their error messages
+     *
      * @var array<class-string, array<string, string>>
      */
     private const FORBIDDEN_METHODS = [
@@ -38,15 +39,8 @@ class ForbiddenStaticMethodsRule implements Rule
         ],
         SystemClock::class => [
             'fromSystemTimezone' => 'Use ServiceContainer::getClock() instead.',
+            'fromUTC' => 'Use ServiceContainer::getClock() instead.',
         ],
-    ];
-
-    /**
-     * Classes that are exempt from this rule
-     * @var list<class-string>
-     */
-    private const EXEMPT_CLASSES = [
-        'OpenEMR\BC\ServiceContainer',
     ];
 
     public function getNodeType(): string
@@ -69,15 +63,6 @@ class ForbiddenStaticMethodsRule implements Rule
 
         $className = $node->class->toString();
         $functionName = $node->name->name;
-
-        // Check if we're in an exempt class
-        $classReflection = $scope->getClassReflection();
-        if ($classReflection !== null) {
-            $currentClass = $classReflection->getName();
-            if (in_array($currentClass, self::EXEMPT_CLASSES, true)) {
-                return [];
-            }
-        }
 
         // Check if the class has any deprecated methods
         if (!array_key_exists($className, self::FORBIDDEN_METHODS)) {
