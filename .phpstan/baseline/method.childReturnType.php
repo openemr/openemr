@@ -1597,46 +1597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenClassesRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Use_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenClassesRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenCurlFunctionsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\FuncCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenCurlFunctionsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenFunctionsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\FuncCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenFunctionsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalKeywordRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Global_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalKeywordRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalsAccessRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\ArrayDimFetch\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalsAccessRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenMethodsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\MethodCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenMethodsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\NoCoversAnnotationOnClassRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Class_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/NoCoversAnnotationOnClassRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\NoCoversAnnotationRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PHPStan\\\\Node\\\\InClassMethodNode\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/NoCoversAnnotationRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) should be compatible with return type \\(OpenEMR\\\\Tests\\\\Fixtures\\\\a\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',

@@ -14,19 +14,25 @@ declare(strict_types=1);
 namespace OpenEMR\PHPStan\Rules;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Function_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
+/**
+ * @implements Rule<Function_>
+ */
 class ForbiddenGlobalNamespaceRule implements Rule
 {
     public function getNodeType(): string
     {
-        return Node\Stmt\Function_::class;
+        return Function_::class;
     }
 
+    /**
+     * @param Function_ $node
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $ns = $scope->getNamespace();
@@ -39,10 +45,17 @@ class ForbiddenGlobalNamespaceRule implements Rule
         // slash from the file being examined, then check if it's in the
         // autoload.files path in composer.json.
         $composer = file_get_contents('composer.json');
+        if ($composer === false) {
+            return [];
+        }
+        /** @var array{autoload?: array{files?: list<string>}} $parsed */
         $parsed = json_decode($composer, true);
-        $allowed = $parsed['autoload']['files'];
+        $allowed = $parsed['autoload']['files'] ?? [];
 
         $appRoot = getcwd();
+        if ($appRoot === false) {
+            return [];
+        }
         $definingFileAbs = $scope->getFile();
         $definingFile = substr($definingFileAbs, strlen($appRoot) + 1);
 
