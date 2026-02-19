@@ -113,12 +113,7 @@ class Gacl {
         $site = $bag->getString('OE_SITE_DIR');
         $dbConfig = DatabaseConnectionOptions::forSite($site);
 
-        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-            $persistent = true;
-        } else {
-            $persistent = false;
-        }
-
+        $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
         $db = DatabaseConnectionFactory::createAdodb($dbConfig, persistent: $persistent);
 
         // fixme: just read this straight out of $options arg
