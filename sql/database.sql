@@ -9484,27 +9484,6 @@ DROP TABLE IF EXISTS `clinical_notes_procedure_results`;
 -- Uses OpenEMR's list_options table for LOINC codes
 -- Table for storing patient treatment intervention preferences
 DROP TABLE IF EXISTS `patient_treatment_intervention_preferences`;
-CREATE TABLE `patient_treatment_intervention_preferences` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `uuid` binary(16) DEFAULT NULL,
-    `patient_id` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
-    `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
-    `observation_code_text` varchar(255) DEFAULT NULL,
-    `value_type` enum('coded','text','boolean') DEFAULT 'coded',
-    `value_code` varchar(50) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_code',
-    `value_code_system` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_system',
-    `value_display` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_display',
-    `value_text` text,
-    `value_boolean` tinyint(1) DEFAULT NULL,
-    `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` varchar(20) DEFAULT 'final' COMMENT 'valid options are final,amended,preliminary',
-    `note` text,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unq_uuid` (`uuid`),
-    KEY `patient_id` (`patient_id`),
-    KEY `observation_code` (`observation_code`),
-    KEY `status` (`status`)
-    ) ENGINE=InnoDB;
 
     -- Table for storing patient care experience preferences
 DROP TABLE IF EXISTS `patient_care_experience_preferences`;
