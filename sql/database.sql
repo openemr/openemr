@@ -1198,22 +1198,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd10_pcs_order_code`
---
 
-DROP TABLE IF EXISTS `icd10_pcs_order_code`;
-CREATE TABLE `icd10_pcs_order_code` (
-  `pcs_id`              SERIAL,
-  `pcs_code`            varchar(7),
-  `valid_for_coding`    char,
-  `short_desc`          varchar(60),
-  `long_desc`           text,
-  `active` tinyint default 0,
-  `revision` int default 0,
-  KEY `pcs_code` (`pcs_code`),
-  KEY `active` (`active`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
