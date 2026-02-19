@@ -1789,52 +1789,7 @@ CREATE TABLE `form_clinical_notes` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_encounter`
---
 
-DROP TABLE IF EXISTS `form_encounter`;
-CREATE TABLE `form_encounter` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) DEFAULT NULL,
-  `date` datetime default NULL,
-  `reason` longtext,
-  `facility` longtext,
-  `facility_id` int(11) NOT NULL default '0',
-  `pid` bigint(20) default NULL,
-  `encounter` bigint(20) default NULL,
-  `onset_date` datetime default NULL,
-  `sensitivity` varchar(30) default NULL,
-  `billing_note` text,
-  `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
-  `last_level_billed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
-  `last_level_closed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
-  `last_stmt_date`    date DEFAULT NULL,
-  `stmt_count`        int  NOT NULL DEFAULT 0,
-  `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
-  `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
-  `invoice_refno` varchar(31) NOT NULL DEFAULT '',
-  `referral_source` varchar(31) NOT NULL DEFAULT '',
-  `billing_facility` INT(11) NOT NULL DEFAULT 0,
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `pos_code` tinyint(4) default NULL,
-  `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
-  `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
-  `shift` varchar(31) NOT NULL DEFAULT '',
-  `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
-  `discharge_disposition` varchar(100) NULL DEFAULT NULL,
-  `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
-  `encounter_type_description` TEXT,
-  `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
-  `date_end` DATETIME DEFAULT NULL,
-  `in_collection` tinyint(1) default NULL,
-  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `ordering_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `pid_encounter` (`pid`, `encounter`),
-  KEY `encounter_date` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
