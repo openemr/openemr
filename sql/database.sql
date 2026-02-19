@@ -5408,18 +5408,7 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `modules_settings`
---
 
-DROP TABLE IF EXISTS `modules_settings`;
-CREATE TABLE `modules_settings` (
-  `mod_id` INT(11) DEFAULT NULL,
-  `fld_type` SMALLINT(6) DEFAULT NULL COMMENT '1=>ACL,2=>preferences,3=>hooks',
-  `obj_name` VARCHAR(255) DEFAULT NULL,
-  `menu_name` VARCHAR(255) DEFAULT NULL,
-  `path` VARCHAR(255) DEFAULT NULL
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
