@@ -8839,11 +8839,6 @@ CREATE TABLE `form_vitals_calculation_components` (
 ) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
 
 DROP TABLE IF EXISTS `form_vitals_calculation_form_vitals`;
-CREATE TABLE `form_vitals_calculation_form_vitals` (
-   `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
-   `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
-   PRIMARY KEY (`fvc_uuid`, `vitals_id`)
-) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
 
 DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
