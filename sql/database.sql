@@ -12222,26 +12222,7 @@ CREATE TABLE `form_eye_antseg` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_locking`
---
 
-DROP TABLE IF EXISTS `form_eye_locking`;
-CREATE TABLE `form_eye_locking` (
-  `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)          DEFAULT NULL,
-  `IMP`        text,
-  `PLAN`       text,
-  `Resource`   varchar(50)         DEFAULT NULL,
-  `Technician` varchar(50)         DEFAULT NULL,
-  `LOCKED`     varchar(3)          DEFAULT NULL,
-  `LOCKEDDATE` timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP
-  ON UPDATE CURRENT_TIMESTAMP,
-  `LOCKEDBY`   varchar(50)         DEFAULT NULL,
-  PRIMARY KEY `locking_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
-  ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `login_mfa_registrations`;
 CREATE TABLE `login_mfa_registrations` (
