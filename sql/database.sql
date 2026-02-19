@@ -8811,20 +8811,6 @@ DROP TABLE IF EXISTS `form_vital_details`;
 
 DROP TABLE IF EXISTS `form_vitals_calculation`;
 
-DROP TABLE IF EXISTS `form_vitals_calculation_components`;
-CREATE TABLE `form_vitals_calculation_components` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
-    `vitals_column` varchar(64) NOT NULL COMMENT 'Component type: bps, bpd, pulse, etc.',
-    `value` DECIMAL(12,6) DEFAULT NULL COMMENT 'Calculated numeric component value',
-    `value_string` varchar(255) DEFAULT NULL COMMENT 'Calculated non-numeric component value',
-    `value_unit` varchar(16) DEFAULT NULL COMMENT 'Unit for this component value',
-    `component_order` int NOT NULL DEFAULT 0 COMMENT 'Display order for components',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unq_fvc_component` (`fvc_uuid`, `vitals_column`),
-    KEY `idx_vitals_column` (`vitals_column`),
-    KEY `idx_component_order` (`fvc_uuid`, `component_order`)
-) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
 
 DROP TABLE IF EXISTS `form_vitals_calculation_form_vitals`;
 
