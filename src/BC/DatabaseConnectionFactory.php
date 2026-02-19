@@ -66,10 +66,19 @@ class DatabaseConnectionFactory
 
     public static function detectConnectionPersistence(): bool
     {
-        // Ick. Moved from existing systems
-        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+        // If connection pooling is explicitly disabled, return false
+        if (!empty($GLOBALS['connection_pooling_off'])) {
+            return false;
+        }
+
+        // Check if pooling is enabled via globals or session
+        if (!empty($GLOBALS['enable_database_connection_pooling'])) {
             return true;
         }
+        if (!empty($_SESSION['enable_database_connection_pooling'])) {
+            return true;
+        }
+
         return false;
     }
 
