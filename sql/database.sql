@@ -1277,22 +1277,7 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutuall
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `ip_tracking`
---
-DROP TABLE IF EXISTS `ip_tracking`;
-CREATE TABLE `ip_tracking` (
-    `id` bigint NOT NULL auto_increment,
-    `ip_string` varchar(255) DEFAULT '',
-    `total_ip_login_fail_counter` bigint DEFAULT 0,
-    `ip_login_fail_counter` bigint DEFAULT 0,
-    `ip_last_login_fail` datetime DEFAULT NULL,
-    `ip_auto_block_emailed` tinyint DEFAULT 0,
-    `ip_force_block` tinyint DEFAULT 0,
-    `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `ip_string` (`ip_string`)
-) ENGINE=InnoDb AUTO_INCREMENT=1;
+
 
 
 -- --------------------------------------------------------
