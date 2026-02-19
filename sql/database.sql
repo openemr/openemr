@@ -9146,20 +9146,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
 
 DROP TABLE IF EXISTS `dsi_source_attributes`;
-CREATE TABLE `dsi_source_attributes` (
- `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
- `client_id` VARCHAR(80) NOT NULL,
- `list_id` VARCHAR(100) NOT NULL,
- `option_id` VARCHAR(100) NOT NULL,
- `clinical_rule_id` VARCHAR(31) DEFAULT NULL,
- `source_value` TEXT,
- `created_by` BIGINT(20) DEFAULT NULL,
- `last_updated_by` BIGINT(20) DEFAULT NULL,
- `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- `last_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- PRIMARY KEY (`id`),
- UNIQUE (`list_id`, `option_id`, `client_id`)
-) ENGINE=InnoDB COMMENT = 'Holds information about decision support intervention system source attributes';
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_predictive_source_attributes', 'Predictive Decision Support Interventions Source Attributes');
 -- Populate list with ONC default values
