@@ -742,8 +742,8 @@ function cron_getFacilitiesMap(FacilityService $facilityService)
 
     $facilities = $facilityService->getAllFacility();
     foreach ($facilities as $row) {
-        $facility_msg_map[$row['id']] = $message_map[$row['name']];
-        $facility_phone_map[$row['id']] = $row['phone'];
+        $facility_msg_map[(int) $row['id']] = (string) ($message_map[$row['name']] ?? '');
+        $facility_phone_map[(int) $row['id']] = (string) $row['phone'];
     }
 
     return [

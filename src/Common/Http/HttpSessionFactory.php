@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorageFactory;
-use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorageFactory;
 
 class HttpSessionFactory implements SessionFactoryInterface
 {
@@ -29,23 +28,6 @@ class HttpSessionFactory implements SessionFactoryInterface
      */
     private string $sessionType;
 
-    private bool $useBridge = false;
-
-    /**
-     * Keys in $_SESSION that should not be copied into the Symfony session as
-     * regular attributes. This includes OpenEMR session-name keys (used as
-     * AttributeBag storage keys) and Symfony-internal bag storage keys that are
-     * automatically managed by the Session component.
-     */
-    private const SESSION_INTERNAL_KEYS = [
-        SessionUtil::OAUTH_SESSION_ID,
-        SessionUtil::API_SESSION_ID,
-        SessionUtil::CORE_SESSION_ID,
-        SessionUtil::PORTAL_SESSION_ID,
-        '_symfony_flashes', // Symfony FlashBag storage key
-        '_sf2_meta',        // Symfony MetadataBag storage key
-    ];
-
     public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
         if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
@@ -56,34 +38,26 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     /**
      * Set whether to use an existing session bridge where a session already exists and was created in globals.php.
+     *
      * @param bool $useBridge
      * @return void
+     * @TODO @zmilan see how we safely remove this from code
      */
     public function setUseExistingSessionBridge(bool $useBridge): void
     {
-        $this->useBridge = $useBridge;
+        // Intentionally left empty – the bridge logic has been removed but
+        // callers still invoke this method during the migration period.
     }
+
     public function createSession(): SessionInterface
     {
         $settings = $this->getSessionSettings();
         $sessionKey = $this->getSessionKey();
         $sessionHandler = $this->getSessionHandlerInterface($settings);
-//        TODO @zmilan: Test if it works now without this part
-//        if ($this->useBridge || session_status() === PHP_SESSION_ACTIVE) {
-//            // Use the existing session bridge if it exists
-//            $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
-//        } else {
-//            $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
-//        }
         $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
 
         $storage = $sessionStorageFactory->createStorage($this->request);
         $session = new Session($storage, new AttributeBag($sessionKey));
-//        TODO @zmilan: Test if this works now without native session
-//        if (!$session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
-//            $session->start();
-//        }
-//        $this->populateSessionFromGlobals($session);
         return $session;
     }
     private function getSessionSettings(): array
@@ -124,19 +98,4 @@ class HttpSessionFactory implements SessionFactoryInterface
         }
         return $sessionHandler;
     }
-
-//    TODO @zmilan: Test if this works now without this part
-//    private function populateSessionFromGlobals(SessionInterface $session): void
-//    {
-//        // Populate session from global $_SESSION if it exists
-//        // we don't right now support multiple session bags so we can handle this backwards compatibility
-//        // while we migrate the sessions to testable objects.
-//        if (!empty($_SESSION)) {
-//            foreach ($_SESSION as $key => $value) {
-//                if (!in_array($key, self::SESSION_INTERNAL_KEYS)) {
-//                    $session->set($key, $value);
-//                }
-//            }
-//        }
-//    }
 }
