@@ -826,18 +826,7 @@ DROP TABLE IF EXISTS `person_patient_link`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `documents_legal_categories`
---
 
-DROP TABLE IF EXISTS `documents_legal_categories`;
-CREATE TABLE `documents_legal_categories` (
-  `dlc_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `dlc_category_type` int(10) unsigned NOT NULL COMMENT '1 category 2 subcategory',
-  `dlc_category_name` varchar(45) NOT NULL,
-  `dlc_category_parent` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`dlc_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7;
 
 --
 -- Inserting data for table `documents_legal_categories`
