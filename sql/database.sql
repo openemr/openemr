@@ -6,21 +6,7 @@
 -- v_database: 533
 --
 
---
--- Table structure for table `amc_misc_data`
---
 
-DROP TABLE IF EXISTS `amc_misc_data`;
-CREATE TABLE `amc_misc_data` (
-  `amc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
-  `pid` bigint(20) default NULL,
-  `map_category` varchar(255) NOT NULL default '' COMMENT 'Maps to an object category (such as prescriptions etc.)',
-  `map_id` bigint(20) NOT NULL default '0' COMMENT 'Maps to an object id (such as prescription id etc.)',
-  `date_created` datetime default NULL,
-  `date_completed` datetime default NULL,
-  `soc_provided` datetime default NULL,
-  KEY  (`amc_id`,`pid`,`map_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
