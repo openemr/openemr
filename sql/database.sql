@@ -8852,25 +8852,6 @@ CREATE TABLE `jwt_grant_history` (
 ) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 
 DROP TABLE IF EXISTS `document_templates`;
-CREATE TABLE `document_templates` (
-  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` bigint(20) DEFAULT NULL,
-  `provider` int(11) UNSIGNED DEFAULT NULL,
-  `encounter` int(11) UNSIGNED DEFAULT NULL,
-  `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `profile` varchar(63) NOT NULL,
-  `category` varchar(63) NOT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `template_name` varchar(255) DEFAULT NULL,
-  `status` varchar(31) DEFAULT NULL,
-  `send_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `end_date` datetime DEFAULT NULL,
-  `size` int(11) NOT NULL DEFAULT 0,
-  `template_content` mediumblob DEFAULT NULL,
-  `mime` varchar(31) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `location` (`pid`,`profile`,`category`,`template_name`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `document_template_profiles`;
 CREATE TABLE `document_template_profiles` (
