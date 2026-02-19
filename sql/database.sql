@@ -8818,23 +8818,6 @@ DROP TABLE IF EXISTS `oauth_trusted_user`;
 DROP TABLE IF EXISTS `x12_remote_tracker`;
 
 DROP TABLE IF EXISTS `export_job`;
-CREATE TABLE `export_job` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `user_id` varchar(40) NOT NULL,
-  `client_id` varchar(80) NOT NULL,
-  `status` varchar(40) NOT NULL,
-  `start_time` datetime DEFAULT NULL,
-  `resource_include_time` datetime DEFAULT NULL,
-  `output_format` varchar(128) NOT NULL,
-  `request_uri` varchar(128) NOT NULL,
-  `resources` text,
-  `output` text,
-  `errors` text,
-  `access_token_id` text,
-  UNIQUE (`uuid`),
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB COMMENT='fhir export jobs';
 
 DROP TABLE IF EXISTS `form_vital_details`;
 CREATE TABLE `form_vital_details` (
