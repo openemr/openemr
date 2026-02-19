@@ -28,6 +28,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $first_time = true;
+$group = 1;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -38,7 +39,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
  */
 function displayRow($row, $pid = ''): void
 {
-    global $first_time;
+    global $first_time, $group;
 
     if (empty($pid)) {
         $pid = $row['pid'];
@@ -55,6 +56,7 @@ function displayRow($row, $pid = ''): void
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
+            $group++;
              if (empty($_POST['form_csvexport'])) {     //rm - don't put the next line into the csv file
                 echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
              }
@@ -88,7 +90,7 @@ function displayRow($row, $pid = ''): void
         $highlight_text = xlt('Merge To');
     }
     if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
-           // echo csvEscape(text($group)) . ',';
+            echo csvEscape(text($group)) . ',';
             echo csvEscape(text($myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
             echo csvEscape($row['pubpid']) . ',';
@@ -293,7 +295,7 @@ if (!empty($_POST['form_csvexport'])) {
             // either put out headings to the csv file or to the page
 if (!empty($_POST['form_csvexport'])) {
         // CSV column headings
-        //echo csvEscape(xl('Group')) . ',';
+        echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
         echo csvEscape(xl('PID')) . ',';
         echo csvEscape(xl('Public')) . ',';
