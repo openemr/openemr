@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Gacl aro groups map table
+ */
+final class Version20260000010028 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create gacl_aro_groups_map table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('gacl_aro_groups_map');
+        $table->addColumn('acl_id', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('group_id', Types::INTEGER, ['default' => 0]);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('acl_id', 'group_id')
+                ->create()
+        );
+
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('gacl_aro_groups_map');
+    }
+}
