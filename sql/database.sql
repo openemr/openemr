@@ -13291,18 +13291,6 @@ CREATE TABLE `form_history_sdoh`
 -- Table structure for linking clinical notes to documents
 --
 DROP TABLE IF EXISTS `clinical_notes_documents`;
-CREATE TABLE  `clinical_notes_documents` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
-  `document_id` bigint(20) NOT NULL COMMENT 'Foreign key to documents.id',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
-  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_note_document` (`clinical_note_id`, `document_id`),
-  KEY `idx_clinical_note_id` (`clinical_note_id`),
-  KEY `idx_document_id` (`document_id`),
-  KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB COMMENT='Links clinical notes to patient documents';
 
 --
 -- Table structure for linking clinical notes to procedure results
