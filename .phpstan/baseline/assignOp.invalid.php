@@ -467,7 +467,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and prepared\\|string results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between string and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
@@ -918,7 +918,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
@@ -1177,7 +1177,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\+\\=" between mixed and float\\|int\\|string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
@@ -2049,21 +2049,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t`onsite…" and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'select count\\(1\\) as…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t`onsite…" and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
 ];
 $ignoreErrors[] = [
@@ -2147,28 +2132,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between 0\\|0\\.0\\|array\\{\\}\\|string\\|false\\|null and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between 0\\|0\\.0\\|array\\{\\}\\|string\\|false\\|null and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \' \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \' \\- \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \'\\: \' results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [

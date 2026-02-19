@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method getDbalConnection\\(\\) of class OpenEMR\\\\BC\\\\Database\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getGlobalSettingSectionConfiguration\\(\\) of class OpenEMR\\\\Modules\\\\WenoModule\\\\WenoGlobalConfig\\:
 Left for legacy purposes and replaced by installation set up\\.$#',
     'count' => 1,

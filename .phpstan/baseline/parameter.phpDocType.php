@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPreParseEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$acceptedList with type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$menu with type mixed is not subtype of native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
@@ -130,11 +125,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$event_data with type mixed is not subtype of native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$node with type OpenEMR\\\\PHPStan\\\\Rules\\\\FuncCall is not subtype of native type PhpParser\\\\Node\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenMethodsRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$loginLocation with type array\\|null is incompatible with native type string\\.$#',

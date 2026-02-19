@@ -19,7 +19,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\ClaimRevConnector\EraPage;
-use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 
 $tab = "eras";
 $selected = " selected ";

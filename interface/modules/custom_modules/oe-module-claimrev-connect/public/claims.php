@@ -17,7 +17,7 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
-use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 
 $tab = "claims";
 $errorMessage = null;

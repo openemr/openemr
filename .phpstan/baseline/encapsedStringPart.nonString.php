@@ -972,16 +972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$where \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/taskman.php',
@@ -1497,11 +1487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/find_patient_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$GLOBALS\\[\'OE_SITE_DIR\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$columns\\[\'modname\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
@@ -1602,16 +1587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$osdirectory \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$ostype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$type \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
@@ -1657,6 +1632,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$pcDir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
@@ -1685,6 +1665,11 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$topics_table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pcDir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1897,7 +1882,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$mdir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcTemplate \\(non\\-empty\\-list\\<string\\>\\|non\\-falsy\\-string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$viewtype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$dels \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$modir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
@@ -1912,6 +1917,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$pntable\\[\'postcalendar_categories\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
@@ -1920,6 +1930,11 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$template_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadminapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pntable\\[\'postcalendar_categories\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1943,6 +1958,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$minutes \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -1982,7 +2002,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$template_view_load \\(\'default\'\\|prepared\\) of encapsed string cannot be cast to string\\.$#',
+    'message' => '#^Part \\$template_view \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$template_view_load \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -2997,11 +3022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$p_procedure_code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
@@ -3009,21 +3029,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$formdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$set \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$where \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
@@ -4892,21 +4897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$set \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$where \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$assigned_to \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
@@ -5695,11 +5685,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$action \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$GLOBALS\\[\'OE_SITE_DIR\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$aco_section_value \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

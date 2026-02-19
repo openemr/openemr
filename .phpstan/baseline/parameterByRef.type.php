@@ -2,9 +2,19 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Parameter &\\$out by\\-ref type of function era_callback\\(\\) expects array, mixed given\\.$#',
+    'message' => '#^Parameter &\\$out by\\-ref type of function era_payments_callback\\(\\) expects array, mixed given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter &\\$out by\\-ref type of function eob_process_era_callback\\(\\) expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter &\\$out by\\-ref type of function eob_search_era_callback\\(\\) expects array, mixed given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter &\\$matchreq by\\-ref type of function receive_hl7_results\\(\\) expects string, mixed given\\.$#',

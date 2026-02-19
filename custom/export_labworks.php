@@ -39,16 +39,6 @@ function custom_labworks_Add($field)
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim((string) $field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
 
  // Translate a date.
 function LWDate($field)
@@ -148,7 +138,7 @@ if ($row['providerID']) {
  $out .= custom_labworks_Add("");                          // alias
  $out .= custom_labworks_Add(Digits($row['ss']));          // ssn
  $out .= custom_labworks_Add(LWDate($row['DOB']));         // dob
- $out .= custom_labworks_Add(Sex($row['sex']));            // gender
+ $out .= custom_labworks_Add(hl7Sex($row['sex']));            // gender
  $out .= custom_labworks_Add("");                          // notes
  $out .= custom_labworks_Add($row['street']);              // address 1
  $out .= custom_labworks_Add("");                          // address2

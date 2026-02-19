@@ -2,12 +2,12 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Function coding_carburetor\\(\\) should return outputs but empty return statement found\\.$#',
+    'message' => '#^Function coding_carburetor\\(\\) should return array\\<array\\<string, mixed\\>\\> but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function display_QP\\(\\) should return QP but empty return statement found\\.$#',
+    'message' => '#^Function display_QP\\(\\) should return string\\|false\\|null but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -15,16 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^Function priors_select\\(\\) should return string but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_your_engines\\(\\) should return outputs but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarCleanFromInput\\(\\) should return prepared but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:FormHidden\\(\\) should return string but empty return statement found\\.$#',
@@ -47,7 +37,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) should return name but empty return statement found\\.$#',
+    'message' => '#^Function pnModLoad\\(\\) should return string\\|false\\|null but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];

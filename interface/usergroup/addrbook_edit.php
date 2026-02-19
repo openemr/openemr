@@ -40,7 +40,7 @@ $type = $_REQUEST['type'] ?? '';
 
 $info_msg = "";
 
-function invalue($name)
+function addrbook_invalue(string $name): string
 {
     if (empty($_POST[$name])) {
         return "''";
@@ -420,58 +420,58 @@ if (!empty($_POST['form_save'])) {
  // Set up any abook_type specific settings
     if ($option_abook_type == 3) {
         // Company centric
-        $form_title = invalue('form_director_title');
-        $form_fname = invalue('form_director_fname');
-        $form_lname = invalue('form_director_lname');
-        $form_mname = invalue('form_director_mname');
-        $form_suffix = invalue('form_director_suffix');
+        $form_title = addrbook_invalue('form_director_title');
+        $form_fname = addrbook_invalue('form_director_fname');
+        $form_lname = addrbook_invalue('form_director_lname');
+        $form_mname = addrbook_invalue('form_director_mname');
+        $form_suffix = addrbook_invalue('form_director_suffix');
     } else {
         // Person centric
-        $form_title = invalue('form_title');
-        $form_fname = invalue('form_fname');
-        $form_lname = invalue('form_lname');
-        $form_mname = invalue('form_mname');
-        $form_suffix = invalue('form_suffix');
+        $form_title = addrbook_invalue('form_title');
+        $form_fname = addrbook_invalue('form_fname');
+        $form_lname = addrbook_invalue('form_lname');
+        $form_mname = addrbook_invalue('form_mname');
+        $form_suffix = addrbook_invalue('form_suffix');
     }
 
     if ($userid) {
         $query = "UPDATE users SET " .
-        "abook_type = "   . invalue('form_abook_type')   . ", " .
+        "abook_type = "   . addrbook_invalue('form_abook_type')   . ", " .
         "title = "        . $form_title                  . ", " .
         "fname = "        . $form_fname                  . ", " .
         "lname = "        . $form_lname                  . ", " .
         "mname = "        . $form_mname                  . ", " .
         "suffix = "       . $form_suffix                 . ", " .
-        "specialty = "    . invalue('form_specialty')    . ", " .
-        "organization = " . invalue('form_organization') . ", " .
-        "valedictory = "  . invalue('form_valedictory')  . ", " .
-        "assistant = "    . invalue('form_assistant')    . ", " .
-        "federaltaxid = " . invalue('form_federaltaxid') . ", " .
-        "upin = "         . invalue('form_upin')         . ", " .
-        "npi = "          . invalue('form_npi')          . ", " .
-        "taxonomy = "     . invalue('form_taxonomy')     . ", " .
-        "cpoe = "         . invalue('form_cpoe')         . ", " .
-        "email = "        . invalue('form_email')        . ", " .
-        "email_direct = " . invalue('form_email_direct') . ", " .
-        "url = "          . invalue('form_url')          . ", " .
-        "street = "       . invalue('form_street')       . ", " .
-        "streetb = "      . invalue('form_streetb')      . ", " .
-        "city = "         . invalue('form_city')         . ", " .
-        "state = "        . invalue('form_state')        . ", " .
-        "country_code = " . invalue('form_country_code') . ", " .
-        "zip = "          . invalue('form_zip')          . ", " .
-        "street2 = "      . invalue('form_street2')      . ", " .
-        "streetb2 = "     . invalue('form_streetb2')     . ", " .
-        "city2 = "        . invalue('form_city2')        . ", " .
-        "state2 = "       . invalue('form_state2')       . ", " .
-        "zip2 = "         . invalue('form_zip2')         . ", " .
-        "country_code2 = ". invalue('form_country_code2'). ", " .
-        "phone = "        . invalue('form_phone')        . ", " .
-        "phonew1 = "      . invalue('form_phonew1')      . ", " .
-        "phonew2 = "      . invalue('form_phonew2')      . ", " .
-        "phonecell = "    . invalue('form_phonecell')    . ", " .
-        "fax = "          . invalue('form_fax')          . ", " .
-        "notes = "        . invalue('form_notes')        . " "  .
+        "specialty = "    . addrbook_invalue('form_specialty')    . ", " .
+        "organization = " . addrbook_invalue('form_organization') . ", " .
+        "valedictory = "  . addrbook_invalue('form_valedictory')  . ", " .
+        "assistant = "    . addrbook_invalue('form_assistant')    . ", " .
+        "federaltaxid = " . addrbook_invalue('form_federaltaxid') . ", " .
+        "upin = "         . addrbook_invalue('form_upin')         . ", " .
+        "npi = "          . addrbook_invalue('form_npi')          . ", " .
+        "taxonomy = "     . addrbook_invalue('form_taxonomy')     . ", " .
+        "cpoe = "         . addrbook_invalue('form_cpoe')         . ", " .
+        "email = "        . addrbook_invalue('form_email')        . ", " .
+        "email_direct = " . addrbook_invalue('form_email_direct') . ", " .
+        "url = "          . addrbook_invalue('form_url')          . ", " .
+        "street = "       . addrbook_invalue('form_street')       . ", " .
+        "streetb = "      . addrbook_invalue('form_streetb')      . ", " .
+        "city = "         . addrbook_invalue('form_city')         . ", " .
+        "state = "        . addrbook_invalue('form_state')        . ", " .
+        "country_code = " . addrbook_invalue('form_country_code') . ", " .
+        "zip = "          . addrbook_invalue('form_zip')          . ", " .
+        "street2 = "      . addrbook_invalue('form_street2')      . ", " .
+        "streetb2 = "     . addrbook_invalue('form_streetb2')     . ", " .
+        "city2 = "        . addrbook_invalue('form_city2')        . ", " .
+        "state2 = "       . addrbook_invalue('form_state2')       . ", " .
+        "zip2 = "         . addrbook_invalue('form_zip2')         . ", " .
+        "country_code2 = ". addrbook_invalue('form_country_code2'). ", " .
+        "phone = "        . addrbook_invalue('form_phone')        . ", " .
+        "phonew1 = "      . addrbook_invalue('form_phonew1')      . ", " .
+        "phonew2 = "      . addrbook_invalue('form_phonew2')      . ", " .
+        "phonecell = "    . addrbook_invalue('form_phonecell')    . ", " .
+        "fax = "          . addrbook_invalue('form_fax')          . ", " .
+        "notes = "        . addrbook_invalue('form_notes')        . " "  .
         "WHERE id = '" . add_escape_custom($userid) . "'";
         sqlStatement($query);
     } else {
@@ -494,42 +494,42 @@ if (!empty($_POST['form_save'])) {
         $form_lname                   . ", " .
         $form_mname                   . ", " .
         $form_suffix                  . ", " .
-        invalue('form_federaltaxid')  . ", " .
+        addrbook_invalue('form_federaltaxid')  . ", " .
         "'', "                               . // federaldrugid
-        invalue('form_upin')          . ", " .
+        addrbook_invalue('form_upin')          . ", " .
         "'', "                               . // facility
         "0, "                                . // see_auth
         "1, "                                . // active
-        invalue('form_npi')           . ", " .
-        invalue('form_taxonomy')      . ", " .
-        invalue('form_cpoe')          . ", " .
-        invalue('form_specialty')     . ", " .
-        invalue('form_organization')  . ", " .
-        invalue('form_valedictory')   . ", " .
-        invalue('form_assistant')     . ", " .
+        addrbook_invalue('form_npi')           . ", " .
+        addrbook_invalue('form_taxonomy')      . ", " .
+        addrbook_invalue('form_cpoe')          . ", " .
+        addrbook_invalue('form_specialty')     . ", " .
+        addrbook_invalue('form_organization')  . ", " .
+        addrbook_invalue('form_valedictory')   . ", " .
+        addrbook_invalue('form_assistant')     . ", " .
         "'', "                               . // billname
-        invalue('form_email')         . ", " .
-        invalue('form_email_direct')  . ", " .
-        invalue('form_url')           . ", " .
-        invalue('form_street')        . ", " .
-        invalue('form_streetb')       . ", " .
-        invalue('form_city')          . ", " .
-        invalue('form_state')         . ", " .
-        invalue('form_zip')           . ", " .
-        invalue('form_country_code')  . ", " .
-        invalue('form_street2')       . ", " .
-        invalue('form_streetb2')      . ", " .
-        invalue('form_city2')         . ", " .
-        invalue('form_state2')        . ", " .
-        invalue('form_zip2')          . ", " .
-        invalue('form_country_code2') . ", " .
-        invalue('form_phone')         . ", " .
-        invalue('form_phonew1')       . ", " .
-        invalue('form_phonew2')       . ", " .
-        invalue('form_phonecell')     . ", " .
-        invalue('form_fax')           . ", " .
-        invalue('form_notes')         . ", " .
-        invalue('form_abook_type')    . " "  .
+        addrbook_invalue('form_email')         . ", " .
+        addrbook_invalue('form_email_direct')  . ", " .
+        addrbook_invalue('form_url')           . ", " .
+        addrbook_invalue('form_street')        . ", " .
+        addrbook_invalue('form_streetb')       . ", " .
+        addrbook_invalue('form_city')          . ", " .
+        addrbook_invalue('form_state')         . ", " .
+        addrbook_invalue('form_zip')           . ", " .
+        addrbook_invalue('form_country_code')  . ", " .
+        addrbook_invalue('form_street2')       . ", " .
+        addrbook_invalue('form_streetb2')      . ", " .
+        addrbook_invalue('form_city2')         . ", " .
+        addrbook_invalue('form_state2')        . ", " .
+        addrbook_invalue('form_zip2')          . ", " .
+        addrbook_invalue('form_country_code2') . ", " .
+        addrbook_invalue('form_phone')         . ", " .
+        addrbook_invalue('form_phonew1')       . ", " .
+        addrbook_invalue('form_phonew2')       . ", " .
+        addrbook_invalue('form_phonecell')     . ", " .
+        addrbook_invalue('form_fax')           . ", " .
+        addrbook_invalue('form_notes')         . ", " .
+        addrbook_invalue('form_abook_type')    . " "  .
         ")");
     }
 } elseif (!empty($_POST['form_delete'])) {

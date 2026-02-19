@@ -43,11 +43,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php',
 ];
@@ -60,11 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/ModuleManagerListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
@@ -288,7 +278,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -453,7 +443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [

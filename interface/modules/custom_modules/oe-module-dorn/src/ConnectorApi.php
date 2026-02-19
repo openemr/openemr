@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\Dorn;
 use DateTime;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevAuthenticationException;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -337,11 +338,12 @@ class ConnectorApi
 
     public static function canConnectToClaimRev()
     {
-        $token = ClaimRevApi::GetAccessToken();
-        if ($token == "") {
+        try {
+            ClaimRevApi::makeFromGlobals();
+            return "Yes";
+        } catch (ClaimRevAuthenticationException) {
             return "No";
         }
-        return "Yes";
     }
 
     public static function getAccessToken()

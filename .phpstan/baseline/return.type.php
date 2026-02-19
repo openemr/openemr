@@ -37,21 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:default_action\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:report_action\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:view_action\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sellDrug\\(\\) should return bool\\|int\\|void but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
@@ -367,37 +352,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function coding_carburetor\\(\\) should return outputs but returns list\\<array\\<string, mixed\\>\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function display_GlaucomaFlowSheet\\(\\) should return string but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function display_PRIOR_section\\(\\) should return outputs but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function display_QP\\(\\) should return QP but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function display_VisualAcuities\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function report_header\\(\\) should return outputs but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_your_engines\\(\\) should return outputs but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -472,67 +432,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnConfigInit\\(\\) should return none but returns false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnDBGetTables\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnGetBaseURL\\(\\) should return base but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarCleanFromInput\\(\\) should return prepared but returns list\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarCleanFromInput\\(\\) should return prepared but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForDisplay\\(\\) should return prepared but returns list\\<string\\|null\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForDisplay\\(\\) should return prepared but returns string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForOS\\(\\) should return prepared but returns list\\<string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForOS\\(\\) should return prepared but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForStore\\(\\) should return prepared but returns list\\<string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForStore\\(\\) should return prepared but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepHTMLDisplay\\(\\) should return prepared but returns list\\<string\\|null\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepHTMLDisplay\\(\\) should return prepared but returns string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
@@ -547,7 +452,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:Text\\(\\) should return string but returns prepared\\|string\\.$#',
+    'message' => '#^Method pnHTML\\:\\:Text\\(\\) should return string but returns list\\<string\\|null\\>\\|string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
@@ -562,12 +467,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) should return name but returns false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) should return name but returns mixed\\.$#',
+    'message' => '#^Function pnModLoad\\(\\) should return string\\|false\\|null but returns mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -1822,16 +1722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function phimail_read_blob\\(\\) should return the but returns false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_read_blob\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_extension\\(\\) should return string but returns false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/documents.php',
@@ -2067,7 +1957,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_getFacilitiesMap\\(\\) should return array\\{msg_map\\: array\\<int, string\\>, phone_map\\: array\\<int, string\\>\\} but returns array\\{msg_map\\: array, phone_map\\: array\\}\\.$#',
+    'message' => '#^Function cron_getFacilitiesMap\\(\\) should return array\\{msg_map\\: array\\<int, string\\>, phone_map\\: array\\<int, string\\>\\} but returns array\\{msg_map\\: array\\<mixed\\>, phone_map\\: array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
@@ -2442,11 +2332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/translation.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function collectAndOrganizeExpandSetting\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getUserIDInfo\\(\\) should return array\\|false\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
@@ -2587,26 +2472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function convert_html_to_text\\(\\) should return the but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fix_newlines\\(\\) should return the but returns array\\<string\\>\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return special but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return special but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) should return Processed but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -2658,16 +2523,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:auto\\(\\) should return delimiter but returns int\\|string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) should return nothing but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) should return nothing but returns true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
@@ -3140,16 +2995,6 @@ $ignoreErrors[] = [
     'message' => '#^Method VerySimpleStringUtil\\:\\:unicode_entity_replace\\(\\) should return string but returns char\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteActivityViewMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteActivityViewMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OnsiteActivityViewMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
@@ -4113,16 +3958,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getDatabaseName\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getDisableUTF8\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getEncoding\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
 ];
@@ -11315,11 +11150,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:hasErrors\\(\\) should return true but returns bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\PHPStan\\\\Rules\\\\SoftRequiredArgumentsRule\\:\\:processNode\\(\\) should return list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\> but returns array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:post\\(\\) should return Psr\\\\Http\\\\Message\\\\ResponseInterface but returns mixed\\.$#',

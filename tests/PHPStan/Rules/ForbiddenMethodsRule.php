@@ -43,8 +43,8 @@ class ForbiddenMethodsRule implements Rule
     }
 
     /**
-     * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @param MethodCall $node
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -52,7 +52,7 @@ class ForbiddenMethodsRule implements Rule
             return [];
         }
 
-        $functionName = $node->name->toString();
+        $functionName = $node->name->name;
 
         // Only check if it's a forbidden method
         if (!isset(self::FORBIDDEN_METHODS[$functionName])) {

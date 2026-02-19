@@ -18,8 +18,6 @@ interface IResourceCreatableService
 {
     /**
      * Inserts a FHIR resource into the system.
-     * @param $fhirResource The FHIR resource
-     * @return The OpenEMR Service Result
      */
     public function insert(FHIRDomainResource $fhirResource): ProcessingResult;
 }

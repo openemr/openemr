@@ -69,11 +69,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/contraception_products/ajax/find_contraception_products.php',
 ];
 $ignoreErrors[] = [
@@ -113,7 +108,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/index.php',
 ];
 $ignoreErrors[] = [
@@ -378,7 +373,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
