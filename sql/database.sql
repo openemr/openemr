@@ -8687,12 +8687,6 @@ DROP TABLE IF EXISTS `form_group_attendance`;
 --
 
 DROP TABLE IF EXISTS `patient_birthday_alert`;
-CREATE TABLE `patient_birthday_alert` (
-  `pid` bigint(20) NOT NULL DEFAULT 0,
-  `user_id` bigint(20) NOT NULL DEFAULT 0,
-  `turned_off_on` date NOT NULL,
-  PRIMARY KEY  (`pid`,`user_id`)
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table `medex_icons`
