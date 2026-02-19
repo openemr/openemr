@@ -8531,16 +8531,6 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 --
 
 DROP TABLE IF EXISTS `valueset`;
-CREATE TABLE `valueset` (
-  `nqf_code` varchar(255) NOT NULL DEFAULT '',
-  `code` varchar(255) NOT NULL DEFAULT '',
-  `code_system` varchar(255) NOT NULL DEFAULT '',
-  `code_type` varchar(255) DEFAULT NULL,
-  `valueset` varchar(255) NOT NULL DEFAULT '',
-  `description` varchar(255) DEFAULT NULL,
-  `valueset_name` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`nqf_code`,`code`,`valueset`)
-) ENGINE=InnoDB;
 
 -- -------------------------------------------------------
 
