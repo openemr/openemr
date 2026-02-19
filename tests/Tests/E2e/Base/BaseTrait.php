@@ -19,6 +19,7 @@ namespace OpenEMR\Tests\E2e\Base;
 use Facebook\WebDriver\Exception\Internal\UnexpectedResponseException;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Exception\UnexpectedAlertOpenException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -173,6 +174,18 @@ trait BaseTrait
                 break;
             } catch (UnexpectedResponseException | StaleElementReferenceException $e) {
                 // Element became stale during the page transition - retry
+                $lastException = $e;
+                if ($attempt < $maxRetries) {
+                    usleep(500_000); // 500ms before retry
+                }
+            } catch (UnexpectedAlertOpenException $e) {
+                // An alert appeared after the goToMainMenuLink() wait window.
+                // Accept it and retry (the page may reload after accepting).
+                try {
+                    $this->client->getWebDriver()->switchTo()->alert()->accept();
+                } catch (\Throwable) {
+                    // Alert already dismissed
+                }
                 $lastException = $e;
                 if ($attempt < $maxRetries) {
                     usleep(500_000); // 500ms before retry

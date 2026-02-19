@@ -7,6 +7,7 @@ require_once("verysimple/DB/ISqlFunction.php");
 require_once("verysimple/DB/DatabaseException.php");
 require_once("verysimple/DB/DatabaseConfig.php");
 
+use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -73,7 +74,7 @@ class DataDriverMySQLi implements IDataDriver
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
 
-        if ((!empty($globalsBag->get("enable_database_connection_pooling")) || !empty($session->get("enable_database_connection_pooling"))) && empty($globalsBag->get('connection_pooling_off'))) {
+        if (DatabaseConnectionFactory::detectConnectionPersistence($globalsBag, $session)) {
             $host = "p:" . $host;
         }
 

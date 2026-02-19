@@ -4447,24 +4447,34 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/find_patient_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'CHECK SSL CIPHER IN…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents…\' results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\\\\'\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\." between \' accesskey\\="\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
+    'message' => '#^Binary operation "\\." between \'\\<form action\\="\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<input class\\="btn…\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<input type\\="hidden…\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<option value\\="\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<select class\\="form…\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'"\' results in an error\\.$#',
@@ -4477,22 +4487,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and "\',\\\\n                …" results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
+    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/pntables\\.php\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\." between \'modules/\' and list\\<string\\>\\|string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\\\\'\' results in an error\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\\\\'\\);\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\." between mixed and \'/pntables\\.php\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -4503,7 +4508,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
@@ -4578,12 +4583,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<input type\\="hidden…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_form_nav_close.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'" /\\>\' results in an error\\.$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_form_nav_close.php',
 ];
 $ignoreErrors[] = [
@@ -4614,6 +4614,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between mixed and 60 results in an error\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<td\\>\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\<tr\\>\\<td\\>\\<b\\>\' and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
@@ -4659,6 +4669,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and string results in an error\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 13,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
@@ -4752,6 +4767,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between \\(float\\|int\\) and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -4812,7 +4832,52 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \' AND a\\.pc_facility …\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'0\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND NOT \\(\\(pc…\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND \\(a\\.pc_aid IN \\(0,\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND \\(a\\.pc_catid \\= \\\\\'\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND \\(a\\.pc_sharing \\=…\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND \\(a\\.pc_topic \\= \\\\\'\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'AND a\\.pc_aid IN \\(0, \' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'OR a\\.pc_sharing \\= \\\\\'\' and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'\\\\\'\' and list\\<string\\>\\|string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -4904,6 +4969,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\\\\'\\)\\) AND pc_endTime…\' results in an error\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and list\\<string\\>\\|string results in an error\\.$#',
+    'count' => 11,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -15342,11 +15412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'dm\\-\'\\|the and string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\' results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
@@ -21374,11 +21439,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'acl_query_\' and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents…\' results in an error\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [

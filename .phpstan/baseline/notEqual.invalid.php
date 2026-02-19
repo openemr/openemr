@@ -6,10 +6,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\!\\=" between prepared and 1 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

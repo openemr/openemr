@@ -402,11 +402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnDBGetConn\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnDBGetTables\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',

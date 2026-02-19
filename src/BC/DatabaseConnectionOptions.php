@@ -48,12 +48,13 @@ final readonly class DatabaseConnectionOptions
 {
     private const REDACTED = '[REDACTED]';
 
+    public string $charset;
+
     /**
      * @param ClientCert|null $sslClientCert Client cert/key pair for mTLS
      */
     public function __construct(
         public string $dbname,
-        public string $charset,
         public string $user,
         #[SensitiveParameter]
         public string $password,
@@ -85,6 +86,8 @@ final readonly class DatabaseConnectionOptions
                 'Must specify either host/port or unixSocket'
             );
         }
+
+        $this->charset = 'utf8mb4';
     }
 
     /**
@@ -117,7 +120,6 @@ final readonly class DatabaseConnectionOptions
 
         return new self(
             dbname: $sqlconf['dbase'],
-            charset: 'utf8mb4',
             user: $sqlconf['login'],
             password: $sqlconf['pass'],
             host: $host,

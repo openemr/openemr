@@ -392,12 +392,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: the, doc_id\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: the, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
@@ -412,12 +412,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'mime\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: the, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'mime\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: the, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
