@@ -339,49 +339,7 @@ INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_pla
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `clinical_rules`
---
 
-DROP TABLE IF EXISTS `clinical_rules`;
-CREATE TABLE `clinical_rules` (
-  `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
-  `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
-  `active_alert_flag` tinyint(1) COMMENT 'Active Alert Widget Module flag - note not yet utilized',
-  `passive_alert_flag` tinyint(1) COMMENT 'Passive Alert Widget Module flag',
-  `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_nqf_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure NQF identifier',
-  `cqm_pqri_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure PQRI identifier',
-  `amc_flag` tinyint(1) COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
-  `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_2015_flag` TINYINT(1) NULL DEFAULT NULL COMMENT '2015 Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation identifier (MU rule)',
-  `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)',
-  `amc_code_2015` VARCHAR(30) NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)',
-  `amc_2014_stage1_flag` tinyint(1) COMMENT '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_2014_stage2_flag` tinyint(1) COMMENT '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)',
-  `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
-  `bibliographic_citation` VARCHAR(255) NOT NULL DEFAULT '',
-  `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer',
-  `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source',
-  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version',
-  `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
-  `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '',
-  `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
-  `patient_dob_usage` TEXT COMMENT 'Description of how patient DOB is used by this rule',
-  `patient_ethnicity_usage` TEXT COMMENT 'Description of how patient ethnicity is used by this rule',
-  `patient_health_status_usage` TEXT COMMENT 'Description of how patient health status assessments are used by this rule',
-  `patient_gender_identity_usage` TEXT COMMENT 'Description of how patient gender identity information is used by this rule',
-  `patient_language_usage` TEXT COMMENT 'Description of how patient language information is used by this rule',
-  `patient_race_usage` TEXT COMMENT 'Description of how patient race information is used by this rule',
-  `patient_sex_usage` TEXT COMMENT 'Description of how patient birth sex information is used by this rule',
-  `patient_sexual_orientation_usage` TEXT COMMENT 'Description of how patient sexual orientation is used by this rule',
-  `patient_sodh_usage` TEXT COMMENT 'Description of how patient social determinants of health are used by this rule',
-  PRIMARY KEY  (`id`,`pid`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for Automated Measure Calculation (AMC) rules
