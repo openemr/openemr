@@ -939,22 +939,7 @@ CREATE  TABLE `erx_ttl_touch` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `erx_rx_log`
---
 
-DROP TABLE IF EXISTS `erx_rx_log`;
-CREATE TABLE `erx_rx_log` (
- `id` int(20) NOT NULL AUTO_INCREMENT,
- `prescription_id` int(6) NOT NULL,
- `date` varchar(25) NOT NULL,
- `time` varchar(15) NOT NULL,
- `code` int(6) NOT NULL,
- `status` text,
- `message_id` varchar(100) DEFAULT NULL,
- `read` int(1) DEFAULT NULL,
- PRIMARY KEY (`id`)
-  ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
