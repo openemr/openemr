@@ -2179,18 +2179,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_init to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return mysqli|false
-     */
-    protected function mysqliInit(): mysqli|false
-    {
-        return mysqli_init();
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2218,26 +2206,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_real_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $database
-     * @param int $port
-     * @param string $socket
-     * @param int $flags
-     * @return bool
-     */
-    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
-    {
-        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2249,24 +2217,6 @@ SETHLP;
     protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
     {
         return mysqli_select_db($mysql, $dbname);
-    }
-
-    /**
-     * Wrapper for mysqli_ssl_set to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param ?string $key
-     * @param ?string $cert
-     * @param ?string $ca
-     * @param ?string $capath
-     * @param ?string $cipher
-     * @return bool
-     */
-    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
-    {
-        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
     }
 
     /**
