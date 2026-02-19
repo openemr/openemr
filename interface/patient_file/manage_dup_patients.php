@@ -56,10 +56,10 @@ function displayRow($row, $pid = ''): void
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
-            $group++;
-             if (empty($_POST['form_csvexport'])) {     //rm - don't put the next line into the csv file
+            $group = $group + 1;
+            if (empty($_POST['form_csvexport'])) {     //rm - don't put the next line into the csv file
                 echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
-             }
+            }
         }
     }
 
@@ -89,25 +89,25 @@ function displayRow($row, $pid = ''): void
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
-    if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
-            echo csvEscape(text($group)) . ',';
-            echo csvEscape(text($myscore)) . ',';
-            echo csvEscape($row['pid']) . ',';
-            echo csvEscape($row['pubpid']) . ',';
-            echo csvEscape($highlight_text) . ',';
-            echo csvEscape(text($ptname)) . ',';
+  //  if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
+   if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
+            echo csvEscape(text($group)) . ",";
+            echo csvEscape(text($myscore)) . ",";
+            echo csvEscape($row['pid']) . ",";
+            echo csvEscape($row['pubpid']) . ",";
+            echo csvEscape(text($highlight_text)) . ",";
+            echo csvEscape(text($ptname)) . ",";
             // rm - format dates by users preference
-            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
-          //  echo csvEscape($row['ss']) . ',';
-             echo csvEscape($row['sex']) . ',';
-            echo csvEscape($row['email']) . ',';
-            echo csvEscape(text($phones)) . ',';
-            echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
+            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ",";
+             echo csvEscape($row['sex']) . ",";
+            echo csvEscape($row['email']) . ",";
+            echo csvEscape(text($phones)) . ",";
+            echo csvEscape(oeFormatShortDate($row['regdate'])) . ",";
          //   echo csvEscape(text($fac_name)) . ',';
              echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
-    echo "<tr class='$highlight_class'>";
-    ?>
+        echo "<tr class='$highlight_class'>";
+         ?>
     <td>
         <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
             <?php echo $options; // this is html and already escaped as required
@@ -149,7 +149,7 @@ function displayRow($row, $pid = ''): void
         <?php echo text($row['street']); ?>
     </td>
     </tr>
-    <?php
+        <?php
     } //rm - end display on page
 }
 
@@ -204,7 +204,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 $calc_count = calculateScores();
 $score_calculate = getDupScoreSQL();
 // rm - In the case of CSV export only, a file download will be forced. set up parameters
-if (!empty($_POST['form_csvexport'])) {
+ if ($_POST['form_csvexport'] == "CSV" ) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -215,7 +215,7 @@ if (!empty($_POST['form_csvexport'])) {
     header("Content-Disposition: attachment; filename=" . $filename); //rm 'attachment' forces the download
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -293,7 +293,7 @@ if (!empty($_POST['form_csvexport'])) {
             <?php } //rm end of html, rather than csv,  setup
 
             // either put out headings to the csv file or to the page
-if (!empty($_POST['form_csvexport'])) {
+     if ($_POST['form_csvexport'] == "CSV" ) {
         // CSV column headings
         echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
@@ -354,25 +354,25 @@ if (!empty($_POST['form_csvexport'])) {
                 </thead>
                 <tbody class="text-center">
                 <?php } // rm - end of html column headers
-                $form_action = $_POST['form_action'] ?? '';
-                if ($form_action == 'U') {
-                    sqlStatement(
+$form_action = $_POST['form_action'] ?? '';
+if ($form_action == 'U') {
+    sqlStatement(
                         "UPDATE patient_data SET dupscore = -1 WHERE pid = ?",
                         [$_POST['form_toppid']]
                     );
-                } elseif ($form_action == 'R') {
+} elseif ($form_action == 'R') {
                     updateDupScore($_POST['form_toppid']);
-                }
+}
 
                 // Track displayed patients to avoid showing the same patient in multiple groups
                 $displayed = [];
                 $query = "SELECT * FROM patient_data WHERE dupscore > 12 " . "ORDER BY dupscore DESC, pid DESC LIMIT 100";
                 $res1 = sqlStatement($query);
-                while ($row1 = sqlFetchArray($res1)) {
+while ($row1 = sqlFetchArray($res1)) {
                     // Skip if this patient was already shown as part of another group
-                    if (isset($displayed[$row1['pid']])) {
+    if (isset($displayed[$row1['pid']])) {
                         continue;
-                    }
+    }
                     // Use symmetric comparison (p2.pid != p1.pid) to find all matches,
                     // not just lower PIDs. This allows detecting duplicates when a patient
                     // with a lower PID is edited to match one with a higher PID.
@@ -382,24 +382,24 @@ if (!empty($_POST['form_csvexport'])) {
                         "ORDER BY myscore DESC, p2.pid DESC";
                     $res2 = sqlStatement($query, [$row1['pid']]);
                     $matches = [];
-                    while ($row2 = sqlFetchArray($res2)) {
+    while ($row2 = sqlFetchArray($res2)) {
                         // Skip matches already displayed in a previous group
-                        if (!isset($displayed[$row2['pid']])) {
+        if (!isset($displayed[$row2['pid']])) {
                             $matches[] = $row2;
-                        }
-                    }
+         }
+    }
                     // Only display this group if there are actual matches (prevents orphans)
-                    if (count($matches) > 0) {
+    if (count($matches) > 0) {
                         displayRow($row1);
                         $displayed[$row1['pid']] = true;
-                        foreach ($matches as $row2) {
+        foreach ($matches as $row2) {
                             displayRow($row2, $row1['pid']);
                             $displayed[$row2['pid']] = true;
-                        }
-                    }
-                }
-                if (empty($_POST['form_csvexport'])) { //rm - only output html if not generating csv file
-                ?>
+        }
+    }
+}
+if ($_POST['form_csvexport'] != "CSV") { //rm - only output html if not generating csv file
+    ?>
                 </tbody>
             </table>
             <input type='hidden' name='form_action' value='' />
@@ -415,6 +415,6 @@ if (!empty($_POST['form_csvexport'])) {
     </form>
 </body>
 </html>
-<?php
+    <?php
 }  // rm end of not generating csv
 ?>
