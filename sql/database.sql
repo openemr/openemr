@@ -786,32 +786,7 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 
 
 -- --------------------------------------------------------
---
--- Table structure for table `contact_address`
---
-DROP TABLE IF EXISTS `contact_address`;
-    CREATE TABLE `contact_address` (
-    `id` BIGINT(20) NOT NULL auto_increment,
-    `contact_id` BIGINT(20) NOT NULL,
-    `address_id` BIGINT(20) NOT NULL,
-    `priority` INT(11) NULL,
-    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
-    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
-    `notes` TINYTEXT,
-    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
-    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `period_start` DATETIME NULL COMMENT 'Date the address became active',
-    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
-    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    PRIMARY KEY (`id`),
-    KEY (`contact_id`),
-    KEY (`address_id`),
-    KEY contact_address_idx (`contact_id`,`address_id`)
-) ENGINE = InnoDB ;
+
 
 
 DROP TABLE IF EXISTS `contact_telecom`;
