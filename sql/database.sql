@@ -1190,18 +1190,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd9_sg_long_code`
---
 
-DROP TABLE IF EXISTS `icd9_sg_long_code`;
-CREATE TABLE `icd9_sg_long_code` (
-  `sq_id` SERIAL,
-  `sg_code`             varchar(5),
-  `long_desc`           varchar(300),
-  `active` tinyint default 0,
-  `revision` int default 0
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
