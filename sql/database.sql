@@ -8597,25 +8597,7 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_mag_orders`
---
 
-DROP TABLE IF EXISTS `form_eye_mag_orders`;
-CREATE TABLE `form_eye_mag_orders` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `form_id` int(20) NOT NULL,
-  `pid` bigint(20) NOT NULL,
-  `ORDER_DETAILS` varchar(255) NOT NULL,
-  `ORDER_STATUS` varchar(50) DEFAULT NULL,
-  `ORDER_PRIORITY` varchar(50) DEFAULT NULL,
-  `ORDER_DATE_PLACED` date NOT NULL,
-  `ORDER_PLACED_BYWHOM` varchar(50) DEFAULT NULL,
-  `ORDER_DATE_COMPLETED` date DEFAULT NULL,
-  `ORDER_COMPLETED_BYWHOM` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `VISIT_ID` (`pid`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
