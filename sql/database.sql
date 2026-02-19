@@ -18,25 +18,7 @@
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `api_log`
---
 
-DROP TABLE IF EXISTS `api_log`;
-CREATE TABLE `api_log` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `log_id` int(11) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `patient_id` bigint(20) NOT NULL,
-  `ip_address` varchar(255) NOT NULL,
-  `method` varchar(20) NOT NULL,
-  `request` varchar(255) NOT NULL,
-  `request_url` text,
-  `request_body` longtext,
-  `response` longtext,
-  `created_time` timestamp NULL,
-  PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
