@@ -8757,20 +8757,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_base`
---
-DROP TABLE IF EXISTS `form_eye_base`;
-CREATE TABLE `form_eye_base` (
-  `id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Links to forms.form_id',
-  `date`       datetime DEFAULT NULL,
-  `pid`        bigint(20)   DEFAULT NULL,
-  `user`       varchar(255) DEFAULT NULL,
-  `groupname`  varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4)   DEFAULT NULL,
-  `activity`   tinyint(4)   DEFAULT NULL,
-  PRIMARY KEY `form_link` (`id`)
-) ENGINE = InnoDB;
+
 
 -- --------------------------------------------------------
 
