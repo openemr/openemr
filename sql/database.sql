@@ -842,40 +842,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `drug_sales`
---
 
-DROP TABLE IF EXISTS `drug_sales`;
-CREATE TABLE `drug_sales` (
-  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this drug sales record, for data exchange purposes',
-  `sale_id` int(11) NOT NULL auto_increment,
-  `drug_id` int(11) NOT NULL,
-  `inventory_id` int(11) NOT NULL,
-  `prescription_id` int(11) NOT NULL default '0',
-  `pid` bigint(20) NOT NULL default '0',
-  `encounter` int(11) NOT NULL default '0',
-  `user` varchar(255) default NULL,
-  `sale_date` date NOT NULL,
-  `quantity` int(11) NOT NULL default '0',
-  `fee` decimal(12,2) NOT NULL default '0.00',
-  `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
-  `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
-  `distributor_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'references users.id',
-  `notes` varchar(255) NOT NULL DEFAULT '',
-  `bill_date` datetime default NULL,
-  `pricelevel` varchar(31) default '',
-  `selector` varchar(255) default '' comment 'references drug_templates.selector',
-  `trans_type` tinyint NOT NULL DEFAULT 1 COMMENT '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment',
-  `chargecat` varchar(31) default '',
-  `pharmacy_supply_type` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=pharmacy_supply_type to indicate type of dispensing first order, refil, emergency, partial order, etc',
-  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that last updated this entry',
-  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that created this entry',
-  PRIMARY KEY  (`sale_id`),
-  UNIQUE INDEX `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
