@@ -6409,25 +6409,6 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 --
 
 DROP TABLE IF EXISTS `users_secure`;
-CREATE TABLE `users_secure` (
-  `id` bigint(20) NOT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255),
-  `last_update_password` datetime DEFAULT NULL,
-  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `password_history1` varchar(255),
-  `password_history2` varchar(255),
-  `password_history3` varchar(255),
-  `password_history4` varchar(255),
-  `last_challenge_response` datetime DEFAULT NULL,
-  `login_work_area` text,
-  `total_login_fail_counter` bigint DEFAULT 0,
-  `login_fail_counter` INT(11) DEFAULT '0',
-  `last_login_fail` datetime DEFAULT NULL,
-  `auto_block_emailed` tinyint DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `USERNAME_ID` (`id`,`username`)
-) ENGINE=InnoDb;
 
 -- --------------------------------------------------------
 
