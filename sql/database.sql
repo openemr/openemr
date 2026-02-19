@@ -8748,29 +8748,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `medex_prefs`
---
-DROP TABLE IF EXISTS `medex_prefs`;
-CREATE TABLE `medex_prefs` (
-  `MedEx_id` int(11) DEFAULT '0',
-  `ME_username` varchar(100) DEFAULT NULL,
-  `ME_api_key` text,
-  `ME_facilities` varchar(50) DEFAULT NULL,
-  `ME_providers` varchar(100) DEFAULT NULL,
-  `ME_hipaa_default_override` varchar(3) DEFAULT NULL,
-  `PHONE_country_code` int(4) NOT NULL DEFAULT '1',
-  `MSGS_default_yes` varchar(3) DEFAULT NULL,
-  `POSTCARDS_local` varchar(3) DEFAULT NULL,
-  `POSTCARDS_remote` varchar(3) DEFAULT NULL,
-  `LABELS_local` varchar(3) DEFAULT NULL,
-  `LABELS_choice` varchar(50) DEFAULT NULL,
-  `combine_time` tinyint(4) DEFAULT NULL,
-  `postcard_top` varchar(255) DEFAULT NULL,
-  `status` text,
-  `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY `ME_username` (`ME_username`)
-) ENGINE=InnoDB;
+
 
 -- --------------------------------------------------------
 
