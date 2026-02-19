@@ -31,21 +31,7 @@
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `audit_details`
---
 
-DROP TABLE IF EXISTS `audit_details`;
-CREATE TABLE `audit_details` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-  `table_name` VARCHAR(100) NOT NULL COMMENT 'openemr table name',
-  `field_name` VARCHAR(100) NOT NULL COMMENT 'openemr table''s field name',
-  `field_value` LONGTEXT COMMENT 'openemr table''s field value',
-  `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
-  `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
-  PRIMARY KEY (`id`),
-  KEY `audit_master_id` (`audit_master_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
