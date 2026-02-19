@@ -8822,24 +8822,6 @@ DROP TABLE IF EXISTS `export_job`;
 DROP TABLE IF EXISTS `form_vital_details`;
 
 DROP TABLE IF EXISTS `form_vitals_calculation`;
-CREATE TABLE `form_vitals_calculation` (
-   `id` int NOT NULL AUTO_INCREMENT,
-   `uuid` binary(16) DEFAULT NULL,
-   `encounter` bigint(20) DEFAULT NULL COMMENT 'fk to form_encounter.id',
-   `pid` bigint(20) NOT NULL COMMENT 'fk to patient_data.pid',
-   `date_start` datetime DEFAULT NULL,
-   `date_end` datetime DEFAULT NULL,
-   `created_at` datetime DEFAULT NULL,
-   `updated_at` datetime DEFAULT NULL,
-   `created_by` bigint(20) DEFAULT NULL,
-   `updated_by` bigint(20) DEFAULT NULL,
-   `calculation_id` varchar(64) DEFAULT NULL COMMENT 'application identifier representing calculation e.g., bp-MeanLast5, bp-Mean3Day, bp-MeanEncounter',
-   PRIMARY KEY (`id`),
-   UNIQUE KEY `unq_uuid` (`uuid`),
-   KEY `idx_pid` (`pid`),
-   KEY `idx_encounter` (`encounter`),
-   KEY `idx_calculation_id` (`calculation_id`)
-) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
 
 DROP TABLE IF EXISTS `form_vitals_calculation_components`;
 CREATE TABLE `form_vitals_calculation_components` (
