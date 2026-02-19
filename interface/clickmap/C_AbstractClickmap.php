@@ -39,8 +39,7 @@ abstract class C_AbstractClickmap extends Controller
     /**
      * @brief Initialize a newly created object belonging to this class
      *
-     * @param template_mod
-     *  template module name, passed to Controller's initializer.
+     * @param string $template_mod template module name, passed to Controller's initializer.
      */
     function __construct($template_mod = "general")
     {
@@ -119,6 +118,7 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate an html document from the 'new form' template, populated with form data from the passed in form_id.
+     * @param string $form_id The id of the form to populate data from.
      * @return string
      */
     function view_action($form_id)
@@ -132,6 +132,7 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate a fragment of an HTML document from the 'new form' template, populated with form data from the passed in form_id.
+     * @param string $form_id The id of the form to populate data from.
      * @return string
      */
     function report_action($form_id)

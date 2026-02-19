@@ -39,12 +39,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(template_mod
- template module name, passed to Controller\'s initializer\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 109 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(associative array \\$PMSFH if it exists\\)\\: Unexpected token "array", expected variable at offset 217 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
