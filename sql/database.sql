@@ -7,28 +7,6 @@
 --
 
 --
--- Table structure for table `addresses`
---
-
-DROP TABLE IF EXISTS `addresses`;
-CREATE TABLE `addresses` (
-  `id` int(11) NOT NULL default '0',
-  `line1` varchar(255) default NULL,
-  `line2` varchar(255) default NULL,
-  `city` varchar(255) default NULL,
-  `state` varchar(35) default NULL,
-  `zip` varchar(10) default NULL,
-  `plus_four` varchar(4) default NULL,
-  `country` varchar(255) default NULL,
-  `foreign_id` int(11) default NULL,
-  `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address',
-  PRIMARY KEY  (`id`),
-  KEY `foreign_id` (`foreign_id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `amc_misc_data`
 --
 
