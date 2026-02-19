@@ -69,11 +69,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -305,16 +300,6 @@ $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/SoftRequiredArgumentsRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

@@ -668,7 +668,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
 ];
 $ignoreErrors[] = [
@@ -678,13 +678,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/language/lang_manage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/language.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
@@ -723,11 +718,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
 ];
@@ -743,7 +733,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
@@ -1453,7 +1443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
 ];
 $ignoreErrors[] = [
@@ -2673,13 +2663,13 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
+    'count' => 21,
+    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
@@ -3273,7 +3263,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 11,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -3458,11 +3448,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
@@ -3483,7 +3468,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
 $ignoreErrors[] = [
@@ -3620,6 +3605,11 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../sql_upgrade.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/BC/DatabaseConnectionFactory.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
@@ -4258,7 +4248,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 7,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [

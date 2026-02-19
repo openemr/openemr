@@ -1,5 +1,8 @@
 <?php
 
+use Doctrine\DBAL\Connection;
+use OpenEMR\BC\Database;
+
 // $Id$
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
@@ -86,15 +89,12 @@ define('_PN_CONFIG_MODULE', '/PNConfig');
 /**
  * get all configuration variable into $pnconfig
  * will be removed on .8
- * @param none
- * @returns true|false
- * @return none
  */
-function pnConfigInit()
+function pnConfigInit(): bool
 {
     global $pnconfig;
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $table = $pntable['module_vars'];
@@ -106,20 +106,19 @@ function pnConfigInit()
     $query = "SELECT $columns[name],
                      $columns[value]
               FROM $table
-              WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'";
-    $dbresult = $dbconn->Execute($query);
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $columns[modname]= ?";
+    try {
+        $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+        $rows = $result->fetchAllNumeric();
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
-    if ($dbresult->EOF) {
-        $dbresult->Close();
+    if (empty($rows)) {
         return false;
     }
 
-    while (!$dbresult->EOF) {
-        [$k, $v] = $dbresult->fields;
-        $dbresult->MoveNext();
+    foreach ($rows as [$k, $v]) {
         if (
             !in_array($k, ['dbtype', 'dbhost', 'dbuname', 'dbpass', 'dbname', 'system', 'prefix', 'encoded'])
         ) {
@@ -127,7 +126,6 @@ function pnConfigInit()
         }
     }
 
-    $dbresult->Close();
     return true;
 }
 
@@ -146,7 +144,7 @@ function pnConfigGetVar($name)
         /*
          * Fetch base data
          */
-        [$dbconn] = pnDBGetConn();
+        $conn = pnDBGetConn();
         $pntable = pnDBGetTables();
 
         $table = $pntable['module_vars'];
@@ -157,37 +155,27 @@ function pnConfigGetVar($name)
          */
         $query = "SELECT $columns[value]
                   FROM $table
-                  WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'
-                    AND $columns[name]='" . pnVarPrepForStore($name) . "'";
-        $dbresult = $dbconn->Execute($query);
-
-        /*
-         * In any case of error return false
-         */
-        if ($dbconn->ErrorNo() != 0) {
+                  WHERE $columns[modname]= ?
+                    AND $columns[name]= ?";
+        try {
+            $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+        } catch (Doctrine\DBAL\Exception) {
             return false;
         }
 
-        if ($dbresult->EOF) {
-            $dbresult->Close();
+        if ($value === false) {
             return false;
         }
 
         /*
          * Get data
          */
-        [$result] = $dbresult->fields;
-        $result = unserialize($result, ['allowed_classes' => false]);
+        $result = unserialize($value, ['allowed_classes' => false]);
 
         /*
          * Some caching
          */
         $pnconfig[$name] = $result;
-
-        /*
-         * That's all folks
-         */
-        $dbresult->Close();
     }
 
     return $result;
@@ -209,13 +197,6 @@ function pnInit()
         define('LC_TIME', 'LC_TIME');
     }
 
-    // ADODB configuration
-    if (!defined('ADODB_DIR')) {
-        define('ADODB_DIR', __DIR__ . '/../../../../vendor/adodb/adodb-php');
-    }
-
-    require_once ADODB_DIR . '/adodb.inc.php';
-
     // Initialise and load configuration
     global $pnconfig;
     $pnconfig = [];
@@ -225,11 +206,6 @@ function pnInit()
     global $pntable;
     $pntable = [];
     require 'pntables.php';
-
-    // Connect to database
-    if (!pnDBInit()) {
-        die('Database initialisation failed');
-    }
 
     // Build up old config array
     pnConfigInit();
@@ -241,104 +217,9 @@ function pnInit()
     return true;
 }
 
-function pnDBInit()
+function pnDBGetConn(): Connection
 {
-    // Get database parameters
-    global $pnconfig;
-    $dbtype = $pnconfig['dbtype'];
-    $dbhost = $pnconfig['dbhost'];
-    $dbport = $pnconfig['dbport'];
-    $dbname = $pnconfig['dbname'];
-    $dbuname = $pnconfig['dbuname'];
-    $dbpass = $pnconfig['dbpass'];
-
-    // Database connection is a global (for now)
-    global $dbconn;
-
-    // Start connection
-    $dbconn = ADONewConnection($dbtype);
-    // Set mysql to use ssl, if applicable.
-    // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-    // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-        if (defined('MYSQLI_CLIENT_SSL')) {
-            if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-            ) {
-                // with client side certificate/key
-                $dbconn->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                $dbconn->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                $dbconn->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            } else {
-                // without client side certificate/key
-                $dbconn->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            }
-            $dbconn->clientFlags = MYSQLI_CLIENT_SSL;
-        }
-    }
-    $dbconn->port = $dbport;
-
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-        $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
-    } else {
-        $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);
-    }
-    if (!$dbh) {
-        //$dbpass = "";
-        //die("$dbtype://$dbuname:$dbpass@$dbhost/$dbname failed to connect" . $dbconn->ErrorMsg());
-        die("<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n<title>PostNuke powered Website</title>\n</head>\n<body>\n<center>\n<h1>Problem in Database Connection</h1>\n<br /><br />\n<h5>This Website is powered by PostNuke</h5>\n<a href=\"http://www.postnuke.com\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/postnuke.butn.gif\" border=\"0\" alt=\"Web site powered by PostNuke\" hspace=\"10\" /></a> <a href=\"https://php.weblogs.com/ADODB\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/adodb2.gif\" alt=\"ADODB database library\" border=\"0\" hspace=\"10\" /></a><a href=\"https://www.php.net\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/php2.gif\" alt=\"PHP Scripting Language\" border=\"0\" hspace=\"10\" /></a><br />\n<h5>Although this site is running the PostNuke software<br />it has no other connection to the PostNuke Developers.<br />Please refrain from sending messages about this site or its content<br />to the PostNuke team, the end will result in an ignored e-mail.</h5>\n</center>\n</body>\n</html>");
-    }
-
-    // Modified 5/2009 by BM for UTF-8 project
-    if ($pnconfig['db_encoding'] == "utf8mb4") {
-        $success_flag = $dbconn->Execute("SET NAMES 'utf8mb4'");
-        if (!$success_flag) {
-            error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8MB4 encoding with mysql database", 0);
-        }
-    } elseif ($pnconfig['db_encoding'] == "utf8") {
-        $success_flag = $dbconn->Execute("SET NAMES 'utf8'");
-        if (!$success_flag) {
-            error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8 encoding with mysql database", 0);
-        }
-    }
-
-    // ---------------------------------------
-
-    //Turn off STRICT SQL
-    $sql_strict_set_success = $dbconn->Execute("SET sql_mode = ''");
-    if (!$sql_strict_set_success) {
-        error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set strict sql setting", 0);
-    }
-
-    global $ADODB_FETCH_MODE;
-    $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
-    // force oracle to a consistent date format for comparison methods later on
-    if (strcmp((string) $dbtype, 'oci8') == 0) {
-        $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
-    }
-
-    // Sync MySQL time zone with PHP time zone.
-    $dbconn->Execute("SET time_zone = '" . add_escape_custom((new DateTime())->format("P")) . "'");
-
-    if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
-        error_log("CHECK SSL CIPHER IN CALENDAR ADODB: " . errorLogEscape(print_r($dbconn->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
-    }
-
-    return true;
-}
-
-/**
- * get a list of database connections
- * @returns array
- * @return array of database connections
- */
-function pnDBGetConn()
-{
-    global $dbconn;
-
-    return [$dbconn];
+    return Database::instance()->getDbalConnection();
 }
 
 /**

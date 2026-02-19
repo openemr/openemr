@@ -43,11 +43,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php',
 ];
@@ -288,7 +283,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -453,7 +448,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [

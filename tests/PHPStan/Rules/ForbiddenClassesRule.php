@@ -42,18 +42,11 @@ class ForbiddenClassesRule implements Rule
 
     /**
      * @param Use_ $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        return iterator_to_array($this->getErrors($node, $scope));
-    }
-
-    /**
-     * @return \Generator<\PHPStan\Rules\RuleError>
-     */
-    private function getErrors(Use_ $node, Scope $scope): \Generator
-    {
+        $errors = [];
         foreach ($node->uses as $use) {
             $importedName = $use->name->toString();
 
@@ -64,12 +57,13 @@ class ForbiddenClassesRule implements Rule
                     $importedName
                 );
 
-                yield RuleErrorBuilder::message($message)
+                $errors[] = RuleErrorBuilder::message($message)
                     ->identifier('openemr.deprecatedLaminasDb')
                     ->tip('See src/Common/Database/QueryUtils.php for modern database patterns')
                     ->build();
             }
         }
+        return $errors;
     }
 
     private function isForbiddenImport(string $importedName): bool

@@ -507,86 +507,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/soap/C_FormSOAP.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$clientFlags on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on ADORecordSet\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$port on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_ca on ADOConnection\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_cert on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_key on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$keyHandle on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
@@ -3057,11 +2977,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
@@ -3100,6 +3015,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$mname on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
@@ -4749,11 +4669,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$LoadType on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$LoadType on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
 ];
 $ignoreErrors[] = [
@@ -5332,32 +5247,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$clientFlags on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$fields on ADORecordSet\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$port on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_ca on ADOConnection\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_cert on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_key on ADOConnection\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

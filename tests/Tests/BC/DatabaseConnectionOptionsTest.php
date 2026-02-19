@@ -33,7 +33,6 @@ class DatabaseConnectionOptionsTest extends TestCase
             password: 'secret',
             host: 'db.example.com',
             port: 3307,
-            charset: 'utf8mb4',
         );
 
         $params = $options->toDbalParams();
@@ -52,7 +51,6 @@ class DatabaseConnectionOptionsTest extends TestCase
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             unixSocket: '/var/run/mysqld/mysqld.sock',
@@ -69,7 +67,6 @@ class DatabaseConnectionOptionsTest extends TestCase
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -88,7 +85,6 @@ class DatabaseConnectionOptionsTest extends TestCase
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -113,7 +109,6 @@ class DatabaseConnectionOptionsTest extends TestCase
     {
         $options = new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'super-secret-password',
             host: 'localhost',
@@ -156,7 +151,6 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
         );
@@ -169,7 +163,6 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -183,7 +176,6 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             port: 3306,
@@ -197,7 +189,6 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         new DatabaseConnectionOptions(
             dbname: 'testdb',
-            charset: 'utf8mb4',
             user: 'testuser',
             password: 'secret',
             host: 'localhost',
@@ -302,6 +293,8 @@ class DatabaseConnectionOptionsTest extends TestCase
         $siteDir = $this->createTempSiteDir();
         mkdir($siteDir, 0755, true);
 
+        // db_encoding is explicitly set to a non-utf8mb4 value to verify
+        // that legacy config values are ignored and utf8mb4 is always used
         file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
 <?php
 $sqlconf = [
@@ -322,7 +315,7 @@ PHP
         self::assertSame('127.0.0.1', $options->host);
         self::assertSame(3306, $options->port);
         self::assertNull($options->unixSocket);
-        self::assertSame('latin1', $options->charset);
+        self::assertSame('utf8mb4', $options->charset);
         self::assertNull($options->sslCaPath);
         self::assertNull($options->sslClientCert);
     }

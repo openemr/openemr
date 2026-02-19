@@ -212,11 +212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalNamespaceRule implements generic interface PHPStan\\\\Rules\\\\Rule but does not specify its types\\: TNodeType$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$currentList1 with generic class DOMNodeList but does not specify its types\\: TNode$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',

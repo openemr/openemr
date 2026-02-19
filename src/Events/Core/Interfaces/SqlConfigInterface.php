@@ -52,23 +52,9 @@ interface SqlConfigInterface
     public function getDatabaseName(): string;
 
     /**
-     * Get the encoding (Probably utf8mb4)
-     *
-     * @return string
-     */
-    public function getEncoding(): string;
-
-    /**
      * Get the config status. 1 for configured, 0 for not configured
      *
      * @return integer
      */
     public function getConfig(): int;
-
-    /**
-     * Get whether or not to disable UTF-8 (Probably always 0)
-     *
-     * @return integer
-     */
-    public function getDisableUTF8(): int;
 }
