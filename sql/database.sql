@@ -5560,20 +5560,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 
 
 
---
--- Table structure for table `patient_tracker_element`
---
 
-DROP TABLE IF EXISTS `patient_tracker_element`;
-CREATE TABLE `patient_tracker_element` (
-  `pt_tracker_id`      bigint(20)   NOT NULL default '0' COMMENT 'maps to id column in patient_tracker table',
-  `start_datetime`     datetime     DEFAULT NULL,
-  `room`               varchar(20)  NOT NULL default '',
-  `status`             varchar(31)  NOT NULL default '',
-  `seq`                varchar(4)   NOT NULL default '' COMMENT 'This is a numerical sequence for this pt_tracker_id events',
-  `user`               varchar(255) NOT NULL default '' COMMENT 'This is the user that created this element',
-  KEY  (`pt_tracker_id`,`seq`)
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table `payments`
