@@ -9517,18 +9517,6 @@ DROP TABLE IF EXISTS `patient_care_experience_preferences`;
     ('care_experience_preferences','81363-4','Preferred healthcare professional',80,'cep_professional_answers','LOINC:81363-4',1);
  -- Value sets table for coded answers
 DROP TABLE IF EXISTS `preference_value_sets`;
-CREATE TABLE `preference_value_sets` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `loinc_code` varchar(50) NOT NULL,
-    `answer_code` varchar(100) NOT NULL,
-    `answer_system` varchar(255) NOT NULL,
-    `answer_display` varchar(255) NOT NULL,
-    `answer_definition` text,
-    `sort_order` int(11) DEFAULT 0,
-    `active` tinyint(1) DEFAULT 1,
-    PRIMARY KEY (`id`),
-    KEY `loinc_code` (`loinc_code`)
-    ) ENGINE=InnoDB COMMENT='Answer lists for preference codes';
 
     INSERT INTO `preference_value_sets`
     (`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
