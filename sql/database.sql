@@ -961,24 +961,7 @@ INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000',
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `facility_user_ids`
---
 
-DROP TABLE IF EXISTS `facility_user_ids`;
-CREATE TABLE  `facility_user_ids` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uid` bigint(20) DEFAULT NULL,
-  `facility_id` bigint(20) DEFAULT NULL,
-  `uuid` binary(16) DEFAULT NULL,
-  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT,
-  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`,`facility_id`,`field_id`),
-  KEY `uuid` (`uuid`)
-) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
 -- ---------------------------------------------------------
 
