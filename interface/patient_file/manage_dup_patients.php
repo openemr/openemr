@@ -56,8 +56,8 @@ function displayRow($row, $pid = ''): void
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
-            $group = $group + 1;
-            if (empty($_POST['form_csvexport'])) {     //rm - don't put the next line into the csv file
+            $group += 1;
+            if ($_POST['form_csvexport'] != "CSV") {     //rm - don't put the next line into the csv file
                 echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
             }
         }
@@ -90,24 +90,25 @@ function displayRow($row, $pid = ''): void
         $highlight_text = xlt('Merge To');
     }
   //  if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
-   if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
-            echo csvEscape(text($group)) . ",";
-            echo csvEscape(text($myscore)) . ",";
-            echo csvEscape($row['pid']) . ",";
-            echo csvEscape($row['pubpid']) . ",";
-            echo csvEscape(text($highlight_text)) . ",";
-            echo csvEscape(text($ptname)) . ",";
+    if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
+        $comma = ",";
+            echo csvEscape(text($group)) . (string) ',';
+            echo csvEscape(text($myscore)) . (string)($comma);
+            echo csvEscape($row['pid']) . (string) ',';
+            echo csvEscape($row['pubpid']) . (string) ',';
+            echo csvEscape(text($highlight_text)) . (string)$comma ;
+            echo csvEscape(text($ptname)) . (string) ',' ;
             // rm - format dates by users preference
-            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ",";
-             echo csvEscape($row['sex']) . ",";
-            echo csvEscape($row['email']) . ",";
-            echo csvEscape(text($phones)) . ",";
-            echo csvEscape(oeFormatShortDate($row['regdate'])) . ",";
+            echo csvEscape(oeFormatShortDate(substr((string) $row['DOB'], 0, 10))) . (string) ',' ;
+             echo csvEscape($row['sex']) . (string)($comma);
+            echo csvEscape($row['email']) . (string)($comma);
+            echo csvEscape(text($phones)) . (string)($comma);
+            echo csvEscape(oeFormatShortDate($row['regdate'])) . (string)($comma);
          //   echo csvEscape(text($fac_name)) . ',';
              echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
         echo "<tr class='$highlight_class'>";
-         ?>
+        ?>
     <td>
         <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
             <?php echo $options; // this is html and already escaped as required
@@ -204,7 +205,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 $calc_count = calculateScores();
 $score_calculate = getDupScoreSQL();
 // rm - In the case of CSV export only, a file download will be forced. set up parameters
- if ($_POST['form_csvexport'] == "CSV" ) {
+if ($_POST['form_csvexport'] == "CSV" ) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -293,7 +294,7 @@ $score_calculate = getDupScoreSQL();
             <?php } //rm end of html, rather than csv,  setup
 
             // either put out headings to the csv file or to the page
-     if ($_POST['form_csvexport'] == "CSV" ) {
+if ($_POST['form_csvexport'] == "CSV" ) {
         // CSV column headings
         echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
@@ -386,7 +387,7 @@ while ($row1 = sqlFetchArray($res1)) {
                         // Skip matches already displayed in a previous group
         if (!isset($displayed[$row2['pid']])) {
                             $matches[] = $row2;
-         }
+        }
     }
                     // Only display this group if there are actual matches (prevents orphans)
     if (count($matches) > 0) {
