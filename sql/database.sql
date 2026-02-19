@@ -107,15 +107,7 @@ INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 54, 55, 'patien
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `categories_seq`
---
 
-DROP TABLE IF EXISTS `categories_seq`;
-CREATE TABLE `categories_seq` (
-  `id` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `categories_seq`
