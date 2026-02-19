@@ -6509,17 +6509,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `lbt_data`
---
 
-DROP TABLE IF EXISTS `lbt_data`;
-CREATE TABLE `lbt_data` (
-  `form_id`     bigint(20)   NOT NULL COMMENT 'references transactions.id',
-  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT,
-  PRIMARY KEY (`form_id`,`field_id`)
-) ENGINE=InnoDB COMMENT='contains all data from layout-based transactions';
 
 -- -----------------------------------------------------------------------------------
 
