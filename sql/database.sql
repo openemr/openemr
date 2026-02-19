@@ -8688,19 +8688,7 @@ DROP TABLE IF EXISTS `form_group_attendance`;
 
 DROP TABLE IF EXISTS `patient_birthday_alert`;
 
---
--- Table structure for table `medex_icons`
---
-DROP TABLE IF EXISTS `medex_icons`;
-CREATE TABLE `medex_icons` (
-  `i_UID` int(11) NOT NULL AUTO_INCREMENT,
-  `msg_type` varchar(50) NOT NULL,
-  `msg_status` varchar(10) NOT NULL,
-  `i_description` varchar(255),
-  `i_html` text,
-  `i_blob` longtext,
-  PRIMARY KEY (`i_UID`)
-) ENGINE=InnoDB;
+
 
 --
 -- Dumping data for table `medex_icons`
