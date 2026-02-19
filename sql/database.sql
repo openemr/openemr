@@ -9203,18 +9203,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 --
 
 DROP TABLE IF EXISTS `track_events`;
-CREATE TABLE `track_events` (
-    `id`                  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `event_type`     TEXT,
-    `event_label`    VARCHAR(255) DEFAULT NULL,
-    `event_url`       TEXT,
-    `event_target`  TEXT,
-    `first_event`     DATETIME NULL,
-    `last_event`     DATETIME NULL,
-    `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255))
-) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';
 
 -- -----------------------------------------------------
 --
