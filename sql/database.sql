@@ -6493,33 +6493,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `ar_session`
---
 
-DROP TABLE IF EXISTS `ar_session`;
-CREATE TABLE ar_session (
-  session_id     int unsigned  NOT NULL AUTO_INCREMENT,
-  payer_id       int(11)       NOT NULL            COMMENT '0=pt else references insurance_companies.id',
-  user_id        int(11)       NOT NULL            COMMENT 'references users.id for session owner',
-  closed         tinyint(1)    NOT NULL DEFAULT 0  COMMENT '0=no, 1=yes',
-  reference      varchar(255)  NOT NULL DEFAULT '' COMMENT 'check or EOB number',
-  check_date     date          DEFAULT NULL,
-  deposit_date   date          DEFAULT NULL,
-  pay_total      decimal(12,2) NOT NULL DEFAULT 0,
-  created_time timestamp NOT NULL default CURRENT_TIMESTAMP,
-  modified_time datetime NOT NULL,
-  global_amount decimal( 12, 2 ) NOT NULL ,
-  payment_type varchar( 50 ) NOT NULL ,
-  description text,
-  adjustment_code varchar( 50 ) NOT NULL ,
-  post_to_date date NOT NULL ,
-  patient_id bigint(20) NOT NULL,
-  payment_method varchar( 25 ) NOT NULL,
-  PRIMARY KEY (session_id),
-  KEY user_closed (user_id, closed),
-  KEY deposit_date (deposit_date)
-) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
 
