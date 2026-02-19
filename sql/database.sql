@@ -184,45 +184,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `billing`
---
 
-DROP TABLE IF EXISTS `billing`;
-CREATE TABLE `billing` (
-  `id` int(11) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `code_type` varchar(15) default NULL,
-  `code` varchar(20) default NULL,
-  `pid` bigint(20) default NULL,
-  `provider_id` int(11) default NULL,
-  `user` int(11) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(1) default NULL,
-  `encounter` int(11) default NULL,
-  `code_text` longtext,
-  `billed` tinyint(1) default NULL,
-  `activity` tinyint(1) default NULL,
-  `payer_id` int(11) default NULL,
-  `bill_process` tinyint(2) NOT NULL default '0',
-  `bill_date` datetime default NULL,
-  `process_date` datetime default NULL,
-  `process_file` varchar(255) default NULL,
-  `modifier` varchar(12) default NULL,
-  `units` int(11) default NULL,
-  `fee` decimal(12,2) default NULL,
-  `justify` varchar(255) default NULL,
-  `target` varchar(30) default NULL,
-  `x12_partner_id` int(11) default NULL,
-  `ndc_info` varchar(255) default NULL,
-  `notecodes` varchar(25) NOT NULL default '',
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `pricelevel` varchar(31) default '',
-  `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
-  `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
