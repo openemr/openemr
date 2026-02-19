@@ -6507,53 +6507,7 @@ VALUES
     ('person_patient_link_method', 'import', 'Imported from External System', 40, 0, 0, 'Link created during data import'),
     ('person_patient_link_method', 'merge', 'Merged Duplicate Records', 50, 0, 0, 'Link created when merging duplicate records');
 
---
--- Table structure for table `lists`
---
 
-DROP TABLE IF EXISTS `lists`;
-CREATE TABLE `lists` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) DEFAULT NULL,
-  `date` datetime default NULL,
-  `type` varchar(255) default NULL,
-  `subtype` varchar(31) NOT NULL DEFAULT '',
-  `title` varchar(255) default NULL,
-  `udi` varchar(255) default NULL,
-  `udi_data` text,
-  `begdate` datetime default NULL,
-  `enddate` datetime default NULL,
-  `returndate` date default NULL,
-  `occurrence` int(11) default '0' COMMENT "Reference to list_options option_id='occurrence'",
-  `classification` int(11) default '0',
-  `referredby` varchar(255) default NULL,
-  `extrainfo` varchar(255) default NULL,
-  `diagnosis` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  `comments` longtext,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `outcome` int(11) NOT NULL default '0',
-  `destination` varchar(255) default NULL,
-  `reinjury_id` bigint(20)  NOT NULL DEFAULT 0,
-  `injury_part` varchar(31) NOT NULL DEFAULT '',
-  `injury_type` varchar(31) NOT NULL DEFAULT '',
-  `injury_grade` varchar(31) NOT NULL DEFAULT '',
-  `reaction` varchar(255) NOT NULL DEFAULT '',
-  `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification',
-  `external_allergyid` INT(11) DEFAULT NULL,
-  `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External',
-  `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
-  `modifydate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `severity_al` VARCHAR( 50 ) DEFAULT NULL,
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`),
-  KEY `type` (`type`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 
 -- --------------------------------------------------------
