@@ -8550,26 +8550,7 @@ DROP TABLE IF EXISTS `calendar_external`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_mag_prefs`
---
 
-DROP TABLE IF EXISTS `form_eye_mag_prefs`;
-CREATE TABLE `form_eye_mag_prefs` (
-  `PEZONE` varchar(25) DEFAULT NULL,
-  `LOCATION` varchar(25) DEFAULT NULL,
-  `LOCATION_text` varchar(25) NOT NULL,
-  `id` bigint(20) DEFAULT NULL,
-  `selection` varchar(255) DEFAULT NULL,
-  `ZONE_ORDER` int(11) DEFAULT NULL,
-  `GOVALUE` varchar(10) DEFAULT '0',
-  `ordering` smallint(6) DEFAULT NULL,
-  `FILL_ACTION` varchar(10) NOT NULL DEFAULT 'ADD',
-  `GORIGHT` varchar(50) NOT NULL,
-  `GOLEFT` varchar(50) NOT NULL,
-  `UNSPEC` varchar(50) NOT NULL,
-  UNIQUE KEY `id` (`id`,`PEZONE`,`LOCATION`,`selection`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `form_eye_mag_prefs`
