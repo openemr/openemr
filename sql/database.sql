@@ -8790,55 +8790,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_antseg`
---
 
-DROP TABLE IF EXISTS `form_eye_antseg`;
-CREATE TABLE `form_eye_antseg` (
-  `id`                   bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`                  bigint(20)   DEFAULT NULL,
-  `ODSCHIRMER1`          varchar(25) DEFAULT NULL,
-  `OSSCHIRMER1`          varchar(25) DEFAULT NULL,
-  `ODSCHIRMER2`          varchar(25) DEFAULT NULL,
-  `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
-  `ODTBUT`               varchar(25) DEFAULT NULL,
-  `OSTBUT`               varchar(25) DEFAULT NULL,
-  `OSCONJ`               varchar(25) DEFAULT NULL,
-  `ODCONJ`               text,
-  `ODCORNEA`             text,
-  `OSCORNEA`             text,
-  `ODAC`                 text,
-  `OSAC`                 text,
-  `ODLENS`               text,
-  `OSLENS`               text,
-  `ODIRIS`               text,
-  `OSIRIS`               text,
-  `PUPIL_NORMAL`         varchar(2)  DEFAULT '1',
-  `ODPUPILSIZE1`         varchar(25) DEFAULT NULL,
-  `ODPUPILSIZE2`         varchar(25) DEFAULT NULL,
-  `ODPUPILREACTIVITY`    char(25)    DEFAULT NULL,
-  `ODAPD`                varchar(25) DEFAULT NULL,
-  `OSPUPILSIZE1`         varchar(25) DEFAULT NULL,
-  `OSPUPILSIZE2`         varchar(25) DEFAULT NULL,
-  `OSPUPILREACTIVITY`    char(25)    DEFAULT NULL,
-  `OSAPD`                varchar(25) DEFAULT NULL,
-  `DIMODPUPILSIZE1`      varchar(25) DEFAULT NULL,
-  `DIMODPUPILSIZE2`      varchar(25) DEFAULT NULL,
-  `DIMODPUPILREACTIVITY` varchar(25) DEFAULT NULL,
-  `DIMOSPUPILSIZE1`      varchar(25) DEFAULT NULL,
-  `DIMOSPUPILSIZE2`      varchar(25) DEFAULT NULL,
-  `DIMOSPUPILREACTIVITY` varchar(25) DEFAULT NULL,
-  `PUPIL_COMMENTS`       text,
-  `ODKTHICKNESS`         varchar(25) DEFAULT NULL,
-  `OSKTHICKNESS`         varchar(25) DEFAULT NULL,
-  `ODGONIO`              varchar(25) DEFAULT NULL,
-  `OSGONIO`              varchar(25) DEFAULT NULL,
-  `ANTSEG_COMMENTS`      text,
-  PRIMARY KEY `antseg_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
- )
-  ENGINE = InnoDB;
 
 
 -- --------------------------------------------------------
