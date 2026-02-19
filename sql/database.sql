@@ -8389,23 +8389,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `misc_address_book`
---
 
-DROP TABLE IF EXISTS `misc_address_book`;
-CREATE TABLE `misc_address_book` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `fname` varchar(255) DEFAULT NULL,
-  `mname` varchar(255) DEFAULT NULL,
-  `lname` varchar(255) DEFAULT NULL,
-  `street` varchar(60) DEFAULT NULL,
-  `city` varchar(30) DEFAULT NULL,
-  `state` varchar(30) DEFAULT NULL,
-  `zip` varchar(20) DEFAULT NULL,
-  `phone` varchar(30) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
