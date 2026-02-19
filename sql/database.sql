@@ -1882,14 +1882,7 @@ INSERT INTO `gacl_aco_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_aro_groups_id_seq`
---
 
-DROP TABLE IF EXISTS `gacl_aro_groups_id_seq`;
-CREATE TABLE `gacl_aro_groups_id_seq` (
-  `id` int(11) NOT NULL
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `gacl_aro_groups_id_seq`
