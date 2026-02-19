@@ -1831,14 +1831,7 @@ INSERT INTO `gacl_acl_sections` VALUES (1,'system',1,'System',0),(2,'user',2,'Us
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_acl_seq`
---
 
-DROP TABLE IF EXISTS `gacl_acl_seq`;
-CREATE TABLE `gacl_acl_seq` (
-  `id` int(11) NOT NULL
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `gacl_acl_seq`
