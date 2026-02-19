@@ -8873,26 +8873,6 @@ DROP TABLE IF EXISTS `questionnaire_repository`;
 DROP TABLE IF EXISTS `questionnaire_response`;
 
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;
-CREATE TABLE `form_questionnaire_assessments` (
-  `id` bigint(21) NOT NULL AUTO_INCREMENT,
-  `date` datetime DEFAULT current_timestamp(),
-  `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
-  `pid` bigint(21) NOT NULL DEFAULT 0,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) NOT NULL DEFAULT 0,
-  `activity` tinyint(4) NOT NULL DEFAULT 1,
-  `copyright` text,
-  `form_name` varchar(255) DEFAULT NULL,
-  `response_meta` text COMMENT 'json meta data for the response resource',
-  `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository',
-  `questionnaire` longtext,
-  `questionnaire_response` longtext,
-  `lform` longtext,
-  `lform_response` longtext,
-  `category` VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `onetime_auth`;
 CREATE TABLE `onetime_auth` (
