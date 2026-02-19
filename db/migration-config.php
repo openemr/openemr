@@ -5,6 +5,8 @@ declare(strict_types=1);
 /**
  * Doctrine Migrations config file
  *
+ * This file is read by config/cli-config.php.
+ *
  * @link https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html#configuration
  *
  * @package   openemr
