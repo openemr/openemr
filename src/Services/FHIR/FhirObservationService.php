@@ -95,9 +95,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
     /**
      * Retrieves all of the fhir observation resources mapped to the underlying openemr data elements.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
