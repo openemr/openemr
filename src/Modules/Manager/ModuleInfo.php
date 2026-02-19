@@ -32,6 +32,9 @@ readonly class ModuleInfo
         return [];
     }
 
+    /**
+     * @return string[]
+     */
     public function getConfigFiles(): array
     {
         return $this->entrypoint::getConfigFiles();

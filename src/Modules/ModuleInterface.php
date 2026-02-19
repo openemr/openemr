@@ -22,6 +22,8 @@ interface ModuleInterface
     final public const ENTRYPOINT_KEY = 'openemr-module-entrypoint';
 
     // static function getAutowiredClasses(): array<class-string>?
-    /** @return string[] */
+    /**
+     * @return string[]
+     */
     public static function getConfigFiles(): array;
 }
