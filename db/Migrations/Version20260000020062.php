@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Keys table
+ */
+final class Version20260000020062 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create keys table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('keys');
+        $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
+        $table->addColumn('name', Types::STRING, ['length' => 20, 'default' => '']);
+        $table->addColumn('value', Types::TEXT);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
+        $table->addUniqueIndex(['name'], null);
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('keys');
+    }
+}

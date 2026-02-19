@@ -1320,18 +1320,7 @@ CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
     KEY `idx_health_concern` (`health_concern_id`)
 ) ENGINE=InnoDB COMMENT='Links SDOH assessments to health concern conditions';
 
---
--- Table structure for table `keys`
---
 
-DROP TABLE IF EXISTS `keys`;
-CREATE TABLE `keys` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `name` varchar(20) NOT NULL DEFAULT '',
-  `value` text,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`name`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
