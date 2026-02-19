@@ -798,19 +798,7 @@ DROP TABLE IF EXISTS `contact_relation`;
 DROP TABLE IF EXISTS `person_patient_link`;
 -- --------------------------------------------------------
 
---
--- Table structure for table `syndromic_surveillance`
---
 
-DROP TABLE IF EXISTS `syndromic_surveillance`;
-CREATE TABLE `syndromic_surveillance` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `lists_id` bigint(20) NOT NULL,
-  `submission_date` datetime NOT NULL,
-  `filename` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  KEY (`lists_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
