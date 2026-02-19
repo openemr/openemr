@@ -64,7 +64,10 @@ class DatabaseConnectionFactory
         return $conn;
     }
 
-    public static function detectConnectionPersistence(): bool
+    /**
+     * @deprecated Relies on global state; prefer explicit configuration
+     */
+    public static function detectConnectionPersistenceFromGlobalState(): bool
     {
         // If connection pooling is explicitly disabled, return false
         if (!empty($GLOBALS['connection_pooling_off'])) {
