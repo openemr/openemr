@@ -792,38 +792,6 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 DROP TABLE IF EXISTS `contact_telecom`;
 
 DROP TABLE IF EXISTS `person`;
-CREATE TABLE `person` (
-    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `uuid` BINARY(16) DEFAULT NULL,
-    `title` VARCHAR(31) DEFAULT NULL COMMENT 'Mr., Mrs., Dr., etc.',
-    `first_name` VARCHAR(63) DEFAULT NULL,
-    `middle_name` VARCHAR(63) DEFAULT NULL,
-    `last_name` VARCHAR(63) DEFAULT NULL,
-    `preferred_name` VARCHAR(63) DEFAULT NULL COMMENT 'Name person prefers to be called',
-    `gender` VARCHAR(31) DEFAULT NULL,
-    `birth_date` DATE DEFAULT NULL,
-    `death_date` DATE DEFAULT NULL,
-    `marital_status` VARCHAR(31) DEFAULT NULL,
-    `race` VARCHAR(63) DEFAULT NULL,
-    `ethnicity` VARCHAR(63) DEFAULT NULL,
-    `preferred_language` VARCHAR(63) DEFAULT NULL COMMENT 'ISO 639-1 code',
-    `communication` VARCHAR(254) DEFAULT NULL COMMENT 'Communication preferences/needs',
-    `ssn` VARCHAR(31) DEFAULT NULL COMMENT 'Should be encrypted in application',
-    `active` TINYINT(1) DEFAULT 1 COMMENT '1=active, 0=inactive',
-    `inactive_reason` VARCHAR(255) DEFAULT NULL,
-    `inactive_date` DATETIME DEFAULT NULL,
-    `notes` TEXT,
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uuid` (`uuid`),
-    KEY `idx_person_name` (`last_name`, `first_name`),
-    KEY `idx_person_dob` (`birth_date`),
-    KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
-    KEY `idx_person_active` (`active`)
-) ENGINE=InnoDB COMMENT='Core person demographics - contact info in contact_telecom';
 
 DROP TABLE IF EXISTS `contact_relation`;
 CREATE TABLE `contact_relation` (
