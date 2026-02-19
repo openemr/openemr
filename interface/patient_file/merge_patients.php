@@ -119,8 +119,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * @param [type] $colname    the column used for the query.
          * @param [type] $source_pid the source patient id.
          * @param [type] $target_pid the target patient id.
-         *
-         * @return voidd
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {

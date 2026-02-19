@@ -119,8 +119,6 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Retrieves all of the fhir observation resources mapped to the underlying openemr data elements.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @return processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {

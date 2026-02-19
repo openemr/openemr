@@ -321,8 +321,7 @@ function pnModDBInfoLoad($modname, $directory = '')
  * load a module
  * @param name - name of module to load
  * @param type - type of functions to load
- * @returns string
- * @return name of module loaded, or false on failure
+ * @return string|false|null name of module loaded, or false on failure
  */
 function pnModLoad($modname, $type = 'user')
 {

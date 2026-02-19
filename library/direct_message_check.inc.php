@@ -516,11 +516,8 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 
 /**
  * Read a blob of data into a local temporary file
- *
- * @param $len number of bytes to read
- * @return the temp filename, or FALSE if failure
  */
-function phimail_read_blob($fp, $len)
+function phimail_read_blob($fp, $len): string|false
 {
 
     $fpath = $GLOBALS['temporary_files_dir'];

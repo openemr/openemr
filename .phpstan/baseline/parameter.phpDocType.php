@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPreParseEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$acceptedList with type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$menu with type mixed is not subtype of native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
