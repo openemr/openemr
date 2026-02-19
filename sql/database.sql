@@ -806,19 +806,7 @@ DROP TABLE IF EXISTS `person_patient_link`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `dated_reminders_link`
---
 
-DROP TABLE IF EXISTS `dated_reminders_link`;
-CREATE TABLE `dated_reminders_link` (
-  `dr_link_id` int(11) NOT NULL AUTO_INCREMENT,
-  `dr_id` int(11) NOT NULL,
-  `to_id` int(11) NOT NULL,
-  PRIMARY KEY (`dr_link_id`),
-  KEY `to_id` (`to_id`),
-  KEY `dr_id` (`dr_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
