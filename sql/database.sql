@@ -2400,20 +2400,7 @@ CREATE TABLE `keys` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `lang_definitions`
---
 
-DROP TABLE IF EXISTS `lang_definitions`;
-CREATE TABLE `lang_definitions` (
-  `def_id` int(11) NOT NULL auto_increment,
-  `cons_id` int(11) NOT NULL default '0',
-  `lang_id` int(11) NOT NULL default '0',
-  `definition` mediumtext,
-  UNIQUE KEY `def_id` (`def_id`),
-  KEY `cons_id` (`cons_id`),
-  KEY `lang_cons` (`lang_id`, `cons_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
