@@ -1932,16 +1932,7 @@ INSERT INTO `gacl_aro_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_axo_groups_map`
---
 
-DROP TABLE IF EXISTS `gacl_axo_groups_map`;
-CREATE TABLE `gacl_axo_groups_map` (
-  `acl_id` int(11) NOT NULL DEFAULT 0,
-  `group_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`acl_id`,`group_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
