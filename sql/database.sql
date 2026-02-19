@@ -6533,30 +6533,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `procedure_order_code`
---
 
-DROP TABLE IF EXISTS `procedure_order_code`;
-CREATE TABLE `procedure_order_code` (
-  `procedure_order_id`      bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
-  `procedure_order_seq`     int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
-  `procedure_code`          varchar(64) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
-  `procedure_name`          varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
-  `procedure_source`        char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
-  `diagnoses`               text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
-  `do_not_send`             tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
-  `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
-  `procedure_type`          varchar(31) DEFAULT NULL,
-  `transport`               varchar(31) DEFAULT NULL,
-  `date_end` datetime DEFAULT NULL,
-  `reason_code` varchar(31) DEFAULT NULL,
-  `reason_description` text,
-  `reason_date_low` datetime DEFAULT NULL,
-  `reason_date_high` datetime DEFAULT NULL,
-  `reason_status` varchar(31) DEFAULT NULL,
-  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
-) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
 
