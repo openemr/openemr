@@ -5352,25 +5352,6 @@ VALUES
 
 -- --------------------------------------------------------
 DROP TABLE IF EXISTS `lists_medication`;
-CREATE TABLE `lists_medication` (
-    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
-    , `list_id` BIGINT(20) NULL COMMENT 'FK Reference to lists.id'
-    , `drug_dosage_instructions` LONGTEXT COMMENT 'Free text dosage instructions for taking the drug'
-    , `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category'
-    , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
-    , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
-    , `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent'
-    , `medication_adherence_information_source` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence_information_source to indicate who provided the medication adherence information'
-    , `medication_adherence` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen'
-    , `medication_adherence_date_asserted` DATETIME DEFAULT NULL COMMENT 'Date when the medication adherence information was asserted'
-    , `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record'
-    , `is_primary_record` TINYINT(1) DEFAULT '1' COMMENT 'Indicates if this medication is a primary record(1) or a reported record(0)'
-    , `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by'
-    , PRIMARY KEY (`id`)
-    , INDEX `lists_med_usage_category_idx`(`usage_category`)
-    , INDEX `lists_med_request_intent_idx`(`request_intent`)
-    , INDEX `lists_medication_list_idx` (`list_id`)
-) ENGINE = InnoDB COMMENT = 'Holds additional data about patient medications.';
 
 -- --------------------------------------------------------
 
