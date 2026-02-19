@@ -6915,36 +6915,7 @@ INSERT INTO `openemr_modules` VALUES (46, 'PostCalendar', 2, 'PostCalendar', 'Po
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `openemr_postcalendar_categories`
---
 
-DROP TABLE IF EXISTS `openemr_postcalendar_categories`;
-CREATE TABLE `openemr_postcalendar_categories` (
-  `pc_catid` int(11) unsigned NOT NULL auto_increment,
-  `pc_constant_id` VARCHAR (255) default NULL,
-  `pc_catname` varchar(100) default NULL,
-  `pc_catcolor` varchar(50) default NULL,
-  `pc_catdesc` text,
-  `pc_recurrtype` int(1) NOT NULL default '0',
-  `pc_enddate` date default NULL,
-  `pc_recurrspec` text,
-  `pc_recurrfreq` int(3) NOT NULL default '0',
-  `pc_duration` bigint(20) NOT NULL default '0',
-  `pc_end_date_flag` tinyint(1) NOT NULL default '0',
-  `pc_end_date_type` int(2) default NULL,
-  `pc_end_date_freq` int(11) NOT NULL default '0',
-  `pc_end_all_day` tinyint(1) NOT NULL default '0',
-  `pc_dailylimit` int(2) NOT NULL default '0',
-  `pc_cattype` INT( 11 ) NOT NULL COMMENT 'Used in grouping categories',
-  `pc_active` tinyint(1) NOT NULL default 1,
-  `pc_seq` int(11) NOT NULL default '0',
-  `aco_spec` VARCHAR(63) NOT NULL default 'encounters|notes',
-  `pc_last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`pc_catid`),
-  UNIQUE KEY (`pc_constant_id`),
-  KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) ENGINE=InnoDB AUTO_INCREMENT=11;
 
 --
 -- Inserting data for table `openemr_postcalendar_categories`
