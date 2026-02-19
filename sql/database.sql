@@ -814,53 +814,7 @@ DROP TABLE IF EXISTS `person_patient_link`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `documents`
---
 
-DROP TABLE IF EXISTS `documents`;
-CREATE TABLE `documents` (
-  `id` int(11) NOT NULL default '0',
-  `uuid` binary(16) DEFAULT NULL,
-  `type` enum('file_url','blob','web_url') default NULL,
-  `size` int(11) default NULL,
-  `date` datetime default NULL,
-  `date_expires` datetime default NULL,
-  `url` varchar(255) default NULL,
-  `thumb_url` varchar(255) default NULL,
-  `mimetype` varchar(255) default NULL,
-  `pages` int(11) default NULL,
-  `owner` int(11) default NULL,
-  `revision` timestamp NOT NULL,
-  `foreign_id` bigint(20) default NULL,
-  `docdate` date default NULL,
-  `hash` varchar(255) DEFAULT NULL,
-  `list_id` bigint(20) NOT NULL default '0',
-  `name` varchar(255) DEFAULT NULL,
-  `drive_uuid` binary(16) DEFAULT NULL,
-  `couch_docid` VARCHAR(100) DEFAULT NULL,
-  `couch_revid` VARCHAR(100) DEFAULT NULL,
-  `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
-  `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
-  `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing',
-  `encounter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Encounter id if tagged',
-  `encounter_check` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging',
-  `audit_master_approval_status` TINYINT NOT NULL DEFAULT 1 COMMENT 'approval_status from audit_master table',
-  `audit_master_id` int(11) default NULL,
-  `documentationOf` varchar(255) DEFAULT NULL,
-  `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
-  `document_data` MEDIUMTEXT,
-  `deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `foreign_reference_id` bigint(20) default NULL,
-  `foreign_reference_table` VARCHAR(40) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `drive_uuid` (`drive_uuid`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `revision` (`revision`),
-  KEY `foreign_id` (`foreign_id`),
-  KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
-  KEY `owner` (`owner`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
