@@ -8810,26 +8810,6 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 DROP TABLE IF EXISTS `login_mfa_registrations`;
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
-CREATE TABLE `benefit_eligibility` (
-    `response_id` bigint(20) NOT NULL,
-    `verification_id` bigint(20) NOT NULL,
-    `type` varchar(4) DEFAULT NULL,
-    `benefit_type` varchar(255) DEFAULT NULL,
-    `start_date` date DEFAULT NULL,
-    `end_date` date DEFAULT NULL,
-    `coverage_level` varchar(255) DEFAULT NULL,
-    `coverage_type` varchar(512) DEFAULT NULL,
-    `plan_type` varchar(255) DEFAULT NULL,
-    `plan_description` varchar(255) DEFAULT NULL,
-    `coverage_period` varchar(255) DEFAULT NULL,
-    `amount` decimal(5,2) DEFAULT NULL,
-    `percent` decimal(3,2) DEFAULT NULL,
-    `network_ind` varchar(2) DEFAULT NULL,
-    `message` varchar(512) DEFAULT NULL,
-    `response_status` enum('A','D') DEFAULT 'A',
-    `response_create_date` date DEFAULT NULL,
-    `response_modify_date` date DEFAULT NULL
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `oauth_clients`;
 CREATE TABLE `oauth_clients` (
