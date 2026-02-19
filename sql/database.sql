@@ -8812,34 +8812,6 @@ DROP TABLE IF EXISTS `login_mfa_registrations`;
 DROP TABLE IF EXISTS `benefit_eligibility`;
 
 DROP TABLE IF EXISTS `oauth_clients`;
-CREATE TABLE `oauth_clients` (
-`client_id` varchar(80) NOT NULL,
-`client_role` varchar(20) DEFAULT NULL,
-`client_name` varchar(80) NOT NULL,
-`client_secret` text,
-`registration_token` varchar(80) DEFAULT NULL,
-`registration_uri_path` varchar(40) DEFAULT NULL,
-`register_date` datetime DEFAULT NULL,
-`revoke_date` datetime DEFAULT NULL,
-`contacts` text,
-`redirect_uri` text,
-`grant_types` varchar(80) DEFAULT NULL,
-`scope` text,
-`user_id` varchar(40) DEFAULT NULL,
-`site_id` varchar(64) DEFAULT NULL,
-`is_confidential` tinyint(1) NOT NULL DEFAULT '1',
-`logout_redirect_uris` text,
-`jwks_uri` text,
-`jwks` text,
-`initiate_login_uri` text,
-`endorsements` text,
-`policy_uri` text,
-`tos_uri` text,
-`is_enabled` tinyint(1) NOT NULL DEFAULT '0',
-`skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
-`dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive',
-PRIMARY KEY (`client_id`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `oauth_trusted_user`;
 CREATE TABLE `oauth_trusted_user` (

@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Oauth clients table
+ */
+final class Version20260000020187 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create oauth_clients table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('oauth_clients');
+        $table->addColumn('client_id', Types::STRING, ['length' => 80]);
+        $table->addColumn('client_role', Types::STRING, [
+            'length' => 20,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('client_name', Types::STRING, ['length' => 80]);
+        $table->addColumn('client_secret', Types::TEXT);
+        $table->addColumn('registration_token', Types::STRING, [
+            'length' => 80,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('registration_uri_path', Types::STRING, [
+            'length' => 40,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('register_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('revoke_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('contacts', Types::TEXT);
+        $table->addColumn('redirect_uri', Types::TEXT);
+        $table->addColumn('grant_types', Types::STRING, [
+            'length' => 80,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('scope', Types::TEXT);
+        $table->addColumn('user_id', Types::STRING, [
+            'length' => 40,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('site_id', Types::STRING, [
+            'length' => 64,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('is_confidential', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('logout_redirect_uris', Types::TEXT);
+        $table->addColumn('jwks_uri', Types::TEXT);
+        $table->addColumn('jwks', Types::TEXT);
+        $table->addColumn('initiate_login_uri', Types::TEXT);
+        $table->addColumn('endorsements', Types::TEXT);
+        $table->addColumn('policy_uri', Types::TEXT);
+        $table->addColumn('tos_uri', Types::TEXT);
+        $table->addColumn('is_enabled', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('skip_ehr_launch_authorization_flow', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('dsi_type', Types::SMALLINT, [
+            'unsigned' => true,
+            'default' => 1,
+            'comment' => '0=none, 1=evidence-based,2=predictive',
+        ]);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('client_id')
+                ->create()
+        );
+
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('oauth_clients');
+    }
+}
