@@ -42,9 +42,8 @@ function js_escape_protected($text, string $protected = '\r\n')
  * Escape a javascript literal within html onclick attribute.
  *
  * @param string $text
- * @return string
  */
-function attr_js($text)
+function attr_js($text): string
 {
     return attr(json_encode($text));
 }
@@ -53,9 +52,8 @@ function attr_js($text)
  * Escape html and url encode a url item.
  *
  * @param string $text
- * @return string
  */
-function attr_url($text)
+function attr_url($text): string
 {
     return attr(urlencode($text ?? ''));
 }
@@ -75,9 +73,8 @@ function js_url($text)
  * Escape variables that are outputted into the php error log.
  *
  * @param string $text
- * @return string
  */
-function errorLogEscape($text)
+function errorLogEscape($text): string
 {
     return attr($text);
 }
@@ -93,7 +90,7 @@ function errorLogEscape($text)
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
  */
-function csvEscape($text)
+function csvEscape($text): string
 {
     // 1. Remove all the following characters:  = + " |
     $text = preg_replace('/[=+"|]/', '', $text ?? '');
@@ -116,7 +113,7 @@ function csvEscape($text)
  * Escapes & < > ' "
  * TODO: not sure if need to escape ' and ", which are escaping for now (via the ENT_QUOTES flag)
  */
-function xmlEscape($text)
+function xmlEscape($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_XML1 | ENT_QUOTES);
 }
@@ -165,7 +162,7 @@ function javascriptStringCheck(?string $text): bool
  *                     or ">".
  * @return string The string, with "&", "<", and ">" escaped.
  */
-function text($text)
+function text($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
 }
@@ -221,9 +218,8 @@ function textArray(array $arr, $depth = 0)
  * XML documents.
  *
  * @param string $text The string to escape
- * @return string
  */
-function attr($text)
+function attr($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_QUOTES);
 }
