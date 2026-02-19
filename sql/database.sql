@@ -1963,17 +1963,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `groups`
---
 
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE `groups` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `name` longtext,
-  `user` longtext,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
