@@ -6513,19 +6513,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `gprelations`
---
 
-DROP TABLE IF EXISTS `gprelations`;
-CREATE TABLE gprelations (
-  type1 int(2)     NOT NULL,
-  id1   bigint(20) NOT NULL,
-  type2 int(2)     NOT NULL,
-  id2   bigint(20) NOT NULL,
-  PRIMARY KEY (type1,id1,type2,id2),
-  KEY key2  (type2,id2)
-) ENGINE=InnoDB COMMENT='general purpose relations';
 
 -- -----------------------------------------------------------------------------------
 
