@@ -64,6 +64,15 @@ class DatabaseConnectionFactory
         return $conn;
     }
 
+    public static function detectConnectionPersistence(): bool
+    {
+        // Ick. Moved from existing systems
+        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+            return true;
+        }
+        return false;
+    }
+
     private static function loadAdodbClasses(): void
     {
         $root = dirname(__DIR__, 2);
