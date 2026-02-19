@@ -3,6 +3,7 @@
 
 declare(strict_types=1);
 
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\{
     Application,
     CommandLoader\ContainerCommandLoader,
@@ -22,6 +23,7 @@ foreach ($mm->getEnabledModules() as $moduleInfo) {
 
 
 $container = require 'di.php';
+assert($container instanceof ContainerInterface);
 
 $loader = new ContainerCommandLoader($container, $commandMap);
 
