@@ -8615,17 +8615,6 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 --
 
 DROP TABLE IF EXISTS `product_registration`;
-CREATE TABLE `product_registration` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(255) NULL,
-    `opt_out` TINYINT(1) NULL,
-    `auth_by_id` INT(11) NULL,
-    `telemetry_disabled` TINYINT(1) NULL COMMENT '1 opted out, disabled. NULL ask. 0 use option scopes',
-    `last_ask_date` DATETIME NULL,
-    `last_ask_version`TINYTEXT,
-    `options` TEXT COMMENT 'JSON array of scope options',
-  PRIMARY KEY (id)
-) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------
 
