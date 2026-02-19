@@ -1845,17 +1845,7 @@ INSERT INTO `gacl_acl_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_aco_map`
---
 
-DROP TABLE IF EXISTS `gacl_aco_map`;
-CREATE TABLE `gacl_aco_map` (
-  `acl_id` int(11) NOT NULL DEFAULT 0,
-  `section_value` varchar(150) NOT NULL DEFAULT '0',
-  `value` varchar(150) NOT NULL,
-  PRIMARY KEY (`acl_id`,`section_value`,`value`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
