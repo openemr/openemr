@@ -22,6 +22,50 @@ require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Forms\EyeMag\RxType;
+use OpenEMR\Forms\EyeMag\RefType;
+
+/**
+ * Standard refraction field names (without prefix).
+ */
+const REFRACTION_FIELDS = ['ODSPH', 'ODAXIS', 'ODCYL', 'ODPRISM', 'OSSPH', 'OSCYL', 'OSAXIS', 'OSPRISM'];
+
+/**
+ * Extract refraction data based on RefType enum.
+ *
+ * @param RefType $refType Refraction type enum
+ * @param array   $data    Source data array from database
+ * @return array Extracted refraction values as variable name => value
+ */
+function extractRefractionData(RefType $refType, array $data): array
+{
+    $prefix = $refType->columnPrefix();
+
+    // Build standard refraction fields from field names
+    $result = array_combine(
+        REFRACTION_FIELDS,
+        array_map(fn($f) => $data[$prefix . $f] ?? null, REFRACTION_FIELDS)
+    );
+    $result['COMMENTS'] = $data[$refType->commentsField()] ?? null;
+
+    // Add extra fields specific to this reftype
+    foreach ($refType->extraFields() as $targetField => $sourceField) {
+        $result[$targetField] = $data[$sourceField] ?? null;
+    }
+
+    // Set default checked radio button
+    $defaultRxType = $refType->defaultRxType();
+    if ($defaultRxType !== null) {
+        $result[$defaultRxType->name] = "checked='checked'";
+    }
+
+    // CTL manufacturer lookups
+    foreach ($refType->manufacturerFields() as $field) {
+        $result[$field] = getListItemTitle('CTLManufacturer', $data[$field] ?? '');
+    }
+
+    return $result;
+}
 
 $facilityService = new FacilityService();
 
@@ -38,30 +82,31 @@ if (!$_REQUEST['pid']) {
     $_REQUEST['pid'] = $_SESSION['pid'];
 }
 
-$query = "select  *,form_encounter.date as encounter_date
-               from forms,form_encounter,form_eye_base,
-                form_eye_hpi,form_eye_ros,form_eye_vitals,
-                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
-                form_eye_external, form_eye_antseg,form_eye_postseg,
-                form_eye_neuro,form_eye_locking
-                    where
-                    forms.deleted != '1'  and
-                    forms.formdir='eye_mag' and
-                    forms.encounter=form_encounter.encounter  and
-                    forms.form_id=form_eye_base.id and
-                    forms.form_id=form_eye_hpi.id and
-                    forms.form_id=form_eye_ros.id and
-                    forms.form_id=form_eye_vitals.id and
-                    forms.form_id=form_eye_acuity.id and
-                    forms.form_id=form_eye_refraction.id and
-                    forms.form_id=form_eye_biometrics.id and
-                    forms.form_id=form_eye_external.id and
-                    forms.form_id=form_eye_antseg.id and
-                    forms.form_id=form_eye_postseg.id and
-                    forms.form_id=form_eye_neuro.id and
-                    forms.form_id=form_eye_locking.id and
-                    forms.encounter=? and
-                    forms.pid=? ";
+$query = <<<'SQL'
+    SELECT *, form_encounter.date AS encounter_date
+    FROM forms, form_encounter, form_eye_base,
+         form_eye_hpi, form_eye_ros, form_eye_vitals,
+         form_eye_acuity, form_eye_refraction, form_eye_biometrics,
+         form_eye_external, form_eye_antseg, form_eye_postseg,
+         form_eye_neuro, form_eye_locking
+    WHERE forms.deleted != '1'
+      AND forms.formdir = 'eye_mag'
+      AND forms.encounter = form_encounter.encounter
+      AND forms.form_id = form_eye_base.id
+      AND forms.form_id = form_eye_hpi.id
+      AND forms.form_id = form_eye_ros.id
+      AND forms.form_id = form_eye_vitals.id
+      AND forms.form_id = form_eye_acuity.id
+      AND forms.form_id = form_eye_refraction.id
+      AND forms.form_id = form_eye_biometrics.id
+      AND forms.form_id = form_eye_external.id
+      AND forms.form_id = form_eye_antseg.id
+      AND forms.form_id = form_eye_postseg.id
+      AND forms.form_id = form_eye_neuro.id
+      AND forms.form_id = form_eye_locking.id
+      AND forms.encounter = ?
+      AND forms.pid = ?
+    SQL;
 
     $data = sqlQuery($query, [$_REQUEST['encounter'], $_REQUEST['pid']]);
     $data['ODMPDD'] = $data['ODPDMeasured'];
@@ -121,26 +166,17 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
     formHeader("OpenEMR Eye: " . text($prov_data['facility']));
 
 if ($_REQUEST['REFTYPE']) {
-    $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") {
-        $RXTYPE = "Bifocal";
-    }
+    $refType = RefType::tryFrom($_REQUEST['REFTYPE']);
+    $REFTYPE = $_REQUEST['REFTYPE']; // Keep string for form fields
 
-    if ($REFTYPE == "MR") {
-        $RXTYPE = "Bifocal";
-    }
-
-    if ($REFTYPE == "CTL") {
-        $RXTYPE = "Bifocal";
-    }
+    // Set default RXTYPE from enum
+    $RXTYPE = $refType?->defaultRxType()?->name;
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
     $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
 
-
-
-    if ($REFTYPE == "W") {
+    if ($refType === RefType::W) {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
         $wear = sqlStatement($query, [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']]);
@@ -157,86 +193,15 @@ if ($_REQUEST['REFTYPE']) {
         $OSMIDADD = $wearing['OSMIDADD'];
         $OSADD2 = $wearing['OSADD'];
         @extract($wearing);
-        if ($wearing['RX_TYPE'] == '0') {
-            $Single = "checked='checked'";
-            $RXTYPE = "Single";
-        } elseif ($wearing['RX_TYPE'] == '1') {
-            $Bifocal = "checked='checked'";
-            $RXTYPE = "Bifocal";
-        } elseif ($wearing['RX_TYPE'] == '2') {
-            $Trifocal = "checked='checked'";
-            $RXTYPE = "Trifocal";
-        } elseif ($wearing['RX_TYPE'] == '3') {
-            $Progressive = "checked='checked'";
-            $RXTYPE = "Progressive";
-        }
+
+        // Map RX_TYPE numeric value to name and set checked flag
+        $RXTYPE = RxType::tryFrom($wearing['RX_TYPE'])?->name ?? 'Single';
+        ${$RXTYPE} = "checked='checked'";
 
         //do LT and Lens materials
-    } elseif ($REFTYPE == "AR") {
-        $ODSPH      = $data['ARODSPH'];
-        $ODAXIS     = $data['ARODAXIS'];
-        $ODCYL      = $data['ARODCYL'];
-        $ODPRISM    = $data['ARODPRISM'];
-        $OSSPH      = $data['AROSSPH'];
-        $OSCYL      = $data['AROSCYL'];
-        $OSAXIS     = $data['AROSAXIS'];
-        $OSPRISM    = $data['AROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['ARODADD'];
-        $OSADD2     = $data['AROSADD'];
-        $Bifocal    = "checked='checked'";
-    } elseif ($REFTYPE == "MR") {
-        $ODSPH      = $data['MRODSPH'];
-        $ODAXIS     = $data['MRODAXIS'];
-        $ODCYL      = $data['MRODCYL'];
-        $ODPRISM    = $data['MRODPRISM'];
-        $OSSPH      = $data['MROSSPH'];
-        $OSCYL      = $data['MROSCYL'];
-        $OSAXIS     = $data['MROSAXIS'];
-        $OSPRISM    = $data['MROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['MRODADD'];
-        $OSADD2     = $data['MROSADD'];
-        $Bifocal    = "checked='checked'";
-    } elseif ($REFTYPE == "CR") {
-        $ODSPH      = $data['CRODSPH'];
-        $ODAXIS     = $data['CRODAXIS'];
-        $ODCYL      = $data['CRODCYL'];
-        $ODPRISM    = $data['CRODPRISM'];
-        $OSSPH      = $data['CROSSPH'];
-        $OSCYL      = $data['CROSCYL'];
-        $OSAXIS     = $data['CROSAXIS'];
-        $OSPRISM    = $data['CROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-    } elseif ($REFTYPE == "CTL") {
-        $ODSPH      = $data['CTLODSPH'];
-        $ODAXIS     = $data['CTLODAXIS'];
-        $ODCYL      = $data['CTLODCYL'];
-        $ODPRISM    = $data['CTLODPRISM'];
-
-        $OSSPH      = $data['CTLOSSPH'];
-        $OSCYL      = $data['CTLOSCYL'];
-        $OSAXIS     = $data['CTLOSAXIS'];
-        $OSPRISM    = $data['CTLOSPRISM'];
-
-        $ODBC       = $data['CTLODBC'];
-        $ODDIAM     = $data['CTLODDIAM'];
-        $ODADD      = $data['CTLODADD'];
-        $ODVA       = $data['CTLODVA'];
-
-        $OSBC       = $data['CTLOSBC'];
-        $OSDIAM     = $data['CTLOSDIAM'];
-        $OSADD      = $data['CTLOSADD'];
-        $OSVA       = $data['CTLOSVA'];
-
-        $COMMENTS   = $data['COMMENTS'];//in form_eye_mag_dispense there is no leading 'CTL_'
-
-        $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
-        $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
-        $CTLSUPPLIEROD      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROD']);
-        $CTLSUPPLIEROS      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROS']);
-        $CTLBRANDOD         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOD']);
-        $CTLBRANDOS         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOS']);
+    } elseif ($refType !== null) {
+        // Use enum-driven extraction for AR, MR, CR, CTL
+        extract(extractRefractionData($refType, $data));
     }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now
@@ -396,32 +361,18 @@ if ($_REQUEST['dispensed'] ?? '') {
             <?php
             while ($row = sqlFetchArray($dispensed)) {
                 $i++;
-                $Single = '';
-                $Bifocal = '';
-                $Trifocal = '';
-                $Progressive = '';
-                if ($row['RXTYPE'] == "Single") {
-                    $Single = "checked='checked'";
-                }
+                $rowRefType = RefType::tryFrom($row['REFTYPE']);
+                $rowRxType = RxType::tryFrom($row['RXTYPE']);
 
-                if ($row['RXTYPE'] == "Bifocal") {
-                    $Bifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Trifocal") {
-                    $Trifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Progressive") {
-                    $Progressive = "checked='checked'";
+                // Set checked flag for the matching RX type
+                $Single = $Bifocal = $Trifocal = $Progressive = '';
+                if ($rowRxType !== null) {
+                    ${$rowRxType->name} = "checked='checked'";
                 }
 
                 $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
-                if ($row['REFTYPE'] == "CTL") {
-                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
-                } else {
-                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
-                }
+                $expir_offset = $rowRefType?->isContactLens() ? $CTL_expir : $RX_expir;
+                $expir = date("Y-m-d", strtotime($expir_offset, strtotime((string) $row['REFDATE'])));
                 $expir_date = oeFormatShortDate($expir);
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
 
@@ -454,25 +405,16 @@ if ($_REQUEST['dispensed'] ?? '') {
                                 <tr>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('Refraction Method'); ?>:</td>
                                     <td>&nbsp;&nbsp;<?php
-                                    if ($row['REFTYPE'] == "W") {
-                                        echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                                    } elseif ($row['REFTYPE'] == "CR") {
-                                        echo xlt('Cycloplegic (Wet) Refraction');
-                                    } elseif ($row['REFTYPE'] == "MR") {
-                                        echo xlt('Manifest (Dry) Refraction');
-                                    } elseif ($row['REFTYPE'] == "AR") {
-                                        echo xlt('Auto-Refraction');
-                                    } elseif ($row['REFTYPE'] == "CTL") {
-                                        echo xlt('Contact Lens');
-                                    } else {
-                                        echo $row['REFTYPE'];
-                                    } ?>
+                                        echo $rowRefType !== null
+                                            ? $rowRefType->displayName()
+                                            : text($row['REFTYPE']);
+                                    ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="text-center"> <?php
-                                    if ($row['REFTYPE'] != "CTL") { ?>
+                                    if (!$rowRefType?->isContactLens()) { ?>
                                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                                     <tr class="font-weight-bold">
                                                         <td></td>
@@ -890,12 +832,9 @@ if ($_REQUEST['dispensed'] ?? '') {
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
-if ($REFTYPE == "CTL") {
-    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
-} else {
-    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
-}
-    $expir_date = oeFormatShortDate($expir);
+$expir_offset = $refType?->isContactLens() ? $CTL_expir : $RX_expir;
+$expir = date("Y-m-d", strtotime($expir_offset, strtotime((string) $data['date'])));
+$expir_date = oeFormatShortDate($expir);
 ?>
 <p><span class="font-weight-bold"><?php echo xlt('Expiration Date'); ?>: </span>
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
@@ -916,7 +855,7 @@ if ($REFTYPE == "CTL") {
             <tr>
                 <td>
                     <?php
-                    if ($REFTYPE != "CTL") { ?>
+                    if (!$refType?->isContactLens()) { ?>
                             <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
                                    style="min-width:610px;top:0px;">
                                 <tr class="font-weight-bold text-center">
