@@ -1809,45 +1809,7 @@ CREATE TABLE `form_clinical_notes` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_vitals`
---
 
-DROP TABLE IF EXISTS `form_vitals`;
-CREATE TABLE `form_vitals` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `uuid` BINARY(16) DEFAULT NULL,
-  `date` datetime default NULL,
-  `pid` bigint(20) default '0',
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default '0',
-  `activity` tinyint(4) default '0',
-  `bps` varchar(40) default NULL,
-  `bpd` varchar(40) default NULL,
-  `weight` DECIMAL(12,6) default '0.00',
-  `height` DECIMAL(12,6) default '0.00',
-  `temperature` DECIMAL(12,6) default '0.00',
-  `temp_method` varchar(255) default NULL,
-  `pulse` DECIMAL(12,6) default '0.00',
-  `respiration` DECIMAL(12,6) default '0.00',
-  `note` varchar(255) default NULL,
-  `BMI` DECIMAL(12,6) default '0.0',
-  `BMI_status` varchar(255) default NULL,
-  `waist_circ` DECIMAL(12,6) default '0.00',
-  `head_circ` DECIMAL(12,6) default '0.00',
-  `oxygen_saturation` DECIMAL(6,2) default '0.00',
-  `oxygen_flow_rate` DECIMAL(12,6) default '0.00',
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `ped_weight_height` DECIMAL(6,2) default '0.00',
-  `ped_bmi` DECIMAL(6,2) default '0.00',
-  `ped_head_circ` DECIMAL(6,2) default '0.00',
-  `inhaled_oxygen_concentration` DECIMAL(6,2) DEFAULT '0.00',
-  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
