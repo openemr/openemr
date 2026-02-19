@@ -6905,25 +6905,7 @@ INSERT INTO `openemr_module_vars` VALUES (216, 'PostCalendar', 'pcTime24Hours', 
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `openemr_modules`
---
 
-DROP TABLE IF EXISTS `openemr_modules`;
-CREATE TABLE `openemr_modules` (
-  `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_name` varchar(64) default NULL,
-  `pn_type` int(6) NOT NULL default '0',
-  `pn_displayname` varchar(64) default NULL,
-  `pn_description` varchar(255) default NULL,
-  `pn_regid` int(11) unsigned NOT NULL default '0',
-  `pn_directory` varchar(64) default NULL,
-  `pn_version` varchar(10) default NULL,
-  `pn_admin_capable` tinyint(1) NOT NULL default '0',
-  `pn_user_capable` tinyint(1) NOT NULL default '0',
-  `pn_state` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`pn_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47;
 
 --
 -- Inserting data for table `openemr_modules`
