@@ -5558,27 +5558,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `patient_tracker`
---
 
-DROP TABLE IF EXISTS `patient_tracker`;
-CREATE TABLE `patient_tracker` (
-  `id`                     bigint(20)   NOT NULL auto_increment,
-  `date`                   datetime     DEFAULT NULL,
-  `apptdate`               date         DEFAULT NULL,
-  `appttime`               time         DEFAULT NULL,
-  `eid`                    bigint(20)   NOT NULL default '0',
-  `pid`                    bigint(20)   NOT NULL default '0',
-  `original_user`          varchar(255) NOT NULL default '' COMMENT 'This is the user that created the original record',
-  `encounter`              bigint(20)   NOT NULL default '0',
-  `lastseq`                varchar(4)   NOT NULL default '' COMMENT 'The element file should contain this number of elements',
-  `random_drug_test`       TINYINT(1)   DEFAULT NULL COMMENT 'NULL if not randomized. If randomized, 0 is no, 1 is yes',
-  `drug_screen_completed`  TINYINT(1)   NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY (`eid`),
-  KEY (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 --
 -- Table structure for table `patient_tracker_element`
