@@ -6501,18 +6501,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `users_facility`
---
 
-DROP TABLE IF EXISTS `users_facility`;
-CREATE TABLE `users_facility` (
-  `tablename` varchar(64) NOT NULL,
-  `table_id` int(11) NOT NULL,
-  `facility_id` int(11) NOT NULL,
-  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
-  PRIMARY KEY (`tablename`,`table_id`,`facility_id`,`warehouse_id`)
-) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
 
 -- -----------------------------------------------------------------------------------
 
