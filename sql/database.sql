@@ -1182,23 +1182,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd9_sg_code`
---
 
-DROP TABLE IF EXISTS `icd9_sg_code`;
-CREATE TABLE `icd9_sg_code` (
-  `sg_id` SERIAL,
-  `sg_code`             varchar(5),
-  `formatted_sg_code`   varchar(6),
-  `short_desc`          varchar(60),
-  `long_desc`           varchar(300),
-  `active` tinyint default 0,
-  `revision` int default 0,
-  KEY `sg_code` (`sg_code`),
-  KEY `formatted_sg_code` (`formatted_sg_code`),
-  KEY `active` (`active`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
