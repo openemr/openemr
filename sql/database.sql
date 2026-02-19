@@ -8131,22 +8131,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `transactions`
---
 
-DROP TABLE IF EXISTS `transactions`;
-CREATE TABLE `transactions` (
-  `id`                      bigint(20)   NOT NULL auto_increment,
-  `date`                    datetime     default NULL,
-  `title`                   varchar(255) NOT NULL DEFAULT '',
-  `pid`                     bigint(20)   default NULL,
-  `user`                    varchar(255) NOT NULL DEFAULT '',
-  `groupname`               varchar(255) NOT NULL DEFAULT '',
-  `authorized`              tinyint(4)   default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
