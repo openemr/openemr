@@ -2230,30 +2230,7 @@ CREATE TABLE `immunizations` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `insurance_companies`
---
 
-DROP TABLE IF EXISTS `insurance_companies`;
-CREATE TABLE `insurance_companies` (
-  `id` int(11) NOT NULL default '0',
-  `uuid` binary(16)   DEFAULT NULL,
-  `name` varchar(255) default NULL,
-  `attn` varchar(255) default NULL,
-  `cms_id` varchar(15) default NULL,
-  `ins_type_code` int(11) default NULL,
-  `x12_receiver_id` varchar(25) default NULL,
-  `x12_default_partner_id` int(11) default NULL,
-  `alt_cms_id` varchar(15) default NULL,
-  `inactive` tinyint(1) NOT NULL DEFAULT '0',
-  `eligibility_id` VARCHAR(32) default NULL,
-  `x12_default_eligibility_id` INT(11) default NULL,
-  `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs',
-  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
