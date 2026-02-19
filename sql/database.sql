@@ -8877,12 +8877,6 @@ DROP TABLE IF EXISTS `form_questionnaire_assessments`;
 DROP TABLE IF EXISTS `onetime_auth`;
 
 DROP TABLE IF EXISTS `patient_settings`;
-CREATE TABLE `patient_settings` (
-     `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
-     `setting_label` varchar(100)  NOT NULL,
-     `setting_value` varchar(255) NOT NULL DEFAULT '',
-     PRIMARY KEY (`setting_patient`, `setting_label`)
-) ENGINE=InnoDB;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
 INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/main_info.php', 'Calendar', 10, 'cal', '1');
