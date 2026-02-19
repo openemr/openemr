@@ -44,11 +44,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [

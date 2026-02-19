@@ -683,11 +683,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 31,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];

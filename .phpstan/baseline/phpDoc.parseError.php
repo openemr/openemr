@@ -39,18 +39,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(form_id
- The id of the form to populate data from\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 155 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(form_id
- The id of the form to populate data from\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 169 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(template_mod
  template module name, passed to Controller\'s initializer\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 109 on line 4$#',
     'count' => 1,
@@ -2503,18 +2491,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
-         html the input HTML\\)\\: Unexpected token "\\\\n \\* ", expected type at offset 308 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         text text with any number of \\\\r, \\\\r\\\\n and \\\\n combinations\\)\\: Unexpected token "\\\\n \\* ", expected type at offset 166 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
          append append current data to end of target CSV if exists\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 174 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -2641,24 +2617,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
-         input CSV file or string\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 43 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         input CSV file or string\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 56 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         input input character encoding, uses default if left blank\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 58 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
          input local CSV file\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 57 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -2679,12 +2637,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
          mode fopen\\(\\) mode\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 160 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         output output character encoding, uses default if left blank\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 147 on line 6$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];

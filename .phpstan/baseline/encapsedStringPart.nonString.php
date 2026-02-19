@@ -1587,16 +1587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$osdirectory \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$ostype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$type \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
@@ -1642,6 +1632,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$pcDir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
@@ -1670,6 +1665,11 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$topics_table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pcDir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1882,7 +1882,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$mdir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcTemplate \\(non\\-empty\\-list\\<string\\>\\|non\\-falsy\\-string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$viewtype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$dels \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$modir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
@@ -1897,6 +1917,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$pntable\\[\'postcalendar_categories\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
@@ -1905,6 +1930,11 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$template_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadminapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pntable\\[\'postcalendar_categories\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1928,6 +1958,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$minutes \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -1967,7 +2002,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$template_view_load \\(\'default\'\\|prepared\\) of encapsed string cannot be cast to string\\.$#',
+    'message' => '#^Part \\$template_view \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$template_view_load \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];

@@ -127,13 +127,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return special but return statement is missing\\.$#',
+    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return string\\|false\\|null but return statement is missing\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:encoding\\(\\) should return nothing but return statement is missing\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
