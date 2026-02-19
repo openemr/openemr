@@ -48,10 +48,13 @@
         "adodb/adodb-php": "^5.22.11",
         "aranyasen/hl7": "^3.2.2",
         "bacon/bacon-qr-code": "^3.0.3",
+        "composer/composer": "^2.9",
         "digitickets/lalit": "^3.4.0",
         "doctrine/dbal": "^4.4",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
+        "firehed/container": "^0.10.0",
+        "firehed/openemr-sample-module": "^1.0",
         "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
@@ -154,6 +157,11 @@
         {
             "type": "git",
             "url": "https://github.com/openemr/oe-module-cqm"
+        },
+        {
+            "type": "path",
+            "only": ["firehed/openemr-sample-module"],
+            "url": "../openemr-sample-module"
         }
     ],
     "autoload": {
@@ -164,6 +172,7 @@
             "library/classes"
         ],
         "files": [
+            "bootstrap_functions.php",
             "library/global_functions.inc.php",
             "library/htmlspecialchars.inc.php",
             "library/formdata.inc.php",

@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\{
+    Application,
+    CommandLoader\ContainerCommandLoader,
+};
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// Set up CLI commands through the lazy-loaded ContainerCommandLoader.
+$commandMap = [];
+
+$mm = getModuleManager();
+foreach ($mm->getEnabledModules() as $moduleInfo) {
+    foreach ($moduleInfo->getCliCommands() as $commandClass) {
+        $commandMap[readCommandName($commandClass)] = $commandClass;
+    }
+}
+
+
+$container = require 'di.php';
+assert($container instanceof ContainerInterface);
+
+$loader = new ContainerCommandLoader($container, $commandMap);
+
+$application = new Application();
+// Future: add specific library-bundled commands here?
+$application->setCommandLoader($loader);
+$application->run();
