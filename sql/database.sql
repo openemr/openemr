@@ -5382,18 +5382,7 @@ INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `module_acl_sections`
---
 
-DROP TABLE IF EXISTS `module_acl_sections`;
-CREATE TABLE `module_acl_sections` (
-  `section_id` int(11) DEFAULT NULL,
-  `section_name` varchar(255) DEFAULT NULL,
-  `parent_section` int(11) DEFAULT NULL,
-  `section_identifier` varchar(50) DEFAULT NULL,
-  `module_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `module_acl_sections`
