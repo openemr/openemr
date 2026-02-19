@@ -7,8 +7,8 @@ namespace OpenEMR\BC;
 use ADODB_mysqli_log;
 use mysqli;
 use RuntimeException;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create new connections.
@@ -118,7 +118,7 @@ class DatabaseConnectionFactory
 
     public static function detectConnectionPersistence(
         ParameterBag $globals,
-        SessionWrapperInterface $session,
+        SessionInterface $session,
     ): bool {
         if ($globals->getBoolean('connection_pooling_off')) {
             return false;
