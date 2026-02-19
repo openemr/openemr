@@ -854,14 +854,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `edi_sequences`
---
 
-DROP TABLE IF EXISTS `edi_sequences`;
-CREATE TABLE `edi_sequences` (
-  `id` int(9) unsigned NOT NULL default '0'
-) ENGINE=InnoDB;
 
 INSERT INTO `edi_sequences` VALUES (0);
 -- --------------------------------------------------------
