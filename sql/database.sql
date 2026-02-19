@@ -1194,23 +1194,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd10_dx_order_code`
---
 
-DROP TABLE IF EXISTS `icd10_dx_order_code`;
-CREATE TABLE `icd10_dx_order_code` (
-  `dx_id`               SERIAL,
-  `dx_code`             varchar(7),
-  `formatted_dx_code`   varchar(10),
-  `valid_for_coding`    char,
-  `short_desc`          varchar(60),
-  `long_desc`           text,
-  `active` tinyint default 0,
-  `revision` int default 0,
-  KEY `formatted_dx_code` (`formatted_dx_code`),
-  KEY `active` (`active`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
