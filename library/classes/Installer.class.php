@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -1602,56 +1604,25 @@ $config = 1; /////////////
 
     protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
-        $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $mysqlSsl = false;
-        $mysqli = $this->mysqliInit();
-        if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
-            $mysqlSsl = true;
-            if (
-                $this->fileExists($pathToCerts . "mysql-key") &&
-                $this->fileExists($pathToCerts . "mysql-cert")
-            ) {
-                // with client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    $pathToCerts . "mysql-key",
-                    $pathToCerts . "mysql-cert",
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            } else {
-                // without client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    null,
-                    null,
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            }
-        }
+        $siteDir = __DIR__ . "/../../sites/" . $this->site;
+        $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
+
+        $options = new DatabaseConnectionOptions(
+            dbname: $dbname,
+            user: $user,
+            password: $password,
+            host: $server,
+            port: (int) $port !== 0 ? (int) $port : 3306,
+            sslCaPath: $ssl['ca'] ?? null,
+            sslClientCert: $ssl['clientCert'] ?? null,
+        );
+
         try {
-            $ok = $this->mysqliRealConnect(
-                $mysqli,
-                $server,
-                $user,
-                $password,
-                $dbname,
-                (int)$port != 0 ? (int)$port : 3306,
-                '',
-                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
-            );
-        } catch (mysqli_sql_exception $e) {
+            return DatabaseConnectionFactory::createMysqli($options, persistent: false);
+        } catch (RuntimeException $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
         }
-        if (!$ok) {
-            $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
-            return false;
-        }
-        return $mysqli;
     }
 
     /**
