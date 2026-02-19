@@ -64,24 +64,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `categories`
---
 
-DROP TABLE IF EXISTS `categories`;
-CREATE TABLE `categories` (
-  `id` int(11) NOT NULL default '0',
-  `name` varchar(255) default NULL,
-  `value` varchar(255) default NULL,
-  `parent` int(11) NOT NULL default '0',
-  `lft` int(11) NOT NULL default '0',
-  `rght` int(11) NOT NULL default '0',
-  `aco_spec` varchar(63) NOT NULL DEFAULT 'patients|docs',
-  `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category',
-  PRIMARY KEY  (`id`),
-  KEY `parent` (`parent`),
-  KEY `lft` (`lft`,`rght`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `categories`
