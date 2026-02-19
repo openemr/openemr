@@ -838,27 +838,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 (5, 1, 'Layout Form', 0),
 (6, 2, 'Layout Signed', 5);
 
---
--- Table structure for table `drug_inventory`
---
 
-DROP TABLE IF EXISTS `drug_inventory`;
-CREATE TABLE `drug_inventory` (
-  `inventory_id` int(11) NOT NULL auto_increment,
-  `drug_id` int(11) NOT NULL,
-  `lot_number` varchar(20) default NULL,
-  `expiration` date default NULL,
-  `manufacturer` varchar(255) default NULL,
-  `on_hand` int(11) NOT NULL default '0',
-  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
-  `vendor_id` bigint(20) NOT NULL DEFAULT 0,
-  `last_notify` date NULL,
-  `destroy_date` date default NULL,
-  `destroy_method` varchar(255) default NULL,
-  `destroy_witness` varchar(255) default NULL,
-  `destroy_notes` varchar(255) default NULL,
-  PRIMARY KEY  (`inventory_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
