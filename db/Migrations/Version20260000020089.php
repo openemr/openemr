@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Payments table
+ */
+final class Version20260000020089 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create payments table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('payments');
+        $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
+        $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
+        $table->addColumn('dtime', Types::DATETIME_MUTABLE);
+        $table->addColumn('encounter', Types::BIGINT, ['default' => 0]);
+        $table->addColumn('user', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('method', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('source', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('amount1', Types::DECIMAL, [
+            'precision' => 12,
+            'scale' => 2,
+            'default' => 0.00,
+        ]);
+        $table->addColumn('amount2', Types::DECIMAL, [
+            'precision' => 12,
+            'scale' => 2,
+            'default' => 0.00,
+        ]);
+        $table->addColumn('posted1', Types::DECIMAL, [
+            'precision' => 12,
+            'scale' => 2,
+            'default' => 0.00,
+        ]);
+        $table->addColumn('posted2', Types::DECIMAL, [
+            'precision' => 12,
+            'scale' => 2,
+            'default' => 0.00,
+        ]);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
+        $table->addIndex(['pid'], 'pid');
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('payments');
+    }
+}

@@ -5562,26 +5562,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 
 
 
---
--- Table structure for table `payments`
---
 
-DROP TABLE IF EXISTS `payments`;
-CREATE TABLE `payments` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `pid` bigint(20) NOT NULL default '0',
-  `dtime` datetime NOT NULL,
-  `encounter` bigint(20) NOT NULL default '0',
-  `user` varchar(255) default NULL,
-  `method` varchar(255) default NULL,
-  `source` varchar(255) default NULL,
-  `amount1` decimal(12,2) NOT NULL default '0.00',
-  `amount2` decimal(12,2) NOT NULL default '0.00',
-  `posted1` decimal(12,2) NOT NULL default '0.00',
-  `posted2` decimal(12,2) NOT NULL default '0.00',
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
