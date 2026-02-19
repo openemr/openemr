@@ -1853,14 +1853,7 @@ INSERT INTO `gacl_acl_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_aco_sections_seq`
---
 
-DROP TABLE IF EXISTS `gacl_aco_sections_seq`;
-CREATE TABLE `gacl_aco_sections_seq` (
-  `id` int(11) NOT NULL
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `gacl_aco_sections_seq`
