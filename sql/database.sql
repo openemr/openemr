@@ -8502,24 +8502,7 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `external_procedures`
---
 
-DROP TABLE IF EXISTS `external_procedures`;
-CREATE TABLE `external_procedures` (
-  `ep_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ep_date` date DEFAULT NULL,
-  `ep_code_type` varchar(20) DEFAULT NULL,
-  `ep_code` varchar(9) DEFAULT NULL,
-  `ep_pid` int(11) DEFAULT NULL,
-  `ep_encounter` int(11) DEFAULT NULL,
-  `ep_code_text` longtext,
-  `ep_facility_id` varchar(255) DEFAULT NULL,
-  `ep_external_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ep_id`),
-  KEY `ep_pid` (`ep_pid`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
