@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Common\Logging\SystemLogger;
+
 return [
-    Firehed\SimpleLogger\Stdout::class,
-    Psr\Log\LoggerInterface::class => Firehed\SimpleLogger\Stdout::class,
+    SystemLogger::class,
+    Psr\Log\LoggerInterface::class => SystemLogger::class,
 ];
