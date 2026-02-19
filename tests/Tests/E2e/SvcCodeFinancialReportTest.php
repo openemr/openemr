@@ -30,7 +30,6 @@ class SvcCodeFinancialReportTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     /**
@@ -202,11 +201,11 @@ class SvcCodeFinancialReportTest extends PantherTestCase
             $found = false;
             for ($i = 0; $i < $rows->count(); $i++) {
                 $cells = $rows->eq($i)->filterXPath('.//td');
-                $code = trim((string) $cells->eq(0)->text());
+                $code = trim($cells->eq(0)->text());
                 if ($code === self::TEST_CODE_IMPORTANT) {
                     $found = true;
-                    $billed = trim((string) $cells->eq(2)->text());
-                    $paid = trim((string) $cells->eq(3)->text());
+                    $billed = trim($cells->eq(2)->text());
+                    $paid = trim($cells->eq(3)->text());
                     // Without the fix these would be tripled (3 modifier rows x original values)
                     $this->assertSame('250.00', $billed, 'Billed should be 250.00, not inflated by duplicate modifiers');
                     $this->assertSame('180.00', $paid, 'Paid should be 180.00, not inflated by duplicate modifiers');

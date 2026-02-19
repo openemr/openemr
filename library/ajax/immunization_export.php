@@ -13,23 +13,14 @@
 
 require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 
-use OpenEMR\Common\{
-    Acl\AclMain,
-    Csrf\CsrfUtils,
-    Logging\SystemLogger,
-};
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\SpreadSheetService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (
-        new TwigContainer(
-            null,
-            $GLOBALS['kernel']
-        ))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Immunization Registry")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -43,7 +34,7 @@ try {
     if (!empty($spreadsheet->buildSpreadsheet())) {
         $spreadsheet->downloadSpreadsheet('Xls');
     }
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger = new SystemLogger();
     $logger->logError($e->getMessage());
 }

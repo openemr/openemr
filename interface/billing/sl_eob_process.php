@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,7 +26,9 @@ use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 /** @var int $debug */
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -212,7 +216,7 @@ function getOldDetail(array &$prev, string $ptname, string $invnumber, string $d
  * @param array $out The ERA output data containing check information
  * @return void
  */
-function era_callback_check(array &$out): void
+function eob_process_era_callback_check(array &$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
@@ -233,9 +237,9 @@ function era_callback_check(array &$out): void
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
             $bgcolor = $check_count % 2 === 1 ? '#ddddff' : '#ffdddd';
 
-            $rs = sqlQ("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
+            $records = QueryUtils::fetchRecords("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
 
-            if (sqlNumRows($rs) > 0) {
+            if (!empty($records)) {
                 $bgcolor = '#ff0000';
                 $WarningFlag = true;
             }
@@ -289,7 +293,7 @@ function era_callback_check(array &$out): void
  * @param array $out The ERA output data containing claim information
  * @return void
  */
-function era_callback(array &$out): void
+function eob_process_era_callback(array &$out): void
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
@@ -746,7 +750,11 @@ if (!$eraname) {
 // report files.  Do not save the report if this is a no-update situation.
 
 // Common path used by parseERAForCheck() calls
-$nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
+$eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
+if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
+    die(xlt("Cannot create ERA directory") . " '" . text($eraDir) . "'");
+}
+$nameprefix = "$eraDir/$eraname";
 $eraFilePath = $nameprefix . '.edi';
 
 if (!$debug) {
@@ -844,21 +852,19 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
 
     $alertmsg = (
         ParseERA::parseERAForCheck($eraFilePath)
-        . ParseERA::parseERA($eraFilePath, 'era_callback')
+        . ParseERA::parseERA($eraFilePath, 'eob_process_era_callback')
     );
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
         if (is_countable($InsertionId)) {
             foreach ($InsertionId as $key => $value) {
-                $rs = sqlQ("select pay_total from ar_session where session_id=?", [$value]);
-                $row = sqlFetchArray($rs);
+                $row = QueryUtils::querySingleRow("select pay_total from ar_session where session_id=?", [$value]);
                 $pay_total = $row['pay_total'];
-                $rs = sqlQ(
+                $row = QueryUtils::querySingleRow(
                     "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
                     [$value]
                 );
-                $row = sqlFetchArray($rs);
                 $pay_amount = $row['sum_pay_amount'];
 
                 if (($pay_total - $pay_amount) <> 0) {

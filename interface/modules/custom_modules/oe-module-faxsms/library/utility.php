@@ -29,15 +29,6 @@ if ($search) {
     $title = xlt('Copy Fax to Patient');
 }
 
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-        ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-        "ORDER BY group_id, seq");
-}
-
 if ($_POST['form_create'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -146,12 +137,6 @@ if ($_POST['form_create'] ?? null) {
     }
 }
 
-function getLayoutUOR($form_id, $field_id)
-{
-    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
-    return 0 + $crow['uor'];
-}
 if (empty($_POST) && !empty($data)) {
     $_POST = $data;
     unset($data);
@@ -247,7 +232,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
                 var f = document.forms[0];
                 var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
                 <?php
-                $lres = getLayoutRes();
+                $lres = getLayoutRes($SHORT_FORM);
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
                     if (str_starts_with((string) $field_id, 'em_')) {

@@ -17,6 +17,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
@@ -100,7 +101,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             'modal_size_height' => 'full',
             'type' => 'email'
         ];
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
         );
@@ -914,7 +915,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         <?php if ($serviceType == 'email') { ?>
                             <?php
                             $param = ['is_universal' => 1, 'type' => 'email'];
-                            $GLOBALS['kernel']->getEventDispatcher()->
+                            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->
                             dispatch(
                                 new SendNotificationEvent($pid ?? 0, $param),
                                 SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST

@@ -16,9 +16,9 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -31,8 +31,7 @@ if (!empty($_POST)) {
 // Might want something different here.
 //
 if (!AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Report", xl("Report"));
 }
 
 $facilityService = new FacilityService();
@@ -159,7 +158,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 $cellcount = 0;
 
-function getListTitle($list, $option)
+function ippf_stats_getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
     "list_id = ? AND option_id = ?", [$list, $option]);
@@ -172,7 +171,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
+function ippf_stats_genAnyCell($data, bool $right = false, string $class = '', int $colspan = 1): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -205,14 +204,14 @@ function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
     }
 }
 
-function genHeadCell($data, $right = false, $colspan = 1): void
+function ippf_stats_genHeadCell($data, bool $right = false, int $colspan = 1): void
 {
-    genAnyCell($data, $right, 'dehead');
+    ippf_stats_genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum): void
+function ippf_stats_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -220,7 +219,7 @@ function genNumCell($num, $cnum): void
         $num = '&nbsp;';
     }
 
-    genAnyCell($num, true, 'detail');
+    ippf_stats_genAnyCell($num, true, 'detail');
 }
 
 // Translate an IPPF code to the corresponding descriptive name of its
@@ -1502,28 +1501,28 @@ if ($_POST['form_submit']) {
     genStartRow("bgcolor='#dddddd'");
     // If the key is an MA or IPPF code, then add a column for its description.
     if (uses_description($form_by)) {
-        genHeadCell(['', '']);
+        ippf_stats_genHeadCell(['', '']);
     } else {
-        genHeadCell('');
+        ippf_stats_genHeadCell('');
     }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
         if ($value == '.total') { // Total Services
-            genHeadCell('');
+            ippf_stats_genHeadCell('');
         } elseif ($value == '.age2') { // Age
-            genHeadCell($arr_show[$value]['title'], false);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif ($value == '.age9') { // Age
-            genHeadCell($arr_show[$value]['title'], false);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif ($arr_show[$value]['list_id']) {
-            genHeadCell($arr_show[$value]['title'], false);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif (!empty($arr_titles[$value])) {
-            genHeadCell($arr_show[$value]['title'], false);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         }
     }
 
     if ($form_output != 3) {
-        genHeadCell('');
+        ippf_stats_genHeadCell('');
     }
 
     genEndRow();
@@ -1533,41 +1532,41 @@ if ($_POST['form_submit']) {
     genStartRow("bgcolor='#dddddd'");
     // If the key is an MA or IPPF code, then add a column for its description.
     if (uses_description($form_by)) {
-        genHeadCell([$arr_by[$form_by], xl('Description')]);
+        ippf_stats_genHeadCell([$arr_by[$form_by], xl('Description')]);
     } else {
-        genHeadCell($arr_by[$form_by]);
+        ippf_stats_genHeadCell($arr_by[$form_by]);
     }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
         if ($value == '.total') { // Total Services
-            genHeadCell(xl('Total'));
+            ippf_stats_genHeadCell(xl('Total'));
         } elseif ($value == '.age2') { // Age
-            genHeadCell(xl('0-24'), true);
-            genHeadCell(xl('25+'), true);
+            ippf_stats_genHeadCell(xl('0-24'), true);
+            ippf_stats_genHeadCell(xl('25+'), true);
         } elseif ($value == '.age9') { // Age
-            genHeadCell(xl('0-10'), true);
-            genHeadCell(xl('11-14'), true);
-            genHeadCell(xl('15-19'), true);
-            genHeadCell(xl('20-24'), true);
-            genHeadCell(xl('25-29'), true);
-            genHeadCell(xl('30-34'), true);
-            genHeadCell(xl('35-39'), true);
-            genHeadCell(xl('40-44'), true);
-            genHeadCell(xl('45+'), true);
+            ippf_stats_genHeadCell(xl('0-10'), true);
+            ippf_stats_genHeadCell(xl('11-14'), true);
+            ippf_stats_genHeadCell(xl('15-19'), true);
+            ippf_stats_genHeadCell(xl('20-24'), true);
+            ippf_stats_genHeadCell(xl('25-29'), true);
+            ippf_stats_genHeadCell(xl('30-34'), true);
+            ippf_stats_genHeadCell(xl('35-39'), true);
+            ippf_stats_genHeadCell(xl('40-44'), true);
+            ippf_stats_genHeadCell(xl('45+'), true);
         } elseif ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
+                ippf_stats_genHeadCell(ippf_stats_getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell($key, true);
+                ippf_stats_genHeadCell($key, true);
             }
         }
     }
 
     if ($form_output != 3) {
-        genHeadCell(xl('Total'), true);
+        ippf_stats_genHeadCell(xl('Total'), true);
     }
 
     genEndRow();
@@ -1592,7 +1591,7 @@ if ($_POST['form_submit']) {
 
         genStartRow("bgcolor='$bgcolor'");
 
-        genAnyCell($dispkey, false, 'detail');
+        ippf_stats_genAnyCell($dispkey, false, 'detail');
 
       // This is the column index for accumulating column totals.
         $cnum = 0;
@@ -1602,18 +1601,18 @@ if ($_POST['form_submit']) {
         foreach ($form_show as $value) {
             // if ($value == '1') { // Total Services
             if ($value == '.total') { // Total Services
-                genNumCell($totalsvcs, $cnum++);
+                ippf_stats_genNumCell($totalsvcs, $cnum++);
             } elseif ($value == '.age2') { // Age
                 for ($i = 0; $i < 2; ++$i) {
-                    genNumCell($areport[$key]['.age2'][$i], $cnum++);
+                    ippf_stats_genNumCell($areport[$key]['.age2'][$i], $cnum++);
                 }
             } elseif ($value == '.age9') { // Age
                 for ($i = 0; $i < 9; ++$i) {
-                    genNumCell($areport[$key]['.age9'][$i], $cnum++);
+                    ippf_stats_genNumCell($areport[$key]['.age9'][$i], $cnum++);
                 }
             } elseif (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
-                    genNumCell($areport[$key][$value][$title], $cnum++);
+                    ippf_stats_genNumCell($areport[$key][$value][$title], $cnum++);
                 }
             }
         }
@@ -1621,7 +1620,7 @@ if ($_POST['form_submit']) {
       // Write the Total column data.
         if ($form_output != 3) {
             $atotals[$cnum] += $totalsvcs;
-            genAnyCell($totalsvcs, true, 'dehead');
+            ippf_stats_genAnyCell($totalsvcs, true, 'dehead');
         }
 
         genEndRow();
@@ -1633,13 +1632,13 @@ if ($_POST['form_submit']) {
 
       // If the key is an MA or IPPF code, then add a column for its description.
         if (uses_description($form_by)) {
-            genHeadCell([xl('Totals'), '']);
+            ippf_stats_genHeadCell([xl('Totals'), '']);
         } else {
-            genHeadCell(xl('Totals'));
+            ippf_stats_genHeadCell(xl('Totals'));
         }
 
         for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
-            genHeadCell($atotals[$cnum], true);
+            ippf_stats_genHeadCell($atotals[$cnum], true);
         }
 
         genEndRow();

@@ -225,7 +225,11 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
   // Delete rows, with logging, for the specified table using the
   // specified WHERE clause.  Borrowed from deleter.php.
   //
-function row_delete($table, $where): void
+/**
+ * @param string $table
+ * @param string $where
+ */
+function payment_row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -256,7 +260,12 @@ function row_delete($table, $where): void
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.  Borrowed from deleter.php.
 //
-function row_modify($table, $set, $where): void
+/**
+ * @param string $table
+ * @param string $set
+ * @param string $where
+ */
+function payment_row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::getInstance()->newEvent(

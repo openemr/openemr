@@ -35,7 +35,7 @@ class ReportDownload extends BaseService
             //$savePath = $siteDir . '/documents/edi/';
             if (!file_exists($savePath)) {
                 // Create a directory
-                mkdir($savePath, 0777, true);
+                mkdir($savePath, 0750, true);
             }
 
             $datas = ClaimRevApi::getReportFiles($reportType, $token);
@@ -46,7 +46,7 @@ class ReportDownload extends BaseService
                         $fileName = $data->fileName ;
                         $filePathName =  $savePath . $fileName . '.txt';
                         file_put_contents($filePathName, $fileText);
-                        chmod($filePathName, 0777);
+                        chmod($filePathName, 0640);
                     } else {
                         error_log("Unable to find property FileText in ClaimRevConnector.ReportDownload.getWaitingFiles");
                     }
@@ -65,7 +65,7 @@ class ReportDownload extends BaseService
         //$savePath = $siteDir . '/documents/edi/';
         if (!file_exists($savePath)) {
             // Create a directory
-            mkdir($savePath, 0777, true);
+            mkdir($savePath, 0750, true);
         }
 
         $data = ClaimRevApi::getFileForDownload($objectId, $token);
@@ -75,7 +75,7 @@ class ReportDownload extends BaseService
             $fileName = $objectId . ".edi";
             $filePathName =  $savePath . $fileName;
             file_put_contents($filePathName, $fileText);
-            chmod($filePathName, 0777);
+            chmod($filePathName, 0640);
         } else {
             error_log("Unable to find property FileText in ClaimRevConnector.ReportDownload.getWaitingFiles");
         }

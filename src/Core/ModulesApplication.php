@@ -38,7 +38,7 @@ class ModulesApplication
 
     const CUSTOM_MODULE_BOOSTRAP_NAME = 'openemr.bootstrap.php';
 
-    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath)
+    public function __construct(Kernel $kernel, string $webRootPath, string $modulePath, string $zendModulePath)
     {
         // Beware: default module path ends in a slash. Really should not but have to refactor to change..
         $zendConfigurationPath = $webRootPath . '/' . $modulePath . $zendModulePath;
@@ -78,12 +78,12 @@ class ModulesApplication
      * It relies on the $_SERVER['SCRIPT_NAME'] path which is established by the server not the calling client. It
      * checks against both laminas and custom modules. If the script is not allowed it throws an AccessDeniedException
      *
-     * @param $modType     The type of module this is (laminas or custom)
-     * @param $webRootPath The root filepath for the directory where OpenEMR is installed
-     * @param $modulePath  The path for the module folder location (laminas or custom)
+     * @param self::MODULE_TYPE_* $modType     The type of module this is (laminas or custom)
+     * @param string $webRootPath The root filepath for the directory where OpenEMR is installed
+     * @param string $modulePath  The path for the module folder location (laminas or custom)
      * @throws AccessDeniedException Thrown if this is a file in a module script directory and the module is not enabled.
      */
-    public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath)
+    public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath): void
     {
         // as we do this we are going to do a security check against the current script name
         // if we are in a module
@@ -111,6 +111,10 @@ class ModulesApplication
      * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
      * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
      * in the filesystem.
+     *
+     * @param string $webRootPath
+     * @param string $zendConfigurationPath
+     * @return string[]
      */
     public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath)
     {
@@ -125,8 +129,12 @@ class ModulesApplication
         return $db_modules;
     }
 
-    private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $webRootPath, $customModulePath)
-    {
+    private function bootstrapCustomModules(
+        ModulesClassLoader $classLoader,
+        EventDispatcherInterface $eventDispatcher,
+        string $webRootPath,
+        string $customModulePath,
+    ): void {
         self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_CUSTOM, $webRootPath, $customModulePath);
 
         // We skip the audit log as it has no bearing on user activity and is core system related...
@@ -155,7 +163,7 @@ class ModulesApplication
         $eventDispatcher->dispatch(new ModuleLoadEvents($db_modules, $failed_modules), ModuleLoadEvents::MODULES_LOADED);
     }
 
-    private function isFileReadableWithRetry($filePath, $retries = 3, $wait = 100): bool
+    private function isFileReadableWithRetry(string $filePath, int $retries = 3, int $wait = 100): bool
     {
         while ($retries > 0) {
             if (is_readable($filePath)) {
@@ -168,19 +176,22 @@ class ModulesApplication
         return false;
     }
 
-    private function loadCustomModule(ModulesClassLoader $classLoader, $module, $eventDispatcher)
-    {
+    private function loadCustomModule(
+        ModulesClassLoader $classLoader,
+        $module,
+        EventDispatcherInterface $eventDispatcher,
+    ): void {
         try {
             // the only thing in scope here is $module and $eventDispatcher which is ok for our bootstrap piece.
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
             // here and then inject the EventDispatcher or even possibly the Symfony Kernel here?
             include $module['path'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             error_log(errorLogEscape($exception->getMessage()));
         }
     }
 
-    public function run()
+    public function run(): void
     {
         $this->application->run();
     }
@@ -193,7 +204,7 @@ class ModulesApplication
     /**
      * Checks to make sure the file originates in a module directory and is safe to include.
      *
-     * @param $file
+     * @param string $file
      * @return bool
      */
     public static function isSafeModuleFileForInclude($file)

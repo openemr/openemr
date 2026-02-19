@@ -4708,6 +4708,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
+    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

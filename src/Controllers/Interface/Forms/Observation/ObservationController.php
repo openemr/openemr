@@ -15,6 +15,7 @@ namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -50,7 +51,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $this->twig = $twig ?? (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         $this->codeTypeService = new CodeTypesService();
     }
 
@@ -153,7 +154,7 @@ class ObservationController
             $content = $this->twig->render($this->getTemplatePath('observation_edit.html.twig'), $templateData);
 
             return $this->createResponse($content);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
@@ -215,7 +216,7 @@ class ObservationController
             $content = $this->twig->render($this->getTemplatePath('observation_list.html.twig'), $templateData);
 
             return $this->createResponse($content);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
                 'error' => $e->getMessage(),
                 'pid' => $pid,
@@ -261,7 +262,7 @@ class ObservationController
                 . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error saving observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
@@ -338,7 +339,7 @@ class ObservationController
                 $observation
             );
             QueryUtils::commitTransaction();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             QueryUtils::rollbackTransaction();
             throw $e; // rethrow to be handled in save()
         }
@@ -362,7 +363,7 @@ class ObservationController
             $result = QueryUtils::fetchSingleValue($sql, 'id', [$numericId, $numericId]);
 
             return $result ? (int)$result : null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
                 'fhir_id' => $fhirId,
                 'error' => $e->getMessage()
@@ -404,7 +405,7 @@ class ObservationController
                 'date' => $response['create_time'],
                 'questionnaire_data' => $questionnaireData
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
                 'questionnaire_response_id' => $questionnaireResponseId,
                 'error' => $e->getMessage()
@@ -503,7 +504,7 @@ class ObservationController
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId

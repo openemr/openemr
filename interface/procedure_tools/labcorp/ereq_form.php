@@ -20,7 +20,15 @@ use Mpdf\Mpdf;
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
-function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
+/**
+ * @param int|string $pid
+ * @param int|string $encounter
+ * @param int|string $form_id
+ * @param string|null $reqStr
+ * @param bool $doDoc
+ * @param string|null $gbl_lab
+ */
+function labcorp_ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
 {
 
     $styleSheet =  <<<STYLES
@@ -346,7 +354,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $race = ["declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
+        $race = ["decline_to_specify" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
         $hispanic = empty($patient['ethnicity']) ? "9" : null;
         $hispanic = ($patient['ethnicity'] === "hisp_or_latin" && empty($hispanic)) ? 1 : 2;
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Blood Lead Information: </b></td>';
@@ -768,7 +776,7 @@ STYLES;
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
             [$documentationOf, $form_id, $d->id]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo "Message: " . $e->getMessage();
         echo "";
         echo "getCode(): " . $e->getCode();
@@ -777,5 +785,5 @@ STYLES;
     }
 }
 if ($_REQUEST['debug']) {
-    ereqForm($pid, $encounter, $form_id);
+    labcorp_ereqForm($pid, $encounter, $form_id);
 }

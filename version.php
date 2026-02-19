@@ -28,7 +28,9 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 531;
+// Keep in sync with the v_database comment in sql/database.sql.
+// CI will fail if they don't match.
+$v_database = 533;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -47,7 +49,7 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 81;
+    $v_js_includes = 82;
 }
 
 // Do not modify below

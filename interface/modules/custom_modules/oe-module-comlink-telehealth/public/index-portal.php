@@ -29,8 +29,9 @@ $skipLandingPageError = true;
 require_once "../../../../../portal/verify_session.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Core\OEGlobalsBag;
 
-$kernel = $GLOBALS['kernel'];
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {

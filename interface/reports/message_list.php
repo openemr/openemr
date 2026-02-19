@@ -21,16 +21,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Message List")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Message List", xl("Message List"));
 }
 
 if (!empty($_POST)) {
@@ -245,8 +243,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_dob     = $row['dob'];
         $msg_type        = $row['title'];
         $msg_status      = $row['message_status'];
-        $username        = $userService->getUser($row['update_by']);
-        $update_by       = $username['username'];
+        $updateById      = $row['update_by'];
+        if ($updateById) {
+            $userRecord = $userService->getUser($updateById);
+            if ($userRecord === false) {
+                throw new \RuntimeException("User not found for update_by: " . json_encode($updateById));
+            }
+            $update_by = $userRecord['username'];
+        } else {
+            $update_by = '';
+        }
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';

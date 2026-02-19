@@ -18,6 +18,7 @@ require_once __DIR__ . '/../../../../../vendor/autoload.php';
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 class InstallerTest extends TestCase
 {
@@ -76,7 +77,7 @@ class InstallerTest extends TestCase
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }
@@ -101,7 +102,7 @@ class InstallerTest extends TestCase
             'source_site_id'           => 'default',
         ];
 
-        $this->installer = new Installer($installSettings);
+        $this->installer = new Installer($installSettings, new NullLogger());
     }
 
     public function testLoginIsValid(): void
@@ -788,7 +789,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
             ->getMock();
 
@@ -842,7 +843,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile'])
             ->getMock();
 
@@ -867,7 +868,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql'])
             ->getMock();
 
@@ -907,7 +908,7 @@ class InstallerTest extends TestCase
                 'login' => 'openemr',
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
-            ]])
+            ], new NullLogger()])
             ->onlyMethods(['execute_sql', 'escapeSql', 'mysqliError'])
             ->getMock();
 
@@ -2255,7 +2256,7 @@ class InstallerTest extends TestCase
             ->willReturn($mockFileHandle);
 
         // All writeToFile calls should succeed
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturn(10); // Simulate successful writes
 
@@ -2346,12 +2347,12 @@ class InstallerTest extends TestCase
 
         // Simulate some write failures - return false for some calls
         $writeCallCount = 0;
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
-                // Fail on calls 3 and 7 to simulate partial write failures
-                return ($writeCallCount === 3 || $writeCallCount === 7) ? false : 10;
+                // Fail on calls 3 and 5 to simulate partial write failures
+                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : 10;
             });
 
         $mockInstaller->method('closeFile')->willReturn(false); // Also fail closeFile
@@ -2388,7 +2389,7 @@ class InstallerTest extends TestCase
 
         // Capture the content being written
         $writtenContent = [];
-        $mockInstaller->expects($this->exactly(10))
+        $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
             ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
                 $writtenContent[] = $data;
@@ -2408,7 +2409,6 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('dbuser', $allContent);
         $this->assertStringContainsString('dbpass', $allContent);
         $this->assertStringContainsString('mydb', $allContent);
-        $this->assertStringContainsString('utf8mb4', $allContent);
         $this->assertStringContainsString('$config = 1', $allContent);
 
         fclose($mockFileHandle);
@@ -2469,12 +2469,12 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate exactly 5 write failures
+        // Simulate exactly 3 write failures (every even call out of 7 total)
         $writeCallCount = 0;
         $mockInstaller->method('writeToFile')
             ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
-                // Fail on calls 2, 4, 6, 8, 10
+                // Fail on calls 2, 4, 6
                 return ($writeCallCount % 2 === 0) ? false : 10;
             });
 
@@ -2483,7 +2483,7 @@ class InstallerTest extends TestCase
         $result = $mockInstaller->write_configuration_file();
 
         $this->assertFalse($result);
-        $this->assertStringContainsString("ERROR. Couldn't write 5 lines to config file", $mockInstaller->error_message);
+        $this->assertStringContainsString("ERROR. Couldn't write 3 lines to config file", $mockInstaller->error_message);
 
         fclose($mockFileHandle);
     }
@@ -2859,7 +2859,7 @@ class InstallerTest extends TestCase
         ];
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }
@@ -3070,7 +3070,7 @@ class InstallerTest extends TestCase
         ];
 
         return $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([$config])
+            ->setConstructorArgs([$config, new NullLogger()])
             ->onlyMethods($mockMethods)
             ->getMock();
     }

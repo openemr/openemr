@@ -28,16 +28,15 @@ if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Procedure Orders and Reports", xl("Procedure Orders and Reports"));
 }
 
 $form_patient = !empty($_POST['form_patient']);
@@ -57,8 +56,8 @@ if (!empty($_POST['form_xmit'])) {
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
         try {
-            $result = gen_hl7_order($formid);
-            $errmsg = send_hl7_order($ppid, $result->hl7);
+            $result = default_gen_hl7_order($formid);
+            $errmsg = default_send_hl7_order($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }

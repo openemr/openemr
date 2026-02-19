@@ -23,6 +23,10 @@
 
 global $pid;
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_ccr (created in createCCR.php)
+ */
            $e_ccrDocObjID = $ccr->createElement('CCRDocumentObjectID', getUuid());
            $e_ccr->appendChild($e_ccrDocObjID);
 

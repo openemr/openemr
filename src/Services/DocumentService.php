@@ -62,7 +62,7 @@ class DocumentService extends BaseService
         $lastParent = null;
         $isValidPath = true;
         foreach ($docPathParts as $index => $part) {
-            $categoryResults = sqlQuery($categoriesSql, str_replace("_", "", $part));
+            $categoryResults = sqlQuery($categoriesSql, [str_replace("_", "", $part)]);
 
             if ($index === 1) {
                 $lastParent = $categoryResults["id"];
@@ -89,7 +89,7 @@ class DocumentService extends BaseService
         $sql .= "    FROM categories";
         $sql .= "    WHERE replace(LOWER(name), ' ', '') = ?";
 
-        $results = sqlQuery($sql, str_replace("_", "", $lastInPath));
+        $results = sqlQuery($sql, [str_replace("_", "", $lastInPath)]);
         return $results['id'];
     }
 

@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -66,10 +69,10 @@ if ($patientid) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
     if (!$thisauth) {
-        die(xlt('Demographics not authorized'));
+        AccessDeniedHelper::deny('Demographics access not authorized');
     }
     if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-        die(xlt('You are not authorized to access this squad'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
   // $irow = getInsuranceProviders(); // needed?
 }
@@ -197,7 +200,7 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
-function end_cell(): void
+function demographics_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -206,10 +209,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function demographics_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    demographics_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -220,20 +223,14 @@ function end_row(): void
     }
 }
 
-function end_group(): void
+function demographics_end_group(): void
 {
     global $last_group;
     if (strlen((string) $last_group) > 0) {
-        end_row();
+        demographics_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
-}
-
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
 }
 
 $last_group = '';
@@ -262,7 +259,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle a data category (group) change.
     if (strcmp((string) $this_group, (string) $last_group) != 0) {
-        end_group();
+        demographics_end_group();
 
         // if (strlen($last_group) > 0) echo "<br />\n";
 
@@ -289,7 +286,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle starting of a new row.
     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-        end_row();
+        demographics_end_row();
         echo "  <tr>";
     }
 
@@ -299,7 +296,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle starting of a new label cell.
     if ($titlecols > 0) {
-        end_cell();
+        demographics_end_cell();
         echo "<td colspan='" . attr($titlecols) . "' ";
         echo "class='lcols" . attr($titlecols) . " stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {
@@ -323,7 +320,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Handle starting of a new data cell.
     if ($datacols > 0) {
-        end_cell();
+        demographics_end_cell();
         echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under'";
         /*****************************************************************
         // Underline is wanted only for fill-in-the-blank data types.
@@ -351,7 +348,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 }
 
-end_group();
+demographics_end_group();
 
 // Ending the last nobreak section for html2pdf.
 // TODO - now use mPDF, so should test if still need this fix
@@ -364,7 +361,7 @@ if (strlen((string) $last_group) > 0) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $pdf->writeHTML($content);
     $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {

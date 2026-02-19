@@ -11,8 +11,8 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -50,8 +50,7 @@ $user            = $_SESSION['authUser'];
 $encounter       = $_REQUEST['encounter'] ?? $_SESSION['encounter'] ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));
 }
 
 if (!$drug_id) {
@@ -139,7 +138,7 @@ try {
          * ")");
          *******************************************************************/
     } // end if not $sale_id
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
     // revisited.
     (new SystemLogger())->errorLogCaller("Dispense drug error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -199,28 +198,7 @@ sprintf("\n%s %s %s %s\n%s %s %s", xl('Lot'), $row['lot_number'], xl('Exp'), $ro
 //  $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
 // }
 
-// We originally went for PDF output on the theory that output formatting
-// would be more controlled.  However the clumisness of invoking a PDF
-// viewer from the browser becomes intolerable in a POS environment, and
-// printing HTML is much faster and easier if the browser's page setup is
-// configured properly.
-//
-if (false) { // if PDF output is desired
-    $pdf = new Cezpdf($dconfig['paper_size']);
-    $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
-    $pdf->selectFont('Helvetica');
-    $pdf->ezSetDy(20); // dunno why we have to do this...
-    $pdf->ezText($header_text, 7, ['justification' => 'center']);
-    if (!empty($dconfig['logo'])) {
-        $pdf->ezSetDy(-5); // add space (move down) before the image
-        $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-        $pdf->ezSetDy(8);  // reduce space (move up) after the image
-    }
-
-    $pdf->ezText($label_text, 9, ['justification' => 'center']);
-    $pdf->ezStream();
-} else { // HTML output
-    ?>
+?>
 <html>
     <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
@@ -267,6 +245,3 @@ body {
 </script>
 </body>
 </html>
-    <?php
-}
-?>

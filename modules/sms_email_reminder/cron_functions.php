@@ -57,7 +57,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $cnt .= "\nBody : \n" . $vBody . "\n";
 
         if (1) {
-            //WriteLog($cnt);
+            //cron_WriteLog($cnt);
         }
 
         $mstatus = true;
@@ -146,11 +146,12 @@ function cron_SendMail($to, $subject, $vBody, $from)
     return $mstatus;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    WriteLog
-// Purpose: written log into file
-////////////////////////////////////////////////////////////////////
-function WriteLog($data): void
+/**
+ * Write log into file.
+ *
+ * @param string $data
+ */
+function cron_WriteLog($data): void
 {
     global $log_folder_path;
 
@@ -196,7 +197,7 @@ function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
     $cnt .= "\nSubject : " . $subject;
     $cnt .= "\nBody : \n" . $vBody . "\n";
     if (1) {
-        //WriteLog($cnt);
+        //cron_WriteLog($cnt);
     }
 
     $mstatus = true;
@@ -205,31 +206,6 @@ function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
     // $mysms->token_pay("1234567890123456"); //spend voucher with SMS credits
     $mysms->send($to, $from, $vBody);
     return $mstatus;
-}
-
-////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-    // larry :: this was commented - i remove comment - what it means * in this field ?
-    //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - something to follow ?
-    //$set = " pc_apptstatus='*' ";
-
-    //$query="update openemr_postcalendar_events set $set ";
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } else {
-        $query .= " pc_sendalertemail='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -302,10 +278,6 @@ function cron_getNotificationData($type)
     return $db_email_msg;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg): void
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
@@ -367,16 +339,4 @@ function cron_setmessage($prow, $db_email_msg)
     //echo "DEBUG :2: msg=".$message."\n";
 
     return $message;
-}
-
-////////////////////////////////////////////////////////////////////
-// Function:    cron_GetNotificationSettings
-// Purpose: get notification settings
-////////////////////////////////////////////////////////////////////
-function cron_GetNotificationSettings()
-{
-    $strQuery = "select * from notification_settings where type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return( $vectNotificationSettings );
 }

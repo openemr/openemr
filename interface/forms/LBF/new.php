@@ -34,6 +34,17 @@ require_once "$srcdir/patient.inc.php";
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var array $code_types
+ * @var string $BS_COL_CLASS
+ */
+
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -44,7 +55,7 @@ $pprow = [];
 
 $alertmsg = '';
 
-function end_cell(): void
+function lbf_new_end_cell(): void
 {
     global $item_count, $historical_ids, $USING_BOOTSTRAP;
     if ($item_count > 0) {
@@ -57,10 +68,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function lbf_new_end_row(): void
 {
-    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
-    end_cell();
+    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
+    lbf_new_end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {
             // Create a cell occupying the remaining bootstrap columns.
@@ -194,7 +205,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
-        die(xlt('Access denied'));
+        AccessDeniedHelper::deny('Unauthorized access to LBF form');
     }
 }
 
@@ -1124,7 +1135,7 @@ if (
 
                     // If ending a group or starting a subgroup, terminate the current row and its table.
                     if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
-                        end_row();
+                        lbf_new_end_row();
                         echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                         $group_table_active = false;
                     }
@@ -1141,7 +1152,7 @@ if (
 
                     // If there are any new groups, open them.
                     while ($i < strlen((string) $this_levels)) {
-                        end_row();
+                        lbf_new_end_row();
                         if ($group_table_active) {
                             echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                             $group_table_active = false;
@@ -1228,7 +1239,7 @@ if (
 
                     // Handle starting of a new row.
                     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
-                        end_row();
+                        lbf_new_end_row();
 
                         if ($USING_BOOTSTRAP) {
                             $tmp = 'form-row';
@@ -1268,7 +1279,7 @@ if (
 
                     // Handle starting of a new label cell.
                     if ($titlecols > 0) {
-                        end_cell();
+                        lbf_new_end_cell();
                         $tmp = ' text-wrap';
                         if (isOption($edit_options, 'SP')) {
                             $datacols = 0;
@@ -1319,7 +1330,7 @@ if (
 
                     // Handle starting of a new data cell.
                     if ($datacols > 0) {
-                        end_cell();
+                        lbf_new_end_cell();
                         $tmp = ' text';
                         if (isOption($edit_options, 'DS')) {
                             $tmp .= ' RS';
@@ -1366,7 +1377,7 @@ if (
 
                 // Close all open groups.
                 if ($group_table_active) {
-                    end_row();
+                    lbf_new_end_row();
                     echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                     $group_table_active = false;
                 }

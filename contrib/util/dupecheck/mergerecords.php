@@ -20,10 +20,10 @@ class DupeCheckMergeRecordsIsDeprecated
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -44,8 +44,7 @@ if (!empty($_GET)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Records")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Merge Records", xl("Merge Records"));
 }
 
 ?>
@@ -176,7 +175,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
                 $qResults = sqlStatement($sqlstmt, [$newvalue, $oldvalue]);
             }
 
-            $rowsupdated = generic_sql_affected_rows();
+            $rowsupdated = \OpenEMR\Common\Database\QueryUtils::affectedRows();
             echo "<li>";
             echo "" . text($tablename) . ": " . text($rowsupdated) . " row(s) updated<br />";
             echo "</li>";

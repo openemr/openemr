@@ -1,6 +1,10 @@
 --
 -- Database: `openemr`
 --
+-- Keep v_database in sync with $v_database in version.php.
+-- CI will fail if they don't match.
+-- v_database: 533
+--
 
 --
 -- Table structure for table `addresses`
@@ -1877,6 +1881,7 @@ CREATE TABLE `facility` (
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
   `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -1885,7 +1890,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW());
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW(), 'prov');
 
 -- --------------------------------------------------------
 
@@ -3920,7 +3925,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'separated', 'Separated', 5, 0, 'L');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'domestic partner', 'Domestic Partner', 6, 0, 'T');
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('language', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('language', 'decline_to_specify', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'abkhazian', 'Abkhazian', 10, 0, 0, 'ab');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afar', 'Afar', 20, 0, 0, 'aa');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afrikaans', 'Afrikaans', 30, 0, 0, 'af');
@@ -4106,7 +4111,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_va
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zhuang_chuang', 'Zhuang; Chuang', 1830, 0, 0, 'za');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zulu', 'Zulu', 1840, 0, 0, 'zu');
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethrace', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethrace', 'decline_to_specify', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'amer_indian', 'American Indian', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Asian', 'Asian', 30, 0);
@@ -10647,7 +10652,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) V
 
 -- Race List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('lists','race','Race',1,0,0,'',NULL,1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','declne_to_specfy','Declined To Specify',0,0,0,'',NULL,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','decline_to_specify','Declined To Specify',0,0,0,'',NULL,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','amer_ind_or_alaska_native','American Indian or Alaska Native',10,0,0,'','1002-5',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','Asian','Asian',20,0,0,'','2028-9',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','black_or_afri_amer','Black or African American',30,0,0,'','2054-5',1);
@@ -11572,7 +11577,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 -- Ethnicity List
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'ethnicity','Ethnicity', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethnicity', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethnicity', 'decline_to_specify', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('ethnicity', 'hisp_or_latin', 'Hispanic or Latino', 10, 0, '2135-2');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('ethnicity', 'not_hisp_or_latin', 'Not Hispanic or Latino', 10, 0, '2186-5');
 
@@ -15381,3 +15386,17 @@ CREATE TABLE `preference_value_sets` (
     -- General Preferences
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'dept', 'Hospital Department', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'team', 'Organizational team', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'govt', 'Government', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'ins', 'Insurance Company', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'pay', 'Payer', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'edu', 'Educational Institute', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'reli', 'Religious Institution', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);

@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,7 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
@@ -37,16 +40,16 @@ global $pid;
 // Check authorization
 if ($pid) {
     if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-        die(xlt('Updating demographics is not authorized.'));
+        AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
 
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
-        die(xlt('Adding demographics is not authorized.'));
+        AccessDeniedHelper::deny('Adding demographics is not authorized');
     }
 }
 
@@ -119,7 +122,7 @@ while ($frow = sqlFetchArray($fres)) {
                     'available_post_keys' => array_keys($_POST)
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $logger->error("Error collecting address field", [
                 'field_id' => $field_id,
                 'error' => $e->getMessage()
@@ -145,7 +148,7 @@ while ($frow = sqlFetchArray($fres)) {
                     $telecomFieldsToSave[$field_id] = $_POST[$post_field_name];
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $logger->error("Error collecting telecom field", [
                 'field_id' => $field_id,
                 'error' => $e->getMessage()
@@ -172,7 +175,7 @@ while ($frow = sqlFetchArray($fres)) {
                     $relationFieldsToSave[$field_id] = $_POST[$post_field_name];
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $logger->error("Error collecting relation field", [
                 'field_id' => $field_id,
                 'error' => $e->getMessage()
@@ -189,7 +192,7 @@ try {
     if (!$GLOBALS['omit_employers']) {
         updateEmployerData($pid, [], $newdata['employer_data']);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Error updating patient/employer data", [
         'pid' => $pid,
         'error' => $e->getMessage()
@@ -263,7 +266,7 @@ if (!empty($addressFieldsToSave)) {
                         'is_empty' => empty($addressFieldData)
                     ]);
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->error("Exception processing address field", [
                     'field_id' => $fieldId,
                     'error' => $e->getMessage(),
@@ -272,7 +275,7 @@ if (!empty($addressFieldsToSave)) {
                 error_log("Exception in address processing: " . $e->getMessage());
             }
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
@@ -345,7 +348,7 @@ if (!empty($telecomFieldsToSave)) {
                         'is_empty' => empty($telecomFieldData)
                     ]);
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->error("Exception processing telecom field", [
                     'field_id' => $fieldId,
                     'error' => $e->getMessage(),
@@ -354,7 +357,7 @@ if (!empty($telecomFieldsToSave)) {
                 error_log("Exception in telecom processing: " . $e->getMessage());
             }
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Fatal error in telecom processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
@@ -418,7 +421,7 @@ if (!empty($relationFieldsToSave)) {
                         'is_empty' => empty($relationFieldData)
                     ]);
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->error("Exception processing relation field", [
                     'field_id' => $fieldId,
                     'error' => $e->getMessage(),
@@ -427,7 +430,7 @@ if (!empty($relationFieldsToSave)) {
                 error_log("Exception in relation processing: " . $e->getMessage());
             }
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Fatal error in relation processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
@@ -446,7 +449,7 @@ try {
         PatientUpdatedEventAux::EVENT_HANDLE,
         10
     );
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Error dispatching event", [
         'error' => $e->getMessage()
     ]);

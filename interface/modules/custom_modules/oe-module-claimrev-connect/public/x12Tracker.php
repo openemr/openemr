@@ -12,21 +12,21 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
     $tab = "x12";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - X12 Tracker")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - X12 Tracker", xl("ClaimRev Connect - X12 Tracker"));
 }
 
     $datas = [];
     //check if form was submitted
 if (isset($_POST['SubmitButton'])) {
+    /** @var array<string, mixed> $_POST */
     $datas = X12TrackerPage::searchX12Tracker($_POST);
 }
 ?>

@@ -13,14 +13,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set up autoloader as early as possible
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(__DIR__ . "/../src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    http_response_code(500);
     die(htmlspecialchars($response));
 }
 
 use Dotenv\Dotenv;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
@@ -29,14 +34,18 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
+$logger = new SystemLogger();
+
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
-    error_log("OPENEMR ERROR: OpenEMR is not working since the php openssl module is not installed.", 0);
+    http_response_code(500);
+    $logger->critical('OpenEMR is not working since the php openssl module is not installed');
     die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
 }
 // Throw error if the openssl aes-256-cbc cipher is not available.
 if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
-    error_log("OPENEMR ERROR: OpenEMR is not working since the openssl aes-256-cbc cipher is not available.", 0);
+    http_response_code(500);
+    $logger->critical('OpenEMR is not working since the openssl aes-256-cbc cipher is not available');
     die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
 }
 
@@ -96,11 +105,12 @@ $GLOBALS['http_ca_cert'] = $_ENV['OPENEMR_SETTING_http_ca_cert'] ?? false;
 
 // Debug logging for potentially problematic SSL configuration
 if (!empty($GLOBALS['http_ca_cert']) && !$GLOBALS['http_verify_ssl']) {
-    error_log(
+    $logger->warning(
         'OpenEMR SSL Configuration Warning: Custom CA certificate is configured ' .
-        '(http_ca_cert=' . $GLOBALS['http_ca_cert'] . ') but SSL verification is disabled ' .
+        '(http_ca_cert={http_ca_cert}) but SSL verification is disabled ' .
         '(http_verify_ssl=false). The CA certificate will be ignored. ' .
-        'This may indicate a configuration error.'
+        'This may indicate a configuration error.',
+        ['http_ca_cert' => $GLOBALS['http_ca_cert']]
     );
 }
 
@@ -192,18 +202,6 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
-// Includes composer autoload
-// Note this is skipped in special cases where the autoload has already been performed
-// Note this also brings in following library files:
-//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
-//  library/formdata.inc.php - Include sanitization/checking functions (for security)
-//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
-//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
-//  library/date_functions.php - Includes functions for date internationalization
-//  library/validation/validate_core.php - Includes functions for page validation
-//  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] . "/autoload.php";
-
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
 * If a session already exists, then this means portal or oauth2 or api is being used, which
@@ -219,7 +217,9 @@ require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
-if (empty($globalsBag)) {
+if (isset($globalsBag)) {
+    assert($globalsBag instanceof OEGlobalsBag);
+} else {
     // Initially this was too early. We now reinit at bottom to ensure all values are collected.
     $globalsBag = OEGlobalsBag::getInstance();
 }
@@ -257,6 +257,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
+            http_response_code(400);
             die("Site ID is missing from session data!");
         }
 
@@ -270,8 +271,9 @@ if (empty($siteId) || !empty($_GET['site'])) {
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string) $tmp)) {
+        http_response_code(400);
         echo "Invalid URL";
-        error_log("Request with site id '" . htmlspecialchars((string) $tmp, ENT_QUOTES) . "' contains invalid characters.");
+        $logger->warning("Request with site id '{site_id}' contains invalid characters.", ['site_id' => $tmp]);
         die();
     }
 
@@ -381,8 +383,9 @@ try {
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
-} catch (\Exception $e) {
-    error_log(errorLogEscape($e->getMessage()));
+} catch (\Throwable $e) {
+    $logger->error($e->getMessage(), ['exception' => $e]);
+    http_response_code(500);
     die();
 }
 
@@ -390,7 +393,6 @@ try {
 require_once(__DIR__ . "/../library/sql.inc.php");
 $globalsBag->set("adodb", $GLOBALS['adodb'] ?? null);
 $globalsBag->set("dbh", $GLOBALS['dbh'] ?? null);
-$globalsBag->set("disable_utf8_flag", $disable_utf8_flag ?? false);
 
 // Include the version file
 require_once(__DIR__ . "/../version.php");
@@ -403,18 +405,9 @@ $globalsBag->set("v_database", $v_database ?? null);
 $globalsBag->set("v_acl", $v_acl ?? null);
 $globalsBag->set("v_js_includes", $v_js_includes ?? null);
 
-// Collecting the utf8 disable flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
-// then set to iso-8859-1.
-if (!$disable_utf8_flag) {
-    ini_set('default_charset', 'utf-8');
-    $HTML_CHARSET = "UTF-8";
-    mb_internal_encoding('UTF-8');
-} else {
-    ini_set('default_charset', 'iso-8859-1');
-    $HTML_CHARSET = "ISO-8859-1";
-    mb_internal_encoding('ISO-8859-1');
-}
+ini_set('default_charset', 'utf-8');
+$HTML_CHARSET = "UTF-8";
+mb_internal_encoding('UTF-8');
 
 // Defaults for specific applications.
 $globalsBag->set('weight_loss_clinic', false);
@@ -600,7 +593,7 @@ if (!empty($glrow)) {
             $compact_header = $GLOBALS['compact_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
+            $logger->warning("Missing theme file {path}", ['path' => $webserver_root . '/public/themes/' . $new_theme]);
         }
     }
 
@@ -617,7 +610,7 @@ if (!empty($glrow)) {
             $portal_css_header = $globalsBag->getString('portal_css_header');
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
+            $logger->warning("Missing theme file {path}", ['path' => $webserver_root . '/public/themes/' . $new_theme]);
         }
     }
     unset($temp_css_theme_name, $new_theme, $rtl_override, $rtl_portal_override, $portal_temp_css_theme_name);
@@ -665,7 +658,7 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
 if (empty($globalsBag->getString('qualified_site_addr'))) {
     $globalsBag->set(
         'qualified_site_addr',
-        rtrim($globalsBag->getString('site_addr_oath') . trim((string) $globalsBag->getString('webroot')), "/")
+        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
     );
 }
 
@@ -722,11 +715,6 @@ $globalsBag->set('backpic', $backpic ?? '');
 // else 0.
 $globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
 
-//set include_de_identification to enable De-identification (currently de-identification works fine only with linux machines)
-//Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
-//functions, tables for de-identification(Mysql root user and password is required for successful
-//execution of the de-identification upgrade script)
-$globalsBag->set('include_de_identification', 0);
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
@@ -750,11 +738,7 @@ $globalsBag->set('layout_search_color', '#ff9919');
 
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table
-try {
-    $checkModulesTableExists = sqlQueryNoLog('SELECT 1 FROM `modules`', false, true);
-} catch (\Exception $ex) {
-    error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
-}
+$checkModulesTableExists = QueryUtils::existsTable('modules');
 
 if (!empty($checkModulesTableExists)) {
     $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
@@ -766,9 +750,8 @@ if (!empty($checkModulesTableExists)) {
         // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
         // registering event listeners, etc.
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->get('kernel'),
+            $globalsBag->getKernel(),
             $globalsBag->getString('fileroot'),
             $globalsBag->getString('baseModDir'),
             $globalsBag->getString('zendModDir')
@@ -776,9 +759,11 @@ if (!empty($checkModulesTableExists)) {
     } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
-        error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
-    } catch (\Exception $ex) {
-        error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
+        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
+        die();
+    } catch (\Throwable $ex) {
+        http_response_code(500);
+        $logger->error($ex->getMessage(), ['exception' => $ex]);
         die();
     }
 }
@@ -788,9 +773,9 @@ if (!empty($checkModulesTableExists)) {
 $encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_GET['pid']);
+    SessionUtil::setSession('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_POST['pid']);
+    SessionUtil::setSession('pid', $_POST['pid']);
 }
 
 $pid = empty($session->get('pid')) ? 0 : $session->get('pid');
@@ -859,5 +844,11 @@ if (empty($skipAuditLog)) {
 if (!empty($GLOBALS['translation_preload_cache'])) {
     xlWarmCache();
 }
+
+/**
+ * Marker constant indicating globals.php has fully loaded.
+ * Used by include files to guard against direct HTTP access.
+ */
+const OPENEMR_GLOBALS_LOADED = true;
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

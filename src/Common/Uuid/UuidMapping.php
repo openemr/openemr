@@ -120,7 +120,7 @@ class UuidMapping
             } while ($count > 0);
             sqlCommitTrans();
             return $counter;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             sqlRollbackTrans();
             throw $exception;
         }

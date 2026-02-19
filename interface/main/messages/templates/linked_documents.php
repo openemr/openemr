@@ -19,10 +19,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+// TODO: This is parameter validation, not authorization - see issue #10686
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
     exit;
 }
@@ -152,7 +154,7 @@ try {
     </div>
 </div>
     <?php }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 }

@@ -24,6 +24,11 @@
 $result = getResultData();
 $row = sqlFetchArray($result);
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Results (created in createCCR.php)
+ */
+
 do {
     $e_Result = $ccr->createElement('Result');
     $e_Results->appendChild($e_Result);

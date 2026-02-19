@@ -45,9 +45,9 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
@@ -55,8 +55,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Pdf\Config_Mpdf;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
 
 $DEBUG = 0; // set to 0 for production, 1 to test
@@ -149,7 +148,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
 
@@ -157,8 +156,12 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function era_callback(&$out): void
+/**
+ * This is called back by ParseERA::parseERA() if we are processing X12 835's.
+ *
+ * @param array $out
+ */
+function eob_search_era_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging
@@ -956,7 +959,7 @@ if (
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
                                 $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";

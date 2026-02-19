@@ -1,20 +1,29 @@
 <?php
 
 /**
+ * Eligibility transfer service for ClaimRev
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+namespace OpenEMR\Modules\ClaimRevConnector;
 
-    use OpenEMR\Services\BaseService;
-    use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
-    use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\BaseService;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
+use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
 
 class EligibilityTransfer extends BaseService
 {
@@ -29,9 +38,15 @@ class EligibilityTransfer extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public static function sendWaitingEligibility()
+    public static function sendWaitingEligibility(): void
     {
-        $token = ClaimRevApi::GetAccessToken();
+        try {
+            $token = ClaimRevApi::GetAccessToken();
+        } catch (ClaimRevApiException $e) {
+            (new SystemLogger())->error('ClaimRev: Failed to get access token for eligibility batch', ['error' => $e->getMessage()]);
+            return;
+        }
+
         $waitingEligibility = EligibilityData::getEligibilityCheckByStatus(self::STATUS_WAITING);
         EligibilityTransfer::sendEligibility($waitingEligibility, $token);
 
@@ -39,31 +54,36 @@ class EligibilityTransfer extends BaseService
         EligibilityTransfer::retryEligibility($retryEligibility, $token);
     }
 
-    public static function retryEligibility($retryEligibility, $token)
+    public static function retryEligibility($retryEligibility, $token): void
     {
         foreach ($retryEligibility as $eligibility) {
             $eid = $eligibility['id'];
-            $result = ClaimRevApi::getEligibilityResult($eid, $token);
-            EligibilityTransfer::saveEligibility($result, $eid);
+            try {
+                $result = ClaimRevApi::getEligibilityResult($eid, $token);
+                EligibilityTransfer::saveEligibility($result, $eid);
+            } catch (ClaimRevApiException $e) {
+                EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, null, true, $e->getMessage(), null, null, null);
+            }
         }
     }
-    public static function sendEligibility($waitingEligibility, $token)
+
+    public static function sendEligibility($waitingEligibility, $token): void
     {
         foreach ($waitingEligibility as $eligibility) {
             $eid = $eligibility['id'];
             $request_json = $eligibility['request_json'];
 
-            $elig = json_decode((string) $request_json);
-            $result = ClaimRevApi::uploadEligibility($elig, $token);
-            EligibilityTransfer::saveEligibility($result, $eid);
+            try {
+                $elig = json_decode((string) $request_json);
+                $result = ClaimRevApi::uploadEligibility($elig, $token);
+                EligibilityTransfer::saveEligibility($result, $eid);
+            } catch (ClaimRevApiException $e) {
+                EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, null, true, $e->getMessage(), null, null, null);
+            }
         }
     }
-    public static function saveEligibility($result, $eid)
+    public static function saveEligibility($result, $eid): void
     {
-        if (false === $result) {
-            EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, null, true, 'no results', null, null, null);
-            return;
-        }
         $payload = json_encode($result, JSON_UNESCAPED_SLASHES);
 
         if (!property_exists($result, 'responseMessage')) {
@@ -111,14 +131,14 @@ class EligibilityTransfer extends BaseService
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
                 // Create a directory
-                mkdir($savePath, 0777, true);
+                mkdir($savePath, 0750, true);
             }
 
             $fileText = $raw271;
             $fileName = $result->claimRevResultId;
             $filePathName =  $savePath . $fileName . '.txt';
             file_put_contents($filePathName, $fileText);
-            chmod($filePathName, 0777);
+            chmod($filePathName, 0640);
         }
 
         if ($result->retryLater) {

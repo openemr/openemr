@@ -10,15 +10,18 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../globals.php');
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -44,10 +47,11 @@ $transaction = $_REQUEST['transaction'] ?? '';
 
 $info_msg = "";
 
-// Delete rows, with logging, for the specified table using the
-// specified WHERE clause.
-//
-function row_delete($table, $where): void
+/**
+ * Delete rows, with logging, for the specified table using the
+ * specified WHERE clause.
+ */
+function deleter_row_delete(string $table, string $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -81,10 +85,11 @@ function row_delete($table, $where): void
     }
 }
 
-// Deactivate rows, with logging, for the specified table using the
-// specified SET and WHERE clauses.
-//
-function row_modify($table, $set, $where): void
+/**
+ * Deactivate rows, with logging, for the specified table using the
+ * specified SET and WHERE clauses.
+ */
+function deleter_row_modify(string $table, string $set, string $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -110,9 +115,9 @@ function delete_drug_sales($patient_id, $encounter_id = 0): void
     "SET di.on_hand = di.on_hand + ds.quantity " .
     "WHERE $where AND di.inventory_id = ds.inventory_id");
     if ($encounter_id) {
-        row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
+        deleter_row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
     } else {
-        row_delete("drug_sales", "pid = '" . add_escape_custom($patient_id) . "'");
+        deleter_row_delete("drug_sales", "pid = '" . add_escape_custom($patient_id) . "'");
     }
 }
 
@@ -123,7 +128,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
     if (str_starts_with((string) $formdir, 'LBF')) {
-        row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
         // Delete the visit's "source=visit" attributes that are not used by any other form.
         $where = "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
           add_escape_custom($encounter_id) . "' AND field_id NOT IN (" .
@@ -133,32 +138,32 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
           "f.deleted = 0 AND f.form_id != '" . add_escape_custom($formid) . "' AND " .
           "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)";
         // echo "<!-- $where -->\n"; // debugging
-        row_delete("shared_attributes", $where);
+        deleter_row_delete("shared_attributes", $where);
     } elseif ($formdir == 'procedure_order') {
         $tres = sqlStatement("SELECT procedure_report_id FROM procedure_report " .
         "WHERE procedure_order_id = ?", [$formid]);
         while ($trow = sqlFetchArray($tres)) {
             $reportid = (int)$trow['procedure_report_id'];
-            row_delete("procedure_result", "procedure_report_id = '" . add_escape_custom($reportid) . "'");
+            deleter_row_delete("procedure_result", "procedure_report_id = '" . add_escape_custom($reportid) . "'");
         }
 
-        row_delete("procedure_report", "procedure_order_id = '" . add_escape_custom($formid) . "'");
-        row_delete("procedure_order_code", "procedure_order_id = '" . add_escape_custom($formid) . "'");
-        row_delete("procedure_order", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("procedure_report", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("procedure_order_code", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("procedure_order", "procedure_order_id = '" . add_escape_custom($formid) . "'");
     } elseif ($formdir == 'physical_exam') {
-        row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
     } elseif ($formdir == 'eye_mag') {
         $tables = ['form_eye_base','form_eye_hpi','form_eye_ros','form_eye_vitals',
             'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
             'form_eye_external', 'form_eye_antseg','form_eye_postseg',
             'form_eye_neuro','form_eye_locking','form_eye_mag_orders'];
         foreach ($tables as $table_name) {
-            row_delete($table_name, "id = '" . add_escape_custom($formid) . "'");
+            deleter_row_delete($table_name, "id = '" . add_escape_custom($formid) . "'");
         }
-        row_delete("form_eye_mag_impplan", "form_id = '" . add_escape_custom($formid) . "'");
-        row_delete("form_eye_mag_wearing", "FORM_ID = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("form_eye_mag_impplan", "form_id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("form_eye_mag_wearing", "FORM_ID = '" . add_escape_custom($formid) . "'");
     } else {
-        row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
+        deleter_row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
     }
 }
 
@@ -169,8 +174,8 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
 function delete_document($document): void
 {
     sqlStatement("UPDATE `documents` SET `deleted` = 1 WHERE id = ?", [$document]);
-    row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
-    row_delete("gprelations", "type1 = 1 AND id1 = '" . add_escape_custom($document) . "'");
+    deleter_row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
+    deleter_row_delete("gprelations", "type1 = 1 AND id1 = '" . add_escape_custom($document) . "'");
 }
 ?>
 <html>
@@ -203,31 +208,31 @@ function popup_close() {
 
             if ($patient) {
                 if (!AclMain::aclCheckCore('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
-                    die(xlt("Not authorized!"));
+                    AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
-                row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
-                row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("prescriptions", "patient_id = '" . add_escape_custom($patient) . "'");
-                row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
+                deleter_row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("prescriptions", "patient_id = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
                 delete_drug_sales($patient);
-                row_delete("payments", "pid = '" . add_escape_custom($patient) . "'");
-                row_modify("ar_activity", "deleted = NOW()", "pid = '" . add_escape_custom($patient) . "' AND deleted IS NULL");
-                row_delete("openemr_postcalendar_events", "pc_pid = '" . add_escape_custom($patient) . "'");
-                row_delete("immunizations", "patient_id = '" . add_escape_custom($patient) . "'");
-                row_delete("issue_encounter", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("lists", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("transactions", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("employer_data", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("history_data", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
-                row_delete("patient_history", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("payments", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_modify("ar_activity", "deleted = NOW()", "pid = '" . add_escape_custom($patient) . "' AND deleted IS NULL");
+                deleter_row_delete("openemr_postcalendar_events", "pc_pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("immunizations", "patient_id = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("issue_encounter", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("lists", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("transactions", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("employer_data", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("history_data", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("patient_history", "pid = '" . add_escape_custom($patient) . "'");
 
                 $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", [$patient]);
                 while ($row = sqlFetchArray($res)) {
-                    row_delete("forms", "pid = '" . add_escape_custom($row['pid']) .
+                    deleter_row_delete("forms", "pid = '" . add_escape_custom($row['pid']) .
                             "' AND form_id = '" . add_escape_custom($row['form_id']) . "'");
-                    row_delete("form_encounter", "pid = '" . add_escape_custom($row['pid']) . "'");
+                    deleter_row_delete("form_encounter", "pid = '" . add_escape_custom($row['pid']) . "'");
                 }
 
                 // Delete all documents for the patient.
@@ -236,26 +241,26 @@ function popup_close() {
                     delete_document($row['id']);
                 }
 
-                row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
+                deleter_row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
             } elseif ($encounterid) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized encounter deletion attempt');
                 }
 
-                row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
+                deleter_row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
                 delete_drug_sales(0, $encounterid);
-                row_modify("ar_activity", "deleted = NOW()", "encounter = '" . add_escape_custom($encounterid) . "' AND deleted IS NULL");
-                row_delete("claims", "encounter_id = '" . add_escape_custom($encounterid) . "'");
-                row_delete("issue_encounter", "encounter = '" . add_escape_custom($encounterid) . "'");
+                deleter_row_modify("ar_activity", "deleted = NOW()", "encounter = '" . add_escape_custom($encounterid) . "' AND deleted IS NULL");
+                deleter_row_delete("claims", "encounter_id = '" . add_escape_custom($encounterid) . "'");
+                deleter_row_delete("issue_encounter", "encounter = '" . add_escape_custom($encounterid) . "'");
                 $res = sqlStatement("SELECT * FROM forms WHERE encounter = ?", [$encounterid]);
                 while ($row = sqlFetchArray($res)) {
                     form_delete($row['formdir'], $row['form_id'], $row['pid'], $row['encounter']);
                 }
 
-                row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
+                deleter_row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
             } elseif ($formid) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized form deletion attempt');
                 }
 
                 $row = sqlQuery("SELECT * FROM forms WHERE id = ?", [$formid]);
@@ -264,21 +269,21 @@ function popup_close() {
                     die("There is no form with id '" . text($formid) . "'");
                 }
                 form_delete($formdir, $row['form_id'], $row['pid'], $row['encounter']);
-                row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
+                deleter_row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
             } elseif ($issue) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized issue deletion attempt');
                 }
 
                 $ids = explode(",", (string) $issue);
                 foreach ($ids as $id) {
-                    row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
-                    row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
-                    row_delete("lists", "id = '" . add_escape_custom($id) . "'");
+                    deleter_row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
+                    deleter_row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
+                    deleter_row_delete("lists", "id = '" . add_escape_custom($id) . "'");
                 }
             } elseif ($document) {
                 if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized document deletion attempt');
                 }
 
                 delete_document($document);
@@ -286,7 +291,7 @@ function popup_close() {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     // allow biller to delete misapplied payments
                     if (!AclMain::aclCheckCore('acct', 'bill')) {
-                        die("Not authorized!");
+                        AccessDeniedHelper::deny('Unauthorized payment deletion attempt');
                     }
                 }
 
@@ -324,7 +329,7 @@ function popup_close() {
                         }
 
                         // Delete the payment.
-                        row_modify(
+                        deleter_row_modify(
                             "ar_activity",
                             "deleted = NOW()",
                             "pid = '" . add_escape_custom($patient_id) . "' AND " .
@@ -336,7 +341,7 @@ function popup_close() {
                             "session_id = '" . add_escape_custom($ref_id) . "'"
                         );
                         if ($ref_id) {
-                            row_delete(
+                            deleter_row_delete(
                                 "ar_session",
                                 "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
                                 "session_id = '" . add_escape_custom($ref_id) . "'"
@@ -349,7 +354,7 @@ function popup_close() {
                         // Was causing delete of wrong prepayment session in the case of delete from checkout undo and/or front receipt delete if payment happens to be same
                         // amount of a previous prepayment. Much tested but look here if problems in postings.
                         //
-                        /* row_delete("ar_session",
+                        /* deleter_row_delete("ar_session",
                         "patient_id = ' " . add_escape_custom($patient_id) . " ' AND " .
                         "payer_id = 0 AND " .
                         "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
@@ -357,19 +362,19 @@ function popup_close() {
                         "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
                         "ORDER BY session_id DESC LIMIT 1"); */
 
-                        row_delete("ar_session", "session_id = '" . add_escape_custom($ref_id) . "'");
+                        deleter_row_delete("ar_session", "session_id = '" . add_escape_custom($ref_id) . "'");
                     }
 
-                    row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
+                    deleter_row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
                 }
             } elseif ($billing) {
                 if (!AclMain::aclCheckCore('acct', 'disc')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized billing deletion attempt');
                 }
 
                 [$patient_id, $encounter_id] = explode(".", (string) $billing);
 
-                row_modify(
+                deleter_row_modify(
                     "ar_activity",
                     "deleted = NOW()",
                     "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
@@ -383,7 +388,7 @@ function popup_close() {
                     "WHERE ar_activity.session_id IS NULL"
                 );
 
-                row_modify(
+                deleter_row_modify(
                     "billing",
                     "activity = 0",
                     "pid = '" . add_escape_custom($patient_id) . "'  AND " .
@@ -399,10 +404,10 @@ function popup_close() {
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
             } elseif ($transaction) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
-                    die("Not authorized!");
+                    AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
 
-                row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");
+                deleter_row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");
             } else {
                 die("Nothing was recognized to delete!");
             }

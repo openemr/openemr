@@ -1,5 +1,6 @@
 {
   "symbol-whitelist": [
+    "ADODB_mysqli_log",
     "AmcItemizedActionData",
     "Application\\Model\\ApplicationTable",
     "BillingExport",
@@ -13,6 +14,7 @@
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
+    "iamcal\\SQLParser",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
     "OpenEMR\\Common\\Utils\\Error",
@@ -36,6 +38,7 @@
     "display_layout_tabs_data",
     "edi_generate_id",
     "edih_271_codes",
+    "eob_process_era_callback_check",
     "era_callback_check",
     "fetchEvents",
     "fixDate",
@@ -52,7 +55,6 @@
     "getPatientFullNameAsString",
     "getRegistryEntryByDirectory",
     "getSmokeCodes",
-    "getSqlLastError",
     "getUserSetting",
     "get_db",
     "get_patient_balance",

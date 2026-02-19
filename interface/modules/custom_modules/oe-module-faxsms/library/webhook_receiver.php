@@ -109,7 +109,7 @@ function downloadAndStoreFaxMedia(
             if ($httpCode !== 200 || empty($mediaContent)) {
                 return;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
             return;
         }
@@ -143,7 +143,7 @@ function downloadAndStoreFaxMedia(
                 $siteId
             ]
         );
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log("SignalWire Webhook: Error downloading/storing fax media: " . $e->getMessage());
     }
 }

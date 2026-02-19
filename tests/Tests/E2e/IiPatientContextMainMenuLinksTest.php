@@ -32,7 +32,6 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $client;
     private $crawler;
 
     #[DataProvider('menuLinkProvider')]
@@ -59,11 +58,11 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
             $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
-            $this->goToMainMenuLink($menuLink);
+            $this->goToMainMenuLink($menuLink, $clearAlert);
             if ($popup) {
                 $this->assertActivePopup($expectedTabPopupTitle);
             } else {
-                $this->assertActiveTab($expectedTabPopupTitle, $loading, false, $clearAlert);
+                $this->assertActiveTab($expectedTabPopupTitle, $loading);
             }
         } catch (\Throwable $e) {
             // Close client

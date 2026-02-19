@@ -77,51 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function tableExists_de may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upgradeFromSqlFile_de may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/de_identification_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdFacilityTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdForms may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdInsuranceDataTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdPatientData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deIdUsersTable may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeColumn may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function truncateLogs may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/deidentification/deidentification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function UpdateTable may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -227,11 +182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_labworks.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function Sex may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function custom_labworks_Add may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_labworks.php',
@@ -250,16 +200,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getMeasureNumber may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_registry_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function LWDate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function Sex may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function addInsurance may not be defined in the global namespace\\.$#',
@@ -472,22 +412,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function WriteLog may not be defined in the global namespace\\.$#',
+    'message' => '#^Function batchcom_WriteLog may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getFacilitiesMap may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
@@ -527,7 +457,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function era_callback may not be defined in the global namespace\\.$#',
+    'message' => '#^Function era_payments_callback may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/era_payments.php',
 ];
@@ -537,12 +467,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function era_callback may not be defined in the global namespace\\.$#',
+    'message' => '#^Function eob_process_era_callback may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function era_callback_check may not be defined in the global namespace\\.$#',
+    'message' => '#^Function eob_process_era_callback_check may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
@@ -577,7 +507,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function era_callback may not be defined in the global namespace\\.$#',
+    'message' => '#^Function eob_search_era_callback may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
@@ -692,17 +622,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mapToTable may not be defined in the global namespace\\.$#',
+    'message' => '#^Function inventory_mapToTable may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData may not be defined in the global namespace\\.$#',
+    'message' => '#^Function inventory_mergeData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function processData may not be defined in the global namespace\\.$#',
+    'message' => '#^Function inventory_processData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
@@ -967,27 +897,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function lbf_new_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
+    'message' => '#^Function lbf_new_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function lbf_printable_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getContent may not be defined in the global namespace\\.$#',
+    'message' => '#^Function lbf_printable_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
@@ -1257,17 +1182,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function debug may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function row_delete may not be defined in the global namespace\\.$#',
+    'message' => '#^Function eye_mag_row_delete may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
@@ -1500,11 +1420,6 @@ $ignoreErrors[] = [
     'message' => '#^Function prior_auth_report may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/prior_auth/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getListOptions may not be defined in the global namespace\\.$#',
@@ -1828,11 +1743,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnDBGetTables may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnDBInit may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
@@ -2247,16 +2157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function LWDate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/ippf_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function Sex may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/ippf_export.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function endClient may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
@@ -2457,12 +2357,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_GetNotificationSettings may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
@@ -2500,16 +2395,6 @@ $ignoreErrors[] = [
     'message' => '#^Function doSmsNotificationTask may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutRes may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function downloadAndStoreFaxMedia may not be defined in the global namespace\\.$#',
@@ -2632,27 +2517,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getLayoutUOR may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function comprehensive_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_group may not be defined in the global namespace\\.$#',
+    'message' => '#^Function comprehensive_end_group may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLayoutRes may not be defined in the global namespace\\.$#',
+    'message' => '#^Function comprehensive_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
@@ -2662,17 +2537,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function gen_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function default_gen_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function loadPayerInfo may not be defined in the global namespace\\.$#',
+    'message' => '#^Function default_loadPayerInfo may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function send_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function default_send_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
@@ -2685,16 +2560,6 @@ $ignoreErrors[] = [
     'message' => '#^Function generate_order_summary may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oresData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oresRawData may not be defined in the global namespace\\.$#',
@@ -2712,37 +2577,37 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/pending_orders.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function invalue may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function onvalue may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function proc_provider_invalue may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genHeadCell may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genNumCell may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function loadColumnData may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function proc_stats_genAnyCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function proc_stats_genHeadCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function proc_stats_genNumCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function proc_stats_getListTitle may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/procedure_stats.php',
 ];
@@ -2902,17 +2767,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function invalue may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function recursiveDelete may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function types_invalue may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
@@ -2927,17 +2787,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function deleter_row_delete may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function deleter_row_modify may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function form_delete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_delete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function row_modify may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
@@ -2990,11 +2850,6 @@ $ignoreErrors[] = [
     'message' => '#^Function ffescape may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function calcTaxes may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generatePageElement may not be defined in the global namespace\\.$#',
@@ -3087,17 +2942,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function checkout_getListTitle may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function generate_layout_display_field may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_receipt may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
@@ -3112,17 +2962,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function ippf_generate_receipt may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function load_adjustments may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function load_taxes may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function markTaxes may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
@@ -3157,12 +3007,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_receipt may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function markTaxes may not be defined in the global namespace\\.$#',
+    'message' => '#^Function normal_generate_receipt may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
@@ -3203,11 +3048,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function ActiveIssueCodeRecycleFn may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function QuotedOrNull may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
@@ -3292,22 +3132,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function demographics_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_print.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_group may not be defined in the global namespace\\.$#',
+    'message' => '#^Function demographics_end_group may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_print.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getContent may not be defined in the global namespace\\.$#',
+    'message' => '#^Function demographics_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_print.php',
 ];
@@ -3362,17 +3197,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function transaction_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_group may not be defined in the global namespace\\.$#',
+    'message' => '#^Function transaction_end_group may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
+    'message' => '#^Function transaction_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
@@ -3387,34 +3222,29 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function ereqForm may not be defined in the global namespace\\.$#',
+    'message' => '#^Function universal_ereqForm may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/ereqs/ereq_universal_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function gen_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function universal_gen_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function loadPayerInfo may not be defined in the global namespace\\.$#',
+    'message' => '#^Function universal_loadPayerInfo may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function send_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function universal_send_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function ereqForm may not be defined in the global namespace\\.$#',
+    'message' => '#^Function labcorp_ereqForm may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/ereq_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gen_hl7_order may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function hl7Race may not be defined in the global namespace\\.$#',
@@ -3427,17 +3257,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function labcorp_gen_hl7_order may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function labcorp_loadPayerInfo may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function labcorp_send_hl7_order may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function loadGuarantorInfo may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function loadPayerInfo may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
@@ -3447,17 +3282,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/libs/labs_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function gen_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function quest_gen_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function loadPayerInfo may not be defined in the global namespace\\.$#',
+    'message' => '#^Function quest_loadPayerInfo may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function send_hl7_order may not be defined in the global namespace\\.$#',
+    'message' => '#^Function quest_send_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
@@ -3477,7 +3312,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders may not be defined in the global namespace\\.$#',
+    'message' => '#^Function appointments_fetch_reminders may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -3517,17 +3352,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mapToTable may not be defined in the global namespace\\.$#',
+    'message' => '#^Function destroyed_mapToTable may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function mergeData may not be defined in the global namespace\\.$#',
+    'message' => '#^Function destroyed_mergeData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function processData may not be defined in the global namespace\\.$#',
+    'message' => '#^Function destroyed_processData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/destroyed_drugs_report.php',
 ];
@@ -3597,17 +3432,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genAnyCell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_daily_genAnyCell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genHeadCell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_daily_genHeadCell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genNumCell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_daily_genNumCell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
@@ -3618,21 +3453,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function LBFgcac_title may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genAnyCell may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genHeadCell may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genNumCell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -3648,11 +3468,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getGcacClientStatus may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getListTitle may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -3673,6 +3488,26 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function ippfLoadColumnData may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genAnyCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genHeadCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_genNumCell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ippf_stats_getListTitle may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -3897,7 +3732,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/layout_service_codes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function invalue may not be defined in the global namespace\\.$#',
+    'message' => '#^Function addrbook_invalue may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
@@ -4052,7 +3887,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/specialty_form_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function handleRequest may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ajax_handleRequest may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/track_events.php',
 ];
@@ -4092,6 +3927,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function amcInComplete may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function amcInCompleteSafe may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/amc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function amcNoSoCProvided may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
@@ -4108,16 +3953,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function amcTrackingRequest may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnComplete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcUnCompleteSafe may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',
 ];
@@ -5627,17 +5462,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/immunization_helper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_cell may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_group may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_end_group may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function end_row may not be defined in the global namespace\\.$#',
+    'message' => '#^Function ippf_end_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
@@ -6292,12 +6127,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/payment.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function row_delete may not be defined in the global namespace\\.$#',
+    'message' => '#^Function payment_row_delete may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/payment.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function row_modify may not be defined in the global namespace\\.$#',
+    'message' => '#^Function payment_row_modify may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/payment.inc.php',
 ];
@@ -6457,7 +6292,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_reminders may not be defined in the global namespace\\.$#',
+    'message' => '#^Function patient_fetch_reminders may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
@@ -7157,32 +6992,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generic_sql_affected_rows may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generic_sql_insert_id may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generic_sql_select_db may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getPrivDB may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getSqlLastError may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getSqlLastErrorNo may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -7268,11 +7078,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function sqlQueryNoLog may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sqlQueryNoLogIgnoreError may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -7492,34 +7297,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/uuid.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function WriteLog may not be defined in the global namespace\\.$#',
+    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
+    'message' => '#^Function sms_reminder_WriteLog may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getFacilitiesMap may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function WriteLog may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_GetNotificationSettings may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_InsertNotificationLogEntry may not be defined in the global namespace\\.$#',
@@ -7537,6 +7322,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function cron_WriteLog may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function cron_getAlertpatientData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
@@ -7548,11 +7338,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_setmessage may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_updateentry may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
@@ -7602,7 +7387,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function doOneDay may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_doOneDay may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
@@ -7677,7 +7462,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function handleRequest may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_handleRequest may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/track_portal_events.php',
 ];
@@ -7712,11 +7497,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function calcTaxes may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function Zip may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
@@ -7727,34 +7507,29 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllCredits may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_GetAllCredits may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllUnapplied may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_GetAllUnapplied may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function List_Look may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_List_Look may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function PrintCreditDetail may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_PrintCreditDetail may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function PrintEncFooter may not be defined in the global namespace\\.$#',
+    'message' => '#^Function portal_PrintEncFooter may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getContent may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function postToGet may not be defined in the global namespace\\.$#',
@@ -7890,11 +7665,6 @@ $ignoreErrors[] = [
     'message' => '#^Function report_header_2 may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function check_code_set_filters may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/bootstrap-isolated.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oe_module_custom_patient_menu may not be defined in the global namespace\\.$#',

@@ -31,6 +31,7 @@ require_once(__DIR__ . "/gprelations.inc.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use OpenEMR\Services\VersionService;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -515,11 +516,8 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 
 /**
  * Read a blob of data into a local temporary file
- *
- * @param $len number of bytes to read
- * @return the temp filename, or FALSE if failure
  */
-function phimail_read_blob($fp, $len)
+function phimail_read_blob($fp, $len): string|false
 {
 
     $fpath = $GLOBALS['temporary_files_dir'];
@@ -630,8 +628,8 @@ function phimail_store($name, $mime_type, $fn)
 
     $allowMimeTypeFunction = 'phimail_allow_document_mimetype';
     // we bypass the whitelisting JUST for phimail documents
-    if (isset($GLOBALS['kernel'])) {
-        $GLOBALS['kernel']->getEventDispatcher()
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
             ->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
     }
     // Collect phimail user id
@@ -644,7 +642,7 @@ function phimail_store($name, $mime_type, $fn)
         if (is_array($return)) {
             $return['filesize'] = $filesize;
         }
-    } catch (\Exception $exception) {
+    } catch (\Throwable $exception) {
         (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
@@ -652,8 +650,8 @@ function phimail_store($name, $mime_type, $fn)
         $phimail_direct_message_check_allowed_mimetype = null;
         // There shouldn't be another request in the system to add a document, but for security sake we will prevent code
         // after this from bypassing the whitelist filter
-        if (isset($GLOBALS['kernel'])) {
-            $GLOBALS['kernel']->getEventDispatcher()
+        if (OEGlobalsBag::getInstance()->hasKernel()) {
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
                 ->removeListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
         }
         // Remove the temporary file

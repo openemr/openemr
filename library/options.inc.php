@@ -1064,7 +1064,7 @@ function generate_form_field($frow, $currvalue): void
                 echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
                 "id='form_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
-                if (in_array($option_id, $avalue)) {
+                if (in_array($option_id, $avalue) || ($avalue === [''] && $lrow['is_default'])) {
                     echo " checked";
                 }
                 // Added 5-09 by BM - Translate label if applicable

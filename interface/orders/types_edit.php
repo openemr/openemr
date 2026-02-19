@@ -18,15 +18,13 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configure Orders and Results", xl("Configure Orders and Results"));
 }
 
 $typeid = ($_REQUEST['typeid'] ?? '') + 0;
@@ -36,17 +34,7 @@ $disabled = $ordtype ? "disabled" : '';
 $labid = $_GET['labid'] ?? 0;
 $info_msg = "";
 
-function QuotedOrNull($fld)
-{
-    $fld = add_escape_custom(trim((string) $fld));
-    if ($fld) {
-        return "'$fld'";
-    }
-
-    return "NULL";
-}
-
-function invalue($name)
+function types_invalue(string $name): string
 {
     $fld = formData($name, "P", true);
     return "'$fld'";
@@ -260,28 +248,28 @@ function recursiveDelete($typeid): void
         }
 
         if (!empty($_POST['form_save'])) {
-            $p_procedure_code = invalue('form_procedure_code');
+            $p_procedure_code = types_invalue('form_procedure_code');
 
             if ($_POST['form_procedure_type'] == 'grp') {
                 $p_procedure_code = "''";
             }
 
             $sets =
-                "name = " . invalue('form_name') . ", " .
-                "lab_id = " . invalue('form_lab_id') . ", " .
+                "name = " . types_invalue('form_name') . ", " .
+                "lab_id = " . types_invalue('form_lab_id') . ", " .
                 "procedure_code = $p_procedure_code, " .
-                "procedure_type = " . invalue('form_procedure_type') . ", " .
-                "procedure_type_name = " . invalue('form_procedure_type_name') . ", " .
-                "body_site = " . invalue('form_body_site') . ", " .
-                "specimen = " . invalue('form_specimen') . ", " .
-                "route_admin = " . invalue('form_route_admin') . ", " .
-                "laterality = " . invalue('form_laterality') . ", " .
-                "description = " . invalue('form_description') . ", " .
-                "units = " . invalue('form_units') . ", " .
-                "`range` = " . invalue('form_range') . ", " .
-                "standard_code = " . invalue('form_standard_code') . ", " .
-                "related_code = " . (isset($_POST['form_diagnosis_code']) ? invalue('form_diagnosis_code') : invalue('form_related_code')) . ", " .
-                "seq = " . invalue('form_seq');
+                "procedure_type = " . types_invalue('form_procedure_type') . ", " .
+                "procedure_type_name = " . types_invalue('form_procedure_type_name') . ", " .
+                "body_site = " . types_invalue('form_body_site') . ", " .
+                "specimen = " . types_invalue('form_specimen') . ", " .
+                "route_admin = " . types_invalue('form_route_admin') . ", " .
+                "laterality = " . types_invalue('form_laterality') . ", " .
+                "description = " . types_invalue('form_description') . ", " .
+                "units = " . types_invalue('form_units') . ", " .
+                "`range` = " . types_invalue('form_range') . ", " .
+                "standard_code = " . types_invalue('form_standard_code') . ", " .
+                "related_code = " . (isset($_POST['form_diagnosis_code']) ? types_invalue('form_diagnosis_code') : types_invalue('form_related_code')) . ", " .
+                "seq = " . types_invalue('form_seq');
 
             if ($typeid) {
                 sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '" . add_escape_custom($typeid) . "'");

@@ -47,7 +47,7 @@ header("Content-Type: application/json");
  * Main request handler that reads input, verifies the CSRF token, and delegates
  * to the appropriate telemetry service method.
  */
-function handleRequest(): void
+function portal_handleRequest(): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();
     // Read JSON payload.
@@ -76,4 +76,4 @@ function handleRequest(): void
     }
 }
 
-handleRequest();
+portal_handleRequest();

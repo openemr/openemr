@@ -81,7 +81,7 @@ class EhiExportJobTaskService extends BaseService
                 QueryUtils::sqlInsert($patientJoinSql, $joinBind);
                 QueryUtils::commitTransaction();
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;
@@ -124,7 +124,7 @@ class EhiExportJobTaskService extends BaseService
         try {
             QueryUtils::sqlStatementThrowException($sql, $bind);
             QueryUtils::commitTransaction();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;

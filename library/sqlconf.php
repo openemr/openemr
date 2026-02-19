@@ -12,6 +12,7 @@
  */
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SqlConfigEvent;
 use OpenEMR\Common\System\MissingSiteException;
 
@@ -26,8 +27,8 @@ if (empty($siteDir)) {
 
 require_once $siteDir . "/sqlconf.php";
 
-if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel) {
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+if (OEGlobalsBag::getInstance()->hasKernel()) {
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     $sqlConfigEvent = new SqlConfigEvent();
 
     if ($eventDispatcher->hasListeners(SqlConfigEvent::EVENT_NAME)) {
@@ -43,8 +44,6 @@ if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel
         $login = $configEntity->getUser();
         $pass = $configEntity->getPass();
         $dbase = $configEntity->getDatabaseName();
-        $db_encoding = $configEntity->getEncoding();
-        $disable_utf8_flag = $configEntity->getDisableUTF8();
         $config = $configEntity->getConfig();
     }
 }

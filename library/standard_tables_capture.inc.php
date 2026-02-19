@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
@@ -84,9 +85,9 @@ function rxnorm_import($is_windows_flag)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir'] . "/RXNORM/scripts/mysql";
@@ -159,9 +160,9 @@ function rxnorm_import($is_windows_flag)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -172,9 +173,9 @@ function snomed_import($us_extension = false)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     // set up array
@@ -273,9 +274,9 @@ function snomed_import($us_extension = false)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -330,9 +331,9 @@ function snomedRF2_import()
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up array
@@ -476,9 +477,9 @@ function snomedRF2_import()
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -490,9 +491,9 @@ function icd_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up paths
@@ -590,9 +591,9 @@ function icd_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -602,9 +603,9 @@ function valueset_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
@@ -677,9 +678,9 @@ function valueset_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
         return true;
 }

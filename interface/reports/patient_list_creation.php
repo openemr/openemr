@@ -24,15 +24,13 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "../drugs/drugs.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-        ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") ]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
 }
 
 if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -819,10 +817,13 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    if (!AclMain::aclCheckCore($search_options[$srch_option]["acl"][0], $search_options[$srch_option]["acl"][1])) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
-        exit;
+    $optionAcl = $search_options[$srch_option]["acl"];
+    $optionTitle = $search_options[$srch_option]["title"];
+    if (!AclMain::aclCheckCore($optionAcl[0], $optionAcl[1])) {
+        AccessDeniedHelper::denyWithTemplate(
+            "ACL check failed for $optionAcl[0]/$optionAcl[1]: Patient List Creation",
+            xl("Patient List Creation") . " ($optionTitle)",
+        );
     }
 
     // Sorting By filter fields

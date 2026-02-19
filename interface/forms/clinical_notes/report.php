@@ -18,6 +18,7 @@
  */
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -34,7 +35,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id): void
         'notes' => $data
     ];
 
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
+    $twig = new TwigContainer(__DIR__, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('templates/report.html.twig', $viewArgs);
 }

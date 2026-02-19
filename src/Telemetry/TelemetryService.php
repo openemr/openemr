@@ -36,8 +36,11 @@ class TelemetryService
      * @param ?VersionServiceInterface $versionService
      * @param ?LoggerInterface         $logger
      */
-    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
-    {
+    public function __construct(
+        protected ?TelemetryRepository $repository = new TelemetryRepository(),
+        protected ?VersionServiceInterface $versionService = new VersionService(),
+        protected ?LoggerInterface $logger = new SystemLogger(),
+    ) {
     }
 
     /**
@@ -123,13 +126,13 @@ class TelemetryService
     public function reportUsageData(): int|bool
     {
         if (empty($this->isTelemetryEnabled())) {
-            error_log("Telemetry is not enabled, so do not send a usage report.");
+            $this->logger->debug("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
         $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
-            error_log("Site UUID not found.");
+            $this->logger->warning("Site UUID not found.");
         }
 
         // server geo data - don't let geo lookup failures prevent telemetry reporting
@@ -138,7 +141,7 @@ class TelemetryService
             $geo = $this->createGeoTelemetry();
             $serverGeoData = $geo->getServerGeoData();
             if (isset($serverGeoData['error'])) {
-                error_log("Telemetry: Unable to fetch server geolocation - " . $serverGeoData['error'] . ". Continuing with telemetry report.");
+                $this->logger->warning("Telemetry: Unable to fetch server geolocation - {error}. Continuing with telemetry report.", ['error' => $serverGeoData['error']]);
                 // Use null values for geo data if lookup fails
                 $serverGeoData = [
                     'country' => null,
@@ -149,8 +152,8 @@ class TelemetryService
                     'error' => $serverGeoData['error']
                 ];
             }
-        } catch (\Exception $e) {
-            error_log("Telemetry: Exception during geolocation lookup - " . $e->getMessage() . ". Continuing with telemetry report.");
+        } catch (\Throwable $e) {
+            $this->logger->warning("Telemetry: Exception during geolocation lookup - {message}. Continuing with telemetry report.", ['message' => $e->getMessage(), 'exception' => $e]);
             $serverGeoData = [
                 'country' => null,
                 'region' => null,
@@ -203,7 +206,7 @@ class TelemetryService
         $response = $curlResult['response'];
         $httpStatus = $curlResult['httpStatus'];
         if (!empty($curlResult['error'])) {
-            error_log("cURL error: " . $curlResult['error']);
+            $this->logger->error("cURL error: {error}", ['error' => $curlResult['error']]);
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
@@ -211,13 +214,13 @@ class TelemetryService
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                error_log("Error in response: " . json_encode($responseData));
+                $this->logger->error("Error in response: {response}", ['response' => json_encode($responseData)]);
             }
         } else {
-            error_log("HTTP error: " . $httpStatus);
+            $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
-        error_log("Telemetry sent: " . $httpStatus . ': ' . json_encode($serverGeoData));
+        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => json_encode($serverGeoData)]);
         return $httpStatus;
     }
 

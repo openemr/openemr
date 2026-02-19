@@ -15,24 +15,15 @@
  *
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\DbUtils;
 
-// If to use utf-8 or not in my sql query
-if (!$GLOBALS['disable_utf8_flag']) {
-    if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
-        $tmp = "SET NAMES 'UTF8MB4', sql_mode = ''";
-    } else {
-        $tmp = "SET NAMES 'UTF8', sql_mode = ''";
-    }
-} else {
-    $tmp = "SET sql_mode = ''";
-}
-$tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
+$tmp = "SET NAMES 'UTF8MB4', sql_mode = '', time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
-} else {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+$utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
+    $utf8[PDO::ATTR_PERSISTENT] = true;
 }
 
 // Set mysql to use ssl, if applicable.
@@ -63,7 +54,7 @@ $factories = [
 $adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
-    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
+    $dbh = new PDO(DbUtils::buildMysqlDsn($GLOBALS['dbase'], $GLOBALS['host'], $GLOBALS['port']), $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
@@ -71,9 +62,8 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
             $cryptoGen = new CryptoGen();
             $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
-                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
+                'dsn' => DbUtils::buildMysqlDsn($row['dbname'], $row['host'], $row['port'] ?? ''),
                 'driver_options' => $utf8,
-                'port' => $row['port'],
                 'username' => $row['username'],
                 'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
             ];
@@ -96,13 +86,11 @@ $sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', '
 return [
     'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($sqlConf['dbase'] ?? '') . ';host=' . ($sqlConf['host'] ?? ''),
+        'dsn'            => DbUtils::buildMysqlDsn($sqlConf['dbase'] ?? '', $sqlConf['host'] ?? '', $sqlConf['port'] ?? ''),
         'username'       => $sqlConf['login'] ?? '',
         'password'       => $sqlConf['pass'] ?? '',
-        'port'           => $sqlConf['port'] ?? '',
         'driver_options' => $utf8,
-        'adapters' => $adapters
-
+        'adapters'       => $adapters
     ],
     'service_manager' => [
         'factories' => $factories

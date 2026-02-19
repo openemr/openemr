@@ -34,22 +34,6 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim((string) $field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
-
- // Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
-}
 
  // Add an insurance section.
 function addInsurance($row, $seq): void
@@ -172,8 +156,8 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("mname", $row['mname']);
  custom_xml_Add("title", $row['title']);
  custom_xml_Add("ss", Digits($row['ss']));
- custom_xml_Add("dob", LWDate($row['DOB']));
- custom_xml_Add("sex", Sex($row['sex']));
+ custom_xml_Add("dob", fixDate($row['DOB']));
+ custom_xml_Add("sex", hl7Sex($row['sex']));
  custom_xml_Add("street", $row['street']);
  custom_xml_Add("city", $row['city']);
  custom_xml_Add("state", $row['state']);
@@ -196,7 +180,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);
  custom_xml_Add("homeless", $row['homeless']);
- custom_xml_Add("financial_review", LWDate(substr((string) $row['financial_review'], 0, 10)));
+ custom_xml_Add("financial_review", fixDate(substr((string) $row['financial_review'], 0, 10)));
  custom_xml_Add("genericname1", $row['genericname1']);
  custom_xml_Add("genericval1", $row['genericval1']);
  custom_xml_Add("genericname2", $row['genericname2']);
