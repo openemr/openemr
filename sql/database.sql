@@ -8397,20 +8397,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `log_comment_encrypt`
---
 
-DROP TABLE IF EXISTS `log_comment_encrypt`;
-CREATE TABLE `log_comment_encrypt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `log_id` int(11) NOT NULL,
-  `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
-  `checksum` longtext,
-  `checksum_api` longtext,
-  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
