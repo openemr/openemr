@@ -863,26 +863,7 @@ INSERT INTO `edi_sequences` VALUES (0);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `email_queue`
---
-DROP TABLE IF EXISTS `email_queue`;
-CREATE TABLE `email_queue` (
-  `id` bigint NOT NULL auto_increment,
-  `sender` varchar(255) DEFAULT '',
-  `recipient` varchar(255) DEFAULT '',
-  `subject` varchar(255) DEFAULT '',
-  `body` text,
-  `datetime_queued` datetime default NULL,
-  `sent` tinyint DEFAULT 0,
-  `datetime_sent` datetime default NULL,
-  `error` tinyint DEFAULT 0,
-  `error_message` text,
-  `datetime_error` datetime default NULL,
-  `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email',
-PRIMARY KEY (`id`),
-KEY `sent` (`sent`)
-) ENGINE=InnoDb AUTO_INCREMENT=1;
+
 
 -- --------------------------------------------------------
 
