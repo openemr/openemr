@@ -8494,33 +8494,7 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `ccda`
---
 
-DROP TABLE IF EXISTS `ccda`;
-CREATE TABLE ccda (
-  id INT(11) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  pid BIGINT(20) DEFAULT NULL,
-  encounter BIGINT(20) DEFAULT NULL,
-  ccda_data LONGTEXT,
-  time VARCHAR(50) DEFAULT NULL,
-  status SMALLINT(6) DEFAULT NULL,
-  updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  user_id VARCHAR(50) null,
-  couch_docid VARCHAR(100) NULL,
-  couch_revid VARCHAR(100) NULL,
-  `hash` varchar(255) DEFAULT NULL,
-  `view` tinyint(4) NOT NULL DEFAULT '0',
-  `transfer` tinyint(4) NOT NULL DEFAULT '0',
-  `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
-  `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
-  `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
-  PRIMARY KEY (id),
-  UNIQUE KEY `uuid` (`uuid`),
-  UNIQUE KEY unique_key (pid,encounter,time)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
