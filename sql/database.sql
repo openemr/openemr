@@ -8543,12 +8543,6 @@ DROP TABLE IF EXISTS `valueset`;
 --
 
 DROP TABLE IF EXISTS `calendar_external`;
-CREATE TABLE calendar_external (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `date` DATE NOT NULL,
-  `description` VARCHAR(45) NOT NULL,
-  `source` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`)) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
