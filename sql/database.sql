@@ -6475,29 +6475,7 @@ INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `pr
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `notification_log`
---
 
-DROP TABLE IF EXISTS `notification_log`;
-CREATE TABLE `notification_log` (
-  `iLogId` int(11) NOT NULL auto_increment,
-  `pid` bigint(20) NOT NULL,
-  `pc_eid` int(11) unsigned NULL,
-  `sms_gateway_type` varchar(50) NOT NULL,
-  `smsgateway_info` varchar(255) NOT NULL,
-  `message` text,
-  `email_sender` varchar(255) NOT NULL,
-  `email_subject` varchar(255) NOT NULL,
-  `type` enum('SMS','Email') NOT NULL,
-  `patient_info` text,
-  `pc_eventDate` date NOT NULL,
-  `pc_endDate` date NOT NULL,
-  `pc_startTime` time NOT NULL,
-  `pc_endTime` time NOT NULL,
-  `dSentDateTime` datetime NOT NULL,
-  PRIMARY KEY  (`iLogId`)
-) ENGINE=InnoDB AUTO_INCREMENT=5;
 
 -- --------------------------------------------------------
 
