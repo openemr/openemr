@@ -7144,31 +7144,7 @@ CREATE TABLE `payment_gateway_details` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `pnotes`
---
 
-DROP TABLE IF EXISTS `pnotes`;
-CREATE TABLE `pnotes` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `body` longtext,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  `authorized` tinyint(4) default NULL,
-  `title` varchar(255) default NULL,
-  `assigned_to` varchar(255) default NULL,
-  `deleted` tinyint(4) default 0 COMMENT 'flag indicates note is deleted',
-  `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
-  `portal_relation` VARCHAR(100) NULL,
-  `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
-  `update_by` bigint(20) default NULL,
-  `update_date` DATETIME DEFAULT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
