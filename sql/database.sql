@@ -5429,21 +5429,7 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `onsite_messages`
---
 
-DROP TABLE IF EXISTS `onsite_messages`;
-CREATE TABLE `onsite_messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(64) NOT NULL,
-  `message` longtext,
-  `ip` varchar(15) NOT NULL,
-  `date` datetime NOT NULL,
-  `sender_id` VARCHAR(64) NULL COMMENT 'who sent id',
-  `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
