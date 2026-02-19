@@ -8601,26 +8601,7 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_mag_impplan`
---
 
-DROP TABLE IF EXISTS `form_eye_mag_impplan`;
-CREATE TABLE `form_eye_mag_impplan` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `form_id` bigint(20) NOT NULL,
-  `pid` bigint(20) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `code` varchar(50) DEFAULT NULL,
-  `codetype` varchar(50) DEFAULT NULL,
-  `codedesc` varchar(255) DEFAULT NULL,
-  `codetext` varchar(255) DEFAULT NULL,
-  `plan` varchar(3000) DEFAULT NULL,
-  `PMSFH_link` varchar(50) DEFAULT NULL,
-  `IMPPLAN_order` tinyint(4) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `second_index` (`form_id`,`pid`,`title`,`plan`(20))
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
