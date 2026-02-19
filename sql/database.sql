@@ -8647,15 +8647,6 @@ DROP TABLE IF EXISTS `therapy_groups`;
 --
 
 DROP TABLE IF EXISTS `therapy_groups_participants`;
-CREATE TABLE `therapy_groups_participants` (
-  `group_id` int(11) NOT NULL,
-  `pid` bigint(20) NOT NULL,
-  `group_patient_status` int(11) NOT NULL,
-  `group_patient_start` date NOT NULL ,
-  `group_patient_end` date,
-  `group_patient_comment` text,
-  PRIMARY KEY (`group_id`,`pid`)
-) ENGINE=InnoDB;
 
 -- -- ---------------------------------------------------------
 
