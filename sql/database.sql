@@ -1226,47 +1226,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `immunizations`
---
 
-DROP TABLE IF EXISTS `immunizations`;
-CREATE TABLE `immunizations` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) DEFAULT NULL,
-  `patient_id` bigint(20) default NULL,
-  `administered_date` datetime default NULL,
-  `immunization_id` int(11) default NULL,
-  `cvx_code` varchar(64) default NULL,
-  `manufacturer` varchar(100) default NULL,
-  `lot_number` varchar(50) default NULL,
-  `administered_by_id` bigint(20) default NULL,
-  `administered_by` VARCHAR( 255 ) default NULL COMMENT 'Alternative to administered_by_id',
-  `education_date` date default NULL,
-  `vis_date` date default NULL COMMENT 'Date of VIS Statement',
-  `note` text,
-  `create_date` datetime default NULL,
-  `update_date` timestamp NOT NULL,
-  `created_by` bigint(20) default NULL,
-  `updated_by` bigint(20) default NULL,
-  `amount_administered` float DEFAULT NULL,
-  `amount_administered_unit` varchar(50) DEFAULT NULL,
-  `expiration_date` date DEFAULT NULL,
-  `route` varchar(100) DEFAULT NULL,
-  `administration_site` varchar(100) DEFAULT NULL,
-  `added_erroneously` tinyint(1) NOT NULL DEFAULT '0',
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `completion_status` VARCHAR(50) DEFAULT NULL,
-  `information_source` VARCHAR(31) DEFAULT NULL,
-  `refusal_reason` VARCHAR(31) DEFAULT NULL,
-  `ordering_provider` INT(11) DEFAULT NULL,
-  `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
-  `reason_description` text COMMENT 'Human readable text description of the reason_code column',
-  `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record',
-  PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
