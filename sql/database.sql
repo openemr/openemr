@@ -6877,20 +6877,7 @@ CREATE TABLE `onsite_signatures` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `openemr_module_vars`
---
 
-DROP TABLE IF EXISTS `openemr_module_vars`;
-CREATE TABLE `openemr_module_vars` (
-  `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_modname` varchar(64) default NULL,
-  `pn_name` varchar(64) default NULL,
-  `pn_value` longtext,
-  PRIMARY KEY  (`pn_id`),
-  KEY `pn_modname` (`pn_modname`),
-  KEY `pn_name` (`pn_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=235;
 
 --
 -- Inserting data for table `openemr_module_vars`
