@@ -6464,21 +6464,7 @@ DROP TABLE IF EXISTS `verify_email`;
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `automatic_notification`
---
 
-DROP TABLE IF EXISTS `automatic_notification`;
-CREATE TABLE `automatic_notification` (
-  `notification_id` int(5) NOT NULL auto_increment,
-  `sms_gateway_type` varchar(255) NOT NULL,
-  `provider_name` varchar(100) NOT NULL,
-  `message` text,
-  `email_sender` varchar(100) NOT NULL,
-  `email_subject` varchar(100) NOT NULL,
-  `type` enum('SMS','Email') NOT NULL default 'SMS',
-  PRIMARY KEY  (`notification_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3;
 
 --
 -- Inserting data for table `automatic_notification`
