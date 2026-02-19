@@ -8761,50 +8761,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_hpi`
---
 
-DROP TABLE IF EXISTS `form_eye_hpi`;
-CREATE TABLE `form_eye_hpi` (
-  `id`          bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`         bigint(20)   DEFAULT NULL,
-  `CC1`         varchar(255) DEFAULT NULL,
-  `HPI1`        text,
-  `QUALITY1`    varchar(255) DEFAULT NULL,
-  `TIMING1`     varchar(255) DEFAULT NULL,
-  `DURATION1`   varchar(255) DEFAULT NULL,
-  `CONTEXT1`    varchar(255) DEFAULT NULL,
-  `SEVERITY1`   varchar(255) DEFAULT NULL,
-  `MODIFY1`     varchar(255) DEFAULT NULL,
-  `ASSOCIATED1` varchar(255) DEFAULT NULL,
-  `LOCATION1`   varchar(255) DEFAULT NULL,
-  `CHRONIC1`    varchar(255) DEFAULT NULL,
-  `CHRONIC2`    varchar(255) DEFAULT NULL,
-  `CHRONIC3`    varchar(255) DEFAULT NULL,
-  `CC2`         text,
-  `HPI2`        text,
-  `QUALITY2`    text,
-  `TIMING2`     text,
-  `DURATION2`   text,
-  `CONTEXT2`    text,
-  `SEVERITY2`   text,
-  `MODIFY2`     text,
-  `ASSOCIATED2` text,
-  `LOCATION2`   text,
-  `CC3`         text,
-  `HPI3`        text,
-  `QUALITY3`    text,
-  `TIMING3`     text,
-  `DURATION3`   text,
-  `CONTEXT3`    text,
-  `SEVERITY3`   text,
-  `MODIFY3`     text,
-  `ASSOCIATED3` text,
-  `LOCATION3`   text,
-  PRIMARY KEY `hpi_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-)  ENGINE = InnoDB;
 
 
 -- --------------------------------------------------------
