@@ -5586,18 +5586,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `prices`
---
 
-DROP TABLE IF EXISTS `prices`;
-CREATE TABLE `prices` (
-  `pr_id` varchar(11) NOT NULL default '',
-  `pr_selector` varchar(255) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes',
-  `pr_level` varchar(31) NOT NULL default '',
-  `pr_price` decimal(12,2) NOT NULL default '0.00' COMMENT 'price in local currency',
-  PRIMARY KEY  (`pr_id`,`pr_selector`,`pr_level`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
