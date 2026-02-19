@@ -879,11 +879,6 @@ INSERT INTO `edi_sequences` VALUES (0);
 --
 
 DROP TABLE IF EXISTS `enc_category_map`;
-CREATE TABLE `enc_category_map` (
-  `rule_enc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'encounter id from rule_enc_types list in list_options',
-  `main_cat_id` int(11) NOT NULL DEFAULT 0 COMMENT 'category id from event category in openemr_postcalendar_categories',
-  KEY  (`rule_enc_id`,`main_cat_id`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `enc_category_map`
