@@ -19,6 +19,7 @@
 
 require_once(__DIR__ . "/sqlconf.php");
 
+use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -81,7 +82,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         }
     }
     $database->port = $port;
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
+    if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
         $database->PConnect($host, $login, $pass, $dbase);
     } else {
         $database->connect($host, $login, $pass, $dbase);
@@ -609,7 +610,7 @@ function getPrivDB()
             // $port variable is from main sqlconf.php (global scope)
             global $port;
             $GLOBALS['PRIV_DB']->port = $port;
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
+            if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
             } else {
                 $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
