@@ -18,7 +18,7 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\EraPage;
-use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     AccessDeniedHelper::denyWithTemplate(
@@ -31,7 +31,7 @@ $rawEraId = $_GET['eraId'] ?? null;
 $eraId = is_string($rawEraId) ? $rawEraId : '';
 
 try {
-    $fileViewModel = EraPage::downloadEra($eraId);
+    $fileData = EraPage::downloadEra($eraId);
 } catch (\InvalidArgumentException) {
     http_response_code(400);
     echo xlt('Invalid ERA ID format');
@@ -42,12 +42,25 @@ try {
     exit;
 }
 
+if ($fileData === false) {
+    http_response_code(404);
+    echo xlt('ERA file not found');
+    exit;
+}
+
+/** @var string */
+$fileText = $fileData['fileText'] ?? '';
+/** @var string */
+$fileName = $fileData['fileName'] ?? 'download.txt';
+
 header("Pragma: public");
 header("Expires: 0");
 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 header("Content-Type: application/edi-x12");
-header("Content-Length: " . strlen((string) $fileViewModel->fileText));
-header('Content-Disposition: attachment; filename="' . $fileViewModel->fileName . '"');
+header("Content-Length: " . strlen($fileText));
+// Sanitize filename to prevent header injection
+$safeFileName = str_replace(['"', "\r", "\n", "\0"], '', $fileName);
+header('Content-Disposition: attachment; filename="' . $safeFileName . '"');
 header("Content-Description: File Transfer");
-echo (string) $fileViewModel->fileText; // nosemgrep: echoed-request
+echo $fileText; // nosemgrep: echoed-request
 exit;
