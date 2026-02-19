@@ -1214,19 +1214,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd10_gem_dx_10_9`
---
 
-DROP TABLE IF EXISTS `icd10_gem_dx_10_9`;
-CREATE TABLE `icd10_gem_dx_10_9` (
-  `map_id` SERIAL,
-  `dx_icd10_source` varchar(7) default NULL,
-  `dx_icd9_target` varchar(5) default NULL,
-  `flags` varchar(5) default NULL,
-  `active` tinyint default 0,
-  `revision` int default 0
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
