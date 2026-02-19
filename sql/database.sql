@@ -6479,21 +6479,7 @@ INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `pr
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `notification_settings`
---
 
-DROP TABLE IF EXISTS `notification_settings`;
-CREATE TABLE `notification_settings` (
-  `SettingsId` int(3) NOT NULL auto_increment,
-  `Send_SMS_Before_Hours` int(3) NOT NULL,
-  `Send_Email_Before_Hours` int(3) NOT NULL,
-  `SMS_gateway_username` varchar(100) NOT NULL,
-  `SMS_gateway_password` varchar(100) NOT NULL,
-  `SMS_gateway_apikey` varchar(100) NOT NULL,
-  `type` varchar(50) NOT NULL,
-  PRIMARY KEY  (`SettingsId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2;
 
 --
 -- Inserting data for table `notification_settings`
