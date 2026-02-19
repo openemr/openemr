@@ -121,27 +121,7 @@ INSERT INTO `categories_seq` VALUES (34);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `claims`
---
 
-DROP TABLE IF EXISTS `claims`;
-CREATE TABLE `claims` (
-  `patient_id` bigint(20) NOT NULL,
-  `encounter_id` int(11) NOT NULL,
-  `version` int(10) unsigned NOT NULL COMMENT 'Claim version, incremented in code',
-  `payer_id` int(11) NOT NULL default '0',
-  `status` tinyint(2) NOT NULL default '0',
-  `payer_type` tinyint(4) NOT NULL default '0',
-  `bill_process` tinyint(2) NOT NULL default '0',
-  `bill_time` datetime default NULL,
-  `process_time` datetime default NULL,
-  `process_file` varchar(255) default NULL,
-  `target` varchar(30) default NULL,
-  `x12_partner_id` int(11) NOT NULL default '0',
-  `submitted_claim` text COMMENT 'This claims form claim data',
-  PRIMARY KEY  (`patient_id`,`encounter_id`,`version`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
