@@ -8814,16 +8814,6 @@ DROP TABLE IF EXISTS `form_vitals_calculation`;
 
 DROP TABLE IF EXISTS `form_vitals_calculation_form_vitals`;
 
-DROP TABLE IF EXISTS `jwt_grant_history`;
-CREATE TABLE `jwt_grant_history` (
-`id` INT NOT NULL AUTO_INCREMENT
- , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
- , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
- , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
- , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
- , PRIMARY KEY (`id`)
- , KEY `jti` (`jti`)
-) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 
 DROP TABLE IF EXISTS `document_templates`;
 
