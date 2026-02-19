@@ -81,9 +81,6 @@ class FacilityRestController
 
     /**
      * Process a HTTP POST request used to create a facility record.
-     * @param $data - array of facility fields.
-     * @param HttpRestRequest $request - The HTTP request object.
-     * @return a 201/Created status code and the facility identifier if successful.
      */
     public function post($data, HttpRestRequest $request): Response
     {
@@ -93,11 +90,7 @@ class FacilityRestController
     }
 
     /**
-     * Processes a HTTP PUT request used to update an existing facility record.
-     * @param $puuidString - The facility uuid identifier in string format.
-     * @param $data - array of facility fields (full resource).
-     * @param HttpRestRequest $request - The HTTP request object.
-     * @return a 200/Ok status code and the facility resource.
+     * Processes a HTTP PATCH request used to update an existing facility record.
      */
     public function patch($uuid, $data, HttpRestRequest $request): Response
     {
