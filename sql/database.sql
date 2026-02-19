@@ -8892,11 +8892,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('rec
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'DOB', 'Date of Birth', '40');
 
 DROP TABLE IF EXISTS `recent_patients`;
-CREATE TABLE recent_patients (
-    user_id varchar(40) NOT NULL,
-    patients TEXT,
-    PRIMARY KEY (user_id)
-) ENGINE=InnoDB;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES ('lists','nationality_with_country','Nationality',1,1,0,'',NULL,'',0,0,1,'',1,'2023-09-24 18:21:13');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AF', 'Afghan', '10', '0', '0', '', 'Afghanistan', 'AFG:004');
