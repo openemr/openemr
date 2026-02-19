@@ -8607,25 +8607,7 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 
 
 
---
--- Table structure for table `form_taskman`
---
 
-DROP TABLE IF EXISTS `form_taskman`;
-CREATE TABLE `form_taskman` (
-    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-    `REQ_DATE` datetime NOT NULL,
-    `FROM_ID` bigint(20) NOT NULL,
-    `TO_ID` bigint(20) NOT NULL,
-    `PATIENT_ID` bigint(20) NOT NULL, `DOC_TYPE` varchar(20) DEFAULT NULL,
-    `DOC_ID` bigint(20) DEFAULT NULL,
-    `ENC_ID` bigint(20) DEFAULT NULL,
-    `METHOD` varchar(20) NOT NULL, `COMPLETED` varchar(1) DEFAULT NULL COMMENT '1 = completed',
-    `COMPLETED_DATE` datetime DEFAULT NULL,
-    `COMMENT` varchar(50) DEFAULT NULL,
-    `USERFIELD_1` varchar(50) DEFAULT NULL,
-    PRIMARY KEY (`ID`)
-) ENGINE=INNODB;
 
 -- -----------------------------------------------------
 --
