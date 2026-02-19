@@ -12212,41 +12212,7 @@ CREATE TABLE `form_eye_antseg` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_postseg`
---
 
-DROP TABLE IF EXISTS `form_eye_postseg`;
-CREATE TABLE `form_eye_postseg` (
-  `id`              bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`             bigint(20)   DEFAULT NULL,
-  `ODDISC`          text,
-  `OSDISC`          text,
-  `ODCUP`           text,
-  `OSCUP`           text,
-  `ODMACULA`        text,
-  `OSMACULA`        text,
-  `ODVESSELS`       text,
-  `OSVESSELS`       text,
-  `ODVITREOUS`      text,
-  `OSVITREOUS`      text,
-  `ODPERIPH`        text,
-  `OSPERIPH`        text,
-  `ODCMT`           text,
-  `OSCMT`           text,
-  `RETINA_COMMENTS` text,
-  `DIL_RISKS`       char(2)     NOT NULL DEFAULT 'on',
-  `DIL_MEDS`        mediumtext,
-  `WETTYPE`         varchar(10) NOT NULL,
-  `ATROPINE`        varchar(25) NOT NULL,
-  `CYCLOMYDRIL`     varchar(25) NOT NULL,
-  `TROPICAMIDE`     varchar(25) NOT NULL,
-  `CYCLOGYL`        varchar(25) NOT NULL,
-  `NEO25`           varchar(25) NOT NULL,
-  PRIMARY KEY `postseg_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
- )
-  ENGINE = InnoDB;
 
 
 -- --------------------------------------------------------
