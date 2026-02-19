@@ -108,7 +108,7 @@ function prevSetting($uspfx, $postvar, $label, $initval)
 /**
  * Function to set the state of expandable forms as per user choice, user default or global default
  * @deprecated 7.0.3 see UserSettingsService::collectAndOrganizeExpandSetting
- * @return the current state of the file after updating table user_settings
+ * @return string the current state of the file after updating table user_settings
  */
 function collectAndOrganizeExpandSetting($filenames = [])
 {
