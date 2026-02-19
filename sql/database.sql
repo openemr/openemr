@@ -125,21 +125,7 @@ INSERT INTO `categories_seq` VALUES (34);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `clinical_plans`
---
 
-DROP TABLE IF EXISTS `clinical_plans`;
-CREATE TABLE `clinical_plans` (
-  `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_plans',
-  `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
-  `normal_flag` tinyint(1) COMMENT 'Normal Activation Flag',
-  `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_measure_group` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure Group Identifier',
-  PRIMARY KEY  (`id`,`pid`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for Clinical Quality Measure (CQM) plans
