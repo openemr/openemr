@@ -202,9 +202,8 @@ function textArray(array $arr, $depth = 0)
  * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
- * @param string $text The string to escape, possibly including (&), (<),
- *                     (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ * @param string $text The string to escape
+ * @return string
  */
 function attr($text)
 {
