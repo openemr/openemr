@@ -117,16 +117,7 @@ INSERT INTO `categories_seq` VALUES (34);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `categories_to_documents`
---
 
-DROP TABLE IF EXISTS `categories_to_documents`;
-CREATE TABLE `categories_to_documents` (
-  `category_id` int(11) NOT NULL default '0',
-  `document_id` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`category_id`,`document_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
