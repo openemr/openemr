@@ -1940,21 +1940,7 @@ INSERT INTO `gacl_aro_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_axo_sections`
---
 
-DROP TABLE IF EXISTS `gacl_axo_sections`;
-CREATE TABLE `gacl_axo_sections` (
-  `id` int(11) NOT NULL DEFAULT 0,
-  `value` varchar(150) NOT NULL,
-  `order_value` int(11) NOT NULL DEFAULT 0,
-  `name` varchar(230) NOT NULL,
-  `hidden` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `gacl_value_axo_sections` (`value`),
-  KEY `gacl_hidden_axo_sections` (`hidden`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
