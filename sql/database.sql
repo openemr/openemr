@@ -8405,18 +8405,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `ccda_components`
---
 
-DROP TABLE IF EXISTS `ccda_components`;
-CREATE TABLE ccda_components (
-  ccda_components_id int(11) NOT NULL AUTO_INCREMENT,
-  ccda_components_field varchar(100) DEFAULT NULL,
-  ccda_components_name varchar(100) DEFAULT NULL,
-  ccda_type int(11) NOT NULL COMMENT '0=>sections,1=>components',
-  PRIMARY KEY (ccda_components_id)
-) ENGINE=InnoDB AUTO_INCREMENT=23;
 
 --
 -- Inserting data for table `ccda_components`
