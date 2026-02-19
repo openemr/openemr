@@ -8820,21 +8820,6 @@ DROP TABLE IF EXISTS `x12_remote_tracker`;
 DROP TABLE IF EXISTS `export_job`;
 
 DROP TABLE IF EXISTS `form_vital_details`;
-CREATE TABLE `form_vital_details` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`form_id` bigint(20) NOT NULL COMMENT 'FK to vital_forms.id',
-`vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
-`interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
-`interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
-`interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
-`interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
-`reason_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
-`reason_description` TEXT COMMENT 'Human readable text description of the reason_code column',
-`reason_status` VARCHAR(31) NULL DEFAULT NULL COMMENT 'The status of the reason ie completed, in progress, etc',
-PRIMARY KEY (`id`),
-KEY `fk_form_id` (`form_id`),
-KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
-) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
 
 DROP TABLE IF EXISTS `form_vitals_calculation`;
 CREATE TABLE `form_vitals_calculation` (
