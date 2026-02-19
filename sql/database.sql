@@ -8498,23 +8498,7 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `ccda_table_mapping`
---
 
-DROP TABLE IF EXISTS `ccda_table_mapping`;
-CREATE TABLE ccda_table_mapping (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  ccda_component varchar(100) DEFAULT NULL,
-  ccda_component_section varchar(100) DEFAULT NULL,
-  form_dir varchar(100) DEFAULT NULL,
-  form_type smallint(6) DEFAULT NULL,
-  form_table varchar(100) DEFAULT NULL,
-  user_id int(11) DEFAULT NULL,
-  deleted tinyint(4) NOT NULL DEFAULT '0',
-  timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
