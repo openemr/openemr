@@ -5355,17 +5355,7 @@ DROP TABLE IF EXISTS `lists_medication`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `lists_touch`
---
 
-DROP TABLE IF EXISTS `lists_touch`;
-CREATE TABLE `lists_touch` (
-  `pid` bigint(20) NOT NULL default '0',
-  `type` varchar(255) NOT NULL default '',
-  `date` datetime default NULL,
-  PRIMARY KEY  (`pid`,`type`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
