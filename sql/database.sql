@@ -1342,17 +1342,7 @@ INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `lang_custom`
---
 
-DROP TABLE IF EXISTS `lang_custom`;
-CREATE TABLE `lang_custom` (
-  `lang_description` varchar(100) NOT NULL default '',
-  `lang_code` char(2) NOT NULL default '',
-  `constant_name` mediumtext,
-  `definition` mediumtext
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
