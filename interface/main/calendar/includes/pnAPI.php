@@ -241,9 +241,7 @@ function pnDBGetTables()
  * hack attacks don't work
  * @param var name of variable to get
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return mixed prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarCleanFromInput()
 {
@@ -296,9 +294,7 @@ function pnVarCleanFromInput()
  * shown exactly as expected
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForDisplay()
 {
@@ -348,9 +344,7 @@ function pnVarPrepForDisplay()
  * are allowed through
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepHTMLDisplay()
 {
@@ -416,9 +410,7 @@ function pnVarPrepHTMLDisplay()
  * stored in a database exactly as expected
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForStore()
 {
@@ -447,9 +439,7 @@ function pnVarPrepForStore()
  * system is not allowed
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForOS()
 {
