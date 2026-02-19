@@ -846,22 +846,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `drug_templates`
---
 
-DROP TABLE IF EXISTS `drug_templates`;
-CREATE TABLE `drug_templates` (
-  `drug_id` int(11) NOT NULL,
-  `selector` varchar(255) NOT NULL default '',
-  `dosage` varchar(10) default NULL,
-  `period` int(11) NOT NULL default '0',
-  `quantity` int(11) NOT NULL default '0',
-  `refills` int(11) NOT NULL default '0',
-  `taxrates` varchar(255) default NULL,
-  `pkgqty` float NOT NULL DEFAULT 1.0 COMMENT 'Number of product items per template item',
-  PRIMARY KEY  (`drug_id`,`selector`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
