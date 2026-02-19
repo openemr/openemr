@@ -8786,46 +8786,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_external`
---
 
-DROP TABLE IF EXISTS `form_eye_external`;
-CREATE TABLE `form_eye_external` (
-  `id`           bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`          bigint(20)  DEFAULT NULL,
-  `RUL`          text,
-  `LUL`          text,
-  `RLL`          text,
-  `LLL`          text,
-  `RBROW`        text,
-  `LBROW`        text,
-  `RMCT`         text,
-  `LMCT`         text,
-  `RADNEXA`      text,
-  `LADNEXA`      text,
-  `RMRD`         varchar(25) DEFAULT NULL,
-  `LMRD`         varchar(25) DEFAULT NULL,
-  `RLF`          varchar(25) DEFAULT NULL,
-  `LLF`          varchar(25) DEFAULT NULL,
-  `RVFISSURE`    varchar(25) DEFAULT NULL,
-  `LVFISSURE`    varchar(25) DEFAULT NULL,
-  `ODHERTEL`     varchar(25) DEFAULT NULL,
-  `OSHERTEL`     varchar(25) DEFAULT NULL,
-  `HERTELBASE`   varchar(25) DEFAULT NULL,
-  `RCAROTID`     text,
-  `LCAROTID`     text,
-  `RTEMPART`     text,
-  `LTEMPART`     text,
-  `RCNV`         text,
-  `LCNV`         text,
-  `RCNVII`       text,
-  `LCNVII`       text,
-  `EXT_COMMENTS` text,
-  PRIMARY KEY `external_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-)
-  ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
