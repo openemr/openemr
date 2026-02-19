@@ -5566,19 +5566,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `payment_gateway_details`
---
 
-DROP TABLE IF EXISTS `payment_gateway_details`;
-CREATE TABLE `payment_gateway_details` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_name` varchar(100) DEFAULT NULL,
-  `login_id` varchar(255) DEFAULT NULL,
-  `transaction_key` varchar(255) DEFAULT NULL,
-  `md5` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
