@@ -850,39 +850,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `drugs`
---
 
-DROP TABLE IF EXISTS `drugs`;
-CREATE TABLE `drugs` (
-  `drug_id` int(11) NOT NULL auto_increment,
-  `uuid` binary(16) DEFAULT NULL,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `ndc_number` varchar(20) NOT NULL DEFAULT '',
-  `on_order` int(11) NOT NULL default '0',
-  `reorder_point` float NOT NULL DEFAULT 0.0,
-  `max_level` float NOT NULL DEFAULT 0.0,
-  `last_notify` date NULL,
-  `reactions` text,
-  `form` varchar(31) NOT NULL default '0',
-  `size` varchar(25) NOT NULL default '',
-  `unit` varchar(31) NOT NULL default '0',
-  `route` varchar(31) NOT NULL default '0',
-  `substitute` int(11) NOT NULL default '0',
-  `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
-  `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
-  `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
-  `allow_combining` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
-  `allow_multiple`  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse',
-  `drug_code` varchar(25) NULL,
-  `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
-  `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
-  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`drug_id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
