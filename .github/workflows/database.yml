@@ -1,0 +1,83 @@
+name: Database
+
+on:
+  push:
+    branches:
+      - master
+      - rel-*
+  pull_request:
+    branches:
+      - master
+      - rel-*
+
+jobs:
+  mysql:
+    name: Doctrine Migrations MySQL
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: '8.4'
+      - name: Create sqlconf.php
+        run: |
+          cat > sites/default/sqlconf.php << 'EOF'
+          <?php
+          $sqlconf = [
+              'host' => '127.0.0.1',
+              'port' => 3306,
+              'login' => 'root',
+              'pass' => 'root',
+              'dbase' => 'openemr_test',
+              'db_encoding' => 'utf8mb4',
+          ];
+          EOF
+
+      - name: Run migrations
+        run: vendor/bin/doctrine-migrations migrate --no-interaction
+      - name: Verify status
+        run: vendor/bin/doctrine-migrations status
+
+  # # Placeholder jobs for future database support
+  # sqlite:
+  #   name: SQLite (placeholder)
+  #   runs-on: ubuntu-latest
+  #   if: false  # Disabled until SQLite support is implemented
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: '8.4'
+  #     - run: composer install --no-progress
+  #     - name: Run migrations
+  #       env:
+  #         DATABASE_URL: sqlite:///:memory:
+  #       run: vendor/bin/doctrine-migrations migrate --no-interaction
+
+  # postgresql:
+  #   name: PostgreSQL (placeholder)
+  #   runs-on: ubuntu-latest
+  #   if: false  # Disabled until PostgreSQL support is implemented
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: '8.4'
+  #     - run: composer install --no-progress
+  #     - name: Run migrations
+  #       env:
+  #         DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/openemr_test
+  #       run: vendor/bin/doctrine-migrations migrate --no-interaction
