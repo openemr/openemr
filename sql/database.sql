@@ -822,30 +822,7 @@ DROP TABLE IF EXISTS `person_patient_link`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `documents_legal_master`
---
 
-DROP TABLE IF EXISTS `documents_legal_master`;
-CREATE TABLE `documents_legal_master` (
-  `dlm_category` int(10) unsigned DEFAULT NULL,
-  `dlm_subcategory` int(10) unsigned DEFAULT NULL,
-  `dlm_document_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `dlm_document_name` varchar(75) NOT NULL,
-  `dlm_filepath` varchar(75) NOT NULL,
-  `dlm_facility` int(10) unsigned DEFAULT NULL,
-  `dlm_provider` int(10) unsigned DEFAULT NULL,
-  `dlm_sign_height` double NOT NULL,
-  `dlm_sign_width` double NOT NULL,
-  `dlm_filename` varchar(45) NOT NULL,
-  `dlm_effective_date` datetime NOT NULL,
-  `dlm_version` int(10) unsigned NOT NULL,
-  `content` varchar(255) NOT NULL,
-  `dlm_savedsign` varchar(255) DEFAULT NULL COMMENT '0-Yes 1-No',
-  `dlm_review` varchar(255) DEFAULT NULL COMMENT '0-Yes 1-No',
-  `dlm_upload_type` tinyint(4) DEFAULT '0' COMMENT '0-Provider Uploaded,1-Patient Uploaded',
-  PRIMARY KEY (`dlm_document_id`)
-) ENGINE=InnoDB COMMENT='List of Master Docs to be signed' AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
