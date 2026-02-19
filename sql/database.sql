@@ -6456,28 +6456,7 @@ DROP TABLE IF EXISTS `verify_email`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `voids`
---
 
-DROP TABLE IF EXISTS `voids`;
-CREATE TABLE `voids` (
-  `void_id`                bigint(20)    NOT NULL AUTO_INCREMENT,
-  `patient_id`             bigint(20)    NOT NULL            COMMENT 'references patient_data.pid',
-  `encounter_id`           bigint(20)    NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
-  `what_voided`            varchar(31)   NOT NULL            COMMENT 'checkout,receipt and maybe other options later',
-  `date_original`          datetime      DEFAULT NULL        COMMENT 'time of original action that is now voided',
-  `date_voided`            datetime      NOT NULL            COMMENT 'time of void action',
-  `user_id`                bigint(20)    NOT NULL            COMMENT 'references users.id',
-  `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
-  `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
-  `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
-  `reason`                 VARCHAR(31)   default '',
-  `notes`                  VARCHAR(255)  default '',
-  PRIMARY KEY (`void_id`),
-  KEY datevoided (date_voided),
-  KEY pidenc (patient_id, encounter_id)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
