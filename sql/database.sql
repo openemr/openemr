@@ -6548,30 +6548,7 @@ CREATE TABLE `lists_touch` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `log`
---
 
-DROP TABLE IF EXISTS `log`;
-CREATE TABLE `log` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `event` varchar(255) default NULL,
-  `category` varchar(255) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `comments` longtext,
-  `user_notes` longtext,
-  `patient_id` bigint(20) default NULL,
-  `success` tinyint(1) default 1,
-  `checksum` longtext,
-  `crt_user` varchar(255) default NULL,
-  `log_from` VARCHAR(20) DEFAULT 'open-emr',
-  `menu_item_id` INT(11) DEFAULT NULL,
-  `ccda_doc_id` INT(11) DEFAULT NULL COMMENT 'CCDA document id from ccda',
-  PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 
 -- --------------------------------------------------------
