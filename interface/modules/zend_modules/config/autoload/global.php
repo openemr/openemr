@@ -15,15 +15,15 @@
  *
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\DbUtils;
 
 $tmp = "SET NAMES 'UTF8MB4', sql_mode = '', time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
-} else {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+$utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
+    $utf8[PDO::ATTR_PERSISTENT] = true;
 }
 
 // Set mysql to use ssl, if applicable.
