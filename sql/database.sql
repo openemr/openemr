@@ -8766,30 +8766,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_ros`
---
-DROP TABLE IF EXISTS `form_eye_ros`;
-CREATE TABLE `form_eye_ros` (
-  `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`          bigint(20)   DEFAULT NULL,
-  `ROSGENERAL`   text,
-  `ROSHEENT`     text,
-  `ROSCV`        text,
-  `ROSPULM`      text,
-  `ROSGI`        text,
-  `ROSGU`        text,
-  `ROSDERM`      text,
-  `ROSNEURO`     text,
-  `ROSPSYCH`     text,
-  `ROSMUSCULO`   text,
-  `ROSIMMUNO`    text,
-  `ROSENDOCRINE` text,
-  `ROSCOMMENTS`  text,
-  PRIMARY KEY `ros_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
-  ENGINE = InnoDB;
+
 
 -- --------------------------------------------------------
 
