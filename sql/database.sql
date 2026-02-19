@@ -6719,20 +6719,7 @@ CREATE TABLE `notes` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `onotes`
---
 
-DROP TABLE IF EXISTS `onotes`;
-CREATE TABLE `onotes` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `body` longtext,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
