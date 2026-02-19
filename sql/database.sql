@@ -1821,21 +1821,7 @@ CREATE TABLE `form_clinical_notes` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_acl_sections`
---
 
-DROP TABLE IF EXISTS `gacl_acl_sections`;
-CREATE TABLE `gacl_acl_sections` (
-  `id` int(11) NOT NULL DEFAULT 0,
-  `value` varchar(150) NOT NULL,
-  `order_value` int(11) NOT NULL DEFAULT 0,
-  `name` varchar(230) NOT NULL,
-  `hidden` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `gacl_value_acl_sections` (`value`),
-  KEY `gacl_hidden_acl_sections` (`hidden`)
-) ENGINE=InnoDB;
 
 --
 -- Dumping data for table `gacl_acl_sections`
