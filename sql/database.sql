@@ -6256,19 +6256,7 @@ INSERT INTO `sequences` VALUES (1);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `supported_external_dataloads`
---
 
-DROP TABLE IF EXISTS `supported_external_dataloads`;
-CREATE TABLE `supported_external_dataloads` (
-  `load_id` SERIAL,
-  `load_type` varchar(24) NOT NULL DEFAULT '',
-  `load_source` varchar(24) NOT NULL DEFAULT 'CMS',
-  `load_release_date` date NOT NULL,
-  `load_filename` varchar(256) NOT NULL DEFAULT '',
-  `load_checksum` varchar(32) NOT NULL DEFAULT ''
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `supported_external_dataloads`
