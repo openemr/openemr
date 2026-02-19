@@ -14,19 +14,7 @@
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `amendments_history`
---
 
-DROP TABLE IF EXISTS `amendments_history`;
-CREATE TABLE `amendments_history` (
-  `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
-  `amendment_note` text COMMENT 'Amendment requested from',
-  `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
-  `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
-  `created_time` timestamp NULL COMMENT 'created time',
-KEY amendment_history_id(`amendment_id`)
-) ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
