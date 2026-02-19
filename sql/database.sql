@@ -1242,17 +1242,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `insurance_type_codes`
---
 
-DROP TABLE IF EXISTS `insurance_type_codes`;
-CREATE TABLE `insurance_type_codes` (
-  `id` int(2) NOT NULL,
-  `type` varchar(60) NOT NULL,
-  `claim_type` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `insurance_type_codes`
