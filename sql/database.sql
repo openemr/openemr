@@ -8671,35 +8671,6 @@ DROP TABLE IF EXISTS `therapy_groups_counselors`;
 --
 
 DROP TABLE IF EXISTS `form_groups_encounter`;
-CREATE TABLE `form_groups_encounter` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `reason` longtext,
-  `facility` longtext,
-  `facility_id` int(11) NOT NULL default '0',
-  `group_id` bigint(20) default NULL,
-  `encounter` bigint(20) default NULL,
-  `onset_date` datetime default NULL,
-  `sensitivity` varchar(30) default NULL,
-  `billing_note` text,
-  `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
-  `last_level_billed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
-  `last_level_closed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
-  `last_stmt_date`    date DEFAULT NULL,
-  `stmt_count`        int  NOT NULL DEFAULT 0,
-  `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
-  `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
-  `invoice_refno` varchar(31) NOT NULL DEFAULT '',
-  `referral_source` varchar(31) NOT NULL DEFAULT '',
-  `billing_facility` INT(11) NOT NULL DEFAULT 0,
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `pos_code` tinyint(4) default NULL,
-  `counselors` VARCHAR (255),
-  `appt_id` INT(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `pid_encounter` (`group_id`, `encounter`),
-  KEY `encounter_date` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- -- ---------------------------------------------------------
 
