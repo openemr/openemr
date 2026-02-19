@@ -736,14 +736,16 @@ function markTaxes($taxrates): void
  */
 function cron_getFacilitiesMap(FacilityService $facilityService)
 {
+    /** @var array<string, string> $message_map */
     $message_map = $GLOBALS['phone_appt_message'];
     $facility_msg_map = [];
     $facility_phone_map = [];
 
     $facilities = $facilityService->getAllFacility();
     foreach ($facilities as $row) {
-        $facility_msg_map[(int) $row['id']] = (string) ($message_map[$row['name']] ?? '');
-        $facility_phone_map[(int) $row['id']] = (string) $row['phone'];
+        /** @var array{id: int, name: string, phone: string} $row */
+        $facility_msg_map[$row['id']] = $message_map[$row['name']] ?? '';
+        $facility_phone_map[$row['id']] = $row['phone'];
     }
 
     return [
