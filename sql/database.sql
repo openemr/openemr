@@ -783,17 +783,7 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Intramuscular','C2
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 
 -- --------------------------------------------------------
---
--- Table structure for table `contact`
---
-DROP TABLE IF EXISTS `contact`;
-CREATE TABLE `contact` (
-   `id` BIGINT(20) NOT NULL auto_increment,
-   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
-   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
-   PRIMARY KEY (`id`),
-   KEY (`foreign_id`)
-) ENGINE = InnoDB;
+
 
 -- --------------------------------------------------------
 --
