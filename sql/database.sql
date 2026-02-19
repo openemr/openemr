@@ -6440,25 +6440,7 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `uuid_mapping`
---
 
-DROP TABLE IF EXISTS `uuid_mapping`;
-CREATE TABLE `uuid_mapping` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) NOT NULL DEFAULT '',
-  `resource` varchar(255) NOT NULL DEFAULT '',
-  `resource_path` VARCHAR(255) DEFAULT NULL,
-  `table` varchar(255) NOT NULL DEFAULT '',
-  `target_uuid` binary(16) NOT NULL DEFAULT '',
-  `created` timestamp NULL,
-  PRIMARY KEY (`id`),
-  KEY `uuid` (`uuid`),
-  KEY `resource` (`resource`),
-  KEY `table` (`table`),
-  KEY `target_uuid` (`target_uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
