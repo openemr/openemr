@@ -6529,57 +6529,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `procedure_order`
---
 
-DROP TABLE IF EXISTS `procedure_order`;
-CREATE TABLE `procedure_order` (
-  `procedure_order_id`     bigint(20)       NOT NULL AUTO_INCREMENT,
-  `uuid`                   binary(16)       DEFAULT NULL,
-  `provider_id`            bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
-  `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
-  `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
-  `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           datetime         DEFAULT NULL,
-  `order_priority`         varchar(31)      NOT NULL DEFAULT '',
-  `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
-  `patient_instructions`   text,
-  `activity`               tinyint(1)       NOT NULL DEFAULT 1  COMMENT '0 if deleted',
-  `control_id`             varchar(255)     NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
-  `lab_id`                 bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
-  `specimen_type`          varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
-  `specimen_location`      varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
-  `specimen_volume`        varchar(30)      NOT NULL DEFAULT '' COMMENT 'from a text input field',
-  `date_transmitted`       datetime         DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
-  `clinical_hx`            varchar(255)     NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
-  `external_id`            varchar(20)      DEFAULT NULL,
-  `history_order`          enum('0','1')    DEFAULT '0'         COMMENT 'references order is added for history purpose only.',
-  `order_diagnosis`        varchar(255)     DEFAULT ''          COMMENT 'primary order diagnosis',
-  `billing_type`           varchar(4)       DEFAULT NULL,
-  `specimen_fasting`       varchar(31)      DEFAULT NULL,
-  `order_psc`              tinyint(4)       DEFAULT NULL,
-  `order_abn`              varchar(31)      NOT NULL DEFAULT 'not_required',
-  `collector_id`           bigint(11)       NOT NULL DEFAULT 0,
-  `account`                varchar(60)      DEFAULT NULL,
-  `account_facility`       int(11)          DEFAULT NULL,
-  `provider_number`        varchar(30)      DEFAULT NULL,
-  `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
-  `scheduled_date` datetime DEFAULT NULL COMMENT 'Scheduled date for service (FHIR occurrence[x])',
-  `scheduled_start` datetime DEFAULT NULL COMMENT 'Scheduled start time (FHIR occurrencePeriod.start)',
-  `scheduled_end` datetime DEFAULT NULL COMMENT 'Scheduled end time (FHIR occurrencePeriod.end)',
-  `performer_type` varchar(50) DEFAULT NULL COMMENT 'Type of performer: laboratory, radiology, pathology (SNOMED CT)',
-  `order_intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR intent: order, plan, directive, proposal',
-  `location_id` int(11) DEFAULT NULL COMMENT 'References facility.id for service location (FHIR locationReference)',
-  PRIMARY KEY (`procedure_order_id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `datepid` (`date_ordered`,`patient_id`),
-  KEY `patient_id` (`patient_id`),
-  KEY `idx_specimen_type` (`specimen_type`),
-  KEY `idx_scheduled_date` (`scheduled_date`),
-  KEY `idx_order_intent` (`order_intent`),
-  KEY `idx_location_id` (`location_id`)
-) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
 
