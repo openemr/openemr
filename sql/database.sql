@@ -5364,34 +5364,7 @@ DROP TABLE IF EXISTS `lists_medication`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `modules`
---
 
-DROP TABLE IF EXISTS `modules`;
-CREATE TABLE `modules` (
-  `mod_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `mod_name` VARCHAR(64) NOT NULL DEFAULT '0',
-  `mod_directory` VARCHAR(64) NOT NULL DEFAULT '',
-  `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
-  `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
-  `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  `mod_ui_name` VARCHAR(64) NOT NULL DEFAULT '',
-  `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
-  `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
-  `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  `mod_description` VARCHAR(255) NOT NULL DEFAULT '',
-  `mod_nick_name` VARCHAR(25) NOT NULL DEFAULT '',
-  `mod_enc_menu` VARCHAR(10) NOT NULL DEFAULT 'no',
-  `permissions_item_table` CHAR(100) DEFAULT NULL,
-  `directory` VARCHAR(255) NOT NULL,
-  `date` DATETIME NOT NULL,
-  `sql_run` TINYINT(4) DEFAULT '0',
-  `type` TINYINT(4) DEFAULT '0',
-  `sql_version` VARCHAR(150) NOT NULL,
-  `acl_version` VARCHAR(150) NOT NULL,
-  PRIMARY KEY (`mod_id`,`mod_directory`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `modules`
