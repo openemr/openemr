@@ -17,10 +17,7 @@ use OpenEMR\Validators\ProcessingResult;
 interface IResourceUpdateableService
 {
     /**
-     * Inserts a FHIR resource into the system.
-     * @param $fhirResourceId The FHIR Resource ID used to lookup the existing FHIR resource/OpenEMR record
-     * @param $fhirResource The FHIR resource.
-     * @return The OpenEMR Service Result
+     * Updates an existing FHIR resource in the system.
      */
     public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult;
 }
