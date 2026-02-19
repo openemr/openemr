@@ -1282,26 +1282,7 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutuall
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `issue_encounter`
---
 
-DROP TABLE IF EXISTS `issue_encounter`;
-CREATE TABLE `issue_encounter` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes',
-  `pid` bigint(20) NOT NULL,
-  `list_id` int(11) NOT NULL,
-  `encounter` int(11) NOT NULL,
-  `resolved` tinyint(1) NOT NULL,
-  `created_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the issue encounter data',
-  `updated_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that last updated the issue encounter data',
-  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was created',
-  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated',
-  UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid_unique` (`uuid`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
