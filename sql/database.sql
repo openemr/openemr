@@ -790,28 +790,6 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 
 
 DROP TABLE IF EXISTS `contact_telecom`;
-CREATE TABLE `contact_telecom` (
-    `id` BIGINT(20) NOT NULL auto_increment,
-    `contact_id` BIGINT(20) NOT NULL,
-    `rank` INT(11) NULL COMMENT 'Specify preferred order of use (1 = highest)',
-    `system` VARCHAR(255) NULL
-    	COMMENT 'FK to list_options.option_id for list_id telecom_systems [phone, fax, email, pager, url, sms, other]',
-    `use` VARCHAR(255) NULL
-    	COMMENT 'FK to list_options.option_id for list_id telecom_uses [home, work, temp, old, mobile]',
-    `value` varchar(255) default NULL,
-    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
-    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `notes` TINYTEXT,
-    `period_start` DATETIME NULL COMMENT 'Date the telecom became active',
-    `period_end` DATETIME NULL COMMENT 'Date the telecom became deactivated',
-    `inactivated_reason` VARCHAR(45) DEFAULT NULL COMMENT '[Values: ???, etc]',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-   PRIMARY KEY (`id`),
-    KEY (`contact_id`)
-) ENGINE = InnoDB ;
 
 DROP TABLE IF EXISTS `person`;
 CREATE TABLE `person` (
