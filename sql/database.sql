@@ -947,20 +947,7 @@ CREATE  TABLE `erx_ttl_touch` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `standardized_tables_track`
---
 
-DROP TABLE IF EXISTS `standardized_tables_track`;
-CREATE TABLE `standardized_tables_track` (
-  `id` int(11) NOT NULL auto_increment,
-  `imported_date` datetime default NULL,
-  `name` varchar(255) NOT NULL default '' COMMENT 'name of standardized tables such as RXNORM',
-  `revision_version` varchar(255) NOT NULL default '' COMMENT 'revision of standardized tables that were imported',
-  `revision_date` datetime default NULL COMMENT 'revision of standardized tables that were imported',
-  `file_checksum` varchar(32) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
