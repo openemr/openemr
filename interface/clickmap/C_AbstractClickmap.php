@@ -106,10 +106,8 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate an html document from the 'new form' template
-     *
-     * @return the result of smarty's fetch() operation.
      */
-    function default_action()
+    function default_action(): string
     {
         $model = $this->createModel();
         $this->assign("form", $model);
@@ -120,13 +118,8 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate an html document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
      */
-    function view_action($form_id)
+    function view_action($form_id): string
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
@@ -137,13 +130,8 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate a fragment of an HTML document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
      */
-    function report_action($form_id)
+    function report_action($form_id): string
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
