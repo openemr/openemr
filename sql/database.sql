@@ -5537,19 +5537,7 @@ INSERT INTO `openemr_postcalendar_categories`(`pc_catid`, `pc_constant_id`, `pc_
 --
 -- Table structure for table `patient_history` that is a dependent table on `patient_data`
 DROP TABLE IF EXISTS `patient_history`;
---
--- Table structure for table `patient_portal_menu`
---
 
-DROP TABLE IF EXISTS `patient_portal_menu`;
-CREATE TABLE `patient_portal_menu` (
-  `patient_portal_menu_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `patient_portal_menu_group_id` INT(11) DEFAULT NULL,
-  `menu_name` VARCHAR(40) DEFAULT NULL,
-  `menu_order` SMALLINT(4) DEFAULT NULL,
-  `menu_status` TINYINT(2) DEFAULT '1',
-  PRIMARY KEY (`patient_portal_menu_id`)
-) ENGINE=INNODB AUTO_INCREMENT=14;
 
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (1,1,'Dashboard',3,1);
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (2,1,'My Profile',6,1);
