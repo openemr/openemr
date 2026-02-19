@@ -8385,18 +8385,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `product_warehouse`
---
 
-DROP TABLE IF EXISTS `product_warehouse`;
-CREATE TABLE `product_warehouse` (
-  `pw_drug_id`   int(11) NOT NULL,
-  `pw_warehouse` varchar(31) NOT NULL,
-  `pw_min_level` float       DEFAULT 0,
-  `pw_max_level` float       DEFAULT 0,
-  PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
