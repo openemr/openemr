@@ -8816,17 +8816,6 @@ DROP TABLE IF EXISTS `oauth_clients`;
 DROP TABLE IF EXISTS `oauth_trusted_user`;
 
 DROP TABLE IF EXISTS `x12_remote_tracker`;
-CREATE TABLE `x12_remote_tracker` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`x12_partner_id` int(11) NOT NULL,
-`x12_filename` varchar(255) NOT NULL,
-`status` varchar(255) NOT NULL,
-`claims` text,
-`messages` text,
-`created_at` datetime DEFAULT NULL,
-`updated_at` datetime DEFAULT NULL,
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `export_job`;
 CREATE TABLE `export_job` (
