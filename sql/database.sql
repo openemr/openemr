@@ -8814,20 +8814,6 @@ DROP TABLE IF EXISTS `benefit_eligibility`;
 DROP TABLE IF EXISTS `oauth_clients`;
 
 DROP TABLE IF EXISTS `oauth_trusted_user`;
-CREATE TABLE `oauth_trusted_user` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`user_id` varchar(80) DEFAULT NULL,
-`client_id` varchar(80) DEFAULT NULL,
-`scope` text,
-`persist_login` tinyint(1) DEFAULT '0',
-`time` timestamp NULL DEFAULT NULL,
-`code` text,
-`session_cache` text,
-`grant_type` varchar(32) DEFAULT NULL,
-PRIMARY KEY (`id`),
-KEY `accounts_id` (`user_id`),
-KEY `clients_id` (`client_id`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `x12_remote_tracker`;
 CREATE TABLE `x12_remote_tracker` (
