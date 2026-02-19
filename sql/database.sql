@@ -1813,30 +1813,7 @@ CREATE TABLE `form_clinical_notes` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `forms`
---
 
-DROP TABLE IF EXISTS `forms`;
-CREATE TABLE `forms` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `encounter` bigint(20) default NULL,
-  `form_name` longtext,
-  `form_id` bigint(20) default NULL,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default NULL,
-  `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
-  `formdir` longtext,
-  `therapy_group_id` INT(11) DEFAULT NULL,
-  `issue_id` bigint(20) NOT NULL default 0 COMMENT 'references lists.id to identify a case',
-  `provider_id` bigint(20) NOT NULL default 0 COMMENT 'references users.id to identify a provider',
-  PRIMARY KEY  (`id`),
-  KEY `pid_encounter` (`pid`, `encounter`),
-  KEY `form_id` (`form_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
