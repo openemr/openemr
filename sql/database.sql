@@ -2396,17 +2396,7 @@ CREATE TABLE `keys` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `lang_constants`
---
 
-DROP TABLE IF EXISTS `lang_constants`;
-CREATE TABLE `lang_constants` (
-  `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` mediumtext BINARY,
-  UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `constant_name` (`constant_name`(100))
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
