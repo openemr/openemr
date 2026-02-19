@@ -1346,34 +1346,7 @@ INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `layout_group_properties`
---
 
-DROP TABLE IF EXISTS `layout_group_properties`;
-CREATE TABLE `layout_group_properties` (
-  grp_form_id     varchar(31)    not null,
-  grp_group_id    varchar(31)    not null default '' comment 'empty when representing the whole form',
-  grp_title       varchar(63)    not null default '' comment 'descriptive name of the form or group',
-  grp_subtitle    varchar(63)    not null default '' comment 'for display under the title',
-  grp_mapping     varchar(31)    not null default '' comment 'the form category',
-  grp_seq         int(11)        not null default 0  comment 'optional order within mapping',
-  grp_activity    tinyint(1)     not null default 1,
-  grp_repeats     int(11)        not null default 0,
-  grp_columns     int(11)        not null default 0,
-  grp_size        int(11)        not null default 0,
-  grp_issue_type  varchar(75)    not null default '',
-  grp_aco_spec    varchar(63)    not null default '',
-  grp_save_close  tinyint(1)     not null default 0,
-  grp_init_open   tinyint(1)     not null default 0,
-  grp_referrals   tinyint(1)     not null default 0,
-  grp_unchecked   tinyint(1)     not null default 0,
-  grp_services    varchar(4095)  not null default '',
-  grp_products    varchar(4095)  not null default '',
-  grp_diags       varchar(4095)  not null default '',
-  grp_last_update timestamp      NULL,
-  PRIMARY KEY (grp_form_id, grp_group_id)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `layout_group_properties`
