@@ -8782,34 +8782,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_biometrics`
---
 
-DROP TABLE IF EXISTS `form_eye_biometrics`;
-CREATE TABLE `form_eye_biometrics` (
-  `id`            bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`           bigint(20)   DEFAULT NULL,
-  `ODK1`          varchar (10) DEFAULT NULL,
-  `ODK2`          varchar (10) DEFAULT NULL,
-  `ODK2AXIS`      varchar (10) DEFAULT NULL,
-  `OSK1`          varchar (10) DEFAULT NULL,
-  `OSK2`          varchar (10) DEFAULT NULL,
-  `OSK2AXIS`      varchar (10) DEFAULT NULL,
-  `ODAXIALLENGTH` varchar (20) DEFAULT NULL,
-  `OSAXIALLENGTH` varchar (20) DEFAULT NULL,
-  `ODPDMeasured`  varchar (20) DEFAULT NULL,
-  `OSPDMeasured`  varchar (20) DEFAULT NULL,
-  `ODACD`         varchar (20) DEFAULT NULL,
-  `OSACD`         varchar (20) DEFAULT NULL,
-  `ODW2W`         varchar (20) DEFAULT NULL,
-  `OSW2W`         varchar (20) DEFAULT NULL,
-  `ODLT`          varchar (20) DEFAULT NULL,
-  `OSLT`          varchar (20) DEFAULT NULL,
-  PRIMARY KEY `biometrics_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-)
-  ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
