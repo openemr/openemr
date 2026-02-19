@@ -794,30 +794,6 @@ DROP TABLE IF EXISTS `contact_telecom`;
 DROP TABLE IF EXISTS `person`;
 
 DROP TABLE IF EXISTS `contact_relation`;
-CREATE TABLE `contact_relation` (
-    `id`  BIGINT(20) NOT NULL auto_increment,
-    `contact_id`  BIGINT(20) NOT NULL,
-    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
-    `target_id`  BIGINT(20) NOT NULL,
-    `active` BOOLEAN DEFAULT TRUE,
-    `role` VARCHAR(63)  DEFAULT NULL,
-    `relationship` VARCHAR(63)  DEFAULT NULL,
-    `contact_priority` INT DEFAULT 1 COMMENT '1=highest priority',
-    `is_primary_contact` BOOLEAN DEFAULT FALSE,
-    `is_emergency_contact` BOOLEAN DEFAULT FALSE,
-    `can_make_medical_decisions` BOOLEAN DEFAULT FALSE,
-    `can_receive_medical_info` BOOLEAN DEFAULT FALSE,
-    `start_date` DATETIME DEFAULT NULL,
-    `end_date` DATETIME DEFAULT NULL,
-    `notes` TEXT,
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-   PRIMARY KEY (`id`),
-   KEY (`contact_id`),
-   INDEX idx_contact_target_table (target_table, target_id)
-) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `person_patient_link`;
 CREATE TABLE `person_patient_link` (

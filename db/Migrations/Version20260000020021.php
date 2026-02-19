@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Contact relation table
+ */
+final class Version20260000020021 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create contact_relation table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('contact_relation');
+        $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
+        $table->addColumn('contact_id', Types::BIGINT);
+        $table->addColumn('target_table', Types::STRING, ['length' => 255, 'default' => '']);
+        $table->addColumn('target_id', Types::BIGINT);
+        $table->addColumn('active', Types::BOOLEAN);
+        $table->addColumn('role', Types::STRING, [
+            'length' => 63,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('relationship', Types::STRING, [
+            'length' => 63,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('contact_priority', Types::INTEGER, ['default' => 1, 'comment' => '1=highest priority']);
+        $table->addColumn('is_primary_contact', Types::BOOLEAN);
+        $table->addColumn('is_emergency_contact', Types::BOOLEAN);
+        $table->addColumn('can_make_medical_decisions', Types::BOOLEAN);
+        $table->addColumn('can_receive_medical_info', Types::BOOLEAN);
+        $table->addColumn('start_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('end_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('notes', Types::TEXT);
+        $table->addColumn('created_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_by', Types::BIGINT, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'users.id',
+        ]);
+        $table->addColumn('updated_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('updated_by', Types::BIGINT, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'users.id',
+        ]);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
+        $table->addIndex(['contact_id'], null);
+        $table->addIndex(['target_table', 'target_id'], 'idx_contact_target_table');
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('contact_relation');
+    }
+}
