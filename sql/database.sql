@@ -6042,23 +6042,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `rule_patient_data`
---
 
-DROP TABLE IF EXISTS `rule_patient_data`;
-CREATE TABLE `rule_patient_data` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime DEFAULT NULL,
-  `pid` bigint(20) NOT NULL,
-  `category` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the category item in the rule_action_item table',
-  `item` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the item column in the rule_action_item table',
-  `complete` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list yesno',
-  `result` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`id`),
-  KEY (`pid`),
-  KEY (`category`,`item`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
