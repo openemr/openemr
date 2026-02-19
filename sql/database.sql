@@ -2404,18 +2404,7 @@ CREATE TABLE `keys` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `lang_languages`
---
 
-DROP TABLE IF EXISTS `lang_languages`;
-CREATE TABLE `lang_languages` (
-  `lang_id` int(11) NOT NULL auto_increment,
-  `lang_code` char(2) NOT NULL default '',
-  `lang_description` varchar(100) default NULL,
-  `lang_is_rtl` TINYINT DEFAULT 0 COMMENT 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.',
-  UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2;
 
 --
 -- Inserting data for table `lang_languages`
