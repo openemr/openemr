@@ -8639,18 +8639,6 @@ DROP TABLE IF EXISTS `multiple_db`;
 --
 
 DROP TABLE IF EXISTS `therapy_groups`;
-CREATE TABLE `therapy_groups` (
-  `group_id` int(11) NOT NULL auto_increment,
-  `group_name` varchar(255) NOT NULL ,
-  `group_start_date` date NOT NULL ,
-  `group_end_date` date,
-  `group_type` tinyint NOT NULL,
-  `group_participation` tinyint NOT NULL,
-  `group_status` int(11) NOT NULL,
-  `group_notes` text,
-  `group_guest_counselors` varchar(255),
-  PRIMARY KEY  (`group_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
