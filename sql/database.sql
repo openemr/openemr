@@ -8510,36 +8510,7 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_care_plan`
---
 
-DROP TABLE IF EXISTS `form_care_plan`;
-CREATE TABLE `form_care_plan` (
-  `id` bigint(20) NOT NULL,
-  `date` datetime DEFAULT NULL,
-  `pid` bigint(20) DEFAULT NULL,
-  `encounter` varchar(255) DEFAULT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) DEFAULT NULL,
-  `activity` tinyint(4) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `codetext` text,
-  `description` text,
-  `external_id` varchar(30) DEFAULT NULL,
-  `care_plan_type` varchar(30) DEFAULT NULL,
-  `note_related_to` text,
-  `date_end` datetime DEFAULT NULL,
-  `reason_code` varchar(31) DEFAULT NULL,
-  `reason_description` text,
-  `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
-  `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
-  `reason_status` varchar(31) DEFAULT NULL,
-  `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
-  `proposed_date` DATETIME NULL COMMENT 'Target or Achieve-by date for the goal',
-  KEY `idx_status_date` (`plan_status`,`date`,`date_end`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
