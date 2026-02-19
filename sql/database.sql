@@ -180,21 +180,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `batchcom`
---
 
-DROP TABLE IF EXISTS `batchcom`;
-CREATE TABLE `batchcom` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` bigint(20) NOT NULL default '0',
-  `sent_by` bigint(20) NOT NULL default '0',
-  `msg_type` varchar(60) default NULL,
-  `msg_subject` varchar(255) default NULL,
-  `msg_text` mediumtext,
-  `msg_date_sent` datetime NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
