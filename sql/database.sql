@@ -5400,23 +5400,7 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `module_configuration`
---
 
-DROP TABLE IF EXISTS `module_configuration`;
-CREATE TABLE `module_configuration` (
-  `module_config_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `module_id` int(10) unsigned NOT NULL,
-  `field_name` varchar(45) NOT NULL,
-  `field_value` varchar(255) NOT NULL,
-  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
-  `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created',
-  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
-  `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified',
-  `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created',
-  PRIMARY KEY (`module_config_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
