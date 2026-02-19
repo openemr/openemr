@@ -8534,26 +8534,7 @@ DROP TABLE IF EXISTS `valueset`;
 
 -- -------------------------------------------------------
 
---
--- Table structure for table `immunization_observation`
---
 
-DROP TABLE IF EXISTS `immunization_observation`;
-CREATE TABLE `immunization_observation` (
-  `imo_id` int(11) NOT NULL AUTO_INCREMENT,
-  `imo_im_id` int(11) NOT NULL,
-  `imo_pid` int(11) DEFAULT NULL,
-  `imo_criteria` varchar(255) DEFAULT NULL,
-  `imo_criteria_value` varchar(255) DEFAULT NULL,
-  `imo_user` int(11) DEFAULT NULL,
-  `imo_code` varchar(255) DEFAULT NULL,
-  `imo_codetext` varchar(255) DEFAULT NULL,
-  `imo_codetype` varchar(255) DEFAULT NULL,
-  `imo_vis_date_published` date DEFAULT NULL,
-  `imo_vis_date_presented` date DEFAULT NULL,
-  `imo_date_observation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`imo_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
