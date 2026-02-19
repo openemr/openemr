@@ -187,16 +187,7 @@ INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_meas
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `clinical_plans_rules`
---
 
-DROP TABLE IF EXISTS `clinical_plans_rules`;
-CREATE TABLE `clinical_plans_rules` (
-  `plan_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_plans',
-  `rule_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
-  PRIMARY KEY  (`plan_id`,`rule_id`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for Clinical Quality Measure (CQM) plans to rules mappings
