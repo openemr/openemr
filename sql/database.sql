@@ -6561,32 +6561,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `code_types`
---
 
-DROP TABLE IF EXISTS `code_types`;
-CREATE TABLE code_types (
-  ct_key  varchar(15) NOT NULL           COMMENT 'short alphanumeric name',
-  ct_id   int(11)     UNIQUE NOT NULL    COMMENT 'numeric identifier',
-  ct_seq  int(11)     NOT NULL DEFAULT 0 COMMENT 'sort order',
-  ct_mod  int(11)     NOT NULL DEFAULT 0 COMMENT 'length of modifier field',
-  ct_just varchar(15) NOT NULL DEFAULT ''COMMENT 'ct_key of justify type, if any',
-  ct_mask varchar(9)  NOT NULL DEFAULT ''COMMENT 'formatting mask for code values',
-  ct_fee  tinyint(1)  NOT NULL default 0 COMMENT '1 if fees are used',
-  ct_rel  tinyint(1)  NOT NULL default 0 COMMENT '1 if can relate to other code types',
-  ct_nofs tinyint(1)  NOT NULL default 0 COMMENT '1 if to be hidden in the fee sheet',
-  ct_diag tinyint(1)  NOT NULL default 0 COMMENT '1 if this is a diagnosis type',
-  ct_active tinyint(1) NOT NULL default 1 COMMENT '1 if this is active',
-  ct_label varchar(31) NOT NULL default '' COMMENT 'label of this code type',
-  ct_external tinyint(1) NOT NULL default 0 COMMENT '0 if stored codes in codes tables, 1 or greater if codes stored in external tables',
-  ct_claim tinyint(1) NOT NULL default 0 COMMENT '1 if this is used in claims',
-  ct_proc tinyint(1) NOT NULL default 0 COMMENT '1 if this is a procedure type',
-  ct_term tinyint(1) NOT NULL default 0 COMMENT '1 if this is a clinical term',
-  ct_problem tinyint(1) NOT NULL default 0 COMMENT '1 if this code type is used as a medical problem',
-  ct_drug tinyint(1) NOT NULL default 0 COMMENT '1 if this code type is used as a medication',
-  PRIMARY KEY (ct_key)
-) ENGINE=InnoDB;
 
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('ICD9' , 2, 1, 0, ''    , 0, 0, 0, 1, 0, 'ICD9 Diagnosis', 4, 1, 0, 0, 1);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('CPT4' , 1, 2, 12, 'ICD10', 1, 0, 0, 0, 1, 'CPT4 Procedure/Service', 0, 1, 1, 0, 0);
