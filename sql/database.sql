@@ -5404,18 +5404,7 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `modules_hooks_settings`
---
 
-DROP TABLE IF EXISTS `modules_hooks_settings`;
-CREATE TABLE `modules_hooks_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `mod_id` int(11) DEFAULT NULL,
-  `enabled_hooks` varchar(255) DEFAULT NULL,
-  `attached_to` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
