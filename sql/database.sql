@@ -6046,18 +6046,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `rule_reminder`
---
 
-DROP TABLE IF EXISTS `rule_reminder`;
-CREATE TABLE `rule_reminder` (
-  `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
-  `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_reminder_methods',
-  `method_detail` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_reminder_intervals',
-  `value` varchar(255) NOT NULL DEFAULT '',
-  KEY  (`id`)
-) ENGINE=InnoDB;
 
 -- Hypertension: Blood Pressure Measurement
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 'clinical_reminder_pre', 'week', '2');
