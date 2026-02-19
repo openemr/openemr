@@ -7140,22 +7140,7 @@ CREATE TABLE `payment_gateway_details` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `phone_numbers`
---
 
-DROP TABLE IF EXISTS `phone_numbers`;
-CREATE TABLE `phone_numbers` (
-  `id` int(11) NOT NULL default '0',
-  `country_code` varchar(5) default NULL,
-  `area_code` char(3) default NULL,
-  `prefix` char(3) default NULL,
-  `number` varchar(4) default NULL,
-  `type` int(11) default NULL,
-  `foreign_id` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `foreign_id` (`foreign_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
