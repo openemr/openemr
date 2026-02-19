@@ -410,12 +410,12 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmer I'); ?></td>
                     <td><input disabled type="text" name="PRIOR_ODSCHIRMER1" id="PRIOR_ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
-                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHIRMER1" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirmer II'); ?></td>
                     <td><input disabled type="text" name="PRIOR_ODSCHIRMER2" id="PRIOR_ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
-                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHIRMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT{{tear breakup time}}'); ?></td>
@@ -3363,10 +3363,10 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
         $result['ODGONIO'] = $objQuery['ODGONIO'];
         $result['OSGONIO'] = $objQuery['OSGONIO'];
-        $result['ODSHRIMER1'] = $objQuery['ODSHIRMER1'];
-        $result['OSSHRIMER1'] = $objQuery['OSSHIRMER1'];
-        $result['ODSHRIMER2'] = $objQuery['ODSHIRMER2'];
-        $result['OSSHRIMER2'] = $objQuery['OSSHIRMER2'];
+        $result['ODSCHIRMER1'] = $objQuery['ODSCHIRMER1'];
+        $result['OSSCHIRMER1'] = $objQuery['OSSCHIRMER1'];
+        $result['ODSCHIRMER2'] = $objQuery['ODSCHIRMER2'];
+        $result['OSSCHIRMER2'] = $objQuery['OSSCHIRMER2'];
         $result['ODTBUT'] = $objQuery['ODTBUT'];
         $result['OSTBUT'] = $objQuery['OSTBUT'];
         $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
