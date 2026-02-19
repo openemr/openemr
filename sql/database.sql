@@ -943,20 +943,7 @@ CREATE  TABLE `erx_ttl_touch` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `erx_narcotics`
---
 
-DROP TABLE IF EXISTS `erx_narcotics`;
-CREATE TABLE `erx_narcotics` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `drug` varchar(255) NOT NULL,
-  `dea_number` varchar(5) NOT NULL,
-  `csa_sch` varchar(2) NOT NULL,
-  `narc` varchar(2) NOT NULL,
-  `other_names` varchar(255) NOT NULL,
-   PRIMARY KEY (`id`)
-  ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
