@@ -8490,17 +8490,7 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 ('46', '3', 'medical_devices', 'Medical Devices', '0'),
 ('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
 
---
--- Table structure for table `ccda_field_mapping`
---
 
-DROP TABLE IF EXISTS `ccda_field_mapping`;
-CREATE TABLE ccda_field_mapping (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  table_id int(11) DEFAULT NULL,
-  ccda_field varchar(100) DEFAULT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
