@@ -1218,24 +1218,7 @@ INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `icd10_reimbr_dx_9_10`
---
 
-DROP TABLE IF EXISTS `icd10_reimbr_dx_9_10`;
-CREATE TABLE `icd10_reimbr_dx_9_10` (
-  `map_id` SERIAL,
-  `code`        varchar(8),
-  `code_cnt`    tinyint,
-  `ICD9_01`     varchar(5),
-  `ICD9_02`     varchar(5),
-  `ICD9_03`     varchar(5),
-  `ICD9_04`     varchar(5),
-  `ICD9_05`     varchar(5),
-  `ICD9_06`     varchar(5),
-  `active` tinyint default 0,
-  `revision` int default 0
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
