@@ -6955,56 +6955,7 @@ INSERT INTO `openemr_postcalendar_categories`(`pc_catid`, `pc_constant_id`, `pc_
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `openemr_postcalendar_events`
---
 
-DROP TABLE IF EXISTS `openemr_postcalendar_events`;
-CREATE TABLE `openemr_postcalendar_events` (
-  `pc_eid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catid` int(11) NOT NULL default '0',
-  `pc_multiple` int(10) unsigned NOT NULL,
-  `pc_aid` varchar(30) default NULL,
-  `pc_pid` varchar(11) default NULL,
-  `pc_gid` int(11) default 0,
-  `pc_title` varchar(150) default NULL,
-  `pc_time` datetime default NULL,
-  `pc_hometext` text,
-  `pc_comments` int(11) default '0',
-  `pc_counter` mediumint(8) unsigned default '0',
-  `pc_topic` int(3) NOT NULL default '1',
-  `pc_informant` varchar(20) default NULL,
-  `pc_eventDate` date NOT NULL default '0000-00-00',
-  `pc_endDate` date NOT NULL default '0000-00-00',
-  `pc_duration` bigint(20) NOT NULL default '0',
-  `pc_recurrtype` int(1) NOT NULL default '0',
-  `pc_recurrspec` text,
-  `pc_recurrfreq` int(3) NOT NULL default '0',
-  `pc_startTime` time default NULL,
-  `pc_endTime` time default NULL,
-  `pc_alldayevent` int(1) NOT NULL default '0',
-  `pc_location` text,
-  `pc_conttel` varchar(50) default NULL,
-  `pc_contname` varchar(50) default NULL,
-  `pc_contemail` varchar(255) default NULL,
-  `pc_website` varchar(255) default NULL,
-  `pc_fee` varchar(50) default NULL,
-  `pc_eventstatus` int(11) NOT NULL default '0',
-  `pc_sharing` int(11) NOT NULL default '0',
-  `pc_language` varchar(30) default NULL,
-  `pc_apptstatus` varchar(15) NOT NULL default '-',
-  `pc_prefcatid` int(11) NOT NULL default '0',
-  `pc_facility` int(11) NOT NULL default '0' COMMENT 'facility id for this event',
-  `pc_sendalertsms` VARCHAR(3) NOT NULL DEFAULT 'NO',
-  `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
-  `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',
-  `pc_room` varchar(20) NOT NULL DEFAULT '',
-  `uuid` binary(16) DEFAULT NULL,
-  PRIMARY KEY  (`pc_eid`),
-  KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
-  KEY `pc_eventDate` (`pc_eventDate`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=7;
 
 -- --------------------------------------------------------
 
