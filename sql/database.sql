@@ -8623,23 +8623,6 @@ DROP TABLE IF EXISTS `product_registration`;
 --
 
 DROP TABLE IF EXISTS `codes_history`;
-CREATE TABLE `codes_history` (
-  `log_id` bigint(20) NOT NULL auto_increment,
-  `date` datetime,
-  `code` varchar(25),
-  `modifier` varchar(12),
-  `active` tinyint(1),
-  `diagnosis_reporting` tinyint(1),
-  `financial_reporting` tinyint(1),
-  `category` varchar(255),
-  `code_type_name` varchar(255),
-  `code_text` text,
-  `code_text_short` text,
-  `prices` text,
-  `action_type` varchar(25),
-  `update_by` varchar(255),
-   PRIMARY KEY (`log_id`)
-) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------
 
