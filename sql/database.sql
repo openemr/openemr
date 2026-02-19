@@ -859,23 +859,7 @@ INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_ca
 INSERT INTO `edi_sequences` VALUES (0);
 -- --------------------------------------------------------
 
---
--- Table structure for table `eligibility_verification`
---
 
-DROP TABLE IF EXISTS `eligibility_verification`;
-CREATE TABLE `eligibility_verification` (
-  `verification_id` bigint(20) NOT NULL auto_increment,
-  `response_id` varchar(32) default NULL,
-  `insurance_id` bigint(20) default NULL,
-  `eligibility_check_date` datetime default NULL,
-  `copay` int(11) default NULL,
-  `deductible` int(11) default NULL,
-  `deductiblemet` enum('Y','N') default 'Y',
-  `create_date` date default NULL,
-  PRIMARY KEY  (`verification_id`),
-  KEY `insurance_id` (`insurance_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
