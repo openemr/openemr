@@ -6505,17 +6505,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `lbf_data`
---
 
-DROP TABLE IF EXISTS `lbf_data`;
-CREATE TABLE `lbf_data` (
-  `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
-  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` LONGTEXT,
-  PRIMARY KEY (`form_id`,`field_id`)
-) ENGINE=InnoDB COMMENT='contains all data from layout-based forms';
 
 -- -----------------------------------------------------------------------------------
 
