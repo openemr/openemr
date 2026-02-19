@@ -1308,18 +1308,6 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 
 -- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
-    `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `sdoh_history_id` bigint(20) UNSIGNED NOT NULL COMMENT 'FK to form_history_sdoh.id',
-    `health_concern_id` bigint(20) NOT NULL COMMENT 'FK to lists.id where type=health_concern or medical_problem',
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` bigint(20) DEFAULT NULL COMMENT 'FK to users.id',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_sdoh_concern` (`sdoh_history_id`, `health_concern_id`),
-    KEY `idx_sdoh_history` (`sdoh_history_id`),
-    KEY `idx_health_concern` (`health_concern_id`)
-) ENGINE=InnoDB COMMENT='Links SDOH assessments to health concern conditions';
-
 
 
 -- --------------------------------------------------------
