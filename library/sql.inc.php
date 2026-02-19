@@ -55,10 +55,7 @@ $ADODB_LASTDB = 'mysqli_log';
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
     $config = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
-    $persistent = false;
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
-        $persistent = true;
-    }
+    $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
     $database = DatabaseConnectionFactory::createAdodb($config, $persistent);
     $GLOBALS['adodb']['db'] = $database;
     $GLOBALS['dbh'] = $database->_connectionID;
@@ -572,7 +569,7 @@ function getPrivDB()
             // $port variable is from main sqlconf.php (global scope)
             global $port;
             $GLOBALS['PRIV_DB']->port = $port;
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
+            if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
             } else {
                 $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
