@@ -6444,22 +6444,7 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `uuid_registry`
---
 
-DROP TABLE IF EXISTS `uuid_registry`;
-CREATE TABLE `uuid_registry` (
-  `uuid` binary(16) NOT NULL DEFAULT '',
-  `table_name` varchar(255) NOT NULL DEFAULT '',
-  `table_id` varchar(255) NOT NULL DEFAULT '',
-  `table_vertical` varchar(255) NOT NULL DEFAULT '',
-  `couchdb` varchar(255) NOT NULL DEFAULT '',
-  `document_drive` tinyint(4) NOT NULL DEFAULT '0',
-  `mapped` tinyint(4) NOT NULL DEFAULT '0',
-  `created` timestamp NULL,
-  PRIMARY KEY (`uuid`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
