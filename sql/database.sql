@@ -6412,17 +6412,7 @@ DROP TABLE IF EXISTS `users_secure`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `user_settings`
---
 
-DROP TABLE IF EXISTS `user_settings`;
-CREATE TABLE `user_settings` (
-  `setting_user`  bigint(20)   NOT NULL DEFAULT 0,
-  `setting_label` varchar(100)  NOT NULL,
-  `setting_value` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`setting_user`, `setting_label`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `user_settings`
