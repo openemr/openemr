@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Gacl phpgacl table
+ */
+final class Version20260000010040 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create gacl_phpgacl table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('gacl_phpgacl');
+        $table->addColumn('name', Types::STRING, ['length' => 230]);
+        $table->addColumn('value', Types::STRING, ['length' => 150]);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('name')
+                ->create()
+        );
+
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('gacl_phpgacl');
+    }
+}

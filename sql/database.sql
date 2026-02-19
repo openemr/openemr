@@ -1952,16 +1952,7 @@ INSERT INTO `gacl_aro_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `gacl_phpgacl`
---
 
-DROP TABLE IF EXISTS `gacl_phpgacl`;
-CREATE TABLE `gacl_phpgacl` (
-  `name` varchar(230) NOT NULL,
-  `value` varchar(150) NOT NULL,
-  PRIMARY KEY (`name`)
-) ENGINE=InnoDB;
 
 
 --
