@@ -74,7 +74,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
         foreach ($result2 as $iter) {
             $authorize[$iter["pid"]]["transaction"] .= "<span class=small>" .
               text($iter["user"]) . ": </span><span class=text>" .
-              text($iter["title"] . ": " . strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
+              text($iter["title"] . ": " . strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) . // @phpstan-ignore argument.type
               "</span><br />\n";
         }
     }
@@ -91,7 +91,7 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
             foreach ($result3 as $iter) {
                 $authorize[$iter["pid"]]["pnotes"] .= "<span class=small>" .
                 text($iter["user"]) . ": </span><span class=text>" .
-                text(strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
+                text(strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) . // @phpstan-ignore argument.type
                 "</span><br />\n";
             }
         }
