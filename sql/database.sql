@@ -8358,20 +8358,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `version`
---
 
-DROP TABLE IF EXISTS `version`;
-CREATE TABLE version (
-  v_major    int(11)     NOT NULL DEFAULT 0,
-  v_minor    int(11)     NOT NULL DEFAULT 0,
-  v_patch    int(11)     NOT NULL DEFAULT 0,
-  v_realpatch int(11)    NOT NULL DEFAULT 0,
-  v_tag      varchar(31) NOT NULL DEFAULT '',
-  v_database int(11)     NOT NULL DEFAULT 0,
-  v_acl      int(11)     NOT NULL DEFAULT 0
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `version`
