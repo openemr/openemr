@@ -1382,35 +1382,7 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `layout_options`
---
 
-DROP TABLE IF EXISTS `layout_options`;
-CREATE TABLE `layout_options` (
-  `form_id` varchar(31) NOT NULL default '',
-  `field_id` varchar(31) NOT NULL default '',
-  `group_id` varchar(31) NOT NULL default '',
-  `title` text,
-  `seq` int(11) NOT NULL default '0',
-  `data_type` tinyint(3) NOT NULL default '0',
-  `uor` tinyint(1) NOT NULL default '1',
-  `fld_length` int(11) NOT NULL default '15',
-  `max_length` int(11) NOT NULL default '0',
-  `list_id` varchar(100) NOT NULL default '',
-  `titlecols` tinyint(3) NOT NULL default '1',
-  `datacols` tinyint(3) NOT NULL default '1',
-  `default_value` varchar(255) NOT NULL default '',
-  `edit_options` varchar(36) NOT NULL default '',
-  `description` text,
-  `fld_rows` int(11) NOT NULL default '0',
-  `list_backup_id` varchar(100) NOT NULL default '',
-  `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
-  `conditions` text COMMENT 'serialized array of skip conditions',
-  `validation` varchar(100) default NULL,
-  `codes` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`form_id`,`field_id`,`seq`)
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `layout_options`
