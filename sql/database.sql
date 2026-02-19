@@ -969,16 +969,7 @@ INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000',
 
 -- ---------------------------------------------------------
 
---
--- Table structure for table `fee_sheet_options`
---
 
-DROP TABLE IF EXISTS `fee_sheet_options`;
-CREATE TABLE `fee_sheet_options` (
-  `fs_category` varchar(63) default NULL,
-  `fs_option` varchar(63) default NULL,
-  `fs_codes` varchar(255) default NULL
-) ENGINE=InnoDB;
 
 --
 -- Inserting data for table `fee_sheet_options`
