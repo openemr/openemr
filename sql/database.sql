@@ -8663,11 +8663,6 @@ DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 --
 
 DROP TABLE IF EXISTS `therapy_groups_counselors`;
-CREATE TABLE `therapy_groups_counselors`(
-    `group_id` int(11) NOT NULL,
-    `user_id` int(11) NOT NULL,
-    PRIMARY KEY (`group_id`,`user_id`)
-) ENGINE=InnoDB;
 
 -- -- ---------------------------------------------------------
 
