@@ -159,23 +159,7 @@ CREATE TABLE `audit_details` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `background_services`
---
 
-DROP TABLE IF EXISTS `background_services`;
-CREATE TABLE `background_services` (
-  `name` varchar(31) NOT NULL,
-  `title` varchar(127) NOT NULL COMMENT 'name for reports',
-  `active` tinyint(1) NOT NULL default '0',
-  `running` tinyint(1) NOT NULL default '-1' COMMENT 'True indicates managed service is busy. Skip this interval',
-  `next_run` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `execute_interval` int(11) NOT NULL default '0' COMMENT 'minimum number of minutes between function calls,0=manual mode',
-  `function` varchar(127) NOT NULL COMMENT 'name of background service function',
-  `require_once` varchar(255) default NULL COMMENT 'include file (if necessary)',
-  `sort_order` int(11) NOT NULL default '100' COMMENT 'lower numbers will be run first',
-  PRIMARY KEY  (`name`)
-) ENGINE=InnoDB;
 
 
 
