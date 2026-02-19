@@ -7,6 +7,8 @@ namespace OpenEMR\BC;
 use ADODB_mysqli_log;
 use mysqli;
 use RuntimeException;
+use OpenEMR\Common\Session\SessionWrapperInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create new connections.
@@ -70,6 +72,7 @@ class DatabaseConnectionFactory
      */
     public static function createMysqli(
         DatabaseConnectionOptions $config,
+        bool $persistent,
     ): mysqli {
         $mysqli = new mysqli();
         $mysqli->options(MYSQLI_READ_DEFAULT_GROUP, 0);
@@ -109,6 +112,43 @@ class DatabaseConnectionFactory
         $mysqli->set_charset($config->charset);
         $mysqli->query("SET sql_mode = ''");
         return $mysqli;
+    }
+
+    public static function detectConnectionPersistence(
+        ParameterBag $globals,
+        SessionWrapperInterface $session,
+    ): bool {
+        if ($globals->getBoolean('connection_pooling_off')) {
+            return false;
+        }
+        if ($globals->getBoolean('enable_database_connection_pooling')) {
+            return true;
+        }
+        if (!empty($session->get('enable_database_connection_pooling'))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @deprecated Relies on global state; prefer explicit configuration
+     */
+    public static function detectConnectionPersistenceFromGlobalState(): bool
+    {
+        // If connection pooling is explicitly disabled, return false
+        if (!empty($GLOBALS['connection_pooling_off'])) {
+            return false;
+        }
+
+        // Check if pooling is enabled via globals or session
+        if (!empty($GLOBALS['enable_database_connection_pooling'])) {
+            return true;
+        }
+        if (!empty($_SESSION['enable_database_connection_pooling'])) {
+            return true;
+        }
+
+        return false;
     }
 
     private static function loadAdodbClasses(): void

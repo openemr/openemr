@@ -9,6 +9,7 @@ require_once("verysimple/DB/DatabaseConfig.php");
 
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
@@ -67,11 +68,13 @@ class DataDriverMySQLi implements IDataDriver
         // Important: this completely ignores the parameters in favor of the
         // standard options reading/parsing. They're sourced from the same
         // place so it doesn't really matter.
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $globalsBag = OEGlobalsBag::getInstance();
         $config = DatabaseConnectionOptions::forSite($globalsBag->getString('OE_SITE_DIR'));
+        $persistent = DatabaseConnectionFactory::detectConnectionPersistence($globalsBag, $session);
 
         try {
-            $connection = DatabaseConnectionFactory::createMysqli($config);
+            $connection = DatabaseConnectionFactory::createMysqli($config, $persistent);
         } catch (RuntimeException $e) {
             throw new DatabaseException($e->getMessage(), DatabaseException::$CONNECTION_ERROR);
         }
