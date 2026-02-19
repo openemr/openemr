@@ -1025,32 +1025,7 @@ CREATE TABLE `clinical_rules_log` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `codes`
---
 
-DROP TABLE IF EXISTS `codes`;
-CREATE TABLE `codes` (
-  `id` int(11) NOT NULL auto_increment,
-  `code_text` text,
-  `code_text_short` text,
-  `code` varchar(25) NOT NULL default '',
-  `code_type` smallint(6) default NULL,
-  `modifier` varchar(12) NOT NULL default '',
-  `units` int(11) default NULL,
-  `fee` decimal(12,2) default NULL,
-  `superbill` varchar(31) NOT NULL default '',
-  `related_code` varchar(255) NOT NULL default '',
-  `taxrates` varchar(255) NOT NULL default '',
-  `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
-  `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
-  `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
-  `financial_reporting` TINYINT(1) DEFAULT 0 COMMENT '0 = negative, 1 = considered important code in financial reporting',
-  `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
-  PRIMARY KEY  (`id`),
-  KEY `code` (`code`),
-  KEY `code_type` (`code_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('suspension','C60928',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('tablet','C42998',112);
