@@ -6553,23 +6553,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- ------------------------------------------------------------------------
 
---
--- Table structure for table `procedure_order_relationships`
---
 
-DROP TABLE IF EXISTS `procedure_order_relationships`;
-CREATE TABLE `procedure_order_relationships` (
- `id` INT AUTO_INCREMENT PRIMARY KEY,
- `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'Links to procedure_order.procedure_order_id',
- `resource_type` VARCHAR(50) NOT NULL COMMENT 'FHIR resource type (Observation, Condition, etc.)',
- `resource_uuid` BINARY(16) NOT NULL COMMENT 'UUID of the related resource',
- `relationship` VARCHAR(50) DEFAULT NULL COMMENT 'Type of relationship',
- `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- `created_by` BIGINT(20) DEFAULT NULL COMMENT 'User who created this link',
- INDEX `idx_order_id` (`procedure_order_id`),
- INDEX `idx_resource` (`resource_type`, `resource_uuid`),
- INDEX `idx_created_at` (`created_at`)
-) ENGINE=InnoDB COMMENT='Links ServiceRequests to supporting clinical information';
 
 -- -----------------------------------------------------------------------------------
 
