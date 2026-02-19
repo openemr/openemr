@@ -8368,24 +8368,7 @@ INSERT INTO version (v_major, v_minor, v_patch, v_realpatch, v_tag, v_database, 
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `customlists`
---
 
-DROP TABLE IF EXISTS `customlists`;
-CREATE TABLE `customlists` (
-  `cl_list_slno` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `cl_list_id` int(10) unsigned NOT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_id)+1',
-  `cl_list_item_id` int(10) unsigned DEFAULT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_item_id)+1',
-  `cl_list_type` int(10) unsigned NOT NULL COMMENT '0=>List Name 1=>list items 2=>Context 3=>Template 4=>Sentence 5=> SavedTemplate 6=>CustomButton',
-  `cl_list_item_short` varchar(10) DEFAULT NULL,
-  `cl_list_item_long` text,
-  `cl_list_item_level` int(11) DEFAULT NULL COMMENT 'Flow level for List Designation',
-  `cl_order` int(11) DEFAULT NULL,
-  `cl_deleted` tinyint(1) DEFAULT '0',
-  `cl_creator` int(11) DEFAULT NULL,
-  PRIMARY KEY (`cl_list_slno`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 --
 -- Inserting data for table `customlists`
