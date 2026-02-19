@@ -8740,19 +8740,6 @@ INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `
 --
 -- Table structure for table `medex_outgoing`
 DROP TABLE IF EXISTS `medex_outgoing`;
-CREATE TABLE `medex_outgoing` (
-  `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
-  `msg_pid` int(11) NOT NULL,
-  `msg_pc_eid` varchar(11) NOT NULL,
-  `campaign_uid` int(11) NOT NULL DEFAULT '0',
-  `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `msg_type` varchar(50) NOT NULL,
-  `msg_reply` varchar(50) DEFAULT NULL,
-  `msg_extra_text` text,
-  `medex_uid` int(11),
-  PRIMARY KEY (`msg_uid`),
-  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`,`medex_uid`)
-) ENGINE=InnoDB;
 
 --
 -- Dumping data for table `medex_outgoing`
