@@ -92,8 +92,10 @@ class DatabaseConnectionFactory
 
         // TODO: Sockets support (do all paths at once)
 
+        $host = $persistent ? $config->host : sprintf('p:%s', $config->host);
+
         $success = $mysqli->real_connect(
-            hostname: $config->host,
+            hostname: $host,
             username: $config->user,
             password: $config->password,
             database: $config->dbname,
