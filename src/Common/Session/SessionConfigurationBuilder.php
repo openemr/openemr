@@ -114,7 +114,7 @@ class SessionConfigurationBuilder
     public static function forSetup(): array
     {
         return (new self())
-            ->setName('setupOpenEMR')
+            ->setName(SessionUtil::SETUP_SESSION_ID)
             ->build();
     }
 }

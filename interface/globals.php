@@ -65,8 +65,8 @@ $GLOBALS['debug_ssl_mysql_connection'] = false;
  * - OPENEMR_SETTING_http_verify_ssl (true/false/1/0/yes/no)
  * - OPENEMR_SETTING_http_ca_cert (path to CA certificate file, e.g., /var/www/certs/ca-cert.pem)
  *
- * @var bool $GLOBALS['http_verify_ssl'] - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
- * @var string|false $GLOBALS['http_ca_cert'] - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
+ * $GLOBALS['http_verify_ssl'] (bool) - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
+ * $GLOBALS['http_ca_cert'] (string|false) - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
  *
  * SSL Verification Logic:
  * - Loopback addresses (localhost, 127.x.x.x, ::1) → SSL verification always disabled

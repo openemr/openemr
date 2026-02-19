@@ -62,6 +62,7 @@ require_once __DIR__ . "/vendor/autoload.php";
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
@@ -302,16 +303,18 @@ if (empty($state)) {
     }
     // set up new blank session and csrf mechanism
     SessionUtil::setupScriptSessionStart();
-    session_regenerate_id(true);
-    $_SESSION = [];
-    CsrfUtils::setupCsrfKey();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $session->migrate(true);
+    $session->clear();
+    CsrfUtils::setupCsrfKey($session);
 } else {
     // start up session and check csrf
     SessionUtil::setupScriptSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $state = (int)$state;
     $verifyCsrf = false;
     if (($state > 0) && ($state < 8)) {
-        $verifyCsrf = CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "state" . $state);
+        $verifyCsrf = CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "state" . $state, $session);
     } else {
         SessionUtil::setupScriptSessionCookieDestroy();
         die("Not authorized (invalid state)");
@@ -322,7 +325,7 @@ if (empty($state)) {
     }
 
     // ensure correct state is going (ie. do not allow users to muck around with this)
-    if ($_SESSION['bootstrapStateInSetup'] != $state) {
+    if ($session->get('bootstrapStateInSetup') != $state) {
         SessionUtil::setupScriptSessionCookieDestroy();
         die("Not authorized (incorrect state)");
     }
@@ -558,10 +561,10 @@ ENDDIV;
 
             switch ($state) {
                 case 1:
-                    $_SESSION['bootstrapStateInSetup'] = 2;
+                    $session->set('bootstrapStateInSetup', 2);
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
-                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state2'));
+                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state2', $session));
                     $step1 = <<<STP1
                     <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
                     <div class="jumbotron p-5">
@@ -601,11 +604,11 @@ STP1;
                     break;
 
                 case 2:
-                    $_SESSION['bootstrapStateInSetup'] = 3;
+                    $session->set('bootstrapStateInSetup', 3);
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
                     $inst_esc = attr($inst);
-                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state3'));
+                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state3', $session));
                     $step2top = <<<STP2TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
                     <div class="jumbotron p-5">
@@ -1174,14 +1177,14 @@ STP2TBLBOT;
                     }
 
                     if (!$pass_step2_validation) {
-                        $_SESSION['bootstrapStateInSetup'] = 2;
+                        $session->set('bootstrapStateInSetup', 2);
                         echo $error_step2_message . '<br />';
                         echo "
                         <form method='post' id='validate-error'>
                             <input name='state' type='hidden' value='2' />
                             <input name='site' type='hidden' value='" . attr($site_id) . "' />
                             <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2', $session)) . "' />
                             <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                         </form>";
                         break;
@@ -1195,7 +1198,7 @@ STP2TBLBOT;
                         echo "Connecting to MySQL Server...\n";
                         flush();
                         if (! $installer->root_database_connection()) {
-                            $_SESSION['bootstrapStateInSetup'] = 2;
+                            $session->set('bootstrapStateInSetup', 2);
                             echo "$error.  Check your login credentials.\n";
                             echo text($installer->error_message);
                             echo "<br /><br />";
@@ -1204,7 +1207,7 @@ STP2TBLBOT;
                                 <input name='state' type='hidden' value='2' />
                                 <input name='site' type='hidden' value='" . attr($site_id) . "' />
                                 <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                                <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2')) . "' />
+                                <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2', $session)) . "' />
                                 <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                             </form>";
                             break;
@@ -1431,10 +1434,10 @@ TOTP;
                         $next_state = 4;
                     }
 
-                    $_SESSION['bootstrapStateInSetup'] = $next_state;
+                    $session->set('bootstrapStateInSetup', $next_state);
                     echo "<form method='post'>
                           <input name='state' type='hidden' value='" . attr($next_state) . "' />
-                          <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state' . $next_state)) . "' />
+                          <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state' . $next_state, $session)) . "' />
                           <input name='site' type='hidden' value='" . attr($site_id) . "' />
                           <input name='iuser' type='hidden' value='" . attr($installer->iuser) . "' />
                           <input name='iuserpass' type='hidden' value='" . attr($installer->iuserpass) . "' />
@@ -1467,7 +1470,7 @@ FRMBOT;
                     break;
 
                 case 4:
-                    $_SESSION['bootstrapStateInSetup'] = 5;
+                    $session->set('bootstrapStateInSetup', 5);
                     $state_esc = text($state);
                     $step4_top = <<<STP4TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Configure PHP</h3>
@@ -1593,7 +1596,7 @@ STP4TOP;
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='5' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state5')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state5', $session)) . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1615,7 +1618,7 @@ STP4TOP;
                     break;
 
                 case 5:
-                    $_SESSION['bootstrapStateInSetup'] = 6;
+                    $session->set('bootstrapStateInSetup', 6);
                     $isFpm = in_array(PHP_SAPI, ['fpm-fcgi', 'cgi-fcgi'], true);
                     $isCliServer = PHP_SAPI === 'cli-server';
                     $defaultWs = $isFpm ? 'fpm' : ($isCliServer ? 'cli' : 'apache');
@@ -1709,7 +1712,7 @@ STP4TOP;
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='6' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state6')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state6', $session)) . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1731,7 +1734,7 @@ STP4TOP;
                     break;
 
                 case 6:
-                    $_SESSION['bootstrapStateInSetup'] = 7;
+                    $session->set('bootstrapStateInSetup', 7);
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Select a Theme</h3>";
                     echo "<div class='jumbotron p-5'>";
                     echo "<p>Select a theme for OpenEMR...</p>\n";
@@ -1741,7 +1744,7 @@ STP4TOP;
                     <div class='col-12'>
                         <form method='post'>
                             <input type='hidden' name='state' value='7' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state7')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state7', $session)) . "' />
                             <input type='hidden' name='site' value='" . attr($site_id) . "' />
                             <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                             <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1851,9 +1854,9 @@ CHKDIR;
                         }
 
                         //RP_CHECK_LOGIC
-                        $_SESSION['bootstrapStateInSetup'] = 1;
+                        $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
+                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1', $session));
                         $form = <<<FRM
                                     <p>All required files and directories have been verified.</p>
                                     <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
@@ -1874,9 +1877,9 @@ CHKDIR;
 FRM;
                         echo $form . "\r\n";
                     } else {
-                        $_SESSION['bootstrapStateInSetup'] = 1;
+                        $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
+                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1', $session));
                         $form = <<<FRM
                                     <br />
                                     <p class='p-1 bg-warning'>$caution: Permissions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>

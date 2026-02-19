@@ -69,6 +69,15 @@ class SessionWrapperFactory
         }
     }
 
+    public function destroySetupSession(): void
+    {
+        if ($this->activeSession !== null && session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::SETUP_SESSION_ID) {
+            $this->activeSession->invalidate();
+            session_write_close();
+            $this->activeSession = null;
+        }
+    }
+
     public function destroyCoreSession(): void
     {
         if ($this->activeSession !== null && session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::CORE_SESSION_ID) {

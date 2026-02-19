@@ -67,6 +67,7 @@ namespace OpenEMR\Common\Session;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Cookie;
 use SessionHandlerInterface;
 
@@ -78,6 +79,8 @@ class SessionUtil
     public const API_SESSION_ID = 'apiOpenEMR';
 
     public const PORTAL_SESSION_ID = 'PortalOpenEMR';
+
+    public const SETUP_SESSION_ID = 'setupOpenEMR';
 
     public const APP_COOKIE_NAME = 'App';
 
@@ -205,13 +208,17 @@ class SessionUtil
     public static function setupScriptSessionStart(): void
     {
         $settings = SessionConfigurationBuilder::forSetup();
-        self::sessionStartWrapper($settings);
+        $handler = self::getSessionHandler();
+        $storage = new NativeSessionStorage($settings, $handler);
+        $session = new Session($storage);
+        $session->start();
+        SessionWrapperFactory::getInstance()->setActiveSession($session);
         (new SystemLogger())->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
-        self::standardSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroySetupSession();
         (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
     }
 
