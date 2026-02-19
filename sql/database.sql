@@ -8774,46 +8774,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_acuity`
---
 
-DROP TABLE IF EXISTS `form_eye_acuity`;
-CREATE TABLE `form_eye_acuity` (
-  `id`            bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`           bigint(20)   DEFAULT NULL,
-  `SCODVA`        varchar(25)  DEFAULT NULL,
-  `SCOSVA`        varchar(25)  DEFAULT NULL,
-  `PHODVA`        varchar(25)  DEFAULT NULL,
-  `PHOSVA`        varchar(25)  DEFAULT NULL,
-  `CTLODVA`       varchar(25)  DEFAULT NULL,
-  `CTLOSVA`       varchar(25)  DEFAULT NULL,
-  `MRODVA`        varchar(25)  DEFAULT NULL,
-  `MROSVA`        varchar(25)  DEFAULT NULL,
-  `SCNEARODVA`    varchar(25)  DEFAULT NULL,
-  `SCNEAROSVA`    varchar(25)  DEFAULT NULL,
-  `MRNEARODVA`    varchar(25)  DEFAULT NULL,
-  `MRNEAROSVA`    varchar(25)  DEFAULT NULL,
-  `GLAREODVA`     varchar(25)  DEFAULT NULL,
-  `GLAREOSVA`     varchar(25)  DEFAULT NULL,
-  `GLARECOMMENTS` varchar(255) DEFAULT NULL,
-  `ARODVA`        varchar(25)  DEFAULT NULL,
-  `AROSVA`        varchar(25)  DEFAULT NULL,
-  `CRODVA`        varchar(25)  DEFAULT NULL,
-  `CROSVA`        varchar(25)  DEFAULT NULL,
-  `CTLODVA1`      varchar(25)  DEFAULT NULL,
-  `CTLOSVA1`      varchar(25)  DEFAULT NULL,
-  `PAMODVA`       varchar(25)  DEFAULT NULL,
-  `PAMOSVA`       varchar(25)  DEFAULT NULL,
-  `LIODVA`        varchar(25)  NOT NULL,
-  `LIOSVA`        varchar(25)  NOT NULL,
-  `WODVANEAR`     varchar(25)  DEFAULT NULL,
-  `OSVANEARCC`    varchar(25)  DEFAULT NULL,
-  `BINOCVA`       varchar(25)  DEFAULT NULL,
-  PRIMARY KEY `acuity_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
-  ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
