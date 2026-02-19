@@ -7,7 +7,7 @@ use Firehed\Container\Compiler;
 use Psr\Container\ContainerInterface;
 
 // TODO: builder/compiler swap on env (assuming we use _this_ DI tooling)
-$builder = new Compiler('vendor/di_container.php');
+$builder = new Builder('vendor/di_container.php');
 $files = glob('config/*.php');
 if ($files === false) {
     throw new RuntimeException('Could not read config directory');
