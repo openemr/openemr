@@ -8679,17 +8679,6 @@ DROP TABLE IF EXISTS `form_groups_encounter`;
 --
 
 DROP TABLE IF EXISTS `form_group_attendance`;
-CREATE TABLE `form_group_attendance` (
-  `id`	bigint(20) auto_increment,
-  `date`	date,
-  `group_id`	int(11),
-  `user`	varchar(255),
-  `groupname`	varchar(255),
-  `authorized`	tinyint(4),
-  `encounter_id`	int(11),
-  activity	tinyint(4),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 
 -- -- ---------------------------------------------------------
 
