@@ -8770,43 +8770,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `form_eye_vitals`
---
 
-DROP TABLE IF EXISTS `form_eye_vitals`;
-CREATE TABLE `form_eye_vitals` (
-  `id`          bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`         bigint(20)   DEFAULT NULL,
-  `alert`       char(3)     DEFAULT 'yes',
-  `oriented`    char(3)     DEFAULT 'TPP',
-  `confused`    char(3)     DEFAULT 'nml',
-  `ODIOPAP`     varchar(10) DEFAULT NULL,
-  `OSIOPAP`     varchar(10) DEFAULT NULL,
-  `ODIOPTPN`    varchar(10) DEFAULT NULL,
-  `OSIOPTPN`    varchar(10) DEFAULT NULL,
-  `ODIOPFTN`    varchar(10) DEFAULT NULL,
-  `OSIOPFTN`    varchar(10) DEFAULT NULL,
-  `IOPTIME`     time        NOT NULL,
-  `ODIOPPOST`   varchar(10) NOT NULL,
-  `OSIOPPOST`   varchar(10) NOT NULL,
-  `IOPPOSTTIME` time        DEFAULT NULL,
-  `ODIOPTARGET` varchar(10) NOT NULL,
-  `OSIOPTARGET` varchar(10) NOT NULL,
-  `AMSLEROD`    smallint(1) DEFAULT NULL,
-  `AMSLEROS`    smallint(1) DEFAULT NULL,
-  `ODVF1`       tinyint(1)  DEFAULT NULL,
-  `ODVF2`       tinyint(1)  DEFAULT NULL,
-  `ODVF3`       tinyint(1)  DEFAULT NULL,
-  `ODVF4`       tinyint(1)  DEFAULT NULL,
-  `OSVF1`       tinyint(1)  DEFAULT NULL,
-  `OSVF2`       tinyint(1)  DEFAULT NULL,
-  `OSVF3`       tinyint(1)  DEFAULT NULL,
-  `OSVF4`       tinyint(1)  DEFAULT NULL,
-  PRIMARY KEY `vitals_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
-  ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
