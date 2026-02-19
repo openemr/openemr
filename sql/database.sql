@@ -2238,22 +2238,7 @@ CREATE TABLE `immunizations` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `insurance_numbers`
---
 
-DROP TABLE IF EXISTS `insurance_numbers`;
-CREATE TABLE `insurance_numbers` (
-  `id` int(11) NOT NULL default '0',
-  `provider_id` int(11) NOT NULL default '0',
-  `insurance_company_id` int(11) default NULL,
-  `provider_number` varchar(20) default NULL,
-  `rendering_provider_number` varchar(20) default NULL,
-  `group_number` varchar(20) default NULL,
-  `provider_number_type` varchar(4) default NULL,
-  `rendering_provider_number_type` varchar(4) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
