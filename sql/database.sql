@@ -2234,50 +2234,7 @@ CREATE TABLE `immunizations` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `insurance_data`
---
 
-DROP TABLE IF EXISTS `insurance_data`;
-CREATE TABLE `insurance_data` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16)   DEFAULT NULL,
-  `type` enum('primary','secondary','tertiary') default NULL,
-  `provider` varchar(255) default NULL,
-  `plan_name` varchar(255) default NULL,
-  `policy_number` varchar(255) default NULL,
-  `group_number` varchar(255) default NULL,
-  `subscriber_lname` varchar(255) default NULL,
-  `subscriber_mname` varchar(255) default NULL,
-  `subscriber_fname` varchar(255) default NULL,
-  `subscriber_relationship` varchar(255) default NULL,
-  `subscriber_ss` varchar(255) default NULL,
-  `subscriber_DOB` date default NULL,
-  `subscriber_street` varchar(255) default NULL,
-  `subscriber_postal_code` varchar(255) default NULL,
-  `subscriber_city` varchar(255) default NULL,
-  `subscriber_state` varchar(255) default NULL,
-  `subscriber_country` varchar(255) default NULL,
-  `subscriber_phone` varchar(255) default NULL,
-  `subscriber_employer` varchar(255) default NULL,
-  `subscriber_employer_street` varchar(255) default NULL,
-  `subscriber_employer_postal_code` varchar(255) default NULL,
-  `subscriber_employer_state` varchar(255) default NULL,
-  `subscriber_employer_country` varchar(255) default NULL,
-  `subscriber_employer_city` varchar(255) default NULL,
-  `copay` varchar(255) default NULL,
-  `date` date NULL,
-  `pid` bigint(20) NOT NULL default '0',
-  `subscriber_sex` varchar(25) default NULL,
-  `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
-  `policy_type` varchar(25) NOT NULL default '',
-  `subscriber_street_line_2` TINYTEXT,
-  `subscriber_employer_street_line_2` TINYTEXT,
-  `date_end` date NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
