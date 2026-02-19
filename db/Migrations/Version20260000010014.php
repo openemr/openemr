@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Form soap table
+ */
+final class Version20260000010014 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Create form_soap table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = $schema->createTable('form_soap');
+        $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
+        $table->addColumn('user', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('groupname', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('activity', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('subjective', Types::TEXT);
+        $table->addColumn('objective', Types::TEXT);
+        $table->addColumn('assessment', Types::TEXT);
+        $table->addColumn('plan', Types::TEXT);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
+
+        $table->addOption('engine', 'InnoDB');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('form_soap');
+    }
+}
