@@ -9205,25 +9205,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 DROP TABLE IF EXISTS `track_events`;
 
 -- -----------------------------------------------------
---
--- Table structure for table `care_teams`
---
 
-DROP TABLE IF EXISTS `care_teams`;
-CREATE TABLE `care_teams` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `pid` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
-  `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-  `team_name` varchar(255) DEFAULT NULL,
-  `note` text,
-  `date_created` datetime DEFAULT current_timestamp(),
-  `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_by` BIGINT(20) COMMENT 'fk to users.id for user who created this record',
-  `updated_by` BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `care_team_member`;
 CREATE TABLE `care_team_member` (
