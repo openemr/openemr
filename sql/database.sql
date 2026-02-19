@@ -6497,36 +6497,7 @@ INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Sen
 
 -- -----------------------------------------------------------------------------------
 
---
--- Table structure for table `ar_activity`
---
 
-DROP TABLE IF EXISTS `ar_activity`;
-CREATE TABLE ar_activity (
-  pid            int(11)       NOT NULL,
-  encounter      int(11)       NOT NULL,
-  sequence_no    int unsigned  NOT NULL            COMMENT 'Ar_activity sequence_no, incremented in code',
-  `code_type`    varchar(12)   NOT NULL DEFAULT '',
-  code           varchar(20)   NOT NULL            COMMENT 'empty means claim level',
-  modifier       varchar(12)   NOT NULL DEFAULT '',
-  payer_type     int           NOT NULL            COMMENT '0=pt, 1=ins1, 2=ins2, etc',
-  post_time      datetime      NOT NULL,
-  post_user      int(11)       NOT NULL            COMMENT 'references users.id',
-  session_id     int unsigned  NOT NULL            COMMENT 'references ar_session.session_id',
-  memo           varchar(255)  NOT NULL DEFAULT '' COMMENT 'adjustment reasons go here',
-  pay_amount     decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'either pay or adj will always be 0',
-  adj_amount     decimal(12,2) NOT NULL DEFAULT 0,
-  modified_time datetime NOT NULL,
-  follow_up char(1) NOT NULL,
-  follow_up_note text,
-  account_code varchar(15) NOT NULL,
-  reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
-  deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
-  post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
-  payer_claim_number varchar(30) DEFAULT NULL,
-  PRIMARY KEY (pid, encounter, sequence_no),
-  KEY session_id (session_id)
-) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
 
