@@ -39,6 +39,7 @@ function destroyed_processData(array $data): array
     $data['destroy_notes'] = [$data['destroy_notes']];
     return $data;
 }
+
 function destroyed_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
@@ -50,6 +51,10 @@ function destroyed_mergeData(array $d1, array $d2): array
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
+
+/**
+ * @param array $row
+ */
 function destroyed_mapToTable($row): void
 {
     if ($row) {

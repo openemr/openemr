@@ -342,8 +342,13 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 }
 
                 try {
-                    // Generate the HL7 order
-                    $result = gen_hl7_order($formid);
+                    // Generate the HL7 order using lab-specific function
+                    $result = match ($gbl_lab) {
+                        'labcorp' => labcorp_gen_hl7_order($formid),
+                        'quest' => quest_gen_hl7_order($formid),
+                        'ammon', 'clarity' => universal_gen_hl7_order($formid),
+                        default => default_gen_hl7_order($formid),
+                    };
                     $hl7 = $result->hl7;
                     $reqStr = $result->requisitionData;
                 } catch (Hl7OrderGenerationException $e) {
@@ -379,7 +384,12 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                             }
                         }
                     } else {
-                        $alertmsg = send_hl7_order($ppid, $hl7);
+                        $alertmsg = match ($gbl_lab) {
+                            'labcorp' => labcorp_send_hl7_order($ppid, $hl7),
+                            'quest' => quest_send_hl7_order($ppid, $hl7),
+                            'ammon', 'clarity' => universal_send_hl7_order($ppid, $hl7),
+                            default => default_send_hl7_order($ppid, $hl7),
+                        };
                     }
                 }
             } else {
@@ -406,7 +416,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         if ($gbl_lab === 'labcorp' && $isDorn === false) {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
                                 xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
-                            ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
                         }
                     }
                 } else {
@@ -415,7 +425,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
                             xlt("Generating requisition based on order HL7 content") . "...\n" . $hl7 . "\n";
-                        ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        if ($gbl_lab === 'labcorp') {
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        } else {
+                            universal_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        }
                     }
                 }
             } else {

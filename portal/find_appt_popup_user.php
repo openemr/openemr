@@ -60,7 +60,15 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
-// Record an event into the slots array for a specified day.
+/**
+ * Record an event into the slots array for a specified day.
+ *
+ * @param int|string $catid
+ * @param int $udate
+ * @param string $starttime
+ * @param int|string $duration
+ * @param int|string $prefcatid
+ */
 function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;

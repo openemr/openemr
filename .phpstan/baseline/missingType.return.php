@@ -567,11 +567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_labworks.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function Sex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function custom_labworks_Add\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_labworks.php',
@@ -585,11 +580,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getMeasureNumber\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_registry_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function Sex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getCombinePatients\\(\\) has no return type specified\\.$#',
@@ -8060,11 +8050,6 @@ $ignoreErrors[] = [
     'message' => '#^Function v\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkout_getListTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_layout_display_field\\(\\) has no return type specified\\.$#',

@@ -84,7 +84,7 @@ function hl7Workman($s)
  * @param  date $encounter_date YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date = '')
+function labcorp_loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -148,7 +148,7 @@ function loadGuarantorInfo($pid, $date = '')
  * @return Hl7OrderResult  Result object containing HL7 text and lab-specific 2D barcode requisition data.
  * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order(int $orderid): Hl7OrderResult
+function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
 {
 
     // Delimiters
@@ -362,7 +362,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
     $P[30] = hl7Text($porow['docnpi']);
     $P[71] = hl7Text($porow['docnpi']);
         // Insurance stuff.
-    $payers = loadPayerInfo($porow['pid'], $porow['date_ordered']);
+    $payers = labcorp_loadPayerInfo($porow['pid'], $porow['date_ordered']);
     $setid = 0;
     if ($bill_type == 'T') {
         // only send primary and secondary insurance
@@ -677,7 +677,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function send_hl7_order($ppid, $out)
+function labcorp_send_hl7_order($ppid, $out)
 {
     global $srcdir;
 

@@ -34,16 +34,6 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim((string) $field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
 
  // Add an insurance section.
 function addInsurance($row, $seq): void
@@ -167,7 +157,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("title", $row['title']);
  custom_xml_Add("ss", Digits($row['ss']));
  custom_xml_Add("dob", fixDate($row['DOB']));
- custom_xml_Add("sex", Sex($row['sex']));
+ custom_xml_Add("sex", hl7Sex($row['sex']));
  custom_xml_Add("street", $row['street']);
  custom_xml_Add("city", $row['city']);
  custom_xml_Add("state", $row['state']);

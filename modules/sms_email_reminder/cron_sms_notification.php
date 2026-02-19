@@ -128,7 +128,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
     }
 
     // write logs for every reminder sent
-    WriteLog($strMsg);
+    cron_WriteLog($strMsg);
 
     // larry :: update notification data again - todo :: fix change in cron_updateentry
     $db_email_msg = cron_getNotificationData($TYPE);
