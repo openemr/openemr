@@ -89,6 +89,7 @@ function errorLogEscape($text): string
  *  4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
+ * @param string $text
  */
 function csvEscape($text): string
 {
@@ -112,6 +113,7 @@ function csvEscape($text): string
  *
  * Escapes & < > ' "
  * TODO: not sure if need to escape ' and ", which are escaping for now (via the ENT_QUOTES flag)
+ * @param string $text
  */
 function xmlEscape($text): string
 {
