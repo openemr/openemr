@@ -8381,20 +8381,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `template_users`
---
 
-DROP TABLE IF EXISTS `template_users`;
-CREATE TABLE `template_users` (
-  `tu_id` int(11) NOT NULL AUTO_INCREMENT,
-  `tu_user_id` int(11) DEFAULT NULL,
-  `tu_facility_id` int(11) DEFAULT NULL,
-  `tu_template_id` int(11) DEFAULT NULL,
-  `tu_template_order` int(11) DEFAULT NULL,
-  PRIMARY KEY (`tu_id`),
-  UNIQUE KEY `templateuser` (`tu_user_id`,`tu_template_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
