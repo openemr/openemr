@@ -796,23 +796,6 @@ DROP TABLE IF EXISTS `person`;
 DROP TABLE IF EXISTS `contact_relation`;
 
 DROP TABLE IF EXISTS `person_patient_link`;
-CREATE TABLE `person_patient_link` (
-    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `person_id` BIGINT(20) NOT NULL COMMENT 'FK to person.id',
-    `patient_id` BIGINT(20) NOT NULL COMMENT 'FK to patient_data.id',
-    `linked_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
-    `linked_by` BIGINT(20) DEFAULT NULL COMMENT 'FK to users.id - who created the link',
-    `link_method` VARCHAR(50) DEFAULT 'manual' COMMENT 'How link was created: manual, auto_detected, migrated, import',
-    `notes` TEXT COMMENT 'Optional notes about why/how they were linked',
-    `active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Whether link is active (allows soft delete)',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
-    KEY `idx_ppl_person` (`person_id`),
-    KEY `idx_ppl_patient` (`patient_id`),
-    KEY `idx_ppl_active` (`active`),
-    KEY `idx_ppl_linked_date` (`linked_date`),
-    KEY `idx_ppl_method` (`link_method`)
-) ENGINE=InnoDB COMMENT='Links person records to patient_data records when person becomes patient';
 -- --------------------------------------------------------
 
 --
