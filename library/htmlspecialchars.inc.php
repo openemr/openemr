@@ -14,6 +14,9 @@
 
 /**
  * Escape a javascript literal.
+ *
+ * @param string $text
+ * @return string
  */
 function js_escape($text)
 {
@@ -22,6 +25,9 @@ function js_escape($text)
 
 /**
  * Escape a javascript literal with a protected string
+ *
+ * @param string $text
+ * @return string
  */
 function js_escape_protected($text, string $protected = '\r\n')
 {
@@ -34,6 +40,9 @@ function js_escape_protected($text, string $protected = '\r\n')
 
 /**
  * Escape a javascript literal within html onclick attribute.
+ *
+ * @param string $text
+ * @return string
  */
 function attr_js($text)
 {
@@ -42,6 +51,9 @@ function attr_js($text)
 
 /**
  * Escape html and url encode a url item.
+ *
+ * @param string $text
+ * @return string
  */
 function attr_url($text)
 {
@@ -50,6 +62,9 @@ function attr_url($text)
 
 /**
  * Escape js and url encode a url item.
+ *
+ * @param string $text
+ * @return string
  */
 function js_url($text)
 {
@@ -58,6 +73,9 @@ function js_url($text)
 
 /**
  * Escape variables that are outputted into the php error log.
+ *
+ * @param string $text
+ * @return string
  */
 function errorLogEscape($text)
 {
@@ -217,6 +235,7 @@ function attr($text)
  * TODO: Hide this function so it can be called from this file but not from
  * PHP that includes / requires this file.  Either that, or write reasonable
  * documentation and clean up the name.
+ * @return string
  */
 function hsc_private_xl_or_warn($key)
 {
