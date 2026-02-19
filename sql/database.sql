@@ -22,23 +22,7 @@
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `api_token`
---
 
-DROP TABLE IF EXISTS `api_token`;
-CREATE TABLE `api_token` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(40) DEFAULT NULL,
-  `token` varchar(128) DEFAULT NULL,
-  `expiry` datetime DEFAULT NULL,
-  `client_id` varchar(80) DEFAULT NULL,
-  `scope` text COMMENT 'json encoded',
-  `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
-  `context` TEXT COMMENT 'context values that change/govern how access token are used',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `token` (`token`)
-) ENGINE = InnoDB;
 
 --
 -- Table structure for table `api_refresh_token`
