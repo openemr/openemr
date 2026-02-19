@@ -15987,11 +15987,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method InstallerTest\\:\\:createMockInstallerWithoutConnectToDatabase\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method InstallerTest\\:\\:createMockInstallerWithoutExecuteSql\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
