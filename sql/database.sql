@@ -7190,28 +7190,7 @@ CREATE TABLE `pro_assessments` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `registry`
---
 
-DROP TABLE IF EXISTS `registry`;
-CREATE TABLE `registry` (
-  `name` varchar(255) default NULL,
-  `state` tinyint(4) default NULL,
-  `directory` varchar(255) default NULL,
-  `id` bigint(20) NOT NULL auto_increment,
-  `sql_run` tinyint(4) default NULL,
-  `unpackaged` tinyint(4) default NULL,
-  `date` datetime default NULL,
-  `priority` int(11) default '0',
-  `category` varchar(255) default NULL,
-  `nickname` varchar(255) default NULL,
-  `patient_encounter` TINYINT NOT NULL DEFAULT '1',
-  `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
-  `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
-  `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25;
 
 --
 -- Inserting data for table `registry`
