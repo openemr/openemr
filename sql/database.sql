@@ -8752,22 +8752,7 @@ DROP TABLE IF EXISTS `medex_outgoing`;
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `medex_recalls`
---
-DROP TABLE IF EXISTS `medex_recalls`;
-CREATE TABLE `medex_recalls` (
-  `r_ID` int(11) NOT NULL AUTO_INCREMENT,
-  `r_PRACTID` int(11) NOT NULL,
-  `r_pid` int(11) NOT NULL COMMENT 'PatientID from pat_data',
-  `r_eventDate` date NOT NULL COMMENT 'Date of Appt or Recall',
-  `r_facility` int(11) NOT NULL,
-  `r_provider` int(11) NOT NULL,
-  `r_reason` varchar(255) DEFAULT NULL,
-  `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`r_ID`),
-  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
-) ENGINE=InnoDB;
+
 
 
 -- --------------------------------------------------------
