@@ -38,7 +38,10 @@ final class Version20260000020035 extends AbstractMigration
         $table->addColumn('eligibility_check_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('copay', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('deductible', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deductiblemet', Types::STRING, ['default' => 'Y']);
+        $table->addColumn('deductiblemet', Types::ENUM, [
+            'default' => 'Y',
+            'values' => ['Y', 'N'],
+        ]);
         $table->addColumn('create_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

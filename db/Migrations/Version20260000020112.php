@@ -36,7 +36,7 @@ final class Version20260000020112 extends AbstractMigration
         $table->addColumn('message', Types::TEXT);
         $table->addColumn('email_sender', Types::STRING, ['length' => 255]);
         $table->addColumn('email_subject', Types::STRING, ['length' => 255]);
-        $table->addColumn('type', Types::STRING);
+        $table->addColumn('type', Types::ENUM, ['values' => ['SMS', 'Email']]);
         $table->addColumn('patient_info', Types::TEXT);
         $table->addColumn('pc_eventDate', Types::DATE_MUTABLE);
         $table->addColumn('pc_endDate', Types::DATE_MUTABLE);

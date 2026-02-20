@@ -49,7 +49,11 @@ final class Version20260000020110 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('processing_format', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('processing_format', Types::ENUM, [
+            'notnull' => false,
+            'default' => null,
+            'values' => ['standard', 'medi-cal', 'cms', 'proxymed', 'oa_eligibility', 'availity_eligibility'],
+        ]);
         $table->addColumn('x12_isa01', Types::STRING, ['default' => 00, 'comment' => 'User logon Required Indicator']);
         $table->addColumn('x12_isa02', Types::STRING, ['default' => '          ', 'comment' => 'User Logon']);
         $table->addColumn('x12_isa03', Types::STRING, ['default' => 00, 'comment' => 'User password required Indicator']);

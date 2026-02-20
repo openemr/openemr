@@ -30,7 +30,10 @@ final class Version20260000020140 extends AbstractMigration
         $table = $schema->createTable('log_comment_encrypt');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('log_id', Types::INTEGER);
-        $table->addColumn('encrypt', Types::STRING, ['default' => 'No']);
+        $table->addColumn('encrypt', Types::ENUM, [
+            'default' => 'No',
+            'values' => ['Yes', 'No'],
+        ]);
         $table->addColumn('checksum', Types::TEXT);
         $table->addColumn('checksum_api', Types::TEXT);
         $table->addColumn('version', Types::SMALLINT, ['default' => 0, 'comment' => '0 for mycrypt and 1 for openssl']);

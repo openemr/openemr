@@ -89,7 +89,10 @@ final class Version20260000020186 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('response_status', Types::STRING, ['default' => 'A']);
+        $table->addColumn('response_status', Types::ENUM, [
+            'default' => 'A',
+            'values' => ['A', 'D'],
+        ]);
         $table->addColumn('response_create_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('response_modify_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
 

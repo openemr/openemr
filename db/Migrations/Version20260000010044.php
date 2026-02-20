@@ -34,7 +34,11 @@ final class Version20260000010044 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('type', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('type', Types::ENUM, [
+            'notnull' => false,
+            'default' => null,
+            'values' => ['primary', 'secondary', 'tertiary'],
+        ]);
         $table->addColumn('provider', Types::STRING, [
             'length' => 255,
             'notnull' => false,

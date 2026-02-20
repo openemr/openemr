@@ -41,7 +41,10 @@ final class Version20260000020210 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('value_type', Types::STRING, ['default' => 'coded']);
+        $table->addColumn('value_type', Types::ENUM, [
+            'default' => 'coded',
+            'values' => ['coded', 'text', 'boolean'],
+        ]);
         $table->addColumn('value_code', Types::STRING, [
             'length' => 50,
             'notnull' => false,

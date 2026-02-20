@@ -34,7 +34,11 @@ final class Version20260000020026 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('type', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('type', Types::ENUM, [
+            'notnull' => false,
+            'default' => null,
+            'values' => ['file_url', 'blob', 'web_url'],
+        ]);
         $table->addColumn('size', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('date_expires', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);

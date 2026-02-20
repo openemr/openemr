@@ -102,10 +102,22 @@ final class Version20260000010049 extends AbstractMigration
             'comment' => 'Reference to list_options option_id = allergyintolerance-verification',
         ]);
         $table->addColumn('external_allergyid', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('erx_source', Types::STRING, ['default' => 0, 'comment' => '0-OpenEMR 1-External']);
-        $table->addColumn('erx_uploaded', Types::STRING, ['default' => 0, 'comment' => '0-Pending NewCrop upload 1-Uploaded TO NewCrop']);
+        $table->addColumn('erx_source', Types::ENUM, [
+            'default' => '0',
+            'values' => ['0', '1'],
+            'comment' => '0-OpenEMR 1-External',
+        ]);
+        $table->addColumn('erx_uploaded', Types::ENUM, [
+            'default' => '0',
+            'values' => ['0', '1'],
+            'comment' => '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
+        ]);
         $table->addColumn('modifydate', Types::DATETIME_MUTABLE);
-        $table->addColumn('severity_al', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('severity_al', Types::STRING, [
+            'length' => 50,
+            'notnull' => false,
+            'default' => null,
+        ]);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 20,
             'notnull' => false,

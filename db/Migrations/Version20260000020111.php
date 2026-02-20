@@ -34,7 +34,10 @@ final class Version20260000020111 extends AbstractMigration
         $table->addColumn('message', Types::TEXT);
         $table->addColumn('email_sender', Types::STRING, ['length' => 100]);
         $table->addColumn('email_subject', Types::STRING, ['length' => 100]);
-        $table->addColumn('type', Types::STRING, ['default' => 'SMS']);
+        $table->addColumn('type', Types::ENUM, [
+            'default' => 'SMS',
+            'values' => ['SMS', 'Email'],
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('notification_id')

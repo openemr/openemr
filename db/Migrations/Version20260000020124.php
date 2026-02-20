@@ -87,7 +87,11 @@ final class Version20260000020124 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('history_order', Types::STRING, ['default' => 0, 'comment' => 'references order is added for history purpose only.']);
+        $table->addColumn('history_order', Types::ENUM, [
+            'default' => '0',
+            'values' => ['0', '1'],
+            'comment' => 'references order is added for history purpose only.',
+        ]);
         $table->addColumn('order_diagnosis', Types::STRING, [
             'length' => 255,
             'default' => '',
