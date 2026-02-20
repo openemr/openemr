@@ -45,6 +45,11 @@ final class Version20260000020130 extends AbstractMigration
             'comment' => 'User who created this link',
         ]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
         $table->addIndex(['procedure_order_id'], 'idx_order_id');
         $table->addIndex(['resource_type', 'resource_uuid'], 'idx_resource');
         $table->addIndex(['created_at'], 'idx_created_at');

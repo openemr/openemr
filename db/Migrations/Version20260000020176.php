@@ -44,6 +44,11 @@ final class Version20260000020176 extends AbstractMigration
         $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
         $table->addOption('engine', 'InnoDB');
     }
 
