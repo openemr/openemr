@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Care team member table
  */
 final class Version20260000020208 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create care_team_member table';
@@ -27,7 +31,7 @@ final class Version20260000020208 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('care_team_member');
+        $table = new Table('care_team_member');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('care_team_id', Types::INTEGER);
         $table->addColumn('user_id', Types::BIGINT, ['comment' => 'fk to users.id represents a provider or staff member']);
@@ -51,11 +55,12 @@ final class Version20260000020208 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['care_team_id', 'user_id', 'facility_id', 'contact_id'], 'care_team_member_unique');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('care_team_member');
+        $this->addSql('DROP TABLE care_team_member');
     }
 }

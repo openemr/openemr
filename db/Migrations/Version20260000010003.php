@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Batchcom table
  */
 final class Version20260000010003 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create batchcom table';
@@ -27,7 +31,7 @@ final class Version20260000010003 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('batchcom');
+        $table = new Table('batchcom');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('patient_id', Types::BIGINT, ['default' => 0]);
         $table->addColumn('sent_by', Types::BIGINT, ['default' => 0]);
@@ -48,12 +52,11 @@ final class Version20260000010003 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('batchcom');
+        $this->addSql('DROP TABLE batchcom');
     }
 }

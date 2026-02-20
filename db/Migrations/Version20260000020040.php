@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Standardized tables track table
  */
 final class Version20260000020040 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create standardized_tables_track table';
@@ -27,7 +31,7 @@ final class Version20260000020040 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('standardized_tables_track');
+        $table = new Table('standardized_tables_track');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('imported_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('name', Types::STRING, [
@@ -51,12 +55,11 @@ final class Version20260000020040 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('standardized_tables_track');
+        $this->addSql('DROP TABLE standardized_tables_track');
     }
 }

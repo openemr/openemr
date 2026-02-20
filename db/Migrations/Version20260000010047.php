@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lang definitions table
  */
 final class Version20260000010047 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lang_definitions table';
@@ -27,7 +31,7 @@ final class Version20260000010047 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lang_definitions');
+        $table = new Table('lang_definitions');
         $table->addColumn('def_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('cons_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('lang_id', Types::INTEGER, ['default' => 0]);
@@ -36,11 +40,12 @@ final class Version20260000010047 extends AbstractMigration
         $table->addIndex(['cons_id'], 'cons_id');
         $table->addIndex(['lang_id', 'cons_id'], 'lang_cons');
         $table->addUniqueIndex(['def_id'], 'def_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lang_definitions');
+        $this->addSql('DROP TABLE lang_definitions');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Ip tracking table
  */
 final class Version20260000020059 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create ip_tracking table';
@@ -27,7 +31,7 @@ final class Version20260000020059 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('ip_tracking');
+        $table = new Table('ip_tracking');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('ip_string', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('total_ip_login_fail_counter', Types::BIGINT, ['default' => 0]);
@@ -43,10 +47,12 @@ final class Version20260000020059 extends AbstractMigration
         );
         $table->addUniqueIndex(['ip_string'], 'ip_string');
         $table->addOption('engine', 'InnoDb');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('ip_tracking');
+        $this->addSql('DROP TABLE ip_tracking');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Valueset table
  */
 final class Version20260000020153 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create valueset table';
@@ -27,7 +31,7 @@ final class Version20260000020153 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('valueset');
+        $table = new Table('valueset');
         $table->addColumn('nqf_code', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('code', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('code_system', Types::STRING, ['length' => 255, 'default' => '']);
@@ -52,12 +56,11 @@ final class Version20260000020153 extends AbstractMigration
                 ->setUnquotedColumnNames('nqf_code', 'code', 'valueset')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('valueset');
+        $this->addSql('DROP TABLE valueset');
     }
 }

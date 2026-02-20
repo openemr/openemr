@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Session tracker table
  */
 final class Version20260000020101 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create session_tracker table';
@@ -27,7 +31,7 @@ final class Version20260000020101 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('session_tracker');
+        $table = new Table('session_tracker');
         $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
@@ -37,12 +41,11 @@ final class Version20260000020101 extends AbstractMigration
                 ->setUnquotedColumnNames('uuid')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('session_tracker');
+        $this->addSql('DROP TABLE session_tracker');
     }
 }

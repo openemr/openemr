@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Chart tracker table
  */
 final class Version20260000020114 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create chart_tracker table';
@@ -27,7 +31,7 @@ final class Version20260000020114 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('chart_tracker');
+        $table = new Table('chart_tracker');
         $table->addColumn('ct_pid', Types::INTEGER);
         $table->addColumn('ct_when', Types::DATETIME_MUTABLE);
         $table->addColumn('ct_userid', Types::BIGINT, ['default' => 0]);
@@ -37,12 +41,11 @@ final class Version20260000020114 extends AbstractMigration
                 ->setUnquotedColumnNames('ct_pid', 'ct_when')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('chart_tracker');
+        $this->addSql('DROP TABLE chart_tracker');
     }
 }

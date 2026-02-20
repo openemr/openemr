@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Questionnaire repository table
  */
 final class Version20260000020199 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create questionnaire_repository table';
@@ -27,7 +31,7 @@ final class Version20260000020199 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('questionnaire_repository');
+        $table = new Table('questionnaire_repository');
         $table->addColumn('id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -86,11 +90,12 @@ final class Version20260000020199 extends AbstractMigration
         );
         $table->addIndex(['name', 'questionnaire_id'], 'search');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('questionnaire_repository');
+        $this->addSql('DROP TABLE questionnaire_repository');
     }
 }

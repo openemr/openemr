@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Users table
  */
 final class Version20260000010064 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create users table';
@@ -27,7 +31,7 @@ final class Version20260000010064 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('users');
+        $table = new Table('users');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -257,11 +261,12 @@ final class Version20260000010064 extends AbstractMigration
         );
         $table->addIndex(['abook_type'], 'abook_type');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('users');
+        $this->addSql('DROP TABLE users');
     }
 }

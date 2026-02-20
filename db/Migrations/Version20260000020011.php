@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Categories to documents table
  */
 final class Version20260000020011 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create categories_to_documents table';
@@ -27,7 +31,7 @@ final class Version20260000020011 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('categories_to_documents');
+        $table = new Table('categories_to_documents');
         $table->addColumn('category_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('document_id', Types::INTEGER, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
@@ -35,12 +39,11 @@ final class Version20260000020011 extends AbstractMigration
                 ->setUnquotedColumnNames('category_id', 'document_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('categories_to_documents');
+        $this->addSql('DROP TABLE categories_to_documents');
     }
 }

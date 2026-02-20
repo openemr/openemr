@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure order relationships table
  */
 final class Version20260000020130 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_order_relationships table';
@@ -27,7 +31,7 @@ final class Version20260000020130 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_order_relationships');
+        $table = new Table('procedure_order_relationships');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('procedure_order_id', Types::BIGINT, ['comment' => 'Links to procedure_order.procedure_order_id']);
         $table->addColumn('resource_type', Types::STRING, ['length' => 50, 'comment' => 'FHIR resource type (Observation, Condition, etc.)']);
@@ -53,11 +57,12 @@ final class Version20260000020130 extends AbstractMigration
         $table->addIndex(['procedure_order_id'], 'idx_order_id');
         $table->addIndex(['resource_type', 'resource_uuid'], 'idx_resource');
         $table->addIndex(['created_at'], 'idx_created_at');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_order_relationships');
+        $this->addSql('DROP TABLE procedure_order_relationships');
     }
 }

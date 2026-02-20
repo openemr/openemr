@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Document templates table
  */
 final class Version20260000020196 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create document_templates table';
@@ -27,7 +31,7 @@ final class Version20260000020196 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('document_templates');
+        $table = new Table('document_templates');
         $table->addColumn('id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('provider', Types::INTEGER, [
@@ -73,11 +77,12 @@ final class Version20260000020196 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['pid', 'profile', 'category', 'template_name'], 'location');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('document_templates');
+        $this->addSql('DROP TABLE document_templates');
     }
 }

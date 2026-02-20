@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form vital details table
  */
 final class Version20260000020191 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_vital_details table';
@@ -27,7 +31,7 @@ final class Version20260000020191 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_vital_details');
+        $table = new Table('form_vital_details');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('form_id', Types::BIGINT, ['comment' => 'FK to vital_forms.id']);
         $table->addColumn('vitals_column', Types::STRING, ['length' => 64, 'comment' => 'Column name from form_vitals']);
@@ -75,11 +79,12 @@ final class Version20260000020191 extends AbstractMigration
         );
         $table->addIndex(['form_id'], 'fk_form_id');
         $table->addIndex(['interpretation_list_id', 'interpretation_option_id'], 'fk_list_options_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_vital_details');
+        $this->addSql('DROP TABLE form_vital_details');
     }
 }

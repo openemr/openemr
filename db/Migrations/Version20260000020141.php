@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Shared attributes table
  */
 final class Version20260000020141 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create shared_attributes table';
@@ -27,7 +31,7 @@ final class Version20260000020141 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('shared_attributes');
+        $table = new Table('shared_attributes');
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('encounter', Types::BIGINT, ['comment' => '0 if patient attribute, else encounter attribute']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
@@ -39,12 +43,11 @@ final class Version20260000020141 extends AbstractMigration
                 ->setUnquotedColumnNames('pid', 'encounter', 'field_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('shared_attributes');
+        $this->addSql('DROP TABLE shared_attributes');
     }
 }

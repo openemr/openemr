@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure order code table
  */
 final class Version20260000020125 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_order_code table';
@@ -27,7 +31,7 @@ final class Version20260000020125 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_order_code');
+        $table = new Table('procedure_order_code');
         $table->addColumn('procedure_order_id', Types::BIGINT, ['comment' => 'references procedure_order.procedure_order_id']);
         $table->addColumn('procedure_order_seq', Types::INTEGER, ['comment' => 'Supports multiple tests per order. Procedure_order_seq, incremented in code']);
         $table->addColumn('procedure_code', Types::STRING, [
@@ -77,12 +81,11 @@ final class Version20260000020125 extends AbstractMigration
                 ->setUnquotedColumnNames('procedure_order_id', 'procedure_order_seq')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_order_code');
+        $this->addSql('DROP TABLE procedure_order_code');
     }
 }

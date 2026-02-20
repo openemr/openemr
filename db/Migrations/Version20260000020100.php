@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Rule target table
  */
 final class Version20260000020100 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create rule_target table';
@@ -27,7 +31,7 @@ final class Version20260000020100 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('rule_target');
+        $table = new Table('rule_target');
         $table->addColumn('id', Types::STRING, [
             'length' => 31,
             'default' => '',
@@ -49,11 +53,12 @@ final class Version20260000020100 extends AbstractMigration
         $table->addColumn('interval', Types::BIGINT, ['default' => 0, 'comment' => 'Only used in interval entries']);
 
         $table->addIndex(['id'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('rule_target');
+        $this->addSql('DROP TABLE rule_target');
     }
 }

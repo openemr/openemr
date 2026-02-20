@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Notes table
  */
 final class Version20260000020076 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create notes table';
@@ -27,7 +31,7 @@ final class Version20260000020076 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('notes');
+        $table = new Table('notes');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('foreign_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('note', Types::STRING, [
@@ -46,11 +50,12 @@ final class Version20260000020076 extends AbstractMigration
         $table->addIndex(['owner'], 'foreign_id');
         $table->addIndex(['foreign_id'], 'foreign_id_2');
         $table->addIndex(['date'], 'date');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('notes');
+        $this->addSql('DROP TABLE notes');
     }
 }

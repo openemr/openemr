@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Facility user ids table
  */
 final class Version20260000020041 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create facility_user_ids table';
@@ -27,7 +31,7 @@ final class Version20260000020041 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('facility_user_ids');
+        $table = new Table('facility_user_ids');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('facility_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -47,11 +51,12 @@ final class Version20260000020041 extends AbstractMigration
         );
         $table->addIndex(['uid', 'facility_id', 'field_id'], 'uid');
         $table->addIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('facility_user_ids');
+        $this->addSql('DROP TABLE facility_user_ids');
     }
 }

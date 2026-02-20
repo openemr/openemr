@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Customlists table
  */
 final class Version20260000020135 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create customlists table';
@@ -27,7 +31,7 @@ final class Version20260000020135 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('customlists');
+        $table = new Table('customlists');
         $table->addColumn('cl_list_slno', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('cl_list_id', Types::INTEGER, ['unsigned' => true, 'comment' => 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_id)+1']);
         $table->addColumn('cl_list_item_id', Types::INTEGER, [
@@ -56,12 +60,11 @@ final class Version20260000020135 extends AbstractMigration
                 ->setUnquotedColumnNames('cl_list_slno')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('customlists');
+        $this->addSql('DROP TABLE customlists');
     }
 }

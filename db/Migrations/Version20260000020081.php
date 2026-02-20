@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite portal activity table
  */
 final class Version20260000020081 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_portal_activity table';
@@ -27,7 +31,7 @@ final class Version20260000020081 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_portal_activity');
+        $table = new Table('onsite_portal_activity');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('patient_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -64,11 +68,12 @@ final class Version20260000020081 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['date'], 'date');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_portal_activity');
+        $this->addSql('DROP TABLE onsite_portal_activity');
     }
 }

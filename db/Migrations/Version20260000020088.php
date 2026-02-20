@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Patient tracker element table
  */
 final class Version20260000020088 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create patient_tracker_element table';
@@ -27,7 +31,7 @@ final class Version20260000020088 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('patient_tracker_element');
+        $table = new Table('patient_tracker_element');
         $table->addColumn('pt_tracker_id', Types::BIGINT, ['default' => 0, 'comment' => 'maps to id column in patient_tracker table']);
         $table->addColumn('start_datetime', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('room', Types::STRING, ['length' => 20, 'default' => '']);
@@ -44,11 +48,12 @@ final class Version20260000020088 extends AbstractMigration
         ]);
 
         $table->addIndex(['pt_tracker_id', 'seq'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('patient_tracker_element');
+        $this->addSql('DROP TABLE patient_tracker_element');
     }
 }

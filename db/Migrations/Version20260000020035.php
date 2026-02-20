@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Eligibility verification table
  */
 final class Version20260000020035 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create eligibility_verification table';
@@ -27,7 +31,7 @@ final class Version20260000020035 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('eligibility_verification');
+        $table = new Table('eligibility_verification');
         $table->addColumn('verification_id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('response_id', Types::STRING, [
             'length' => 32,
@@ -49,11 +53,12 @@ final class Version20260000020035 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['insurance_id'], 'insurance_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('eligibility_verification');
+        $this->addSql('DROP TABLE eligibility_verification');
     }
 }

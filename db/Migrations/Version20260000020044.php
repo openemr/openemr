@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form clinical notes table
  */
 final class Version20260000020044 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_clinical_notes table';
@@ -27,7 +31,7 @@ final class Version20260000020044 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_clinical_notes');
+        $table = new Table('form_clinical_notes');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('form_id', Types::BIGINT);
         $table->addColumn('uuid', Types::BINARY, [
@@ -84,11 +88,12 @@ final class Version20260000020044 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_clinical_notes');
+        $this->addSql('DROP TABLE form_clinical_notes');
     }
 }

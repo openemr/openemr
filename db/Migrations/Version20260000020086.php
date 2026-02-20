@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Patient reminders table
  */
 final class Version20260000020086 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create patient_reminders table';
@@ -27,7 +31,7 @@ final class Version20260000020086 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('patient_reminders');
+        $table = new Table('patient_reminders');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => '1 if active and 0 if not active']);
         $table->addColumn('date_inactivated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
@@ -65,11 +69,12 @@ final class Version20260000020086 extends AbstractMigration
         );
         $table->addIndex(['pid'], 'pid');
         $table->addIndex(['category', 'item'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('patient_reminders');
+        $this->addSql('DROP TABLE patient_reminders');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Medex recalls table
  */
 final class Version20260000020175 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create medex_recalls table';
@@ -27,7 +31,7 @@ final class Version20260000020175 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('medex_recalls');
+        $table = new Table('medex_recalls');
         $table->addColumn('r_ID', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('r_PRACTID', Types::INTEGER);
         $table->addColumn('r_pid', Types::INTEGER, ['comment' => 'PatientID from pat_data']);
@@ -46,11 +50,12 @@ final class Version20260000020175 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['r_PRACTID', 'r_pid'], 'r_PRACTID');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('medex_recalls');
+        $this->addSql('DROP TABLE medex_recalls');
     }
 }

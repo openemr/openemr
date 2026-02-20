@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye mag prefs table
  */
 final class Version20260000020157 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_mag_prefs table';
@@ -27,7 +31,7 @@ final class Version20260000020157 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_mag_prefs');
+        $table = new Table('form_eye_mag_prefs');
         $table->addColumn('PEZONE', Types::STRING, [
             'length' => 25,
             'notnull' => false,
@@ -54,11 +58,12 @@ final class Version20260000020157 extends AbstractMigration
         $table->addColumn('UNSPEC', Types::STRING, ['length' => 50]);
 
         $table->addUniqueIndex(['id', 'PEZONE', 'LOCATION', 'selection'], 'id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_mag_prefs');
+        $this->addSql('DROP TABLE form_eye_mag_prefs');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Therapy groups participant attendance table
  */
 final class Version20260000020167 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create therapy_groups_participant_attendance table';
@@ -27,7 +31,7 @@ final class Version20260000020167 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('therapy_groups_participant_attendance');
+        $table = new Table('therapy_groups_participant_attendance');
         $table->addColumn('form_id', Types::INTEGER);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('meeting_patient_comment', Types::TEXT);
@@ -37,12 +41,11 @@ final class Version20260000020167 extends AbstractMigration
                 ->setUnquotedColumnNames('form_id', 'pid')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('therapy_groups_participant_attendance');
+        $this->addSql('DROP TABLE therapy_groups_participant_attendance');
     }
 }

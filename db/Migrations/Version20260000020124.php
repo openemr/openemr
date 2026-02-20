@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure order table
  */
 final class Version20260000020124 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_order table';
@@ -27,7 +31,7 @@ final class Version20260000020124 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_order');
+        $table = new Table('procedure_order');
         $table->addColumn('procedure_order_id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -165,11 +169,12 @@ final class Version20260000020124 extends AbstractMigration
         $table->addIndex(['order_intent'], 'idx_order_intent');
         $table->addIndex(['location_id'], 'idx_location_id');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_order');
+        $this->addSql('DROP TABLE procedure_order');
     }
 }

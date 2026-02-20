@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Benefit eligibility table
  */
 final class Version20260000020186 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create benefit_eligibility table';
@@ -27,7 +31,7 @@ final class Version20260000020186 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('benefit_eligibility');
+        $table = new Table('benefit_eligibility');
         $table->addColumn('response_id', Types::BIGINT);
         $table->addColumn('verification_id', Types::BIGINT);
         $table->addColumn('type', Types::STRING, [
@@ -96,11 +100,11 @@ final class Version20260000020186 extends AbstractMigration
         $table->addColumn('response_create_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('response_modify_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
 
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('benefit_eligibility');
+        $this->addSql('DROP TABLE benefit_eligibility');
     }
 }

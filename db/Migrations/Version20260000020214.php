@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form vitals calculation components table
  */
 final class Version20260000020214 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_vitals_calculation_components table';
@@ -27,7 +31,7 @@ final class Version20260000020214 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_vitals_calculation_components');
+        $table = new Table('form_vitals_calculation_components');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('fvc_uuid', Types::BINARY, [
             'length' => 16,
@@ -65,12 +69,13 @@ final class Version20260000020214 extends AbstractMigration
         $table->addUniqueIndex(['fvc_uuid', 'vitals_column'], 'unq_fvc_component');
         $table->addIndex(['vitals_column'], 'idx_vitals_column');
         $table->addIndex(['fvc_uuid', 'component_order'], 'idx_component_order');
-        $table->addOption('engine', 'InnoDB');
         $table->addOption('comment', 'Component values for calculations (e.g., systolic=120, diastolic=80)');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_vitals_calculation_components');
+        $this->addSql('DROP TABLE form_vitals_calculation_components');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure type table
  */
 final class Version20260000020122 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_type table';
@@ -27,7 +31,7 @@ final class Version20260000020122 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_type');
+        $table = new Table('procedure_type');
         $table->addColumn('procedure_type_id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('parent', Types::BIGINT, ['default' => 0, 'comment' => 'references procedure_type.procedure_type_id']);
         $table->addColumn('name', Types::STRING, [
@@ -111,11 +115,12 @@ final class Version20260000020122 extends AbstractMigration
         );
         $table->addIndex(['parent'], 'parent');
         $table->addIndex(['procedure_code'], 'ptype_procedure_code');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_type');
+        $this->addSql('DROP TABLE procedure_type');
     }
 }

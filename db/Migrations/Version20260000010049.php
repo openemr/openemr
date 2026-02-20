@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lists table
  */
 final class Version20260000010049 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lists table';
@@ -27,7 +31,7 @@ final class Version20260000010049 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lists');
+        $table = new Table('lists');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -137,11 +141,12 @@ final class Version20260000010049 extends AbstractMigration
         $table->addIndex(['pid'], 'pid');
         $table->addIndex(['type'], 'type');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lists');
+        $this->addSql('DROP TABLE lists');
     }
 }

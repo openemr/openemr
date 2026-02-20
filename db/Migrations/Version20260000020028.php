@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Documents legal master table
  */
 final class Version20260000020028 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create documents_legal_master table';
@@ -27,7 +31,7 @@ final class Version20260000020028 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('documents_legal_master');
+        $table = new Table('documents_legal_master');
         $table->addColumn('dlm_category', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,
@@ -75,12 +79,11 @@ final class Version20260000020028 extends AbstractMigration
                 ->setUnquotedColumnNames('dlm_document_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('documents_legal_master');
+        $this->addSql('DROP TABLE documents_legal_master');
     }
 }

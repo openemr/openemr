@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * X12 partners table
  */
 final class Version20260000020110 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create x12_partners table';
@@ -27,7 +31,7 @@ final class Version20260000020110 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('x12_partners');
+        $table = new Table('x12_partners');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('name', Types::STRING, [
             'length' => 255,
@@ -117,12 +121,11 @@ final class Version20260000020110 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('x12_partners');
+        $this->addSql('DROP TABLE x12_partners');
     }
 }

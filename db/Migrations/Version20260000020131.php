@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Globals table
  */
 final class Version20260000020131 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create globals table';
@@ -27,7 +31,7 @@ final class Version20260000020131 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('globals');
+        $table = new Table('globals');
         $table->addColumn('gl_name', Types::STRING, ['length' => 63]);
         $table->addColumn('gl_index', Types::INTEGER, ['default' => 0]);
         $table->addColumn('gl_value', Types::STRING, ['length' => 255, 'default' => '']);
@@ -36,12 +40,11 @@ final class Version20260000020131 extends AbstractMigration
                 ->setUnquotedColumnNames('gl_name', 'gl_index')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('globals');
+        $this->addSql('DROP TABLE globals');
     }
 }

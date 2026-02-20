@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Export job table
  */
 final class Version20260000020190 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create export_job table';
@@ -27,7 +31,7 @@ final class Version20260000020190 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('export_job');
+        $table = new Table('export_job');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -50,12 +54,11 @@ final class Version20260000020190 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('export_job');
+        $this->addSql('DROP TABLE export_job');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Edi sequences table
  */
 final class Version20260000020034 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create edi_sequences table';
@@ -27,14 +31,14 @@ final class Version20260000020034 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('edi_sequences');
+        $table = new Table('edi_sequences');
         $table->addColumn('id', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
 
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('edi_sequences');
+        $this->addSql('DROP TABLE edi_sequences');
     }
 }

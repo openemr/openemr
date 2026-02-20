@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Drug templates table
  */
 final class Version20260000020032 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create drug_templates table';
@@ -27,7 +31,7 @@ final class Version20260000020032 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('drug_templates');
+        $table = new Table('drug_templates');
         $table->addColumn('drug_id', Types::INTEGER);
         $table->addColumn('selector', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('dosage', Types::STRING, [
@@ -49,12 +53,11 @@ final class Version20260000020032 extends AbstractMigration
                 ->setUnquotedColumnNames('drug_id', 'selector')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('drug_templates');
+        $this->addSql('DROP TABLE drug_templates');
     }
 }

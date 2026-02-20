@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onetime auth table
  */
 final class Version20260000020202 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onetime_auth table';
@@ -27,7 +31,7 @@ final class Version20260000020202 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onetime_auth');
+        $table = new Table('onetime_auth');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('create_user_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -62,11 +66,12 @@ final class Version20260000020202 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pid', 'onetime_token'], 'pid', [], ['lengths' => [null, 255]]);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onetime_auth');
+        $this->addSql('DROP TABLE onetime_auth');
     }
 }

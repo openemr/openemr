@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Background services table
  */
 final class Version20260000010002 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create background_services table';
@@ -27,7 +31,7 @@ final class Version20260000010002 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('background_services');
+        $table = new Table('background_services');
         $table->addColumn('name', Types::STRING, ['length' => 31]);
         $table->addColumn('title', Types::STRING, ['length' => 127, 'comment' => 'name for reports']);
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
@@ -47,12 +51,11 @@ final class Version20260000010002 extends AbstractMigration
                 ->setUnquotedColumnNames('name')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('background_services');
+        $this->addSql('DROP TABLE background_services');
     }
 }

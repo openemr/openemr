@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form history sdoh health concerns table
  */
 final class Version20260000020213 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_history_sdoh_health_concerns table';
@@ -27,7 +31,7 @@ final class Version20260000020213 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_history_sdoh_health_concerns');
+        $table = new Table('form_history_sdoh_health_concerns');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('sdoh_history_id', Types::BIGINT, [
             'unsigned' => true,
@@ -49,12 +53,13 @@ final class Version20260000020213 extends AbstractMigration
         $table->addUniqueIndex(['sdoh_history_id', 'health_concern_id'], 'unique_sdoh_concern');
         $table->addIndex(['sdoh_history_id'], 'idx_sdoh_history');
         $table->addIndex(['health_concern_id'], 'idx_health_concern');
-        $table->addOption('engine', 'InnoDB');
         $table->addOption('comment', 'Links SDOH assessments to health concern conditions');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_history_sdoh_health_concerns');
+        $this->addSql('DROP TABLE form_history_sdoh_health_concerns');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form taskman table
  */
 final class Version20260000020161 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_taskman table';
@@ -27,7 +31,7 @@ final class Version20260000020161 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_taskman');
+        $table = new Table('form_taskman');
         $table->addColumn('ID', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('REQ_DATE', Types::DATETIME_MUTABLE);
         $table->addColumn('FROM_ID', Types::BIGINT);
@@ -58,10 +62,12 @@ final class Version20260000020161 extends AbstractMigration
         );
 
         $table->addOption('engine', 'INNODB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_taskman');
+        $this->addSql('DROP TABLE form_taskman');
     }
 }

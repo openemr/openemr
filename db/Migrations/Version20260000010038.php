@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Gacl groups aro map table
  */
 final class Version20260000010038 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create gacl_groups_aro_map table';
@@ -27,7 +31,7 @@ final class Version20260000010038 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('gacl_groups_aro_map');
+        $table = new Table('gacl_groups_aro_map');
         $table->addColumn('group_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aro_id', Types::INTEGER, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
@@ -36,11 +40,12 @@ final class Version20260000010038 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['aro_id'], 'gacl_aro_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('gacl_groups_aro_map');
+        $this->addSql('DROP TABLE gacl_groups_aro_map');
     }
 }

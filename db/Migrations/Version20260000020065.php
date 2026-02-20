@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Layout options table
  */
 final class Version20260000020065 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create layout_options table';
@@ -27,7 +31,7 @@ final class Version20260000020065 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('layout_options');
+        $table = new Table('layout_options');
         $table->addColumn('form_id', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('group_id', Types::STRING, ['length' => 31, 'default' => '']);
@@ -62,12 +66,11 @@ final class Version20260000020065 extends AbstractMigration
                 ->setUnquotedColumnNames('form_id', 'field_id', 'seq')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('layout_options');
+        $this->addSql('DROP TABLE layout_options');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye mag wearing table
  */
 final class Version20260000020160 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_mag_wearing table';
@@ -27,7 +31,7 @@ final class Version20260000020160 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_mag_wearing');
+        $table = new Table('form_eye_mag_wearing');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('ENCOUNTER', Types::INTEGER);
         $table->addColumn('FORM_ID', Types::SMALLINT);
@@ -212,11 +216,12 @@ final class Version20260000020160 extends AbstractMigration
 
         $table->addUniqueIndex(['id'], 'id');
         $table->addUniqueIndex(['FORM_ID', 'ENCOUNTER', 'PID', 'RX_NUMBER'], 'FORM_ID');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_mag_wearing');
+        $this->addSql('DROP TABLE form_eye_mag_wearing');
     }
 }

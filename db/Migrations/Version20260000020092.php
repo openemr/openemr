@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Pro assessments table
  */
 final class Version20260000020092 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create pro_assessments table';
@@ -27,7 +31,7 @@ final class Version20260000020092 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('pro_assessments');
+        $table = new Table('pro_assessments');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('form_oid', Types::STRING, ['length' => 255, 'comment' => 'unique id for specific instrument, pulled from assessment center API']);
         $table->addColumn('form_name', Types::STRING, ['length' => 255, 'comment' => 'pulled from assessment center API']);
@@ -45,12 +49,11 @@ final class Version20260000020092 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('pro_assessments');
+        $this->addSql('DROP TABLE pro_assessments');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form observation table
  */
 final class Version20260000020151 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_observation table';
@@ -27,7 +31,7 @@ final class Version20260000020151 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_observation');
+        $table = new Table('form_observation');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -140,11 +144,12 @@ final class Version20260000020151 extends AbstractMigration
         $table->addIndex(['questionnaire_response_id'], 'idx_questionnaire_response');
         $table->addIndex(['pid', 'encounter'], 'idx_pid_encounter');
         $table->addIndex(['date'], 'idx_date');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_observation');
+        $this->addSql('DROP TABLE form_observation');
     }
 }

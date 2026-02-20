@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Code types table
  */
 final class Version20260000020132 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create code_types table';
@@ -27,7 +31,7 @@ final class Version20260000020132 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('code_types');
+        $table = new Table('code_types');
         $table->addColumn('ct_key', Types::STRING, ['length' => 15, 'comment' => 'short alphanumeric name']);
         $table->addColumn('ct_id', Types::INTEGER, ['comment' => 'numeric identifier']);
         $table->addColumn('ct_seq', Types::INTEGER, ['default' => 0, 'comment' => 'sort order']);
@@ -63,12 +67,11 @@ final class Version20260000020132 extends AbstractMigration
                 ->setUnquotedColumnNames('ct_key')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('code_types');
+        $this->addSql('DROP TABLE code_types');
     }
 }

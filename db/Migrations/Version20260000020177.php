@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye hpi table
  */
 final class Version20260000020177 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_hpi table';
@@ -27,7 +31,7 @@ final class Version20260000020177 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_hpi');
+        $table = new Table('form_eye_hpi');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('CC1', Types::STRING, [
@@ -113,11 +117,12 @@ final class Version20260000020177 extends AbstractMigration
         $table->addColumn('LOCATION3', Types::TEXT);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_hpi');
+        $this->addSql('DROP TABLE form_eye_hpi');
     }
 }

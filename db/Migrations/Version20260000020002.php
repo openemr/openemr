@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Amendments table
  */
 final class Version20260000020002 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create amendments table';
@@ -27,7 +31,7 @@ final class Version20260000020002 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('amendments');
+        $table = new Table('amendments');
         $table->addColumn('amendment_id', Types::INTEGER, ['autoincrement' => true, 'comment' => 'Amendment ID']);
         $table->addColumn('amendment_date', Types::DATE_MUTABLE, ['comment' => 'Amendement request date']);
         $table->addColumn('amendment_by', Types::STRING, ['length' => 50, 'comment' => 'Amendment requested from']);
@@ -48,11 +52,12 @@ final class Version20260000020002 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pid'], 'amendment_pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('amendments');
+        $this->addSql('DROP TABLE amendments');
     }
 }

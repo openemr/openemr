@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Issue encounter table
  */
 final class Version20260000020060 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create issue_encounter table';
@@ -27,7 +31,7 @@ final class Version20260000020060 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('issue_encounter');
+        $table = new Table('issue_encounter');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -58,11 +62,12 @@ final class Version20260000020060 extends AbstractMigration
         );
         $table->addUniqueIndex(['pid', 'list_id', 'encounter'], 'uniq_issue_key');
         $table->addUniqueIndex(['uuid'], 'uuid_unique');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('issue_encounter');
+        $this->addSql('DROP TABLE issue_encounter');
     }
 }

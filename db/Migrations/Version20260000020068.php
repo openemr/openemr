@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lists touch table
  */
 final class Version20260000020068 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lists_touch table';
@@ -27,7 +31,7 @@ final class Version20260000020068 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lists_touch');
+        $table = new Table('lists_touch');
         $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
         $table->addColumn('type', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
@@ -36,12 +40,11 @@ final class Version20260000020068 extends AbstractMigration
                 ->setUnquotedColumnNames('pid', 'type')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lists_touch');
+        $this->addSql('DROP TABLE lists_touch');
     }
 }

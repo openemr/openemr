@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Prices table
  */
 final class Version20260000020091 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create prices table';
@@ -27,7 +31,7 @@ final class Version20260000020091 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('prices');
+        $table = new Table('prices');
         $table->addColumn('pr_id', Types::STRING, ['length' => 11, 'default' => '']);
         $table->addColumn('pr_selector', Types::STRING, [
             'length' => 255,
@@ -46,12 +50,11 @@ final class Version20260000020091 extends AbstractMigration
                 ->setUnquotedColumnNames('pr_id', 'pr_selector', 'pr_level')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('prices');
+        $this->addSql('DROP TABLE prices');
     }
 }

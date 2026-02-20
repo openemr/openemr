@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Gacl aro groups id seq table
  */
 final class Version20260000010027 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create gacl_aro_groups_id_seq table';
@@ -27,14 +31,14 @@ final class Version20260000010027 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('gacl_aro_groups_id_seq');
+        $table = new Table('gacl_aro_groups_id_seq');
         $table->addColumn('id', Types::INTEGER);
 
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('gacl_aro_groups_id_seq');
+        $this->addSql('DROP TABLE gacl_aro_groups_id_seq');
     }
 }

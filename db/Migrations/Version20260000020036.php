@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Email queue table
  */
 final class Version20260000020036 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create email_queue table';
@@ -27,7 +31,7 @@ final class Version20260000020036 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('email_queue');
+        $table = new Table('email_queue');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('sender', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('recipient', Types::STRING, ['length' => 255, 'default' => '']);
@@ -52,10 +56,12 @@ final class Version20260000020036 extends AbstractMigration
         );
         $table->addIndex(['sent'], 'sent');
         $table->addOption('engine', 'InnoDb');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('email_queue');
+        $this->addSql('DROP TABLE email_queue');
     }
 }

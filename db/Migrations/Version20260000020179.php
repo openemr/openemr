@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye vitals table
  */
 final class Version20260000020179 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_vitals table';
@@ -27,7 +31,7 @@ final class Version20260000020179 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_vitals');
+        $table = new Table('form_eye_vitals');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('alert', Types::STRING, ['length' => 3, 'default' => 'yes']);
@@ -81,11 +85,12 @@ final class Version20260000020179 extends AbstractMigration
         $table->addColumn('OSVF4', Types::SMALLINT, ['notnull' => false, 'default' => null]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_vitals');
+        $this->addSql('DROP TABLE form_eye_vitals');
     }
 }

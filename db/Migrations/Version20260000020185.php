@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Login mfa registrations table
  */
 final class Version20260000020185 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create login_mfa_registrations table';
@@ -27,7 +31,7 @@ final class Version20260000020185 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('login_mfa_registrations');
+        $table = new Table('login_mfa_registrations');
         $table->addColumn('user_id', Types::BIGINT);
         $table->addColumn('name', Types::STRING, ['length' => 30]);
         $table->addColumn('last_challenge', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
@@ -47,12 +51,11 @@ final class Version20260000020185 extends AbstractMigration
                 ->setUnquotedColumnNames('user_id', 'name')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('login_mfa_registrations');
+        $this->addSql('DROP TABLE login_mfa_registrations');
     }
 }

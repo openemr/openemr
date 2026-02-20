@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Openemr postcalendar events table
  */
 final class Version20260000010055 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create openemr_postcalendar_events table';
@@ -27,7 +31,7 @@ final class Version20260000010055 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('openemr_postcalendar_events');
+        $table = new Table('openemr_postcalendar_events');
         $table->addColumn('pc_eid', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('pc_catid', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_multiple', Types::INTEGER, ['unsigned' => true]);
@@ -119,11 +123,12 @@ final class Version20260000010055 extends AbstractMigration
         $table->addIndex(['pc_catid', 'pc_aid', 'pc_eventDate', 'pc_endDate', 'pc_eventstatus', 'pc_sharing', 'pc_topic'], 'basic_event');
         $table->addIndex(['pc_eventDate'], 'pc_eventDate');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('openemr_postcalendar_events');
+        $this->addSql('DROP TABLE openemr_postcalendar_events');
     }
 }

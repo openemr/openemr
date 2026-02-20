@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye mag orders table
  */
 final class Version20260000020158 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_mag_orders table';
@@ -27,7 +31,7 @@ final class Version20260000020158 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_mag_orders');
+        $table = new Table('form_eye_mag_orders');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('form_id', Types::INTEGER);
         $table->addColumn('pid', Types::BIGINT);
@@ -60,11 +64,12 @@ final class Version20260000020158 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['pid', 'ORDER_DETAILS', 'ORDER_DATE_PLACED'], 'VISIT_ID');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_mag_orders');
+        $this->addSql('DROP TABLE form_eye_mag_orders');
     }
 }

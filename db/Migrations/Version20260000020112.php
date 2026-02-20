@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Notification log table
  */
 final class Version20260000020112 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create notification_log table';
@@ -27,7 +31,7 @@ final class Version20260000020112 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('notification_log');
+        $table = new Table('notification_log');
         $table->addColumn('iLogId', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('pc_eid', Types::INTEGER, ['unsigned' => true, 'notnull' => false]);
@@ -48,12 +52,11 @@ final class Version20260000020112 extends AbstractMigration
                 ->setUnquotedColumnNames('iLogId')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('notification_log');
+        $this->addSql('DROP TABLE notification_log');
     }
 }

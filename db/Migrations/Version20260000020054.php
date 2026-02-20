@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Icd10 gem dx 10 9 table
  */
 final class Version20260000020054 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create icd10_gem_dx_10_9 table';
@@ -27,7 +31,7 @@ final class Version20260000020054 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('icd10_gem_dx_10_9');
+        $table = new Table('icd10_gem_dx_10_9');
         $table->addColumn('map_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_icd10_source', Types::STRING, [
             'length' => 7,
@@ -52,11 +56,11 @@ final class Version20260000020054 extends AbstractMigration
                 ->setUnquotedColumnNames('map_id')
                 ->create()
         );
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('icd10_gem_dx_10_9');
+        $this->addSql('DROP TABLE icd10_gem_dx_10_9');
     }
 }

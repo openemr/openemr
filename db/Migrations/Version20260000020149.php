@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form care plan table
  */
 final class Version20260000020149 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_care_plan table';
@@ -27,7 +31,7 @@ final class Version20260000020149 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_care_plan');
+        $table = new Table('form_care_plan');
         $table->addColumn('id', Types::BIGINT);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -97,11 +101,12 @@ final class Version20260000020149 extends AbstractMigration
         $table->addColumn('proposed_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'Target or Achieve-by date for the goal']);
 
         $table->addIndex(['plan_status', 'date', 'date_end'], 'idx_status_date');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_care_plan');
+        $this->addSql('DROP TABLE form_care_plan');
     }
 }

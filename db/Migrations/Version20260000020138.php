@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Misc address book table
  */
 final class Version20260000020138 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create misc_address_book table';
@@ -27,7 +31,7 @@ final class Version20260000020138 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('misc_address_book');
+        $table = new Table('misc_address_book');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('fname', Types::STRING, [
             'length' => 255,
@@ -74,12 +78,11 @@ final class Version20260000020138 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('misc_address_book');
+        $this->addSql('DROP TABLE misc_address_book');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form misc billing options table
  */
 final class Version20260000010011 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_misc_billing_options table';
@@ -27,7 +31,7 @@ final class Version20260000010011 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_misc_billing_options');
+        $table = new Table('form_misc_billing_options');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -121,11 +125,12 @@ final class Version20260000010011 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['encounter'], 'encounter');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_misc_billing_options');
+        $this->addSql('DROP TABLE form_misc_billing_options');
     }
 }

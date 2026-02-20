@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form ros table
  */
 final class Version20260000010013 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_ros table';
@@ -27,7 +31,7 @@ final class Version20260000010013 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_ros');
+        $table = new Table('form_ros');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('activity', Types::INTEGER, ['default' => 1]);
@@ -727,12 +731,11 @@ final class Version20260000010013 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_ros');
+        $this->addSql('DROP TABLE form_ros');
     }
 }

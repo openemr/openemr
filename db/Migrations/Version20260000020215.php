@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Jwt grant history table
  */
 final class Version20260000020215 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create jwt_grant_history table';
@@ -27,7 +31,7 @@ final class Version20260000020215 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('jwt_grant_history');
+        $table = new Table('jwt_grant_history');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('jti', Types::STRING, [
             'length' => 100,
@@ -50,12 +54,13 @@ final class Version20260000020215 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['jti'], 'jti');
-        $table->addOption('engine', 'InnoDB');
         $table->addOption('comment', 'Holds JWT authorization grant ids to prevent replay attacks');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('jwt_grant_history');
+        $this->addSql('DROP TABLE jwt_grant_history');
     }
 }

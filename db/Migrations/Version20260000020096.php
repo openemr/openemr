@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Rule action item table
  */
 final class Version20260000020096 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create rule_action_item table';
@@ -27,7 +31,7 @@ final class Version20260000020096 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('rule_action_item');
+        $table = new Table('rule_action_item');
         $table->addColumn('category', Types::STRING, [
             'length' => 31,
             'default' => '',
@@ -50,12 +54,11 @@ final class Version20260000020096 extends AbstractMigration
                 ->setUnquotedColumnNames('category', 'item')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('rule_action_item');
+        $this->addSql('DROP TABLE rule_action_item');
     }
 }

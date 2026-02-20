@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Oauth clients table
  */
 final class Version20260000020187 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create oauth_clients table';
@@ -27,7 +31,7 @@ final class Version20260000020187 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('oauth_clients');
+        $table = new Table('oauth_clients');
         $table->addColumn('client_id', Types::STRING, ['length' => 80]);
         $table->addColumn('client_role', Types::STRING, [
             'length' => 20,
@@ -86,12 +90,11 @@ final class Version20260000020187 extends AbstractMigration
                 ->setUnquotedColumnNames('client_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('oauth_clients');
+        $this->addSql('DROP TABLE oauth_clients');
     }
 }

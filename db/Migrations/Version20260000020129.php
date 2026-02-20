@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure specimen table
  */
 final class Version20260000020129 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_specimen table';
@@ -27,7 +31,7 @@ final class Version20260000020129 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_specimen');
+        $table = new Table('procedure_specimen');
         $table->addColumn('procedure_specimen_id', Types::BIGINT, ['autoincrement' => true, 'comment' => 'record id']);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -129,11 +133,12 @@ final class Version20260000020129 extends AbstractMigration
         $table->addIndex(['specimen_identifier'], 'idx_identifier');
         $table->addIndex(['accession_identifier'], 'idx_accession');
         $table->addUniqueIndex(['uuid'], 'uuid_unique');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_specimen');
+        $this->addSql('DROP TABLE procedure_specimen');
     }
 }

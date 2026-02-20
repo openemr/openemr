@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * List options table
  */
 final class Version20260000020066 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create list_options table';
@@ -27,7 +31,7 @@ final class Version20260000020066 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('list_options');
+        $table = new Table('list_options');
         $table->addColumn('list_id', Types::STRING, ['length' => 100, 'default' => '']);
         $table->addColumn('option_id', Types::STRING, ['length' => 100, 'default' => '']);
         $table->addColumn('title', Types::STRING, ['length' => 255, 'default' => '']);
@@ -49,12 +53,11 @@ final class Version20260000020066 extends AbstractMigration
                 ->setUnquotedColumnNames('list_id', 'option_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('list_options');
+        $this->addSql('DROP TABLE list_options');
     }
 }

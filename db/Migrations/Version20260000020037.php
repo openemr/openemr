@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Enc category map table
  */
 final class Version20260000020037 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create enc_category_map table';
@@ -27,7 +31,7 @@ final class Version20260000020037 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('enc_category_map');
+        $table = new Table('enc_category_map');
         $table->addColumn('rule_enc_id', Types::STRING, [
             'length' => 31,
             'default' => '',
@@ -36,11 +40,12 @@ final class Version20260000020037 extends AbstractMigration
         $table->addColumn('main_cat_id', Types::INTEGER, ['default' => 0, 'comment' => 'category id from event category in openemr_postcalendar_categories']);
 
         $table->addIndex(['rule_enc_id', 'main_cat_id'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('enc_category_map');
+        $this->addSql('DROP TABLE enc_category_map');
     }
 }

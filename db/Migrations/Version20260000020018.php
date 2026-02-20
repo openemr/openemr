@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Contact address table
  */
 final class Version20260000020018 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create contact_address table';
@@ -27,7 +31,7 @@ final class Version20260000020018 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('contact_address');
+        $table = new Table('contact_address');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('address_id', Types::BIGINT);
@@ -81,11 +85,12 @@ final class Version20260000020018 extends AbstractMigration
         $table->addIndex(['contact_id'], null);
         $table->addIndex(['address_id'], null);
         $table->addIndex(['contact_id', 'address_id'], 'contact_address_idx');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('contact_address');
+        $this->addSql('DROP TABLE contact_address');
     }
 }

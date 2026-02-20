@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form questionnaire assessments table
  */
 final class Version20260000020201 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_questionnaire_assessments table';
@@ -27,7 +31,7 @@ final class Version20260000020201 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_questionnaire_assessments');
+        $table = new Table('form_questionnaire_assessments');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
         $table->addColumn('response_id', Types::TEXT, ['comment' => 'The foreign id to the questionnaire_response repository']);
@@ -66,12 +70,11 @@ final class Version20260000020201 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_questionnaire_assessments');
+        $this->addSql('DROP TABLE form_questionnaire_assessments');
     }
 }

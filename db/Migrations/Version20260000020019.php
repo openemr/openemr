@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Contact telecom table
  */
 final class Version20260000020019 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create contact_telecom table';
@@ -27,7 +31,7 @@ final class Version20260000020019 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('contact_telecom');
+        $table = new Table('contact_telecom');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('rank', Types::INTEGER, ['notnull' => false, 'comment' => 'Specify preferred order of use (1 = highest)']);
@@ -73,11 +77,12 @@ final class Version20260000020019 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['contact_id'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('contact_telecom');
+        $this->addSql('DROP TABLE contact_telecom');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Prescriptions table
  */
 final class Version20260000010060 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create prescriptions table';
@@ -27,7 +31,7 @@ final class Version20260000010060 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('prescriptions');
+        $table = new Table('prescriptions');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -157,11 +161,12 @@ final class Version20260000010060 extends AbstractMigration
         );
         $table->addIndex(['patient_id'], 'patient_id');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('prescriptions');
+        $this->addSql('DROP TABLE prescriptions');
     }
 }

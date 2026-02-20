@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Audit master table
  */
 final class Version20260000020007 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create audit_master table';
@@ -27,7 +31,7 @@ final class Version20260000020007 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('audit_master');
+        $table = new Table('audit_master');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('user_id', Types::BIGINT, ['comment' => 'The Id of the user who approves or denies']);
@@ -44,12 +48,11 @@ final class Version20260000020007 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('audit_master');
+        $this->addSql('DROP TABLE audit_master');
     }
 }

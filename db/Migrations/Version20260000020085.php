@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Patient portal menu table
  */
 final class Version20260000020085 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create patient_portal_menu table';
@@ -27,7 +31,7 @@ final class Version20260000020085 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('patient_portal_menu');
+        $table = new Table('patient_portal_menu');
         $table->addColumn('patient_portal_menu_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('patient_portal_menu_group_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('menu_name', Types::STRING, [
@@ -44,10 +48,12 @@ final class Version20260000020085 extends AbstractMigration
         );
 
         $table->addOption('engine', 'INNODB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('patient_portal_menu');
+        $this->addSql('DROP TABLE patient_portal_menu');
     }
 }

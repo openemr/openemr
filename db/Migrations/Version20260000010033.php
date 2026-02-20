@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Gacl axo table
  */
 final class Version20260000010033 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create gacl_axo table';
@@ -27,7 +31,7 @@ final class Version20260000010033 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('gacl_axo');
+        $table = new Table('gacl_axo');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('section_value', Types::STRING, ['length' => 150, 'default' => 0]);
         $table->addColumn('value', Types::STRING, ['length' => 150]);
@@ -41,11 +45,12 @@ final class Version20260000010033 extends AbstractMigration
         );
         $table->addIndex(['hidden'], 'gacl_hidden_axo');
         $table->addUniqueIndex(['section_value', 'value'], 'gacl_section_value_value_axo');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('gacl_axo');
+        $this->addSql('DROP TABLE gacl_axo');
     }
 }

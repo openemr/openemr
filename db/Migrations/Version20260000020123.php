@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure questions table
  */
 final class Version20260000020123 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_questions table';
@@ -27,7 +31,7 @@ final class Version20260000020123 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_questions');
+        $table = new Table('procedure_questions');
         $table->addColumn('lab_id', Types::BIGINT, ['default' => 0, 'comment' => 'references procedure_providers.ppid to identify the lab']);
         $table->addColumn('procedure_code', Types::STRING, [
             'length' => 31,
@@ -64,12 +68,11 @@ final class Version20260000020123 extends AbstractMigration
                 ->setUnquotedColumnNames('lab_id', 'procedure_code', 'question_code')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_questions');
+        $this->addSql('DROP TABLE procedure_questions');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Insurance companies table
  */
 final class Version20260000010043 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create insurance_companies table';
@@ -27,7 +31,7 @@ final class Version20260000010043 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('insurance_companies');
+        $table = new Table('insurance_companies');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -81,11 +85,12 @@ final class Version20260000010043 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('insurance_companies');
+        $this->addSql('DROP TABLE insurance_companies');
     }
 }

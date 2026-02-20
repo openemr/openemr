@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Procedure answers table
  */
 final class Version20260000020126 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create procedure_answers table';
@@ -27,7 +31,7 @@ final class Version20260000020126 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('procedure_answers');
+        $table = new Table('procedure_answers');
         $table->addColumn('procedure_order_id', Types::BIGINT, ['default' => 0, 'comment' => 'references procedure_order.procedure_order_id']);
         $table->addColumn('procedure_order_seq', Types::INTEGER, ['default' => 0, 'comment' => 'references procedure_order_code.procedure_order_seq']);
         $table->addColumn('question_code', Types::STRING, [
@@ -51,12 +55,11 @@ final class Version20260000020126 extends AbstractMigration
                 ->setUnquotedColumnNames('procedure_order_id', 'procedure_order_seq', 'question_code', 'answer_seq')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('procedure_answers');
+        $this->addSql('DROP TABLE procedure_answers');
     }
 }

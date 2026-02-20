@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Keys table
  */
 final class Version20260000020062 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create keys table';
@@ -27,7 +31,7 @@ final class Version20260000020062 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('keys');
+        $table = new Table('keys');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('name', Types::STRING, ['length' => 20, 'default' => '']);
         $table->addColumn('value', Types::TEXT);
@@ -37,11 +41,12 @@ final class Version20260000020062 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['name'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('keys');
+        $this->addSql('DROP TABLE keys');
     }
 }

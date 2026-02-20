@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * X12 remote tracker table
  */
 final class Version20260000020189 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create x12_remote_tracker table';
@@ -27,7 +31,7 @@ final class Version20260000020189 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('x12_remote_tracker');
+        $table = new Table('x12_remote_tracker');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('x12_partner_id', Types::INTEGER);
         $table->addColumn('x12_filename', Types::STRING, ['length' => 255]);
@@ -41,12 +45,11 @@ final class Version20260000020189 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('x12_remote_tracker');
+        $this->addSql('DROP TABLE x12_remote_tracker');
     }
 }

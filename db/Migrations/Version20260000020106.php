@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Uuid mapping table
  */
 final class Version20260000020106 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create uuid_mapping table';
@@ -27,7 +31,7 @@ final class Version20260000020106 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('uuid_mapping');
+        $table = new Table('uuid_mapping');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
         $table->addColumn('resource', Types::STRING, ['length' => 255, 'default' => '']);
@@ -48,11 +52,12 @@ final class Version20260000020106 extends AbstractMigration
         $table->addIndex(['resource'], 'resource');
         $table->addIndex(['table'], 'table');
         $table->addIndex(['target_uuid'], 'target_uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('uuid_mapping');
+        $this->addSql('DROP TABLE uuid_mapping');
     }
 }

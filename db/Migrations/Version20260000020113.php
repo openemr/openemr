@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Notification settings table
  */
 final class Version20260000020113 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create notification_settings table';
@@ -27,7 +31,7 @@ final class Version20260000020113 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('notification_settings');
+        $table = new Table('notification_settings');
         $table->addColumn('SettingsId', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('Send_SMS_Before_Hours', Types::INTEGER);
         $table->addColumn('Send_Email_Before_Hours', Types::INTEGER);
@@ -40,12 +44,11 @@ final class Version20260000020113 extends AbstractMigration
                 ->setUnquotedColumnNames('SettingsId')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('notification_settings');
+        $this->addSql('DROP TABLE notification_settings');
     }
 }

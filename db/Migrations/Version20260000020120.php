@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Gprelations table
  */
 final class Version20260000020120 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create gprelations table';
@@ -27,7 +31,7 @@ final class Version20260000020120 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('gprelations');
+        $table = new Table('gprelations');
         $table->addColumn('type1', Types::INTEGER);
         $table->addColumn('id1', Types::BIGINT);
         $table->addColumn('type2', Types::INTEGER);
@@ -38,11 +42,12 @@ final class Version20260000020120 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['type2', 'id2'], 'key2');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('gprelations');
+        $this->addSql('DROP TABLE gprelations');
     }
 }

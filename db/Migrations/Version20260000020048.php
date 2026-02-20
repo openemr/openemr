@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Icd9 sg long code table
  */
 final class Version20260000020048 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create icd9_sg_long_code table';
@@ -27,7 +31,7 @@ final class Version20260000020048 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('icd9_sg_long_code');
+        $table = new Table('icd9_sg_long_code');
         $table->addColumn('sq_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('sg_code', Types::STRING, ['length' => 5]);
         $table->addColumn('long_desc', Types::STRING, ['length' => 300]);
@@ -39,11 +43,11 @@ final class Version20260000020048 extends AbstractMigration
                 ->setUnquotedColumnNames('sq_id')
                 ->create()
         );
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('icd9_sg_long_code');
+        $this->addSql('DROP TABLE icd9_sg_long_code');
     }
 }

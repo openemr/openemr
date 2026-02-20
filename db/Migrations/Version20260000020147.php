@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * External procedures table
  */
 final class Version20260000020147 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create external_procedures table';
@@ -27,7 +31,7 @@ final class Version20260000020147 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('external_procedures');
+        $table = new Table('external_procedures');
         $table->addColumn('ep_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('ep_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('ep_code_type', Types::STRING, [
@@ -59,11 +63,12 @@ final class Version20260000020147 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['ep_pid'], 'ep_pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('external_procedures');
+        $this->addSql('DROP TABLE external_procedures');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye antseg table
  */
 final class Version20260000020184 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_antseg table';
@@ -27,7 +31,7 @@ final class Version20260000020184 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_antseg');
+        $table = new Table('form_eye_antseg');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('ODSCHIRMER1', Types::STRING, [
@@ -169,11 +173,12 @@ final class Version20260000020184 extends AbstractMigration
         $table->addColumn('ANTSEG_COMMENTS', Types::TEXT);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_antseg');
+        $this->addSql('DROP TABLE form_eye_antseg');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form functional cognitive status table
  */
 final class Version20260000020150 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_functional_cognitive_status table';
@@ -27,7 +31,7 @@ final class Version20260000020150 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_functional_cognitive_status');
+        $table = new Table('form_functional_cognitive_status');
         $table->addColumn('id', Types::BIGINT);
         $table->addColumn('date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -60,12 +64,11 @@ final class Version20260000020150 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_functional_cognitive_status');
+        $this->addSql('DROP TABLE form_functional_cognitive_status');
     }
 }

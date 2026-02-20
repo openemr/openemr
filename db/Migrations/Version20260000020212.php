@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Preference value sets table
  */
 final class Version20260000020212 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create preference_value_sets table';
@@ -27,7 +31,7 @@ final class Version20260000020212 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('preference_value_sets');
+        $table = new Table('preference_value_sets');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('loinc_code', Types::STRING, ['length' => 50]);
         $table->addColumn('answer_code', Types::STRING, ['length' => 100]);
@@ -42,11 +46,12 @@ final class Version20260000020212 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['loinc_code'], 'loinc_code');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('preference_value_sets');
+        $this->addSql('DROP TABLE preference_value_sets');
     }
 }

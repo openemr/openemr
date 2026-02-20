@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Clinical notes procedure results table
  */
 final class Version20260000010069 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create clinical_notes_procedure_results table';
@@ -27,7 +31,7 @@ final class Version20260000010069 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('clinical_notes_procedure_results');
+        $table = new Table('clinical_notes_procedure_results');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('clinical_note_id', Types::BIGINT, ['comment' => 'Foreign key to form_clinical_notes.id']);
         $table->addColumn('procedure_result_id', Types::BIGINT, ['comment' => 'Foreign key to procedure_result.procedure_result_id']);
@@ -47,11 +51,12 @@ final class Version20260000010069 extends AbstractMigration
         $table->addIndex(['procedure_result_id'], 'idx_procedure_result_id');
         $table->addIndex(['created_at'], 'idx_created_at');
         $table->addUniqueIndex(['clinical_note_id', 'procedure_result_id'], 'unique_note_result');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('clinical_notes_procedure_results');
+        $this->addSql('DROP TABLE clinical_notes_procedure_results');
     }
 }

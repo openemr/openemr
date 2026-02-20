@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Automatic notification table
  */
 final class Version20260000020111 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create automatic_notification table';
@@ -27,7 +31,7 @@ final class Version20260000020111 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('automatic_notification');
+        $table = new Table('automatic_notification');
         $table->addColumn('notification_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('sms_gateway_type', Types::STRING, ['length' => 255]);
         $table->addColumn('provider_name', Types::STRING, ['length' => 100]);
@@ -43,12 +47,11 @@ final class Version20260000020111 extends AbstractMigration
                 ->setUnquotedColumnNames('notification_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('automatic_notification');
+        $this->addSql('DROP TABLE automatic_notification');
     }
 }

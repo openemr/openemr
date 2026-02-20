@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Verify email table
  */
 final class Version20260000020108 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create verify_email table';
@@ -27,7 +31,7 @@ final class Version20260000020108 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('verify_email');
+        $table = new Table('verify_email');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('pid_holder', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('email', Types::STRING, [
@@ -68,11 +72,12 @@ final class Version20260000020108 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['email'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('verify_email');
+        $this->addSql('DROP TABLE verify_email');
     }
 }

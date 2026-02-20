@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Direct message log table
  */
 final class Version20260000010006 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create direct_message_log table';
@@ -27,7 +31,7 @@ final class Version20260000010006 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('direct_message_log');
+        $table = new Table('direct_message_log');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('msg_type', Types::STRING, ['length' => 1, 'comment' => 'S=sent,R=received']);
         $table->addColumn('msg_id', Types::STRING, ['length' => 127]);
@@ -50,11 +54,12 @@ final class Version20260000010006 extends AbstractMigration
         );
         $table->addIndex(['msg_id'], 'msg_id');
         $table->addIndex(['patient_id'], 'patient_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('direct_message_log');
+        $this->addSql('DROP TABLE direct_message_log');
     }
 }

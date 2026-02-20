@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Multiple db table
  */
 final class Version20260000020164 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create multiple_db table';
@@ -27,7 +31,7 @@ final class Version20260000020164 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('multiple_db');
+        $table = new Table('multiple_db');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('namespace', Types::STRING, ['length' => 255]);
         $table->addColumn('username', Types::STRING, ['length' => 255]);
@@ -42,11 +46,12 @@ final class Version20260000020164 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['namespace'], 'namespace');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('multiple_db');
+        $this->addSql('DROP TABLE multiple_db');
     }
 }

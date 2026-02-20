@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Users facility table
  */
 final class Version20260000020117 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create users_facility table';
@@ -27,7 +31,7 @@ final class Version20260000020117 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('users_facility');
+        $table = new Table('users_facility');
         $table->addColumn('tablename', Types::STRING, ['length' => 64]);
         $table->addColumn('table_id', Types::INTEGER);
         $table->addColumn('facility_id', Types::INTEGER);
@@ -37,12 +41,11 @@ final class Version20260000020117 extends AbstractMigration
                 ->setUnquotedColumnNames('tablename', 'table_id', 'facility_id', 'warehouse_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('users_facility');
+        $this->addSql('DROP TABLE users_facility');
     }
 }

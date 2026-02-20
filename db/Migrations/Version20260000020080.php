@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite online table
  */
 final class Version20260000020080 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_online table';
@@ -27,7 +31,7 @@ final class Version20260000020080 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_online');
+        $table = new Table('onsite_online');
         $table->addColumn('hash', Types::STRING, ['length' => 32]);
         $table->addColumn('ip', Types::STRING, ['length' => 15]);
         $table->addColumn('last_update', Types::DATETIME_MUTABLE);
@@ -42,12 +46,11 @@ final class Version20260000020080 extends AbstractMigration
                 ->setUnquotedColumnNames('hash')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_online');
+        $this->addSql('DROP TABLE onsite_online');
     }
 }

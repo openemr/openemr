@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Gacl axo groups table
  */
 final class Version20260000010034 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create gacl_axo_groups table';
@@ -27,7 +31,7 @@ final class Version20260000010034 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('gacl_axo_groups');
+        $table = new Table('gacl_axo_groups');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('parent_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('lft', Types::INTEGER, ['default' => 0]);
@@ -42,11 +46,12 @@ final class Version20260000010034 extends AbstractMigration
         $table->addIndex(['parent_id'], 'gacl_parent_id_axo_groups');
         $table->addIndex(['lft', 'rgt'], 'gacl_lft_rgt_axo_groups');
         $table->addUniqueIndex(['value'], 'gacl_value_axo_groups');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('gacl_axo_groups');
+        $this->addSql('DROP TABLE gacl_axo_groups');
     }
 }

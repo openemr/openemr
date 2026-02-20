@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Users secure table
  */
 final class Version20260000020104 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create users_secure table';
@@ -27,7 +31,7 @@ final class Version20260000020104 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('users_secure');
+        $table = new Table('users_secure');
         $table->addColumn('id', Types::BIGINT);
         $table->addColumn('username', Types::STRING, [
             'length' => 255,
@@ -54,10 +58,12 @@ final class Version20260000020104 extends AbstractMigration
         );
         $table->addUniqueIndex(['id', 'username'], 'USERNAME_ID');
         $table->addOption('engine', 'InnoDb');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('users_secure');
+        $this->addSql('DROP TABLE users_secure');
     }
 }

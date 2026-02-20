@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form groups encounter table
  */
 final class Version20260000020169 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_groups_encounter table';
@@ -27,7 +31,7 @@ final class Version20260000020169 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_groups_encounter');
+        $table = new Table('form_groups_encounter');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('reason', Types::TEXT);
@@ -67,11 +71,12 @@ final class Version20260000020169 extends AbstractMigration
         );
         $table->addIndex(['group_id', 'encounter'], 'pid_encounter');
         $table->addIndex(['date'], 'encounter_date');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_groups_encounter');
+        $this->addSql('DROP TABLE form_groups_encounter');
     }
 }

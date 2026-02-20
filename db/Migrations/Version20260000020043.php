@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Fee sheet options table
  */
 final class Version20260000020043 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create fee_sheet_options table';
@@ -27,7 +31,7 @@ final class Version20260000020043 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('fee_sheet_options');
+        $table = new Table('fee_sheet_options');
         $table->addColumn('fs_category', Types::STRING, [
             'length' => 63,
             'notnull' => false,
@@ -43,12 +47,11 @@ final class Version20260000020043 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('fee_sheet_options');
+        $this->addSql('DROP TABLE fee_sheet_options');
     }
 }

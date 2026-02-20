@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Module acl sections table
  */
 final class Version20260000020071 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create module_acl_sections table';
@@ -27,7 +31,7 @@ final class Version20260000020071 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('module_acl_sections');
+        $table = new Table('module_acl_sections');
         $table->addColumn('section_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('section_name', Types::STRING, [
             'length' => 255,
@@ -42,11 +46,11 @@ final class Version20260000020071 extends AbstractMigration
         ]);
         $table->addColumn('module_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
 
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('module_acl_sections');
+        $this->addSql('DROP TABLE module_acl_sections');
     }
 }

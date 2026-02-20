@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form eye base table
  */
 final class Version20260000020176 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_eye_base table';
@@ -27,7 +31,7 @@ final class Version20260000020176 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_eye_base');
+        $table = new Table('form_eye_base');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'comment' => 'Links to forms.form_id']);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -49,11 +53,12 @@ final class Version20260000020176 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_eye_base');
+        $this->addSql('DROP TABLE form_eye_base');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite mail table
  */
 final class Version20260000020078 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_mail table';
@@ -27,7 +31,7 @@ final class Version20260000020078 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_mail');
+        $table = new Table('onsite_mail');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('owner', Types::STRING, [
@@ -100,11 +104,12 @@ final class Version20260000020078 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['owner'], 'pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_mail');
+        $this->addSql('DROP TABLE onsite_mail');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Module configuration table
  */
 final class Version20260000020073 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create module_configuration table';
@@ -27,7 +31,7 @@ final class Version20260000020073 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('module_configuration');
+        $table = new Table('module_configuration');
         $table->addColumn('module_config_id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('module_id', Types::INTEGER, ['unsigned' => true]);
         $table->addColumn('field_name', Types::STRING, ['length' => 45]);
@@ -58,12 +62,11 @@ final class Version20260000020073 extends AbstractMigration
                 ->setUnquotedColumnNames('module_config_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('module_configuration');
+        $this->addSql('DROP TABLE module_configuration');
     }
 }

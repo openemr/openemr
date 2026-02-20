@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lbt data table
  */
 final class Version20260000020119 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lbt_data table';
@@ -27,7 +31,7 @@ final class Version20260000020119 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lbt_data');
+        $table = new Table('lbt_data');
         $table->addColumn('form_id', Types::BIGINT, ['comment' => 'references transactions.id']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
         $table->addColumn('field_value', Types::TEXT);
@@ -36,12 +40,11 @@ final class Version20260000020119 extends AbstractMigration
                 ->setUnquotedColumnNames('form_id', 'field_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lbt_data');
+        $this->addSql('DROP TABLE lbt_data');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Rule patient data table
  */
 final class Version20260000020098 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create rule_patient_data table';
@@ -27,7 +31,7 @@ final class Version20260000020098 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('rule_patient_data');
+        $table = new Table('rule_patient_data');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT);
@@ -54,11 +58,12 @@ final class Version20260000020098 extends AbstractMigration
         );
         $table->addIndex(['pid'], null);
         $table->addIndex(['category', 'item'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('rule_patient_data');
+        $this->addSql('DROP TABLE rule_patient_data');
     }
 }

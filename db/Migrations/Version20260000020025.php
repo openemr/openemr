@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Dated reminders link table
  */
 final class Version20260000020025 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create dated_reminders_link table';
@@ -27,7 +31,7 @@ final class Version20260000020025 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('dated_reminders_link');
+        $table = new Table('dated_reminders_link');
         $table->addColumn('dr_link_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('dr_id', Types::INTEGER);
         $table->addColumn('to_id', Types::INTEGER);
@@ -38,11 +42,12 @@ final class Version20260000020025 extends AbstractMigration
         );
         $table->addIndex(['to_id'], 'to_id');
         $table->addIndex(['dr_id'], 'dr_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('dated_reminders_link');
+        $this->addSql('DROP TABLE dated_reminders_link');
     }
 }

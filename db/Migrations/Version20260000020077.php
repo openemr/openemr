@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite documents table
  */
 final class Version20260000020077 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_documents table';
@@ -27,7 +31,7 @@ final class Version20260000020077 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_documents');
+        $table = new Table('onsite_documents');
         $table->addColumn('id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT, [
             'unsigned' => true,
@@ -69,12 +73,11 @@ final class Version20260000020077 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_documents');
+        $this->addSql('DROP TABLE onsite_documents');
     }
 }

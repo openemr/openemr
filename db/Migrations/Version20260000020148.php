@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * External encounters table
  */
 final class Version20260000020148 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create external_encounters table';
@@ -27,7 +31,7 @@ final class Version20260000020148 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('external_encounters');
+        $table = new Table('external_encounters');
         $table->addColumn('ee_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('ee_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('ee_pid', Types::INTEGER, ['notnull' => false, 'default' => null]);
@@ -56,12 +60,11 @@ final class Version20260000020148 extends AbstractMigration
                 ->setUnquotedColumnNames('ee_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('external_encounters');
+        $this->addSql('DROP TABLE external_encounters');
     }
 }

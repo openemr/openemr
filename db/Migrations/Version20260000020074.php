@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Modules hooks settings table
  */
 final class Version20260000020074 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create modules_hooks_settings table';
@@ -27,7 +31,7 @@ final class Version20260000020074 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('modules_hooks_settings');
+        $table = new Table('modules_hooks_settings');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('mod_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('enabled_hooks', Types::STRING, [
@@ -45,12 +49,11 @@ final class Version20260000020074 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('modules_hooks_settings');
+        $this->addSql('DROP TABLE modules_hooks_settings');
     }
 }

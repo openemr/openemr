@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Esign signatures table
  */
 final class Version20260000020139 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create esign_signatures table';
@@ -27,7 +31,7 @@ final class Version20260000020139 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('esign_signatures');
+        $table = new Table('esign_signatures');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('tid', Types::INTEGER, ['comment' => 'Table row ID for signature']);
         $table->addColumn('table', Types::STRING, ['length' => 255, 'comment' => 'table name for the signature']);
@@ -44,11 +48,12 @@ final class Version20260000020139 extends AbstractMigration
         );
         $table->addIndex(['tid'], 'tid');
         $table->addIndex(['table'], 'table');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('esign_signatures');
+        $this->addSql('DROP TABLE esign_signatures');
     }
 }

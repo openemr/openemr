@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite messages table
  */
 final class Version20260000020079 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_messages table';
@@ -27,7 +31,7 @@ final class Version20260000020079 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_messages');
+        $table = new Table('onsite_messages');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('username', Types::STRING, ['length' => 64]);
         $table->addColumn('message', Types::TEXT);
@@ -44,12 +48,11 @@ final class Version20260000020079 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_messages');
+        $this->addSql('DROP TABLE onsite_messages');
     }
 }

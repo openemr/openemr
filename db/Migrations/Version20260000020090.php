@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Payment gateway details table
  */
 final class Version20260000020090 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create payment_gateway_details table';
@@ -27,7 +31,7 @@ final class Version20260000020090 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('payment_gateway_details');
+        $table = new Table('payment_gateway_details');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('service_name', Types::STRING, [
             'length' => 100,
@@ -54,12 +58,11 @@ final class Version20260000020090 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('payment_gateway_details');
+        $this->addSql('DROP TABLE payment_gateway_details');
     }
 }

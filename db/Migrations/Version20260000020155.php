@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Calendar external table
  */
 final class Version20260000020155 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create calendar_external table';
@@ -27,7 +31,7 @@ final class Version20260000020155 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('calendar_external');
+        $table = new Table('calendar_external');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATE_MUTABLE);
         $table->addColumn('description', Types::STRING, ['length' => 45]);
@@ -37,12 +41,11 @@ final class Version20260000020155 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('calendar_external');
+        $this->addSql('DROP TABLE calendar_external');
     }
 }

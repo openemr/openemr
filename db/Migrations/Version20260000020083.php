@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Patient access onsite table
  */
 final class Version20260000020083 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create patient_access_onsite table';
@@ -27,7 +31,7 @@ final class Version20260000020083 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('patient_access_onsite');
+        $table = new Table('patient_access_onsite');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('portal_username', Types::STRING, ['length' => 100]);
@@ -51,11 +55,12 @@ final class Version20260000020083 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['pid'], 'pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('patient_access_onsite');
+        $this->addSql('DROP TABLE patient_access_onsite');
     }
 }

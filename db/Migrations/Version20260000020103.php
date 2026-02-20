@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Supported external dataloads table
  */
 final class Version20260000020103 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create supported_external_dataloads table';
@@ -27,7 +31,7 @@ final class Version20260000020103 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('supported_external_dataloads');
+        $table = new Table('supported_external_dataloads');
         $table->addColumn('load_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('load_type', Types::STRING, ['length' => 24, 'default' => '']);
         $table->addColumn('load_source', Types::STRING, ['length' => 24, 'default' => 'CMS']);
@@ -40,11 +44,11 @@ final class Version20260000020103 extends AbstractMigration
                 ->setUnquotedColumnNames('load_id')
                 ->create()
         );
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('supported_external_dataloads');
+        $this->addSql('DROP TABLE supported_external_dataloads');
     }
 }

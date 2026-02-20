@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Dsi source attributes table
  */
 final class Version20260000020205 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create dsi_source_attributes table';
@@ -27,7 +31,7 @@ final class Version20260000020205 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('dsi_source_attributes');
+        $table = new Table('dsi_source_attributes');
         $table->addColumn('id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('client_id', Types::STRING, ['length' => 80]);
         $table->addColumn('list_id', Types::STRING, ['length' => 100]);
@@ -47,12 +51,11 @@ final class Version20260000020205 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('dsi_source_attributes');
+        $this->addSql('DROP TABLE dsi_source_attributes');
     }
 }

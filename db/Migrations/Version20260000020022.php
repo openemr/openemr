@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Person patient link table
  */
 final class Version20260000020022 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create person_patient_link table';
@@ -27,7 +31,7 @@ final class Version20260000020022 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('person_patient_link');
+        $table = new Table('person_patient_link');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('person_id', Types::BIGINT, ['comment' => 'FK to person.id']);
         $table->addColumn('patient_id', Types::BIGINT, ['comment' => 'FK to patient_data.id']);
@@ -55,11 +59,12 @@ final class Version20260000020022 extends AbstractMigration
         $table->addIndex(['linked_date'], 'idx_ppl_linked_date');
         $table->addIndex(['link_method'], 'idx_ppl_method');
         $table->addUniqueIndex(['person_id', 'patient_id', 'active'], 'unique_active_link');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('person_patient_link');
+        $this->addSql('DROP TABLE person_patient_link');
     }
 }

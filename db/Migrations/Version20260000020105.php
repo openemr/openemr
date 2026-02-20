@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * User settings table
  */
 final class Version20260000020105 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create user_settings table';
@@ -27,7 +31,7 @@ final class Version20260000020105 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('user_settings');
+        $table = new Table('user_settings');
         $table->addColumn('setting_user', Types::BIGINT, ['default' => 0]);
         $table->addColumn('setting_label', Types::STRING, ['length' => 100]);
         $table->addColumn('setting_value', Types::STRING, ['length' => 255, 'default' => '']);
@@ -36,12 +40,11 @@ final class Version20260000020105 extends AbstractMigration
                 ->setUnquotedColumnNames('setting_user', 'setting_label')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('user_settings');
+        $this->addSql('DROP TABLE user_settings');
     }
 }

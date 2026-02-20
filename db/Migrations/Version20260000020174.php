@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Medex prefs table
  */
 final class Version20260000020174 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create medex_prefs table';
@@ -27,7 +31,7 @@ final class Version20260000020174 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('medex_prefs');
+        $table = new Table('medex_prefs');
         $table->addColumn('MedEx_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('ME_username', Types::STRING, [
             'length' => 100,
@@ -86,11 +90,12 @@ final class Version20260000020174 extends AbstractMigration
         $table->addColumn('MedEx_lastupdated', Types::DATETIME_MUTABLE);
 
         $table->addUniqueIndex(['ME_username'], 'ME_username');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('medex_prefs');
+        $this->addSql('DROP TABLE medex_prefs');
     }
 }

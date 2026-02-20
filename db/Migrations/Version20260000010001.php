@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Addresses table - stores address information linked to other entities via foreign_id
  */
 final class Version20260000010001 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create addresses table';
@@ -27,7 +31,7 @@ final class Version20260000010001 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('addresses');
+        $table = new Table('addresses');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('line1', Types::STRING, ['length' => 255, 'notnull' => false]);
         $table->addColumn('line2', Types::STRING, ['length' => 255, 'notnull' => false]);
@@ -48,11 +52,12 @@ final class Version20260000010001 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['foreign_id'], 'foreign_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('addresses');
+        $this->addSql('DROP TABLE addresses');
     }
 }

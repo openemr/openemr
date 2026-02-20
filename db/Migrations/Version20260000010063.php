@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Transactions table
  */
 final class Version20260000010063 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create transactions table';
@@ -27,7 +31,7 @@ final class Version20260000010063 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('transactions');
+        $table = new Table('transactions');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('title', Types::STRING, ['length' => 255, 'default' => '']);
@@ -41,11 +45,12 @@ final class Version20260000010063 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pid'], 'pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('transactions');
+        $this->addSql('DROP TABLE transactions');
     }
 }

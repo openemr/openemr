@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Payment processing audit table
  */
 final class Version20260000020102 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create payment_processing_audit table';
@@ -27,7 +31,7 @@ final class Version20260000020102 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('payment_processing_audit');
+        $table = new Table('payment_processing_audit');
         $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
         $table->addColumn('service', Types::STRING, [
             'length' => 50,
@@ -88,11 +92,12 @@ final class Version20260000020102 extends AbstractMigration
         );
         $table->addIndex(['pid'], null);
         $table->addIndex(['success'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('payment_processing_audit');
+        $this->addSql('DROP TABLE payment_processing_audit');
     }
 }

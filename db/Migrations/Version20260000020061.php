@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Issue types table
  */
 final class Version20260000020061 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create issue_types table';
@@ -27,7 +31,7 @@ final class Version20260000020061 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('issue_types');
+        $table = new Table('issue_types');
         $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('category', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('type', Types::STRING, ['length' => 75, 'default' => '']);
@@ -43,12 +47,11 @@ final class Version20260000020061 extends AbstractMigration
                 ->setUnquotedColumnNames('category', 'type')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('issue_types');
+        $this->addSql('DROP TABLE issue_types');
     }
 }

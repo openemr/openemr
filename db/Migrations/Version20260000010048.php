@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lang languages table
  */
 final class Version20260000010048 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lang_languages table';
@@ -27,7 +31,7 @@ final class Version20260000010048 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lang_languages');
+        $table = new Table('lang_languages');
         $table->addColumn('lang_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('lang_code', Types::STRING, ['length' => 2, 'default' => '']);
         $table->addColumn('lang_description', Types::STRING, [
@@ -38,11 +42,12 @@ final class Version20260000010048 extends AbstractMigration
         $table->addColumn('lang_is_rtl', Types::SMALLINT, ['default' => 0, 'comment' => 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.']);
 
         $table->addUniqueIndex(['lang_id'], 'lang_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lang_languages');
+        $this->addSql('DROP TABLE lang_languages');
     }
 }

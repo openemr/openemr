@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * History data table
  */
 final class Version20260000010042 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create history_data table';
@@ -27,7 +31,7 @@ final class Version20260000010042 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('history_data');
+        $table = new Table('history_data');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -214,11 +218,12 @@ final class Version20260000010042 extends AbstractMigration
         );
         $table->addIndex(['pid'], 'pid');
         $table->addUniqueIndex(['uuid'], 'uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('history_data');
+        $this->addSql('DROP TABLE history_data');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Erx rx log table
  */
 final class Version20260000020038 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create erx_rx_log table';
@@ -27,7 +31,7 @@ final class Version20260000020038 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('erx_rx_log');
+        $table = new Table('erx_rx_log');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('prescription_id', Types::INTEGER);
         $table->addColumn('date', Types::STRING, ['length' => 25]);
@@ -45,12 +49,11 @@ final class Version20260000020038 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('erx_rx_log');
+        $this->addSql('DROP TABLE erx_rx_log');
     }
 }

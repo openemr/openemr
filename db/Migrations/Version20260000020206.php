@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Track events table
  */
 final class Version20260000020206 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create track_events table';
@@ -27,7 +31,7 @@ final class Version20260000020206 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('track_events');
+        $table = new Table('track_events');
         $table->addColumn('id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('event_type', Types::TEXT);
         $table->addColumn('event_label', Types::STRING, [
@@ -46,11 +50,12 @@ final class Version20260000020206 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['event_label', 'event_url'], 'unique_event_label_target', ['lengths' => [null, 255]]);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('track_events');
+        $this->addSql('DROP TABLE track_events');
     }
 }

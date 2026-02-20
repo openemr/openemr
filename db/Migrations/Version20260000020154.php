@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Immunization observation table
  */
 final class Version20260000020154 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create immunization_observation table';
@@ -27,7 +31,7 @@ final class Version20260000020154 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('immunization_observation');
+        $table = new Table('immunization_observation');
         $table->addColumn('imo_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('imo_im_id', Types::INTEGER);
         $table->addColumn('imo_pid', Types::INTEGER, ['notnull' => false, 'default' => null]);
@@ -65,12 +69,11 @@ final class Version20260000020154 extends AbstractMigration
                 ->setUnquotedColumnNames('imo_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('immunization_observation');
+        $this->addSql('DROP TABLE immunization_observation');
     }
 }

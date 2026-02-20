@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Billing table
  */
 final class Version20260000010004 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create billing table';
@@ -27,7 +31,7 @@ final class Version20260000010004 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('billing');
+        $table = new Table('billing');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('code_type', Types::STRING, [
@@ -113,11 +117,12 @@ final class Version20260000010004 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pid'], 'pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('billing');
+        $this->addSql('DROP TABLE billing');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Therapy groups table
  */
 final class Version20260000020165 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create therapy_groups table';
@@ -27,7 +31,7 @@ final class Version20260000020165 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('therapy_groups');
+        $table = new Table('therapy_groups');
         $table->addColumn('group_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('group_name', Types::STRING, ['length' => 255]);
         $table->addColumn('group_start_date', Types::DATE_MUTABLE);
@@ -42,12 +46,11 @@ final class Version20260000020165 extends AbstractMigration
                 ->setUnquotedColumnNames('group_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('therapy_groups');
+        $this->addSql('DROP TABLE therapy_groups');
     }
 }

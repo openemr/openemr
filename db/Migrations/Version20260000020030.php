@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Drug inventory table
  */
 final class Version20260000020030 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create drug_inventory table';
@@ -27,7 +31,7 @@ final class Version20260000020030 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('drug_inventory');
+        $table = new Table('drug_inventory');
         $table->addColumn('inventory_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('drug_id', Types::INTEGER);
         $table->addColumn('lot_number', Types::STRING, [
@@ -66,12 +70,11 @@ final class Version20260000020030 extends AbstractMigration
                 ->setUnquotedColumnNames('inventory_id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('drug_inventory');
+        $this->addSql('DROP TABLE drug_inventory');
     }
 }

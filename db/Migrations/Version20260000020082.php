@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Onsite signatures table
  */
 final class Version20260000020082 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create onsite_signatures table';
@@ -27,7 +31,7 @@ final class Version20260000020082 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('onsite_signatures');
+        $table = new Table('onsite_signatures');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('status', Types::STRING, ['length' => 128, 'default' => 'waiting']);
         $table->addColumn('type', Types::STRING, ['length' => 128]);
@@ -54,11 +58,12 @@ final class Version20260000020082 extends AbstractMigration
         );
         $table->addIndex(['encounter'], 'encounter');
         $table->addUniqueIndex(['pid', 'user'], 'pid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('onsite_signatures');
+        $this->addSql('DROP TABLE onsite_signatures');
     }
 }

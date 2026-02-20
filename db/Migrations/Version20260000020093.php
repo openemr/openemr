@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Report itemized table
  */
 final class Version20260000020093 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create report_itemized table';
@@ -27,7 +31,7 @@ final class Version20260000020093 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('report_itemized');
+        $table = new Table('report_itemized');
         $table->addColumn('report_id', Types::BIGINT);
         $table->addColumn('itemized_test_id', Types::SMALLINT);
         $table->addColumn('numerator_label', Types::STRING, [
@@ -46,11 +50,12 @@ final class Version20260000020093 extends AbstractMigration
         $table->addColumn('item_details', Types::TEXT, ['comment' => 'JSON with specific sub item results for a clinical rule']);
 
         $table->addIndex(['report_id', 'itemized_test_id', 'numerator_label', 'pass'], null);
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('report_itemized');
+        $this->addSql('DROP TABLE report_itemized');
     }
 }

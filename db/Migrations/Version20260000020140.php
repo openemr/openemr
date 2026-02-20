@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Log comment encrypt table
  */
 final class Version20260000020140 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create log_comment_encrypt table';
@@ -27,7 +31,7 @@ final class Version20260000020140 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('log_comment_encrypt');
+        $table = new Table('log_comment_encrypt');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('log_id', Types::INTEGER);
         $table->addColumn('encrypt', Types::ENUM, [
@@ -42,12 +46,11 @@ final class Version20260000020140 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('log_comment_encrypt');
+        $this->addSql('DROP TABLE log_comment_encrypt');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Erx narcotics table
  */
 final class Version20260000020039 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create erx_narcotics table';
@@ -27,7 +31,7 @@ final class Version20260000020039 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('erx_narcotics');
+        $table = new Table('erx_narcotics');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('drug', Types::STRING, ['length' => 255]);
         $table->addColumn('dea_number', Types::STRING, ['length' => 5]);
@@ -39,12 +43,11 @@ final class Version20260000020039 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('erx_narcotics');
+        $this->addSql('DROP TABLE erx_narcotics');
     }
 }

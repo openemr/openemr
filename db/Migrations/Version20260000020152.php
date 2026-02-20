@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Form clinical instructions table
  */
 final class Version20260000020152 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create form_clinical_instructions table';
@@ -27,7 +31,7 @@ final class Version20260000020152 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('form_clinical_instructions');
+        $table = new Table('form_clinical_instructions');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('encounter', Types::STRING, [
@@ -48,12 +52,11 @@ final class Version20260000020152 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('form_clinical_instructions');
+        $this->addSql('DROP TABLE form_clinical_instructions');
     }
 }

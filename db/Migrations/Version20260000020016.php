@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Clinical rules log table
  */
 final class Version20260000020016 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create clinical_rules_log table';
@@ -27,7 +31,7 @@ final class Version20260000020016 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('clinical_rules_log');
+        $table = new Table('clinical_rules_log');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
@@ -48,11 +52,12 @@ final class Version20260000020016 extends AbstractMigration
         $table->addIndex(['pid'], 'pid');
         $table->addIndex(['uid'], 'uid');
         $table->addIndex(['category'], 'category');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('clinical_rules_log');
+        $this->addSql('DROP TABLE clinical_rules_log');
     }
 }

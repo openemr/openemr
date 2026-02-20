@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Ccda table
  */
 final class Version20260000020145 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create ccda table';
@@ -27,7 +31,7 @@ final class Version20260000020145 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('ccda');
+        $table = new Table('ccda');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -64,11 +68,12 @@ final class Version20260000020145 extends AbstractMigration
         );
         $table->addUniqueIndex(['uuid'], 'uuid');
         $table->addUniqueIndex(['pid', 'encounter', 'time'], 'unique_key');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('ccda');
+        $this->addSql('DROP TABLE ccda');
     }
 }

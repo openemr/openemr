@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Icd9 sg code table
  */
 final class Version20260000020046 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create icd9_sg_code table';
@@ -27,7 +31,7 @@ final class Version20260000020046 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('icd9_sg_code');
+        $table = new Table('icd9_sg_code');
         $table->addColumn('sg_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('sg_code', Types::STRING, ['length' => 5]);
         $table->addColumn('formatted_sg_code', Types::STRING, ['length' => 6]);
@@ -44,11 +48,12 @@ final class Version20260000020046 extends AbstractMigration
         $table->addIndex(['sg_code'], 'sg_code');
         $table->addIndex(['formatted_sg_code'], 'formatted_sg_code');
         $table->addIndex(['active'], 'active');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('icd9_sg_code');
+        $this->addSql('DROP TABLE icd9_sg_code');
     }
 }

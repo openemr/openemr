@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Clinical rules table
  */
 final class Version20260000020015 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create clinical_rules table';
@@ -27,7 +31,7 @@ final class Version20260000020015 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('clinical_rules');
+        $table = new Table('clinical_rules');
         $table->addColumn('id', Types::STRING, [
             'length' => 31,
             'default' => '',
@@ -116,12 +120,11 @@ final class Version20260000020015 extends AbstractMigration
                 ->setUnquotedColumnNames('id', 'pid')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('clinical_rules');
+        $this->addSql('DROP TABLE clinical_rules');
     }
 }

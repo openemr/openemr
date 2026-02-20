@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Medex outgoing table
  */
 final class Version20260000020173 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create medex_outgoing table';
@@ -27,7 +31,7 @@ final class Version20260000020173 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('medex_outgoing');
+        $table = new Table('medex_outgoing');
         $table->addColumn('msg_uid', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('msg_pid', Types::INTEGER);
         $table->addColumn('msg_pc_eid', Types::STRING, ['length' => 11]);
@@ -47,11 +51,12 @@ final class Version20260000020173 extends AbstractMigration
                 ->create()
         );
         $table->addUniqueIndex(['msg_uid', 'msg_pc_eid', 'medex_uid'], 'msg_eid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('medex_outgoing');
+        $this->addSql('DROP TABLE medex_outgoing');
     }
 }

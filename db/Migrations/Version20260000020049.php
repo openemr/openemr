@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Icd10 dx order code table
  */
 final class Version20260000020049 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create icd10_dx_order_code table';
@@ -27,7 +31,7 @@ final class Version20260000020049 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('icd10_dx_order_code');
+        $table = new Table('icd10_dx_order_code');
         $table->addColumn('dx_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_code', Types::STRING, ['length' => 7]);
         $table->addColumn('formatted_dx_code', Types::STRING, ['length' => 10]);
@@ -44,11 +48,12 @@ final class Version20260000020049 extends AbstractMigration
         );
         $table->addIndex(['formatted_dx_code'], 'formatted_dx_code');
         $table->addIndex(['active'], 'active');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('icd10_dx_order_code');
+        $this->addSql('DROP TABLE icd10_dx_order_code');
     }
 }

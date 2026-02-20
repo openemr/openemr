@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Fee schedule table
  */
 final class Version20260000020042 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create fee_schedule table';
@@ -27,7 +31,7 @@ final class Version20260000020042 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('fee_schedule');
+        $table = new Table('fee_schedule');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('insurance_company_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('plan', Types::STRING, ['length' => 20, 'default' => '']);
@@ -48,10 +52,12 @@ final class Version20260000020042 extends AbstractMigration
         );
         $table->addUniqueIndex(['insurance_company_id', 'plan', 'code', 'modifier', 'type', 'effective_date'], 'ins_plan_code_mod_type_date');
         $table->addOption('engine', 'InnoDb');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('fee_schedule');
+        $this->addSql('DROP TABLE fee_schedule');
     }
 }

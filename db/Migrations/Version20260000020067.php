@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Lists medication table
  */
 final class Version20260000020067 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create lists_medication table';
@@ -27,7 +31,7 @@ final class Version20260000020067 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('lists_medication');
+        $table = new Table('lists_medication');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('list_id', Types::BIGINT, [
             'notnull' => false,
@@ -65,12 +69,13 @@ final class Version20260000020067 extends AbstractMigration
         $table->addIndex(['usage_category'], 'lists_med_usage_category_idx');
         $table->addIndex(['request_intent'], 'lists_med_request_intent_idx');
         $table->addIndex(['list_id'], 'lists_medication_list_idx');
-        $table->addOption('engine', 'InnoDB');
         $table->addOption('comment', 'Holds additional data about patient medications.');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('lists_medication');
+        $this->addSql('DROP TABLE lists_medication');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Phone numbers table
  */
 final class Version20260000010058 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create phone_numbers table';
@@ -27,7 +31,7 @@ final class Version20260000010058 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('phone_numbers');
+        $table = new Table('phone_numbers');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('country_code', Types::STRING, [
             'length' => 5,
@@ -57,11 +61,12 @@ final class Version20260000010058 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['foreign_id'], 'foreign_id');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('phone_numbers');
+        $this->addSql('DROP TABLE phone_numbers');
     }
 }

@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Patient treatment intervention preferences table
  */
 final class Version20260000020210 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create patient_treatment_intervention_preferences table';
@@ -27,7 +31,7 @@ final class Version20260000020210 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('patient_treatment_intervention_preferences');
+        $table = new Table('patient_treatment_intervention_preferences');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,
@@ -81,11 +85,12 @@ final class Version20260000020210 extends AbstractMigration
         $table->addIndex(['observation_code'], 'observation_code');
         $table->addIndex(['status'], 'status');
         $table->addUniqueIndex(['uuid'], 'unq_uuid');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('patient_treatment_intervention_preferences');
+        $this->addSql('DROP TABLE patient_treatment_intervention_preferences');
     }
 }

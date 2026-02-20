@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Icd9 dx code table
  */
 final class Version20260000020045 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create icd9_dx_code table';
@@ -27,7 +31,7 @@ final class Version20260000020045 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('icd9_dx_code');
+        $table = new Table('icd9_dx_code');
         $table->addColumn('dx_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_code', Types::STRING, ['length' => 5]);
         $table->addColumn('formatted_dx_code', Types::STRING, ['length' => 6]);
@@ -44,11 +48,12 @@ final class Version20260000020045 extends AbstractMigration
         $table->addIndex(['dx_code'], 'dx_code');
         $table->addIndex(['formatted_dx_code'], 'formatted_dx_code');
         $table->addIndex(['active'], 'active');
-        $table->addOption('engine', 'InnoDB');
+
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('icd9_dx_code');
+        $this->addSql('DROP TABLE icd9_dx_code');
     }
 }

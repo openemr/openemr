@@ -12,14 +12,18 @@ namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
  * Categories seq table
  */
 final class Version20260000020010 extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return 'Create categories_seq table';
@@ -27,19 +31,18 @@ final class Version20260000020010 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('categories_seq');
+        $table = new Table('categories_seq');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-
-        $table->addOption('engine', 'InnoDB');
+        $this->createTable($table);
     }
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('categories_seq');
+        $this->addSql('DROP TABLE categories_seq');
     }
 }
