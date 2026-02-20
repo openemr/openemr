@@ -42107,6 +42107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/config.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'db_encoding\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../sites/default/sqlconf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbase\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/sqlconf.php',
