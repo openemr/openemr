@@ -68,7 +68,7 @@ final class Version20260000020159 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addUniqueIndex(['form_id', 'pid', 'title', 'plan`(20'], 'second_index');
+        $table->addUniqueIndex(['form_id', 'pid', 'title', 'plan'], 'second_index', ['lengths' => [null, null, null, 20]]);
         $table->addOption('engine', 'InnoDB');
     }
 

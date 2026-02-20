@@ -45,7 +45,7 @@ final class Version20260000020206 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addUniqueIndex(['event_label', 'event_url`(255'], 'unique_event_label_target');
+        $table->addUniqueIndex(['event_label', 'event_url'], 'unique_event_label_target', ['lengths' => [null, 255]]);
         $table->addOption('engine', 'InnoDB');
     }
 

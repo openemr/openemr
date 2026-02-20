@@ -61,7 +61,7 @@ final class Version20260000020202 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['pid', 'onetime_token`(255'], 'pid');
+        $table->addIndex(['pid', 'onetime_token'], 'pid', [], ['lengths' => [null, 255]]);
         $table->addOption('engine', 'InnoDB');
     }
 
