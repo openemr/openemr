@@ -28,7 +28,22 @@ final class Version20260000020084 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('patient_history');
-
+        $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
+        $table->addColumn('uuid', Types::BINARY, [
+            'length' => 16,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('date', Types::DATETIME_MUTABLE);
+        $table->addColumn('care_team_provider', Types::TEXT);
+        $table->addColumn('care_team_facility', Types::TEXT);
+        $table->addColumn('pid', Types::BIGINT);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
+        $table->addUniqueIndex(['uuid'], 'uuid');
         $table->addOption('engine', 'InnoDB');
     }
 
