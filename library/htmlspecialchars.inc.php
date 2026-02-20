@@ -75,7 +75,7 @@ function errorLogEscape($text)
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
  */
-function csvEscape($text)
+function csvEscape($text) : string
 {
     // 1. Remove all the following characters:  = + " |
     $text = preg_replace('/[=+"|]/', '', $text ?? '');
