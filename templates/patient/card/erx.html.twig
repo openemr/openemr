@@ -7,7 +7,7 @@
     {% for rx in rxList %}
         <div class="list-group-item w-100 p-1 pt-0">
             {{ rx.drug|text }}<br>
-            <span class="text-muted">{{ rx.dosage|text }} {{ rx.form }}{{ rx.unit }}{{ rx.route }} {{ rx.interval }}</span>
+            <span class="text-body-secondary">{{ rx.dosage|text }} {{ rx.form }}{{ rx.unit }}{{ rx.route }} {{ rx.interval }}</span>
         </div>
     {% endfor %}
 {% else %}

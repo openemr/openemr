@@ -189,14 +189,14 @@ function onvalue($name)
     }
     ?>
     <div class="page-header" name="form_legend" id="form_legend">
-        <h4><?php echo xlt('Enter Provider Details'); ?><i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript ml-2" aria-hidden="true"></i></h4>
+        <h4><?php echo xlt('Enter Provider Details'); ?><i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript ms-2" aria-hidden="true"></i></h4>
     </div>
     <div class="row">
         <div class="col-sm-12">
             <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="form-check-inline">
-                    <label class='form-check-label mr-2' for="form_active"><?php echo xlt('Active'); ?></label>
+                    <label class='form-check-label me-2' for="form_active"><?php echo xlt('Active'); ?></label>
                     <input type='checkbox' class='form-check-input' name='form_active' id='form_active'
                         <?php if ($ppid) {
                             echo !empty($ppid_active) ? " checked" : "";
@@ -209,14 +209,14 @@ function onvalue($name)
                         <div class="col-sm-6">
                             <div class="clearfix">
                                 <div class="label-div">
-                                    <label for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <select name='form_name' id='form_name' class='form-control'>
                                     <?php echo $optionsStr ?? ''; ?>
                                 </select>
                             </div>
                             <div id="name_info" class="collapse">
-                                <a href="#name_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#name_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p><?php echo xlt("Name - Select a provider name from the drop-down list"); ?></p>
                                 <p><?php echo xlt("For the name to appear on the drop-down list it must be first entered in Administration > Address Book "); ?></p>
                                 <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization"); ?></p>
@@ -226,12 +226,12 @@ function onvalue($name)
                         <div class="col-sm-6">
                             <div class="clearfix">
                                 <div class="label-div">
-                                    <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <input type='text' name='form_npi' id='form_npi' maxlength='10' value='<?php echo attr($row['npi'] ?? ''); ?>' class='form-control' />
                             </div>
                             <div id="npi_info" class="collapse">
-                                <a href="#npi_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#npi_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p><?php echo xlt("NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number"); ?></p>
                                 <p><?php echo xlt("It is issued to health care providers in the United States by the Centers for Medicare and Medicaid Services (CMS)"); ?></p>
                                 <p><?php echo xlt("This has to entered once in this form"); ?></p>
@@ -244,7 +244,7 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="col-form-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="col-form-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-6">
                                 <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
@@ -268,7 +268,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="usage_info" class="collapse">
-                            <a href="#usage_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#usage_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Usage - is only required if you are submitting an electronic order to an external facility"); ?></p>
                             <p><?php echo xlt("It is a field in the HL7 Message header known as Processing ID"); ?></p>
                             <p><?php echo xlt("Health Level-7 or HL7 refers to a set of international standards for transfer of clinical and administrative data between software applications used by various healthcare providers"); ?></p>
@@ -282,7 +282,7 @@ function onvalue($name)
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
                                 <label class="col-form-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label>
-                                <a href="#sender_id_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <a href="#sender_id_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="row col-12">
                                 <div class="col-sm-6">
@@ -302,7 +302,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="sender_id_info" class="collapse">
-                            <a href="#sender_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#sender_id_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Sender IDs - is only required if you are submitting an electronic order to an external facility"); ?></p>
                             <p><?php echo xlt("It consists of two parts - the Sending application and Sending facility"); ?></p>
                             <p><?php echo xlt("These are used to populate fields 3 and 4 in the HL7 MSH - message header"); ?></p>
@@ -316,7 +316,7 @@ function onvalue($name)
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
                                 <label class="col-form-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label>
-                                <a href="#receiver_id_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <a href="#receiver_id_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="row col-12">
                                 <div class="col-sm-6">
@@ -328,7 +328,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="receiver_id_info" class="collapse">
-                            <a href="#receiver_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#receiver_id_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Receiver IDs - is only required if you are submitting an electronic order to an external facility"); ?></p>
                             <p><?php echo xlt("It consists of two parts - the Receiving application and Receiving facility"); ?></p>
                             <p><?php echo xlt("These are used to populate fields 5 and 6 in the HL7 MSH - message header"); ?></p>
@@ -340,7 +340,7 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="row col-12">
                                 <div class="col-sm-6">
@@ -387,7 +387,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="protocol_info" class="collapse">
-                            <a href="#protocol_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#protocol_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Protocol - consists of two parts - the method used to send orders and receive results and whether it is used to receive results only or is used to send orders and receive result i.e. bidirectional"); ?></p>
                             <p><?php echo xlt("If you do not submit orders electronically or receive result electronically leave it as the default value, Download"); ?></p>
                             <p><?php echo xlt("Download will download a text file containing the order in the HL7v2.3 message format to the downloads directory of your computer"); ?></p>
@@ -402,7 +402,7 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="row col-12">
                                 <div class="col-sm-6">
@@ -414,7 +414,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="login_info" class="collapse">
-                            <a href="#login_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#login_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Login - details are only required if you are connecting to a facility using the SFTP protocol "); ?></p>
                             <p><?php echo xlt("Type in the username and password provided by the facility"); ?></p>
                         </div>
@@ -424,14 +424,14 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="col-form-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="col-form-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host'] ?? ''); ?>' class='form-control' />
                             </div>
                         </div>
                         <div id="remote_host_info" class="collapse">
-                            <a href="#remote_host_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#remote_host_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Remote Host - is only required if you are submitting an electronic order to an external facility or just receiving results from it"); ?></p>
                             <p><?php echo xlt("Type in the URL of the external facility to which the order will be sent, this will be provided by the facility"); ?></p>
                         </div>
@@ -441,7 +441,7 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="col-form-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="col-form-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <input type='text' name='form_orders_path' id='form_orders_path' maxlength='255'
@@ -449,7 +449,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="orders_path_info" class="collapse">
-                            <a href="#orders_path_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#orders_path_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Orders Path - is only required if you are submitting an electronic order to an external facility"); ?></p>
                             <p><?php echo xlt("Type in the location of the directory or folder in which the created orders (HL7 messages) will be stored"); ?></p>
                         </div>
@@ -460,7 +460,7 @@ function onvalue($name)
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
                                 <label class="col-form-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label>
-                                <a href="#results_path_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <a href="#results_path_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <input type='text' name='form_results_path' id='form_results_path' maxlength='255'
@@ -468,7 +468,7 @@ function onvalue($name)
                             </div>
                         </div>
                         <div id="results_path_info" class="collapse">
-                            <a href="#results_path_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#results_path_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Results Path - is only required if you are submitting an electronic order to an external facility or just receiving results from it"); ?></p>
                             <p><?php echo xlt("Type in the location of the directory or folder in which the returned results (HL7 messages) will be stored"); ?></p>
                         </div>
@@ -478,21 +478,21 @@ function onvalue($name)
                     <div class="col-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="col-form-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="col-form-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes'] ?? ''); ?></textarea>
                             </div>
                         </div>
                         <div id="notes_info" class="collapse">
-                            <a href="#notes_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                            <a href="#notes_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                             <p><?php echo xlt("Any additional information pertaining to this provider"); ?></p>
                         </div>
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <div class="form-group clearfix" id="button-container">
-                        <div class="col-sm-12 text-left position-override">
+                    <div class="mb-3 clearfix" id="button-container">
+                        <div class="col-sm-12 text-start position-override">
                             <div class="btn-group" role="group">
                                 <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-cancel" onclick='window.close()' ;><?php echo xlt('Cancel'); ?></button>
@@ -510,13 +510,13 @@ function onvalue($name)
 <script>
     //jqury-ui tooltip
     $(function () {
-        $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip({
+        $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip({
             show: {
                 delay: 700,
                 duration: 0
             }
         });
-        $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
+        $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip();
     });
 </script>
 </body>

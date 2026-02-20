@@ -477,7 +477,7 @@ if ($fend > ($count ?? null)) {
 
     <div class="container">
         <p><?php echo xlt('Not all fields are required for all codes or code types.'); ?></p>
-        <div class="form-group row">
+        <div class="mb-3 row">
             <label for="code_type" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Type'); ?>:</label>
             <div class="col-md">
                 <?php if ($mode != "modify") { ?>
@@ -543,7 +543,7 @@ if ($fend > ($count ?? null)) {
                 <?php echo xlt('Active'); ?>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="mb-3 row">
             <label for="code_text" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Description'); ?>
                 :</label>
             <div class="col-md">
@@ -570,7 +570,7 @@ if ($fend > ($count ?? null)) {
                 </div>
             <?php } ?>
         </div>
-        <div class="form-group row">
+        <div class="mb-3 row">
             <label for="superbill" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Category'); ?>
                 :</label>
             <div class="col-md">
@@ -591,7 +591,7 @@ if ($fend > ($count ?? null)) {
                 <?php echo xlt('Service Reporting'); ?>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="mb-3 row">
             <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
                 echo 'd-none';
                                                                     } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
@@ -699,7 +699,7 @@ if ($fend > ($count ?? null)) {
                             echo ' checked';
                                 } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
-            <div class="col-md text-right"><?php
+            <div class="col-md text-end"><?php
                 $paginator = new PaginationUtils();
                 echo $paginator->render(
                     offset: $fstart,
@@ -716,26 +716,26 @@ if ($fend > ($count ?? null)) {
 <table class='table table-striped table-bordered'>
     <thead>
     <tr style="height: 80px">
-        <th><span class='font-weight-bold'><?php echo xlt('Code'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Mod'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Code'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Mod'); ?></span></th>
         <?php if ($institutional) { ?>
-            <th><span class='font-weight-bold'><?php echo xlt('Revenue'); ?></span></th>
+            <th><span class='fw-bold'><?php echo xlt('Revenue'); ?></span></th>
         <?php } ?>
-        <th><span class='font-weight-bold'><?php echo xlt('Act'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Category'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Dx Rep'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Serv Rep'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Type'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Description'); ?></span></th>
-        <th><span class='font-weight-bold'><?php echo xlt('Short Description'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Act'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Category'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Dx Rep'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Serv Rep'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Type'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Description'); ?></span></th>
+        <th><span class='fw-bold'><?php echo xlt('Short Description'); ?></span></th>
         <?php if (related_codes_are_used()) { ?>
-            <th><span class='font-weight-bold'><?php echo xlt('Related'); ?></span></th>
+            <th><span class='fw-bold'><?php echo xlt('Related'); ?></span></th>
         <?php } ?>
         <?php
         $pres = sqlStatement("SELECT title FROM list_options " .
             "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
         while ($prow = sqlFetchArray($pres)) {
-            echo "  <th class='font-weight-bold text-right text-wrap' id='rotate-text''>" . text(xl_list_label($prow['title'])) . "</td>\n";
+            echo "  <th class='fw-bold text-end text-wrap' id='rotate-text''>" . text(xl_list_label($prow['title'])) . "</td>\n";
         }
         ?>
         <th></th>
@@ -813,15 +813,15 @@ if ($fend > ($count ?? null)) {
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
                 "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", [$iter['id']]);
             while ($prow = sqlFetchArray($pres)) {
-                echo "<td class='text text-right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
+                echo "<td class='text text-end'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
             }
 
             if ($thisauthwrite) {
                 if ($iter["code_external"] > 0) {
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitModify(" . attr_js($iter['code_type_name']) . "," . attr_js($iter['code']) . "," . attr_js($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitModify(" . attr_js($iter['code_type_name']) . "," . attr_js($iter['code']) . "," . attr_js($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
                 } else {
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitDelete(" . attr_js($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitEdit(" . attr_js($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitDelete(" . attr_js($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitEdit(" . attr_js($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
                 }
             }
 

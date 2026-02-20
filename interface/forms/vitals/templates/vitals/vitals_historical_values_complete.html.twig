@@ -10,7 +10,7 @@
                     </a>
                 </h2>
             </div>
-            <div class="col-8 text-right">
+            <div class="col-8 text-end">
                 <h6 class="h6-responsive"><a id="patient-vitals-history" href="#vitals-screen-top" class="text-decoration-none">{{ "Back to top"|xlt }}</a></h6>
             </div>
         </div>
@@ -22,8 +22,8 @@
 
                 <thead class="table-head">
                 <tr>
-                    <th class="text-left">{{ "Name"|xlt }}</th>
-                    <th class="text-left">{{ "Unit"|xlt }}</th>
+                    <th class="text-start">{{ "Name"|xlt }}</th>
+                    <th class="text-start">{{ "Unit"|xlt }}</th>
                     {% for result in results %}
                         <th class='historicalvalues d-none d-md-table-cell'>{{ result.get_date()|dateToTime|date("Y-m-d H:i")|text }}</th>
                     {% endfor %}

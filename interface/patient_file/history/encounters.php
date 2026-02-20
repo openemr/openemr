@@ -117,7 +117,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             $docTitle = $note ?: xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
-            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
+            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-bs-toggle='tooltip' data-bs-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
         }
@@ -138,7 +138,7 @@ function showDocument(&$drow): void
         return;
     }
 
-    echo "<tr class='text docrow' id='" . attr($drow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . xla('View document') . "'>\n";
+    echo "<tr class='text docrow' id='" . attr($drow['id']) . "'data-bs-toggle='tooltip' data-bs-placement='top' title='" . xla('View document') . "'>\n";
 
   // show date
     echo "<td>" . text(oeFormatShortDate($docdate)) . "</td>\n";
@@ -303,7 +303,7 @@ window.onload = function() {
     &nbsp; &nbsp;
      <a  href='#' id='printbutton' class='btn btn-secondary btn-print'>  <?php echo xlt('Print page'); ?>   </a>
 
-    <span class="float-right">
+    <span class="float-end">
         <?php echo xlt('Results per page'); ?>:
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
@@ -340,7 +340,7 @@ window.onload = function() {
     </span>
 
     <div class="table-responsive">
-        <table class="table table-hover jumbotron py-4 mt-3">
+        <table class="table table-hover bg-body-tertiary rounded-3 py-4 mt-3">
             <thead>
                 <tr class='text'>
                     <th scope="col"><?php echo xlt('Date'); ?></th>
@@ -361,10 +361,10 @@ window.onload = function() {
 
                     <?php if ($billing_view) { ?>
                     <th scope="col"><?php echo xlt('Code'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Chg'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Paid'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Adj'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Bal'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Chg'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Paid'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Adj'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Bal'); ?></th>
                     <?php } elseif ($attendant_type == 'pid') { ?>
                     <th colspan='5' scope="col"><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></th>
                     <?php } ?>
@@ -523,14 +523,14 @@ window.onload = function() {
                     echo "<tr class='encrow text' id='" . attr($rawdata) . "'>\n";
 
                     // show encounter date
-                    echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
+                    echo "<td class='align-top' data-bs-toggle='tooltip' data-bs-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
                     $feid = $result4['id'] ?: 0; // form_encounter id
                     echo "<td class='align-top'>";
                     echo "<div id='note_" . attr($feid) . "'>";
-                    echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
+                    echo "<div id='" . attr($feid) . "'data-bs-toggle='tooltip' data-bs-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
                     echo $result4['billing_note'] ? nl2br(text($result4['billing_note'])) : '<button type="button" class="btn btn-primary btn-add btn-sm">' . xlt('Add') . '</button>';
                     echo "</div>";
                     echo "</div>";
@@ -570,7 +570,7 @@ window.onload = function() {
                     //Display the documents tagged to this encounter
                     getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
-                    echo "<div class='pl-2'>";
+                    echo "<div class='ps-2'>";
 
                     // Now show a line for each encounter form, if the user is authorized to
                     // see this encounter's notes.
@@ -606,7 +606,7 @@ window.onload = function() {
                             // note per comments this is only used for athletic teams..
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
-                            echo "<div class='encreport pl-2'>";
+                            echo "<div class='encreport ps-2'>";
                             // render out the form, whether its LBF or a standard file.
                             $formReportRenderer->renderReport(
                                 $formdir,
@@ -624,7 +624,7 @@ window.onload = function() {
                             $formId = attr($enc['form_id']);
                             $formPid = attr($pid);
                             if (hasFormPermission($enc['formdir'])) {
-                                $formDiv .= "data-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId' ";
+                                $formDiv .= "data-bs-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId' ";
                             }
                             $formDiv .= "data-original-title='" . text(xl_form_title($enc['form_name'])) . " <i>" . xla("Click or change focus to dismiss") . "</i>'>";
                             $formDiv .= text(xl_form_title($enc['form_name']));
@@ -726,7 +726,7 @@ window.onload = function() {
                                 $binfo[0] .= $arlinkbeg . text($codekeydisp) . " " . text($title) . $arlinkend;
                             } else {
                             // Otherwise offer the description as a tooltip.
-                                $binfo[0] .= "<span data-toggle='tooltip' data-placement='top' title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
+                                $binfo[0] .= "<span data-bs-toggle='tooltip' data-bs-placement='top' title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
                             }
                             if ($billing_view) {
                                 if ($binfo[1]) {
@@ -783,7 +783,7 @@ window.onload = function() {
 
                     echo "<td class='text'>" . $binfo[0] . "</td>\n";
                     for ($i = 1; $i < 5; ++$i) {
-                        echo "<td class='text-right'>" . $binfo[$i] . "</td>\n";
+                        echo "<td class='text-end'>" . $binfo[$i] . "</td>\n";
                     }
                 } /* end if authorized */ else {
                     echo "<td class='text align-top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
@@ -897,7 +897,7 @@ $(function () {
 });
 
 $(function () {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     $('body').popover({
@@ -930,7 +930,7 @@ $(function () {
             });
             return fetchedReport;
         },
-        selector: '[data-toggle="PopOverReport"]',
+        selector: '[data-bs-toggle="PopOverReport"]',
         boundary: "window",
         animation: false,
         placement: "auto",
@@ -944,7 +944,7 @@ $(function () {
     // this will allow user to enter popover report view and scroll if report
     // height is overflowed. Popover will either close when mouse leaves view
     // or user clicks anywhere in view.
-    $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
+    $('[data-bs-toggle="PopOverReport"]').on('show.bs.popover', function () {
         let elements = $('[aria-describedby^="popover"]');
         let thisOne = this.dataset.formid;
         let thisTitle = this.dataset.formdir;
@@ -956,14 +956,14 @@ $(function () {
         }
     });
 
-    $('[data-toggle="PopOverReport"]').on('shown.bs.popover', function () {
+    $('[data-bs-toggle="PopOverReport"]').on('shown.bs.popover', function () {
 
         // set event listeners
         $('.popover').click(function (e) {
-            $('[data-toggle="PopOverReport"]').popover('hide');
+            $('[data-bs-toggle="PopOverReport"]').popover('hide');
         }).mouseleave(function (e) {
             timeoutObj = setTimeout(function () {
-                $('[data-toggle="PopOverReport"]').popover('hide');
+                $('[data-bs-toggle="PopOverReport"]').popover('hide');
             }, 100);
         });
     });

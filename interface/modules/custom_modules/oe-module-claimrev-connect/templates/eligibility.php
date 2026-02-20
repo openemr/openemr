@@ -48,7 +48,7 @@ if (isset($_POST['checkElig'])) {
 foreach ($insurance as $row) {
     ?>
             <li class="nav-item" role="presentation">
-                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo xlt(ucfirst((string) $row['payer_responsibility']));?>  </a>
+                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-bs-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo xlt(ucfirst((string) $row['payer_responsibility']));?>  </a>
             </li>
     <?php
     $first = "false";
@@ -153,19 +153,19 @@ foreach ($insurance as $row) {
                     $first = "true";
                 ?>
                                 <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick-<?php echo(attr($index)); ?>"> <?php echo xlt("Quick Info "); ?></a>
+                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-bs-toggle="tab" role="tab" href="#eligibility-quick-<?php echo(attr($index)); ?>"> <?php echo xlt("Quick Info "); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles-<?php echo(attr($index)); ?>"> <?php echo xlt("Deductibles"); ?></a>
+                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-bs-toggle="tab" role="tab" href="#eligibility-deductibles-<?php echo(attr($index)); ?>"> <?php echo xlt("Deductibles"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits-<?php echo(attr($index)); ?>"><?php echo xlt("Benefits"); ?></a>
+                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-bs-toggle="tab" role="tab" href="#eligibility-benefits-<?php echo(attr($index)); ?>"><?php echo xlt("Benefits"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare-<?php echo(attr($index)); ?>"><?php echo xlt("Medicare"); ?></a>
+                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-bs-toggle="tab" role="tab" href="#eligibility-medicare-<?php echo(attr($index)); ?>"><?php echo xlt("Medicare"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations-<?php echo(attr($index)); ?>"> <?php echo xlt("Validations"); ?></a>
+                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-bs-toggle="tab" role="tab" href="#eligibility-validations-<?php echo(attr($index)); ?>"> <?php echo xlt("Validations"); ?></a>
                                     </li>
                 <?php
                         $first = "false";

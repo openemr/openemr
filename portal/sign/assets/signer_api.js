@@ -51,8 +51,7 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
             <div id="alertMessage" class="alert alert-${type} border border-dark alert-dismissible fade show" role="alert">
                 <div class="alert-heading bg-dark text-light text-center"><h5 class="p-0 pb-2 ">` + jsText('Alert Message!') + `</h5></div>
                 <p>${message}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
                 </button>
             </div>
         </div>
@@ -231,11 +230,15 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        $("#openSignModal").modal('hide');
-        backdrops.forEach(function (backdrop) {
+        const backdrop = document.querySelector('.modal-backdrop');
+        var modalEl = document.getElementById('openSignModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) { modalInstance.hide(); }
+        }
+        if (backdrop) {
             backdrop.remove();
-        });
+        }
     }).catch(error => signerAlertMsg(error));
 
     return true;
@@ -293,7 +296,9 @@ function initSignerApi() {
             $("#isAdmin").prop('checked', false);
             isAdmin = false;
         }
-        $("#openSignModal").modal('show');
+        var modalEl = document.getElementById('openSignModal');
+        var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modalInstance.show();
     }
 
     function doConfirm(result) {
@@ -440,7 +445,9 @@ function initSignerApi() {
             }
             let showElement = document.getElementById('signatureModal');
             $('#signatureModal').attr('src', signhere);
-            $("#openSignModal").modal({backdrop: false});
+            var openSignModalEl = document.getElementById('openSignModal');
+            var openSignModal = bootstrap.Modal.getOrCreateInstance(openSignModalEl, {backdrop: false});
+            openSignModal.show();
             $('html').css({
                 'overflow': 'hidden'
             });
@@ -450,7 +457,10 @@ function initSignerApi() {
             $('body').bind('selectstart', function () {
                 return false;
             });
-            $(this).modal('handleUpdate');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var modalInstance = bootstrap.Modal.getInstance(this);
+                if (modalInstance) { modalInstance.handleUpdate(); }
+            }
         }).on('shown.bs.modal', function (e) { // yes two shown events
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();

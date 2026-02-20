@@ -86,7 +86,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 
         <!-- custom rules input -->
-        <p class="form-row">
+        <p class="row gx-2">
             <span class="left_col colhead req" data-field="fld_custom_input"><?php echo xlt('Custom input?'); ?></span>
             <span class="end_col">
             <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_custom_input" id="">

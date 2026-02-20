@@ -388,19 +388,19 @@ fieldset {
   background-color: $white !important;
 }
 
-.select2-container--bootstrap4 .select2-selection--single {
+.select2-container--bootstrap-5 .select2-selection--single {
   background-color: $white !important;
 }
 
-.select2-container--bootstrap4 .select2-selection--multiple {
+.select2-container--bootstrap-5 .select2-selection--multiple {
   background-color: $white !important;
 }
 
-.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
   padding: 0.25rem 0.25rem 0.25rem 0;
 }
 
-.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
   color: $red;
   font-size: 1.75rem;
   line-height: 1rem !important;

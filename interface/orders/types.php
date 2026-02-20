@@ -289,9 +289,9 @@ if ($popup && $_POST['form_save'] ?? '') {
 <body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -329,12 +329,12 @@ if ($popup && $_POST['form_save'] ?? '') {
                         <table class="table mb-0">
                             <thead>
                                 <tr class='head'>
-                                    <td class='col1 text-left'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col2 oe-pl0 text-left'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col3 oe-pl0 text-left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col6 oe-pl0 text-left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col4 oe-pl0 text-left'><?php echo xlt('Description') ?></td>
-                                    <td class='col5 oe-pl0 text-left'><?php echo xlt('Edit') ?></td>
+                                    <td class='col1 text-start'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col2 oe-pl0 text-start'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col3 oe-pl0 text-start'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col6 oe-pl0 text-start'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col4 oe-pl0 text-start'><?php echo xlt('Description') ?></td>
+                                    <td class='col5 oe-pl0 text-start'><?php echo xlt('Edit') ?></td>
                                     <td class='col5 oe-pl0 text-center'><?php echo xlt('Add') ?></td>
                                 </tr>
                             </thead>
@@ -342,8 +342,8 @@ if ($popup && $_POST['form_save'] ?? '') {
                     </div>
                     <div id="con0"></div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                    <div class="form-group">
-                        <div class="col-sm-12 text-left position-override">
+                    <div class="mb-3">
+                        <div class="col-sm-12 text-start position-override">
                             <div class="btn-group" role="group">
                                 <?php if ($popup) { ?>
                                     <button type="submit" class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'>

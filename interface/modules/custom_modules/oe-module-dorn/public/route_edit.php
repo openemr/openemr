@@ -113,21 +113,21 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
         <div class="form-section">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_customerAcctNumber"><?php echo xlt("Customer Account Number") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_customerAccountNumber" name="form_customerAcctNumber"
                             value="<?php echo isset($_POST['form_customerAcctNumber']) ? attr($_POST['form_customerAcctNumber']) : '' ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Your unique customer account identifier") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Your unique customer account identifier") ?></small>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_clientSiteId"><?php echo xlt("Client Site ID") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_clientSiteId" name="form_clientSiteId"
                             value="<?php echo isset($_POST['form_clientSiteId']) ? attr($_POST['form_clientSiteId']) : '' ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Unique identifier for your client site") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Unique identifier for your client site") ?></small>
                     </div>
                 </div>
             </div>
@@ -137,7 +137,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
         <div class="form-section">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_primaries"><?php echo xlt("Select NPI") ?> <span class="required-field">*</span>:</label>
                         <select id="form_primaries" name="form_primaries" class="form-control" required>
                             <option value=""><?php echo xlt("-- Select Provider --") ?></option>
@@ -149,16 +149,16 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                             }
                             ?>
                         </select>
-                        <small class="form-text text-muted"><?php echo xlt("National Provider Identifier for the ordering provider") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("National Provider Identifier for the ordering provider") ?></small>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_labAcctNumber"><?php echo xlt("Lab Account Number") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_labAcctNumber" name="form_labAcctNumber"
                             value="<?php echo isset($_POST['form_labAcctNumber']) ? attr($_POST['form_labAcctNumber']) : '' ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Your account number with the laboratory") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Your account number with the laboratory") ?></small>
                     </div>
                 </div>
             </div>
@@ -167,43 +167,43 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
         <div class="form-section">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_eulaVersion"><?php echo xlt("EULA Version") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_eulaVersion" name="form_eulaVersion"
                             value="<?php echo isset($_POST['form_eulaVersion']) ? attr($_POST['form_eulaVersion']) : '2024-08-28' ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Version of the EULA being accepted") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Version of the EULA being accepted") ?></small>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_eulaAccepterFullName"><?php echo xlt("EULA Accepter Full Name") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_eulaAccepterFullName" name="form_eulaAccepterFullName"
                             value="<?php echo isset($_POST['form_eulaAccepterFullName']) ? attr($_POST['form_eulaAccepterFullName']) : '' ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Full name of the person accepting the EULA") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Full name of the person accepting the EULA") ?></small>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_eulaAcceptanceDateTimeUtc"><?php echo xlt("EULA Acceptance Date & Time (UTC)") ?> <span class="required-field">*</span>:</label>
                         <input type="text" class="form-control" id="form_eulaAcceptanceDateTimeUtc" name="form_eulaAcceptanceDateTimeUtc"
                             value="<?php echo isset($_POST['form_eulaAcceptanceDateTimeUtc']) ? attr($_POST['form_eulaAcceptanceDateTimeUtc']) : date('Y-m-d\TH:i:s.v\Z') ?>"
                             required/>
-                        <small class="form-text text-muted"><?php echo xlt("Date and time when the EULA was accepted (UTC timezone)") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("Date and time when the EULA was accepted (UTC timezone)") ?></small>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" checked id="form_eulaAcceptance" name="form_eulaAcceptance" required>
                             <label class="form-check-label" for="form_eulaAcceptance">
                                 <strong><?php echo xlt("I accept the End User License Agreement") ?> <span class="required-field">*</span></strong>
                             </label>
                         </div>
-                        <small class="form-text text-muted"><?php echo xlt("You must accept the EULA to proceed with route creation") ?></small>
+                        <small class="form-text text-body-secondary"><?php echo xlt("You must accept the EULA to proceed with route creation") ?></small>
                     </div>
                 </div>
             </div>
@@ -213,10 +213,10 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
             <div class="form-section">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label><?php echo xlt("Lab GUID") ?>:</label>
                             <input type="text" class="form-control" value="<?php echo attr($labGuid); ?>" readonly/>
-                            <small class="form-text text-muted"><?php echo xlt("Unique identifier for the selected laboratory") ?></small>
+                            <small class="form-text text-body-secondary"><?php echo xlt("Unique identifier for the selected laboratory") ?></small>
                         </div>
                     </div>
                 </div>
@@ -228,7 +228,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                 <button type="submit" name="SubmitButton" class="btn btn-primary btn-save">
                     <?php echo xlt("Create Lab Route") ?>
                 </button>
-                <button type="button" class="btn btn-secondary btn-cancel ml-2" onclick="window.close();">
+                <button type="button" class="btn btn-secondary btn-cancel ms-2" onclick="window.close();">
                     <?php echo xlt("Cancel") ?>
                 </button>
                 <?php if (!empty($message)) { ?>

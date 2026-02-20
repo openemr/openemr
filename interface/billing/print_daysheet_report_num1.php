@@ -1013,28 +1013,28 @@ if (!isset($_GET["mode"])) {
 
                             <!-- TODO: Further replace with classes -->
                             <tr>
-                                <td class='text text-center font-weight-bold' width='70'>
+                                <td class='text text-center fw-bold' width='70'>
                                     <?php echo xlt("Date"); ?>
                                 </td>
-                                <td class='text text-center font-weight-bold' width='50'>
+                                <td class='text text-center fw-bold' width='50'>
                                     <?php echo xlt("Acct"); ?>#
                                 </td>
-                                <td class='text text-center font-weight-bold' width='100'>
+                                <td class='text text-center fw-bold' width='100'>
                                     <?php echo xlt("Name"); ?>
                                 </td>
-                                <td class='text text-center font-weight-bold' width='100'>
+                                <td class='text text-center fw-bold' width='100'>
                                     <?php echo xlt("Source"); ?>
                                 </td>
-                                <td class='text text-center font-weight-bold' width='100'>
+                                <td class='text text-center fw-bold' width='100'>
                                     <?php echo xlt("CPT"); ?>
                                 </td>
-                                <td class='small text-center font-weight-bold' width='100'>
+                                <td class='small text-center fw-bold' width='100'>
                                     <?php echo xlt("ICD"); ?>
                                 </td>
-                                <td class='small text-center font-weight-bold' width='100'>
+                                <td class='small text-center fw-bold' width='100'>
                                     <?php echo xlt("Charges"); ?>
                                 </td>
-                                <td class='small text-center font-weight-bold' width='100'>
+                                <td class='small text-center fw-bold' width='100'>
                                     <?php echo xlt("Payments") . '/' . xlt("Adj"); ?>.
                                 </td>
                             </tr>
@@ -1717,17 +1717,17 @@ if (!isset($_GET["mode"])) {
                         <br />
                         <td class='text' width='25'>
                         </td>
-                        <td class='text text-center font-weight-bold' width='250'>
+                        <td class='text text-center fw-bold' width='250'>
                             <?php echo xlt("User"); ?>
                         </td>
                         <td class='text' width='125'>
                         </td>
-                        <td class='text text-center font-weight-bold' width='250'>
+                        <td class='text text-center fw-bold' width='250'>
                             <?php echo xlt("Charges"); ?>
                         </td>
                         <td class='text' width='125'>
                         </td>
-                        <td class='text text-center font-weight-bold' width='250'>
+                        <td class='text text-center fw-bold' width='250'>
                             <?php echo xlt("Payments"); ?>
                         </td>
                         <td class='text' width='25'>
@@ -1744,12 +1744,12 @@ if (!isset($_GET["mode"])) {
                                 </td>
                                 <td class='text' width='125'>
                                 </td>
-                                <td class='text font-weight-bold' width='250'>
+                                <td class='text fw-bold' width='250'>
                                     <?php printf(xlt("Total Charges") . ': ' . "%1\$.2f", text($user_info['fee'][$i])); ?>
                                 </td>
                                 <td class='text' width='125'>
                                 </td>
-                                <td class='text font-weight-bold' width='250'>
+                                <td class='text fw-bold' width='250'>
                                     <?php printf(xlt("Total Payments") . ': ' . "(%1\$.2f)", text($user_info['inspay'][$i] + $user_info['patpay'][$i])); ?>
                                 </td>
                                 <td class='text' width='25'>
@@ -1764,11 +1764,11 @@ if (!isset($_GET["mode"])) {
                                         </td>
                                         <td class='text' width='125'>
                                         </td>
-                                        <td class='text font-weight-bold' width='250'>
+                                        <td class='text fw-bold' width='250'>
                                             <?php printf(xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($user_info['patadj'][$i] + $user_info['insadj'][$i])); ?>
                                         </td>
                                         <td width='125'><span class='text'></span></td>
-                                        <td class='text font-weight-bold' width='250'>
+                                        <td class='text fw-bold' width='250'>
                                             <?php printf(xlt("Refund") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i])); ?>
                                         </td>
                                         <td class='text' width='25'>
@@ -1786,7 +1786,7 @@ if (!isset($_GET["mode"])) {
                                                 </td>
                                                 <td class='text' width='125'>
                                                 </td>
-                                                <td class='text font-weight-bold' width='175' height='5'>
+                                                <td class='text fw-bold' width='175' height='5'>
                                                     <hr />
                                                 </td>
                                                 <td class='text' width='25'>
@@ -1805,7 +1805,7 @@ if (!isset($_GET["mode"])) {
                                                         </td>
                                                         <td class='text' width='125'>
                                                         </td>
-                                                        <td class='text font-weight-bold' width='250'>
+                                                        <td class='text fw-bold' width='250'>
                                                             <?php printf(xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i] + $user_info['inspay'][$i] + $user_info['patpay'][$i])); ?>
                                                         </td>
                                                         <td class='text' width='25'>
@@ -1877,12 +1877,12 @@ if (!isset($_GET["mode"])) {
                                 </td>
                                 <td class='text' width='125'>
                                 </td>
-                                <td class='text font-weight-bold' width='250'>
+                                <td class='text fw-bold' width='250'>
                                     <?php printf(xlt("Total Charges") . ': ' . " %1\$.2f ", text($provider_info['fee'][$i])); ?>
                                 </td>
                                 <td class='text' width='125'>
                                 </td>
-                                <td class='text font-weight-bold' width='250'>
+                                <td class='text fw-bold' width='250'>
                                     <?php printf(xlt("Total Payments") . ': ' . "(%1\$.2f)", text($provider_info['inspay'][$i] + $provider_info['patpay'][$i])); ?>
                                 </td>
                                 <td class='text' width='25'>
@@ -1897,12 +1897,12 @@ if (!isset($_GET["mode"])) {
                                         </td>
                                         <td class='text' width='125'>
                                         </td>
-                                        <td class='text font-weight-bold' width='250'>
+                                        <td class='text fw-bold' width='250'>
                                             <?php printf(xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($provider_info['patadj'][$i] + $provider_info['insadj'][$i])); ?>
                                         </td>
                                         <td class='text' width='125'>
                                         </td>
-                                        <td class='text font-weight-bold' width='250'>
+                                        <td class='text fw-bold' width='250'>
                                             <?php printf(xlt("Refund") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i])); ?>
                                         </td>
                                         <td class='text' width='25'>
@@ -1940,7 +1940,7 @@ if (!isset($_GET["mode"])) {
                                                         </td>
                                                         <td class='text' width='125'>
                                                         </td>
-                                                        <td class='text font-weight-bold' width='250'>
+                                                        <td class='text fw-bold' width='250'>
                                                             <?php printf(xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i] + $provider_info['inspay'][$i] + $provider_info['patpay'][$i])); ?>
                                                         </td>
                                                         <td class='text' width='25'>

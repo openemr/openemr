@@ -204,7 +204,21 @@ var pageAudit = {
 		pageAudit.onsitePortalActivity.destroy({
 			wait: true,
 			success: function(){
-				$('#onsitePortalActivityDetailDialog').modal('hide');
+				var modalEl = document.getElementById('onsitePortalActivityDetailDialog');
+				if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+					var modalInstance = bootstrap.Modal.getInstance(modalEl);
+					if (modalInstance) {
+						modalInstance.hide();
+						// BS5: Ensure backdrop is removed after hide
+						setTimeout(function() {
+							var backdrop = document.querySelector('.modal-backdrop');
+							if (backdrop) { backdrop.remove(); }
+							document.body.classList.remove('modal-open');
+							document.body.style.paddingRight = '';
+							document.body.style.overflow = '';
+						}, 300);
+					}
+				}
 				setTimeout("app.appendAlert('The OnsitePortalActivity record was deleted','alert-success',3000,'collectionAlert')",500);
 				app.hideProgress('modelLoader');
 

@@ -257,13 +257,13 @@ function msfFileChanged() {
 <div id="file_type_whitelist">
     <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
-        <div class="form-row">
+        <div class="row gx-2">
             <div class="subject-black-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
-                    <div class="form-row align-items-center">
+                    <div class="row gx-2 align-items-center">
                         <div class="col-2">
-                            <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
+                            <label for="filter-black-list" class="fw-bold"><?php echo xlt('Filter');?>:</label>
                         </div>
                         <div class="col">
                             <input type="text" id="filter-black-list" class="form-control" />
@@ -289,9 +289,9 @@ function msfFileChanged() {
             </div>
 
             <div class="subject-white-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
-                    <div class="form-row">
+                    <div class="row gx-2">
                         <div class="col-2">
                             <label><?php echo xlt('Add manually');?>:</label>
                         </div>

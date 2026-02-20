@@ -685,9 +685,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
 
     <div id="alertStore" class="d-none">
         <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
-            <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close my-1 py-0" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
 

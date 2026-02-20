@@ -367,38 +367,38 @@ function ippfReceiptDetailLine(
     echo "  <td>" . text($code) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false)) . "</td>\n";
+    echo "  <td class='text-end'>" . text(oeFormatMoney($price, false)) . "</td>\n";
 
     if (!empty($GLOBALS['gbl_checkout_charges'])) {
-        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
+        echo "  <td class='text-end'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
     }
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
+            echo "  <td class='text-end'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
     // Charge Category
     if (!empty($GLOBALS['gbl_charge_categories'])) {
-        echo "  <td class='text-right'>" . text($chargecat) . "</td>\n";
+        echo "  <td class='text-end'>" . text($chargecat) . "</td>\n";
     }
 
     // Adjustment and its description.
     if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
-        echo "  <td class='text-right'>" . text($memo) . "</td>\n";
-        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
+        echo "  <td class='text-end'>" . text($memo) . "</td>\n";
+        echo "  <td class='text-end'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
     }
 
     if ($TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
+            echo "  <td class='text-end'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
-    echo "  <td class='text-right'>" . text(oeFormatMoney($total)) . "</td>\n";
+    echo "  <td class='text-end'>" . text(oeFormatMoney($total)) . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -434,9 +434,9 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
-    echo "  <td colspan='$rcpt_num_method_columns' class='text-left'>" . text($method) . "</td>\n";
-    echo "  <td colspan='$rcpt_num_ref_columns' class='text-left'>" . text($description) . "</td>\n";
-    echo "  <td colspan='$rcpt_num_amount_columns' class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
+    echo "  <td colspan='$rcpt_num_method_columns' class='text-start'>" . text($method) . "</td>\n";
+    echo "  <td colspan='$rcpt_num_ref_columns' class='text-start'>" . text($description) . "</td>\n";
+    echo "  <td colspan='$rcpt_num_amount_columns' class='text-end'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -651,7 +651,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     }
     ?>
                         </td>
-                        <td width='50%' align='center' valign='top' class='font-weight-bold'>
+                        <td width='50%' align='center' valign='top' class='fw-bold'>
                             <?php echo text($frow['name']); ?>
                             <br><?php echo text($frow['street']); ?>
                             <br><?php
@@ -666,7 +666,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
                         </td>
                     </tr>
                 </table>
-                <p class='font-weight-bold'>
+                <p class='fw-bold'>
     <?php
     echo xlt("Client Receipt");
     if ($invoice_refno) {
@@ -709,7 +709,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     ?>
                 <table class='table' width='95%'>
                     <tr>
-                        <td width='50%' class='text-left' valign='top'>
+                        <td width='50%' class='text-start' valign='top'>
                             <?php echo text($patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']); ?>
                             <br /><?php echo text($patdata['street']); ?>
                             <br /><?php
@@ -717,27 +717,27 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
                             echo generate_layout_display_field('DEM', 'state', $patdata['state']) . " ";
                             echo text($patdata['postal_code']); ?>
                         </td>
-                        <td width='50%' class='text-right' valign='top'>
+                        <td width='50%' class='text-end' valign='top'>
                             <table>
                                 <tr>
                                     <td><?php echo xlt('Beginning Account Balance'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo text(oeFormatMoney($head_begbal)); ?></td>
+                                    <td class='text-end'><?php echo text(oeFormatMoney($head_begbal)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Total Visit Charges'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo text(oeFormatMoney($head_charges)); ?></td>
+                                    <td class='text-end'><?php echo text(oeFormatMoney($head_charges)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Adjustments'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo text(oeFormatMoney($head_adjustments)); ?></td>
+                                    <td class='text-end'><?php echo text(oeFormatMoney($head_adjustments)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Payments'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo text(oeFormatMoney($head_payments)); ?></td>
+                                    <td class='text-end'><?php echo text(oeFormatMoney($head_payments)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Ending Account Balance'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo text(oeFormatMoney($head_endbal)); ?></td>
+                                    <td class='text-end'><?php echo text(oeFormatMoney($head_endbal)); ?></td>
                                 </tr>
                             </table>
                         </td>
@@ -748,42 +748,42 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     <?php if ($details) { ?>
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>'
-                        style='padding-top:5pt;' class='font-weight-bold'>
+                        style='padding-top:5pt;' class='fw-bold'>
                                 <?php echo xlt('Charges for') . ' ' . text(oeFormatShortDate($svcdate)); ?>
                         </td>
                     </tr>
 
                     <tr>
-                        <td class='font-weight-bold'><?php echo xlt('Date'); ?></td>
-                        <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                        <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                        <td class='font-weight-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
-                        <td class='font-weight-bold text-right'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
+                        <td class='fw-bold'><?php echo xlt('Date'); ?></td>
+                        <td class='fw-bold'><?php echo xlt('Code'); ?></td>
+                        <td class='fw-bold'><?php echo xlt('Description'); ?></td>
+                        <td class='fw-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
+                        <td class='fw-bold text-end'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
         <?php if (!empty($GLOBALS['gbl_checkout_charges'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Charge'); ?></td>
+                        <td class='fw-bold text-end'><?php echo xlt('Charge'); ?></td>
     <?php } ?>
         <?php
         if (!$TAXES_AFTER_ADJUSTMENT) {
             foreach ($aTaxNames as $taxname) {
-                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+                echo "  <td class='fw-bold text-end'>" . text($taxname) . "</td>\n";
             }
         }
         ?>
         <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Customer'); ?></td>
+                        <td class='fw-bold text-end'><?php echo xlt('Customer'); ?></td>
 <?php } ?>
         <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Adj Type'); ?></td>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Adj Amt'); ?></td>
+                        <td class='fw-bold text-end'><?php echo xlt('Adj Type'); ?></td>
+                        <td class='fw-bold text-end'><?php echo xlt('Adj Amt'); ?></td>
 <?php } ?>
         <?php
         if ($TAXES_AFTER_ADJUSTMENT) {
             foreach ($aTaxNames as $taxname) {
-                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+                echo "  <td class='fw-bold text-end'>" . text($taxname) . "</td>\n";
             }
         }
         ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Total'); ?></td>
+                        <td class='fw-bold text-end'><?php echo xlt('Total'); ?></td>
                     </tr>
 
 <?php } // end if details ?>

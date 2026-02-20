@@ -293,7 +293,7 @@ $(function () {
                         <form id="sendPrescriptionForm" name="send_prescription" method="post" action="{{TOP_ACTION}}send">
                             <div class="row">
                                 <div class="col-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <input id="sendEmailPrescriptionIds" type="hidden" name="sendEmailPrescriptionIds" value="" />
                                         <input type="hidden" name="process" value="true" />
                                         <input type="text" name="email_to"  class="form-control" value="" placeholder="{{ "Recipient email address"|xla }}">
@@ -312,7 +312,7 @@ $(function () {
                             </div>
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <input type="submit" name="submit" value="{{'Email'|xla}}" class="btn btn-sm btn-primary"/>
                                         <a id="sendEmailSectionCancel" href="#" class="btn btn-sm btn-secondary">{{'Cancel'|xlt}}</a>
                                     </div>
@@ -370,7 +370,7 @@ $(function () {
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
                                                 <br />{% if prescription.get_dispensation_count() > 0 %}
-                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                    <span class="badge bg-success me-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
                                                 {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% else %}
@@ -382,7 +382,7 @@ $(function () {
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
                                                 <br />{% if prescription.get_dispensation_count() > 0 %}
-                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                    <span class="badge bg-success me-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
                                                 {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% endif %}
@@ -446,7 +446,7 @@ $(function () {
                 <hr />
             </div>
             <div class="col-12 d-flex justify-content-end">
-                <a href="{{ CONTROLLER }}?prescription&edit&id=0&pid={{  pid|attr_url }}" class="btn-primary btn-sm  mr-3" id="addButton">{{ "Add"|xlt }}</a>
+                <a href="{{ CONTROLLER }}?prescription&edit&id=0&pid={{  pid|attr_url }}" class="btn-primary btn-sm  me-3" id="addButton">{{ "Add"|xlt }}</a>
                 <a href="#" class="btn-secondary btn-sm quitButton">{{ "Quit"|xlt }}</a>
             </div>
         </div>
