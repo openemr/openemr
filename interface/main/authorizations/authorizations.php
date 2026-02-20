@@ -129,7 +129,7 @@ if ($imauthorized && $see_auth > 1) {
             foreach ($result2 as $iter) {
                 $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" . // @phpstan-ignore offsetAccess.nonOffsetAccessible
                 // @phpstan-ignore argument.type, argument.type
-                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -149,7 +149,7 @@ if ($imauthorized && $see_auth > 1) {
                 foreach ($result3 as $iter) {
                     $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" . // @phpstan-ignore offsetAccess.nonOffsetAccessible
                     // @phpstan-ignore argument.type, argument.type
-                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                     "</span><br />\n";
                 }
             }
