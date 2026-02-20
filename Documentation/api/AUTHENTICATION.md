@@ -642,7 +642,7 @@ curl -X POST -k \
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
 > **Solutions for modified commands:**
-> - Disable bash history expansion: `set +H` before running curl
+> - Disable bash history expansion (`!`): `set +H` before running curl
 > - Use single quotes around arguments containing special characters
 > - For passwords containing both `!` and `'`, use `printf -v`:
 >   ```bash
