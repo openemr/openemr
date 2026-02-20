@@ -95,21 +95,23 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
-  //  if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
-    if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
 
+    if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
             echo csvEscape(text(strval($group))) . ',' ;
+ /** @var string $myscore *
             echo  csvEscape(text($myscore)) . ','  ;
-            echo  csvEscape($row['pid']) . ',';
+/*  @var string $pat_pid */
+            $pat_pid = $row['pid'];
+            echo  csvEscape($pat_pid) . ',';
             echo  csvEscape($row['pubpid']) .  ',';
             echo  csvEscape(text($highlight_text)) . ',';
             echo  csvEscape(text($ptname)) .  ',';
             // rm - format dates by users preference
-        //    echo csvEscape(oeFormatShortDate(substr( (string) $row['DOB'], 0, 10))) . ',';
- /** @var string $row['DOB'] */
-            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
+            $date_ob = $row['DOB'];
+/** @var string $date_ob */
+             echo csvEscape(oeFormatShortDate(substr($date_ob, 0, 10))) . ',';
             echo csvEscape($row['sex']) .  ',';
-            echo csvEscape($row['email']) .  ',';
+            echo csvEscape ($row['email']) .  ',';
             echo csvEscape(text($phones)) .  ',';
             echo csvEscape(oeFormatShortDate($row['regdate'])) .  ',';
          //   echo csvEscape(text($fac_name)) . ',';
@@ -124,11 +126,13 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         </select>
     </td>
     <td>
-        <?php echo text($myscore); ?>
+        <?php  /** @var string $myscore */ echo text($myscore); ?>
     </td>
     <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
         title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
-        <?php echo text($row['pid']); ?>
+        <?php
+       /**   @var array<string> $row */
+        echo text($row['pid']); ?>
     </td>
     <td>
         <?php  echo text($row['pubpid']); ?>
@@ -140,7 +144,8 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php echo text($ptname); ?>
     </td>
     <td>
-        <?php echo text(oeFormatShortDate($row['DOB'])); ?>
+        <?php $date_ob = oeFormatShortDate($row['DOB']);    /** @var string $date_ob */  echo text($date_ob); ?>
+      ?>
     </td>
     <td>
         <?php echo text($row['sex']); ?>
@@ -218,12 +223,12 @@ if ($_POST['form_csvexport'] == "CSV" ) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    /** var string $today */
     $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
-    $today = text($today);
  //   $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
     $instance_name = OEGlobalsBag::getInstance()->get('openemr_name');
+    /** @var string $instance_name */
     $filename = "duplicate_patients" . "_" . $instance_name  . "_" .  $today . ".csv" ;
+
     header("Content-Disposition: attachment; filename=" . $filename); //rm 'attachment' forces the download
     header("Content-Description: File Transfer");
 } else {
