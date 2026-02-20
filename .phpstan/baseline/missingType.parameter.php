@@ -27397,7 +27397,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function newPatientData\\(\\) has parameter \\$interpretter with no type specified\\.$#',
+    'message' => '#^Function newPatientData\\(\\) has parameter \\$interpreter with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];

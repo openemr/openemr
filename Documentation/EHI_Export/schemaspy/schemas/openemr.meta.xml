@@ -55,7 +55,7 @@
             <column name="race" comments="Race of the patient"/>
             <column name="ethnicity" comments="Ethnicity of the patient"/>
             <column name="religion" comments="Religion of the patient"/>
-            <column name="interpretter" comments="Interpreter information for the patient"/>
+            <column name=" interpreter" comments="Interpreter information for the patient"/>
             <column name="migrantseasonal" comments="Migrant/Seasonal worker information"/>
             <column name="family_size" comments="Family size information of the patient"/>
             <column name="monthly_income" comments="Monthly income information of the patient"/>

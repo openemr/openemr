@@ -269,7 +269,7 @@
 <polygon fill="none" stroke="#000000" points="545.5,-5254.038 545.5,-5276.038 656.5,-5276.038 656.5,-5254.038 545.5,-5254.038"/>
 <text text-anchor="start" x="548.5" y="-5261.738" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[40]</text>
 <polygon fill="none" stroke="#000000" points="297.5,-5232.038 297.5,-5254.038 545.5,-5254.038 545.5,-5232.038 297.5,-5232.038"/>
-<text text-anchor="start" x="317.5" y="-5239.138" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">interpretter</text>
+<text text-anchor="start" x="317.5" y="-5239.138" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> interpreter</text>
 <polygon fill="none" stroke="#000000" points="545.5,-5232.038 545.5,-5254.038 656.5,-5254.038 656.5,-5232.038 545.5,-5232.038"/>
 <text text-anchor="start" x="548.5" y="-5239.738" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
 <polygon fill="none" stroke="#000000" points="297.5,-5210.038 297.5,-5232.038 545.5,-5232.038 545.5,-5210.038 297.5,-5210.038"/>

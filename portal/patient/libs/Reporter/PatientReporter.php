@@ -62,7 +62,7 @@ class PatientReporter extends Reporter
     public $Race;
     public $Ethnicity;
     public $Religion;
-    public $Interpretter;
+    public $interpreter;
     public $Migrantseasonal;
     public $FamilySize;
     public $MonthlyIncome;

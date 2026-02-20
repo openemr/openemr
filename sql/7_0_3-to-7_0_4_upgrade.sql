@@ -1452,15 +1452,15 @@ VALUES ('yes_no_unknown', 'yes', 'Yes', 10, 'SNOMED-CT:373066001', ''),
 -- we add this column in order to map to the USCDI V4 element for interpreter needed since the patient_data.interpreter column is a free text field
 ALTER TABLE `patient_data` ADD COLUMN `interpreter_needed` TEXT COMMENT 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter';
 -- migrate existing values over as its a new column, people can change it later if needed
-UPDATE `patient_data` SET `interpreter_needed` = 'YES' WHERE `interpretter` IS NOT NULL AND `interpretter` != '' AND LOWER(TRIM(`interpretter`)) ='yes';
-UPDATE `patient_data` SET `interpreter_needed` = 'NO' WHERE `interpretter` IS NOT NULL AND `interpretter` != '' AND LOWER(TRIM(`interpretter`)) ='no';
+UPDATE `patient_data` SET `interpreter_needed` = 'YES' WHERE `interpreter` IS NOT NULL AND `interpreter` != '' AND LOWER(TRIM(`interpreter`)) ='yes';
+UPDATE `patient_data` SET `interpreter_needed` = 'NO' WHERE `interpreter` IS NOT NULL AND `interpreter` != '' AND LOWER(TRIM(`interpreter`)) ='no';
 -- there are so many possibilities that for a structured data set we set the value to unknown
-UPDATE `patient_data` SET `interpreter_needed` = 'unknown' WHERE `interpreter_needed` IS NULL and `interpretter` IS NOT NULL AND `interpretter` != '';
+UPDATE `patient_data` SET `interpreter_needed` = 'unknown' WHERE `interpreter_needed` IS NULL and `interpreter` IS NOT NULL AND `interpreter` != '';
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id interpreter_needed
 -- we rename 'Interpreter' to 'Intepreter Comments' and add Interpreter Needed as structured data so we can programatically key off of it
-UPDATE `layout_options` SET title='Interpreter Comments',description='Additional notes about interpretation needs' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
+UPDATE `layout_options` SET title='Interpreter Comments',description='Additional notes about interpretation needs' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter';
 SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='homeless' AND form_id='DEM');
 SET @seq_start := 0;
 UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;

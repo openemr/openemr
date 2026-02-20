@@ -129,7 +129,7 @@ INSERT INTO layout_options VALUES ('DEM','financial_review','5Stats','Financial 
 INSERT INTO layout_options VALUES ('DEM','family_size'     ,'5Stats','Family Size'          , 4, 2,1,20,63,''        ,1,1,'','' ,'Family Size');
 INSERT INTO layout_options VALUES ('DEM','monthly_income'  ,'5Stats','Monthly Income'       , 5, 2,1,20,63,''        ,1,1,'','' ,'Monthly Income');
 INSERT INTO layout_options VALUES ('DEM','homeless'        ,'5Stats','Homeless, etc.'       , 6, 2,1,20,63,''        ,1,1,'','' ,'Homeless or similar?');
-INSERT INTO layout_options VALUES ('DEM','interpretter'    ,'5Stats','Interpreter'          , 7, 2,1,20,63,''        ,1,1,'','' ,'Interpreter needed?');
+INSERT INTO layout_options VALUES ('DEM','interpreter'    ,'5Stats','Interpreter'          , 7, 2,1,20,63,''        ,1,1,'','' ,'Interpreter needed?');
 INSERT INTO layout_options VALUES ('DEM','migrantseasonal' ,'5Stats','Migrant/Seasonal'     , 8, 2,1,20,63,''        ,1,1,'','' ,'Migrant or seasonal worker?');
 INSERT INTO layout_options VALUES ('DEM','usertext1'       ,'6Misc','User Defined Text 1'   , 1, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','usertext2'       ,'6Misc','User Defined Text 2'   , 2, 2,0,10,63,''         ,1,1,'','' ,'User Defined');

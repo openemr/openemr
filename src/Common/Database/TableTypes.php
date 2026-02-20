@@ -57,7 +57,7 @@ namespace OpenEMR\Common\Database;
  *   race: string,
  *   ethnicity: string,
  *   religion: string,
- *   interpretter: string,
+ *   interpreter: string,
  *   interpreter_needed: ?string,
  *   migrantseasonal: string,
  *   family_size: string,

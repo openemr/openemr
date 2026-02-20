@@ -15012,77 +15012,77 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BeginsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_BeginsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseAnd has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_BitwiseAnd has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseOr has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_BitwiseOr has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_EndsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_EndsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_Equals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_Equals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_GreaterThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_GreaterThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_In has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_In has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_IsEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_IsLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_IsNotEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_IsNotLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_LessThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_LessThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_NotEquals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$interpreter_NotEquals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
@@ -23567,7 +23567,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientReporter\\:\\:\\$Interpretter has no type specified\\.$#',
+    'message' => '#^Property PatientReporter\\:\\:\\$interpreter has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];

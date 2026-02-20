@@ -456,7 +456,7 @@ if (!empty($form_submit)) {
     "fe.pid, " .
     "p.regdate, p.date AS last_update, p.contrastart, p.DOB, p.sex, " .
     "p.city, p.state, p.occupation, p.status, p.ethnoracial, " .
-    "p.interpretter, p.monthly_income, p.referral_source, p.pricelevel, " .
+    "p.interpreter, p.monthly_income, p.referral_source, p.pricelevel, " .
     "p.userlist1, p.userlist3, p.userlist4, p.userlist5, " .
     "p.usertext11, p.usertext12, p.usertext13, p.usertext14, p.usertext15, " .
     "p.usertext16, p.usertext17, p.usertext18, p.usertext19, p.usertext20, " .
@@ -561,7 +561,7 @@ if (!empty($form_submit)) {
         AddIfPresent('Occupation', mappedOption('occupations', $row['occupation'], ''));
         AddIfPresent('MaritalStatus', mappedOption('marital', $row['status'], ''));
         AddIfPresent('Ethnoracial', mappedOption('ethrace', $row['ethnoracial'], ''));
-        AddIfPresent('Interpreter', $row['interpretter']);
+        AddIfPresent('Interpreter', $row['interpreter']);
         AddIfPresent('MonthlyIncome', $row['monthly_income']);
         AddIfPresent('ReferralSource', mappedOption('refsource', $row['referral_source'], ''));
         AddIfPresent('PriceLevel', mappedOption('pricelevel', $row['pricelevel'], ''));

@@ -6322,7 +6322,7 @@
          <column autoUpdated="false" defaultValue="''" digits="0" id="33" name="race" nullable="false" remarks="Race of the patient" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="''" digits="0" id="34" name="ethnicity" nullable="false" remarks="Ethnicity of the patient" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="''" digits="0" id="35" name="religion" nullable="false" remarks="Religion of the patient" size="40" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="''" digits="0" id="36" name="interpretter" nullable="false" remarks="Interpreter information for the patient" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="''" digits="0" id="36" name=" interpreter" nullable="false" remarks="Interpreter information for the patient" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="''" digits="0" id="37" name="migrantseasonal" nullable="false" remarks="Migrant/Seasonal worker information" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="''" digits="0" id="38" name="family_size" nullable="false" remarks="Family size information of the patient" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="''" digits="0" id="39" name="monthly_income" nullable="false" remarks="Monthly income information of the patient" size="255" type="VARCHAR" typeCode="12"/>
