@@ -21102,11 +21102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/FormatMoney.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between mixed and 2\\.54 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
