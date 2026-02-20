@@ -29,7 +29,11 @@ final class Version20260000010054 extends AbstractMigration
     {
         $table = $schema->createTable('openemr_postcalendar_categories');
         $table->addColumn('pc_catid', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
-        $table->addColumn('pc_constant_id', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('pc_constant_id', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
         $table->addColumn('pc_catname', Types::STRING, [
             'length' => 100,
             'notnull' => false,

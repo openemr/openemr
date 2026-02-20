@@ -47,7 +47,7 @@ final class Version20260000020125 extends AbstractMigration
         ]);
         $table->addColumn('diagnoses', Types::TEXT, ['comment' => 'diagnoses and maybe other coding (e.g. ICD9:111.11)']);
         $table->addColumn('do_not_send', Types::SMALLINT, ['default' => 0, 'comment' => '0 = normal, 1 = do not transmit to lab']);
-        $table->addColumn('procedure_order_title', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('procedure_order_title', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
         $table->addColumn('procedure_type', Types::STRING, [
             'length' => 31,
             'notnull' => false,

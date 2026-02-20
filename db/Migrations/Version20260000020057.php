@@ -54,6 +54,7 @@ final class Version20260000020057 extends AbstractMigration
         ]);
         $table->addColumn('administered_by_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('administered_by', Types::STRING, [
+            'length' => 255,
             'notnull' => false,
             'default' => null,
             'comment' => 'Alternative to administered_by_id',

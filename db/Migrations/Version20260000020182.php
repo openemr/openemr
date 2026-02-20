@@ -30,23 +30,28 @@ final class Version20260000020182 extends AbstractMigration
         $table = $schema->createTable('form_eye_biometrics');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODK1', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODK2', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODK2AXIS', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSK1', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSK2', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSK2AXIS', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODAXIALLENGTH', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSAXIALLENGTH', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODPDMeasured', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSPDMeasured', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODACD', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSACD', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODW2W', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSW2W', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODLT', Types::STRING, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSLT', Types::STRING, ['notnull' => false, 'default' => null]);
+        $table->addColumn('ODK1', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODK2', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODK2AXIS', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSK1', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSK2', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSK2AXIS', Types::STRING, ['length' => 10, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODAXIALLENGTH', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSAXIALLENGTH', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODPDMeasured', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSPDMeasured', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODACD', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSACD', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODW2W', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSW2W', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('ODLT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
+        $table->addColumn('OSLT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        );
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
         $table->addOption('engine', 'InnoDB');
     }

@@ -30,7 +30,7 @@ final class Version20260000020092 extends AbstractMigration
         $table = $schema->createTable('pro_assessments');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('form_oid', Types::STRING, ['length' => 255, 'comment' => 'unique id for specific instrument, pulled from assessment center API']);
-        $table->addColumn('form_name', Types::STRING, ['comment' => 'pulled from assessment center API']);
+        $table->addColumn('form_name', Types::STRING, ['length' => 255, 'comment' => 'pulled from assessment center API']);
         $table->addColumn('user_id', Types::INTEGER, ['comment' => 'ID for user that orders the form']);
         $table->addColumn('deadline', Types::DATETIME_MUTABLE, ['comment' => 'deadline to complete the form, will be used when sending notification and reminders']);
         $table->addColumn('patient_id', Types::INTEGER, ['comment' => 'ID for patient to order the form for']);

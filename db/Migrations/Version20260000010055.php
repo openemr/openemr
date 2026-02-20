@@ -103,7 +103,7 @@ final class Version20260000010055 extends AbstractMigration
         $table->addColumn('pc_prefcatid', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_facility', Types::INTEGER, ['default' => 0, 'comment' => 'facility id for this event']);
         $table->addColumn('pc_sendalertsms', Types::STRING, ['length' => 3, 'default' => 'NO']);
-        $table->addColumn('pc_sendalertemail', Types::STRING, ['default' => 'NO']);
+        $table->addColumn('pc_sendalertemail', Types::STRING, ['length' => 3, 'default' => 'NO']);
         $table->addColumn('pc_billing_location', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('pc_room', Types::STRING, ['length' => 20, 'default' => '']);
         $table->addColumn('uuid', Types::BINARY, [

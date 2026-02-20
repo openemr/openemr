@@ -54,10 +54,10 @@ final class Version20260000020110 extends AbstractMigration
             'default' => null,
             'values' => ['standard', 'medi-cal', 'cms', 'proxymed', 'oa_eligibility', 'availity_eligibility'],
         ]);
-        $table->addColumn('x12_isa01', Types::STRING, ['default' => 00, 'comment' => 'User logon Required Indicator']);
-        $table->addColumn('x12_isa02', Types::STRING, ['default' => '          ', 'comment' => 'User Logon']);
-        $table->addColumn('x12_isa03', Types::STRING, ['default' => 00, 'comment' => 'User password required Indicator']);
-        $table->addColumn('x12_isa04', Types::STRING, ['default' => '          ', 'comment' => 'User Password']);
+        $table->addColumn('x12_isa01', Types::STRING, ['length' => 2, 'default' => '00', 'comment' => 'User logon Required Indicator']);
+        $table->addColumn('x12_isa02', Types::STRING, ['length' => 10, 'default' => '          ', 'comment' => 'User Logon']);
+        $table->addColumn('x12_isa03', Types::STRING, ['length' => 2, 'default' => '00', 'comment' => 'User password required Indicator']);
+        $table->addColumn('x12_isa04', Types::STRING, ['length' => 10, 'default' => '          ', 'comment' => 'User Password']);
         $table->addColumn('x12_isa05', Types::STRING, ['length' => 2, 'default' => 'ZZ']);
         $table->addColumn('x12_isa07', Types::STRING, ['length' => 2, 'default' => 'ZZ']);
         $table->addColumn('x12_isa14', Types::STRING, ['length' => 1, 'default' => 0]);

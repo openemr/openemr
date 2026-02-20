@@ -58,7 +58,7 @@ final class Version20260000020169 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('counselors', Types::STRING);
+        $table->addColumn('counselors', Types::STRING, ['length' => 255]);
         $table->addColumn('appt_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
