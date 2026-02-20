@@ -644,9 +644,11 @@ curl -X POST -k \
 > **Solutions for modified commands:**
 > - Disable bash history expansion (`!`): `set +H` before running curl
 > - Use single quotes around arguments containing special characters
-> - For passwords containing both `!` and `'`, use `printf -v`:
+> - For passwords containing both `!` and `'`, use a heredoc:
 >   ```bash
->   printf -v password "%s" 'my!complex'\''password'
+>   read -r password <<'EOF'
+>   my!complex'password
+>   EOF
 >   curl ... --data-urlencode "password=$password"
 >   ```
 >
