@@ -133,7 +133,7 @@ limitations under the License.
         <xsl:call-template name="openemr-css"/>
         <xsl:call-template name="openemr-js"/>
       </head>
-      <body data-spy="scroll" data-target="#navbar-cda">
+      <body data-bs-spy="scroll" data-bs-target="#navbar-cda">
 
         <div class="cda-render toc col-md-3" role="complementary">
 
@@ -3374,8 +3374,9 @@ $( function() {
                 $content.append( $originalContent.clone( ).find( $( this ).attr( 'href' ) ).parent ( ) );
             } );
 
-              $('[data-spy="scroll"]').each(function () {
-                var $spy = $(this).scrollspy('refresh')
+              document.querySelectorAll('[data-bs-spy="scroll"]').forEach(function (el) {
+                var scrollSpy = bootstrap.ScrollSpy.getInstance(el);
+                if (scrollSpy) scrollSpy.refresh();
               });
             if (window.openemr) {
                 window.openemr.refreshDisplay();

@@ -445,7 +445,9 @@ function initSignerApi() {
             }
             let showElement = document.getElementById('signatureModal');
             $('#signatureModal').attr('src', signhere);
-            $("#openSignModal").modal({backdrop: false});
+            var openSignModalEl = document.getElementById('openSignModal');
+            var openSignModal = bootstrap.Modal.getOrCreateInstance(openSignModalEl, {backdrop: false});
+            openSignModal.show();
             $('html').css({
                 'overflow': 'hidden'
             });
