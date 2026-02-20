@@ -30437,11 +30437,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\PrescriptionRestController\\:\\:\\$prescriptionService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ProcedureRestController\\:\\:\\$procedureService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
@@ -30645,11 +30640,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\PatientService\\:\\:\\$patient_picture_fallback_id has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\PrescriptionService\\:\\:\\$patientValidator has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:\\$client has no type specified\\.$#',
@@ -31243,11 +31233,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:\\$fhirPatientFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:\\$patientFixtures has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
