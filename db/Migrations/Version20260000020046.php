@@ -28,7 +28,7 @@ final class Version20260000020046 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('icd9_sg_code');
-        $table->addColumn('sg_id', Types::STRING);
+        $table->addColumn('sg_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('sg_code', Types::STRING, ['length' => 5]);
         $table->addColumn('formatted_sg_code', Types::STRING, ['length' => 6]);
         $table->addColumn('short_desc', Types::STRING, ['length' => 60]);
@@ -36,6 +36,11 @@ final class Version20260000020046 extends AbstractMigration
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('sg_id')
+                ->create()
+        );
         $table->addIndex(['sg_code'], 'sg_code');
         $table->addIndex(['formatted_sg_code'], 'formatted_sg_code');
         $table->addIndex(['active'], 'active');

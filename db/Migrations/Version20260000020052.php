@@ -28,7 +28,7 @@ final class Version20260000020052 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('icd10_gem_pcs_10_9');
-        $table->addColumn('map_id', Types::STRING);
+        $table->addColumn('map_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('pcs_icd10_source', Types::STRING, [
             'length' => 7,
             'notnull' => false,
@@ -47,6 +47,11 @@ final class Version20260000020052 extends AbstractMigration
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('map_id')
+                ->create()
+        );
         $table->addOption('engine', 'InnoDB');
     }
 

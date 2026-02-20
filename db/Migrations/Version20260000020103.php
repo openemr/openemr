@@ -28,13 +28,18 @@ final class Version20260000020103 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('supported_external_dataloads');
-        $table->addColumn('load_id', Types::STRING);
+        $table->addColumn('load_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('load_type', Types::STRING, ['length' => 24, 'default' => '']);
         $table->addColumn('load_source', Types::STRING, ['length' => 24, 'default' => 'CMS']);
         $table->addColumn('load_release_date', Types::DATE_MUTABLE);
         $table->addColumn('load_filename', Types::STRING, ['length' => 256, 'default' => '']);
         $table->addColumn('load_checksum', Types::STRING, ['length' => 32, 'default' => '']);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('load_id')
+                ->create()
+        );
         $table->addOption('engine', 'InnoDB');
     }
 

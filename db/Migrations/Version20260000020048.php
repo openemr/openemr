@@ -28,12 +28,17 @@ final class Version20260000020048 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('icd9_sg_long_code');
-        $table->addColumn('sq_id', Types::STRING);
+        $table->addColumn('sq_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('sg_code', Types::STRING, ['length' => 5]);
         $table->addColumn('long_desc', Types::STRING, ['length' => 300]);
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('sq_id')
+                ->create()
+        );
         $table->addOption('engine', 'InnoDB');
     }
 

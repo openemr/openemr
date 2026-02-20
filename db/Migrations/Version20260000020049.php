@@ -28,15 +28,20 @@ final class Version20260000020049 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('icd10_dx_order_code');
-        $table->addColumn('dx_id', Types::STRING);
+        $table->addColumn('dx_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_code', Types::STRING, ['length' => 7]);
         $table->addColumn('formatted_dx_code', Types::STRING, ['length' => 10]);
-        $table->addColumn('valid_for_coding', Types::STRING);
+        $table->addColumn('valid_for_coding', Types::STRING, ['length' => 1]);
         $table->addColumn('short_desc', Types::STRING, ['length' => 60]);
         $table->addColumn('long_desc', Types::TEXT);
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('dx_id')
+                ->create()
+        );
         $table->addIndex(['formatted_dx_code'], 'formatted_dx_code');
         $table->addIndex(['active'], 'active');
         $table->addOption('engine', 'InnoDB');

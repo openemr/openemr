@@ -28,12 +28,17 @@ final class Version20260000020047 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('icd9_dx_long_code');
-        $table->addColumn('dx_id', Types::STRING);
+        $table->addColumn('dx_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_code', Types::STRING, ['length' => 5]);
         $table->addColumn('long_desc', Types::STRING, ['length' => 300]);
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('dx_id')
+                ->create()
+        );
         $table->addOption('engine', 'InnoDB');
     }
 
