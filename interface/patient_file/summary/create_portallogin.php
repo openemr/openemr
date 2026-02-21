@@ -55,7 +55,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
-        $credPlainMessage = $emailResult['plainMessage'];
+        $credPlainMessage = strip_tags($emailResult['plainMessage']);
         $credEmailSent = $emailResult['success'];
         $patientData = sqlQuery("SELECT `email` FROM `patient_data` WHERE `pid` = ?", [$pid]);
         $credEmailAddress = $patientData['email'] ?? '';
