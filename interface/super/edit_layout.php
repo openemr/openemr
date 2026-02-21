@@ -289,7 +289,10 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", [(string) $field_id]); // AI/Claude Code refactored to parametrized query
+    $tmp = sqlQuery(
+        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+        [$GLOBALS['adodb']['db']->database, $tablename, (string) $field_id]
+    );
     $column_exists = !empty($tmp);
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
