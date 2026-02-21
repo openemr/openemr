@@ -1483,7 +1483,7 @@ function writeITLine($it_array): void
             <button type="submit" name='form_save' id='form_save' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
         </p>
 
-        <input type='hidden' name='form_checksum' value='<?php echo listChecksum($list_id); ?>' />
+        <input type='hidden' name='form_checksum' value='<?php echo attr(listChecksum($list_id)); ?>' />
         <input type='hidden' name='form_submitted' id='form_submitted' value='false'>
     </form>
     <div class="modal fade" id="modal-new-list" tabindex="-1" role="dialog">
