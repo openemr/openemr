@@ -109,11 +109,23 @@ function deleter_row_modify(string $table, string $set, string $where): void
 //
 function delete_drug_sales($patient_id, $encounter_id = 0): void
 {
-    $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
-    "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";
-    sqlStatement("UPDATE drug_sales AS ds, drug_inventory AS di " .
-    "SET di.on_hand = di.on_hand + ds.quantity " .
-    "WHERE $where AND di.inventory_id = ds.inventory_id");
+    // AI/Claude Code refactoring
+    if ($encounter_id) {
+        sqlStatement(
+            "UPDATE drug_sales AS ds, drug_inventory AS di " .
+            "SET di.on_hand = di.on_hand + ds.quantity " .
+            "WHERE ds.encounter = ? AND di.inventory_id = ds.inventory_id",
+            [$encounter_id]
+        );
+    } else {
+        sqlStatement(
+            "UPDATE drug_sales AS ds, drug_inventory AS di " .
+            "SET di.on_hand = di.on_hand + ds.quantity " .
+            "WHERE ds.pid = ? AND ds.encounter != 0 AND di.inventory_id = ds.inventory_id",
+            [$patient_id]
+        );
+    }
+    // End of AI/Claude Code refactoring
     if ($encounter_id) {
         deleter_row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
     } else {
