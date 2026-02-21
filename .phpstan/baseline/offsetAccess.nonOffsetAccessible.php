@@ -1397,7 +1397,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'interpretter\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'interpreter\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
