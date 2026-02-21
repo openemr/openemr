@@ -298,7 +298,8 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if ($add && !$column_exists) {
-        sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
+        $addQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
+        sqlStatement($addQuery);
         EventAuditLogger::getInstance()->newEvent(
             "alter_table",
             $session->get('authUser'),
@@ -326,10 +327,9 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                 );
             }
             if (empty($lotmp['count'])) {
-                sqlStatement(
-                    "ALTER TABLE `" . escape_table_name($tablename) . "` " .
-                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
-                );
+                $dropQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` " .
+                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`";
+                sqlStatement($dropQuery);
                 EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
                     $session->get('authUser'),
