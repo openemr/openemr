@@ -761,10 +761,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$DateValue on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

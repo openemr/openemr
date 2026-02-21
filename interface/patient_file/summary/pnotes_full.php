@@ -23,6 +23,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -519,7 +520,7 @@ function restoreSession() {
                                 echo getListItemTitle("message_status", $iter['message_status']);
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
-                                echo text(oeFormatDateTime($iter['update_date']));
+                                echo text(DateFormatterUtils::oeFormatDateTime($iter['update_date']));
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
                                 $updateBy = $userService->getUser($iter['update_by']);

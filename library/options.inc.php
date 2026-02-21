@@ -75,6 +75,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $facilityService = new FacilityService();
 
@@ -784,7 +785,7 @@ function generate_form_field($frow, $currvalue): void
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
             } else {
-                $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
+                $dateValue  = DateFormatterUtils::oeFormatDateTime(substr($currescaped, 0, 20), 0);
                 echo "<input type='text' size='20' class='datetimepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
             }
         }
@@ -1792,7 +1793,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             if (!$modtmp) {
                 echo text(oeFormatShortDate($currvalue));
             } else {
-                echo text(oeFormatDateTime($currvalue));
+                echo text(DateFormatterUtils::oeFormatDateTime($currvalue));
             }
             if ($agestr) {
                 echo "&nbsp;(" . text($agestr) . ")";
@@ -2411,7 +2412,7 @@ function generate_display_field($frow, $currvalue)
             if (!$modtmp) {
                 $s .= text(oeFormatShortDate($currvalue));
             } else {
-                $s .= text(oeFormatDateTime($currvalue));
+                $s .= text(DateFormatterUtils::oeFormatDateTime($currvalue));
             }
             if ($agestr) {
                 $s .= "&nbsp;(" . text($agestr) . ")";
@@ -2899,7 +2900,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
     } elseif ($data_type == 4) { // date
         $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-        $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(oeFormatDateTime($currvalue));
+        $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(DateFormatterUtils::oeFormatDateTime($currvalue));
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.

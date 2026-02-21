@@ -27,6 +27,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Check if user has permission for any issue type.
 $auth = false;
@@ -351,10 +352,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $shortBegDate = trim(oeFormatShortDate($row['begdate']) ?? '');
                             $shortEndDate = trim(oeFormatShortDate($row['enddate']) ?? '');
-                            $fullBegDate = trim(oeFormatDateTime($row['begdate']) ?? '');
-                            $fullEndDate = trim(oeFormatDateTime($row['enddate']) ?? '');
+                            $fullBegDate = trim(DateFormatterUtils::oeFormatDateTime($row['begdate']) ?? '');
+                            $fullEndDate = trim(DateFormatterUtils::oeFormatDateTime($row['enddate']) ?? '');
                             $shortModDate = trim(oeFormatShortDate($row['modifydate']) ?? '');
-                            $fullModDate = trim(oeFormatDateTime($row['modifydate']) ?? '');
+                            $fullModDate = trim(DateFormatterUtils::oeFormatDateTime($row['modifydate']) ?? '');
 
                             $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
                             ?>

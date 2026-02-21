@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
 <html>
@@ -105,7 +106,7 @@ while ($row = sqlFetchArray($res)) {
     <?php echo text($row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']); ?>
   </td>
   <td>
-    <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
+    <?php echo text(DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
  </tr>
     <?php
