@@ -47,7 +47,7 @@
             });
         }
 
-        {% if (credMessage is not empty) %}
+        {% if (credPlainMessage is not empty) %}
             $(function () {
                 top.printLogPrint(window);
             });
@@ -63,10 +63,15 @@
 <body class="body_top">
 <div class="container-fluid">
 
-    {% if (credMessage is not empty) %}
+    {% if (credPlainMessage is not empty) %}
     <div class="alert alert-success" role="alert">
-        <p class="font-weight-bold">{{  "Portal Credential Information"|xlt }}</p>
-        {{ credMessage }}
+        <p class="font-weight-bold">{{ "Portal Credential Information"|xlt }}</p>
+        {% if credEmailSent %}
+            <p>{{ "Email was sent to following address"|xlt }}: {{ credEmailAddress|text }}</p>
+        {% else %}
+            <p class="text-danger">{{ "Email was not sent to the following address"|xlt }}: {{ credEmailAddress|text }}</p>
+        {% endif %}
+        <p>{{ credPlainMessage|text|nl2br }}</p>
     </div>
     {% else %}
     <form name="portallogin" action="" method="post">

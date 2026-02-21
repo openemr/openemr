@@ -28,23 +28,6 @@ require_once('../../../library/amc.php');
 use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
 use OpenEMR\Services\PatientAccessOnsiteService;
 
-function displayLogin($patient_id, string $message, $emailFlag)
-{
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    $message = text($message);
-    if ($emailFlag) {
-        $message = xlt("Email was sent to following address") . ": " .
-            text($patientData['email']) . "\n\n" .
-            $message;
-    } else {
-        $message = "<div class='text-danger'>" . xlt("Email was not sent to the following address") . ": " .
-            text($patientData['email']) . "</div>" . "\n\n" .
-            $message;
-    }
-
-    return $message;
-}
-
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);
 
@@ -58,7 +41,9 @@ if ($option == '2') {
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$credMessage = '';
+$credPlainMessage = '';
+$credEmailSent = false;
+$credEmailAddress = '';
 if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
@@ -70,20 +55,19 @@ if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
-        /** @var string $plainMessage */
-        $plainMessage = $emailResult['plainMessage'];
-        if ($emailResult['success']) {
-            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, true));
-        } else {
-            $credMessage = nl2br((string) displayLogin($pid, $plainMessage, false));
-        }
+        $credPlainMessage = $emailResult['plainMessage'];
+        $credEmailSent = $emailResult['success'];
+        $patientData = sqlQuery("SELECT `email` FROM `patient_data` WHERE `pid` = ?", [$pid]);
+        $credEmailAddress = $patientData['email'] ?? '';
     }
 }
 $trustedUserName = $patientAccessOnSiteService->getUniqueTrustedUsernameForPid($pid);
 $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
-    'credMessage' => $credMessage
+    'credPlainMessage' => $credPlainMessage
+    , 'credEmailSent' => $credEmailSent
+    , 'credEmailAddress' => $credEmailAddress
     , 'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
     , 'fname' => $credentials['fname']
     , 'portal_username' => $credentials['portal_username']
