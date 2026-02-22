@@ -46,7 +46,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                     <li><?php echo xlt("Client Scope");?>: <?php echo text($connectivityInfo->client_scope); ?></li>
                     <li><?php echo xlt("API Server");?>: <?php echo text($connectivityInfo->api_server); ?></li>
                     <li><?php echo xlt("Default Account");?>: <?php echo text($connectivityInfo->defaultAccount); ?>  </li>
-                    <li><?php echo xlt("Token");?>:  <?php echo text($connectivityInfo->hasToken); ?>  </li>
+                    <li><?php echo xlt("Token");?>:  <?php echo $connectivityInfo->hasToken ? xlt("Yes") : xlt("No"); ?>  </li>
                 </ul>
             </div>
         </div>

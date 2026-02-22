@@ -336,13 +336,13 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev()
+    public static function canConnectToClaimRev(): bool
     {
         try {
             ClaimRevApi::makeFromGlobals();
-            return "Yes";
+            return true;
         } catch (ClaimRevAuthenticationException) {
-            return "No";
+            return false;
         }
     }
 
