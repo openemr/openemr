@@ -15,6 +15,7 @@ namespace OpenEMR\Services;
 use Exception;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 
 class PatientPortalService
@@ -131,7 +132,8 @@ class PatientPortalService
      */
     public static function isPortalUser($u = null)
     {
-        $user = $u ?: $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $u ?: $session->get('authUserID');
         // test for either id or username
         return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", [$user, $user])['portal_user'];
     }
@@ -158,26 +160,27 @@ class PatientPortalService
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed $default
      * If param not valid then entire super is returned.
-     * @return mixed
+     * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(?string $param = null, mixed $default = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($param) {
-            return $_SESSION[$param] ?? $default;
+            return $session->get($param, $default);
         }
 
-        return $_SESSION;
+        return $session;
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed
      */
-    public function getRequest($param = null, $default = null): mixed
+    public function getRequest(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $_REQUEST[$param] ?? $default;

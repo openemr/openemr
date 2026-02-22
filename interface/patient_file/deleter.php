@@ -28,10 +28,10 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -53,7 +53,7 @@ $info_msg = "";
  */
 function deleter_row_delete(string $table, string $where): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -91,7 +91,7 @@ function deleter_row_delete(string $table, string $where): void
  */
 function deleter_row_modify(string $table, string $set, string $where): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::getInstance()->newEvent("deactivate", $session->get('authUser'), $session->get('authProvider'), 1, "$table: $where");
@@ -109,11 +109,23 @@ function deleter_row_modify(string $table, string $set, string $where): void
 //
 function delete_drug_sales($patient_id, $encounter_id = 0): void
 {
-    $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
-    "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";
-    sqlStatement("UPDATE drug_sales AS ds, drug_inventory AS di " .
-    "SET di.on_hand = di.on_hand + ds.quantity " .
-    "WHERE $where AND di.inventory_id = ds.inventory_id");
+    // AI/Claude Code refactoring
+    if ($encounter_id) {
+        sqlStatement(
+            "UPDATE drug_sales AS ds, drug_inventory AS di " .
+            "SET di.on_hand = di.on_hand + ds.quantity " .
+            "WHERE ds.encounter = ? AND di.inventory_id = ds.inventory_id",
+            [$encounter_id]
+        );
+    } else {
+        sqlStatement(
+            "UPDATE drug_sales AS ds, drug_inventory AS di " .
+            "SET di.on_hand = di.on_hand + ds.quantity " .
+            "WHERE ds.pid = ? AND ds.encounter != 0 AND di.inventory_id = ds.inventory_id",
+            [$patient_id]
+        );
+    }
+    // End of AI/Claude Code refactoring
     if ($encounter_id) {
         deleter_row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
     } else {
@@ -202,7 +214,7 @@ function popup_close() {
         // If the delete is confirmed...
         //
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -448,9 +460,9 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>'>
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>'>
             <input type="hidden" name="csrf_token_form"
-                value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <p>
             <?php
             $type = '';

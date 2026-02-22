@@ -36,8 +36,11 @@ require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_name = "eye_mag";
 global $form_folder;
@@ -74,7 +77,7 @@ if (!($id ?? '')) {
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query, [$_SESSION['authUserID']]);
+$result = sqlStatement($query, [$session->get('authUserID')]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
@@ -223,6 +226,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     global $PDF_OUTPUT;
     global $facilityService;
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
      $query = "  select  *,form_encounter.date as encounter_date
@@ -287,12 +291,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-        $facility = null;
-        if ($_SESSION['pc_facility']) {
-            $facility = $facilityService->getById($_SESSION['pc_facility']);
-        } else {
-            $facility = $facilityService->getPrimaryBillingLocation();
-        }
+        $pc_facility = $session->get('pc_facility');
+        $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
     }
 
     ?><br /><br />

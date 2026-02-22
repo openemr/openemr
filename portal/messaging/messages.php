@@ -14,7 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -26,18 +25,19 @@ use OpenEMR\Events\Messaging\SendSmsEvent;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('portal_username'));
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (empty($session->get('authUserID'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -159,7 +159,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session)); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {

@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
@@ -71,6 +72,8 @@ if (empty($isSMS)) {
     $pid = $interface_pid;
 }
 $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html lang="">
@@ -264,7 +267,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
 <body>
     <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
-            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('contact-form')); ?>" />
+            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('contact-form', $session)); ?>" />
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file ?? ''); ?>'>
             <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid ?? ''); ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent ?? ''); ?>'>

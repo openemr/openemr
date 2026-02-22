@@ -39,6 +39,7 @@ return ['includes' => [
     __DIR__ . '/constant.deprecated.php',
     __DIR__ . '/constant.notFound.php',
     __DIR__ . '/deadCode.unreachable.php',
+    __DIR__ . '/doWhile.alwaysFalse.php',
     __DIR__ . '/echo.nonString.php',
     __DIR__ . '/elseif.alwaysTrue.php',
     __DIR__ . '/empty.expr.php',

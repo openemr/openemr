@@ -18,6 +18,9 @@
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\DbUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $tmp = "SET NAMES 'UTF8MB4', sql_mode = '', time_zone = '" . (new DateTime())->format("P") . "'";
 

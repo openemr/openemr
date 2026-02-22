@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
@@ -20,8 +21,9 @@ class EhiExportJob
 {
     public function __construct()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->ehi_export_job_id = null;
-        $this->user_id = $_SESSION['authUserID'];
+        $this->user_id = $session->get('authUserID');
         $this->status = "processing";
         $this->creation_date = date("Y-m-d H:i:s");
         $this->completion_date = date("Y-m-d H:i:s");

@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -33,6 +34,7 @@ $ordtype = $_REQUEST['addfav'] ?? '';
 $disabled = $ordtype ? "disabled" : '';
 $labid = $_GET['labid'] ?? 0;
 $info_msg = "";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function types_invalue(string $name): string
 {
@@ -242,7 +244,7 @@ function recursiveDelete($typeid): void
         // If we are saving, then save and close the window.
         //
         if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
         }
@@ -316,7 +318,7 @@ function recursiveDelete($typeid): void
                 <form method='post' name='theform' class="form-horizontal"
                     action='types_edit.php?typeid=<?php echo attr_url($typeid); ?>&parent=<?php echo attr_url($parent); ?>'
                     onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Details'); ?> <i id='enter_details' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i></legend>
                         <div class="row">

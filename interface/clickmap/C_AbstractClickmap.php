@@ -16,6 +16,9 @@
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once(__DIR__ . '/../globals.php');
 
 /* For the addform() function */
@@ -162,13 +165,14 @@ abstract class C_AbstractClickmap extends Controller
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 $GLOBALS['encounter'],
                 $model->getTitle(),
                 $model->id,
                 $model->getCode(),
                 $GLOBALS['pid'],
-                $_SESSION['userauthorized']
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

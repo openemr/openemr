@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -27,8 +28,9 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -188,8 +190,8 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
 }
 ?>
 
-<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-2">

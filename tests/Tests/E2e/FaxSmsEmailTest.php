@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
@@ -108,8 +109,9 @@ class FaxSmsEmailTest extends TestCase
         $_REQUEST['html_content'] = '';
 
         // Mock the logged-in user
-        $_SESSION['authUser'] = 'testuser';
-        $_SESSION['authUserID'] = 1;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->get('authUser', 'testuser');
+        $session->get('authUserID', 1);
 
         $emailClient = new EmailClient();
 

@@ -22,15 +22,18 @@ require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
 // From billing manager so do stuff
-if (isset($_SESSION['billencounter'])) {
-    $pid = $_SESSION['billpid'];
-    $encounter = $_SESSION['billencounter'];
+if ($session->has('billencounter')) {
+    $pid = $session->get('billpid');
+    $encounter = $session->get('billencounter');
     echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
 }
 if (!$encounter) { // comes from globals.php
@@ -92,8 +95,8 @@ if (empty($id)) {
         "INSERT INTO form_misc_billing_options SET $sets",
         [
             $pid,
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["employment_related"] ?? ''),
             ($_POST["auto_accident"] ?? ''),
@@ -131,8 +134,8 @@ if (empty($id)) {
         "UPDATE form_misc_billing_options SET $sets WHERE id = ?",
         [
             $pid,
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["employment_related"] ?? ''),
             ($_POST["auto_accident"] ?? ''),
@@ -166,7 +169,7 @@ if (empty($id)) {
     );
 }
 
-if (isset($_SESSION['billencounter'])) {
+if ($session->has('billencounter')) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
     echo "<script>dlgclose('SubmitTheScreen')</script>";
 } else {

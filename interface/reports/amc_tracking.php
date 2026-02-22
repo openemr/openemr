@@ -18,6 +18,8 @@ require_once "$srcdir/amc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -25,8 +27,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Tracking", xl("Automated Measure Calculations (AMC) Tracking"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -77,7 +80,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      }
    );
  }
@@ -102,7 +105,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      }
    );
  }
@@ -121,7 +124,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
        mode: mode,
        date_created: date_created,
        patient_id: patient_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      }
    );
  }
@@ -141,7 +144,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
        patient_id: patient_id,
        object_category: "form_encounter",
        object_id: encounter_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      }
    );
  }
@@ -186,7 +189,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
 <?php echo xlt('Automated Measure Calculations (AMC) Tracking'); ?></span>
 
 <form method='post' name='theform' id='theform' action='amc_tracking.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 

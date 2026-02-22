@@ -17,10 +17,12 @@ require_once("$srcdir/patient.inc.php");
 require_once("../drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -171,7 +173,7 @@ $(function () {
 <h2><?php echo xlt('Destroyed Drugs'); ?></h2>
 
 <form name='theform' method='post' action='destroyed_drugs_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div class="col-sm-12">
     <span class="font-weight-bold"><?php echo xlt('From'); ?>:</span>

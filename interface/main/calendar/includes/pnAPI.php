@@ -37,6 +37,8 @@ use OpenEMR\BC\Database;
  *        Patch for php 4.2.x or greater
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 if (ini_get('register_globals') != 1) {
     $supers = ['_REQUEST',
                             '_ENV',

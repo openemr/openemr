@@ -23,10 +23,12 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-$userid = $_SESSION['authUserID'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userid = $session->get('authUserID');
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
@@ -97,7 +99,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
     } ?>    <div class="row">
                 <div class="col-sm-12">
                     <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit="doregister('reg2')">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 
 
@@ -134,12 +136,12 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                                 CsrfUtils::csrfNotVerified();
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!(new AuthUtils())->confirmPassword($_SESSION['authUser'], $_POST['clearPass'])) {
+                            if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }
@@ -160,13 +162,13 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Generate a new QR code or existing QR code
-                            $mfaAuth = new Totp($secret, $_SESSION['authUser']);
+                            $mfaAuth = new Totp($secret, $session->get('authUser'));
                             $qr = $mfaAuth->generateQrCode();
 
 
                             // if secret did not exist previously, stores secret in session variable for saving
                             if (!$doesExist) {
-                                $_SESSION['totpSecret'] = $mfaAuth->getSecret();
+                                $session->set('totpSecret', $mfaAuth->getSecret());
                             }
                             ?>
                             <fieldset>
@@ -218,7 +220,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                                 CsrfUtils::csrfNotVerified();
                             }
 
@@ -231,16 +233,15 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 [$userid]
                             );
 
-
-                            if (empty($row['count']) && isset($_SESSION['totpSecret'])) {
+                            if (empty($row['count']) && $session->has('totpSecret')) {
                                 $cryptoGen = new CryptoGen();
                                 privStatement(
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                                     "(?, 'TOTP', 'App Based 2FA', ?, '')",
-                                    [$userid, $cryptoGen->encryptStandard($_SESSION['totpSecret'])]
+                                    [$userid, $cryptoGen->encryptStandard($session->get('totpSecret'))]
                                 );
-                                unset($_SESSION['totpSecret']);
+                                $session->remove('totpSecret');
                             } else {
                                 echo " alert(" . xlj('TOTP Method already exists and is enabled. Try again.') . ");\n";
                             }

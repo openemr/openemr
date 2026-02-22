@@ -2477,11 +2477,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<input type\\="hidden…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'alert\\(\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -4027,11 +4022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between mixed and 3 results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<img class\\=\\\\\'img…\' and mixed results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/globals.php',
@@ -4048,11 +4038,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\://\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
@@ -10004,11 +9989,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/create_portallogin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/create_portallogin.php',
 ];
 $ignoreErrors[] = [
@@ -23984,11 +23964,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 5 results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [

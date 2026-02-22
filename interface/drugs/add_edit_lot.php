@@ -22,6 +22,8 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorizations.
@@ -36,6 +38,8 @@ $auth_lots = $auth_admin ||
 if (!$auth_lots) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for inventory: Edit/Add Lot", xl("Edit/Add Lot"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -341,7 +345,7 @@ if (!$drug_id) {
     // If we are saving, then save and close the window.
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -545,7 +549,7 @@ if (!$drug_id) {
                     [
                         $drug_id,
                         $lot_id,
-                        $_SESSION['authUser'],
+                        $session->get('authUser'),
                         $form_sale_date,
                         (0 - $form_quantity),
                         (0 - $form_cost),
@@ -584,7 +588,7 @@ if (!$drug_id) {
     ?>
     <h3 class="ml-1"><?php echo text($title); ?></h3>
     <form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>' onsubmit='return validate()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
         <table class="table table-borderless w-100">
 

@@ -23,6 +23,7 @@ require_once $GLOBALS['srcdir'] . '/options.inc.php';
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -39,6 +40,8 @@ $widgetConstants = [
 global $pid; // we need to grab our pid from our global settings.
 $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $logService = new WenoLogService();
 $pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
 
@@ -50,8 +53,8 @@ $name_field_id = "form_" . $field_id_esc;
 $small_form ??= '';
 
 $pharmacyService = new PharmacyService();
-$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
-$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? [];
+$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? [];
 $prev_prim_pharmacy = js_escape($prev_prim_pharmacy);
 $prev_alt_pharmacy = js_escape($prev_alt_pharmacy);
 
@@ -101,7 +104,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 <div id="weno_form"></div>
 
 <template id="weno_template">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
     <hr class="bg-light font-weight-bold text-dark my-0 my-1">

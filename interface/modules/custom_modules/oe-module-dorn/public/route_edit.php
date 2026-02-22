@@ -17,6 +17,7 @@ require_once __DIR__ . "/../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\CreateRouteFromPrimaryViewModel;
@@ -31,8 +32,9 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 $labGuid = "";
 $message = "";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -100,11 +102,11 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
     </style>
 </head>
 <body class="container-fluid">
-    <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
+    <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>">
         <div class="row">
             <div class="col-sm-12">
                 <h2><?php echo xlt("DORN Lab Route Configuration") ?></h2>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <input type="hidden" name="form_labGuid" value="<?php echo attr($labGuid); ?>" />
             </div>
         </div>

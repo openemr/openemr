@@ -19,6 +19,7 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
@@ -26,8 +27,9 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Front Office Receipts", xl("Front Office Receipts"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -110,7 +112,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 </div>
 
 <form name='theform' method='post' action='front_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 

@@ -10,10 +10,13 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once("../../globals.php");
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid_list = [];
-$pid_list = $_SESSION['pidList'];
+$pid_list = $session->get('pidList');
 
 $pdf = new FPDF('L', 'mm', [148, 105]);
 $last = 1;

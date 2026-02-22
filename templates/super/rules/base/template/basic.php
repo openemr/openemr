@@ -7,8 +7,10 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -16,7 +18,7 @@ use OpenEMR\Core\Header;
     <!-- TODO: FIX No Bootstrap header !-->
     <?php Header::setupHeader(['opener']); ?>
 
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === "rtl") { ?>
         <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } else { ?>
         <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />

@@ -29,6 +29,7 @@ require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use phpseclib3\Net\SFTP;
 
 $rhl7_return = [];
@@ -73,10 +74,11 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         EventAuditLogger::getInstance()->newEvent(
             "lab-results-error",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             0,
             $msg
         );
@@ -591,7 +593,9 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
         return;
     }
 
-    $message_sender = $_SESSION['authUser'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUser = $session->get('authUser');
+    $message_sender = $authUser;
     $message_group = 'Default';
     $authorized = '0';
     $activity = '1';
@@ -602,7 +606,7 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
     }
 
     if (!$assigned_to) {
-        $assigned_to = $_SESSION['authUser'];
+        $assigned_to = $authUser;
     }
     $notify = $assigned_to; //@todo get user lookup
 

@@ -15,7 +15,9 @@
 // ensure that $user_settings_php_path, $arr_files_php variables are set in the script calling this script
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 $(function () {
     $('.expand_contract').click(function() {
@@ -34,7 +36,7 @@ $(function () {
                         {
                             target: arrFiles[index].trim(),
                             setting: 0,
-                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                         }
                     );
                 });
@@ -49,7 +51,7 @@ $(function () {
                         {
                             target: arrFiles[index].trim(),
                             setting: 1,
-                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                         }
                     );
                 });

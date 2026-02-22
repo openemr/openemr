@@ -22,6 +22,10 @@ require_once($GLOBALS['fileroot'] . '/interface/eRxPage.php');
 
 set_time_limit(0);
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 function array_key_exists_default($key, $search, $default = null)
 {
     $value = array_key_exists($key, $search) ? $search[$key] : $default;
@@ -37,7 +41,7 @@ $eRxPage = new eRxPage(
     )
 );
 
-$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
+$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $session->all()))
     ->setDestination(array_key_exists_default('page', $_REQUEST))
     ->setPatientId(array_key_exists_default('pid', $GLOBALS))
     ->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))

@@ -16,23 +16,27 @@
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
+    use OpenEMR\Common\Session\SessionWrapperFactory;
     use OpenEMR\Core\Header;
     use OpenEMR\Services\Utils\DateFormatterUtils;
 
     $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var int $authUserID */
+$authUserID = $session->get('authUserID');
 /*
     -------------------  HANDLE POST ---------------------
 */
 if ($_GET) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = [intval($_SESSION['authUserID'])];
+            $_GET['sentTo'] = [$authUserID];
         }
     }
 
@@ -143,7 +147,7 @@ if ($_GET) {
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
         <?php
         $allUsers = [];
-        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
+        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [$authUserID]);
         for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
             $allUsers[] = $uRow;
         }
@@ -157,7 +161,7 @@ if ($_GET) {
             </div>
             <div class="col-12 filter-section mb-3">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><?php echo xlt('Filters') ?></h5>
@@ -187,7 +191,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {
@@ -206,7 +210,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {

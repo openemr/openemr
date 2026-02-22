@@ -29,6 +29,7 @@ require_once "$srcdir/appointments.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Reports\FinancialSummaryReportService;
 
@@ -36,8 +37,9 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Financial Summary by Service Code", xl("Financial Summary by Service Code"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -114,7 +116,7 @@ if (!empty($_POST['form_csvexport'])) {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
 <form method='post' action='svc_code_financial_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>

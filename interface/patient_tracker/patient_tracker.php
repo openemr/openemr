@@ -26,10 +26,11 @@ require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -44,7 +45,7 @@ $setting_selectors = prevSetting($uspfx, 'setting_selectors', 'setting_selectors
 $form_apptcat = prevSetting($uspfx, 'form_apptcat', 'form_apptcat', '');
 $form_apptstatus = prevSetting($uspfx, 'form_apptstatus', 'form_apptstatus', '');
 $facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
 
 if (
     ($_POST['setting_new_window'] ?? '') ||
@@ -145,7 +146,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === "rtl") { ?>
       <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } else { ?>
       <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -169,7 +170,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
                         <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                             <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
@@ -229,13 +230,15 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 $query = "SELECT id, lname, fname FROM users WHERE " .
                                   "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
                                 $ures = sqlStatement($query);
+                                $sessionUserauthorized = $session->get('userauthorized');
+                                $sessionAuthUserID = $session->get('authUserID');
                                 while ($urow = sqlFetchArray($ures)) {
                                     $provid = $urow['id'];
                                     ($select_provs ?? null) ? $select_provs : $select_provs = '';
                                     $select_provs .= "    <option value='" . attr($provid) . "'";
                                     if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                                         $select_provs .= " selected";
-                                    } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                    } elseif (!isset($_POST['form_provider']) && $sessionUserauthorized && $provid == $sessionAuthUserID) {
                                         $select_provs .= " selected";
                                     }
                                     $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -471,6 +474,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $icon_here = [];
                             $prog_text = '';
                             $FINAL = '';
+                            $icon_4_CALL = '';
 
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
                             $myMedEx = sqlStatement($query, [$appointment['eid']]);
@@ -492,6 +496,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 // If not we need to import it from Medex through medex_preferences.  It should really be in openEMR though.
                                 // Delete when we figure this out.
                                 $other_title = '';
+                                $msg_type = text($row['msg_type']);
                                 if (!empty($row['msg_extra_text'])) {
                                     $local = attr($row['msg_extra_text']) . " |";
                                 }
@@ -502,35 +507,35 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon_extra .= str_replace(
                                         "EXTRA",
                                         attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $icons[$row['msg_type']]['EXTRA']['html']
+                                        $icons[$msg_type]['EXTRA']['html']
                                     );
                                     continue;
                                 } elseif ($row['msg_reply'] == 'CANCELLED') {
-                                    $appointment[$row['msg_type']]['stage'] = "CANCELLED";
-                                    $icon_here[$row['msg_type']] = '';
+                                    $appointment[$msg_type]['stage'] = "CANCELLED";
+                                    $icon_here[$msg_type] = '';
                                 } elseif ($row['msg_reply'] == "FAILED") {
-                                    $appointment[$row['msg_type']]['stage'] = "FAILED";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$row['msg_type']]['stage'] == "CONFIRMED")) {
-                                    $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
-                                    $icon_here[$row['msg_type']]  = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                                } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
-                                    $appointment[$row['msg_type']]['stage'] = "READ";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
-                                } elseif (($row['msg_reply'] == "SENT") || ($appointment[$row['msg_type']]['stage'] == "SENT")) {
-                                    $appointment[$row['msg_type']]['stage'] = "SENT";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
+                                    $appointment[$msg_type]['stage'] = "FAILED";
+                                    $icon_here[$msg_type] = $icons[$msg_type]['FAILED']['html'];
+                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$msg_type]['stage'] == "CONFIRMED")) {
+                                    $appointment[$msg_type]['stage'] = "CONFIRMED";
+                                    $icon_here[$msg_type]  = $icons[$msg_type]['CONFIRMED']['html'];
+                                } elseif (($row['msg_reply'] == "READ") || ($appointment[$msg_type]['stage'] == "READ")) {
+                                    $appointment[$msg_type]['stage'] = "READ";
+                                    $icon_here[$msg_type] = $icons[$msg_type]['READ']['html'];
+                                } elseif (($row['msg_reply'] == "SENT") || ($appointment[$msg_type]['stage'] == "SENT")) {
+                                    $appointment[$msg_type]['stage'] = "SENT";
+                                    $icon_here[$msg_type] = $icons[$msg_type]['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
                                     if (
-                                        !in_array($appointment[$row['msg_type']]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
+                                        !in_array($appointment[$msg_type]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
                                     ) {
-                                        $appointment[$row['msg_type']]['stage'] = "QUEUED";
-                                        $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
+                                        $appointment[$msg_type]['stage'] = "QUEUED";
+                                        $icon_here[$msg_type] = $icons[$msg_type]['SCHEDULED']['html'];
                                     }
                                 }
                                 //these are additional icons if present
                                 if ($row['msg_reply'] == "CALL") {
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
+                                    $icon_here[$msg_type] = $icons[$msg_type]['CALL']['html'];
                                     if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
                                         $icon_4_CALL = "<span class='input-group-addon'
                                                               onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
@@ -538,9 +543,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                                         </span>";
                                     }
                                 } elseif ($row['msg_reply'] == "STOP") {
-                                    $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
+                                    $icon2_here .= $icons[$msg_type]['STOP']['html'];
                                 } elseif ($row['msg_reply'] == "Other") {
-                                    $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
+                                    $icon2_here .= $icons[$msg_type]['Other']['html'];
                                 }
                             }
                             //if pc_apptstatus == '-', update it now to=status
@@ -781,8 +786,8 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         </div>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
-    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='patientID' value='0' />
         <input type='hidden' name='encounterID' value='0' />
     </form>
@@ -795,7 +800,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 
 exit;
-
+// TODO @zmilan: Check what is with this code here
 function myLocalJS(): void
 {
     ?>

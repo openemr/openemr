@@ -14,6 +14,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Twig\Environment;
 
 class TeleHealthFrontendSettingsController
@@ -56,7 +57,8 @@ class TeleHealthFrontendSettingsController
         // if we ever need to allow local OpenEMR api access to patients we can remove this check, but to minimize api attack surface
         // we will prohibit it for now until a better threat analysis has been done.
         if (!$isPatient) {
-            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken('api');
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken('api', session: $session);
         }
         echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }

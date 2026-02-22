@@ -26,10 +26,13 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$language_choice = $session->get('language_choice');
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -283,8 +286,8 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     }
     EventAuditLogger::getInstance()->newEvent(
         "edit_list",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "List = $list_id"
     );
@@ -308,8 +311,8 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     }
     EventAuditLogger::getInstance()->newEvent(
         "add_list",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "List = $newlistID"
     );
@@ -320,8 +323,8 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", [$_POST['list_id']]);
     EventAuditLogger::getInstance()->newEvent(
         "delete_list",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "List = " . $_POST['list_id']
     );
@@ -405,8 +408,9 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         attr($title) . "' size='20' maxlength='127' class='optin form-control form-control-sm'>";
     echo "</td>\n";
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $session->get('language_choice') > 1) {
         echo "  <td align='center' class='translation'>" . xlt($title) . "</td>\n";
     }
     echo "  <td>";
@@ -710,8 +714,9 @@ function writeCTLine($ct_array): void
         30,
         xl('Label for this type')
     );
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $session->get('language_choice') > 1) {
         echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
     }
     echo ctGenCell(
@@ -824,18 +829,21 @@ function writeITLine($it_array): void
     echo ctGenCell($opt_line_no, $it_array, 'ordering', 4, 10, xl('Order{{Sequence}}'));
     echo ctGenCell($opt_line_no, $it_array, 'type', 15, 75, xl('Issue Type'));
     echo ctGenCell($opt_line_no, $it_array, 'plural', 15, 75, xl('Plural'));
+
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $language_choice = $session->get('language_choice');
     // if not english and translating lists then show the translation
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'singular', 15, 75, xl('Singular'));
     // if not english and translating lists then show the translation
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'abbreviation', 5, 10, xl('Abbreviation'));
     // if not english and translating lists then show the translation
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
     }
     echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
@@ -1124,7 +1132,7 @@ function writeITLine($it_array): void
 </head>
 <body class="body_top">
     <form method='post' name='theform' id='theform' action='edit_list.php'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from); ?>" />
         <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to); ?>" />
         <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
@@ -1152,7 +1160,7 @@ function writeITLine($it_array): void
                             }
 
                             // List order depends on language translation options.
-                            $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+                            $lang_id = empty($language_choice) ? '1' : $language_choice;
 
                             if (!$GLOBALS['translate_lists']) {
                                 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
@@ -1250,7 +1258,7 @@ function writeITLine($it_array): void
                     <th><?php echo xlt('ID'); ?></th>
                     <th><?php echo xlt('Label'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+                    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
                         echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Seq'); ?></th>
@@ -1285,17 +1293,17 @@ function writeITLine($it_array): void
                     <th><?php echo xlt('Type'); ?></th>
                     <th><?php echo xlt('Plural'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+                    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Singular'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+                    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Mini'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+                    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Style'); ?></th>
@@ -1305,7 +1313,7 @@ function writeITLine($it_array): void
                     <th title='<?php echo xla('Click to edit'); ?>'><?php echo xlt('ID'); ?></th>
                     <th><?php echo xlt('Title'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+                    if ($GLOBALS['translate_lists'] && $language_choice > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1475,14 +1483,14 @@ function writeITLine($it_array): void
             <button type="submit" name='form_save' id='form_save' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
         </p>
 
-        <input type='hidden' name='form_checksum' value='<?php echo listChecksum($list_id); ?>' />
+        <input type='hidden' name='form_checksum' value='<?php echo attr(listChecksum($list_id)); ?>' />
         <input type='hidden' name='form_submitted' id='form_submitted' value='false'>
     </form>
     <div class="modal fade" id="modal-new-list" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="edit_list.php" method="post" class="form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>

@@ -21,11 +21,13 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -68,7 +70,7 @@ $form_diagnosis = $_POST['form_diagnosis'] ?? '';
         <div class="row">
             <div class="col-12">
                 <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="form-group">
                         <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
                         <div class='col-sm-12'>
