@@ -24,6 +24,7 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Panther\PantherTestCase;
 
 class FrontPaymentCssContrastTest extends PantherTestCase
@@ -31,7 +32,7 @@ class FrontPaymentCssContrastTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $crawler;
+    private ?Crawler $crawler = null;
 
     /**
      * Verify that the front payment receipt CSS includes explicit text
@@ -62,6 +63,7 @@ class FrontPaymentCssContrastTest extends PantherTestCase
             // Use JavaScript to inspect the CSS rules in the page's
             // stylesheets and check whether .bg-color, .bg-color-w, and
             // the mini_table th rules have an explicit 'color' property.
+            /** @var string $result */
             $result = $this->client->executeScript(<<<'JS'
                 var results = {bgColor: false, bgColorW: false, miniTableTh: false};
                 var sheets = document.styleSheets;
@@ -92,6 +94,7 @@ class FrontPaymentCssContrastTest extends PantherTestCase
                 return JSON.stringify(results);
             JS);
 
+            /** @var array{bgColor: bool, bgColorW: bool, miniTableTh: bool} $cssResults */
             $cssResults = json_decode($result, true);
 
             $this->assertTrue(
