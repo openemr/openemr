@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_specimen_row.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var with type string\\|false is not subtype of native type non\\-empty\\-array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type EventDispatcherInterface is not subtype of native type Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
