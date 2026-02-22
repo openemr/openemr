@@ -115,9 +115,7 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
-        // note if $records[0] is actually the value 0 then the value returned is null...
-        // do we want that behavior?
-        if (!empty($records[0])) {
+        if (isset($records[0])) {
             return $records[0];
         }
         return null;
