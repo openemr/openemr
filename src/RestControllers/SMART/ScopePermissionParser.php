@@ -5,7 +5,7 @@
  * TODO: @adunsulag this needs to be consolidated later with ServerScopeListEntity
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    AI Generated - Claude (Anthropic)
  * @copyright Copyright (c) 2025 - Public Domain for AI generated content

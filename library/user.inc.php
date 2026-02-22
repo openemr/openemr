@@ -4,7 +4,7 @@
  * user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @deprecated 7.0.3 see UserSettingsService
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>

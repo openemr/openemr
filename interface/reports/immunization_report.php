@@ -4,7 +4,7 @@
  * This report lists  patient immunizations for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>

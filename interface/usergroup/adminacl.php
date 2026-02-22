@@ -6,7 +6,7 @@
  * from adminacl_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2007-2018 Brady Miller <brady.g.miller@gmail.com>

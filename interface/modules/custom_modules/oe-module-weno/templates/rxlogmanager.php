@@ -2,7 +2,7 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>

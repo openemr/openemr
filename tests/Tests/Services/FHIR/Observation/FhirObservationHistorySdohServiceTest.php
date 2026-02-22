@@ -3,7 +3,7 @@
 /*
  * FhirObservationHistorySdohServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    AI Assistant (GitHub Claude.Ai)
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>

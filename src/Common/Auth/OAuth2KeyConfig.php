@@ -4,7 +4,7 @@
  * Oauth2KeyConfig is responsible for configuring, generating, and returning oauth2 keys that are used by the OpenEMR system.
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>

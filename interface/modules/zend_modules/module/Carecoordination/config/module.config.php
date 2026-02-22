@@ -4,7 +4,7 @@
  * module.config.php handles the dependency injection configuration, routes, and other config settings needed by the module.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>

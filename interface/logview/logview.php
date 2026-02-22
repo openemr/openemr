@@ -4,7 +4,7 @@
  * Log Viewer.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>

@@ -6,7 +6,7 @@
  * Represents a Card which can be injected into a Section.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>

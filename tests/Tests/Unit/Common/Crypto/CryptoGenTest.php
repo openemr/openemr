@@ -8,7 +8,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   GNU General Public License 3
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  */
 
 declare(strict_types=1);

@@ -4,7 +4,7 @@
  * Edit layouts gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>

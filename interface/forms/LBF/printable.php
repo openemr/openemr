@@ -4,7 +4,7 @@
  * LBF form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only

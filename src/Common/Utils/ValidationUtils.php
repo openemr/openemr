@@ -4,7 +4,7 @@
  * ValidationUtils is intended for validation methods that are used in OpenEMR.
  *
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Cassian LUP <cassi.lup@gmail.com>
  * @author     Stephen Nielson <snielson@discoverandchange.com>
  * @author     Michael A. Smith <michael@opencoreemr.com>

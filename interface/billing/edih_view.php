@@ -4,7 +4,7 @@
  * edih_view.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas

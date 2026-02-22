@@ -15,7 +15,7 @@
  * @author  Sharon Cohen <sharonco@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @author  Eyal Wolanowski <eyalvo@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Extend for date roll from  https://validatejs.org/#validators-datetime

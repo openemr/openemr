@@ -4,7 +4,7 @@
  * interface/eRx.php Redirect to Ensora eRx pages.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Sam Likins <sam.likins@wsi-services.com>

@@ -5,7 +5,7 @@
  * own HTML content during the forms.php encounter list sequence.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Discover and Change, Inc. <snielson@dicsoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
