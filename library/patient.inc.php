@@ -26,6 +26,7 @@ use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 require_once(__DIR__ . "/dupscore.inc.php");
 
@@ -461,7 +462,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
 
     // Footer
     $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
-    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . DateFormatterUtils::oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
     $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
     $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
     $s .= '</div></htmlpagefooter>';

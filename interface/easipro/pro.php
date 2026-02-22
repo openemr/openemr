@@ -21,6 +21,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Easipro\Easipro;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
 <!DOCTYPE html>
@@ -310,7 +311,7 @@ use OpenEMR\OeUI\OemrUI;
                     <?php foreach ($records1 as $value1) { ?>
                         <tr>
                             <td><?php echo text($value1['form_name']); ?></td>
-                            <td><?php echo text(oeFormatDateTime($value1['deadline'])); ?></td>
+                            <td><?php echo text(DateFormatterUtils::oeFormatDateTime($value1['deadline'])); ?></td>
                             <td><?php echo text($value1['status']); ?></td>
                             <td><?php echo text(substr((string) $value1['score'], 0, 4)); ?></td>
                         </tr>

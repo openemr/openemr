@@ -23,6 +23,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $form_newid   = isset($_POST['form_newid'  ]) ? trim((string) $_POST['form_newid'  ]) : '';
 $form_curpid  = isset($_POST['form_curpid' ]) ? trim((string) $_POST['form_curpid' ]) : '';
@@ -119,7 +120,7 @@ if (!empty($row)) {
         if ($user === false) {
             throw new \RuntimeException("User not found for ct_userid: " . json_encode($ct_userid));
         }
-        $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . oeFormatDateTime($row['ct_when'], "global", true));
+        $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true));
     } elseif ($ct_location) {
         $current_location = generate_display_field(['data_type' => '1','list_id' => 'chartloc'], $ct_location);
     }

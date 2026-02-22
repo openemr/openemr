@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
@@ -160,7 +161,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                         </form>
                     </td>
                     <td class="text-left">
-                        <?php echo oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s')) . " (" . text($note['user']) . ")"; ?>
+                        <?php echo text(DateFormatterUtils::oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s'))) . " (" . text($note['user']) . ")"; ?>
                     </td>
                     <td class="text-left"><?php echo nl2br(text($note['body'])); ?></td>
                     <td class="text-center">

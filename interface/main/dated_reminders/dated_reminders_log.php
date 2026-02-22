@@ -17,6 +17,7 @@
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
+    use OpenEMR\Services\Utils\DateFormatterUtils;
 
     $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
@@ -80,13 +81,13 @@ if ($_GET) {
         foreach ($remindersArray as $RA) {
             echo '<tr>
                     <td>' . text($RA['messageID']) . '</td>
-                    <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
+                    <td>' . text(DateFormatterUtils::oeFormatDateTime($RA['sDate'])) . '</td>
                     <td>' . text($RA['fromName']) . '</td>
                     <td>' . text($RA['ToName']) . '</td>
                     <td>' . text($RA['PatientName']) . '</td>
                     <td>' . text($RA['message']) . '</td>
                     <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
-                    <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
+                    <td>' . text(DateFormatterUtils::oeFormatDateTime($RA['pDate'])) . '</td>
                     <td>' . text($RA['processedByName']) . '</td>
                 </tr>';
         }

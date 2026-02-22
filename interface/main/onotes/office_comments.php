@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
@@ -62,9 +63,9 @@ $oNoteService = new ONoteService();
                     $date = (new DateTime($note['date']))->format('Y-m-d H:i:s');
                     $todaysDate = new DateTime();
                     if ($todaysDate->format('Y-m-d') == $date) {
-                        $date_string = xl("Today") . ", " . oeFormatDateTime($date);
+                        $date_string = xl("Today") . ", " . DateFormatterUtils::oeFormatDateTime($date);
                     } else {
-                        $date_string = oeFormatDateTime($date);
+                        $date_string = DateFormatterUtils::oeFormatDateTime($date);
                     }
                     $card = '';
                     $card .= '<div class="card panel-default">';

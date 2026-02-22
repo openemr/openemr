@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -171,7 +172,7 @@ if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
             ?>
    <tr>
     <td>
-            <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
+            <?php echo text(DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
   <td>
             <?php

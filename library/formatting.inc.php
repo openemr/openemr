@@ -22,7 +22,7 @@ function oeFormatMoney($amount, $symbol = false)
     return FormatMoney::getFormattedMoney($amount, $symbol);
 }
 
-function oeFormatShortDate($date = 'today', $showYear = true)
+function oeFormatShortDate($date = 'today', bool $showYear = true)
 {
     return DateFormatterUtils::oeFormatShortDate($date, $showYear);
 }
@@ -38,20 +38,9 @@ function oeFormatShortDate($date = 'today', $showYear = true)
  * @return string
  *@deprecated use DateFormatterUtils::oeFormatTime()
  */
-function oeFormatTime($time, $format = "global", $seconds = false)
+function oeFormatTime($time, $format = "global", bool $seconds = false)
 {
     return DateFormatterUtils::oeFormatTime($time, $format, $seconds);
-}
-
-/**
- * Returns the complete formatted datetime string according the global date and time format
- * @deprecated use DateFormatterUtils::oeFormatDateTime()
- * @param $datetime
- * @return string
- */
-function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
-{
-    return DateFormatterUtils::oeFormatDateTime($datetime, $formatTime, $seconds);
 }
 
 /**

@@ -22,6 +22,7 @@ namespace OpenEMR\Easipro;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class Easipro
 {
@@ -107,7 +108,7 @@ class Easipro
         $message .= 'Dear ' . text($pt_name) . ', <br><br>Your provider has ordered a assessment for you: <b>';
         $message .= text($form_name);
         $message .= '</b><br><b>Your assessment will close after ';
-        $message .= text(oeFormatDateTime($expiration));
+        $message .= text(DateFormatterUtils::oeFormatDateTime($expiration));
         $message .= ' ,</b> so please log in and complete it before then.';
         $message .= '<center>Go to: ' . text($GLOBALS['portal_onsite_two_address']) . '</center><br>Thanks.';
         $message .= '</td></tr></tbody></table>';
