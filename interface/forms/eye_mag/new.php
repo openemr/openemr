@@ -40,7 +40,16 @@ if (empty($group)) {
     $group = $_SESSION['authProvider'];
 }
 
-$encounter = !$_SESSION['encounter'] ? date("Ymd") : $_SESSION['encounter'];
+// $encounter is already in scope from globals.php / load_form.php.
+// Guard against missing encounter (the scenario that caused #10844):
+if (empty($encounter)) {
+    formHeader(xlt('Error'));
+    echo '<div class="alert alert-danger">' .
+        xlt('No active encounter. Please select or create an encounter first.') .
+        '</div>';
+    formFooter();
+    exit;
+}
 
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, [$pid,$encounter]);
@@ -72,6 +81,11 @@ if (!empty($erow['form_id']) && ($erow['form_id'] > '0')) {
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir) values (NOW(),?,?,?,?,?,?,?,?)";
     $answer = sqlInsert($sql, [$encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder]);
+    // Keep the session encounter in sync with the value just written to the
+    // forms table.  view.php reads $encounter exclusively from the session
+    // (via globals.php) and compares it against the stored encounter for IDOR
+    // protection; if they diverge the guard fires a 404 "Form not found".
+    SessionUtil::setSession('encounter', $encounter);
 }
 
     formHeader("Redirecting....");

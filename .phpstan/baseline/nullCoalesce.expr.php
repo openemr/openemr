@@ -513,6 +513,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 42,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEncounterFormNavbarUrlTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];

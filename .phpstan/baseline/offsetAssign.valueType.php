@@ -16,5 +16,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Symfony\\\\Component\\\\Panther\\\\DomCrawler\\\\Form does not accept int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEncounterFormNavbarUrlTest.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
