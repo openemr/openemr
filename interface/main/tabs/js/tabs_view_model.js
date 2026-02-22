@@ -311,7 +311,7 @@ function popMenuDialog(url, title) {
     });
 }
 
-function menuActionClick(data,evt)
+async function menuActionClick(data,evt)
 {
     // Yet another menu fixup for legacy 'popup'.
     // let's abandon a tab and call a support function from this view.
@@ -327,7 +327,7 @@ function menuActionClick(data,evt)
         if(data.requirement===2)
         {
             var encounterID=app_view_model.application_data[attendant_type]().selectedEncounterID();
-            if(isEncounterLocked(encounterID))
+            if(await isEncounterLocked(encounterID))
             {
                 alert(xl('This encounter is locked. No new forms can be added.'));
                 return;

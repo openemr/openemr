@@ -230,7 +230,7 @@ try {
     window.addEventListener("DOMContentLoaded", startDocumentValidation);
 
     // this originally came from the messages class... but it makes no sense to have it there when we only use it here.
-    function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
+    async function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
         EncounterDateArray = [];
         CalendarCategoryArray = [];
         EncounterIdArray = [];
@@ -248,15 +248,18 @@ try {
         }
         ?>
         top.restoreSession();
-        $.ajax({
-            type: 'get',
-            url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
-            data: {
-                set_pid: pid,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-            },
-            async: false
+        const params = new URLSearchParams({
+            set_pid: pid,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         });
+        try {
+            await fetch('<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>?' + params.toString(), {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+        } catch (error) {
+            console.error('Error setting patient session:', error);
+        }
         parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);
         parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
         var docurl = '../controller.php?document&view' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";

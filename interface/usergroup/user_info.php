@@ -47,20 +47,25 @@ function update_password()
     // Strong if required
     // Matches
 
-    $.post("user_info_ajax.php",
-        {
-            curPass:    $("input[name='curPass']").val(),
-            newPass:    $("input[name='newPass']").val(),
-            newPass2:   $("input[name='newPass2']").val(),
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        },
-        function(data)
-        {
-            $("input[type='password']").val("");
-            $("#display_msg").html(data);
-        }
+    var formData = new FormData();
+    formData.append('curPass', document.querySelector("input[name='curPass']").value);
+    formData.append('newPass', document.querySelector("input[name='newPass']").value);
+    formData.append('newPass2', document.querySelector("input[name='newPass2']").value);
+    formData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
 
-    );
+    fetch("user_info_ajax.php", {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    }).then(function(response) {
+        return response.text();
+    }).then(function(data) {
+        document.querySelectorAll("input[type='password']").forEach(function(el) { el.value = ''; });
+        document.getElementById('display_msg').innerHTML = data;
+    }).catch(function(error) {
+        console.error('Error updating password:', error);
+    });
+
     return false;
 }
 

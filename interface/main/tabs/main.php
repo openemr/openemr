@@ -157,18 +157,17 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         async function getSessionValue(key) {
             restoreSession();
             let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
-            const config = {
-                url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
-                method: 'POST',
-                data: {
-                    mode: 'session_key',
-                    key: key
-                }
-            };
+            const formData = new FormData();
+            formData.append('mode', 'session_key');
+            formData.append('key', key);
             try {
-                const response = await $.ajax(config);
+                const response = await fetch(`${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${encodeURIComponent(csrf_token_js)}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
                 restoreSession();
-                return response;
+                return response.text();
             } catch (error) {
                 throw error;
             }
@@ -268,27 +267,25 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             var repeater = setTimeout("goRepeaterServices()", 60000);
         }
 
-        function isEncounterLocked(encounterId) {
+        async function isEncounterLocked(encounterId) {
             <?php if ($esignApi->lockEncounters()) { ?>
-            // If encounter locking is enabled, make a synchronous call (async=false) to check the
+            // If encounter locking is enabled, make an async fetch() call to check the
             // DB to see if the encounter is locked.
-            // Call restore session, just in case
-            // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
             restoreSession();
             let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    encounterId: encounterId
-                },
-                success: function (data) {
-                    encounter_locked = data;
-                },
-                dataType: 'json',
-                async: false
-            });
-            return encounter_locked;
+            const formData = new FormData();
+            formData.append('encounterId', encounterId);
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                return response.json();
+            } catch (error) {
+                console.error('Error checking encounter lock status:', error);
+                return false;
+            }
             <?php } else { ?>
             // If encounter locking isn't enabled then always return false
             return false;
