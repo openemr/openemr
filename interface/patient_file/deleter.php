@@ -24,6 +24,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -411,7 +412,7 @@ function popup_close() {
                 sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
                 "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
                 "WHERE pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
-                sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
+                QueryUtils::sqlStatementThrowException("UPDATE drug_sales SET billed = 0 WHERE " .
                 "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
             } elseif ($transaction) {

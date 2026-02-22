@@ -23,6 +23,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
@@ -289,9 +290,11 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         return;
     }
     // Check if the column currently exists.
+    /** @var array{db: \ADOConnection} $adodbConfig */
+    $adodbConfig = $GLOBALS['adodb'];
     $tmp = sqlQuery(
         "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?",
-        [$GLOBALS['adodb']['db']->database, $tablename, (string) $field_id]
+        [$adodbConfig['db']->database, $tablename, (string) $field_id]
     );
     $column_exists = !empty($tmp);
 
@@ -1954,7 +1957,7 @@ $(function () {
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
             allowClear: false,
-            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects
