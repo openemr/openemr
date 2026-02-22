@@ -47,7 +47,7 @@ return [
      *  )
      */
     "GET /portal/patient" => function (HttpRestRequest $request) {
-        $return = (new PatientRestController())->getOne($request->getPatientUUIDString());
+        $return = (new PatientRestController())->getOne($request->getPatientUUIDString(), $request);
         return $return;
     },
 
