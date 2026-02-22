@@ -17,8 +17,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\BaseValidator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class FacilityValidatorTest extends TestCase
 {
     private FacilityValidatorStub $validator;
