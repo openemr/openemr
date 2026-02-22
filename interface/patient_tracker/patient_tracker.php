@@ -101,8 +101,8 @@ if ($GLOBALS['ptkr_date_range']) {
     $to_date = date('Y-m-d');
 }
 
-$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['form_patient_name'] : null;
-$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
+$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? strip_tags((string) $_POST['form_patient_name']) : null;
+$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? strip_tags((string) $_POST['form_patient_id']) : null;
 
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
