@@ -17,8 +17,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\ConditionValidator;
 use OpenEMR\Validators\BaseValidator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class ConditionValidatorTest extends TestCase
 {
     private ConditionValidatorStub $validator;

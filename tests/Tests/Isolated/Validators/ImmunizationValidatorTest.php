@@ -18,8 +18,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\ImmunizationValidator;
 use OpenEMR\Validators\BaseValidator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class ImmunizationValidatorTest extends TestCase
 {
     private ImmunizationValidatorStub $validator;
