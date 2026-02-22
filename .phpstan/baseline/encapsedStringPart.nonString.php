@@ -6464,6 +6464,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$state \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$state \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
