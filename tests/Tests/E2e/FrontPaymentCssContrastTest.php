@@ -64,7 +64,7 @@ class FrontPaymentCssContrastTest extends PantherTestCase
             // stylesheets and check whether .bg-color, .bg-color-w, and
             // the mini_table th rules have an explicit 'color' property.
             /** @var string $result */
-            $result = $this->client->executeScript(<<<'JS'
+            $result = $this->client->executeScript(<<<'JS_WRAP'
                 var results = {bgColor: false, bgColorW: false, miniTableTh: false};
                 var sheets = document.styleSheets;
                 for (var i = 0; i < sheets.length; i++) {
@@ -92,7 +92,7 @@ class FrontPaymentCssContrastTest extends PantherTestCase
                     }
                 }
                 return JSON.stringify(results);
-            JS);
+            JS_WRAP);
 
             /** @var array{bgColor: bool, bgColorW: bool, miniTableTh: bool} $cssResults */
             $cssResults = json_decode($result, true);
