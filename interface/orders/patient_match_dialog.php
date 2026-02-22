@@ -23,9 +23,12 @@ use OpenEMR\Core\Header;
 $form_key = $_REQUEST['key'];
 $args = unserialize($form_key, ['allowed_classes' => false]);
 $form_ss = preg_replace('/[^0-9]/', '', (string) ($args['ss'] ?? ''));
-$form_fname = (string) ($args['fname'] ?? '');
-$form_lname = (string) ($args['lname'] ?? '');
-$form_DOB = (string) ($args['DOB'] ?? '');
+$argFname = $args['fname'] ?? '';
+$form_fname = is_string($argFname) ? $argFname : '';
+$argLname = $args['lname'] ?? '';
+$form_lname = is_string($argLname) ? $argLname : '';
+$argDOB = $args['DOB'] ?? '';
+$form_DOB = is_string($argDOB) ? $argDOB : '';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
