@@ -199,6 +199,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Negated boolean expression is always false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
 ];
 $ignoreErrors[] = [

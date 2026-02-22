@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -67,7 +68,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
     }
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    public function setSystemLogger(SystemLogger|LoggerInterface $systemLogger): void
     {
         $mappedServices = $this->getMappedServices();
         foreach ($mappedServices as $service) {

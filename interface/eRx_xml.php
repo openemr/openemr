@@ -788,7 +788,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     global $msg;
     $active = '';
     if ($GLOBALS['erx_upload_active'] == 1) {
-        $active = " and (enddate is null or enddate = '' or enddate = '0000-00-00' )";
+        $active = " and (enddate is null or enddate = '0000-00-00')";
     }
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
@@ -848,7 +848,7 @@ function PatientFreeformAllergy($doc, $r, $pid)
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
-	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')", [$pid]);
+	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '0000-00-00')", [$pid]);
     $allergyId = [];
     while ($row = sqlFetchArray($res)) {
         $val = [];

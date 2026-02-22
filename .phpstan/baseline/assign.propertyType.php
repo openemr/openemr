@@ -2207,6 +2207,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PrescriptionApiTest\\:\\:\\$testPatientPid \\(int\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\BulkPatientExport311APITest\\:\\:\\$previousProfileValue \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',

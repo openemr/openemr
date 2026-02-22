@@ -55662,6 +55662,41 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'internalErrors\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'message\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'validationErrors\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PrescriptionApiTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',

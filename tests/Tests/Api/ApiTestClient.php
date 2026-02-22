@@ -3,11 +3,10 @@
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -123,6 +122,7 @@ class ApiTestClient
         'user/practitioner.read',
         'user/practitioner.write',
         'user/prescription.read',
+        'user/prescription.write',
         'user/procedure.read',
         'user/soap_note.read',
         'user/soap_note.write',
@@ -284,8 +284,7 @@ class ApiTestClient
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
-        $logger = new SystemLogger(Level::Emergency); // suppress logging
-        $clientRepository->setSystemLogger($logger);
+        $clientRepository->setSystemLogger(new NullLogger());
         $client = $clientRepository->getClientEntity($this->client_id);
         $clientRepository->saveIsEnabled($client, true);
     }
@@ -424,6 +423,19 @@ class ApiTestClient
             "body" => json_encode($body)
         ]);
         return $patchResponse;
+    }
+
+    /**
+     * Submits a HTTP DELETE request.
+     * @param $url - The target URL (relative)
+     * @param $id - The resource id
+     * @return ResponseInterface HTTP response
+     */
+    public function delete($url, $id): ResponseInterface
+    {
+        $resourceUrl = $url . "/" . $id;
+        $deleteResponse = $this->client->delete($resourceUrl, ["headers" => $this->headers]);
+        return $deleteResponse;
     }
 
     /**

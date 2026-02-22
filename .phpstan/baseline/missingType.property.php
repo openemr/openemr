@@ -30587,11 +30587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\PrescriptionRestController\\:\\:\\$prescriptionService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ProcedureRestController\\:\\:\\$procedureService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',

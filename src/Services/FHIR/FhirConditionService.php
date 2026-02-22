@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -62,7 +63,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $this->conditionService = new ConditionService();
     }
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    public function setSystemLogger(SystemLogger|LoggerInterface $systemLogger): void
     {
         $this->systemLogger = $systemLogger;
         foreach ($this->getMappedServices() as $service) {

@@ -3,6 +3,7 @@
 namespace OpenEMR\Common\Logging;
 
 use Monolog\Level;
+use Psr\Log\LoggerInterface;
 
 // TODO: This trait uses concrete SystemLogger and Monolog\Level types instead of
 // Psr\Log\LoggerInterface and PSR-3 log level strings. To fully decouple from
@@ -13,14 +14,21 @@ use Monolog\Level;
 // See SystemLogger for related changes needed there.
 trait SystemLoggerAwareTrait
 {
-    protected ?SystemLogger $systemLogger = null;
+    protected SystemLogger|LoggerInterface|null $systemLogger = null;
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    /**
+     * Set the logger instance.
+     *
+     * Note: If using custom SystemLogger methods like errorLogCaller(), callers
+     * should verify the logger type at runtime. Use a NullLogger or other PSR-3
+     * implementation to suppress logging in tests.
+     */
+    public function setSystemLogger(SystemLogger|LoggerInterface $systemLogger): void
     {
         $this->systemLogger = $systemLogger;
     }
 
-    public function getSystemLogger(?Level $defaultLoggingLevel = null): ?SystemLogger
+    public function getSystemLogger(?Level $defaultLoggingLevel = null): SystemLogger|LoggerInterface
     {
 
         if (!isset($this->systemLogger)) {
