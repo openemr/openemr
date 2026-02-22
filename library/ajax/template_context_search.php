@@ -48,7 +48,7 @@ $results = [];
 $r = sqlStatementNoLog($cq, [$eSearch]);
 
 while ($result = sqlFetchArray($r)) {
-    $results[] = array_map('text', $result);
+    $results[] = array_map(text(...), $result);
 }
 
 echo json_encode(['results' => $results]);

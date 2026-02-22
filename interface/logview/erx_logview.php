@@ -1,10 +1,10 @@
 <?php
 
 /**
- * interface/logview/erx_logview.php Display NewCrop errors.
+ * interface/logview/erx_logview.php Display Ensora eRx errors.
  *
  * @package    OpenEMR
- * @subpackage NewCrop
+ * @subpackage Ensora
  * @link       http://www.open-emr.org
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>
@@ -47,7 +47,7 @@ if (array_key_exists('start_date', $_POST)) {
 if ($filename) {
     $bat_content = '';
 
-    preg_match('/erx_error-\d{4}-\d{1,2}-\d{1,2}\.log/', $filename, $matches);
+    preg_match('/erx_error-\d{4}-\d{1,2}-\d{1,2}\.log/', (string) $filename, $matches);
 
     if ($matches) {
         if ($fd = fopen($error_log_path . '/' . $filename, 'r')) {
@@ -97,7 +97,7 @@ if ($filename) {
                     <span class="text"><?php echo xlt('Date'); ?>: </span>
                 </td>
                 <td>
-                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? attr(substr($start_date, 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
+                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? attr(substr((string) $start_date, 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
                 </td>
                 <td>
                     <input type="submit" class="btn btn-primary btn-sm" name="search_logs" value="<?php echo xla('Search'); ?>" />

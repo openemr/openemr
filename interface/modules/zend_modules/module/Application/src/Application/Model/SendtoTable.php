@@ -49,7 +49,7 @@ class SendtoTable extends AbstractTableGateway
 
     /*
     * getFaxRecievers
-    * @return array fax reciever types
+    * @return array fax receiver types
     *
     **/
     public function getFaxRecievers()
@@ -102,6 +102,7 @@ class SendtoTable extends AbstractTableGateway
                 'medical_devices' => 'Medical Devices',
                 'goals' => 'Goals',
                 'payers' => 'Health Insurance Providers',
+                'advance_directives' => 'Advance Directives',
             ];
         }
         return $components;

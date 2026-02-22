@@ -29,6 +29,6 @@ function fetchDateService($encounter)
 {
     $sql = "select date from form_encounter where encounter = ?";
     $result = sqlQuery($sql, [$encounter]);
-    $result = explode(" ", $result['date']);
+    $result = explode(" ", (string) $result['date']);
     return $result[0];
 }

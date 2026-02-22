@@ -35,23 +35,22 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 //
 require_once('../forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Cash Receipts by Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
 }
 
 function is_clinic($code)
 {
     global $bcodes;
-    $i = strpos($code, ':');
+    $i = strpos((string) $code, ':');
     if ($i) {
-        $code = substr($code, 0, $i);
+        $code = substr((string) $code, 0, $i);
     }
 
     return (
@@ -426,7 +425,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $res = sqlStatement($query, $sqlBindArray);
                             while ($row = sqlFetchArray($res)) {
                                 $trans_id = $row['trans_id'];
-                                $thedate = substr($row['date'], 0, 10);
+                                $thedate = substr((string) $row['date'], 0, 10);
                                 $patient_id = $row['pid'];
                                 $encounter_id = $row['encounter'];
                             //
@@ -549,18 +548,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             //
 
                             if (empty($form_use_edate)) {
-                                if (!empty($row['deposit_date'])) {
-                                    $thedate = $row['deposit_date'];
-                                } else {
-                                    $thedate = substr($row['post_time'], 0, 10);
-                                }
+                                $thedate = !empty($row['deposit_date']) ? $row['deposit_date'] : substr((string) $row['post_time'], 0, 10);
                             } elseif ($form_use_edate == 1) {
-                                $thedate = substr($row['date'], 0, 10);
+                                $thedate = substr((string) $row['date'], 0, 10);
                             } elseif ($form_use_edate == 2) {
-                                $thedate = substr($row['post_time'], 0, 10);
+                                $thedate = substr((string) $row['post_time'], 0, 10);
                             }
 
-                            if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) {
+                            if (strcmp((string) $thedate, (string) $form_from_date) < 0 || strcmp((string) $thedate, (string) $form_to_date) > 0) {
                                 continue;
                             }
 

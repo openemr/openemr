@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxStore.php Functions for interacting with NewCrop database.
+ * interface/eRxStore.php Functions for interacting with Ensora eRx database.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -481,7 +481,7 @@ class eRxStore
 				);',
             [
                 $encounter,
-                substr($prescriptionData['PrescriptionDate'], 0, 10),
+                substr((string) $prescriptionData['PrescriptionDate'], 0, 10),
                 $authUserId,
                 $providerId,
                 $formOptionId,

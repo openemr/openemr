@@ -24,7 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 /**
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
- * @param $limit -  certain limit up to which the disclosures are to be displyed.
+ * @param $limit -  certain limit up to which the disclosures are to be displayed.
  */
 function getDisclosureByDate($pid, $limit)
 {
@@ -61,7 +61,7 @@ if ($result != null) {
     foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event = $iter["event"];
-        $event = explode("-", $app_event);
+        $event = explode("-", (string) $app_event);
         $description = $iter["description"];
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";

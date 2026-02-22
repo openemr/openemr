@@ -27,7 +27,7 @@ class AMC_304f_Numerator implements AmcFilterIF
                 return false;
             }
 
-            $businessDaysDifference = businessDaysDifference(date("Y-m-d", strtotime($res['date_created'])), date("Y-m-d", strtotime($res['date_completed'])));
+            $businessDaysDifference = businessDaysDifference(date("Y-m-d", strtotime((string) $res['date_created'])), date("Y-m-d", strtotime((string) $res['date_completed'])));
             if ($businessDaysDifference > 3) {
                 // Records not given within 3 business days of request
                 return false;

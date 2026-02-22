@@ -17,14 +17,18 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 class ScopeValidatorFactory
 {
     /**
-     * @param array $currentServerScopes
+     * @param String[]|ScopeEntity[] $currentServerScopes
      * @return ResourceScopeEntityList[]
      */
     public function buildScopeValidatorArray(array $currentServerScopes): array
     {
         $scopePermissionArray = [];
         foreach ($currentServerScopes as $scope) {
-            $scopeObject = ScopeEntity::createFromString($scope);
+            if ($scope instanceof ScopeEntity) {
+                $scopeObject = $scope;
+            } else {
+                $scopeObject = ScopeEntity::createFromString($scope);
+            }
             if (empty($scopePermissionArray[$scopeObject->getScopeLookupKey()])) {
                 $scopePermissionArray[$scopeObject->getScopeLookupKey()] = new ResourceScopeEntityList($scopeObject->getScopeLookupKey());
             }

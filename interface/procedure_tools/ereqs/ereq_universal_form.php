@@ -20,7 +20,7 @@ use Mpdf\Mpdf;
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
-function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
+function universal_ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
 {
 
     $styleSheet =  <<<STYLES
@@ -71,8 +71,8 @@ STYLES;
         $pdfContent .= '<table>';
 
         if (!empty($procedure['date_collected'])) {
-            $collection_date = date("m/d/Y", strtotime($procedure['date_collected']));
-            $collection_time = date("H:i", strtotime($procedure['date_collected']));
+            $collection_date = date("m/d/Y", strtotime((string) $procedure['date_collected']));
+            $collection_time = date("H:i", strtotime((string) $procedure['date_collected']));
         } else {
             $collection_date = '';
             $collection_time = '';
@@ -135,11 +135,11 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $page = getPatientAgeYMD($patient['DOB']);
-        $ageformat = explode(' ', $page['ageinYMD']);
+        $ageformat = explode(' ', (string) $page['ageinYMD']);
         $pdfContent .= '<table>';
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">Patient Name:</td><td style="width:64%;padding-left:8px;">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Gender:</td><td style="padding-left:8px;">' . text($patient['sex']) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime($patient['DOB'])) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime((string) $patient['DOB'])) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', text($ageformat[0])) . '/' . text(str_replace('m', '', $ageformat[1])) . '/' . text(str_replace('d', '', $ageformat[2])) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Patient Address:</td><td style="padding-left:8px;">' . text($patient['street']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . text($patient['city']) . ', ' . text($patient['state']) . ' ' . text($patient['postal_code']) . '</td></tr>';
@@ -186,7 +186,7 @@ STYLES;
         for ($i = 0; $i < $procedure_left; $i++) {
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
             foreach ($temp_diag as $sub_diag) {
                 $all_diagnoses[] = $sub_diag;
             }
@@ -208,7 +208,7 @@ STYLES;
         for ($i = $procedure_left; $i < $proc_order; $i++) {
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
             foreach ($temp_diag as $sub_diag) {
                 $all_diagnoses[] = $sub_diag;
             }
@@ -247,7 +247,7 @@ STYLES;
             );
             foreach ($aoe_list as $aoe_data) {
                 if ($aoe_data['question_code']) {
-                    if (stripos($all_procedures[$i]['procedure_name'], 'PAP') !== false) {
+                    if (stripos((string) $all_procedures[$i]['procedure_name'], 'PAP') !== false) {
                         if ($aoe_data['answer']) {
                             $aoe_pap .= '<tr><td style="width:36%;text-align:right;">' . text($aoe_data['question_text']) . ':</td><td style="width:64%;padding-left:8px;">' . text($aoe_data['answer']) . '</td></tr>';
                             $pap_proc = 'AOE Test: ' . $all_procedures[$i]['procedure_code'];
@@ -259,7 +259,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLSRCE') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'V':
                                 $ans = "Venous";
                                 break;
@@ -273,7 +273,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLPURP') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'I':
                                 $ans = "Initial";
                                 break;
@@ -346,7 +346,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $race = ["declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
+        $race = ["decline_to_specify" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
         $hispanic = empty($patient['ethnicity']) ? "9" : null;
         $hispanic = ($patient['ethnicity'] === "hisp_or_latin" && empty($hispanic)) ? 1 : 2;
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Blood Lead Information: </b></td>';
@@ -378,13 +378,9 @@ STYLES;
         // need to remove the code system prefix
         $codesOnlyArray = [];
         foreach ($all_diagnoses as $diagnosis) {
-            $splitCode = explode(":", $diagnosis);
+            $splitCode = explode(":", (string) $diagnosis);
             if (!empty($splitCode)) {
-                if (!empty($splitCode[1])) {
-                    $codesOnlyArray[] = $splitCode[1];
-                } else {
-                    $codesOnlyArray[] = $splitCode;
-                }
+                $codesOnlyArray[] = !empty($splitCode[1]) ? $splitCode[1] : $splitCode;
             }
         }
         for ($i = 0; $i < 8; $i++) {
@@ -401,7 +397,7 @@ STYLES;
 
         $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='primary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $billtype = "Unknown";
-        switch (trim($procedure['billing_type'])) {
+        switch (trim((string) $procedure['billing_type'])) {
             case 'T':
                 $billtype = "Third Party";
                 break;
@@ -772,7 +768,7 @@ STYLES;
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
             [$documentationOf, $form_id, $d->id]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo "Message: " . $e->getMessage();
         echo "";
         echo "getCode(): " . $e->getCode();
@@ -781,5 +777,5 @@ STYLES;
     }
 }
 if ($_REQUEST['debug']) {
-    ereqForm($pid, $encounter, $form_id);
+    universal_ereqForm($pid, $encounter, $form_id);
 }

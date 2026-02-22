@@ -30,7 +30,7 @@ class Module
     public function getAutoloaderConfig()
     {
         return [
-            'Laminas\Loader\StandardAutoloader' => [
+            \Laminas\Loader\StandardAutoloader::class => [
                 'namespaces' => [
                     'OpenEMR\\ZendModules\\' . __NAMESPACE__ => __DIR__ . '/src/' . self::NAMESPACE_NAME,
                 ],

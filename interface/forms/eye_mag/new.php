@@ -40,11 +40,7 @@ if (empty($group)) {
     $group = $_SESSION['authProvider'];
 }
 
-if (!$_SESSION['encounter']) {
-    $encounter = date("Ymd");
-} else {
-    $encounter = $_SESSION['encounter'];
-}
+$encounter = !$_SESSION['encounter'] ? date("Ymd") : $_SESSION['encounter'];
 
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, [$pid,$encounter]);

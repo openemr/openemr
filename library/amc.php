@@ -20,7 +20,7 @@
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-//   $date_created - specifically for the uncomplete_safe mode only to ensure safe for duplicate entries.
+//   $date_created - specifically for the incomplete_safe mode only to ensure safe for duplicate entries.
 function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
 
@@ -61,10 +61,10 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
         amcComplete($amc_id, $patient_id, $object_category, $object_id);
     } elseif ($mode == "complete_safe") {
         amcCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
-    } elseif ($mode == "uncomplete") {
-        amcUnComplete($amc_id, $patient_id, $object_category, $object_id);
-    } elseif ($mode == "uncomplete_safe") {
-        amcUnCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
+    } elseif ($mode == "incomplete") {
+        amcInComplete($amc_id, $patient_id, $object_category, $object_id);
+    } elseif ($mode == "incomplete_safe") {
+        amcInCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
     } elseif ($mode == "soc_provided") {
         amcSoCProvided($amc_id, $patient_id, $object_category, $object_id);
     } elseif ($mode == "no_soc_provided") {
@@ -165,7 +165,7 @@ function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
+function amcInComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
     sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", [$amc_id,$patient_id,$object_category,$object_id]);
 }
@@ -177,7 +177,7 @@ function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id =
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 //   $date_created - date created.
-function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
+function amcInCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
     sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", [$amc_id,$patient_id,$object_category,$object_id,$date_created]);
 }
@@ -305,14 +305,14 @@ function businessDaysDifference($startDate, $endDate, $holidays = [])
 {
   //The total number of days between the two dates. We compute the no. of seconds and divide it to 60*60*24
   //We add one to include both dates in the interval.
-    $days = (strtotime($endDate) - strtotime($startDate)) / 86400 + 1;
+    $days = (strtotime((string) $endDate) - strtotime((string) $startDate)) / 86400 + 1;
 
     $no_full_weeks = floor($days / 7);
     $no_remaining_days = fmod($days, 7);
 
   //It will return 1 if it's Monday,.. ,7 for Sunday
-    $the_first_day_of_week = date("N", strtotime($startDate));
-    $the_last_day_of_week = date("N", strtotime($endDate));
+    $the_first_day_of_week = date("N", strtotime((string) $startDate));
+    $the_last_day_of_week = date("N", strtotime((string) $endDate));
 
   //---->The two can be equal in leap years when february has 29 days, the equal sign is added here
   //In the first case the whole interval is within a week, in the second case the interval falls in two weeks.
@@ -353,9 +353,9 @@ function businessDaysDifference($startDate, $endDate, $holidays = [])
 
   //We subtract the holidays
     foreach ($holidays as $holiday) {
-        $time_stamp = strtotime($holiday);
+        $time_stamp = strtotime((string) $holiday);
         //If the holiday doesn't fall in weekend
-        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
+        if (strtotime((string) $startDate) <= $time_stamp && $time_stamp <= strtotime((string) $endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
             $workingDays--;
         }
     }

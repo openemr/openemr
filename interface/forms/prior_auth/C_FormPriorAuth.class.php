@@ -17,7 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormPriorAuth extends Controller
 {
-    var $template_dir;
+    public $template_dir;
 
     function __construct($template_mod = "general")
     {
@@ -40,11 +40,7 @@ class C_FormPriorAuth extends Controller
 
     function view_action($form_id)
     {
-        if (is_numeric($form_id)) {
-            $prior_auth = new FormPriorAuth($form_id);
-        } else {
-            $prior_auth = new FormPriorAuth();
-        }
+        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($form_id) : new FormPriorAuth();
 
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);

@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    zerai
+ * @author    zerai
  * @author    Dixon Whitmire
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 zerai
@@ -30,7 +30,6 @@ class AaLoginTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     #[Test]

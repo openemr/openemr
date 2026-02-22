@@ -20,15 +20,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Search or Add Patient", xl("Search or Add Patient"));
 }
 
 $CPR = 4; // cells per row
@@ -37,21 +36,12 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
   'var(--yellow)' : $GLOBALS['layout_search_color'];
 
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
 
 $grparr = [];
 getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
-
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_id, seq");
-}
 
 // Determine layout field search treatment from its data type:
 // 1 = text field
@@ -69,7 +59,7 @@ function getSearchClass($data_type)
     };
 }
 
-$fres = getLayoutRes();
+$fres = getLayoutRes($SHORT_FORM);
 ?>
 <!DOCTYPE html>
 <html>
@@ -331,11 +321,11 @@ function searchme() {
  var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
 
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (str_starts_with($field_id, 'em_')) {
+    if (str_starts_with((string) $field_id, 'em_')) {
         continue;
     }
 
@@ -400,7 +390,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     } ?>
                     <?php
 
-                    function end_cell(): void
+                    function comprehensive_end_cell(): void
                     {
                         global $item_count;
                         if ($item_count > 0) {
@@ -409,10 +399,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    function end_row(): void
+                    function comprehensive_end_row(): void
                     {
                         global $cell_count, $CPR, $BS_COL_CLASS;
-                        end_cell();
+                        comprehensive_end_cell();
                         if ($cell_count > 0 && $cell_count < $CPR) {
                             // Create a cell occupying the remaining bootstrap columns.
                             // BS columns will be less than 12 if $CPR is not 2, 3, 4, 6 or 12.
@@ -425,11 +415,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $cell_count = 0;
                     }
 
-                    function end_group(): void
+                    function comprehensive_end_group(): void
                     {
                         global $last_group, $SHORT_FORM;
-                        if (strlen($last_group) > 0) {
-                            end_row();
+                        if (strlen((string) $last_group) > 0) {
+                            comprehensive_end_row();
                             echo "</div>\n"; // end BS container
                             if (!$SHORT_FORM) {
                                 echo "</div>\n";
@@ -452,13 +442,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $data_type  = $frow['data_type'];
                         $field_id   = $frow['field_id'];
                         $list_id    = $frow['list_id'];
-                        $currvalue  = '';
+                        $currvalue  = null;
 
                         // Accumulate action conditions into a JSON expression for the browser side.
                         accumActionConditions($frow, $condition_str);
 
-                        if (str_starts_with($field_id, 'em_')) {
-                            $tmp = substr($field_id, 3);
+                        if (str_starts_with((string) $field_id, 'em_')) {
+                            $tmp = substr((string) $field_id, 3);
                             if (isset($result2[$tmp])) {
                                 $currvalue = $result2[$tmp];
                             }
@@ -469,9 +459,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
 
                         // Handle a data category (group) change.
-                        if (strcmp($this_group, $last_group) != 0) {
+                        if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {
-                                end_group();
+                                comprehensive_end_group();
                                 $group_seq++;    // ID for DIV tags
                                 $group_name = $grparr[$this_group]['grp_title'];
 
@@ -494,7 +484,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
-                            } elseif (strlen($last_group) == 0) {
+                            } elseif (strlen((string) $last_group) == 0) {
                                 echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -503,7 +493,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                            end_row();
+                            comprehensive_end_row();
                             echo "<div class='form-group row'>";
                         }
 
@@ -515,7 +505,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         // Handle starting of a new label cell.
                         if ($titlecols > 0) {
-                            end_cell();
+                            comprehensive_end_cell();
                             $bs_cols = $titlecols * intval(12 / $CPR);
                             echo "<div class='$BS_COL_CLASS-$bs_cols ";
                             echo ($frow['uor'] == 2) ? "required" : "";
@@ -541,7 +531,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // Handle starting of a new data cell.
                         if ($datacols > 0) {
                             $id_field_text = "text_" . $frow['field_id'];
-                            end_cell();
+                            comprehensive_end_cell();
                             $bs_cols = $datacols * intval(12 / $CPR);
                             echo "<div class='$BS_COL_CLASS-$bs_cols'";
                             echo " id='" . attr($id_field_text) . "'";
@@ -561,9 +551,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // set flag so we don't bring in session pid data for a new pt form
                         $frow['blank_form'] = false;
                         if (
-                            $frow['data_type'] == "52"
-                            || $frow['data_type'] == "53"
-                            || $frow['data_type'] == "54"
+                            in_array($frow['data_type'], ["52", "53", "54"])
                         ) {
                             $frow['blank_form'] = true;
                         }
@@ -575,7 +563,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    end_group();
+                    comprehensive_end_group();
                     ?>
 
                     <?php
@@ -617,7 +605,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                   <?php
                                     foreach ($insurancei as $iid => $iname) {
                                         echo "<option value='" . attr($iid) . "'";
-                                        if (!empty($result3["provider"]) && (strtolower($iid) == strtolower($result3["provider"]))) {
+                                        if (!empty($result3["provider"]) && (strtolower((string) $iid) == strtolower((string) $result3["provider"]))) {
                                             echo " selected";
                                         }
                                         echo ">" . text($iname) . "</option>\n";
@@ -868,7 +856,7 @@ $(function () {
             "ORDER BY group_id, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (str_starts_with($field_id, 'em_')) {
+            if (str_starts_with((string) $field_id, 'em_')) {
                 continue;
             }
 
@@ -908,10 +896,10 @@ $(function () {
 
 // Set onclick/onfocus handlers for toggling background color.
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (str_starts_with($field_id, 'em_')) {
+    if (str_starts_with((string) $field_id, 'em_')) {
         continue;
     }
 

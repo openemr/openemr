@@ -78,7 +78,7 @@ class CreateReleaseChangelogCommand extends Command
             $uniqueCategories = [];
             $categorizedIssues = array_map(function ($issue) use (&$uniqueCategories) {
                 // note the limit here means to limit our array elements to a maximum of two values, the last value will be the remainder of the string
-                $categoryParts = explode(":", $issue['title'], 2);
+                $categoryParts = explode(":", (string) $issue['title'], 2);
                 $title = $issue['title'];
                 $category = "bug";
                 $isDevelopment = false;
@@ -110,7 +110,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting issues from github. Exception message was: " . $exception->getMessage() . "\n";
             return Command::FAILURE;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting issues from github. Exception message was: " . $e->getMessage() . "\n";
             return Command::FAILURE;
         }
@@ -229,7 +229,7 @@ class CreateReleaseChangelogCommand extends Command
                     throw new \RuntimeException("Error getting milestones from github.  Too many API calls\n");
                 }
                 return false;
-            } else if ($response->getStatusCode() === 403) {
+            } elseif ($response->getStatusCode() === 403) {
                 $this->printRateLimitMessage($response);
                 throw new \RuntimeException("Error getting milestones from github\n");
             } else {
@@ -242,7 +242,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting milestones from github. Exception message was: " . $exception->getMessage() . "\n";
             throw $exception;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting milestones from github. Exception message was: " . $e->getMessage() . "\n";
             throw $e;
         }
@@ -295,7 +295,7 @@ class CreateReleaseChangelogCommand extends Command
 
         $link = $headers['Link'][0] ?? null;
         if (!empty($link)) {
-            $linkParts = explode(",", $link);
+            $linkParts = explode(",", (string) $link);
             foreach ($linkParts as $linkPart) {
                 $linkPart = trim($linkPart);
                 $linkPartParts = explode(";", $linkPart);
@@ -351,7 +351,7 @@ class CreateReleaseChangelogCommand extends Command
                     $headers = $response->getHeaders();
                     $issues = array_merge($issues, json_decode($response->getBody(), true));
                     $nextLink = $this->getNextLink($headers);
-                } else if ($response->getStatusCode() === 403) {
+                } elseif ($response->getStatusCode() === 403) {
                     $this->printRateLimitMessage($response);
                     $nextLink = false;
                 } else {
@@ -361,14 +361,14 @@ class CreateReleaseChangelogCommand extends Command
             if ($loopBreak >= self::MAX_API_FETCH_COUNT) {
                 throw new \RuntimeException("Error getting issues from github.  Too many API calls\n");
             }
-        } else if ($response->getStatusCode() === 403) {
+        } elseif ($response->getStatusCode() === 403) {
             $this->printRateLimitMessage($response);
         } else {
             echo "Error getting issues from github\n";
             return [];
         }
         // sort the issues
-        usort($issues, fn($a, $b): int => strcmp($a['title'], $b['title']));
+        usort($issues, fn($a, $b): int => strcmp((string) $a['title'], (string) $b['title']));
         return $issues;
     }
 }

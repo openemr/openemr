@@ -25,6 +25,6 @@ class StringUtils
 {
     public static function trimExcessWhitespace($string)
     {
-        return trim(preg_replace('/\s+/', ' ', $string));
+        return trim((string) preg_replace('/\s+/', ' ', (string) $string));
     }
 }

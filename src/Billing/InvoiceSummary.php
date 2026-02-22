@@ -67,10 +67,10 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] += $amount;
 
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] += $amount;
 
             // Pass the code type, code and code_text fields
@@ -141,11 +141,7 @@ class InvoiceSummary
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
-                if ($row['account_code'] == "PCP") {
-                    $code = "Copay";
-                } else {
-                    $code = "Claim level";
-                }
+                $code = $row['account_code'] == "PCP" ? "Copay" : "Claim level";
             }
 
             if ($row['modifier']) {
@@ -153,14 +149,14 @@ class InvoiceSummary
             }
 
             $ins_id = (int) $row['payer_id'];
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] -= $row['adj_amount'];
 
-            $codes[$code]['adj'] = $codes[$code]['adj'] ?? null;
+            $codes[$code]['adj'] ??= null;
             $codes[$code]['adj'] += $row['adj_amount'];
             if ($ins_id) {
                 $codes[$code]['ins'] = $ins_id;
@@ -173,7 +169,7 @@ class InvoiceSummary
                 }
 
                 $tmp = [];
-                $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
+                $paydate = empty($row['deposit_date']) ? substr((string) $row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
                     $tmp['pmt_method'] = $row['payment_method'];
@@ -188,7 +184,7 @@ class InvoiceSummary
 
                 if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
                     $tmp['chg'] = 0 - $row['adj_amount'];
-                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim($row['follow_up_note'])) : $row['memo'];
+                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim((string) $row['follow_up_note'])) : $row['memo'];
                     $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
                     $tmp['rsn'] = str_replace("Ins1", ($ins_data['primary'] ?? ''), $tmp['rsn']);
                     $tmp['rsn'] = str_replace("Ins2", ($ins_data['secondary'] ?? ''), $tmp['rsn']);
@@ -238,7 +234,7 @@ class InvoiceSummary
             return $next_level;
         }
 
-        if (SLEOB::arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level)) {
+        if (SLEOB::arGetPayerID($patient_id, substr((string) $row['date'], 0, 10), $next_level)) {
             return $next_level;
         }
 

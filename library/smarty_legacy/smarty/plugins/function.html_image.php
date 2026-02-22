@@ -56,12 +56,12 @@ function smarty_function_html_image($params, &$smarty)
             case 'dpi':
             case 'path_prefix':
             case 'basedir':
-                $$_key = $_val;
+                ${$_key} = $_val;
                 break;
 
             case 'alt':
                 if(!is_array($_val)) {
-                    $$_key = smarty_function_escape_special_chars($_val);
+                    ${$_key} = smarty_function_escape_special_chars($_val);
                 } else {
                     $smarty->trigger_error("html_image: extra attribute '$_key' cannot be an array", E_USER_NOTICE);
                 }
@@ -88,11 +88,7 @@ function smarty_function_html_image($params, &$smarty)
         return;
     }
 
-    if (str_starts_with($file, '/')) {
-        $_image_path = $basedir . $file;
-    } else {
-        $_image_path = $file;
-    }
+    $_image_path = str_starts_with($file, '/') ? $basedir . $file : $file;
 
     if(!isset($params['width']) || !isset($params['height'])) {
         if(!$_image_data = @getimagesize($_image_path)) {
@@ -124,11 +120,7 @@ function smarty_function_html_image($params, &$smarty)
     }
 
     if(isset($params['dpi'])) {
-        if(strstr($server_vars['HTTP_USER_AGENT'], 'Mac')) {
-            $dpi_default = 72;
-        } else {
-            $dpi_default = 96;
-        }
+        $dpi_default = strstr((string) $server_vars['HTTP_USER_AGENT'], 'Mac') ? 72 : 96;
         $_resize = $dpi_default/$params['dpi'];
         $width = round($width * $_resize);
         $height = round($height * $_resize);

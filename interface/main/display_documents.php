@@ -18,13 +18,12 @@
 require_once('../globals.php');
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Lab Documents")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
 }
 
 $curdate = date_create(date("Y-m-d"));
@@ -110,7 +109,11 @@ $display_div = "style='display:block;'";
                 return false;
             }
         }
-        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?form_from_doc_date=' + encodeURIComponent(frmdate) + '&form_to_doc_date=' + encodeURIComponent(todate);
+        const params = new URLSearchParams({
+            form_from_doc_date: frmdate,
+            form_to_doc_date: todate
+        });
+        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?' + params;
     }
 
 </script>
@@ -214,18 +217,18 @@ $display_div = "style='display:block;'";
                         $notes = [];
                         $note = '';
                         if ($row['docNotes']) {
-                            $notes = explode("|", $row['docNotes']);
-                            $dates = explode("|", $row['docDates']);
+                            $notes = explode("|", (string) $row['docNotes']);
+                            $dates = explode("|", (string) $row['docDates']);
                         }
 
                         for ($i = 0; $i < count($notes); $i++) {
-                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime($dates[$i])))) . " : " . text($notes[$i]) . "<br />";
+                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime((string) $dates[$i])))) . " : " . text($notes[$i]) . "<br />";
                         }
                         ?>
                         <tr class="text">
-                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))); ?> </td>
+                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])))); ?> </td>
                             <td class="linkcell">
-                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
+                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename((string) $row['url'])); ?></a>
                             </td>
                             <td><?php echo text($row['pname']); ?> </td>
                             <td><?php echo $note; ?> &nbsp;</td>

@@ -13,14 +13,17 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
+
 /**
-* @global $srcdir
-* @global $attendant_type
-* @global $therapy_group
-* @global $pid
-* @global $userauthorized
-* @global $rootdir
-*/
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $attendant_type
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var int $therapy_group
+ */
+
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
@@ -32,15 +35,18 @@ use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -59,15 +65,8 @@ if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write
     exit();
 }
 
-if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
-/**
- * @var EventDispatcher
- */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-} else {
-    throw new Exception("Could not get EventDispatcher from kernel", 1);
-}
-// instantiate the locator at the beginning so our file caching can be re-used.
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+// instantiate the locator at the beginning so our file caching can be reused.
 $formLocator = new FormLocator();
 ?>
 <!DOCTYPE html>
@@ -86,7 +85,7 @@ $esignApi = new Api();
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
     </script>
     <script src="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/report.js"></script>
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/style.css">
@@ -95,7 +94,7 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
 <?php
 // If the user requested attachment of any orphaned procedure orders, do it.
 if (!empty($_GET['attachid'])) {
-    $attachid = explode(',', $_GET['attachid']);
+    $attachid = explode(',', (string) $_GET['attachid']);
     foreach ($attachid as $aid) {
         $aid = intval($aid);
         if (!$aid) {
@@ -186,7 +185,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 }
             );
         });
@@ -206,7 +205,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 }
             );
         });
@@ -234,7 +233,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 }
             );
         });
@@ -243,7 +242,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             if ($('#med_reconc_perf').prop('checked')) {
                 var mode = "complete";
             } else {
-                var mode = "uncomplete";
+                var mode = "incomplete";
             }
             top.restoreSession();
             $.post("../../../library/ajax/amc_misc_data.php",
@@ -254,7 +253,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 }
             );
         });
@@ -273,7 +272,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 }
             );
         });
@@ -318,7 +317,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
     // Process click on Delete link.
     function deleteme() {
-        dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
+        const params = new URLSearchParams({
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+            encounterid: <?php echo js_escape($encounter); ?>
+        });
+        dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {
             allowResize: false,
             allowDrag: true,
         });
@@ -330,7 +333,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
         <?php
         $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", [
-            $_SESSION['pid'],
+            $session->get('pid'),
             $encounter
         ]);
         $encounterId = (!empty($result['parent_encounter_id'])) ? $result['parent_encounter_id'] : $result['id'];
@@ -349,8 +352,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
     // Called to open the data entry form a specified encounter form instance.
     function openEncounterForm(formdir, formname, formid) {
-        var url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?formname=' +
-            encodeURIComponent(formdir) + '&id=' + encodeURIComponent(formid);
+        const params = new URLSearchParams({
+            id: formid,
+            formname: formdir
+        });
+        const url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
         if (formdir == 'newpatient' || !parent.twAddFrameTab) {
             top.restoreSession();
             location.href = url;
@@ -419,7 +425,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             parent.frames[0].location.href = sel;
         } else {
             if (FormNameValueArray[1] == 'questionnaire_assessments') {
-                sel += "&questionnaire_form=" + encodeURIComponent(label);
+                const params = new URLSearchParams({ questionnaire_form: label });
+                sel += "&" + params;
             }
             parent.twAddFrameTab('enctabs', label, sel);
         }
@@ -522,7 +529,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 </head>
 <body>
 <nav>
-    <?php //DYNAMIC FORM RETREIVAL
+    <?php //DYNAMIC FORM RETRIEVAL
     require_once("$srcdir/registry.inc.php");
 
     $reg = getFormsByCategory();
@@ -554,7 +561,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             $pass_sens = false;
         }
         foreach ($reg as $item) {
-            $tmp = explode('|', $item['aco_spec']);
+            $tmp = explode('|', (string) $item['aco_spec']);
             if ($pass_sens) {
                 if (!empty($tmp[1])) {
                     if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
@@ -613,7 +620,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     });
 
     $dateres = getEncounterDateByEncounter($encounter);
-    $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+    $encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
     $providerIDres = getProviderIdOfEncounter($encounter);
     $providerNameRes = getProviderName($providerIDres, false);
 
@@ -636,7 +643,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
@@ -650,13 +657,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     <div id="encounter_forms" class="container-xl">
         <div class='encounter-summary-container'>
             <?php
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-            if ($dispatcher instanceof EventDispatcher) {
-                $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
-                $event->setGroupId($groupId ?? null);
-                $event->setPid($pid ?? null);
-                $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
-            }
+            $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+            $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
+            $event->setGroupId($groupId ?? null);
+            $event->setPid($pid ?? null);
+            $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
             ?>
             <div class='encounter-summary-column'>
                 <div>
@@ -666,7 +671,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     $pc_catid = fetchCategoryIdByEncounter($encounter);
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
                     if ($postCalendarCategoryACO) {
-                        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                        $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                         $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                         $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
                     } else { // if no aco is set for category
@@ -812,7 +817,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
         <?php
         if ($attendant_type == 'pid') {
-            $docs_list = getDocumentsByEncounter($pid, $_SESSION['encounter']);
+            $docs_list = getDocumentsByEncounter($pid, $session->get('encounter'));
         } else {
             // already doesn't exist document for therapy groups
             $docs_list = [];
@@ -832,14 +837,14 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     $note = '';
                     if ($noteData) {
                         $notes = [];
-                        $notes = explode("|", $noteData['docNotes']);
-                        $dates = explode("|", $noteData['docDates']);
+                        $notes = explode("|", (string) $noteData['docNotes']);
+                        $dates = explode("|", (string) $noteData['docDates']);
                         for ($i = 0, $iMax = count($notes); $i < $iMax; $i++) {
                             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
                         }
                     }
                     ?>
-                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename($doc_iter['name'])); ?></a>
+                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
                         <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png" /></a>
                     <?php } ?>
@@ -870,7 +875,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
                 $aco_spec = false;
 
-                if (str_starts_with($formdir, 'LBF')) {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // Skip LBF forms that we are not authorized to see.
                     $lrow = sqlQuery(
                         "SELECT grp_aco_spec " .
@@ -880,7 +885,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     );
                     if (!empty($lrow)) {
                         if (!empty($lrow['grp_aco_spec'])) {
-                            $aco_spec = explode('|', $lrow['grp_aco_spec']);
+                            $aco_spec = explode('|', (string) $lrow['grp_aco_spec']);
                             if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                                 continue;
                             }
@@ -890,7 +895,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     // Skip non-LBF forms that we are not authorized to see.
                     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
                     if (!empty($tmp['aco_spec'])) {
-                        $aco_spec = explode('|', $tmp['aco_spec']);
+                        $aco_spec = explode('|', (string) $tmp['aco_spec']);
                         if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                             continue;
                         }
@@ -898,7 +903,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 }
 
                 // $form_info = getFormInfoById($iter['id']);
-                $form_class_list = (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
+                $form_class_list = (strtolower(substr((string) $iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
                 echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
                 $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
@@ -962,7 +967,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
                 }
 
-                if (str_starts_with($formdir, 'LBF')) {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // A link for a nice printout of the LBF
                     echo "<a target='_blank' " .
                         "href='$rootdir/forms/LBF/printable.php?" .
@@ -1011,13 +1016,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             echo xlt("Not authorized to view this encounter");
         }
 
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        if ($dispatcher instanceof EventDispatcher) {
-            $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
-            $event->setGroupId($groupId ?? null);
-            $event->setPid($pid ?? null);
-            $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
-        }
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
         ?>
 
     </div> <!-- end large encounter_forms DIV -->

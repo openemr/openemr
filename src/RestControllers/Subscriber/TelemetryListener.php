@@ -27,11 +27,11 @@ class TelemetryListener implements EventSubscriberInterface
             $userRole = $request->attributes->get('userRole', 'UNKNOWN');
             (new TelemetryService())->trackApiRequestEvent([
                 'eventType' => 'API',
-                'eventLabel' => strtoupper($session->get('api', 'UNKNOWN')),
+                'eventLabel' => strtoupper((string) $session->get('api', 'UNKNOWN')),
                 'eventUrl' => $request->getRequestMethod() . ' ' . $request->getPathInfo(),
                 'eventTarget' => $userRole,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $kernel = $event->getKernel();
             if ($kernel instanceof OEHttpKernel) {
                 $logger = $kernel->getSystemLogger();

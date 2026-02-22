@@ -30,7 +30,7 @@ class Module
         return [
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
             // we need to figure out why that is so we can remove this unnecessary piece.
-            'Laminas\Loader\StandardAutoloader' => [
+            \Laminas\Loader\StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ],

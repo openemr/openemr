@@ -5,8 +5,10 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,23 +18,13 @@
  */
 class fee_sheet_option
 {
-    function __construct($c, $ct, $desc, $price, $category)
+    function __construct(public $code, public $code_type, public $description, public $price, public $category)
     {
-        $this->code = $c;
-        $this->code_type = $ct;
-        $this->description = $desc;
-        $this->price = $price;
-        $this->category = $category;
-        if ($price == null) {
+        if ($this->price == null) {
             $this->price = xl("Not Specified");
         }
     }
-    public $code;
-    public $code_type;
-    public $description;
-    public $price;
     public $fee_display;
-    public $category;
 }
 /**
  * get a list of fee sheet options

@@ -57,14 +57,19 @@ require_once("$srcdir/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
@@ -86,8 +91,7 @@ if (
     !AclMain::aclCheckCore('acct', 'bill') &&
     !AclMain::aclCheckCore('acct', 'disc')
 ) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Client Receipt")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill or acct/disc: Client Receipt", xl("Client Receipt"));
 }
 
 // This will be used for SQL timestamps that we write.
@@ -102,16 +106,14 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Format a money amount with decimals but no other decoration.
-// Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
-}
-
-// Get a list item's title, translated if appropriate.
-//
-function getListTitle($list, $option)
+/**
+ * Get a list item's title, translated if appropriate.
+ *
+ * @param string $list
+ * @param string $option
+ * @return string
+ */
+function checkout_getListTitle($list, $option)
 {
     $row = sqlQuery(
         "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
@@ -365,16 +367,16 @@ function ippfReceiptDetailLine(
     echo "  <td>" . text($code) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false, true)) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false)) . "</td>\n";
 
     if (!empty($GLOBALS['gbl_checkout_charges'])) {
-        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
     }
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
@@ -386,13 +388,13 @@ function ippfReceiptDetailLine(
     // Adjustment and its description.
     if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
         echo "  <td class='text-right'>" . text($memo) . "</td>\n";
-        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
     }
 
     if ($TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
@@ -412,8 +414,8 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     // Resolve the payment method portion of the memo to display properly.
     if (!empty($method)) {
-        $tmp = explode(' ', $method, 2);
-        $method = getListTitle('paymethod', $tmp[0]);
+        $tmp = explode(' ', (string) $method, 2);
+        $method = checkout_getListTitle('paymethod', $tmp[0]);
         if (isset($tmp[1])) {
             // If the description is not interesting then let it hold the check number
             // or similar, otherwise append that to the payment method.
@@ -426,9 +428,9 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && !str_starts_with($billtime, '0000')) {
+    if (!empty($billtime) && !str_starts_with((string) $billtime, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
-            text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'";
+            text(oeFormatShortDate($billtime)) . attr(substr((string) $billtime, 10)) . "'";
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
@@ -473,12 +475,14 @@ function invoiceChecksum($pid, $encounter)
     return (0 + $row1['checksum']) ^ (0 + $row2['checksum']) ^ (0 + $row3['checksum']) ^ (0 + $row4['checksum']);
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function ippf_generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;
     global $web_root, $webserver_root, $code_types;
@@ -486,6 +490,8 @@ function generate_receipt($patient_id, $encounter = 0): void
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
     global $facilityService, $alertmsg;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {
@@ -506,7 +512,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
     $invoice_refno = $ferow['invoice_refno'];
 
     // Generate checksum.
@@ -563,11 +569,17 @@ function generate_receipt($patient_id, $encounter = 0): void
         printme('*');
     }
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete button.
     function deleteme() {
-        dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+        const params = new URLSearchParams({
+            billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        });
+        dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
         return false;
     }
+    // AI-generated code end
 
     // Called by the deleteme.php window on a successful delete.
     function imdeleted() {
@@ -576,18 +588,24 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     var voidaction  = ''; // saves action argument from voidme()
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Submit the form to complete a void operation.
     function voidwrap(form_reason, form_notes) {
         top.restoreSession();
-        document.location.href = 'pos_checkout.php?ptid=' + <?php echo js_url($patient_id); ?> +
-          '&' + encodeURIComponent(voidaction) + '=' + <?php echo js_url($encounter); ?> +
-          '&form_checksum=' + <?php echo js_url($current_checksum); ?> +
-          '&form_reason=' + encodeURIComponent(form_reason) +
-          '&form_notes='  + encodeURIComponent(form_notes) +
-          '<?php if (!empty($_GET['framed'])) {
-                echo '&framed=1';} ?>';
+        const params = new URLSearchParams({
+            ptid: <?php echo js_escape($patient_id); ?>,
+            form_checksum: <?php echo js_escape($current_checksum); ?>,
+            form_reason: form_reason,
+            form_notes: form_notes
+        });
+        params.append(voidaction, <?php echo js_escape($encounter); ?>);
+        <?php if (!empty($_GET['framed'])) { ?>
+        params.append('framed', '1');
+        <?php } ?>
+        document.location.href = 'pos_checkout.php?' + params.toString();
         return false;
     }
+    // AI-generated code end
 
     // Process click on a void option.
     // action can be 'regen', 'void' or 'voidall'.
@@ -1091,7 +1109,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     <?php
 }
 
-// end function generate_receipt()
+// end function ippf_generate_receipt()
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -1118,7 +1136,7 @@ function write_form_headers(): void
         "SELECT date FROM form_encounter WHERE pid = ? AND encounter = ?",
         [$patient_id, $encounter_id]
     );
-    $encounter_date = substr($ferow['date'], 0, 10);
+    $encounter_date = substr((string) $ferow['date'], 0, 10);
     ?>
    <tr>
       <td colspan='<?php echo 5 + $num_optional_columns; ?>' align='center' class='title'>
@@ -1261,7 +1279,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (str_ends_with($price, '00')) {
+    if (str_ends_with((string) $price, '00')) {
         $price = formatMoneyNumber($price);
     }
 
@@ -1278,7 +1296,7 @@ function write_form_line_ippf(
 
     // Compute the string of numeric tax rates to store with the charge line.
     $taxnumrates = '';
-    $arates = explode(':', $taxrates);
+    $arates = explode(':', (string) $taxrates);
     foreach ($taxes as $taxid => $taxarr) {
         $rate = $taxarr[1];
         if (empty($arates) || !in_array($taxid, $arates)) {
@@ -1434,21 +1452,6 @@ function write_old_payment_line($pay_type, $date, $method, $reference, $amount):
     ++$lino;
 }
 
-// Mark the tax rates that are referenced in this invoice.
-function markTaxes($taxrates): void
-{
-    global $taxes;
-    $arates = explode(':', $taxrates);
-    if (empty($arates)) {
-        return;
-    }
-    foreach ($arates as $value) {
-        if (!empty($taxes[$value])) {
-            $taxes[$value][2] = '1';
-        }
-    }
-}
-
 // Create the taxes array.  Key is tax id, value is
 // (description, rate, indicator).  Indicator seems to be unused.
 $taxes = [];
@@ -1498,7 +1501,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -1520,7 +1523,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Get the posting date from the form as yyyy-mm-dd.
     $postdate = substr($this_bill_date, 0, 10);
-    if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+    if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $_POST['form_date'], $matches)) {
         $postdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
     }
     $dosdate = $postdate; // not sure if this is appropriate
@@ -1547,7 +1550,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $code      = $line['code'];
         $id        = $line['id'];
         $chargecat = $line['chargecat'] ?? '';
-        $amount    = formatMoneyNumber(trim($line['amount']));
+        $amount    = formatMoneyNumber(trim((string) $line['amount']));
         $linetax   = 0;
 
         // Skip saving taxes and adjustments for billed items.
@@ -1589,38 +1592,28 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
         // If there is an adjustment for this line, insert it.
         if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
-            $adjust = 0.00 + trim($line['adjust']);
-            $memo = formDataCore($line['memo']);
+            $adjust = 0.00 + trim((string) $line['adjust']);
+            $memo = $line['memo'];
             if ($adjust != 0 || $memo !== '') {
                 // $memo = xl('Discount');
                 if ($memo === '') {
-                    $memo = formData('form_discount_type');
+                    $memo = trimPost('form_discount_type');
                 }
-                sqlBeginTrans();
-                $sequence_no = sqlQuery(
-                    "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-                    "pid = ? AND encounter = ?",
-                    [$patient_id, $encounter_id]
-                );
-                $query = "INSERT INTO ar_activity ( " .
-                    "pid, encounter, sequence_no, code_type, code, modifier, payer_type, " .
-                    "post_user, post_time, post_date, session_id, memo, adj_amount " .
-                    ") VALUES ( " .
-                    "?, ?, ?, ?, ?, '', '0', ?, ?, ?, '0', ?, ? " .
-                    ")";
-                sqlStatement($query, [
-                    $patient_id,
-                    $encounter_id,
-                    $sequence_no['increment'],
-                    $code_type,
-                    $code,
-                    $_SESSION['authUserID'],
-                    $this_bill_date,
-                    $postdate,
-                    $memo,
-                    $adjust
+                $recorder = new Recorder();
+                $recorder->recordActivity([
+                    'patientId' => $patient_id,
+                    'encounterId' => $encounter_id,
+                    'codeType' => $code_type,
+                    'code' => $code,
+                    'modifier' => '',
+                    'payerType' => '0',
+                    'postUser' => $session->get('authUserID'),
+                    'sessionId' => '0',
+                    'memo' => $memo,
+                    'payAmount' => '0.0',
+                    'adjustmentAmount' => $adjust,
+                    'postDate' => $postdate,
                 ]);
-                sqlCommitTrans();
             }
         }
 
@@ -1647,34 +1640,26 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // Post discount.
     if ($_POST['form_discount'] != 0) {
         if ($GLOBALS['discount_by_money']) {
-            $amount  = formatMoneyNumber(trim($_POST['form_discount']));
+            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
         } else {
-            $amount  = formatMoneyNumber(trim($_POST['form_discount']) * $form_amount / 100);
+            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
         }
-        $memo = formData('form_discount_type');
-        sqlBeginTrans();
-        $sequence_no = sqlQuery(
-            "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-            "pid = ? AND encounter = ?",
-            [$patient_id, $encounter_id]
-        );
-        $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
-            "post_date, session_id, memo, adj_amount " .
-            ") VALUES ( " .
-            "?, ?, ?, '', '', '0', ?, ?, ?, '0', ?, ? " .
-            ")";
-        sqlStatement($query, [
-            $patient_id,
-            $encounter_id,
-            $sequence_no['increment'],
-            $_SESSION['authUserID'],
-            $this_bill_date,
-            $postdate,
-            $memo,
-            $amount
+        $memo = trimPost('form_discount_type');
+        $recorder = new Recorder();
+        $recorder->recordActivity([
+            'patientId' => $patient_id,
+            'encounterId' => $encounter_id,
+            'codeType' => '',
+            'code' => '',
+            'modifier' => '',
+            'payerType' => '0',
+            'postUser' => $session->get('authUserID'),
+            'sessionId' => '0',
+            'payAmount' => '0.0',
+            'adjustmentAmount' => $amount,
+            'memo' => $memo,
+            'postDate' => $postdate,
         ]);
-        sqlCommitTrans();
     }
 
     // Post the payments.
@@ -1682,7 +1667,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $lines = $_POST['payment'];
         for ($lino = 0; isset($lines[$lino]['amount']); ++$lino) {
             $line = $lines[$lino];
-            $amount = formatMoneyNumber(trim($line['amount']));
+            $amount = formatMoneyNumber(trim((string) $line['amount']));
             if ($amount != 0.00) {
                 $method = $line['method'];
                 $refno  = $line['refno'];
@@ -1698,8 +1683,6 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     '',
                     0,
                     $method,
-                    0,
-                    $this_bill_date,
                     '',
                     $postdate
                 );
@@ -1711,9 +1694,9 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     if (!$current_irnumber) {
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
-            $invoice_refno = formData('form_irnumber', 'P', true);
+            $invoice_refno = trimPost('form_irnumber');
         } else {
-            $invoice_refno = add_escape_custom(BillingUtilities::updateInvoiceRefNumber());
+            $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
         if ($invoice_refno) {
             sqlStatement(
@@ -1727,7 +1710,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // "Checked out".
     updateAppointmentStatus($patient_id, $dosdate, '>');
 
-    generate_receipt($patient_id, $encounter_id);
+    ippf_generate_receipt($patient_id, $encounter_id);
     exit();
 }
 
@@ -1754,7 +1737,7 @@ if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
 //
 if ($patient_id && !empty($_GET['enc'])) {
     if (empty($_GET['pdf'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        ippf_generate_receipt($patient_id, $_GET['enc']);
     } else {
         // PDF receipt is requested. In this case we are probably in a new window.
         require_once($GLOBALS['OE_SITE_DIR'] . "/" . $GLOBALS['gbl_custom_receipt']);
@@ -1806,14 +1789,13 @@ if (!$encounter_id) {
 // If there are none, just redisplay the last receipt and exit.
 //
 if (!$encounter_id) {
-    generate_receipt($patient_id);
+    ippf_generate_receipt($patient_id);
     exit();
 }
 
 // Form requires billing permission.
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 // We have $patient_id and $encounter_id. Generate checksum if not already done.
@@ -2023,8 +2005,8 @@ while ($urow = sqlFetchArray($ures)) {
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
         if (
-            preg_match('/ADJ=(\w+)/', $tmprow['notes'], $matches) ||
-            preg_match('/ADJ="(.*?)"/', $tmprow['notes'], $matches)
+            preg_match('/ADJ=(\w+)/', (string) $tmprow['notes'], $matches) ||
+            preg_match('/ADJ="(.*?)"/', (string) $tmprow['notes'], $matches)
         ) {
             echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
@@ -2305,7 +2287,7 @@ if (!empty($_GET['framed'])) {
 echo "' onsubmit='return validate()'>\n";
 echo "<input type='hidden' name='form_pid' value='" . attr($patient_id) . "' />\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
 <center>
 
@@ -2345,7 +2327,7 @@ $dres = sqlStatement($query, [$patient_id, $encounter_id]);
 // Items that are not allowed to have a fee are skipped.
 //
 while ($brow = sqlFetchArray($bres)) {
-    $thisdate = substr($brow['date'], 0, 10);
+    $thisdate = substr((string) $brow['date'], 0, 10);
     $code_type = $brow['code_type'];
     $inv_payer = $brow['payer_id'];
     if (!$inv_date || $inv_date < $thisdate) {
@@ -2386,7 +2368,7 @@ while ($brow = sqlFetchArray($bres)) {
             $brow['code'],
             $brow['id'],
             $thisdate,
-            ucfirst(strtolower($brow['code_text'])),
+            ucfirst(strtolower((string) $brow['code_text'])),
             $brow['fee'],
             $brow['units'],
             $taxrates,
@@ -2397,7 +2379,7 @@ while ($brow = sqlFetchArray($bres)) {
 
     // Custom logic for IPPF to determine if a GCAC issue applies.
     if ($GLOBALS['ippf_specific'] && $related_code) {
-        $relcodes = explode(';', $related_code);
+        $relcodes = explode(';', (string) $related_code);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -2527,7 +2509,7 @@ $lino = 0;
 
 // Write co-pays.
 foreach ($aCopays as $brow) {
-    $thisdate = substr($brow['date'], 0, 10);
+    $thisdate = substr((string) $brow['date'], 0, 10);
     write_old_payment_line(
         xl('Prepayment'),
         $thisdate,
@@ -2568,7 +2550,7 @@ while ($arow = sqlFetchArray($ares)) {
     $memo = $arow['memo'];
     $reference = $arow['reference'];
     if (empty($arow['session_id'])) {
-        $atmp = explode(' ', $memo, 2);
+        $atmp = explode(' ', (string) $memo, 2);
         $memo = $atmp[0];
         $reference = $atmp[1];
     }
@@ -2706,8 +2688,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
+                onkeyup='maskkeyup(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
+                onblur='maskblur(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
         />
         </td>
     </tr>

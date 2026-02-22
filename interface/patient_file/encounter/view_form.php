@@ -16,9 +16,9 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
-use OpenEMR\Common\Twig\TwigContainer;
 
 $clean_id = sanitizeNumber($_GET["id"]);
 
@@ -27,7 +27,7 @@ $isLBF = false;
 /**
  * @global $incdir
  */
-if (!str_starts_with($_GET["formname"], 'LBF')) {
+if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
@@ -39,9 +39,8 @@ if (!str_starts_with($_GET["formname"], 'LBF')) {
     // ensure authorized to see the form
     if (!AclMain::aclCheckForm($_GET["formname"])) {
         $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-        $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-        exit;
+        $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
     }
 }
 

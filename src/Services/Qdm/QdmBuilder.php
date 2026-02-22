@@ -112,7 +112,7 @@ class QdmBuilder
                         } else {
                             error_log("QDM Builder Warning: NULL returned by makeQdmModel() on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         // There was an error creating the model, such as passing a parameter that is not a member of a QDM Object
                         // TODO improve error handling
                         error_log($e->getMessage());
@@ -130,7 +130,7 @@ class QdmBuilder
         return $models;
     }
 
-    public function _action_generate_models()
+    public function _action_generate_models(): never
     {
         $generator = new Generator();
         $generator->execute();

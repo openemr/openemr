@@ -1,27 +1,30 @@
 <?php
 
 /**
+ * Claims search page
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    require_once "../../../../globals.php";
+require_once "../../../../globals.php";
 
-    use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
-    use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 
-    $tab = "claims";
+$tab = "claims";
+$errorMessage = null;
 
-//ensure user has proper access
+// Ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Claims")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - Claims", xl("ClaimRev Connect - Claims"));
 }
 ?>
 
@@ -95,13 +98,21 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
         <?php
             $datas = [];
-        if (isset($_POST['SubmitButton'])) { //check if form was submitted
-            $datas = ClaimsPage::searchClaims($_POST);
-            if ($datas == null) {
+        if (isset($_POST['SubmitButton'])) {
+            /** @var array<string, mixed> $_POST */
+            try {
+                $datas = ClaimsPage::searchClaims($_POST);
+                if ($datas === null) {
+                    $datas = [];
+                }
+            } catch (ClaimRevApiException) {
+                $errorMessage = xlt('Failed to search claims. Please check your ClaimRev connection settings.');
                 $datas = [];
             }
         }
-        if (empty($datas)) {
+        if ($errorMessage !== null) {
+            echo '<div class="alert alert-danger">' . text($errorMessage) . '</div>';
+        } elseif (empty($datas)) {
             echo xlt("No results found");
         } else { ?>
                 <table class="table">
@@ -232,7 +243,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <?php echo xlt("DOB"); ?>:
                                     </div>
                                     <div class="col">
-                                <?php echo text(substr($data->birthDate, 0, 10)); ?>
+                                <?php echo text(substr((string) $data->birthDate, 0, 10)); ?>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -279,7 +290,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Payed Amt"); ?>:
+                                    <?php echo xlt("Paid Amt"); ?>:
                                     </div>
                                     <div class="col">
                                     <?php echo text($data->payerPaidAmount); ?>
@@ -290,7 +301,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <?php echo xlt("Service Date"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text(substr($data->serviceDate, 0, 10)); ?> / <?php echo text(substr($data->serviceDateEnd, 0, 10)); ?>
+                                    <?php echo text(substr((string) $data->serviceDate, 0, 10)); ?> / <?php echo text(substr((string) $data->serviceDateEnd, 0, 10)); ?>
                                     </div>
                                 </div>
                             </td>
@@ -321,4 +332,3 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
     </body>
 </html>
-

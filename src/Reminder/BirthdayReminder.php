@@ -16,23 +16,13 @@ namespace OpenEMR\Reminder;
 
 class BirthdayReminder
 {
-    private $pid;
-
-    private $user_id;
-
-    public function __construct($pid, $user_id)
+    public function __construct(private $pid, private $user_id)
     {
-        $this->pid = $pid;
-        $this->user_id = $user_id;
     }
 
     public function birthdayAlertResponse($turnOff)
     {
-        if ($turnOff == "true") {
-            $date = date('Y-m-d', strtotime("now"));
-        } else {
-            $date  = date('Y-m-d', strtotime("-1 year"));
-        }
+        $date = $turnOff == "true" ? date('Y-m-d', strtotime("now")) : date('Y-m-d', strtotime("-1 year"));
 
         $sql = "REPLACE INTO `patient_birthday_alert` (`pid`, `user_id`, `turned_off_on`) VALUES (?,?,?)";
         $res = sqlStatement($sql, [$this->pid, $this->user_id, $date]);
@@ -49,21 +39,17 @@ class BirthdayReminder
         }
         // only need month and day for birthdate
         $today = date('m-d');
-        $dobStr = strtotime($res['DOB']);
+        $dobStr = strtotime((string) $res['DOB']);
 
         // fix for December birthdays check in January
-        if (date('m') == '01' && date('m', $dobStr) == '12') {
-            $dobStr = "00-" . date('d', $dobStr);
-        } else {
-            $dobStr = date('m-d', $dobStr);
-        }
+        $dobStr = date('m') == '01' && date('m', $dobStr) == '12' ? "00-" . date('d', $dobStr) : date('m-d', $dobStr);
 
         if (
             // on and up to 28 days
             (
                 $GLOBALS['patient_birthday_alert'] == 3 &&
                 $today >= $dobStr &&
-                $today <= date('m-d', strtotime('+28 days', strtotime($res['DOB'])))
+                $today <= date('m-d', strtotime('+28 days', strtotime((string) $res['DOB'])))
             ) ||
             // on and after
             (
@@ -90,7 +76,7 @@ class BirthdayReminder
         //if there is result
         if (!empty($res['turned_off_on'])) {
             //if the alert has been turned off this year
-            if (date('Y') == date('Y', strtotime($res['turned_off_on']))) {
+            if (date('Y') == date('Y', strtotime((string) $res['turned_off_on']))) {
                 return true;
             }
         }

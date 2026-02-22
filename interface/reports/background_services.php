@@ -12,13 +12,13 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Background Services")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Background Services", xl("Background Services"));
 }
 ?>
 
@@ -146,13 +146,13 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo ($row['running'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
-          <td align='center'><?php echo text(oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
+          <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
         <?php } ?>
 
         <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
-          <td align='center'><?php echo text(oeFormatDateTime($row['next_run'], "global", true)); ?></td>
+          <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['next_run'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>
@@ -175,4 +175,3 @@ while ($row = sqlFetchArray($res)) {
 
 </body>
 </html>
-

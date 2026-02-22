@@ -27,9 +27,9 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
@@ -40,8 +40,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Collections Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Collections Report", xl("Collections Report"));
 }
 
 $alertmsg = '';
@@ -58,7 +57,7 @@ $is_due_pt      = $form_category == 'Due Pt';
 $is_all         = $form_category == 'All';
 // $is_ageby_lad = is aged by last active date which is determined to be either the dos,
 // the last payment date or the last statement date applied by statement.inc.php
-$is_ageby_lad   = strpos(($_POST['form_ageby'] ?? ''), 'Last') !== false;
+$is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
@@ -200,17 +199,17 @@ function endPatient($ptrow): void
         //
         echo "1896H"; // client number goes here
         echo "000";   // filler
-        echo sprintf("%-30s", substr($ptrow['ptname'], 0, 30));
+        echo sprintf("%-30s", substr((string) $ptrow['ptname'], 0, 30));
         echo sprintf("%-30s", " ");
-        echo sprintf("%-30s", substr($ptrow['address1'], 0, 30));
-        echo sprintf("%-15s", substr($ptrow['city'], 0, 15));
-        echo sprintf("%-2s", substr($ptrow['state'], 0, 2));
-        echo sprintf("%-5s", $ptrow['zipcode'] ? substr($ptrow['zipcode'], 0, 5) : '00000');
+        echo sprintf("%-30s", substr((string) $ptrow['address1'], 0, 30));
+        echo sprintf("%-15s", substr((string) $ptrow['city'], 0, 15));
+        echo sprintf("%-2s", substr((string) $ptrow['state'], 0, 2));
+        echo sprintf("%-5s", $ptrow['zipcode'] ? substr((string) $ptrow['zipcode'], 0, 5) : '00000');
         echo "1";                      // service code
         echo sprintf("%010.0f", $ptrow['pid']); // transmittal number = patient id
         echo " ";                      // filler
-        echo sprintf("%-15s", substr($ptrow['ss'], 0, 15));
-        echo substr($ptrow['dos'], 5, 2) . substr($ptrow['dos'], 8, 2) . substr($ptrow['dos'], 2, 2);
+        echo sprintf("%-15s", substr((string) $ptrow['ss'], 0, 15));
+        echo substr((string) $ptrow['dos'], 5, 2) . substr((string) $ptrow['dos'], 8, 2) . substr((string) $ptrow['dos'], 2, 2);
         echo sprintf("%08.0f", $pt_balance * 100);
         echo sprintf("%-9s\n", " ");
 
@@ -412,7 +411,11 @@ if (!empty($_POST['form_csvexport'])) {
 
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+            const params = new URLSearchParams({
+                set_encounterid: enc,
+                set_pid: newpid
+            });
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         $(function () {
@@ -700,7 +703,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
         $where = "( 1 = 2";
         foreach ($_POST['form_cb'] as $key => $value) {
-             [$key_newval['pid'], $key_newval['encounter']] = explode(".", $key);
+             [$key_newval['pid'], $key_newval['encounter']] = explode(".", (string) $key);
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
@@ -788,7 +791,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $encounter_id = $erow['encounter'];
         $pt_balance = $erow['charges'] + $erow['sales'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
         $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
-        $svcdate = substr($erow['date'], 0, 10);
+        $svcdate = substr((string) $erow['date'], 0, 10);
 
         if ($form_cb_with_debt && $pt_balance <= 0) {
             unset($erow);
@@ -905,13 +908,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $row['adjustments'] += 0 - ($value['adj'] ?? null);
             $row['paid'] += $value['chg'] - $value['bal'];
             foreach ($value['dtl'] as $dkey => $dvalue) {
-                $dtldate = trim(substr($dkey, 0, 10));
+                $dtldate = trim(substr((string) $dkey, 0, 10));
                 if ($dtldate && $dtldate > $aging_date) {
                     $aging_date = $dtldate;
                 }
             }
 
-            $lckey = strtolower($key);
+            $lckey = strtolower((string) $key);
             if ($lckey == 'co-pay' || $lckey == 'claim') {
                 continue;
             }
@@ -944,9 +947,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 0,
                 0,
                 0,
-                substr($aging_date, 5, 2),
-                substr($aging_date, 8, 2),
-                substr($aging_date, 0, 4)
+                substr((string) $aging_date, 5, 2),
+                substr((string) $aging_date, 8, 2),
+                substr((string) $aging_date, 0, 4)
             );
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
@@ -970,7 +973,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
         $ptname = $erow['lname'] . ", " . $erow['fname'];
         if ($erow['mname']) {
-            $ptname .= " " . substr($erow['mname'], 0, 1);
+            $ptname .= " " . substr((string) $erow['mname'], 0, 1);
         }
 
         if (!$is_due_ins) {
@@ -1188,7 +1191,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
 
         if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
-            $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false
+            $in_collections = stristr((string) $row['billnote'], 'IN COLLECTIONS') !== false
                 || $row['in_collection'] == 1;
             ?>
        <tr bgcolor='<?php echo attr($bgcolor) ?>'>
@@ -1316,7 +1319,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             if ($balance > 0 && $_POST['form_clear_ins_debt']) {
                 foreach ($invlines as $key => $value) {
                     $ar_session_id = SLEOB::arGetSession($ins_id, 'Adj from collt report', date('YmdHis'), '', $balance);
-                    SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', 0, date('YmdHis'), $value['code_type']);
+                    SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', $value['code_type']);
                     sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", [$insposition, $pid, $encounter]);
                 }
             }

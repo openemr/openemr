@@ -39,36 +39,49 @@ class UuidRegistry
     const UUID_MAX_BATCH_COUNT = 1000;
     const UUID_TABLE_DEFINITIONS = [
 
+        'care_teams' => ['table_name' => 'care_teams'],
         'ccda' => ['table_name' => 'ccda'],
         'documents' => ['table_name' => 'documents'],
         'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
+        'drug_sales' => ['table_name' => 'drug_sales', 'table_id' => 'sale_id'],
+        'employer_data' => ['table_name' => 'employer_data'],
         'facility' => ['table_name' => 'facility'],
         'facility_user_ids' => ['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']],
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
         'form_encounter' => ['table_name' => 'form_encounter'],
         'form_vitals' => ['table_name' => 'form_vitals'],
+        'form_vitals_calculation' => ['table_name' => 'form_vitals_calculation'],
         'form_observation' => ['table_name' => 'form_observation'],
         'history_data' => ['table_name' => 'history_data'],
+        'issue_encounter' => ['table_name' => 'issue_encounter'],
         'immunizations' => ['table_name' => 'immunizations'],
         'insurance_companies' => ['table_name' => 'insurance_companies'],
         'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
         'openemr_postcalendar_events' => ['table_name' => 'openemr_postcalendar_events', 'table_id' => 'pc_eid'],
+        'patient_care_experience_preferences' => ['table_name' => 'patient_care_experience_preferences'],
         'patient_data' => ['table_name' => 'patient_data'],
         'patient_history' => ['table_name' => 'patient_history'],
+        'patient_treatment_intervention_preferences' => ['table_name' => 'patient_treatment_intervention_preferences'],
+        'person' => ['table_name' => 'person'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
         'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
+        'procedure_specimen' => ['table_name' => 'procedure_specimen', 'table_id' => 'procedure_specimen_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
-        'patient_related_persons' => ['table_name' => 'patient_related_persons', 'table_id' => 'pid'],
         'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
+
+    /**
+     * Maximum number of records to process in a single transaction when populating missing UUIDs
+     */
+    const UUID_TRANSACTION_MAX_RECORDS = 10000;
 
     private $table_name;      // table to check if uuid has already been used in
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
@@ -81,24 +94,12 @@ class UuidRegistry
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
-        if (!empty($this->table_name)) {
-            $this->table_id = $associations['table_id'] ?? 'id';
-        } else {
-            $this->table_id = '';
-        }
+        $this->table_id = !empty($this->table_name) ? $associations['table_id'] ?? 'id' : '';
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
         $this->couchdb = $associations['couchdb'] ?? '';
-        if (!empty($associations['document_drive']) && $associations['document_drive'] === true) {
-            $this->document_drive = 1;
-        } else {
-            $this->document_drive = 0;
-        }
-        if (!empty($associations['mapped']) && $associations['mapped'] === true) {
-            $this->mapped = 1;
-        } else {
-            $this->mapped = 0;
-        }
+        $this->document_drive = !empty($associations['document_drive']) && $associations['document_drive'] === true ? 1 : 0;
+        $this->mapped = !empty($associations['mapped']) && $associations['mapped'] === true ? 1 : 0;
     }
 
     /**
@@ -147,12 +148,12 @@ class UuidRegistry
         self::appendPopulateLog('uuid_registry', $mappedRegistryUuidCounter, $logEntryComment);
 
         if (!empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ', ');
+            $logEntryComment = rtrim((string) $logEntryComment, ', ');
         }
 
         // log it
         if ($log && !empty($logEntryComment)) {
-            EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+            EventAuditLogger::getInstance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
         }
 
         // return it
@@ -175,7 +176,7 @@ class UuidRegistry
             . " SELECT `uuid_mapping`.`uuid`,'uuid_mapping','id',1 FROM `uuid_mapping` LEFT JOIN `uuid_registry` registry2 ON `uuid_mapping`.`uuid` = registry2.uuid WHERE registry2.uuid IS NULL";
         $result = sqlStatementNoLog($sql, []);
         if ($result !== false) {
-            $createdRows = generic_sql_affected_rows();
+            $createdRows = QueryUtils::affectedRows();
         }
         return $createdRows;
     }
@@ -245,7 +246,7 @@ class UuidRegistry
     private function createMissingUuids()
     {
         try {
-            sqlBeginTrans();
+            QueryUtils::startTransaction();
             $counter = 0;
 
             // we split the loop so we aren't doing a condition inside each one.
@@ -262,12 +263,17 @@ class UuidRegistry
                 do {
                     $count = $this->createMissingUuidsForTableWithId();
                     $counter += $count;
+                    if ($counter % self::UUID_TRANSACTION_MAX_RECORDS == 0 && $counter > 0) {
+                        // commit every 10k to not have a massive transaction
+                        QueryUtils::commitTransaction();
+                        QueryUtils::startTransaction();
+                    }
                 } while ($count > 0);
             }
-            sqlCommitTrans();
+            QueryUtils::commitTransaction();
             return $counter;
-        } catch (Exception $exception) {
-            sqlRollbackTrans();
+        } catch (\Throwable $exception) {
+            QueryUtils::rollbackTransaction();
             throw $exception;
         }
     }
@@ -296,7 +302,7 @@ class UuidRegistry
      */
     public static function isValidStringUUID($uuidString)
     {
-        return (Uuid::isValid($uuidString));
+        return Uuid::isValid($uuidString);
     }
 
     /**
@@ -411,8 +417,8 @@ class UuidRegistry
         WHERE " . implode(" AND ", $columnsWhere) . "
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
-        $number = sqlNumRows($groupsWithoutUuid);
+        $groupsWithoutUuid = QueryUtils::sqlStatementThrowException($query, [], noLog: true);
+        $number = $groupsWithoutUuid->RecordCount();
 
         // create uuids and populate the groups with them
         if ($number > 0) {
@@ -420,10 +426,10 @@ class UuidRegistry
             $this->insertUuidsIntoRegistry($batchUUids);
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
-            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+            while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
                 $mappedValues = array_map(fn($col) => $row[$col], $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
-                sqlStatementNoLog($sqlUpdate, $bindValues, true);
+                QueryUtils::sqlStatementThrowException($sqlUpdate, $bindValues, noLog: true);
                 $counter++;
             }
         }
@@ -458,16 +464,16 @@ class UuidRegistry
         WHERE `q2`.`uuid` IS NOT NULL AND `q2`.`uuid` != '' AND `q2`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
         GROUP BY " . implode(",", $columnsQtwo) . "
         LIMIT " . self::UUID_MAX_BATCH_COUNT;
-        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
-        $number = sqlNumRows($groupsWithoutUuid);
+        $groupsWithoutUuid = QueryUtils::sqlStatementThrowException($query, [], noLog: true);
+        $number = $groupsWithoutUuid->RecordCount();
 
         // populate the groups with the already existent uuids
         if ($number > 0) {
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
-            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+            while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
                 $mappedValues = array_map(fn($col) => $row[$col], array_merge(['uuid'], $this->table_vertical));
-                sqlStatementNoLog($sqlUpdate, $mappedValues, true);
+                QueryUtils::sqlStatementThrowException($sqlUpdate, $mappedValues, noLog: true);
                 $counter++;
             }
         }

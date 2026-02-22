@@ -28,24 +28,19 @@ class IndividualResult extends AbstractType
 
     public $population_set_key;
 
-    /**
-     * @var Measure
-     */
-    public $measure;
-
     protected $_result;
 
     /**
      * IndividualResult constructor.
      *
      * @param $_result
+     * @param \OpenEMR\Services\Qdm\Measure $measure
      */
-    public function __construct($_result, $measure)
+    public function __construct($_result, public $measure)
     {
         parent::__construct($_result);
         $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
-        $this->measure = $measure;
     }
 
     public function getInnerResult()
@@ -102,7 +97,7 @@ class IndividualResult extends AbstractType
         calculated_value = calculated.nil? || calculated[pop].nil? ? 0.0 : calculated[pop]
         if pop == 'values'
         pop = 'OBSERV'
-        # the orginal and calculated values should be an array make empty if it doesn't exist
+        # the original and calculated values should be an array. Make it empty if it doesn't exist.
         original_value = [] unless original_value.is_a?(Array)
         calculated_value = [] if calculated_value.nil? || !calculated_value.is_a?(Array)
         end
@@ -131,9 +126,9 @@ class IndividualResult extends AbstractType
      * For the given population set that this individual result represents we add all of our observations for each individual
      * population in the set to the observation_hash array.
      *
-     * @param  array $observation_hash The observations array we are adding addiitonal information to.
+     * @param  array $observation_hash The observations array we are adding additional information to.
      * @param  bool  $agg_results
-     * @return array|void
+     * @return void
      */
     public function collect_observations(&$observation_hash = [], $agg_results = false)
     {
@@ -169,7 +164,6 @@ class IndividualResult extends AbstractType
                 $observation_hash[$key][$obs_pop]['statement_name'][] = $observation_statements[$index];
             }
         }
-        return $observation_hash;
         /*
          *     # adds the observation values found in an individual_result to the observation_hash
         # Set agg_results to true if you are collecting aggregate results for multiple patients
@@ -265,7 +259,7 @@ class IndividualResult extends AbstractType
     public function gather_statement_results($calculated, $statement_name)
     {
         /*
-         *     # Helper method that compiles an array with the orignial and reported value for each result type.
+         *     # Helper method that compiles an array with the original and reported value for each result type.
         def gather_statement_results(calculated, statement_name)
         return [] if statement_results.blank?
 

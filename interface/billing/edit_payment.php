@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Payments can be edited here whch includes deletion of an allocation, modifying the
+ * Payments can be edited here, which includes deletion of an allocation, modifying the
  * same or adding a new allocation. Log is kept for the deleted ones.
  * The functions of this class support the billing process like the script billing_process.php.
  *
@@ -26,16 +26,18 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\PaymentProcessing\Recorder;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Confirm Payment")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Confirm Payment", xl("Confirm Payment"));
 }
 
 $screen = 'edit_payment';
+
+$recorder = new Recorder();
 
 // Deletion of payment distribution code
 
@@ -50,7 +52,7 @@ if (isset($_POST["mode"])) {
         $Modifier = $DeletePaymentDistributionIdArray[4];
         $Codetype = $DeletePaymentDistributionIdArray[5];
         //delete and log that action
-        row_modify(
+        payment_row_modify(
             "ar_activity",
             "deleted = NOW()",
             "session_id = '" . add_escape_custom($payment_id) . "' AND " .
@@ -76,20 +78,21 @@ if (isset($_POST["mode"])) {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
         //===============================================================================
-        if (trim($_POST['type_name']) == 'insurance') {
-            $QueryPart = "payer_id = '" . trim(formData('hidden_type_code')) .
-                "', patient_id = '" . 0;
-        } elseif (trim($_POST['type_name']) == 'patient') {
-            $QueryPart = "payer_id = '" . 0 .
-                "', patient_id = '" . trim(formData('hidden_type_code'));
+        $updatedValues = [];
+        if (trim((string) $_POST['type_name']) == 'insurance') {
+            $updatedValues['payer_id'] = trimPost('hidden_type_code');
+            $updatedValues['patient_id'] = 0;
+        } elseif (trim((string) $_POST['type_name']) == 'patient') {
+            $updatedValues['payer_id'] = 0;
+            $updatedValues['patient_id'] = trimPost('hidden_type_code');
         }
 
         $user_id = $_SESSION['authUserID'];
         $closed = 0;
         $modified_time = date('Y-m-d H:i:s');
-        $check_date = DateToYYYYMMDD(formData('check_date'));
-        $deposit_date = DateToYYYYMMDD(formData('deposit_date'));
-        $post_to_date = DateToYYYYMMDD(formData('post_to_date'));
+        $check_date = DateToYYYYMMDD(trimPost('check_date'));
+        $deposit_date = DateToYYYYMMDD(trimPost('deposit_date'));
+        $post_to_date = DateToYYYYMMDD(trimPost('post_to_date'));
         if ($post_to_date == '') {
             $post_to_date = date('Y-m-d');
         }
@@ -98,27 +101,33 @@ if (isset($_POST["mode"])) {
             $deposit_date = $post_to_date;
         }
 
-        $global_account = "";
-        if (formData('global_reset') == '-0.00') {
-            $global_account = "', global_amount = '" . trim(formData('global_reset'));
+        $globalReset = trimPost('global_reset');
+        if ($globalReset === '-0.00') {
+            $updatedValues['global_amount'] = $globalReset;
         }
 
-        sqlStatement("update ar_session set " .
-            $QueryPart .
-            "', user_id = '" . trim(add_escape_custom($user_id)) .
-            "', closed = '" . trim(add_escape_custom($closed)) .
-            "', reference = '" . trim(formData('check_number')) .
-            "', check_date = '" . trim(add_escape_custom($check_date)) .
-            "', deposit_date = '" . trim(add_escape_custom($deposit_date)) .
-            "', pay_total = '" . trim(formData('payment_amount')) .
-            "', modified_time = '" . trim(add_escape_custom($modified_time)) .
-            $global_account .
-            "', payment_type = '" . trim(formData('type_name')) .
-            "', description = '" . trim(formData('description')) .
-            "', adjustment_code = '" . trim(formData('adjustment_code')) .
-            "', post_to_date = '" . trim(add_escape_custom($post_to_date)) .
-            "', payment_method = '" . trim(formData('payment_method')) .
-            "'    where session_id='" . add_escape_custom($payment_id) . "'");
+        $updatedValues['user_id'] = trim((string) $user_id);
+        $updatedValues['closed'] = trim($closed);
+        $updatedValues['reference'] = trimPost('check_number');
+        $updatedValues['check_date'] = trim((string) $check_date);
+        $updatedValues['deposit_date'] = trim((string) $deposit_date);
+        $updatedValues['pay_total'] = trimPost('payment_amount');
+        $updatedValues['modified_time'] = trim($modified_time);
+        $updatedValues['payment_type'] = trimPost('type_name');
+        $updatedValues['description'] = trimPost('description');
+        $updatedValues['adjustment_code'] = trimPost('adjustment_code');
+        $updatedValues['post_to_date'] = trim((string) $post_to_date);
+        $updatedValues['payment_method'] = trimPost('payment_method');
+
+        // This becomes MUCH more straightforward with actual dbal, but this is
+        // still safe from SQLI since the keys are all string literals.
+        $query = 'UPDATE ar_session SET ';
+        $updates = array_map(fn ($col) => sprintf('`%s`=?', $col), array_keys($updatedValues));
+        $query .= implode(', ', $updates);
+        $query .= 'WHERE session_id = ?';
+        $params = array_values($updatedValues);
+        $params[] = $payment_id;
+        sqlStatement($query, $params);
         //===============================================================================
         $CountIndexAbove = $_REQUEST['CountIndexAbove'];
         $CountIndexBelow = $_REQUEST['CountIndexBelow'];
@@ -141,45 +150,37 @@ if (isset($_POST["mode"])) {
 
                 $where = "$where1 AND pay_amount > 0";
                 if (!empty($_POST["Payment$CountRow"])) {
-                    if (trim($_POST['type_name']) == 'insurance') {
-                        if (trim($_POST["HiddenIns$CountRow"]) == 1) {
+                    if (trim((string) $_POST['type_name']) == 'insurance') {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 1) {
                             $AccountCode = "IPP";
                         }
-                        if (trim($_POST["HiddenIns$CountRow"]) == 2) {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 2) {
                             $AccountCode = "ISP";
                         }
-                        if (trim($_POST["HiddenIns$CountRow"]) == 3) {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 3) {
                             $AccountCode = "ITP";
                         }
-                    } elseif (trim($_POST['type_name']) == 'patient') {
+                    } elseif (trim((string) $_POST['type_name']) == 'patient') {
                         $AccountCode = "PP";
                     }
                     $resPayment = sqlStatement("SELECT * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment " .
-                        "FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', reason_code = '" . trim(formData("ReasonCode$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . trim(formData("Payment$CountRow")) .
-                        "', adj_amount = '" . 0 .
-                        "', account_code = '" . add_escape_custom($AccountCode) .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'reasonCode' => trimPost("ReasonCode$CountRow"),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => trimPost("Payment$CountRow"),
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => $AccountCode,
+                    ]);
                 } else {
                     sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                 }
@@ -188,10 +189,10 @@ if (isset($_POST["mode"])) {
 
                 $where = "$where1 AND adj_amount != 0";
                 if (!empty($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
-                    if (trim($_POST['type_name']) == 'insurance') {
-                        $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
+                    if (trim((string) $_POST['type_name']) == 'insurance') {
+                        $AdjustString = "Ins adjust Ins" . trim((string) $_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
-                    } elseif (trim($_POST['type_name']) == 'patient') {
+                    } elseif (trim((string) $_POST['type_name']) == 'patient') {
                         $AdjustString = "Pt adjust";
                         $AccountCode = "PA";
                     }
@@ -199,26 +200,21 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . 0 .
-                        "', adj_amount = '" . trim(formData("AdjAmount$CountRow")) .
-                        "', memo = '" . add_escape_custom($AdjustString) .
-                        "', account_code = '" . add_escape_custom($AccountCode) .
-                        "'");
-                    sqlCommitTrans();
+
+                    $recorder->recordActivity([
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => '0.0',
+                        'adjustmentAmount' => trimPost("AdjAmount$CountRow"),
+                        'memo' => add_escape_custom($AdjustString),
+                        'accountCode' => $AccountCode,
+                    ]);
                 } else {
                     sqlStatement("update ar_activity set deleted = NOW() $where");
                 }
@@ -231,26 +227,20 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . 0 .
-                        "', adj_amount = '" . 0 .
-                        "', memo = '" . "Deductible $" . trim(formData("Deductible$CountRow")) .
-                        "', account_code = '" . "Deduct" .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => '0.0',
+                        'adjustmentAmount' => '0.0',
+                        'memo' => "Deductible $" . trimPost("Deductible$CountRow"),
+                        'accountCode' => "Deduct",
+                    ]);
                 } else {
                     sqlStatement("delete from ar_activity $where");
                 }
@@ -263,25 +253,19 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . trim(formData("Takeback$CountRow")) * -1 .
-                        "', adj_amount = '" . 0 .
-                        "', account_code = '" . "Takeback" .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => strval(floatval(trimPost("Takeback$CountRow")) * -1),
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => "Takeback",
+                    ]);
                 } else {
                     sqlStatement("delete from ar_activity $where");
                 }
@@ -294,26 +278,20 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . 0 .
-                        "', adj_amount = '" . 0 .
-                        "', follow_up = '" . "y" .
-                        "', follow_up_note = '" . trim(formData("FollowUpReason$CountRow")) .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => '0.0',
+                        'adjustmentAmount' => '0.0',
+                        'followUp' => true,
+                        'followUpNote' => trimPost("FollowUpReason$CountRow"),
+                    ]);
                 } else {
                     sqlStatement("delete from ar_activity $where");
                 }
@@ -388,7 +366,7 @@ $ResultSearchSub = sqlStatement(
             }
             if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
             {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+                alert(<?php echo xlj('None of the Top Distribution Row Can be Completely Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
                 return false;
             }
     if (!CheckPayingEntityAndDistributionPostFor()) {
@@ -424,7 +402,7 @@ $ResultSearchSub = sqlStatement(
             }
             if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
             {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+                alert(<?php echo xlj('None of the Top Distribution Row Can be Completely Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
                 return false;
             }
             if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
@@ -468,7 +446,7 @@ $ResultSearchSub = sqlStatement(
         }
 
         function CompletlyBlankAbove() {//The distribution rows already in the database are checked.
-            //It is not allowed to be made completly empty.If needed delete option need to be used.
+            //It is not allowed to be made completely empty.If needed delete option need to be used.
     let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
             for (RowCount = 1; RowCount <= CountIndexAbove; RowCount++) {
                 if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
@@ -479,7 +457,7 @@ $ResultSearchSub = sqlStatement(
         }
 
         function CompletlyBlankBelow() {//The newly added distribution rows are checked.
-            //It is not allowed to be made completly empty.
+            //It is not allowed to be made completely empty.
     let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
     let CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
             if (CountIndexBelow == 0)
@@ -627,11 +605,7 @@ $ResultSearchSub = sqlStatement(
         }
         ?>
         <?php
-        if (empty($payment_id)) {
-            $onclick = "top.restoreSession();return SavePayment();";
-        } else {
-            $onclick = "return false;";
-        }
+        $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
             <?php
@@ -725,16 +699,12 @@ $ResultSearchSub = sqlStatement(
                                 while ($RowSearch = sqlFetchArray($ResultSearch)) {
                                     $CountIndex++;
                                     $CountIndexAbove++;
-                                    $ServiceDateArray = explode(' ', $RowSearch['date']);
+                                    $ServiceDateArray = explode(' ', (string) $RowSearch['date']);
                                     $ServiceDate = oeFormatShortDate($ServiceDateArray[0]);
                                     $Codetype = $RowSearch['code_type'];
                                     $Code = $RowSearch['code'];
                                     $Modifier = $RowSearch['modifier'];
-                                    if ($Modifier != '') {
-                                        $ModifierString = ", $Modifier";
-                                    } else {
-                                        $ModifierString = "";
-                                    }
+                                    $ModifierString = $Modifier != '' ? ", $Modifier" : "";
                                     $Fee = $RowSearch['fee'];
                                     $Encounter = $RowSearch['encounter'];
 
@@ -796,9 +766,8 @@ $ResultSearchSub = sqlStatement(
                                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
                                     } else {
-                                        //Fetch till that much got
-                                        //Fetch the HIGHEST sequence_no till this session.
-                                        //Used maily in  the case if primary/others pays once more.
+                                        // Get the highest sequence_no for this session to calculate running totals.
+                                        // Handles cases where primary or other payers submit additional payments.
                                         $resSequence = sqlStatement("SELECT sequence_no from ar_activity where session_id=? and
                                     pid=? and encounter=? order by sequence_no desc ", [$payment_id, $PId, $Encounter]);
                                         $rowSequence = sqlFetchArray($resSequence);
@@ -845,9 +814,8 @@ $ResultSearchSub = sqlStatement(
                                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
                                     } else {
-                                        //Got just before the previous
-                                        //Fetch the LOWEST sequence_no till this session.
-                                        //Used maily in  the case if primary/others pays once more.
+                                        // Get the lowest sequence_no for this session to calculate totals from the start.
+                                        // Handles cases where primary or other payers submit additional payments.
                                         $resSequence = sqlStatement(
                                             "SELECT sequence_no FROM ar_activity WHERE " .
                                             "session_id = ? AND deleted IS NULL AND pid = ? AND encounter = ? " .
@@ -937,11 +905,7 @@ $ResultSearchSub = sqlStatement(
                                     $rowPayment = sqlFetchArray($resPayment);
                                     $ReasonCodeDB = $rowPayment['reason_code'];
 
-                                    if ($Ins == 1) {
-                                        $AllowedDB = number_format($Fee - floatval($AdjAmountDB), 2);
-                                    } else {
-                                        $AllowedDB = 0;
-                                    }
+                                    $AllowedDB = $Ins == 1 ? number_format($Fee - floatval($AdjAmountDB), 2) : 0;
 
                                     if ($Ins == 1) {
                                         $bgcolor = '#ddddff';

@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -52,6 +53,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var AllergyIntoleranceService
@@ -197,7 +199,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 $reactionCoding->setCode($code);
                 $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $reactionCoding->setDisplay(trim($display));
+                $reactionCoding->setDisplay(trim((string) $display));
                 // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
                 $reactionCoding->setSystem($codeValues['system']);
                 $reactionConcept->addCoding($reactionCoding);
@@ -222,7 +224,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 // if we have no display value we will just show the code value here
                 $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $diagnosisCoding->setDisplay(trim($display));
+                $diagnosisCoding->setDisplay(trim((string) $display));
                 $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
@@ -260,18 +262,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->allergyIntoleranceService->search($openEMRSearchParameters, true);
     }
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

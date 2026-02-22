@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,9 +21,15 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Message List", xl("Message List"));
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -235,11 +243,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_dob     = $row['dob'];
         $msg_type        = $row['title'];
         $msg_status      = $row['message_status'];
-        $username        = $userService->getUser($row['update_by']);
-        $update_by       = $username['username'];
+        $updateById      = $row['update_by'];
+        if ($updateById) {
+            $userRecord = $userService->getUser($updateById);
+            if ($userRecord === false) {
+                throw new \RuntimeException("User not found for update_by: " . json_encode($updateById));
+            }
+            $update_by = $userRecord['username'];
+        } else {
+            $update_by = '';
+        }
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
-            echo csvEscape(oeFormatShortDate(substr($msg_date, 0, 10))) . ',';
+            echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';
             echo csvEscape($user) . ',';
             echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
@@ -248,7 +264,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape(xl($msg_type)) . ',';
             echo csvEscape(xl($msg_status)) . ',';
             echo csvEscape($update_by) . ',';
-            echo csvEscape(oeFormatShortDate(substr($update_date, 0, 10))) . "\n";
+            echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";
         } else {
             ?>
    <tr>

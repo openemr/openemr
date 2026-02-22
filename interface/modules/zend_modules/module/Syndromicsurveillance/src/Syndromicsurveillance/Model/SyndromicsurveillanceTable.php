@@ -75,11 +75,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         ];
         $i = 1;
         foreach ($result as $row) {
-            if ($row['id'] == ($provider ?? '')) {
-                $select =  true;
-            } else {
-                $select = false;
-            }
+            $select = $row['id'] == ($provider ?? '') ? true : false;
 
             $rows[$i] =  [
                 'value' => $row['id'],
@@ -282,7 +278,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
             $o_query        = "SELECT * FROM `form_observation` WHERE `encounter` =  ? AND `pid` = ? AND `activity` = ?" ;
             $o_result       = $appTable->zQuery($o_query, [$r['encounter'],$r['patientid'],1]);
-            $fac_name       = preg_replace('/\s+/', '', $r['name']);
+            $fac_name       = preg_replace('/\s+/', '', (string) $r['name']);
             $race_code      = $this->getCodes($r['race'], 'race');
             $ethnicity_code = $this->getCodes($r['ethnicity'], 'ethnicity');
             $county_code    = $this->getCodes($r['county'], 'county');
@@ -335,7 +331,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $r['patientid'] . "^^^^MR|" . // 3. (R) Patient identifier list
             "|" . // 4. (B) Alternate PID
             "^^^^^^~^^^^^^S|" . // 5.R. Name
-            "|" . // 6. Mather Maiden Name
+            "|" . // 6. Mother's Maiden Name
             $r['DOB'] . "|" . // 7. Date, time of birth
             $r['sex'] . "|" . // 8. Sex
             "|" . // 9.B Patient Alias
@@ -343,16 +339,16 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "^^^^" . $r['postal_code'] . "^^^^" . $county_code . "|" . // 11. Address
             "|" . // 12. county code
             $r['phone_home'] . "|" . // 13. Phone Home
-            $r['phone_biz'] . "|" . // 14. Phone Bussines
+            $r['phone_biz'] . "|" . // 14. Phone Business
             "|" . // 15. Primary language
             $r['status'] . "|" . // 16. Marital status
             "|" . // 17. Religion
             "|" . // 18. patient Account Number
             "|" . // 19.B SSN Number
             "|" . // 20.B Driver license number
-            "|" . // 21. Mathers Identifier
+            "|" . // 21. Mother's Identifier
             $ethnicity_code . "^^CDCREC" . // 22. Ethnic Group
-            //"|" . // 23. Birth Plase
+            //"|" . // 23. Birthplace
             //"|" . // 24. Multiple birth indicator
             //"|" . // 25. Birth order
             //"|" . // 26. Citizenship
@@ -480,7 +476,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $r['code'] . "^" . $r['code_text'] . "^I9CDX|" . // 3. Diagnosis Code - DG1
             "|" . // 4.B Diagnosis Description
             $r['issuedate'] . "|" . // 5. Diagnosis Date/Time
-            "W" . // 6.R Diagnosis Type  // A - Admiting, W - working
+            "W" . // 6.R Diagnosis Type  // A - Admitting, W - working
             //"|" . // 7.B Major Diagnostic Category
             //"|" . // 8.B Diagnostic Related Group
             //"|" . // 9.B DRG Approval Indicator
@@ -537,8 +533,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
-        $temp   = explode(' ', $date); //split using space and consider the first portion, incase of date with time
+        $format = $format ?: 'm/d/y';
+        $temp   = explode(' ', (string) $date); //split using space and consider the first portion, in case of date with time
         $date   = $temp[0];
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);

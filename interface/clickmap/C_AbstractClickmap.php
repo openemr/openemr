@@ -34,13 +34,12 @@ abstract class C_AbstractClickmap extends Controller
      *
      * @var template_dir
      */
-    var $template_dir;
+    public $template_dir;
 
     /**
      * @brief Initialize a newly created object belonging to this class
      *
-     * @param template_mod
-     *  template module name, passed to Controller's initializer.
+     * @param string $template_mod template module name, passed to Controller's initializer.
      */
     function __construct($template_mod = "general")
     {
@@ -65,7 +64,7 @@ abstract class C_AbstractClickmap extends Controller
     abstract public function createModel($form_id = "");
 
     /**
-     * @brief Override this abstract function with your implememtation of getImage
+     * @brief Override this abstract function with your implementation of getImage
      *
      * @return The path to the image backing this form relative to the webroot.
      */
@@ -79,7 +78,7 @@ abstract class C_AbstractClickmap extends Controller
     abstract function getOptionsLabel();
 
     /**
-     * @brief Override this abstract functon to return a hash of the optionlist (key=>value pairs).
+     * @brief Override this abstract function to return a hash of the optionlist (key=>value pairs).
      *
      * @return A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
      */
@@ -106,40 +105,35 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate an html document from the 'new form' template
-     *
-     * @return the result of smarty's fetch() operation.
+     * @return string
      */
     function default_action()
     {
         $model = $this->createModel();
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     /**
      * @brief generate an html document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
+     * @param string $form_id The id of the form to populate data from.
+     * @return string
      */
     function view_action($form_id)
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     /**
      * @brief generate a fragment of an HTML document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
+     * @param string $form_id The id of the form to populate data from.
+     * @return string
      */
     function report_action($form_id)
     {

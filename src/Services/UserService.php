@@ -17,10 +17,15 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * @phpstan-import-type UsersRow from TableTypes
+ */
 class UserService
 {
     private $_includeUsername;
@@ -78,20 +83,24 @@ class UserService
     }
 
     /**
-     * @return array hydrated user object
+     * @param int|string $userId
+     * @return UsersRow|false
      */
     public function getUser($userId)
     {
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
+        /** @var UsersRow|false $record */
         $record = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
         return $this->createResultRecordFromDatabaseResult($record);
     }
 
     /**
-     * @return array hydrated user object
+     * @param string $username
+     * @return UsersRow|false
      */
     public function getUserByUsername($username)
     {
+        /** @var UsersRow|false $record */
         $record = sqlQuery("SELECT * FROM `users` WHERE BINARY `username` = ?", [$username]);
         if (!empty($record)) {
             return $this->createResultRecordFromDatabaseResult($record);
@@ -100,8 +109,9 @@ class UserService
     }
 
     /**
-     * Retrieves the API System User if it exists, returns null if the user does not exist.
-     * @return array
+     * Retrieves the API System User if it exists, returns false if the user does not exist.
+     *
+     * @return UsersRow|false
      */
     public function getSystemUser()
     {
@@ -117,31 +127,38 @@ class UserService
     }
 
     /**
-     * @return array active users (fully hydrated)
+     * @return list<UsersRow>
      */
     public function getActiveUsers()
     {
+        /** @var list<UsersRow> $users */
         $users = [];
         $user = sqlStatement("SELECT * FROM `users` WHERE (`username` != '' AND `username` IS NOT NULL) AND `active` = 1 ORDER BY `lname` ASC, `fname` ASC, `mname` ASC");
         while ($row = sqlFetchArray($user)) {
             // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
+            /** @var UsersRow $row */
             $users[] = $row;
         }
         return $users;
     }
 
     /**
-     * @return array
+     * @return UsersRow|false
      */
     public function getCurrentlyLoggedInUser()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
-        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
+        /** @var UsersRow|false $user */
+        $user = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
+        return $user;
     }
 
     /**
-     * Returns a user by the given UUID.  Can take a byte string or a UUID in string format.
-     * @param $userId string
+     * Returns a user by the given UUID. Can take a byte string or a UUID in string format.
+     *
+     * @param string $uuid
+     * @return UsersRow|false
      */
     public function getUserByUUID($uuid)
     {
@@ -149,6 +166,7 @@ class UserService
             $uuid = UuidRegistry::uuidToBytes($uuid);
         }
 
+        /** @var UsersRow|false $user */
         $user = sqlQuery("SELECT * FROM `users` WHERE `uuid` = ?", [$uuid]);
         // this is very annoying...
         if (!empty($user)) {

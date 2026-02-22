@@ -53,19 +53,23 @@ require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 $currdecimals = $GLOBALS['currency_decimals'];
 
@@ -127,13 +131,19 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
     echo " </tr>\n";
 }
 
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function normal_generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
     global $sl_err, $sl_cash_acc, $details, $facilityService;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
@@ -156,7 +166,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
 
     if ($GLOBALS['receipts_by_provider']) {
         if (isset($ferow['provider_id'])) {
@@ -200,11 +210,17 @@ function generate_receipt($patient_id, $encounter = 0): void
             divstyle.display = 'none';
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete button.
         function deleteme() {
-            dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+            const params = new URLSearchParams({
+                billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            });
+            dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
@@ -363,7 +379,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                 $svcdate,
                                 $inrow['code_text'],
                                 $inrow['fee'],
-                                $inrow['units']
+                                (int) $inrow['units']
                             );
                         }
 
@@ -469,7 +485,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     </body>
     </html>
     <?php // echoing the closing tags for receipts
-} // end function generate_receipt()
+} // end function normal_generate_receipt()
 ?>
     <?php
 
@@ -539,7 +555,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />";
     }
 
-    // Pring receipt header for Provider
+    // Print receipt header for Provider
     function printProviderHeader($pvdrow): void
     {
         echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
@@ -548,21 +564,6 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />" . text($pvdrow['phone']) .
         "<br />&nbsp" .
         "<br />";
-    }
-
-    // Mark the tax rates that are referenced in this invoice.
-    function markTaxes($taxrates): void
-    {
-        global $taxes;
-        $arates = explode(':', $taxrates);
-        if (empty($arates)) {
-            return;
-        }
-        foreach ($arates as $value) {
-            if (!empty($taxes[$value])) {
-                $taxes[$value][2] = '1';
-            }
-        }
     }
 
     $payment_methods = [
@@ -579,7 +580,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -595,7 +596,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
       // Get the posting date from the form as yyyy-mm-dd.
         $dosdate = substr($this_bill_date, 0, 10);
-        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $_POST['form_date'], $matches)) {
             $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
 
@@ -629,7 +630,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $line = $lines[$lino];
             $code_type = $line['code_type'];
             $id        = $line['id'];
-            $amount    = sprintf('%01.2f', trim($line['amount']));
+            $amount    = sprintf('%01.2f', trim((string) $line['amount']));
 
 
             if ($code_type == 'PROD') {
@@ -672,45 +673,35 @@ function generate_receipt($patient_id, $encounter = 0): void
       // Post discount.
         if ($_POST['form_discount']) {
             if ($GLOBALS['discount_by_money']) {
-                $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+                $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
-                $form_discount = trim($_POST['form_discount']) ?? 0;
+                $form_discount = trim((string) $_POST['form_discount']) ?? 0;
                 if ($form_discount < 100) {
                     $total_discount = $form_discount * $form_amount / (100 - $form_discount);
                     $amount = sprintf('%01.2f', $total_discount);
                 }
             }
             $memo = xl('Discount');
-            sqlBeginTrans();
-            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $form_encounter]);
-            $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
-            "session_id, memo, adj_amount " .
-            ") VALUES ( " .
-            "?, " .
-            "?, " .
-            "?, " .
-            "'', " .
-            "'', " .
-            "'0', " .
-            "?, " .
-            "?, " .
-            "'0', " .
-            "?, " .
-            "? " .
-            ")";
-            sqlStatement(
-                $query,
-                [$form_pid, $form_encounter, $sequence_no['increment'], $_SESSION['authUserID'], $this_bill_date, $memo, $amount]
-            );
-            sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => '',
+                'code' => '',
+                'modifier' => '',
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => '0',
+                'memo' => $memo,
+                'payAmount' => '0.0',
+                'adjustmentAmount' => $amount,
+            ]);
         }
 
       // Post payment.
         if ($_POST['form_amount']) {
-            $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
-            $form_source = trim($_POST['form_source']);
-            $paydesc = trim($_POST['form_method']);
+            $amount  = sprintf('%01.2f', trim((string) $_POST['form_amount']));
+            $form_source = trim((string) $_POST['form_source']);
+            $paydesc = trim((string) $_POST['form_method']);
             //Fetching the existing code and modifier
                 $ResultSearchNew = sqlStatement(
                     "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
@@ -730,17 +721,22 @@ function generate_receipt($patient_id, $encounter = 0): void
                   "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                   " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
-                  [$_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc]
+                  [$session->get('authUserID'),$form_source,$dosdate,$amount,$form_pid,$paydesc]
               );
 
-              sqlBeginTrans();
-              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $form_encounter]);
-              $insrt_id = sqlInsert(
-                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                  " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  [$form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount]
-              );
-              sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => $Codetype,
+                'code' => $Code,
+                'modifier' => $Modifier,
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => $session_id,
+                'payAmount' => $amount,
+                'adjustmentAmount' => '0.0',
+                'accountCode' => 'PCP',
+            ]);
         }
 
       // If applicable, set the invoice reference number.
@@ -756,14 +752,14 @@ function generate_receipt($patient_id, $encounter = 0): void
             "WHERE pid = ? AND encounter = ?", [$invoice_refno,$form_pid,$form_encounter]);
         }
 
-        generate_receipt($form_pid, $form_encounter);
+        normal_generate_receipt($form_pid, $form_encounter);
         exit();
     }
 
     // If an encounter ID was given, then we must generate a receipt.
     //
     if (!empty($_GET['enc'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        normal_generate_receipt($patient_id, $_GET['enc']);
         exit();
     }
 
@@ -788,7 +784,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // If there are none, just redisplay the last receipt and exit.
     //
     if (sqlNumRows($bres) == 0 && sqlNumRows($dres) == 0) {
-        generate_receipt($patient_id);
+        normal_generate_receipt($patient_id);
         exit();
     }
 
@@ -968,7 +964,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             <div class="row">
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                         <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>' />
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>
@@ -997,7 +993,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                             continue;
                                         }
 
-                                        $thisdate = substr($brow['date'], 0, 10);
+                                        $thisdate = substr((string) $brow['date'], 0, 10);
                                         $code_type = $brow['code_type'];
 
                                         // Collect tax rates, related code and provider ID.
@@ -1042,7 +1038,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
                                         // Custom logic for IPPF to determine if a GCAC issue applies.
                                         if ($GLOBALS['ippf_specific'] && $related_code) {
-                                            $relcodes = explode(';', $related_code);
+                                            $relcodes = explode(';', (string) $related_code);
                                             foreach ($relcodes as $codestring) {
                                                 if ($codestring === '') {
                                                     continue;

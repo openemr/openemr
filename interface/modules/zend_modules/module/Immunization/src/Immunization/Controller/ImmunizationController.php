@@ -12,12 +12,14 @@
 
 namespace Immunization\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
+use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Immunization\Form\ImmunizationForm;
-use Application\Listener\Listener;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\PhoneNumberService;
 
 class ImmunizationController extends AbstractActionController
 {
@@ -65,35 +67,52 @@ class ImmunizationController extends AbstractActionController
 
         if (empty($patient_id)) {
             $query_pids = '';
+            $pid_bind_values = [];
         } else {
-            $pid_arr = explode(',', $patient_id);
-            $query_pids = '(';
+            $pid_arr = explode(',', (string) $patient_id);
+            $query_pids = '';
+            $pid_bind_values = [];
+            $pid_conditions = [];
+
             foreach ($pid_arr as $pid_val) {
-                $query_pids .= "p.pid = ( '";
-                $query_pids .= $pid_val . "' ) or ";
-                $query_pids .= "p.fname like ( '%";
-                $query_pids .= $pid_val . "%' ) or ";
-                $query_pids .= "p.mname like ( '%";
-                $query_pids .= $pid_val . "%' ) or ";
-                $query_pids .= "p.lname like ( '%";
-                $query_pids .= $pid_val . "%' ) or ";
+                // Validate that pid_val is numeric or alphanumeric (no SQL special chars)
+                $pid_val = trim($pid_val);
+                if (empty($pid_val) || !preg_match('/^[a-zA-Z0-9\s\-]+$/', $pid_val)) {
+                    continue; // Skip invalid values
+                }
+                $pid_conditions[] = "(p.pid = ? OR p.fname LIKE ? OR p.mname LIKE ? OR p.lname LIKE ?)";
+                $pid_bind_values[] = $pid_val;
+                $pid_bind_values[] = "%{$pid_val}%";
+                $pid_bind_values[] = "%{$pid_val}%";
+                $pid_bind_values[] = "%{$pid_val}%";
             }
 
-            $query_pids = trim($query_pids);
-            $query_pids = rtrim($query_pids, 'or');
-            $query_pids .= ') and ';
+            if (!empty($pid_conditions)) {
+                $query_pids = '(' . implode(' OR ', $pid_conditions) . ') AND ';
+            }
         }
 
         if (empty($form_code)) {
             $query_codes = '';
+            $code_bind_values = [];
         } else {
-            $query_codes = 'c.id in ( ';
+            $query_codes = '';
+            $code_bind_values = [];
+            $valid_codes = [];
+
             foreach ($form_code as $code) {
-                $query_codes .= $code . ",";
+                // Validate that code is an integer to prevent SQL injection
+                $validCode = ValidationUtils::validateInt(trim((string) $code), min: 1);
+                if ($validCode !== false) {
+                    $valid_codes[] = $validCode;
+                }
             }
 
-            $query_codes = substr($query_codes, 0, -1);
-            $query_codes .= ') and ';
+            if (!empty($valid_codes)) {
+                $placeholders = str_repeat('?,', count($valid_codes) - 1) . '?';
+                $query_codes = 'c.id IN (' . $placeholders . ') AND ';
+                $code_bind_values = $valid_codes;
+            }
         }
 
         $params = [
@@ -107,6 +126,8 @@ class ImmunizationController extends AbstractActionController
             'limit_end' => $end,
             'query_pids' => $query_pids,
             'patient_id' => $patient_id,
+            'pid_bind_values' => $pid_bind_values,
+            'code_bind_values' => $code_bind_values,
         ];
 
         if ($new_search) {
@@ -154,11 +175,7 @@ class ImmunizationController extends AbstractActionController
         $res = $this->getImmunizationTable()->codeslist();
         $i = 0;
         foreach ($res as $value) {
-            if ($value == $defaultCode) {
-                $select = true;
-            } else {
-                $select = false;
-            }
+            $select = $value == $defaultCode ? true : false;
 
             $rows[$i] = [
                 'value' => $value['id'],
@@ -197,35 +214,52 @@ class ImmunizationController extends AbstractActionController
 
             if (empty($form_code)) {
                 $query_codes = '';
+                $code_bind_values = [];
             } else {
-                $query_codes = 'c.id in ( ';
+                $query_codes = '';
+                $code_bind_values = [];
+                $valid_codes = [];
+
                 foreach ($form_code as $code) {
-                    $query_codes .= $code . ",";
+                    // Validate that code is an integer to prevent SQL injection
+                    $code = trim((string) $code);
+                    if (!empty($code) && is_numeric($code) && $code > 0) {
+                        $valid_codes[] = (int)$code;
+                    }
                 }
 
-                $query_codes = substr($query_codes, 0, -1);
-                $query_codes .= ') and ';
+                if (!empty($valid_codes)) {
+                    $placeholders = str_repeat('?,', count($valid_codes) - 1) . '?';
+                    $query_codes = 'c.id IN (' . $placeholders . ') AND ';
+                    $code_bind_values = $valid_codes;
+                }
             }
 
             if (empty($patient_id)) {
                 $query_pids = '';
+                $pid_bind_values = [];
             } else {
-                $pid_arr = explode(',', $patient_id);
-                $query_pids = '(';
+                $pid_arr = explode(',', (string) $patient_id);
+                $query_pids = '';
+                $pid_bind_values = [];
+                $pid_conditions = [];
+
                 foreach ($pid_arr as $pid_val) {
-                    $query_pids .= "p.pid = ( '";
-                    $query_pids .= $pid_val . "' ) or ";
-                    $query_pids .= "p.fname like ( '%";
-                    $query_pids .= $pid_val . "%' ) or ";
-                    $query_pids .= "p.mname like ( '%";
-                    $query_pids .= $pid_val . "%' ) or ";
-                    $query_pids .= "p.lname like ( '%";
-                    $query_pids .= $pid_val . "%' ) or ";
+                    // Validate that pid_val is numeric or alphanumeric (no SQL special chars)
+                    $pid_val = trim($pid_val);
+                    if (empty($pid_val) || !preg_match('/^[a-zA-Z0-9\s\-]+$/', $pid_val)) {
+                        continue; // Skip invalid values
+                    }
+                    $pid_conditions[] = "(p.pid = ? OR p.fname LIKE ? OR p.mname LIKE ? OR p.lname LIKE ?)";
+                    $pid_bind_values[] = $pid_val;
+                    $pid_bind_values[] = "%{$pid_val}%";
+                    $pid_bind_values[] = "%{$pid_val}%";
+                    $pid_bind_values[] = "%{$pid_val}%";
                 }
 
-                $query_pids = trim($query_pids);
-                $query_pids = rtrim($query_pids, 'or');
-                $query_pids .= ') and ';
+                if (!empty($pid_conditions)) {
+                    $query_pids = '(' . implode(' OR ', $pid_conditions) . ') AND ';
+                }
             }
 
             $params = [
@@ -238,6 +272,8 @@ class ImmunizationController extends AbstractActionController
                 'limit_start' => $start,
                 'limit_end' => $end,
                 'query_pids' => $query_pids,
+                'pid_bind_values' => $pid_bind_values,
+                'code_bind_values' => $code_bind_values,
             ];
 
             if ($new_search) {
@@ -285,7 +321,7 @@ class ImmunizationController extends AbstractActionController
                         $race_title = $this->CommonPlugin()->getListtitle('race', $r['race']);
                         $ethnicity_code = $this->getImmunizationTable()->getNotes($r['ethnicity'], 'ethnicity');
                         $ethnicity_title = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
-                        $guardianarray = explode(' ', $r['guardiansname']);
+                        $guardianarray = explode(' ', (string) $r['guardiansname']);
                         $guardianname = $guardianarray[1] . '^' . $guardianarray[0];
                         if ($r['sex'] === 'Male') {
                             $r['sex'] = 'M';
@@ -338,24 +374,24 @@ class ImmunizationController extends AbstractActionController
                             $r['pubpid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss'] . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
                             "|" . // 4. (B) Alternate PID
                             $r['patientname'] . "^^^^L|" . // 5.R. Name
-                            $guardianname . "|" . // 6. Mather Maiden Name
+                            $guardianname . "|" . // 6. Mother's Maiden Name
                             $r['DOB'] . "|" . // 7. Date, time of birth
                             $r['sex'] . "|" . // 8. Sex
                             "|" . // 9.B Patient Alias
                             $race . "|" . // 10. Race // Ram change
                             $r['address'] . "^L" . "|" . // 11. Address. Default to address type  Mailing Address(M)
                             "|" . // 12. county code
-                            "^PRN^PH^^^" . $this->format_phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-                            "^WPN^PH^^^" . $this->format_phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
+                            "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+                            "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "^^|" . // 14. Phone Work.
                             $r['language'] . "|" . // 15. Primary language
                             $r['status'] . "|" . // 16. Marital status
                             "|" . // 17. Religion
                             "|" . // 18. patient Account Number
                             "|" . // 19.B SSN Number
                             "|" . // 20.B Driver license number
-                            "|" . // 21. Mathers Identifier
+                            "|" . // 21. Mother's Identifier
                             $ethnicity . "|" . // 22. Ethnic Group
-                            "|" . // 23. Birth Plase
+                            "|" . // 23. Birthplace
                             "|" . // 24. Multiple birth indicator
                             "|" . // 25. Birth order
                             "|" . // 26. Citizenship
@@ -383,7 +419,7 @@ class ImmunizationController extends AbstractActionController
                         $protection_indicator = $this->getImmunizationTable()->getNotes($r['protect_indicator'], 'yesno');
                         if ($publicity_code || $protection_indicator || $imm_registry_status_code) {
                             $content .= "PD1|" . // Patient Additional Demographic Segment
-                                "|" . // 1. Living Dependancy
+                                "|" . // 1. Living Dependency
                                 "|" . // 2. Living Arrangement
                                 $r['fac_name'] . "|" . // 3. Patient Primary Facility
                                 $r['primary_care_provider_details'] . "|" . // 4. Patient Primary Care Provider NPI and Provider name
@@ -422,8 +458,8 @@ class ImmunizationController extends AbstractActionController
                                 $guardianname . "^^^^^L|" .  // 2. Legal Name of next of kin
                                 $guardian_relationship_code . "^" . $r['guardianrelationship'] . "^HL70063|" . // 3. Relationship of next of kin with patient
                                 $r['guardian_address'] . "|" . // 4. Address of next of kin
-                                "^PRN^PH^^^" . $this->format_phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
-                                "^WPN^PH^^^" . $this->format_phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
+                                "^PRN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
+                                "^WPN^PH^^^" . PhoneNumberService::toHL7Phone($r['guardianworkphone']) .  // 6. Phone Business of next of kin.
                                 "|" . //7. Contact Role
                                 "|" . //8. Start Date
                                 "|" . //9. End Date
@@ -434,7 +470,7 @@ class ImmunizationController extends AbstractActionController
                                 "|" . //14. Marital status
                                 $r['guardiansex'] . "|" . //  15. Administrative Sex of next of kin
                                 "|" . // 16. Date, time of birth of next of kin
-                                "|" . //17. Living Dependancy
+                                "|" . //17. Living Dependency
                                 "|" . //18. Ambulatory Status
                                 "|" . //19. Citizenship
                                 "|" . // 20. Primary Language
@@ -574,7 +610,7 @@ class ImmunizationController extends AbstractActionController
                             $criteria_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria'], 'immunization_observation');
                             $obs_value_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria_value'], 'imm_vac_eligibility_results');
                             $criteria_value = $criteria_code . "^" . $val_obs['imo_criteria'] . "^" . $criteria_notes;
-                            $date_obs = preg_replace('/-/', '', substr($val_obs['imo_date_observation'], 0, 10));
+                            $date_obs = preg_replace('/-/', '', substr((string) $val_obs['imo_date_observation'], 0, 10));
                             if ($val_obs['imo_criteria'] == 'funding_program_eligibility') {
                                 $obs_value = $obs_value_notes . "^" . $val_obs['imo_criteria_value'] . "^HL70064";
                                 $obs_method = "VXC40^per immunization^CDCPHINVS";
@@ -621,7 +657,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_published'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29768-9^Date vaccine information statement published^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_published']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_published']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 4) {
                                         $key_val = $last_key + 1;
@@ -657,7 +693,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_presented'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29769-7^Date vaccine information statement presented^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_presented']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_presented']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 5) {
                                         $key_val = $last_key + 1;
@@ -745,21 +781,6 @@ class ImmunizationController extends AbstractActionController
         }
 
         return $cvx_code;
-    }
-
-    /**
-     *
-     * @param   $phone      String          phone number
-     * @return              String          formatted phone
-     */
-    public function format_phone($phone)
-    {
-        $phone = preg_replace("/[^0-9]/", "", $phone);
-        return match (strlen($phone)) {
-            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
-            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
-            default => $this->tr("000 0000000"),
-        };
     }
 
     /*

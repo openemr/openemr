@@ -18,21 +18,14 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PhoneNumberService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (
-        new TwigContainer(
-            null,
-            $GLOBALS['kernel']
-        ))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Immunization Registry")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
 if (!empty($_POST)) {
@@ -44,11 +37,6 @@ if (!empty($_POST)) {
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
-
 function format_cvx_code($cvx_code)
 {
 
@@ -57,17 +45,6 @@ function format_cvx_code($cvx_code)
     }
 
     return $cvx_code;
-}
-
-function format_phone($phone)
-{
-
-    $phone = preg_replace("/[^0-9]/", "", $phone);
-    return match (strlen($phone)) {
-        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
-        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
-        default => tr("000 0000000"),
-    };
 }
 
 function format_ethnicity($ethnicity)
@@ -204,24 +181,24 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             $r['patientid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
             "|" . // 4. (B) Alternate PID
             $r['patientname'] . "|" . // 5.R. Name
-            "|" . // 6. Mather Maiden Name
+            "|" . // 6. Mother's Maiden Name
             $r['DOB'] . "|" . // 7. Date, time of birth
             $r['sex'] . "|" . // 8. Sex
             "|" . // 9.B Patient Alias
             "2106-3^" . $r['race'] . "^HL70005" . "|" . // 10. Race // Ram change
             $r['address'] . "^^M" . "|" . // 11. Address. Default to address type  Mailing Address(M)
             "|" . // 12. county code
-            "^PRN^^^^" . format_phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-            "^WPN^^^^" . format_phone($r['phone_biz']) . "|" . // 14. Phone Work.
+            "^PRN^^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+            "^WPN^^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "|" . // 14. Phone Work.
             "|" . // 15. Primary language
             $r['status'] . "|" . // 16. Marital status
             "|" . // 17. Religion
             "|" . // 18. patient Account Number
             "|" . // 19.B SSN Number
             "|" . // 20.B Driver license number
-            "|" . // 21. Mathers Identifier
+            "|" . // 21. Mother's Identifier
             format_ethnicity($r['ethnicity']) . "|" . // 22. Ethnic Group
-            "|" . // 23. Birth Plase
+            "|" . // 23. Birthplace
             "|" . // 24. Multiple birth indicator
             "|" . // 25. Birth order
             "|" . // 26. Citizenship
@@ -512,9 +489,12 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
             let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                data: data,
+                csrf_token_form: csrf_token
+            });
             dlgopen(
-                "../../library/ajax/immunization_export.php?csrf_token_form=" + encodeURIComponent(csrf_token) +
-                    "&data=" + encodeURIComponent(data),
+                "../../library/ajax/immunization_export.php?" + params,
                 'Export',
                 'modal-xs',
                 300,

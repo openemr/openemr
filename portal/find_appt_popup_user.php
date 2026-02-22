@@ -26,24 +26,23 @@
 // This issue no longer exists - epsdky 2019
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-SessionUtil::portalSessionStart();
-//
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-//
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
     SessionUtil::portalSessionCookieDestroy();
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -53,7 +52,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
@@ -61,11 +60,19 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
-// Record an event into the slots array for a specified day.
-function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
+/**
+ * Record an event into the slots array for a specified day.
+ *
+ * @param int|string $catid
+ * @param int $udate
+ * @param string $starttime
+ * @param int|string $duration
+ * @param int|string $prefcatid
+ */
+function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -110,7 +117,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = $globalsBag->get('calendar_interval') * 60;
 
 $catslots = 1;
 if ($input_catid) {
@@ -135,7 +142,7 @@ if (!empty($_REQUEST['startdate'])) {
 }
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
 $edate = date(
     "Y-m-d",
     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
@@ -181,7 +188,7 @@ if ($_REQUEST['providerid']) {
     $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
     foreach ($events2 as $row) {
         $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-        doOneDay(
+        portal_doOneDay(
             $row['pc_catid'],
             $thistime,
             $row['pc_startTime'],
@@ -410,7 +417,7 @@ if ($_REQUEST['providerid']) {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

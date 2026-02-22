@@ -16,6 +16,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
@@ -43,8 +44,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private ServerConfig $config;
 
-    private ?SessionInterface $session;
-
     private ClaimSetRepositoryInterface $claimRepository;
 
     private ServerScopeListEntity $serverScopeList;
@@ -53,9 +52,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      * ScopeRepository constructor.
      * @param SessionInterface|null $session
      */
-    public function __construct(?SessionInterface $session = null)
+    public function __construct(private ?SessionInterface $session = null)
     {
-        $this->session = $session;
     }
 
     public function setServerScopeList(ServerScopeListEntity $serverScopeList): void
@@ -214,7 +212,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
         $scopesSupportedList = $this->getServerScopeList()->getAllSupportedScopesList();
 
-        // for backwards compatability we are going to fire for all three scope types, FHIR being first
+        // for backwards compatibility we are going to fire for all three scope types, FHIR being first
         $scopeEvents = [
             RestApiScopeEvent::API_TYPE_FHIR,
             RestApiScopeEvent::API_TYPE_STANDARD
@@ -225,10 +223,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesEvent->setApiType($event);
             $scopesEvent->setScopes($scopesSupportedList);
             // TODO: @adunsulag we need to extract this global out of the this class so we can inject and test it.
-            $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($scopesEvent, RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, 10);
-            if ($scopesEvent instanceof RestApiScopeEvent) {
-                $scopesSupportedList = $scopesEvent->getScopes();
-            }
+            $scopesEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scopesEvent, RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES);
+            $scopesSupportedList = $scopesEvent->getScopes();
         }
 
         return $scopesSupportedList;
@@ -392,7 +388,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     private function scopeArrayHasString(array $scopes, $str): bool
     {
         foreach ($scopes as $scope) {
-            if (str_contains($scope, $str)) {
+            if (str_contains((string) $scope, (string) $str)) {
                 return true;
             }
         }

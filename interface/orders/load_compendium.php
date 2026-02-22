@@ -27,8 +27,8 @@ set_time_limit(0);
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // This array is an important reference for the supported labs and their NPI
@@ -62,12 +62,11 @@ function getLabID($npi)
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Load Compendium")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Load Compendium", xl("Load Compendium"));
 }
 
-$form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
-$form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
+$form_step   = isset($_POST['form_step']) ? trim((string) $_POST['form_step']) : '0';
+$form_status = isset($_POST['form_status' ]) ? trim((string) $_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_import'])) {
     $form_step = 1;
@@ -291,7 +290,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                             continue;
                                         }
 
-                                        $code = trim($acsv[0]);
+                                        $code = trim((string) $acsv[0]);
                                         if (empty($code)) {
                                             continue;
                                         }
@@ -310,9 +309,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                         // Figure out field type.
                                         if ($acsv[6] == 'DD') {
                                             $fldtype = 'S';
-                                        } elseif (stristr($acsv[3], 'mm/dd/yy') !== false) {
+                                        } elseif (stristr((string) $acsv[3], 'mm/dd/yy') !== false) {
                                             $fldtype = 'D';
-                                        } elseif (stristr($acsv[3], 'wks_days') !== false) {
+                                        } elseif (stristr((string) $acsv[3], 'wks_days') !== false) {
                                             $fldtype = 'G';
                                         } elseif ($acsv[6] == 'FT') {
                                             $fldtype = 'T';
@@ -363,9 +362,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                             continue;
                                         }
 
-                                        $pcode   = trim($acsv[1]);
-                                        $qcode   = trim($acsv[0]);
-                                        $options = trim($acsv[2]) . ':' . trim($acsv[3]);
+                                        $pcode   = trim((string) $acsv[1]);
+                                        $qcode   = trim((string) $acsv[0]);
+                                        $options = trim((string) $acsv[2]) . ':' . trim((string) $acsv[3]);
                                         if (empty($pcode) || empty($qcode)) {
                                             continue;
                                         }
@@ -413,7 +412,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                     //
                                     while (!feof($fhcsv)) {
                                             $acsv = fgetcsv($fhcsv, 4096);
-                                            $ordercode = trim($acsv[0]);
+                                            $ordercode = trim((string) $acsv[0]);
                                         if (count($acsv) < 2 || $ordercode == "Order Code") {
                                             continue;
                                         }
@@ -430,7 +429,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                                                 "INSERT INTO procedure_type SET " .
                                                                 "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?, " .
                                                                 "activity = 1",
-                                                                [$form_group, trim($acsv[1]), $lab_id, $ordercode, 'ord']
+                                                                [$form_group, trim((string) $acsv[1]), $lab_id, $ordercode, 'ord']
                                                             );
                                         } else {
                                                                 sqlStatement(
@@ -438,7 +437,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?, " .
                                                                     "activity = 1 " .
                                                                     "WHERE procedure_type_id = ?",
-                                                                    [$form_group, trim($acsv[1]), $lab_id, $ordercode, 'ord',
+                                                                    [$form_group, trim((string) $acsv[1]), $lab_id, $ordercode, 'ord',
                                                                     $trow['procedure_type_id']]
                                                                 );
                                         }
@@ -470,10 +469,10 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                             continue;
                                         }
 
-                                        $pcode   = trim($acsv[0]);
-                                        $qcode   = trim($acsv[1]);
+                                        $pcode   = trim((string) $acsv[0]);
+                                        $qcode   = trim((string) $acsv[1]);
                                         $required = strtolower(substr($acsv[3], 0, 1)) == 't' ? 1 : 0;
-                                        $options = trim($acsv[5]);
+                                        $options = trim((string) $acsv[5]);
                                         if (empty($pcode) || empty($qcode)) {
                                             continue;
                                         }
@@ -487,9 +486,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 
                                         // Figure out field type.
                                         $fldtype = 'T';
-                                        if (strpos($acsv[4], 'Drop') !== false) {
+                                        if (str_contains((string) $acsv[4], 'Drop')) {
                                             $fldtype = 'S';
-                                        } elseif (strpos($acsv[4], 'Multiselect') !== false) {
+                                        } elseif (str_contains((string) $acsv[4], 'Multiselect')) {
                                             $fldtype = 'S';
                                         }
 
@@ -508,7 +507,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                                         "INSERT INTO procedure_questions SET " .
                                                         "lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, " .
                                                         "fldtype = ?, required = ?, options = ?, seq = ?, activity = 1",
-                                                        [$lab_id, $pcode, $qcode, trim($acsv[2]), $fldtype, $required, $options, $seq]
+                                                        [$lab_id, $pcode, $qcode, trim((string) $acsv[2]), $fldtype, $required, $options, $seq]
                                                     );
                                         } else {
                                             if ($qrow['activity'] == '1' && $qrow['options'] !== '' && $options !== '') {
@@ -519,7 +518,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                                                         "UPDATE procedure_questions SET " .
                                                         "question_text = ?, fldtype = ?, required = ?, options = ?, activity = 1 WHERE " .
                                                         "lab_id = ? AND procedure_code = ? AND question_code = ?",
-                                                        [trim($acsv[2]), $fldtype, $required, $options, $lab_id, $pcode, $qcode]
+                                                        [trim((string) $acsv[2]), $fldtype, $required, $options, $lab_id, $pcode, $qcode]
                                                     );
                                         }
                                     } // end while
@@ -567,4 +566,3 @@ flush();
 
 </body>
 </html>
-

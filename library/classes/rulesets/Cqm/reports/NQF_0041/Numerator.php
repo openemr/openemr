@@ -19,8 +19,8 @@ class NQF_0041_Numerator implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime($beginDate)));
-        $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime($beginDate)));
+        $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime((string) $beginDate)));
+        $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime((string) $beginDate)));
         $influenza_procedure = implode(',', Codes::lookup(self::INFLU_VACCINE, 'SNOMED'));
         $influenza_medication = implode(',', Codes::lookup(Medication::INFLUENZA_VACCINE, 'CVX'));
         $provider_communication = implode(',', Codes::lookup(Communication::PREV_RECEIPT_VACCINE, 'SNOMED'));

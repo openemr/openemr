@@ -83,7 +83,7 @@ class ControllerEdit extends BaseController
         // its a new rule submit
         $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
         // redirect to the intervals page
-        $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
+        $this->redirect("index.php?action=edit!intervals&id=" . urlencode((string) $ruleId));
     }
 
     function _action_intervals()

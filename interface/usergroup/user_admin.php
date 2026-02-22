@@ -20,16 +20,17 @@ require_once("../globals.php");
 require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Events\User\UserEditRenderEvent;
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -40,8 +41,7 @@ if (!empty($_GET)) {
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit User")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit User", xl("Edit User"));
 }
 
 if (!$_GET["id"]) {
@@ -71,11 +71,7 @@ $iter = $result[0];
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $collectthis = collectValidationPageRules("/interface/usergroup/user_admin.php");
-if (empty($collectthis)) {
-    $collectthis = "undefined";
-} else {
-    $collectthis = json_sanitize($collectthis["user_form"]["rules"]);
-}
+$collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis["user_form"]["rules"]);
 ?>
 
 <script>
@@ -130,7 +126,7 @@ function submitform() {
 
     }//If pwd null ends here
 
-    // Valiate Google email address (if provided)
+    // Validate Google email address (if provided)
     if(document.forms[0].google_signin_email.value != "" && !isValidEmail(document.forms[0].google_signin_email.value)) {
         flag=1;
         alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
@@ -294,7 +290,7 @@ function toggle_password() {
         // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
         // generate additional rows / table columns which locks us into that format.
         $preRenderEvent = new UserEditRenderEvent('user_admin.php', $_GET['id']);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
         ?>
     </td>
 </tr>
@@ -468,7 +464,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
-<td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
+<td class='text'><?php echo xlt('Ensora eRX Role'); ?>:</td>
 <td>
     <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', ['style' => 'width:150px']); ?>
 </td>
@@ -488,7 +484,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector($iter["main_menu_role"]);
     ?>
   </td>
@@ -637,7 +633,7 @@ foreach ($list_acl_groups as $value) {
             // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
             // generate additional rows / table columns which locks us into that format.
             $postRenderEvent = new UserEditRenderEvent('user_admin.php', $_GET['id']);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($postRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($postRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
             ?>
         </td>
     </tr>

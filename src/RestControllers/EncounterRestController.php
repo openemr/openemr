@@ -29,7 +29,7 @@ class EncounterRestController
         "provider_id"
     ];
 
-    public function __construct(private SessionInterface $session)
+    public function __construct(private readonly SessionInterface $session)
     {
         $this->encounterService = new EncounterService();
     }

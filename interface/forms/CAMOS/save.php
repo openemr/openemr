@@ -25,10 +25,10 @@ if ($_GET["mode"] == "delete") {
     }
 
     foreach ($_POST as $key => $val) {
-        if (!(str_starts_with($key, 'ch_') and $val === 'on')) {
+        if (!(str_starts_with((string) $key, 'ch_') and $val === 'on')) {
             continue;
         }
-        $id = substr($key, 3);
+        $id = substr((string) $key, 3);
         if ($_POST['delete']) {
             sqlStatement("delete from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id=?", [$id]);
             sqlStatement("delete from forms where form_name like 'CAMOS%' and form_id=?", [$id]);

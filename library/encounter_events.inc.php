@@ -15,6 +15,8 @@
 require_once(__DIR__ . '/calendar.inc.php');
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
+use OpenEMR\Common\Database\QueryUtils;
+
 //===============================================================================
 //This section handles the events of payment screen.
 //===============================================================================
@@ -76,8 +78,8 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
         $visit_provider = '(NULL)';
     }
 
-    $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
+    $dos = $enc_date ?: $today;
+    $visit_reason = $reason ?: xl('Please indicate visit reason');
     if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
         $visit_reason = 'Please indicate visit reason';
     }
@@ -87,9 +89,8 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
-    $visit_cat = $cat ? $cat : '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $visit_cat = $cat ?: '(NULL)';
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -140,16 +141,15 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
         $visit_provider = $counselors = null;
     }
 
-    $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
+    $dos = $enc_date ?: $today;
+    $visit_reason = $reason ?: xl('Please indicate visit reason');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
-    $visit_cat = $cat ? $cat : '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $visit_cat = $cat ?: '(NULL)';
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
@@ -227,8 +227,7 @@ function todaysEncounter($patient_id, $reason = '')
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $tmprow['facility_id'];
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     addForm(
         $encounter,
@@ -330,7 +329,7 @@ function check_event_exist($eid)
         $origEventRow = sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
     } else {
-        if (strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false) {//;'20110228'
+        if (!str_contains((string) $pc_recurrspec_array['exdate'], date('Ymd'))) {//;'20110228'
             return false;
         } else {//this happens in delete case
             return true;
@@ -458,11 +457,11 @@ function &__increment($d, $m, $y, $f, $t)
 
 function getTheNextAppointment($appointment_date, $freq)
 {
-    $day_arr = explode(",", $freq);
+    $day_arr = explode(",", (string) $freq);
     $date_arr = [];
     foreach ($day_arr as $day) {
         $day = getDayName($day);
-        $date = date('Y-m-d', strtotime("next " . $day, strtotime($appointment_date)));
+        $date = date('Y-m-d', strtotime("next " . $day, strtotime((string) $appointment_date)));
         array_push($date_arr, $date);
     }
 
@@ -506,7 +505,7 @@ function getEarliestDate($date_arr)
 {
     $earliest = ($date_arr[0]);
     foreach ($date_arr as $date) {
-        if (strtotime($date) < strtotime($earliest)) {
+        if (strtotime((string) $date) < strtotime((string) $earliest)) {
             $earliest = $date;
         }
     }

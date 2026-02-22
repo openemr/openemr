@@ -34,6 +34,7 @@ $code             = $_POST["code"]         ?? [];
 $code_text        = $_POST["codetext"]     ?? [];
 $code_date        = $_POST["code_date"]    ?? [];
 $end_date         = $_POST["end_date"]     ?? [];
+$proposed_date     = $_POST["proposed_date"] ?? [];
 $status           = $_POST["plan_status"]       ?? [];
 $code_des         = $_POST["description"]  ?? [];
 $count            = $_POST["count"]        ?? [];
@@ -67,7 +68,7 @@ if (!empty($count)) {
         $codetext_val       = $code_text[$key] ?? '';
         $description_val    = $code_des[$key] ?? '';
         $care_plan_type_val = $care_plan_type[$key] ?? '';
-        $care_user_val      = $care_plan_user[$key] ?? $_SESSION["authUser"];
+        $care_user_val      = $care_plan_user[$key] ?: $_SESSION["authUser"];
 
         // Dates & status normalization
         $start_date_val = trim($code_date[$key] ?? '');
@@ -75,6 +76,9 @@ if (!empty($count)) {
 
         $end_date_val = trim($end_date[$key] ?? '');
         $end_date_val = ($end_date_val !== '') ? $end_date_val : null;
+
+        $proposed_date_val = trim($proposed_date[$key] ?? '');
+        $proposed_date_val = ($proposed_date_val !== '') ? $proposed_date_val : null;
 
         $plan_status_val = trim($status[$key] ?? '');
         $plan_status_val = ($plan_status_val !== '') ? $plan_status_val : null;
@@ -107,8 +111,9 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date = ?,
-            date_end = ?, 
-            plan_status = ?, 
+            date_end = ?,
+            proposed_date = ?,
+            plan_status = ?,
             care_plan_type = ?,
             note_related_to = ?,
             reason_code = ?,
@@ -131,6 +136,7 @@ if (!empty($count)) {
                 $description_val,
                 $start_date_val,
                 $end_date_val,
+                $proposed_date_val,
                 $plan_status_val,
                 $care_plan_type_val,
                 $note_relations,
@@ -147,9 +153,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", $note, $matches);
-    return json_encode($matches[1]);
-}

@@ -43,7 +43,7 @@ include_once __DIR__ . '/Savant3/Plugin.php';
  */
 
 #[\AllowDynamicProperties]
-class Savant3
+class Savant3 implements \Stringable
 {
     /**
      *
@@ -192,10 +192,7 @@ class Savant3
             1 => $plugin->$func($args [0]),
             2 => $plugin->$func($args [0], $args [1]),
             3 => $plugin->$func($args [0], $args [1], $args [2]),
-            default => call_user_func_array([
-                    $plugin,
-                    $func
-            ], $args),
+            default => $plugin->$func(...$args),
         };
     }
 
@@ -212,7 +209,7 @@ class Savant3
      * @return string The template output.
      *
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getOutput();
     }
@@ -277,11 +274,7 @@ class Savant3
 
             // get the default configuration for the plugin.
             $plugin_conf = & $this->__config ['plugin_conf'];
-            if (! empty($plugin_conf [$name])) {
-                $opts = $plugin_conf [$name];
-            } else {
-                $opts =  [];
-            }
+            $opts = ! empty($plugin_conf [$name]) ? $plugin_conf [$name] : [];
 
             // add the Savant reference
             $opts ['Savant'] = $this;
@@ -485,7 +478,7 @@ class Savant3
      */
     public function setEscape()
     {
-        $this->__config ['escape'] = (array) @func_get_args();
+        $this->__config ['escape'] = @func_get_args();
     }
 
     /**
@@ -511,7 +504,7 @@ class Savant3
      */
     public function addEscape()
     {
-        $args = (array) @func_get_args();
+        $args = @func_get_args();
         $this->__config ['escape'] = array_merge($this->__config ['escape'], $args);
     }
 
@@ -572,12 +565,7 @@ class Savant3
             // no, only a value was passed.
             // loop through the predefined callbacks.
             foreach ($this->__config ['escape'] as $func) {
-                // this if() shaves 0.001sec off of 300 calls.
-                if (is_string($func)) {
-                    $value = $func($value);
-                } else {
-                    $value = call_user_func($func, $value);
-                }
+                $value = $func($value);
             }
         } else {
             // yes, use the custom callbacks
@@ -588,12 +576,7 @@ class Savant3
 
             // loop through custom callbacks.
             foreach ($callbacks as $func) {
-                // this if() shaves 0.001sec off of 300 calls.
-                if (is_string($func)) {
-                    $value = $func($value);
-                } else {
-                    $value = call_user_func($func, $value);
-                }
+                $value = $func($value);
             }
         }
 
@@ -640,10 +623,7 @@ class Savant3
             echo $this->escape($value);
         } else {
             $args = func_get_args();
-            echo call_user_func_array([
-                    $this,
-                    'escape'
-            ], $args);
+            echo $this->escape(...$args);
         }
     }
 
@@ -724,7 +704,7 @@ class Savant3
         // loop through the path directories
         foreach ($path as $dir) {
             // no surrounding spaces allowed!
-            $dir = trim($dir);
+            $dir = trim((string) $dir);
 
             // add trailing separators as needed
             if (strpos($dir, '://') && !str_ends_with($dir, '/')) {
@@ -765,7 +745,7 @@ class Savant3
             $fullname = $path . $file;
 
             // is the path based on a stream?
-            if (strpos($path, '://') === false) {
+            if (!str_contains((string) $path, '://')) {
                 // not a stream, so do a realpath() to avoid
                 // directory traversal attempts on the local file
                 // system. Suggested by Ian Eure, initially
@@ -777,9 +757,9 @@ class Savant3
 
             // the substr() check added by Ian Eure to make sure
             // that the realpath() results in a directory registered
-            // with Savant so that non-registered directores are not
+            // with Savant so that non-registered directories are not
             // accessible via directory traversal attempts.
-            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, $path)) {
+            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, (string) $path)) {
                 return $fullname;
             }
         }
@@ -1060,10 +1040,7 @@ class Savant3
             // compile the template source and get the path to the
             // compiled script (will be returned instead of the
             // source path)
-            $result = call_user_func([
-                    $this->__config ['compiler'],
-                    'compile'
-            ], $file);
+            $result = ($this->__config['compiler'])::compile($file);
         } else {
             // no compiling requested, use the source path
             $result = $file;
@@ -1103,7 +1080,7 @@ class Savant3
      */
     public function setFilters()
     {
-        $this->__config ['filters'] = (array) @func_get_args();
+        $this->__config ['filters'] = @func_get_args();
     }
 
     /**
@@ -1122,7 +1099,7 @@ class Savant3
     {
         // add the new filters to the static config variable
         // via the reference
-        foreach ((array) @func_get_args() as $callback) {
+        foreach (@func_get_args() as $callback) {
             $this->__config ['filters'] [] = $callback;
         }
     }
@@ -1150,7 +1127,7 @@ class Savant3
             }
 
             // can't pass a third $this param, it chokes the OB system.
-            $buffer = call_user_func($callback, $buffer);
+            $buffer = $callback($buffer);
         }
 
         return $buffer;

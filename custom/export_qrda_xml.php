@@ -258,7 +258,7 @@ $form_provider = $_GET['form_provider'];
 $report_id = $_GET['report_id'];
 $report_view = collectReportDatabase($report_id);
 $target_date = $report_view['date_target'];
-$dataSheet = json_decode($report_view['data'], true);
+$dataSheet = json_decode((string) $report_view['data'], true);
 
 //Needed array for Rule NQF#0024 Stratification
 $stratumCheckArr = [];
@@ -310,8 +310,8 @@ if (count($dataSheet) > 0) {
     }
 }
 
-$from_date = date('Y', strtotime($target_date)) . "-01-01";
-$to_date =  date('Y', strtotime($target_date)) . "-12-31";
+$from_date = date('Y', strtotime((string) $target_date)) . "-01-01";
+$to_date =  date('Y', strtotime((string) $target_date)) . "-12-31";
 $xml = new QRDAXml();
 
 #################################################################################################
@@ -336,7 +336,7 @@ $main_title = "QRDA Calculated Summary Report";
 $xml->add_title($main_title);
 
 //Effective date and time
-$eff_datetime = date('Ymdhis', strtotime($target_date));
+$eff_datetime = date('Ymdhis', strtotime((string) $target_date));
 $xml->self_efftime($eff_datetime);
 
 $xml->self_confidentcode();
@@ -1492,7 +1492,7 @@ if (!file_exists($qrda_file_path)) {
 
 $qrda_file_name = $qrda_file_path . $qrda_fname;
 $fileQRDAOPen = fopen($qrda_file_name, "w");
-fwrite($fileQRDAOPen, trim($xml->getXml()));
+fwrite($fileQRDAOPen, trim((string) $xml->getXml()));
 fclose($fileQRDAOPen);
 ?>
 
@@ -1518,7 +1518,7 @@ fclose($fileQRDAOPen);
     <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
-<?php echo trim($xml->getXml()); ?>
+<?php echo trim((string) $xml->getXml()); ?>
 </textarea>
 
 <p><input type='button' value='<?php echo xla('Close'); ?>' onclick='closeme();' /></p>

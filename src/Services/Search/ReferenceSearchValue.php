@@ -13,31 +13,24 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-class ReferenceSearchValue
+class ReferenceSearchValue implements \Stringable
 {
     /**
      * @var string|number
      */
     private $id;
 
-    /**
-     * @var string|null
-     */
-    private $resource;
 
     /**
-     * Tracks if the reference search value is a unique user id (stored in binary) and needs to be converted.
-     * All reference values should be uuids but this gives us the option in the future to have non-uuids if this changes
-     * @var boolean
+     * @param mixed $id
+     * @param string|null $resource
+     * @param bool $isUuid Tracks if the reference search value is a unique user id (stored in binary) and needs to be converted. All reference values should be uuids but this gives us the option in the future to have non-uuids if this changes
      */
-    private $isUuid;
-
-
-    public function __construct($id, $resource = null, $isUuid = false)
-    {
-        $this->resource = $resource;
-        $this->isUuid = $isUuid;
-
+    public function __construct(
+        $id,
+        private $resource = null,
+        private $isUuid = false
+    ) {
         if ($this->isUuid) {
             if (UuidRegistry::isValidStringUUID($id)) {
                 $this->id = UuidRegistry::uuidToBytes($id);
@@ -59,8 +52,8 @@ class ReferenceSearchValue
     {
         $id = $relativeUri;
         $resource = null;
-        if (strpos($relativeUri, "/") !== false) {
-            $parts = explode("/", $relativeUri);
+        if (str_contains((string) $relativeUri, "/")) {
+            $parts = explode("/", (string) $relativeUri);
             $resource = $parts[0];
             $id = end($parts);
         }
@@ -94,12 +87,12 @@ class ReferenceSearchValue
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->getResource()) {
             return $this->getResource() . "/" . $this->getHumanReadableId();
         } else {
-            return $this->getHumanReadableId();
+            return (string) $this->getHumanReadableId();
         }
     }
 }

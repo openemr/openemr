@@ -10,6 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormROS.class.php");
 
@@ -17,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormROS extends Controller
 {
-    var $template_dir;
+    public $template_dir;
 
     function __construct($template_mod = "general")
     {
@@ -41,11 +46,7 @@ class C_FormROS extends Controller
     function view_action($form_id)
     {
 
-        if (is_numeric($form_id)) {
-            $ros = new FormROS($form_id);
-        } else {
-            $ros = new FormROS();
-        }
+        $ros = is_numeric($form_id) ? new FormROS($form_id) : new FormROS();
 
         $this->assign("form", $ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");

@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -174,14 +175,14 @@ function postcalendar_userapi_buildView($args)
     $tpl = new pcSmarty();
 
     //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //diable caching completely
+    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
         //=================================================================
-        $the_year   = substr($Date, 0, 4);
-        $the_month  = substr($Date, 4, 2);
-        $the_day    = substr($Date, 6, 2);
+        $the_year   = substr((string) $Date, 0, 4);
+        $the_month  = substr((string) $Date, 4, 2);
+        $the_day    = substr((string) $Date, 6, 2);
         $last_day = Date_Calc::daysInMonth($the_month, $the_year);
 
         //=================================================================
@@ -215,11 +216,7 @@ function postcalendar_userapi_buildView($args)
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 0, $the_year));
                 $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day - 1, $the_year));
                 $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if ($end_dow != 0) {
-                    $the_last_day = $last_day + (7 - $end_dow);
-                } else {
-                    $the_last_day = $last_day;
-                }
+                $the_last_day = $end_dow != 0 ? $last_day + (7 - $end_dow) : $last_day;
                 break;
             case _IS_SATURDAY:
                 $pc_array_pos = 6;
@@ -240,11 +237,7 @@ function postcalendar_userapi_buildView($args)
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 1, $the_year));
                 $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day, $the_year));
                 $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if ($end_dow != 6) {
-                    $the_last_day = $last_day + (6 - $end_dow);
-                } else {
-                    $the_last_day = $last_day;
-                }
+                $the_last_day = $end_dow != 6 ? $last_day + (6 - $end_dow) : $last_day;
                 break;
         }
 
@@ -545,11 +538,11 @@ function postcalendar_userapi_buildView($args)
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
         $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
         $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
         $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
         $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
@@ -626,9 +619,9 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $start = Date_Calc::dateNow('%Y-%m-%d');
     }
 
-    [$sy, $sm, $sd] = explode('-', $start);
+    [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -696,30 +689,26 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //  END SEARCH FUNCTIONALITY
   //======================================================================
   //echo "<Br />sql: $sql<br />";
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // get the results from the query
         //RM include address
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
+        $tmp = [];
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
         // get the user id of event's author
-        $cuserid = @$nuke_users[strtolower($tmp['uname'])];
+        $cuserid = @$nuke_users[strtolower((string) $tmp['uname'])];
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
@@ -765,7 +754,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['owner_name']  = $tmp['owner_name'];
         $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
-        $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']), 0, 4);
+        $events[$i]['patient_age'] = date("Y") - substr(((string) $tmp['patient_dob']), 0, 4);
         $events[$i]['facility']    = getfacility($tmp['facility']);
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
@@ -793,13 +782,13 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
               $events[$i]['state']       = '';
               $events[$i]['postal']      = '';
         } else {
-              $display_type = substr($tmp['hometext'], 0, 6);
+              $display_type = substr((string) $tmp['hometext'], 0, 6);
             if ($display_type == ':text:') {
                 $prepFunction = 'pcVarPrepForDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'], 6);
+                $tmp['hometext'] = substr((string) $tmp['hometext'], 6);
             } elseif ($display_type == ':html:') {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'], 6);
+                $tmp['hometext'] = substr((string) $tmp['hometext'], 6);
             } else {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
             }
@@ -825,8 +814,6 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -860,16 +847,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     $topic = pnVarCleanFromInput('pc_topic');
     $category = pnVarCleanFromInput('pc_category');
-    if (!empty($pc_username) && (strtolower($pc_username) != 'anonymous')) {
+    if (!empty($pc_username) && (strtolower((string) $pc_username) != 'anonymous')) {
         if ($pc_username == '__PC_ALL__' || $pc_username == -1) {
             $ruserid = -1;
         } else {
             $user = (new UserService())->getIdByUsername($pc_username);
-            if ($user) {
-                $ruserid = $user;
-            } else {
-                $ruserid = -1;
-            }
+            $ruserid = $user ?: -1;
         }
     }
 
@@ -886,9 +869,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $start = Date_Calc::dateNow('%Y-%m-%d');
     }
 
-    [$sy, $sm, $sd] = explode('-', $start);
+    [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -920,7 +903,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
@@ -1017,25 +1000,21 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
 
         // get the results from the query
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
+        $tmp = [];
         [
             $tmp['eid'],
             $tmp['uname'],
@@ -1078,16 +1057,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_name'],
             $tmp['group_type'],
             $tmp['group_status'],
-        ] = $result->fields;
+        ] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
         // get the user id of event's author
-        if (!empty($nuke_users)) {
-            $cuserid = @$nuke_users[strtolower($tmp['uname'])];
-        } else {
-            $cuserid = '';
-        }
+        $cuserid = !empty($nuke_users) ? @$nuke_users[strtolower((string) $tmp['uname'])] : '';
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
@@ -1156,13 +1131,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
               $events[$i]['state']       = '';
               $events[$i]['postal']      = '';
         } else {
-              $display_type = substr($tmp['hometext'], 0, 6);
+              $display_type = substr((string) $tmp['hometext'], 0, 6);
             if ($display_type == ':text:') {
                 $prepFunction = 'pcVarPrepForDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'], 6);
+                $tmp['hometext'] = substr((string) $tmp['hometext'], 6);
             } elseif ($display_type == ':html:') {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'], 6);
+                $tmp['hometext'] = substr((string) $tmp['hometext'], 6);
             } else {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
             }
@@ -1195,8 +1170,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -1204,11 +1177,11 @@ function &postcalendar_userapi_pcQueryEvents($args)
 function getBlockTime($time)
 {
 
-    if ($time == 0 || strlen($time) == 0) {
+    if ($time == 0 || strlen((string) $time) == 0) {
         return "all_day";
     }
 
-    $ts = strtotime($time);
+    $ts = strtotime((string) $time);
     $half = 0;
     $minutes = date("i", $ts);
     $hour = date("H", $ts);
@@ -1221,8 +1194,8 @@ function getBlockTime($time)
 }
 
 /*==========================
- * Gather up all the Events matching the arguements
- * Arguements can be:
+ * Gather up all the Events matching the arguments
+ * Arguments can be:
  *  start = starting date in m/d/Y format
  *  end = ending date in m/d/Y format
  *  viewtype = day|week|month|year
@@ -1234,9 +1207,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     extract($args);
 
     $date = postcalendar_getDate();
-    $cy = substr($date, 0, 4);
-    $cm = substr($date, 4, 2);
-    $cd = substr($date, 6, 2);
+    $cy = substr((string) $date, 0, 4);
+    $cm = substr((string) $date, 4, 2);
+    $cd = substr((string) $date, 6, 2);
     if (isset($start) && isset($end)) {
         // parse start date
         [$sm, $sd, $sy] = explode('/', $start);
@@ -1276,7 +1249,7 @@ function &postcalendar_userapi_pcGetEvents($args)
             $s_keywords = '';
         }
 
-        $providerID = $providerID ?? '';
+        $providerID ??= '';
 
         $a = ['start' => $start_date,'end' => $end_date,'s_keywords' => $s_keywords,'s_category' => $s_category,'s_topic' => $s_topic,'viewtype' => ($viewtype ?? null), "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id];
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
@@ -1309,11 +1282,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setEndDate($end_date);
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
-    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    if ($result instanceof CalendarUserGetEventsFilter) {
-        $days = $result->getEventsByDays();
-    }
-    return $days;
+    $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    return $result->getEventsByDays();
 }
 
 //===========================
@@ -1324,9 +1294,9 @@ function calculateEvents($days, $events, $viewtype)
 {
   //
     $date = postcalendar_getDate();
-    $cy = substr($date, 0, 4);
-    $cm = substr($date, 4, 2);
-    $cd = substr($date, 6, 2);
+    $cy = substr((string) $date, 0, 4);
+    $cm = substr((string) $date, 4, 2);
+    $cd = substr((string) $date, 6, 2);
 
   // here the start_date value is set to whatever comes in
   // on postcalendar_getDate() which is not always the first
@@ -1340,7 +1310,7 @@ function calculateEvents($days, $events, $viewtype)
     $day_number = count($days_keys);
 
   // Optimization of the stop date to not be much later than required.
-    $tmpsecs = strtotime($start_date);
+    $tmpsecs = strtotime((string) $start_date);
     if ($viewtype == 'day') {
         $tmpsecs +=  3 * 24 * 3600;
     } elseif ($viewtype == 'week') {
@@ -1393,13 +1363,9 @@ function calculateEvents($days, $events, $viewtype)
             case REPEAT:
             case REPEAT_DAYS:
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) {
-                    $stop = $event['endDate'];
-                } else {
-                    $stop = $last_date;
-                }
+                $stop = $last_date > $event['endDate'] ? $event['endDate'] : $last_date;
 
-                [$esY, $esM, $esD] = explode('-', $event['eventDate']);
+                [$esY, $esM, $esD] = explode('-', (string) $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
@@ -1418,7 +1384,7 @@ function calculateEvents($days, $events, $viewtype)
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
                 }
 
                 while ($occurance <= $stop) {
@@ -1426,10 +1392,10 @@ function calculateEvents($days, $events, $viewtype)
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
                         if (isset($exdate)) {
-                            foreach (explode(",", $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                            foreach (explode(",", (string) $exdate) as $exception) {
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1452,7 +1418,7 @@ function calculateEvents($days, $events, $viewtype)
                     }
 
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
                 }
                 break;
 
@@ -1464,13 +1430,9 @@ function calculateEvents($days, $events, $viewtype)
             //==============================================================
             case REPEAT_ON:
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) {
-                    $stop = $event['endDate'];
-                } else {
-                    $stop = $last_date;
-                }
+                $stop = $last_date > $event['endDate'] ? $event['endDate'] : $last_date;
 
-                [$esY, $esM, $esD] = explode('-', $event['eventDate']);
+                [$esY, $esM, $esD] = explode('-', (string) $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
@@ -1494,7 +1456,7 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
-                // below a problem with overfow will occur so it is set to 1 to prevent this.
+                // below a problem with overflow will occur so it is set to 1 to prevent this.
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
@@ -1515,10 +1477,10 @@ function calculateEvents($days, $events, $viewtype)
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
                         if (isset($exdate)) {
-                            foreach (explode(",", $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                            foreach (explode(",", (string) $exdate) as $exception) {
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1548,7 +1510,7 @@ function calculateEvents($days, $events, $viewtype)
 
 function fillBlocks($td, $ar): void
 {
-    if (strlen($td) > 0 && !isset($ar[$td]['blocks'])) {
+    if (strlen((string) $td) > 0 && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = [];
         for ($j = 0; $j < 48; $j++) {
             $ar[strval($td)]['blocks'][strval($j)] = [];

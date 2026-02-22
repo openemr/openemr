@@ -32,8 +32,8 @@ class SendSmsEvent extends Event
     // sms send dialog sendSMS('mobile phone number')
     const JAVASCRIPT_READY_SMS_POST = 'sendSMS.javascript.load.post';
 
-    private string $pid;
-    private string $recipientMessagePhone;
+    private readonly string $pid;
+    private readonly string $recipientMessagePhone;
 
     public function __construct($pid)
     {

@@ -57,7 +57,7 @@ class WenoLogService
         $sql = "INSERT INTO weno_download_log SET value = ?, status = ?, data_in_context = ?";
         try {
             sqlInsert($sql, $bind);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
         return true;
@@ -69,7 +69,7 @@ class WenoLogService
         if (empty($content)) {
             return $error;
         }
-        $content = trim(preg_replace("/\r?\n|\r/", '</p><p>', $content));
+        $content = trim((string) preg_replace("/\r?\n|\r/", '</p><p>', (string) $content));
         $content_html = strip_tags($content, '<div><nav><p><textarea>');
         $content = strip_tags($content);
         $content = preg_replace('/\s+\r\n/', ' ', $content);

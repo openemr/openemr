@@ -17,7 +17,10 @@ require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $codetype = empty($_GET['codetype']) ? '' : $_GET['codetype'];
 if (!empty($codetype)) {
@@ -46,7 +49,7 @@ if (!empty($codetype)) {
 
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
 
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],
@@ -103,8 +106,8 @@ if (!empty($codetype)) {
                     }
                 },
                 initComplete: function () {
-                    // const input = $('.dataTables_filter input').unbind(),
-                        const self = this.api(),
+                     const input = $('.dataTables_filter input').unbind(),
+                        self = this.api(),
                         $searchButton = $('<button class="btn btn-sm btn-outline-primary fa fa-search p-2">').click(function () {
                             event.preventDefault();
                             event.stopPropagation();
@@ -114,6 +117,13 @@ if (!empty($codetype)) {
                         .click(function () {
                             input.val('');
                         });
+                    // Enter key handler for the search input
+                    input.on('keypress', function (e) {
+                        if (e.which === 13) { // Enter key
+                            e.preventDefault();
+                            self.search(input.val()).draw();
+                        }
+                    });
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
             });

@@ -12,16 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 class OAuth2DiscoveryController
 {
     private ScopeRepository $scopeRepository;
-    private OEGlobalsBag $globalsBag;
-    private string $baseUrl;
     private ClaimRepository $claimRepository;
 
-    public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, OEGlobalsBag $globalsBag, $baseUrl)
+    public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, private readonly OEGlobalsBag $globalsBag, private readonly string $baseUrl)
     {
         $this->setClaimRepository($claimRepository);
         $this->setScopeRepository($scopeRepository);
-        $this->globalsBag = $globalsBag;
-        $this->baseUrl = $baseUrl;
     }
 
     public function setClaimRepository(ClaimRepository $claimRepository): void

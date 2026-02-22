@@ -12,17 +12,16 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Users", xl("Weno Users"));
 }
 if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -77,7 +76,7 @@ if (($_POST['save'] ?? false) == 'true') {
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    syncAlertMsg(successMsg, 750, 'success').then(() => {
+                    asyncAlertMsg(successMsg, 750, 'success').then(() => {
                         isPersistEvent = true;
                         $("#form_save_users").click();
                     });

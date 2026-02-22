@@ -900,6 +900,7 @@ exports.careTeamSectionHtmlHeader = {
 
 exports.healthConcernSectionHtmlHeader = {
     key: "text",
+    existsWhen: condition.keyExists("concern"),
     content: [{
         key: "table",
         attributes: { border: "1", width: "100%" },
@@ -1011,7 +1012,7 @@ exports.advanceDirectivesHtmlHeader = {
                     text: leafLevel.inputProperty("author_name")
                 }]
             }],
-            dataKey: "advance_directives.directives"
+            dataKey: "advance_directives"
         }]
     }]
 };

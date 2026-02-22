@@ -23,19 +23,10 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 $job_id = (($_REQUEST['jobId'] ?? null));
 $search = (($_REQUEST['pop_add_chart'] ?? null)) == 1;
 $data = json_decode(($_REQUEST['data'] ?? ''), true);
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
 $title = xlt('Create Patient');
 if ($search) {
     $title = xlt('Copy Fax to Patient');
-}
-
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-        ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-        "ORDER BY group_id, seq");
 }
 
 if ($_POST['form_create'] ?? null) {
@@ -45,7 +36,7 @@ if ($_POST['form_create'] ?? null) {
     $clientApp = AppDispatch::getApiService('fax');
 
     if (!empty($_POST["pubpid"])) {
-        $form_pubpid = trim($_POST["pubpid"]);
+        $form_pubpid = trim((string) $_POST["pubpid"]);
         $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
             "pubpid = ?", [$form_pubpid]);
         if ($result['count']) {
@@ -63,17 +54,13 @@ if ($_POST['form_create'] ?? null) {
     if ($pid == null) {
         $pid = 0;
     }
-    if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-        $mypubpid = $_POST["pubpid"] ?? '';
-    } else {
-        $mypubpid = $pid;
-    }
+    $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));
     $form_lname = ucwords(trim($_POST["lname"] ?? ''));
     $form_mname = ucwords(trim($_POST["mname"] ?? ''));
     $form_sex = trim($_POST["sex"] ?? '');
-    $form_dob = DateToYYYYMMDD(trim($_POST["DOB"] ?? null));
+    $form_dob = DateToYYYYMMDD(trim((string) ($_POST["DOB"] ?? null)));
     $form_street = '';
     $form_city = '';
     $form_postcode = '';
@@ -150,26 +137,20 @@ if ($_POST['form_create'] ?? null) {
     }
 }
 
-function getLayoutUOR($form_id, $field_id)
-{
-    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
-    return 0 + $crow['uor'];
-}
 if (empty($_POST) && !empty($data)) {
     $_POST = $data;
     unset($data);
 }
-$form_pubpid = $_POST['pubpid'] ?? '' ? trim($_POST['pubpid']) : '';
-$form_title = $_POST['title'] ?? '' ? trim($_POST['title']) : '';
-$form_fname = $_POST['fname'] ?? '' ? trim($_POST['fname']) : '';
-$form_mname = $_POST['mname'] ?? '' ? trim($_POST['mname']) : '';
-$form_lname = $_POST['lname'] ?? '' ? trim($_POST['lname']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_sex = $_POST['sex'] ?? '' ? trim($_POST['sex']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_dob = $_POST['DOB'] ?? '' ? trim($_POST['DOB']) : '';
-$form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d');
+$form_pubpid = $_POST['pubpid'] ?? '' ? trim((string) $_POST['pubpid']) : '';
+$form_title = $_POST['title'] ?? '' ? trim((string) $_POST['title']) : '';
+$form_fname = $_POST['fname'] ?? '' ? trim((string) $_POST['fname']) : '';
+$form_mname = $_POST['mname'] ?? '' ? trim((string) $_POST['mname']) : '';
+$form_lname = $_POST['lname'] ?? '' ? trim((string) $_POST['lname']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_sex = $_POST['sex'] ?? '' ? trim((string) $_POST['sex']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_dob = $_POST['DOB'] ?? '' ? trim((string) $_POST['DOB']) : '';
+$form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : date('Y-m-d');
 
 ?>
 <!DOCTYPE html>
@@ -251,10 +232,10 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 var f = document.forms[0];
                 var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
                 <?php
-                $lres = getLayoutRes();
+                $lres = getLayoutRes($SHORT_FORM);
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
-                    if (str_starts_with($field_id, 'em_')) {
+                    if (str_starts_with((string) $field_id, 'em_')) {
                         continue;
                     }
                     $data_type = $lrow['data_type'];

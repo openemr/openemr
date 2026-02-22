@@ -34,50 +34,6 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
-function OpenTag($tag): void
-{
-    global $out, $indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    ++$indent;
-    $out .= "<$tag>\n";
-}
-
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
-}
-
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", $field);
-}
-
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
-
- // Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
-}
 
  // Add an insurance section.
 function addInsurance($row, $seq): void
@@ -200,8 +156,8 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("mname", $row['mname']);
  custom_xml_Add("title", $row['title']);
  custom_xml_Add("ss", Digits($row['ss']));
- custom_xml_Add("dob", LWDate($row['DOB']));
- custom_xml_Add("sex", Sex($row['sex']));
+ custom_xml_Add("dob", fixDate($row['DOB']));
+ custom_xml_Add("sex", hl7Sex($row['sex']));
  custom_xml_Add("street", $row['street']);
  custom_xml_Add("city", $row['city']);
  custom_xml_Add("state", $row['state']);
@@ -219,12 +175,12 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("email", $row['email']);
  custom_xml_Add("language", $row['language']);
  custom_xml_Add("ethnoracial", $row['ethnoracial']);
- custom_xml_Add("interpreter", $row['interpretter']);
+ custom_xml_Add("interpreter", $row['interpreter']);
  custom_xml_Add("migrantseasonal", $row['migrantseasonal']);
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);
  custom_xml_Add("homeless", $row['homeless']);
- custom_xml_Add("financial_review", LWDate(substr($row['financial_review'], 0, 10)));
+ custom_xml_Add("financial_review", fixDate(substr((string) $row['financial_review'], 0, 10)));
  custom_xml_Add("genericname1", $row['genericname1']);
  custom_xml_Add("genericval1", $row['genericval1']);
  custom_xml_Add("genericname2", $row['genericname2']);

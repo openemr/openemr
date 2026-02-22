@@ -2,6 +2,8 @@ services:
   openemr:
     environment:
       OPENEMR_BASE_URL_API: "https://nginx"
+      OPENEMR_ENABLE_CI_PHP: "1"
+      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
       SELENIUM_BASE_URL: "http://nginx"
     volumes:
     - ../:/usr/share/nginx/html/openemr
@@ -18,3 +20,18 @@ services:
     - ./nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
     - openemr
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/meta/health/readyz
+      start_period: 10m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3

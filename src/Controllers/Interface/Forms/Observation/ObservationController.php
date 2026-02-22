@@ -15,8 +15,10 @@ namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -36,26 +38,21 @@ use InvalidArgumentException;
 
 class ObservationController
 {
+    use SystemLoggerAwareTrait;
+
     const DATE_FORMAT_SAVE = 'Y-m-d H:i:s';
-    private ObservationService $observationService;
-    private FormService $formService;
+    const DEFAULT_STATUS = 'preliminary';
     private Environment $twig;
-    private SystemLogger $logger;
     private CodeTypesService $codeTypeService;
-    private PatientService $patientService;
 
     public function __construct(
-        ?ObservationService $observationService = null,
-        ?FormService $formService = null,
+        private ?ObservationService $observationService = new ObservationService(),
+        private ?FormService $formService = new FormService(),
         ?Environment $twig = null,
-        ?PatientService $patientService = null
+        private ?PatientService $patientService = new PatientService()
     ) {
-        $this->observationService = $observationService ?? new ObservationService();
-        $this->formService = $formService ?? new FormService();
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-        $this->logger = new SystemLogger();
+        $this->twig = $twig ?? (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         $this->codeTypeService = new CodeTypesService();
-        $this->patientService = $patientService ?? new PatientService();
     }
 
     public function setCodeTypesService(CodeTypesService $service): void
@@ -150,15 +147,15 @@ class ObservationController
                     'QUESTIONNAIRE_ITEM_SUMMARY_DETAILS_HIDE' => xl('Hide Details'),
                     'CLOSE_TAB_ERROR' => xl('Error closing tab, please close manually.'),
                 ],
-                'defaultStatusType' => 'preliminary'
+                'defaultStatusType' => self::DEFAULT_STATUS
             ];
 
             // Render the Twig template
             $content = $this->twig->render($this->getTemplatePath('observation_edit.html.twig'), $templateData);
 
             return $this->createResponse($content);
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error rendering observation form", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
                 'pid' => $pid,
@@ -193,8 +190,8 @@ class ObservationController
             // make sure we only get top-level observations (no parent_observation_id)
             $parentObservation = new TokenSearchField("parent_observation_id", [new TokenSearchValue(null)]);
             $parentObservation->setModifier(SearchModifier::MISSING);
-            $result = $this->observationService->search(['pid' => $pid, 'encounter' => $encounter
-                , 'form_id' => $request->query->get('id', null)]); //, 'parent_observation' => $parentObservation]);
+            $result = $this->observationService->searchAndPopulateChildObservations(['pid' => $pid, 'encounter' => $encounter
+                ,'parent_observation_id' => $parentObservation, 'form_id' => $request->query->get('id', null)]); //, 'parent_observation' => $parentObservation]);
             $observations = $result->getData();
 
             // Prepare template data
@@ -219,8 +216,8 @@ class ObservationController
             $content = $this->twig->render($this->getTemplatePath('observation_list.html.twig'), $templateData);
 
             return $this->createResponse($content);
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error rendering observation list", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
                 'error' => $e->getMessage(),
                 'pid' => $pid,
                 'encounter' => $encounter
@@ -262,11 +259,11 @@ class ObservationController
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id="
-                . urlencode($observation['form_id'])
+                . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error saving observation", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error saving observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
                 'postData' => $postData
@@ -287,7 +284,7 @@ class ObservationController
             $observationId = intval($postData['observation_id'] ?? 0);
             if ($observationId > 0) {
                 $observation = $this->observationService->getObservationById($observationId, $_SESSION['pid']);
-                if (!$observation) {
+                if (empty($observation)) {
                     throw new \Exception("Observation with ID {$observationId} not found for patient.");
                 }
             } else {
@@ -309,7 +306,7 @@ class ObservationController
                     $observation[$fieldName] = $value;
                 }
             }
-            $observation['date'] = DateFormatterUtils::dateStringToDateTime($postData["date"])->format(self::DATE_FORMAT_SAVE);
+            $observation['date'] = $postData["date"];
             // AI Generated: Handle QuestionnaireResponse ID conversion
             if (!empty($postData['questionnaire_response_fhir_id'])) {
                 $fhirId = $postData['questionnaire_response_fhir_id'];
@@ -324,6 +321,9 @@ class ObservationController
             if (!empty($validationErrors)) {
                 throw new \Exception("Validation failed: " . implode(", ", $validationErrors));
             }
+            // Format date for saving, no seconds on this one
+            // TODO: @adunsulag do we want to preserve seconds on the observation?
+            $observation['date'] = (DateFormatterUtils::dateStringToDateTime($observation['date']))->format(self::DATE_FORMAT_SAVE);
 
             // Extract sub-observations data
             $submittedObservations = $this->extractSubObservationsData($observation, $postData);
@@ -339,7 +339,7 @@ class ObservationController
                 $observation
             );
             QueryUtils::commitTransaction();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             QueryUtils::rollbackTransaction();
             throw $e; // rethrow to be handled in save()
         }
@@ -363,8 +363,8 @@ class ObservationController
             $result = QueryUtils::fetchSingleValue($sql, 'id', [$numericId, $numericId]);
 
             return $result ? (int)$result : null;
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error converting FHIR ID to local ID", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
                 'fhir_id' => $fhirId,
                 'error' => $e->getMessage()
             ]);
@@ -394,7 +394,7 @@ class ObservationController
             // Parse questionnaire_response JSON for additional details
             $questionnaireData = null;
             if (!empty($response['questionnaire_response'])) {
-                $questionnaireData = json_decode($response['questionnaire_response'], true);
+                $questionnaireData = json_decode((string) $response['questionnaire_response'], true);
             }
 
             return [
@@ -405,8 +405,8 @@ class ObservationController
                 'date' => $response['create_time'],
                 'questionnaire_data' => $questionnaireData
             ];
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error getting QuestionnaireResponse details", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
                 'questionnaire_response_id' => $questionnaireResponseId,
                 'error' => $e->getMessage()
             ]);
@@ -439,6 +439,7 @@ class ObservationController
                         'authorized' => $mainObservation['authorized'],
                         'parent_observation_id' => $mainObservation['id'],
                         'ob_value' => $value ?? '',
+                        'ob_status' => $postData['sub_ob_status'][$index] ?? $mainObservation['ob_status'] ?? self::DEFAULT_STATUS,
                         'ob_unit' => $postData['sub_ob_unit'][$index] ?? '',
                         'description' => $postData['sub_description'][$index] ?? '',
                         'code' => $postData['sub_ob_code'][$index] ?? '',
@@ -503,8 +504,8 @@ class ObservationController
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
-        } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error deleting observation", [
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId
             ]);
@@ -593,7 +594,10 @@ class ObservationController
             return "";
         }
 
-        $result = $this->observationService->search(['form_id' => $id, 'pid' => $pid, 'encounter' => $encounter]);
+        $parentObservation = new TokenSearchField("parent_observation_id", [new TokenSearchValue(null)]);
+        $parentObservation->setModifier(SearchModifier::MISSING);
+        $result = $this->observationService->searchAndPopulateChildObservations(['form_id' => $id, 'pid' => $pid, 'encounter' => $encounter,
+            'parent_observation_id' => $parentObservation]);
         $observations = $result->getData();
         $formattedObs = array_map($this->formatObservationForDisplay(...), $observations);
         return $this->twig->render($this->getTemplatePath("observation_report.html.twig"), ['observations' => $formattedObs]);

@@ -18,13 +18,9 @@ use Document;
 class PatientRetrieveOffsiteDocument extends Event
 {
     const REMOTE_DOCUMENT_LOCATION = 'remote.document.retrieve.location';
-    private string $url;
     private $offsiteUrl;
-    private Document $document;
-    public function __construct(string $url, ?Document $document = null)
+    public function __construct(private readonly string $url, private readonly ?Document $document = null)
     {
-        $this->url = $url;
-        $this->document = $document;
     }
 
     /**

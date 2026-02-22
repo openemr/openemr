@@ -25,13 +25,7 @@ function note_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                $key == "id" ||
-                $key == "pid" ||
-                $key == "user" ||
-                $key == "groupname" ||
-                $key == "authorized" ||
-                $key == "activity" ||
-                $key == "date" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
                 $value == "" ||
                 $value == "0000-00-00 00:00:00"
             ) {

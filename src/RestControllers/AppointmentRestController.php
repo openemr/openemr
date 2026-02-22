@@ -50,11 +50,7 @@ class AppointmentRestController
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        if (!empty($result)) {
-            $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
-        } else {
-            $serviceResult = [];
-        }
+        $serviceResult = !empty($result) ? $this->appointmentService->getAppointmentsForPatient($result[0]['pid']) : [];
 
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
@@ -84,7 +80,7 @@ class AppointmentRestController
         try {
             $this->appointmentService->deleteAppointmentRecord($eid);
             $serviceResult = ['message' => 'record deleted'];
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'eid' => $eid]);
             return RestControllerHelper::responseHandler(['message' => 'Failed to delete appointment'], null, 500);
         }

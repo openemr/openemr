@@ -12,15 +12,15 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Office Notes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes: Office Notes", xl("Office Notes"));
 }
 
 //display all the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
@@ -63,9 +63,9 @@ $oNoteService = new ONoteService();
                     $date = (new DateTime($note['date']))->format('Y-m-d H:i:s');
                     $todaysDate = new DateTime();
                     if ($todaysDate->format('Y-m-d') == $date) {
-                        $date_string = xl("Today") . ", " . oeFormatDateTime($date);
+                        $date_string = xl("Today") . ", " . DateFormatterUtils::oeFormatDateTime($date);
                     } else {
-                        $date_string = oeFormatDateTime($date);
+                        $date_string = DateFormatterUtils::oeFormatDateTime($date);
                     }
                     $card = '';
                     $card .= '<div class="card panel-default">';

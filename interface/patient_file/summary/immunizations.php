@@ -17,12 +17,21 @@ require_once("$srcdir/immunization_helper.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+/**
+ * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
+ */
+// @phpstan-ignore nullCoalesce.variable
+$pid ??= $session->get('pid') ?? null;
 
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -59,47 +68,49 @@ if (isset($_GET['mode'])) {
             refusal_reason = ?,
             reason_code = ?,
             reason_description = ?,
-            ordering_provider = ?";
+            ordering_provider = ?,
+            encounter_id = ?";
         $sqlBindArray = [
-            trim($_GET['id']),
+            trim((string) $_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
-            trim($_GET['administered_date']), trim($_GET['administered_date']),
+            trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
             trim($_GET['form_immunization_id'] ?? ''),
-            trim($_GET['cvx_code']),
-            trim($_GET['manufacturer']),
+            trim((string) $_GET['cvx_code']),
+            trim((string) $_GET['manufacturer']),
             trim($_GET['lot_number'] ?? ''),
-            trim($_GET['administered_by_id']), trim($_GET['administered_by_id']),
-            trim($_GET['administered_by']), trim($_GET['administered_by']),
-            trim($_GET['education_date']), trim($_GET['education_date']),
-            trim($_GET['vis_date']), trim($_GET['vis_date']),
-            trim($_GET['note']),
+            trim((string) $_GET['administered_by_id']), trim((string) $_GET['administered_by_id']),
+            trim((string) $_GET['administered_by']), trim((string) $_GET['administered_by']),
+            trim((string) $_GET['education_date']), trim((string) $_GET['education_date']),
+            trim((string) $_GET['vis_date']), trim((string) $_GET['vis_date']),
+            trim((string) $_GET['note']),
             $pid,
-            $_SESSION['authUserID'],
-            $_SESSION['authUserID'],
-            trim($_GET['immuniz_amt_adminstrd']),
-            trim($_GET['form_drug_units']),
-            trim($_GET['immuniz_exp_date']), trim($_GET['immuniz_exp_date']),
-            trim($_GET['immuniz_route']),
-            trim($_GET['immuniz_admin_ste']),
-            trim($_GET['immuniz_completion_status']),
-            trim($_GET['immunization_informationsource']),
-            trim($_GET['immunization_refusal_reason']),
-            trim($_GET['reason_code']),
+            $session->get('authUserID'),
+            $session->get('authUserID'),
+            trim((string) $_GET['immuniz_amt_adminstrd']),
+            trim((string) $_GET['form_drug_units']),
+            trim((string) $_GET['immuniz_exp_date']), trim((string) $_GET['immuniz_exp_date']),
+            trim((string) $_GET['immuniz_route']),
+            trim((string) $_GET['immuniz_admin_ste']),
+            trim((string) $_GET['immuniz_completion_status']),
+            trim((string) $_GET['immunization_informationsource']),
+            trim((string) $_GET['immunization_refusal_reason']),
+            trim((string) $_GET['reason_code']),
             trim($_GET['reason_description'] ?? ''),
-            trim($_GET['ordered_by_id'])
+            trim((string) $_GET['ordered_by_id']),
+            trim((string) $_GET['encounter_id'])
         ];
         $newid = sqlInsert($sql, $sqlBindArray);
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
-        $newid = $_GET['id'] ? $_GET['id'] : $newid;
+        $newid = $_GET['id'] ?: $newid;
         if ($GLOBALS['observation_results_immunization']) {
             saveImmunizationObservationResults($newid, $_GET);
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
+        EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
         $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
         sqlStatement($sql, [$_GET['id']]);
@@ -143,9 +154,9 @@ if (isset($_GET['mode'])) {
 
         $manufacturer = $result['manufacturer'];
         $lot_number = $result['lot_number'];
-        $administered_by_id = ($result['administered_by_id'] ? $result['administered_by_id'] : 0);
-        $ordered_by_id      = ($result['ordering_provider'] ? $result['ordering_provider'] : 0);
-        $entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
+        $administered_by_id = ($result['administered_by_id'] ?: 0);
+        $ordered_by_id      = ($result['ordering_provider'] ?: 0);
+        $entered_by_id      = ($result['created_by'] ?: 0);
 
         $administered_by = "";
         if (empty($result['administered_by']) && empty($row['administered_by_id'])) {
@@ -169,6 +180,7 @@ if (isset($_GET['mode'])) {
         //set id for page
         $id = $_GET['id'];
 
+        $immunizationEncounter = $result['encounter_id'];
         $imm_obs_data = getImmunizationObservationResults();
     }
 }
@@ -182,11 +194,7 @@ if ($GLOBALS['use_custom_immun_list']) {
 } else {
     if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
-        if (empty($cvx_code)) {
-            $useCVX = false;
-        } else {
-            $useCVX = true;
-        }
+        $useCVX = empty($cvx_code) ? false : true;
     } else { // $_GET['mode'] == "add"
         $useCVX = true;
     }
@@ -203,7 +211,7 @@ if (empty($administered_by) && empty($administered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, [$_SESSION['authUserID']]);
+    $row = sqlQuery($stmt, [$session->get('authUserID')]);
     $administered_by = $row['full_name'];
 }
 
@@ -217,7 +225,7 @@ if (!empty($entered_by_id)) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria = getImmunizationObservationLists('1');
@@ -226,7 +234,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria_value = getImmunizationObservationLists('2');
@@ -259,13 +267,14 @@ function getImmunizationObservationLists($k)
 
 function getImmunizationObservationResults()
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $obs_res_q = "SELECT
                   *
                 FROM
                   immunization_observation
                 WHERE imo_pid = ?
                   AND imo_im_id = ?";
-    $res = sqlStatement($obs_res_q, [$_SESSION["pid"],$_GET['id']]);
+    $res = sqlStatement($obs_res_q, [$session->get("pid"),$_GET['id']]);
     $imm_obs_data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $imm_obs_data[$iter] = $row;
@@ -276,6 +285,7 @@ function getImmunizationObservationResults()
 
 function saveImmunizationObservationResults($id, $immunizationdata): void
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $imm_obs_data = getImmunizationObservationResults();
     if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
         foreach ($imm_obs_data as $val) {
@@ -295,8 +305,8 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
             $code                     = $immunizationdata['cvx_vac_type_code'][$i];
             $code_text                = $immunizationdata['code_text_hidden'][$i];
             $code_type                = $immunizationdata['code_type_hidden'][$i];
-            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ? $immunizationdata['vis_published_date'][$i] : '';
-            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ? $immunizationdata['vis_presented_date'][$i] : '';
+            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ?: '';
+            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ?: '';
             $imo_criteria_value       = '';
         } elseif ($immunizationdata['observation_criteria'][$i] == 'disease_with_presumed_immunity') {
             $code                     = $immunizationdata['sct_code'][$i];
@@ -329,7 +339,7 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
                                         )
                                         VALUES
                                           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $res                      = sqlQuery($sql, [$id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
+            $res                      = sqlQuery($sql, [$id,$session->get("pid"),$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$session->get('authUserID'),$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
         }
     }
 
@@ -368,7 +378,7 @@ tr.selected {
             </div>
             <div class="col-12">
                 <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />
                     <input type="hidden" name="id" id="id" value="<?php echo attr($id ?? ''); ?>" />
@@ -449,7 +459,7 @@ tr.selected {
                                         $result = sqlStatement($sql);
                                         while ($row = sqlFetchArray($result)) {
                                             echo '<OPTION VALUE=' . attr($row['id']);
-                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                             echo text($row['full_name']) . '</OPTION>';
                                         }
                                         ?>
@@ -465,7 +475,7 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label>
                             <?php echo xlt('Date of VIS Statement'); ?>
-                            (<a href="https://www.cdc.gov/vaccines/hcp/vis/current-vis.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
+                            (<a href="https://www.cdc.gov/vaccines/hcp/current-vis/index.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
                         </label>
                         <input type='text' size='10' class='datepicker  form-control' name="vis_date" id="vis_date"
                             value='<?php echo (!empty($vis_date)) ? attr($vis_date) : date('Y-m-d'); ?>'
@@ -516,13 +526,25 @@ tr.selected {
                                 $result = sqlStatement($sql);
                                 while ($row = sqlFetchArray($result)) {
                                     echo '<OPTION VALUE=' . attr($row['id']);
-                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                     echo text($row['full_name']) . '</OPTION>';
                                 }
                                 ?>
                         </select>
                     </div>
 
+                    <?php
+                    // need to add the encounter linkage using the TwigExtension function encounterSelectList
+                    ?>
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Encounter'); ?></label>
+                        <?php
+                        $encounterType = new EncounterListOptionType($pid);
+                        echo $encounterType->render('encounter_id', $immunizationEncounter ?? '');
+                        ?>
+
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-12 text-center">
                             <?php
@@ -537,7 +559,6 @@ tr.selected {
                             <?php } ?>
                         </div>
                     </div>
-
                     <div class="observation_results" style="display:none;">
                         <fieldset class="obs_res_head">
                             <legend><?php echo xlt('Observation Results'); ?></legend>
@@ -551,11 +572,7 @@ tr.selected {
                                         <div class="form-row" id="or_tr_<?php echo attr(($key + 1)); ?>">
                                             <?php
                                             if ($id == 0) {
-                                                if ($key == 0) {
-                                                    $style = 'display: table-cell;width:765px !important';
-                                                } else {
-                                                    $style = 'display: none;width:765px !important';
-                                                }
+                                                $style = $key == 0 ? 'display: table-cell;width:765px !important' : 'display: none;width:765px !important';
                                             } else {
                                                 $style = 'display : table-cell;width:765px !important';
                                             }
@@ -606,7 +623,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                                                $vis_published_dateval = $value['imo_vis_date_published'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
@@ -614,7 +631,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ? $value['imo_vis_date_presented'] : '';
+                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
@@ -757,11 +774,7 @@ tr.selected {
                         while ($row = sqlFetchArray($result)) {
                             $isError = $row['added_erroneously'];
 
-                            if ($isError) {
-                                $tr_title = 'title="' . xla("Entered in Error") . '"';
-                            } else {
-                                $tr_title = "";
-                            }
+                            $tr_title = $isError ? 'title="' . xla("Entered in Error") . '"' : "";
 
                             if (!empty($id) && ($row["id"] == $id)) {
                                 echo "<tr " . $tr_title . " class='immrow text selected' id='" . attr($row["id"]) . "'>";
@@ -814,11 +827,7 @@ tr.selected {
                             echo "<td>" . $del_tag_open . text($row["note"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'Immunization_Completion_Status'], $row['completion_status']) . $del_tag_close . "</td>";
 
-                            if ($isError) {
-                                $checkbox = "checked";
-                            } else {
-                                $checkbox = "";
-                            }
+                            $checkbox = $isError ? "checked" : "";
 
                                 echo "<td><input type='checkbox' class='error' id='" . attr($row["id"]) . "' value='" . xlt('Error') . "' " . $checkbox . " /></td>";
 
@@ -910,19 +919,19 @@ var SaveForm = function() {
 
 var EditImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
 }
 
 var DeleteImm = function(imm) {
     if (confirm(<?php echo xlj('This action cannot be undone.'); ?> + "\n" + <?php echo xlj('Do you wish to PERMANENTLY delete this immunization record?'); ?>)) {
         top.restoreSession();
-        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
     }
 }
 
 var ErrorImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
 }
 
 //This is for callback by the find-code popup.
@@ -1076,7 +1085,7 @@ function selectCriteria(id,value)
                 dataType: "json",
                 data: {
                     type : 'duplicate_row_2',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                 },
                 success: function(thedata){
                     $.each(thedata,function(i,item) {
@@ -1197,7 +1206,7 @@ function addNewRow()
         dataType: "json",
         data: {
             type : 'duplicate_row',
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         },
         success: function(thedata){
             $.each(thedata,function(i,item) {
@@ -1227,7 +1236,7 @@ $(function () {
             dataType: 'json',
             data: function(params) {
                 return {
-                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                   term: params.term
                 };
             },

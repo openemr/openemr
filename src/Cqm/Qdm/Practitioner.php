@@ -41,4 +41,3 @@ class Practitioner extends Entity
 
     public $_type = 'QDM::Practitioner';
 }
-

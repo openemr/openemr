@@ -97,6 +97,7 @@ trait PatientAddTrait
         $newPatient['form_lname'] = $lastname;
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
+        $newPatient['form_sex_identified'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();

@@ -102,11 +102,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 }
 
                 $relative_link = "/interface/modules/" . $modulePath . "/" . $modulerow['mod_relative_link'] . $added;
-                $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
+                $mod_nick_name = $modulerow['mod_nick_name'] ?: $modulerow['mod_name'];
 
                 if (sqlNumRows($module_hooks) == 0) {
                     // module without hooks in module section
-                    $acl_section = strtolower($modulerow['mod_directory']);
+                    $acl_section = strtolower((string) $modulerow['mod_directory']);
                     if (AclMain::zhAclCheck($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
                         continue;
                     }
@@ -132,7 +132,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                         }
 
                         $relative_link = "/interface/modules/" . $modulePath . "/" . $hookrow['mod_relative_link'] . $hookrow['path'];
-                        $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                        $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                         if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
                             $subEntry = new \stdClass();
@@ -193,7 +193,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 }
 
                 $relative_link = "/interface/modules/" . $modulePath . "/" . ($hookrow['mod_relative_link'] ?? '') . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;

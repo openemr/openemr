@@ -24,15 +24,14 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "../drugs/drugs.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-        ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") ]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
 }
 
 if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -342,7 +341,7 @@ if ($csv) {
                 <?php // Show inputs related to specific search options
                 if (
                     !empty($_POST['srch_option'])
-                    && ($_POST['srch_option'] == "allergs" || $_POST['srch_option'] == "probs" || $_POST['srch_option'] == "meds" || $_POST['srch_option'] == "procs" || $_POST['srch_option'] == "results")
+                    && (in_array($_POST['srch_option'], ["allergs", "probs", "meds", "procs", "results"]))
                 ) { ?>
                     $('#pr_diag').show();
                 <?php }
@@ -442,8 +441,8 @@ if ($csv) {
 
         <div id="report_parameters_daterange">
             <p>
-            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true))
-                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
+            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true))
+                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "comms") && ($_POST['communication'] != "")) {
                 if (isset($comarr[$_POST['communication']])) {
@@ -474,9 +473,9 @@ if ($csv) {
                                 <table class='text'>
                                     <tr>
                                         <td class='col-form-label'><?php echo xlt('From'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('To{{range}}'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                         <td>
                                             <select class="form-control" name="srch_option" id="srch_option"
@@ -655,7 +654,7 @@ if (!empty($_POST['form_refresh'])) {
 
     $sqlstmt .= " from patient_data as pd";
     // JOINs
-    if ($srch_option != "encounts" && $srch_option != "observs" && $srch_option != "prescripts") {
+    if (!in_array($srch_option, ["encounts", "observs", "prescripts"])) {
         $sqlstmt .= " LEFT OUTER JOIN users AS u ON u.id = pd.providerid";
     }
     switch ($srch_option_pointer) {
@@ -756,23 +755,23 @@ if (!empty($_POST['form_refresh'])) {
         $whr_stmt .= " AND pd.pid = ?";
         array_push($sqlBindArray, $patient_id);
     }
-    if (strlen($provider_id) != 0) {
+    if (strlen((string) $provider_id) != 0) {
         $whr_stmt .= " AND u.id = ?";
         array_push($sqlBindArray, $provider_id);
     }
-    if (strlen($age_from) != 0) {
+    if (strlen((string) $age_from) != 0) {
         $whr_stmt .= " AND DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
         array_push($sqlBindArray, $age_from);
     }
-    if (strlen($age_to) != 0) {
+    if (strlen((string) $age_to) != 0) {
         $whr_stmt .= " AND DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
         array_push($sqlBindArray, $age_to);
     }
-    if (strlen($sql_gender) != 0) {
+    if (strlen((string) $sql_gender) != 0) {
         $whr_stmt .= " AND pd.sex = ?";
         array_push($sqlBindArray, $sql_gender);
     }
-    if (strlen($sql_ethnicity) != 0) {
+    if (strlen((string) $sql_ethnicity) != 0) {
         $whr_stmt .= " AND (pd.ethnicity = ? OR pd.ethnicity LIKE ? OR pd.ethnicity LIKE ?)";
         array_push($sqlBindArray, $sql_ethnicity);
         // catch the item at the beginning of the list
@@ -819,10 +818,13 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    if (!AclMain::aclCheckCore($search_options[$srch_option]["acl"][0], $search_options[$srch_option]["acl"][1])) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
-        exit;
+    $optionAcl = $search_options[$srch_option]["acl"];
+    $optionTitle = $search_options[$srch_option]["title"];
+    if (!AclMain::aclCheckCore($optionAcl[0], $optionAcl[1])) {
+        AccessDeniedHelper::denyWithTemplate(
+            "ACL check failed for $optionAcl[0]/$optionAcl[1]: Patient List Creation",
+            xl("Patient List Creation") . " ($optionTitle)",
+        );
     }
 
     // Sorting By filter fields
@@ -987,7 +989,7 @@ if (!empty($_POST['form_refresh'])) {
                 switch ($report_col) { // Convert column data into readable format if necessary
                     case "patient_date":
                     case "other_date":
-                        $report_value_print = ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                        $report_value_print = ($report_value != '') ? text(DateFormatterUtils::oeFormatDateTime($report_value, "global", true)) : '';
                         break;
                     case "patient_race":
                         $report_value_print = generate_display_field(['data_type' => '36', 'list_id' => 'race'], $report_value);
@@ -1015,7 +1017,7 @@ if (!empty($_POST['form_refresh'])) {
                     case "prc_diagnoses":
                         if (!$csv && $report_value != '') {
                             $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                            foreach (explode(';', $report_value) as $code) {
+                            foreach (explode(';', (string) $report_value) as $code) {
                                 $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
                             $report_value_print .= '</ul>';

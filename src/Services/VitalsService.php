@@ -15,6 +15,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
@@ -29,6 +30,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VitalsService extends BaseService
 {
@@ -54,24 +56,21 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        if (isset($units_of_measurement)) {
-            $this->units_of_measurement = $units_of_measurement;
-        } else {
-            $this->units_of_measurement = $GLOBALS['units_of_measurement'];
-        }
-        if (!empty($GLOBALS['kernel'])) {
-            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();
         } else {
             $this->dispatcher = new EventDispatcher();
         }
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
     }
@@ -393,6 +392,8 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
             }
             QueryUtils::sqlStatementThrowException($sql, $values);
+            $vitalsData['eid'] = $eid;
+            $vitalsData['authorized'] = $authorized;
         }
 
         // now go through and update all of our vital details

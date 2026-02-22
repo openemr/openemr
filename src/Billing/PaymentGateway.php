@@ -67,7 +67,7 @@ class PaymentGateway
             $ccard->validate();
             $this->card = $card;
             return true;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -97,7 +97,7 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -121,7 +121,7 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -135,7 +135,7 @@ class PaymentGateway
         if (isset($this->gateway)) {
             unset($this->gateway);
         }
-        if (stripos($which, "stripe") !== false) {
+        if (stripos((string) $which, "stripe") !== false) {
             $gatewayName = 'Stripe';
             $this->gateway = Omnipay::create($gatewayName);
             $this->gateway->setApiKey($this->apiKey);

@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\BackgroundTaskManager;
@@ -40,7 +41,7 @@ if ($method === 'POST') {
         $email = trim($_POST['email'] ?? '');
 
         // validate email address
-        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        if (!empty($email) && !ValidationUtils::isValidEmail($email)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("Invalid email")]);
             exit;
@@ -58,7 +59,7 @@ if ($method === 'POST') {
                 ['trace' => $e->getTraceAsString()]
             );
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Handle any other exceptions
             http_response_code(500);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);

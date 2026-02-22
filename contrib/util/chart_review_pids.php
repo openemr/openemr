@@ -21,6 +21,10 @@ if (php_sapi_name() !== 'cli') {
     die;
 }
 
+if (!isset($argv[3])) {
+    throw new RuntimeException("This script requires at least three arguments.");
+}
+
 $_GET['site'] = $argv[1];
 $ignoreAuth = true;
 require_once __DIR__ . "/../../interface/globals.php";
@@ -65,7 +69,7 @@ foreach ($encs_result as $key => $value) {
         $result[$key] = $value;
     }
 }
-$output = $output ?? '';
+$output ??= '';
 foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }

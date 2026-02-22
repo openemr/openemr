@@ -13,16 +13,14 @@
 
 class C_InsuranceNumbers extends Controller
 {
-        var $template_mod;
-        var $providers;
-        var $insurance_numbers;
+        public $providers;
+        public $insurance_numbers;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->providers = [];
         $this->insurance_numbers = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);
@@ -118,19 +116,15 @@ class C_InsuranceNumbers extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);
-        } else {
-            $this->insurance_numbers[0] = new InsuranceNumbers();
-        }
+        $this->insurance_numbers[0] = is_numeric($_POST['id']) ? new InsuranceNumbers($_POST['id']) : new InsuranceNumbers();
 
         parent::populate_object($this->insurance_numbers[0]);
 
         $this->insurance_numbers[0]->persist();
-        //insurance numbers need to be repopulated so that insurance_company_name recieves a value
+        //insurance numbers need to be repopulated so that insurance_company_name receives a value
         $this->insurance_numbers[0]->populate();
 
-        //echo "action processeed";
+        //echo "action processed";
         $_POST['process'] = "";
 
         if (!is_numeric($_POST['id'])) {//Z&H

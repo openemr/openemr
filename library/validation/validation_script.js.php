@@ -107,7 +107,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
-            //get the input value after romoving hide fields
+            //get the input value after removing hide fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
@@ -133,7 +133,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 }
             }
 
-            //error conatins an list of the elements and their errors
+            //error contains an list of the elements and their errors
             //set false full message because the name of the input not can be translated
             var errors = validate(elements, constraints, {fullMessages: false});
             if (typeof  errors !== 'undefined') {

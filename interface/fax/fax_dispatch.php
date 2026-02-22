@@ -21,6 +21,7 @@ require_once("$srcdir/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
@@ -51,7 +52,7 @@ if ($_GET['file']) {
     die("No filename was given.");
 }
 
-$ext = substr($filename, strrpos($filename, '.'));
+$ext = substr((string) $filename, strrpos((string) $filename, '.'));
 $filebase = basename("/$filename", $ext);
 $faxcache = $GLOBALS['OE_SITE_DIR'] . "/faxcache/$mode/$filebase";
 
@@ -96,7 +97,7 @@ function mergeTiffs()
         die(xlt("Internal error - no pages were selected!"));
     }
 
-    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
+    $tmp0 = exec("cd " . escapeshellarg((string) $faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
     if ($tmp2) {
         $msg .= "tiffcp returned $tmp2: $tmp0 ";
     }
@@ -129,10 +130,10 @@ if ($_POST['form_save']) {
         //
         if ($_POST['form_cb_copy_type'] == 1) {
             // Compute a target filename that does not yet exist.
-            $ffname = check_file_dir_name(trim($_POST['form_filename']));
-            $i = strrpos($ffname, '.');
+            $ffname = check_file_dir_name(trim((string) $_POST['form_filename']));
+            $i = strrpos((string) $ffname, '.');
             if ($i) {
-                $ffname = trim(substr($ffname, 0, $i));
+                $ffname = trim(substr((string) $ffname, 0, $i));
             }
 
             if (!$ffname) {
@@ -162,7 +163,7 @@ if ($_POST['form_save']) {
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
             } else {
-                $newid = generate_id();
+                $newid = QueryUtils::generateId();
                 $fsize = filesize($target);
                 $catid = (int) $_POST['form_category'];
                 // Update the database.
@@ -193,7 +194,7 @@ if ($_POST['form_save']) {
                 }
 
                 $note = "New scanned document $newid: $note";
-                $form_note_message = trim($_POST['form_note_message']);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -256,7 +257,7 @@ if ($_POST['form_save']) {
 
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
-                $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
+                $cmd = "convert -resize 800 -density 96 " . escapeshellarg((string) $tmp_name) . " -append " . escapeshellarg($imagepath);
                 $tmp0 = exec($cmd, $tmp1, $tmp2);
                 if ($tmp2) {
                     die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
@@ -265,8 +266,8 @@ if ($_POST['form_save']) {
 
             // If we are posting a patient note...
             if ($_POST['form_cb_note'] && !$info_msg) {
-                $note = "New scanned encounter note for visit on " . substr($erow['date'], 0, 10);
-                $form_note_message = trim($_POST['form_note_message']);
+                $note = "New scanned encounter note for visit on " . substr((string) $erow['date'], 0, 10);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -286,10 +287,10 @@ if ($_POST['form_save']) {
     } // end copy to chart
 
     if ($_POST['form_cb_forward']) {
-        $form_from     = trim($_POST['form_from']);
-        $form_to       = trim($_POST['form_to']);
-        $form_fax      = trim($_POST['form_fax']);
-        $form_message  = trim($_POST['form_message']);
+        $form_from     = trim((string) $_POST['form_from']);
+        $form_to       = trim((string) $_POST['form_to']);
+        $form_fax      = trim((string) $_POST['form_fax']);
+        $form_message  = trim((string) $_POST['form_message']);
         $form_finemode = $_POST['form_finemode'] ? '-m' : '-l';
 
         // Generate a cover page using enscript.  This can be a cool thing

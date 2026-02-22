@@ -9,6 +9,8 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -52,6 +54,11 @@ $sigline['signed'] =
     "<div class='sig'>"
   . "<img src='./sig.jpg'>"
   . "</div>\n";
+$siglineValue = match ($_GET['sigline'] ?? 'plain') {
+    'embossed' => $sigline['embossed'],
+    'signed' => $sigline['signed'],
+    default => $sigline['plain'],
+};
 $query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", [$_SESSION['pid']]);
 if ($result = sqlFetchArray($query)) {
     $patient_name = $result['fname'] . ' ' . $result['lname'];
@@ -107,12 +114,12 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 
     $camos_content = [];
     foreach ($_POST as $key => $val) {
-        if (str_starts_with($key, 'ch_')) {
-            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr($key, 3)]);
+        if (str_starts_with((string) $key, 'ch_')) {
+            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr((string) $key, 3)]);
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
-                            $content = preg_replace('|<br/><br/>|', '<br/>', $content);
+                            $content = preg_replace('|<br/><br/>|', '<br/>', (string) $content);
                 } else {
                         $content = $result['content'];
                 }
@@ -121,8 +128,8 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             }
         }
 
-        if (str_starts_with($key, 'chrx_')) {
-            $rx = new Prescription(substr($key, 5));
+        if (str_starts_with((string) $key, 'chrx_')) {
+            $rx = new Prescription(substr((string) $key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''
             . text($rx->drug) . ' '
@@ -203,7 +210,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[0];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -234,7 +241,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print $camos_content[1];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -265,7 +272,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[2];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -296,7 +303,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[3];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php echo $siglineValue ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -307,7 +314,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 </html>
         <?php
     } elseif ($_GET['letterhead']) { // end of printing to rx not letterhead. OPTION print to letterhead
-        $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
+        $content = preg_replace('/PATIENTNAME/i', $patient_name, (string) $camos_content[0]);
         if ($_POST['print_html']) { // print letterhead to html
             ?>
         <html>

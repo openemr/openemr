@@ -19,14 +19,17 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\OeUI\RenderFormFieldHelper;
-use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -36,42 +39,33 @@ use Twig\TwigTest;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
-    protected $globals;
+    protected ?OemrUI $oemrUI = null;
 
-    /**
-     * @var Kernel
-     */
-    protected $kernel;
-
-    protected OemrUI $oemrUI;
-
-    protected function getOemrUiInstance($oemrSettings = [])
+    protected function getOemrUiInstance($oemrSettings = []): OemrUI
     {
-        if (!isset($this->oemrUI)) {
+        if (null === $this->oemrUI) {
             $this->oemrUI = new OemrUI($oemrSettings);
         }
+
         return $this->oemrUI;
     }
-    /**
-     * TwigExtension constructor.
-     * @param GlobalsService $globals
-     * @param Kernel|null $kernel
-     */
-    public function __construct(GlobalsService $globals, ?Kernel $kernel)
-    {
-        $this->globals = $globals->getGlobalsMetadata();
-        $this->kernel = $kernel;
+
+    public function __construct(
+        protected OEGlobalsBag $globals,
+        protected ?Kernel $kernel = null,
+    ) {
     }
 
     public function getGlobals(): array
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return [
-            'assets_dir' => $this->globals['assets_static_relative'],
-            'srcdir' => $this->globals['srcdir'],
-            'rootdir' => $this->globals['rootdir'],
-            'webroot' => $this->globals['webroot'],
-            'assetVersion' => $this->globals['v_js_includes'],
-            'session' => $_SESSION,
+            'assets_dir' => $this->globals->get('assets_static_relative'),
+            'srcdir' => $this->globals->get('srcdir'),
+            'rootdir' => $this->globals->get('rootdir'),
+            'webroot' => $this->globals->get('webroot'),
+            'assetVersion' => $this->globals->get('v_js_includes'),
+            'session' => $session->all(),
         ];
     }
 
@@ -79,12 +73,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         return [
             // can be used like {% if is numeric %}...{% endif %}
-            new TwigTest('numeric', fn($value): bool => is_numeric($value))
+            new TwigTest('numeric', is_numeric(...))
         ];
     }
 
     public function getFunctions(): array
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return [
             new TwigFunction(
                 'setupHeader',
@@ -130,6 +125,21 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
 
             new TwigFunction(
+                'encounterSelectList',
+                function ($name, $pid, $selectedValue = '', $title = '', $opts = []) {
+
+                    $encounterOptionType = new EncounterListOptionType($pid);
+                    $frow = [
+                        'field_id' => $name,
+                        'title' => $title,
+                        'edit_options' => '',
+                        'empty_name' => $opts['empty_name'] ?? ''
+                    ];
+                    return $encounterOptionType->buildFormView($frow, $selectedValue);
+                }
+            ),
+
+            new TwigFunction(
                 'tabRow',
                 function ($formType, $result1, $result2) {
                     ob_start();
@@ -168,11 +178,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'csrfToken',
-                function ($subject = 'default', $fieldName = "_token") {
+                function ($subject = 'default', $fieldName = "_token") use ($session) {
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject, $session->getSymfonySession())));
                 }
             ),
             new TwigFunction(
@@ -200,8 +210,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             // I don't like how the OemrUi class is being used, it uses event listeners to control parts of the
-            // UI and those events can be added again and again everytime the class is instantiated so it assumes
-            // its a singleton, so we'll treat it as a singleton here, but its annoying.
+            // UI and those events can be added again and again every time the class is instantiated so it assumes
+            // it's a singleton, so we'll treat it as a singleton here, but it's annoying.
             new TwigFunction('oemrUiContainerClass', function (array $oemr_settings) {
                 $oemrUi = $this->getOemrUiInstance($oemr_settings);
                 $heading =  $oemrUi->oeContainer();
@@ -243,10 +253,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'getListItemTitle',
                 LayoutsUtils::getListItemTitle(...)
-            )
-            ,new TwigFunction(
+            ),
+            new TwigFunction(
                 'getAssetCacheParamRaw',
                 CacheUtils::getAssetCacheParamRaw(...)
+            ),
+            new TwigFunction(
+                'uniqid',
+                uniqid(...)
             )
         ];
     }
@@ -254,88 +268,32 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getFilters(): array
     {
         return [
-            new TwigFilter(
-                'text',
-                fn($string) => text($string)
-            ),
-            new TwigFilter(
-                'attr',
-                fn($string) => attr($string)
-            ),
-            new TwigFilter(
-                'js_escape',
-                fn($string) => js_escape($string)
-            ),
-            new TwigFilter(
-                'attr_js',
-                fn($string) => attr_js($string)
-            ),
-            new TwigFilter(
-                'attr_url',
-                fn($string) => attr_url($string)
-            ),
-            new TwigFilter(
-                'js_url',
-                fn($string) => js_url($string)
-            ),
-            new TwigFilter(
-                'javascriptStringRemove',
-                fn($string): string => javascriptStringRemove($string)
-            ),
-            new TwigFilter(
-                'xl',
-                fn($string) => xl($string)
-            ),
-            new TwigFilter(
-                'xlt',
-                fn($string) => xlt($string)
-            ),
-            new TwigFilter(
-                'xla',
-                fn($string) => xla($string)
-            ),
-            new TwigFilter(
-                'xlj',
-                fn($string) => xlj($string)
-            ),
-            new TwigFilter(
-                'xls',
-                fn($string) => xls($string)
-            ),
-            new TwigFilter(
-                'money',
-                fn($amount) => oeFormatMoney($amount)
-            ),
-            new TwigFilter(
-                'shortDate',
-                fn($string) => oeFormatShortDate($string)
-            ),
+            new TwigFilter('text', text(...)),
+            new TwigFilter('attr', attr(...)),
+            new TwigFilter('js_escape', js_escape(...)),
+            new TwigFilter('attr_js', attr_js(...)),
+            new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('js_url', js_url(...)),
+            new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
+            new TwigFilter('xl', xl(...)),
+            new TwigFilter('xlt', xlt(...)),
+            new TwigFilter('xla', xla(...)),
+            new TwigFilter('xlj', xlj(...)),
+            new TwigFilter('money', oeFormatMoney(...)),
+            new TwigFilter('shortDate', oeFormatShortDate(...)),
             new TwigFilter(
                 'oeFormatDateTime',
-                fn($string, $formatTime = "global", $seconds = false) => oeFormatDateTime($string, $formatTime, $seconds)
+                fn($string, $formatTime = "global", bool $seconds = false) => DateFormatterUtils::oeFormatDateTime($string, $formatTime, $seconds)
             ),
-            new TwigFilter(
-                'xlLayoutLabel',
-                fn($string) => xl_layout_label($string)
-            ),
-            new TwigFilter(
-                'xlListLabel',
-                fn($string) => xl_list_label($string)
-            ),
-            new TwigFilter(
-                'xlDocCategory',
-                fn($string) => xl_document_category($string)
-            ),
-
-            new TwigFilter(
-                'xlFormTitle',
-                fn($string) => xl_form_title($string)
-            ),
+            new TwigFilter('xlLayoutLabel', xl_layout_label(...)),
+            new TwigFilter('xlListLabel', xl_list_label(...)),
+            new TwigFilter('xlDocCategory', xl_document_category(...)),
+            new TwigFilter('xlFormTitle', xl_form_title(...)),
             // we have some weirdness if we have a date string in the format of YmdHi, it blows things up so we have
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                fn($str): int|false => strtotime($str)
+                fn($str): int|false => strtotime((string) $str)
             ),
             new TwigFilter(
                 'addCacheParam',

@@ -395,56 +395,107 @@ function checkPasswordStrength(inputElement) {
 }
 
 /*
-* Universal async BS alert message with promise
+* Universal async Bootstrap alert message with promise.
 * Note the use of new javaScript translate function xl().
+*
+* @param {string} message - The message to display (use \n for line breaks)
+* @param {number} timer - Time in ms before auto-close (default: 5000)
+* @param {string} type - Bootstrap alert type: 'danger', 'warning', 'success', 'info' (default: 'danger')
+* @param {string} size - Size: '' for normal, 'lg' for large (default: '')
+* @returns {Promise<string>} Resolves to 'closed' or 'timedout'
+*
+* Example:
+*   asyncAlertMsg('Hello, longtime', 5000, 'success', 'lg').then(result => { console.log(result); });
+*
+* Or use as IIFE to run inline:
+*   (async (time) => {
+*       await asyncAlertMsg('Waiting till x\'ed out or timeout!', time);
+*   })(3000).then(rtn => { ... });
 *
 */
 if (typeof asyncAlertMsg !== "function") {
+    const VALID_ALERT_TYPES = ['danger', 'warning', 'success', 'info', 'primary', 'secondary', 'light', 'dark'];
+
     /* eslint-disable-next-line no-inner-declarations */
     function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
-        let alertMsg = xl("Alert Notice");
+        // Validate type parameter
+        if (!VALID_ALERT_TYPES.includes(type)) {
+            type = 'danger';
+        }
+
+        const alertTitle = xl("Alert Notice");
         $('#alert_box').remove();
-        size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
-        let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:9999;";
-        $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-        let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-            '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true"></button>' +
-            '<h5 class="alert-heading text-center">' + alertMsg + '</h5><hr>' +
-            '<p>' + message + '</p>' +
-            '</div>';
-        $('#alert_box').append(mHtml);
+
+        const sizeStyle = (size === 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
+        const containerStyle = "position:fixed;top:25%;" + sizeStyle + "bottom:0;z-index:9999;";
+
+        // Build DOM elements safely using textContent (auto-escapes)
+        const alertBox = document.createElement('div');
+        alertBox.id = 'alert_box';
+        alertBox.className = 'container text-center';
+        alertBox.style.cssText = containerStyle;
+
+        const alertDiv = document.createElement('div');
+        alertDiv.id = 'alertmsg';
+        alertDiv.className = 'alert alert-' + type + ' alert-dismissable';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'close btn btn-link btn-cancel';
+        closeBtn.setAttribute('data-dismiss', 'alert');
+        closeBtn.setAttribute('aria-hidden', 'true');
+
+        const heading = document.createElement('h5');
+        heading.className = 'alert-heading text-center';
+        heading.textContent = alertTitle;
+
+        const hr = document.createElement('hr');
+
+        const msgPara = document.createElement('p');
+        // Escape HTML via textContent, then convert \n to <br>
+        const textNode = document.createElement('span');
+        textNode.textContent = message;
+        msgPara.innerHTML = textNode.innerHTML.replace(/\n/g, '<br>');
+
+        alertDiv.appendChild(closeBtn);
+        alertDiv.appendChild(heading);
+        alertDiv.appendChild(hr);
+        alertDiv.appendChild(msgPara);
+        alertBox.appendChild(alertDiv);
+        document.body.insertBefore(alertBox, document.body.firstChild);
+
         return new Promise(resolve => {
             $('#alertmsg').on('closed.bs.alert', function () {
-                clearTimeout(AlertMsg);
+                clearTimeout(alertTimeout);
                 $('#alert_box').remove();
                 resolve('closed');
             });
-            let AlertMsg = setTimeout(function () {
+            const alertTimeout = setTimeout(function () {
                 $('#alertmsg').fadeOut(800, function () {
                     $('#alert_box').remove();
                     resolve('timedout');
                 });
             }, timer);
-        })
+        });
     }
 }
 
 /*
-* function syncAlertMsg(()
+* Wrapper for asyncAlertMsg - use with await to block execution
+* when called from within an async function or async IIFE.
 *
-* Universal sync BS alert message returns promise after resolve.
-* Call below to return a promise after alert is resolved.
-* Example: syncAlertMsg('Hello, longtime, 'success', 'lg').then( asyncRtn => ( ... log something });
+* Examples:
+*   // Inside async function:
+*   await syncAlertMsg('Wait for this!', 5000);
 *
-* Or use as IIFE to run inline.
-* Example:
-*   (async (time) => {
-*       await asyncAlertMsg('Waiting till x'ed out or timeout!', time); ...now go;
-*   })(3000).then(rtn => { ... but then could be more });
-*
-* */
+*   // As IIFE:
+*   (async () => {
+*       await syncAlertMsg('Wait for this!', 5000);
+*       console.log('Now continues...');
+*   })();
+*/
 async function syncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
-    return await asyncAlertMsg(message, timer, type, size);
+    return asyncAlertMsg(message, timer, type, size);
 }
 
 /* Handy function to set values in globals user_settings table */
@@ -534,13 +585,16 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let intent = node.dataset.intent;
                 let clientId = node.dataset.clientId;
                 if (!intent || !clientId) {
-                    console.error("mising intent parameter or client-id parameter");
+                    console.error("missing intent parameter or client-id parameter");
                     return;
                 }
 
-                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    client_id: clientId,
+                    csrf_token: csrfToken,
+                    intent: intent
+                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -554,7 +608,7 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let node = evt.target;
                 let dsi = node.dataset.dsiServiceId || "";
                 if (typeof dsi != "string" || dsi == "") {
-                    console.error("mising data-dsi-service-id parameter for .smart-launch-dsi-info");
+                    console.error("missing data-dsi-service-id parameter for .smart-launch-dsi-info");
                     return;
                 }
 
@@ -571,16 +625,22 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
-                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
-                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        const editParams = new URLSearchParams({
+                            csrf_token: csrfToken,
+                            action: "external-cdr/edit/" + data.dsiId
+                        });
+                        let editUrl = '/smart/admin-client.php?' + editParams;
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                     }
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
-                    + '&serviceId=' + encodeURIComponent(dsi)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    action: "external-cdr/cdr-info",
+                    csrf_token: csrfToken,
+                    serviceId: dsi
+                });
+                let url = webroot + '/interface/smart/admin-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -629,4 +689,40 @@ function normalizeToFilename(str) {
     .replace(/^_|_$/g, '') // Trim leading/trailing underscores
     .toLowerCase()
     .substring(0, 100); // Limit length
+}
+
+/*
+* @function js_uniqid()
+* @summary call this function where you need a unique id, based on php uniqid()
+*
+* @param string prefix to go before unique id that is generated
+* @param boolean
+*/
+function js_uniqid(prefix = "", moreEntropy = true) {
+
+    // Get microseconds since Unix epoch
+    const time = Date.now();
+    const micro = (performance.now() * 1000) % 1000000;
+    const uniqidTime = Math.floor(time / 1000) * 1000000 + Math.floor(micro);
+
+    // Convert to hex (PHP uses 8 chars for seconds + 5 for microseconds)
+    let id = uniqidTime.toString(16);
+
+    if (moreEntropy) {
+        // Ensure at least 4 random digits, exactly 13 total
+        const entropyDigits = 4;
+        const timestampDigits = 13 - entropyDigits; // 9 digits
+
+        // Trim timestamp if needed to make room for entropy
+        if (id.length > timestampDigits) {
+            id = id.slice(0, timestampDigits); // Keep the first 9 digits
+        }
+
+        // Generate random hex string
+        const maxEntropy = Math.pow(16, entropyDigits);
+        const entropy = Math.floor(Math.random() * maxEntropy);
+        id += entropy.toString(16).padStart(entropyDigits, '0');
+    }
+
+    return prefix + id;
 }

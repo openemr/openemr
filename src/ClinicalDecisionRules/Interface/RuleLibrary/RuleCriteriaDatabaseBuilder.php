@@ -31,8 +31,8 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "database")) {
-            $exploded = explode("::", $value);
+        if (strpos((string) $method, "database")) {
+            $exploded = explode("::", (string) $value);
             if ($exploded[0] == "LIFESTYLE") {
                 return RuleCriteriaType::from(RuleCriteriaType::lifestyle);
             }
@@ -53,7 +53,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {
-        $exploded = explode("::", $value);
+        $exploded = explode("::", (string) $value);
 
         if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             $type = $exploded[1];

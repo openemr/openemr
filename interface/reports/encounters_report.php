@@ -22,15 +22,14 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Encounters Report", xl("Encounters Report"));
 }
 
 if (!empty($_POST)) {
@@ -204,7 +203,11 @@ $res = sqlStatement($query, $sqlBindArray);
         // Called to switch to the specified encounter having the specified DOS.
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+            const params = new URLSearchParams({
+                set_encounterid: enc,
+                set_pid: newpid
+            });
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
     </script>
@@ -476,7 +479,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo ($docname == $lastdocname) ? "" : text($docname) ?>&nbsp;
   </td>
   <td>
-                <?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))) ?>&nbsp;
+                <?php echo text(oeFormatShortDate(substr((string) $row['date'], 0, 10))) ?>&nbsp;
   </td>
   <td>
                 <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>&nbsp;

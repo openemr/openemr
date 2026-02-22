@@ -136,8 +136,8 @@ class RuleManager
         "INSERT INTO rule_target ( id, include_flag, required_flag, method, value, group_id )
      VALUES ( ?, ?, ?, ?, ?, ? )";
 
-    var $filterCriteriaFactory;
-    var $targetCriteriaFactory;
+    public $filterCriteriaFactory;
+    public $targetCriteriaFactory;
 
     function __construct()
     {
@@ -432,7 +432,7 @@ class RuleManager
             );
 
             if (is_null($criteria)) {
-                // unrecognized critera
+                // unrecognized criteria
                 continue;
             }
 
@@ -460,7 +460,7 @@ class RuleManager
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $amount = $row['value'];
             $unit = TimeUnit::from($row['method_detail']);
-            $methodParts = explode('_', $row['method']);
+            $methodParts = explode('_', (string) $row['method']);
             $type = ReminderIntervalType::from($methodParts[0]);
             $range = ReminderIntervalRange::from($methodParts[2]);
             if (!is_null($type) && !is_null($range) && !is_null($unit)) {

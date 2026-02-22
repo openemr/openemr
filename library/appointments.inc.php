@@ -2,7 +2,7 @@
 
 /**
  *
- * RM - allow multple providers to have been chosen
+ * RM - allow multiple providers to have been chosen
  *
  *
  * Holds library functions (and hashes) used by the appointment reporting module
@@ -143,7 +143,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
-        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE, 10);
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE);
         $boundFilter = $apptFilterEvent->getBoundFilter();
         $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
         $where .= " AND " . $boundFilter->getFilterClause();
@@ -228,29 +228,29 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
 
-                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
-        //        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-                $occurance = $event['pc_eventDate'];
+                [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
+        //        $occurrence = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
+                $occurrence = $event['pc_eventDate'];
 
-                while ($occurance < $from_date) {
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                while ($occurrence < $from_date) {
+                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
 
-                while ($occurance <= $stopDate) {
+                while ($occurrence <= $stopDate) {
                     $excluded = false;
                     if (isset($exdate)) {
-                        foreach (explode(",", $exdate) as $exception) {
-                            // occurrance format == yyyy-mm-dd
+                        foreach (explode(",", (string) $exdate) as $exception) {
+                            // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", $occurance) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                 $excluded = true;
                             }
                         }
                     }
 
                     if ($excluded == false) {
-                        $event['pc_eventDate'] = $occurance;
+                        $event['pc_eventDate'] = $occurrence;
                         $event['pc_endDate'] = '0000-00-00';
                         $events2[] = $event;
                       //////
@@ -264,8 +264,8 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                     }
 
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
 
@@ -281,15 +281,15 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
 
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
                 }
 
                 $occuranceYm = "$ny-$nm"; // YYYY-mm
-                $from_dateYm = substr($from_date, 0, 7); // YYYY-mm
-                $stopDateYm = substr($stopDate, 0, 7); // YYYY-mm
+                $from_dateYm = substr((string) $from_date, 0, 7); // YYYY-mm
+                $stopDateYm = substr((string) $stopDate, 0, 7); // YYYY-mm
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
                 // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
@@ -305,23 +305,23 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurance === -1);
+                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurrence === -1);
 
-                    if ($occurance >= $from_date && $occurance <= $stopDate) {
+                    if ($occurrence >= $from_date && $occurrence <= $stopDate) {
                         $excluded = false;
                         if (isset($exdate)) {
-                            foreach (explode(",", $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                            foreach (explode(",", (string) $exdate) as $exception) {
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
                         }
 
                         if ($excluded == false) {
-                            $event['pc_eventDate'] = $occurance;
+                            $event['pc_eventDate'] = $occurrence;
                             $event['pc_endDate'] = '0000-00-00';
                             $events2[] = $event;
                             //////
@@ -566,7 +566,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
             }
         }
 
-        $same_day = ( strtotime($next_appointment_date) == strtotime($date) ) ? true : false;
+        $same_day = ( strtotime((string) $next_appointment_date) == strtotime((string) $date) ) ? true : false;
 
         if ($next_appointment_time && $same_day) {
             // check the start time of the next appointment
@@ -623,7 +623,7 @@ function sortAppointments(array $appointments, $orderBy = 'date')
 {
     global $appointment_sort_order;
     $appointment_sort_order = $orderBy;
-    usort($appointments, "compareAppointments");
+    usort($appointments, compareAppointments(...));
     return $appointments;
 }
 
@@ -658,16 +658,16 @@ function compareBasic($e1, $e2)
 
 function compareAppointmentsByDate($appointment1, $appointment2)
 {
-    $date1 = strtotime($appointment1['pc_eventDate']);
-    $date2 = strtotime($appointment2['pc_eventDate']);
+    $date1 = strtotime((string) $appointment1['pc_eventDate']);
+    $date2 = strtotime((string) $appointment2['pc_eventDate']);
 
     return compareBasic($date1, $date2);
 }
 
 function compareAppointmentsByTime($appointment1, $appointment2)
 {
-    $time1 = strtotime($appointment1['pc_startTime']);
-    $time2 = strtotime($appointment2['pc_startTime']);
+    $time1 = strtotime((string) $appointment1['pc_startTime']);
+    $time2 = strtotime((string) $appointment2['pc_startTime']);
 
     return compareBasic($time1, $time2);
 }
@@ -769,7 +769,7 @@ function interpretRecurrence($recurr_freq, $recurr_type)
     } elseif ($recurr_type == 3) {
         $interpreted = $REPEAT_FREQ[1];
         $comma = "";
-        $day_arr = explode(",", $recurr_freq['event_repeat_freq']);
+        $day_arr = explode(",", (string) $recurr_freq['event_repeat_freq']);
         foreach ($day_arr as $day) {
             $interpreted .= $comma . " " . $REPEAT_ON_DAY[$day - 1];
             $comma = ",";
@@ -801,7 +801,7 @@ function fetchRecurrences($pid)
 function ends_in_a_week($end_date)
 {
     $timestamp_in_a_week = strtotime('+7 day');
-    $timestamp_end_date = strtotime($end_date);
+    $timestamp_end_date = strtotime((string) $end_date);
     if ($timestamp_in_a_week > $timestamp_end_date) {
         return true; //ends in a week
     }
@@ -812,7 +812,7 @@ function ends_in_a_week($end_date)
 //Checks if recurrence is current (didn't end yet).
 function recurrence_is_current($end_date)
 {
-    $end_date_timestamp = strtotime($end_date);
+    $end_date_timestamp = strtotime((string) $end_date);
     $current_timestamp = time();
     if ($current_timestamp <= $end_date_timestamp) {
         return true; //recurrence is current

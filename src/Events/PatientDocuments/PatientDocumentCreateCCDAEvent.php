@@ -128,7 +128,7 @@ class PatientDocumentCreateCCDAEvent extends Event
      */
     public function setComponents(array $components): PatientDocumentCreateCCDAEvent
     {
-        $this->components = array_filter($components, 'is_string');
+        $this->components = array_filter($components, is_string(...));
         return $this;
     }
 

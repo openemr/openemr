@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
+use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -64,6 +66,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
 
         $this->service = new FhirQuestionnaireResponseFormService();
+        $this->service->setSystemLogger(new SystemLogger(Level::Critical));
 
         // Create test patient - AI Generated test data creation
         $this->createTestPatient();
@@ -120,7 +123,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $this->createTestQuestionnaireResponse('in-progress');
 
         // Retrieve all using the service
-        $processingResult = $this->service->getAll([]);
+        $processingResult = $this->service->getAll(['patient' => $this->testPatientData['uuid']]);
 
         $this->assertTrue($processingResult->isValid(), "Processing result should be valid");
         $this->assertNotEmpty($processingResult->getData(), "Processing result should contain data");
@@ -504,10 +507,10 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         );
 
         // Clean up test patient
-        if (!empty($this->testPatientData['pubpid'])) {
+        if (!empty($this->testPatientData['pid'])) {
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM patient_data WHERE pubpid = ?",
-                [$this->testPatientData['pubpid']]
+                "DELETE FROM patient_data WHERE pid = ?",
+                [$this->testPatientData['pid']]
             );
         }
     }

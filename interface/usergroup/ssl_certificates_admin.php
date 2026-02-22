@@ -20,10 +20,10 @@
 require_once("../globals.php");
 require_once("../../library/create_ssl_certificate.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -33,8 +33,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SSL Certificate Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: SSL Certificate Administration", xl("SSL Certificate Administration"));
 }
 
 /* This string contains any error messages if generating
@@ -54,7 +53,7 @@ function download_file($filename, $filetype): void
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Cache-Control: private");
     header("Content-Type: application/" . $filetype);
-    header("Content-Disposition: attachment; filename=" . basename($filename) . ";");
+    header("Content-Disposition: attachment; filename=" . basename((string) $filename) . ";");
     header("Content-Transfer-Encoding: binary");
     header("Content-Length: " . filesize($filename));
     readfile($filename);
@@ -88,15 +87,15 @@ function create_client_cert(): void
     }
 
     if ($_POST["client_cert_user"]) {
-        $user = trim($_POST['client_cert_user']);
+        $user = trim((string) $_POST['client_cert_user']);
     }
 
     if ($_POST["client_cert_email"]) {
-        $email = trim($_POST['client_cert_email']);
+        $email = trim((string) $_POST['client_cert_email']);
     }
 
     if ($_POST["clientPassPhrase"]) {
-        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+        $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
     $serial = 0;
@@ -173,42 +172,42 @@ function create_and_download_certificates(): void
 
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
-        $commonName = trim($_POST['commonName']);
+        $commonName = trim((string) $_POST['commonName']);
     }
 
     if ($_POST["emailAddress"]) {
-        $emailAddress = trim($_POST['emailAddress']);
+        $emailAddress = trim((string) $_POST['emailAddress']);
     }
 
     if ($_POST["countryName"]) {
-        $countryName = trim($_POST['countryName']);
+        $countryName = trim((string) $_POST['countryName']);
     }
 
     if ($_POST["stateOrProvinceName"]) {
-        $stateOrProvinceName = trim($_POST['stateOrProvinceName']);
+        $stateOrProvinceName = trim((string) $_POST['stateOrProvinceName']);
     }
 
     if ($_POST["localityName"]) {
-        $localityName = trim($_POST['localityName']);
+        $localityName = trim((string) $_POST['localityName']);
     }
 
     if ($_POST["organizationName"]) {
-        $organizationName = trim($_POST['organizationName']);
+        $organizationName = trim((string) $_POST['organizationName']);
     }
 
     if ($_POST["organizationalUnitName"]) {
-        $organizationName = trim($_POST['organizationalUnitName']);
+        $organizationName = trim((string) $_POST['organizationalUnitName']);
     }
 
     if ($_POST["clientCertValidity"]) {
-        $clientCertValidity = trim($_POST['clientCertValidity']);
+        $clientCertValidity = trim((string) $_POST['clientCertValidity']);
     }
 
     if ($_POST["clientPassPhrase"]) {
-        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+        $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
-    /* Create the Certficate Authority (CA) */
+    /* Create the Certificate Authority (CA) */
     $arr = create_csr(
         "OpenEMR CA for " . $commonName,
         $emailAddress,
@@ -321,7 +320,7 @@ function create_and_download_certificates(): void
         if (ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
-    } catch (Exception $e) {
+    } catch (\Throwable) {
         SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
         return;
     }

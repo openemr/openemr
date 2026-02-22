@@ -15,16 +15,15 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Superbill")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Superbill", xl("Superbill"));
 }
 
 if (!empty($_POST)) {
@@ -332,13 +331,13 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = 0.00;
             //foreach ($patient as $be) {
 
-            $ta = explode(":", $patient);
+            $ta = explode(":", (string) $patient);
             $billing = getPatientBillingEncounter($pids[$iCounter], $ta[1]);
 
             $billings[] = $billing;
             foreach ($billing as $b) {
                 // grab the date to reformat it in the output
-                $bdate = strtotime($b['date']);
+                $bdate = strtotime((string) $b['date']);
 
                 echo "<tr>\n";
                 echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";

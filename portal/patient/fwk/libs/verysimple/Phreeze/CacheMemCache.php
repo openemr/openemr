@@ -19,9 +19,7 @@ require_once("verysimple/Util/ExceptionThrower.php");
  */
 class CacheMemCache implements ICache
 {
-    private $_memcache = null;
     private $_prefix = "";
-    private $_suppressServerErrors = false;
     private $_lockFilePath = "";
 
     /**
@@ -34,11 +32,9 @@ class CacheMemCache implements ICache
      * @param
      *          bool set to true to ignore errors if a connection can't be made to the cache server
      */
-    public function __construct($memcache, $uniquePrefix = "CACHE-", $suppressServerErrors = false)
+    public function __construct(private $_memcache, $uniquePrefix = "CACHE-", private $_suppressServerErrors = false)
     {
-        $this->_memcache = $memcache;
         $this->_prefix = $uniquePrefix ? $uniquePrefix . "-" : "";
-        $this->_suppressServerErrors = $suppressServerErrors;
         $this->LastServerError;
     }
 
@@ -52,7 +48,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $obj = $this->_memcache->get($this->_prefix . $key);
             ExceptionThrower::Stop();
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors) {
@@ -73,7 +69,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $result = $this->_memcache->set($this->_prefix . $key, $val, $flags, $timeout);
             ExceptionThrower::Stop();
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors) {
@@ -94,7 +90,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $result = $this->_memcache->delete($this->_prefix . $key);
             ExceptionThrower::Stop();
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors) {

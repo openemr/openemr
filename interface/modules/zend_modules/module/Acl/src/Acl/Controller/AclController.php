@@ -25,11 +25,9 @@ class AclController extends AbstractActionController
     protected $aclTable;
 
     protected $listenerObject;
-    private $htmlEscaper;
 
-    public function __construct(\Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
+    public function __construct(private readonly \Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
     {
-        $this->htmlEscaper = $htmlEscaper;
         // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.
         $this->listenerObject = new Listener();
         $this->aclTable = $aclTable;
@@ -133,13 +131,13 @@ class AclController extends AbstractActionController
         $ajax_mode  = $this->getRequest()->getPost('ajax_mode', null);
         if ($ajax_mode == "save_acl") {
             $selected_componet = $this->getRequest()->getPost('selected_module', null);
-            $selected_componet_arr = explode("-", $selected_componet);
+            $selected_componet_arr = explode("-", (string) $selected_componet);
             if ($selected_componet_arr[0] == 0) {
                 $selected_componet_arr[0] = $selected_componet_arr[1];
             }
 
-            $allowed_users = json_decode($this->getRequest()->getPost('allowed_users', null));
-            $denied_users = json_decode($this->getRequest()->getPost('denied_users', null));
+            $allowed_users = json_decode((string) $this->getRequest()->getPost('allowed_users', null));
+            $denied_users = json_decode((string) $this->getRequest()->getPost('denied_users', null));
 
             $allowed_users = array_unique($allowed_users);
             $denied_users = array_unique($denied_users);
@@ -173,7 +171,7 @@ class AclController extends AbstractActionController
             }
         } elseif ($ajax_mode == "rebuild") {
             $selected_componet = $_REQUEST['selected_module'];
-            $selected_componet_arr = explode("-", $selected_componet);
+            $selected_componet_arr = explode("-", (string) $selected_componet);
             if ($selected_componet_arr[0] == 0) {
                 $selected_componet_arr[0] = $selected_componet_arr[1];
             }
@@ -216,7 +214,7 @@ class AclController extends AbstractActionController
                         $arr_return['user_denied'] = $array_users_denied;
                         echo json_encode($arr_return);
         } elseif ($ajax_mode == "save_acl_advanced") {
-            $ACL_DATA  = json_decode($this->getRequest()->getPost('acl_data', null), true);
+            $ACL_DATA  = json_decode((string) $this->getRequest()->getPost('acl_data', null), true);
             $module_id = $this->getRequest()->getPost('module_id', null);
                         $this->getAclTable()->deleteModuleGroupACL($module_id);
 
@@ -263,7 +261,7 @@ class AclController extends AbstractActionController
 
     /**
      *
-     * Function to Print Componets Tree Structure
+     * Function to Print Components Tree Structure
      * @param String $currentParent Root Node of Tree
      * @param String $currLevel Current Depth of Tree
      * @param String $prevLevel Prev Depth of Tree

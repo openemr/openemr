@@ -30,8 +30,8 @@ echo "s.options.length = 0;\n";
 
 while ($row = sqlFetchArray($res)) {
     echo "s.options[s.options.length] = new Option(" .
-    "'" . attr(substr($row['date'], 0, 10)) . " " .
-    attr(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
+    "'" . attr(substr((string) $row['date'], 0, 10)) . " " .
+    attr(strtr(substr((string) $row['reason'], 0, 40), "\r\n", "  ")) . "', " .
     "'" . attr($row['encounter']) . "'" .
     ");\n";
 }

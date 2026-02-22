@@ -15,7 +15,7 @@
     {{^unknown_supplemental_value}}
       {{#payer_code}}
         <value xsi:type="CD" nullFlavor="OTH">
-          <translation code="{{{cms_payer_code}}}" codeSystem="2.16.840.1.113883.3.249.12" codeSystemName="CMS Clinical Codes"/>
+          <translation code="{{cms_payer_code}}" codeSystem="2.16.840.1.113883.3.249.12" codeSystemName="CMS Clinical Codes"/>
         </value>
       {{/payer_code}}
       {{^payer_code}}
@@ -32,4 +32,4 @@
       </observation>
     </entryRelationship>
   </observation>
-</entryRelationship> 
+</entryRelationship>

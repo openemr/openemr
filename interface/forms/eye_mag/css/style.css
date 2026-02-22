@@ -2166,10 +2166,6 @@ View.php
   text-align: center;
 }
 
-.jscolor input[type="text"] {
-  margin: 26px 2px 0 !important;
-}
-
 #LayerVision {
   border: 1px solid var(--dark);
   float: left;

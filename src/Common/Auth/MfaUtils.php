@@ -26,28 +26,26 @@ class MfaUtils
     private $registrations;
     private $var1U2F;
     private $var1TOTP;
-    private $uid; // User Id who try connect
     private $errorMsg = '';
     private $appId;
 
     /**
      * MfaUtils constructor.
      * Load the settings of user from login_mfa_registrations
-     * @param $uid - user Id
+     * @param $uid User Id who try connect
      */
-    public function __construct($uid)
+    public function __construct(private $uid)
     {
-        $this->uid = $uid;
         $res = sqlStatementNoLog(
             "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
             "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-            [$uid]
+            [$this->uid]
         );
         while ($row = sqlFetchArray($res)) {
             if ($row['method'] == 'U2F') {
                 $this->types[] = 'U2F';
                 $this->var1U2F = $row['var1'];
-                $regobj = json_decode($row['var1']);
+                $regobj = json_decode((string) $row['var1']);
                 $this->regs[json_encode($regobj->keyHandle)] = $row['name'];
                 $this->registrations[] = $regobj;
             } elseif ($row['method'] == 'TOTP') {
@@ -189,9 +187,9 @@ class MfaUtils
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$this->uid]);
         try {
             $registration = $u2f->doAuthenticate(
-                json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                json_decode((string) $tmprow['login_work_area']), // these are the original challenge requests
                 $this->registrations,
-                json_decode($token)
+                json_decode((string) $token)
             );
             // Stored registration data needs to be updated because the usage count has changed.
             // We have to use the matching registered key.
@@ -205,8 +203,9 @@ class MfaUtils
                 return true;
             } else {
                 error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
+                return false;
             }
-        } catch (u2flib_server\Error $e) {
+        } catch (\u2flib_server\Error $e) {
             // Authentication failed so we will build the U2F form again.
             $form_response = '';
             $this->errorMsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
@@ -223,7 +222,7 @@ class MfaUtils
     private function validateToken($token, $type)
     {
         return match ($type) {
-            'TOTP' => strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
             // todo - USF string validation
             'U2F' => true,
             default => throw new \Exception('MFA type do not supported'),

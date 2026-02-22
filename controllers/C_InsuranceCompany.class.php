@@ -1,19 +1,18 @@
 <?php
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
 {
-    var $template_mod;
-    var $icompanies;
-    var $InsuranceCompany;
+    public $icompanies;
+    public $InsuranceCompany;
 
-    public function __construct($template_mod = "general")
+    public function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->icompanies = [];
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");
@@ -43,7 +42,7 @@ class C_InsuranceCompany extends Controller
 
     public function list_action()
     {
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);
@@ -83,11 +82,7 @@ class C_InsuranceCompany extends Controller
             return;
         }
 
-        if (is_numeric($_POST['id'])) {
-            $this->icompanies[0] = new InsuranceCompany($_POST['id']);
-        } else {
-            $this->icompanies[0] = new InsuranceCompany();
-        }
+        $this->icompanies[0] = is_numeric($_POST['id']) ? new InsuranceCompany($_POST['id']) : new InsuranceCompany();
 
         self::populate_object($this->icompanies[0]);
 

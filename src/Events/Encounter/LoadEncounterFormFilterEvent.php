@@ -20,10 +20,8 @@ class LoadEncounterFormFilterEvent extends Event
 {
     const EVENT_NAME = 'encounter.load_form_filter';
     private $formName;
-    private $dir;
-    private $pageName;
-    private ?int $pid;
-    private ?int $encounter;
+    private ?int $pid = null;
+    private ?int $encounter = null;
     private bool $isLBF = false;
 
     /**
@@ -31,12 +29,8 @@ class LoadEncounterFormFilterEvent extends Event
      * @param string $dir
      * @param string $pageName
      */
-    public function __construct(string $formname, string $dir, string $pageName)
+    public function __construct(string $formname, private string $dir, private string $pageName)
     {
-        // if the directory does not exist in the core filesystem we set the dir initially knowing it will be
-        // incorrect but we will validate it later
-        $this->dir = $dir;
-        $this->pageName = $pageName;
         $this->setFormName($formname);
     }
 

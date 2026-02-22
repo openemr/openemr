@@ -72,4 +72,3 @@ use OpenEMR\Core\Header;
 <br /><br />
 </body>
 </html>
-

@@ -31,7 +31,7 @@ function collectValidationPageRules($title, $active = true)
 
     $dataArray = [];
     while ($row = sqlFetchArray($sql)) {
-        $formPageNameArray = explode('#', $row['option_id']);
+        $formPageNameArray = explode('#', (string) $row['option_id']);
         $dataArray[$formPageNameArray[1]] = ['page_name' => $formPageNameArray[0] ,'rules' => $row['notes']];
     }
 
@@ -47,11 +47,7 @@ function validateUsingPageRules($fileNamePath): void
 
     $path = '';
 
-    if ($GLOBALS['webroot'] != '') {
-        $path = str_replace($GLOBALS['webroot'], '', $fileNamePath);
-    } else {
-        $path = $fileNamePath;
-    }
+    $path = $GLOBALS['webroot'] != '' ? str_replace($GLOBALS['webroot'], '', $fileNamePath) : $fileNamePath;
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a

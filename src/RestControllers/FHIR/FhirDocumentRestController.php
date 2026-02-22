@@ -14,12 +14,13 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use http\Exception\InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
@@ -27,7 +28,6 @@ use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentRestController
@@ -42,9 +42,9 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
-    private SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
-    private SessionInterface $session;
+    private readonly SessionInterface $session;
 
     public function __construct(HttpRestRequest $request)
     {
@@ -83,7 +83,7 @@ class FhirDocumentRestController
             }
         }
 
-        if (!$document->can_access()) {
+        if (!$document->can_access($this->session->get('authUser'))) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
 
@@ -93,7 +93,7 @@ class FhirDocumentRestController
                 if (!$document->is_deleted()) {
                     $document->process_deleted();
                 }
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 // we just continue as we still wanto to reject the response
                 $this->logger->error(
                     "FhirDocumentRestController->downloadDocument() Failed to delete document with id",
@@ -130,14 +130,14 @@ class FhirDocumentRestController
     public function addMimeTypeHandler($mimeType, IDocumentDownloader $handler)
     {
         if (!is_string($mimeType)) {
-            throw new InvalidArgumentException("invalid mime type");
+            throw new \InvalidArgumentException("invalid mime type");
         }
         $this->mimeTypeHandlers[$mimeType] = $handler;
     }
 
     private function findDocumentForDocumentId(string $documentId)
     {
-        if (Uuid::isValid($documentId)) {
+        if (ValidationUtils::isValidUuid($documentId)) {
             $document = \Document::getDocumentForUuid($documentId);
         } else {
             // use our integer values

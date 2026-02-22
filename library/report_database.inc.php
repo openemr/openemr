@@ -49,7 +49,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
 {
 
   // set $end_date to today's date if empty
-    $end_date = ($end_date) ? $end_date : date('Y-m-d H:i:s');
+    $end_date = $end_date ?: date('Y-m-d H:i:s');
 
   // Collect pertinent information as a pivot table (ie. converting vertical to horizontal row)
     if (empty($start_date)) {
@@ -97,11 +97,7 @@ function bookmarkReportDatabase()
 
   // Retrieve a new report id
     $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
-    if (empty($query)) {
-        $new_report_id = 1;
-    } else {
-        $new_report_id = $query['max_report_id'] + 1;
-    }
+    $new_report_id = empty($query) ? 1 : $query['max_report_id'] + 1;
 
   // Set the bookmark token
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"bookmark",1]);
@@ -123,11 +119,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
   // Retrieve a new report id, if needed.
     if (empty($report_id)) {
         $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
-        if (empty($query)) {
-            $new_report_id = 1;
-        } else {
-            $new_report_id = $query['max_report_id'] + 1;
-        }
+        $new_report_id = empty($query) ? 1 : $query['max_report_id'] + 1;
     } else {
         $new_report_id = $report_id;
     }
@@ -144,14 +136,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
         foreach ($fields as $key => $value) {
             // skip the special tokens
             if (
-                ($key == "type") ||
-                ($key == "data") ||
-                ($key == "progress") ||
-                ($key == "progress_items") ||
-                ($key == "total_items") ||
-                ($key == "date_report") ||
-                ($key == "date_report_complete") ||
-                ($key == "bookmark")
+                in_array($key, ["type", "data", "progress", "progress_items", "total_items", "date_report", "date_report_complete", "bookmark"])
             ) {
                 continue;
             }
@@ -245,7 +230,7 @@ function getStatusReportDatabase($report_id)
   // Collect the pertinent rows of data
     $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", [$report_id]);
 
-  // If empty, then just return Pending, since stil haven't likely created the entries yet
+  // If empty, then just return Pending, since still haven't likely created the entries yet
     if (sqlNumRows($res) < 1) {
         return "PENDING";
     }
@@ -260,7 +245,7 @@ function getStatusReportDatabase($report_id)
         // return COMPLETE
         return "COMPLETE";
     } else {
-        $final_array['progress_items'] = ($final_array['progress_items']) ? $final_array['progress_items'] : 0;
+        $final_array['progress_items'] = $final_array['progress_items'] ?: 0;
         return $final_array['progress_items'] . " / " . $final_array['total_items'] . " " . xl("Patients");
     }
 }
@@ -295,7 +280,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     $dispTitle = "";
     $report_view = collectReportDatabase($report_id);
     $type_report = $report_view['type'];
-    $dataSheet = json_decode($report_view['data'], true);
+    $dataSheet = json_decode((string) $report_view['data'], true);
     $display_group_provider_info = false;
     $group_label = '';
     $group_provider_label = '';
@@ -313,11 +298,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
             } else if (isset($row['is_provider'])) {
                 $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
                     . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
-                if (isset($row['is_provider_in_group'])) {
-                    $group_provider_label = $group_label . ' ' . $provider_label;
-                } else {
-                    $group_provider_label = $provider_label;
-                }
+                $group_provider_label = isset($row['is_provider_in_group']) ? $group_label . ' ' . $provider_label : $provider_label;
             }
         }
 
@@ -331,7 +312,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                 // We have a hit, build on the $dispTitle created above
                 if (isset($row['is_main'])) {
                     $tempCqmAmcString = "";
-                    if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+                    if (in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"])) {
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
                         }
@@ -487,12 +468,12 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  */
 function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode($data, true) ?? [];
+    $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
-        $row['total_patients'] = $row['total_patients'] ?? 0;
+        $row['total_patients'] ??= 0;
         $failed_items = null;
         $displayFieldSubHeader = "";
 
@@ -540,10 +521,10 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
             $base_link = sprintf(
                 "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
                 . "&itemized_test_id=%d&numerator_label=%s&csrf_token_form=%s",
-                urlencode($report_id),
-                urlencode($row['itemized_test_id']),
+                urlencode((string) $report_id),
+                urlencode((string) $row['itemized_test_id']),
                 urlencode($row['numerator_label'] ?? ''),
-                urlencode($csrf_token)
+                urlencode((string) $csrf_token)
             );
 
             // we need the provider & group id here...

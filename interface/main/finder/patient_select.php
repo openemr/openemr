@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -134,17 +135,6 @@ form {
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
-// This is called when forward or backward paging is done.
-//
-function submitList(offset) {
- var f = document.forms[0];
- var i = parseInt(f.fstart.value) + offset;
- if (i < 0) i = 0;
- f.fstart.value = i;
- top.restoreSession();
- f.submit();
-}
-
 </script>
 
 </head>
@@ -178,13 +168,13 @@ if ($popup) {
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
-        if (str_starts_with($field_id, 'em_')) {
+        if (str_starts_with((string) $field_id, 'em_')) {
             continue;
         }
 
         $data_type = $frow['data_type'];
         if (!empty($_REQUEST[$field_id])) {
-            $value = trim($_REQUEST[$field_id]);
+            $value = trim((string) $_REQUEST[$field_id]);
             if ($field_id == 'pid') {
                 $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " = ?";
                 array_push($sqlBindArray, $value);
@@ -221,16 +211,12 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE, 10);
+    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
 
-    if (empty($where)) {
-        $where = $customWhere;
-    } else {
-        $where = "$customWhere AND $where";
-    }
+    $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
@@ -276,20 +262,14 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    if ($findBy == "Last") {
-        $result = getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "ID") {
-        $result = getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "DOB") {
-        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "SSN") {
-        $result = getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Any") {
-        $result = getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Filter") {
-        $result = getByPatientDemographicsFilter(
+    $result = match($findBy) {
+        "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
+        "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
+        "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),
+        "SSN" => getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart),
+        "Phone" => getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart),
+        "Any" => getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart),
+        "Filter" => getByPatientDemographicsFilter(
             $searchFields,
             $patient,
             $given,
@@ -297,8 +277,9 @@ if ($popup) {
             $sqllimit,
             $fstart,
             $search_service_code
-        );
-    }
+        ),
+        default => [],
+    };
 }
 ?>
 
@@ -323,55 +304,31 @@ if ($popup) {
         <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
-  <td class='text' align='right'>
-<?php
-// Show start and end row number, and number of rows, with paging links.
-//
-// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
-$count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = $fstart + $MAXSHOW;
-if ($fend > $count) {
-    $fend = $count;
-}
-?>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-    <?php
-    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-    echo ($fstart + 1) . text($countStatement);
-    ?>
-<?php if ($count > $fend) { ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &gt;&gt;
-   </a>
-<?php } ?>
-  </td>
- </tr>
- <tr>
-    <?php if ($from_page == "cdr_report") {
+  <td class='text' align='right'><?php
+    $paginator = new PaginationUtils();
+    echo $paginator->render(
+        offset: $fstart,
+        pageSize: $MAXSHOW,
+        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        filename: basename(__FILE__),
+        onclick: 'top.restoreSession()'
+    );
+    echo '</td></tr><tr>';
+    if ($from_page === "cdr_report") {
         echo "<td colspan='6' class='text'>";
         echo "<strong>";
-        if ($pass_id == "fail") {
-             echo xlt("Failed Patients");
-        } elseif ($pass_id == "pass") {
-             echo xlt("Passed Patients");
-        } elseif ($pass_id == "exclude") {
-             echo xlt("Excluded Patients");
-        } else { // $pass_id == "all"
-             echo xlt("All Patients");
-        }
-
+        $passMap = [
+            "fail" => "Failed Patients",
+            "pass" => "Passed Patients",
+            "exclude" => "Excluded Patients",
+        ];
+        echo xlt($passMap[$pass_id] ?? "All Patients");
         echo "</strong>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
     } ?>
- </tr>
+  </tr>
 </table>
 
 <div id="searchResultsHeader" class="head">
@@ -575,11 +532,11 @@ var SelectPatient = function (eObj) {
 // will set the pid and load all the other frames.
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) { ?>
+    <?php if ($popup) { ?>
+        dlgclose("srchDone", parts[0]);
+    <?php } else { ?>
         top.restoreSession();
         document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
-    <?php } elseif ($popup) { ?>
-        dlgclose("srchDone", parts[0]);
     <?php } ?>
 
     return true;

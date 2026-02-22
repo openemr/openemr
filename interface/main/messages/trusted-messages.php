@@ -40,11 +40,7 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
-if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
-    $verifyMessageReceivedChecked = "checked";
-} else {
-    $verifyMessageReceivedChecked = '';
-}
+$verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>

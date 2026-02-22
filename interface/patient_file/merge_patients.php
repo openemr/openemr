@@ -19,11 +19,14 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -33,8 +36,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Merge Patients", xl("Merge Patients"));
 }
 ?>
 <!DOCTYPE html>
@@ -117,8 +119,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * @param [type] $colname    the column used for the query.
          * @param [type] $source_pid the source patient id.
          * @param [type] $target_pid the target patient id.
-         *
-         * @return voidd
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
@@ -179,7 +179,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 while ($source_row = sqlFetchArray($source_res)) {
                     while ($target_row = sqlFetchArray($target_res)) {
                         if ($source_row['type'] == $target_row['type']) {
-                            if (strcmp($source_row['date'], $target_row['date']) < 0) {
+                            if (strcmp((string) $source_row['date'], (string) $target_row['date']) < 0) {
                                 // we delete the entry from the target since the source has
                                 // an older date, then update source to target.
                                 $sql1 = "DELETE FROM " . escape_table_name($tblname) .
@@ -287,10 +287,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            EventAuditLogger::instance()->newEvent(
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 $log_message,
                 $target_pid
@@ -318,7 +319,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             if (empty($target)) {
                 // there wasn't a target encounter date match to merge components
                 // so grab an encounter that is within the date period of source encounter.
-                $src_date = date("Ymd", strtotime($source['date']));
+                $src_date = date("Ymd", strtotime((string) $source['date']));
                 $sql = "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid = ? AND ? BETWEEN e1.date and e1.date_end LIMIT 1";
                 $target = sqlQuery($sql, [$targetPid, $src_date]);
@@ -334,6 +335,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         function resolveDuplicateEncounters($targets): void
         {
             global $PRODUCTION;
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
 
             $target_pid = $targets[0]['pid'];
             $target = $targets[0]['encounter'];
@@ -391,7 +393,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -528,9 +530,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             while ($trow = sqlFetchArray($tres)) {
                 $tblname = array_shift($trow);
                 if (
-                    $tblname == 'patient_data'
-                    || $tblname == 'history_data'
-                    || $tblname == 'insurance_data'
+                    in_array($tblname, ['patient_data', 'history_data', 'insurance_data'])
                 ) {
                     deleteRows($tblname, 'pid', $source_pid, $target_pid);
                 } elseif ($tblname == 'chart_tracker') {
@@ -606,7 +606,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         <p>
         </p>
         <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="table-responsive">
                 <table class="table w-100">
                     <tr>

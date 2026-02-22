@@ -34,6 +34,8 @@ require_once(__DIR__ . "/forms.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -93,6 +95,7 @@ class FeeSheet
 
     function __construct($pid = 0, $encounter = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (empty($pid)) {
             $pid = $GLOBALS['pid'];
         }
@@ -115,7 +118,7 @@ class FeeSheet
         $this->got_warehouses = $wrow['count'] > 1;
         $wrow = sqlQuery(
             "SELECT default_warehouse FROM users WHERE username = ?",
-            [$_SESSION['authUser']]
+            [$session->get('authUser')]
         );
         $this->default_warehouse = empty($wrow['default_warehouse']) ? '' : $wrow['default_warehouse'];
 
@@ -126,7 +129,7 @@ class FeeSheet
           "LEFT JOIN openemr_postcalendar_categories AS opc ON opc.pc_catid = fe.pc_catid " .
           "LEFT JOIN facility AS fac ON fac.id = fe.facility_id " .
           "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", [$this->pid, $this->encounter]);
-        $this->visit_date    = substr($visit_row['date'], 0, 10);
+        $this->visit_date    = substr((string) $visit_row['date'], 0, 10);
         $this->provider_id   = $visit_row['provider_id'];
         if (empty($this->provider_id)) {
             $this->provider_id = $this->findProvider();
@@ -141,7 +144,7 @@ class FeeSheet
         // Get some information about the patient.
         $patientrow = getPatientData($this->pid, "DOB, sex, pricelevel");
         $this->patient_age = static::getAge($patientrow['DOB'], $this->visit_date);
-        $this->patient_male = strtoupper(substr($patientrow['sex'], 0, 1)) == 'M' ? 1 : 0;
+        $this->patient_male = strtoupper(substr((string) $patientrow['sex'], 0, 1)) == 'M' ? 1 : 0;
         $this->patient_pricelevel = $patientrow['pricelevel'];
     }
 
@@ -167,8 +170,8 @@ class FeeSheet
             $asof = date('Y-m-d');
         }
 
-        $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($asof, 0, 10));
+        $a1 = explode('-', substr((string) $dob, 0, 10));
+        $a2 = explode('-', substr((string) $asof, 0, 10));
         $age = $a2[0] - $a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
@@ -182,6 +185,8 @@ class FeeSheet
   //
     public function findProvider()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+
         $find_provider = sqlQuery(
             "SELECT provider_id FROM form_encounter " .
             "WHERE pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
@@ -189,9 +194,9 @@ class FeeSheet
         );
         $providerid = $find_provider['provider_id'];
         if (!$providerid) {
-            $get_authorized = $_SESSION['userauthorized'];
+            $get_authorized = $session->get('userauthorized');
             if ($get_authorized == 1) {
-                $providerid = $_SESSION['authUserID'];
+                $providerid = $session->get('authUserID');
             }
         }
 
@@ -285,6 +290,7 @@ class FeeSheet
   //
     public function logFSMessage($action, $newvalue = '', $logarr = null)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $user_notes = $this->encounter;
         if (is_array($logarr)) {
             array_unshift($logarr, $newvalue);
@@ -293,10 +299,10 @@ class FeeSheet
             }
         }
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             'fee-sheet',
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             $action,
             $this->pid,
@@ -308,6 +314,7 @@ class FeeSheet
   //
     public function visitChecksum($saved = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $rowb = sqlQuery(
             "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
             "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
@@ -333,7 +340,7 @@ class FeeSheet
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
             $comment .= ", Saved = " . ($saved ? "true" : "false");
-            EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
+            EventAuditLogger::getInstance()->newEvent("checksum", $session->get('authUser'), $session->get('authProvider'), 1, $comment, $this->pid);
         }
         return $ret;
     }
@@ -346,7 +353,7 @@ class FeeSheet
         $this->line_contra_cyp      = 0;
         $this->line_contra_methtype = 0; // 0 = None, 1 = Not initial, 2 = Initial consult
         if (!empty($related_code)) {
-            $relcodes = explode(';', $related_code);
+            $relcodes = explode(';', (string) $related_code);
             foreach ($relcodes as $relstring) {
                 if ($relstring === '') {
                     continue;
@@ -397,10 +404,11 @@ class FeeSheet
     //
     public function insert_lbf_item($field_id, $field_value)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         sqlInsert(
             "INSERT INTO shared_attributes (pid, encounter, last_update, user_id, field_id, field_value) " .
             "VALUES (?, ?, 'NOW()', ?, ?, ?)",
-            [$this->pid, $this->encounter, $_SESSION['authId'], $field_id, $field_value]
+            [$this->pid, $this->encounter, $session->get('authId'), $field_id, $field_value]
         );
     }
 
@@ -481,7 +489,7 @@ class FeeSheet
         $query .= " ORDER BY active DESC, id LIMIT 1";
         $result = sqlQuery($query, $sqlArray);
         $codes_id = $result['id'] ?? null;
-        $revenue_code = $revenue_code ? $revenue_code : ($result['revenue_code'] ?? null);
+        $revenue_code = $revenue_code ?: $result['revenue_code'] ?? null;
         if (!$code_text) {
             $code_text = $result['code_text'] ?? null;
             if (empty($units) && !empty($result)) {
@@ -516,7 +524,7 @@ class FeeSheet
                     // if percent-based pricing is enabled...
                     if ($GLOBALS['enable_percent_pricing']) {
                         // if this price level is a percentage, calculate price from default price
-                        if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                        if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                             $percent = intval(str_replace('%', '', $prrow['notes']));
                             if ($percent > 0) {
                                 $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
@@ -699,7 +707,7 @@ class FeeSheet
                 // if percent-based pricing is enabled...
                 if ($GLOBALS['enable_percent_pricing']) {
                     // if this price level is a percentage, calculate price from default price
-                    if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                    if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                         $percent = intval(str_replace('%', '', $prrow['notes']));
                         if ($percent > 0) {
                             $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
@@ -757,7 +765,7 @@ class FeeSheet
                     continue;
                 }
 
-                $justify    = trim($iter['justify']);
+                $justify    = trim((string) $iter['justify']);
                 if ($justify) {
                     $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
                 }
@@ -765,10 +773,10 @@ class FeeSheet
                 $this->addServiceLineItem([
                 'id'          => $iter['id'],
                 'codetype'    => $iter['code_type'],
-                'code'        => trim($iter['code']),
-                'revenue_code'    => trim($iter["revenue_code"]),
-                'modifier'    => trim($iter["modifier"]),
-                'code_text'   => trim($iter['code_text']),
+                'code'        => trim((string) $iter['code']),
+                'revenue_code'    => trim((string) $iter["revenue_code"]),
+                'modifier'    => trim((string) $iter["modifier"]),
+                'code_text'   => trim((string) $iter['code_text']),
                 'units'       => $iter['units'],
                 'fee'         => $iter['fee'],
                 'pricelevel'  => $iter['pricelevel'],
@@ -776,7 +784,7 @@ class FeeSheet
                 'ndc_info'    => $iter['ndc_info'],
                 'provider_id' => $iter['provider_id'],
                 'justify'     => $justify,
-                'notecodes'   => trim($iter['notecodes']),
+                'notecodes'   => trim((string) $iter['notecodes']),
                 ]);
             }
         }
@@ -919,6 +927,7 @@ class FeeSheet
         $default_warehouse = null,
         $mark_as_closed = false
     ) {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         global $code_types;
 
         if (isset($main_provid) && $main_supid == $main_provid) {
@@ -944,10 +953,10 @@ class FeeSheet
                 $del       = !empty($iter['del']);
                 $units     = empty($iter['units']) ? 1 : intval($iter['units']);
                 $pricelevel = empty($iter['pricelevel']) ? '' : $iter['pricelevel'];
-                $revenue_code  = empty($iter['revenue_code']) ? '' : trim($iter['revenue_code']);
-                $modifier  = empty($iter['mod']) ? '' : trim($iter['mod']);
-                $justify   = empty($iter['justify'  ]) ? '' : trim($iter['justify']);
-                $notecodes = empty($iter['notecodes']) ? '' : trim($iter['notecodes']);
+                $revenue_code  = empty($iter['revenue_code']) ? '' : trim((string) $iter['revenue_code']);
+                $modifier  = empty($iter['mod']) ? '' : trim((string) $iter['mod']);
+                $justify   = empty($iter['justify'  ]) ? '' : trim((string) $iter['justify']);
+                $notecodes = empty($iter['notecodes']) ? '' : trim((string) $iter['notecodes']);
                 $provid    = empty($iter['provid'   ]) ? 0 : intval($iter['provid']);
 
                 $price = 0;
@@ -982,7 +991,7 @@ class FeeSheet
                             sqlStatement(
                                 "UPDATE ar_session SET user_id = ?, pay_total = ?, modified_time = now(), " .
                                 "post_to_date = now() WHERE session_id = ?",
-                                [$_SESSION['authUserID'], $fee, $session_id]
+                                [$session->get('authUserID'), $fee, $session_id]
                             );
                         }
                         // deleting old copay
@@ -998,21 +1007,24 @@ class FeeSheet
                             "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
                             "adjustment_code, post_to_date) " .
                             "VALUES ('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
-                            [$_SESSION['authUserID'], $fee, $this->pid]
+                            [$session->get('authUserID'), $fee, $this->pid]
                         );
                     }
                     // adding new or changed copay from fee sheet into ar_activity
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-                      "pid = ? AND encounter = ?", [$this->pid, $this->encounter]);
-                    SqlStatement(
-                        "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
-                        "payer_type, post_time, post_user, session_id, pay_amount, account_code) " .
-                        "VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
-                            $_SESSION['authUserID'], $session_id, $fee]
-                    );
-                    sqlCommitTrans();
+                    $recorder = new Recorder();
+                    $recorder->recordActivity([
+                        'patientId' => $this->pid,
+                        'encounterId' => $this->encounter,
+                        'codeType' => $ct0,
+                        'code' => $cod0,
+                        'modifier' => $mod0,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $fee,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     if (!$cod0) {
                         $copay_update = true;
@@ -1041,8 +1053,8 @@ class FeeSheet
 
                 $ndc_info = '';
                 if (!empty($iter['ndcnum'])) {
-                    $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
-                    trim($iter['ndcqty']);
+                    $ndc_info = 'N4' . trim((string) $iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+                    trim((string) $iter['ndcqty']);
                 }
 
                 // If the item is already in the database...
@@ -1175,7 +1187,7 @@ class FeeSheet
                 $drug_id   = $iter['drug_id'];
                 $selector  = empty($iter['selector']) ? '' : $iter['selector'];
                 $sale_id   = $iter['sale_id']; // present only if already saved
-                $units     = intval(trim($iter['units']));
+                $units     = intval(trim((string) $iter['units']));
                 if (!$units) {
                     $units = 1;
                 }
@@ -1189,7 +1201,7 @@ class FeeSheet
                 if (!empty($iter['price'])) {
                     if ($iter['price'] != 'X') {
                         // The price from the form is good.
-                        $price = 0 + trim($iter['price']);
+                        $price = 0 + trim((string) $iter['price']);
                     } else {
                         // Otherwise get its price for the given price level and product.
                         $price = $this->getPrice($pricelevel, 'PROD', $drug_id, $selector);
@@ -1370,9 +1382,9 @@ class FeeSheet
                             $rxobj->set_drug_id($drug_id);
                             $rxobj->set_quantity($inv_units);
                             $rxobj->set_per_refill($inv_units);
-                            $rxobj->set_start_date_y(substr($this->visit_date, 0, 4));
-                            $rxobj->set_start_date_m(substr($this->visit_date, 5, 2));
-                            $rxobj->set_start_date_d(substr($this->visit_date, 8, 2));
+                            $rxobj->set_start_date_y(substr((string) $this->visit_date, 0, 4));
+                            $rxobj->set_start_date_m(substr((string) $this->visit_date, 5, 2));
+                            $rxobj->set_start_date_d(substr((string) $this->visit_date, 8, 2));
                             $rxobj->set_date_added($this->visit_date);
                             // Remaining attributes are the drug and template defaults.
                             $rxobj->set_drug($drow['name']);
@@ -1534,7 +1546,7 @@ class FeeSheet
     public function genCodeSelectorValue($codes)
     {
         global $code_types;
-        [$codetype, $code, $selector] = explode(':', $codes);
+        [$codetype, $code, $selector] = explode(':', (string) $codes);
         if ($codetype == 'PROD') {
             $crow = sqlQuery(
                 "SELECT sale_id " .

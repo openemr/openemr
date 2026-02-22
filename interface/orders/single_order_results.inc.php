@@ -25,31 +25,7 @@
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title'] ?? '');
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    $s = trim($s ?? '');
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
@@ -77,9 +53,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
     $procedure_code = empty($row['procedure_code']) ? '' : $row['procedure_code'];
     $diagnosis = empty($row['diagnoses']) ? '' : $row['diagnoses'];
     $procedure_name = empty($row['procedure_name']) ? '' : $row['procedure_name'];
-    $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
+    $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
     $date_report_suf = empty($row['date_report_tz']) ? '' : (' ' . $row['date_report_tz']);
-    $date_collected = empty($row['date_collected']) ? '' : substr($row['date_collected'], 0, 16);
+    $date_collected = empty($row['date_collected']) ? '' : substr((string) $row['date_collected'], 0, 16);
     $date_collected_suf = empty($row['date_collected_tz']) ? '' : (' ' . $row['date_collected_tz']);
     $specimen_num = empty($row['specimen_num']) ? '' : $row['specimen_num'];
     $report_status = empty($row['report_status']) ? '' : $row['report_status'];
@@ -98,7 +74,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
 
         // Allowing for multiple report notes separated by newlines.
         if (!empty($row['report_notes'])) {
-            $notes = explode("\n", $row['report_notes']);
+            $notes = explode("\n", (string) $row['report_notes']);
             foreach ($notes as $note) {
                 if ($note === '') {
                     continue;
@@ -114,7 +90,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
     }
 
     // allow for 0 to be displayed as a result value
-    $rrow['result'] = $rrow['result'] ?? '';
+    $rrow['result'] ??= '';
     if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {
@@ -242,7 +218,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
         echo "</td>\n";
         echo "  <td>";
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
-        if ($result_abnormal && strtolower($result_abnormal) != 'no') {
+        if ($result_abnormal && strtolower((string) $result_abnormal) != 'no') {
             echo "<p class='font-weight-bold text-danger'>$tmp</p>";
         } else {
             echo $tmp;
@@ -255,7 +231,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
             echo "  <td colspan='3'>";
             if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
                 echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
-                echo "&retrieve&patient_id=" . attr_url($patient_id) . "&document_id=" . attr_url($result_document_id) . "' ";
+                echo "&retrieve&patient_id=" . attr_url($ctx['patient_id']) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
 
@@ -317,6 +293,8 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
@@ -362,13 +340,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];
-
+    $language_direction = $session->get('language_direction');
     ?>
 
     <?php if ($genstyles) { ?>
 <style>
 
-        <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
+        <?php if (empty($language_direction) || $language_direction === 'ltr') { ?>
     .labres tr.head {
         font-size: 0.8125rem;
         background-color: var(--gray200);
@@ -508,7 +486,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
-                <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
+                <td><?php echo myCellText(oeFormatShortDate(substr((string) $orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Lab'); ?></td>
@@ -579,6 +557,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 'lino' => 0,
                 'sign_list' => '',
                 'seen_report_ids' => [],
+                'patient_id' => $patient_id
             ];
 
             while ($row = sqlFetchArray($res)) {

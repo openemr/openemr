@@ -222,16 +222,20 @@ if ($isNN) {
             $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
         });
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function sortableCallback(elem){
-            let clorder  = [];
+            const params = new URLSearchParams({
+                action: "updateRecordsListings"
+            });
             for (let i=0; i< elem.length; i++) {
                 let ele = elem[i];
                 if(ele.tagName == "DIV"){
-                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
+                    params.append("clorder[]", ele.firstElementChild.id.split("_")[1]);
                 }
             }
-            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+            $.post("updateDB.php", params.toString());
         }
+        // AI-generated code end
         oeSortable(sortableCallback);
 
         // let's popup a warning dialog if we're in a context that is text only templates
@@ -279,7 +283,7 @@ if ($isNN) {
                     <?php
                     $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", [$_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)]);
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
-                        echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
+                        echo "<option value='" . htmlspecialchars((string) $rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
                     }
                     ?>
                 </select>
@@ -334,7 +338,7 @@ if ($isNN) {
                                                 if (!empty($isNN)) {
                                                     $row['id'] = "";
                                                 }
-                                                listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']), $row['id']);
+                                                listitemCode((strlen((string) $row['title']) > 20) ? (substr((string) $row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']), $row['id']);
                                             }
                                             ?>
                                         </ul>

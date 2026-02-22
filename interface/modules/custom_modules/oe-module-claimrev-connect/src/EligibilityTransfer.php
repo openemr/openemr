@@ -1,20 +1,25 @@
 <?php
 
 /**
+ * Eligibility transfer service for ClaimRev.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+namespace OpenEMR\Modules\ClaimRevConnector;
 
-    use OpenEMR\Services\BaseService;
-    use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
-    use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
+use OpenEMR\Services\BaseService;
 
 class EligibilityTransfer extends BaseService
 {
@@ -29,99 +34,135 @@ class EligibilityTransfer extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public static function sendWaitingEligibility()
+    public static function sendWaitingEligibility(): void
     {
-        $token = ClaimRevApi::GetAccessToken();
-        $waitingEligibility = EligibilityData::getEligibilityCheckByStatus(self::STATUS_WAITING);
-        EligibilityTransfer::sendEligibility($waitingEligibility, $token);
+        try {
+            $api = ClaimRevApi::makeFromGlobals();
+        } catch (ClaimRevAuthenticationException) {
+            return;
+        }
 
+        /** @var array<int, array{id: int|string, request_json?: string}> */
+        $waitingEligibility = EligibilityData::getEligibilityCheckByStatus(self::STATUS_WAITING);
+        self::sendEligibility($waitingEligibility, $api);
+
+        /** @var array<int, array{id: int|string}> */
         $retryEligibility = EligibilityData::getEligibilityResults(self::STATUS_SEND_RETRY, 60);
-        EligibilityTransfer::retryEligibility($retryEligibility, $token);
+        self::retryEligibility($retryEligibility, $api);
     }
 
-    public static function retryEligibility($retryEligibility, $token)
+    /**
+     * @param array<int, array{id: int|string}> $retryEligibility
+     */
+    public static function retryEligibility(array $retryEligibility, ClaimRevApi $api): void
     {
         foreach ($retryEligibility as $eligibility) {
             $eid = $eligibility['id'];
-            $result = ClaimRevApi::getEligibilityResult($eid, $token);
-            EligibilityTransfer::saveEligibility($result, $eid);
+            try {
+                $result = $api->getEligibilityResult((string) $eid);
+            } catch (ClaimRevApiException) {
+                self::saveEligibility(null, $eid);
+                continue;
+            }
+            self::saveEligibility($result, $eid);
         }
     }
-    public static function sendEligibility($waitingEligibility, $token)
+
+    /**
+     * @param array<int, array{id: int|string, request_json?: string}> $waitingEligibility
+     */
+    public static function sendEligibility(array $waitingEligibility, ClaimRevApi $api): void
     {
         foreach ($waitingEligibility as $eligibility) {
             $eid = $eligibility['id'];
-            $request_json = $eligibility['request_json'];
+            $request_json = $eligibility['request_json'] ?? '';
 
             $elig = json_decode($request_json);
-            $result = ClaimRevApi::uploadEligibility($elig, $token);
-            EligibilityTransfer::saveEligibility($result, $eid);
+            if (!is_object($elig)) {
+                self::saveEligibility(null, $eid);
+                continue;
+            }
+            try {
+                $result = $api->uploadEligibility($elig);
+            } catch (ClaimRevApiException) {
+                self::saveEligibility(null, $eid);
+                continue;
+            }
+            self::saveEligibility($result, $eid);
         }
     }
-    public static function saveEligibility($result, $eid)
+
+    /**
+     * @param array<string, mixed>|null $result
+     * @param int|string $eid
+     */
+    public static function saveEligibility(?array $result, $eid): void
     {
-        if (false === $result) {
+        if ($result === null) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, null, true, 'no results', null, null, null);
             return;
         }
         $payload = json_encode($result, JSON_UNESCAPED_SLASHES);
 
-        if (!property_exists($result, 'responseMessage')) {
+        if (!isset($result['responseMessage'])) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, 'missing responseMessage Property', null, null, null);
             return;
         }
-        if (!property_exists($result, 'mappedData')) {
+        if (!isset($result['mappedData'])) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, ' missing MappedData Property', null, null, null);
             return;
         }
 
-        $responseMessage = $result->responseMessage;
-        $mappedData = $result->mappedData;
+        /** @var string */
+        $responseMessage = $result['responseMessage'];
+        /** @var array<string, mixed> */
+        $mappedData = $result['mappedData'];
 
-        if ($result->isFatalError) {
+        if ($result['isFatalError'] ?? false) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, $responseMessage, null, null, null);
             return;
         }
-        if (!property_exists($mappedData, 'individuals')) {
+        if (!isset($mappedData['individuals']) || !is_array($mappedData['individuals'])) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, $responseMessage . ' missing individuals Property', null, null, null);
             return;
         }
 
-        $individuals = $mappedData->individuals;
-        $individual = $individuals[ array_key_first($individuals) ];
+        /** @var array<int|string, array<string, mixed>> */
+        $individuals = $mappedData['individuals'];
+        $individual = $individuals[array_key_first($individuals)] ?? null;
         if ($individual === null) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, $responseMessage . ' missing individual Property', null, null, null);
             return;
         }
 
 
-        if (!property_exists($individual, 'eligibility')) {
+        if (!isset($individual['eligibility']) || !is_array($individual['eligibility'])) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_ERROR, null, $payload, true, $responseMessage . ' missing eligibility Property', null, null, null);
             return;
         }
 
-        $eligibilities = $individual->eligibility;
-        $eligibility = $eligibilities[ array_key_first($eligibilities) ];
+        /** @var array<int|string, array<string, mixed>> */
+        $eligibilities = $individual['eligibility'];
+        $eligibility = $eligibilities[array_key_first($eligibilities)] ?? null;
 
         $raw271 = null;
-        if (property_exists($eligibility, 'raw271')) {
-            $raw271 = $eligibility->raw271;
+        if (is_array($eligibility) && isset($eligibility['raw271'])) {
+            $raw271 = $eligibility['raw271'];
             $siteDir = $GLOBALS['OE_SITE_DIR'];
-            $reportFolder = "f271";
+            $reportFolder = 'f271';
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {
-                // Create a direcotry
-                mkdir($savePath, 0777, true);
+                mkdir($savePath, 0750, true);
             }
 
             $fileText = $raw271;
-            $fileName = $result->claimRevResultId;
-            $filePathName =  $savePath . $fileName . '.txt';
+            $fileName = $result['claimRevResultId'];
+            $filePathName = $savePath . $fileName . '.txt';
             file_put_contents($filePathName, $fileText);
-            chmod($filePathName, 0777);
+            chmod($filePathName, 0640);
         }
 
-        if ($result->retryLater) {
+        if ($result['retryLater'] ?? false) {
             EligibilityData::updateEligibilityRecord($eid, self::STATUS_SEND_RETRY, null, $payload, true, $responseMessage, null, null, null);
             return;
         }

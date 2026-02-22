@@ -23,13 +23,13 @@ class ModuleconfigController extends AbstractActionController
 {
     protected InputFilterInterface $inputFilter;
 
-    public function __construct(private ?AdapterInterface $dbAdapter = null)
+    public function __construct(private readonly ?AdapterInterface $dbAdapter = null)
     {
     }
 
     public function indexAction()
     {
-        $form = new ModuleconfigForm($this->dbAdapter);
+        $form = new ModuleconfigForm();
         $form->get('hie_author_id')->setAttribute('options', ['user 1','user 2']);
 
         $view =  new ViewModel([
@@ -45,7 +45,7 @@ class ModuleconfigController extends AbstractActionController
     {
         return get_object_vars($this);
     }
-    public function setInputFilter(InputFilterInterface $inputFilter)
+    public function setInputFilter(InputFilterInterface $inputFilter): never
     {
         throw new \Exception("Not used");
     }

@@ -41,7 +41,7 @@ $db_email_msg = cron_getNotificationData($TYPE);
 //my_print_r($db_email_msg);
 
 // get patient data for send alert
-$db_patient = cron_getAlertpatientData($TYPE);
+$db_patient = cron_getAlertpatientData();
 echo "<br />Total " . count($db_patient) . " Records Found\n";
 for ($p = 0; $p < count($db_patient); $p++) {
     $prow = $db_patient[$p];
@@ -88,7 +88,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
     }
 
-    WriteLog($strMsg);
+    cron_WriteLog($strMsg);
 
     // larry :: get notification data again - since was updated by cron_updateentry
     // todo :: instead fix not to modify the template aka $db_email_msg

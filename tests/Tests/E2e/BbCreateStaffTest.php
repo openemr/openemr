@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
@@ -28,12 +28,10 @@ class BbCreateStaffTest extends PantherTestCase
     use LoginTrait;
     use UserAddTrait;
 
-    private $client;
     private $crawler;
 
     protected function setUp(): void
     {
-        parent::setUp();
         // clean up in case still left over from prior testing
         $this->cleanDatabase();
     }

@@ -15,7 +15,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -53,16 +55,12 @@ class CsrfUtils
     //    Using 'default' for everything else (for now)
     public static function collectCsrfToken($subject = 'default', ?SessionInterface $session = null)
     {
-        if (!empty($session)) {
-            $privateKey = $session->get('csrf_private_key', null);
-        } else {
-            $privateKey = $_SESSION['csrf_private_key'] ?? null;
-        }
+        $privateKey = !empty($session) ? $session->get('csrf_private_key', null) : $_SESSION['csrf_private_key'] ?? null;
         if (empty($privateKey)) {
             error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
             return false;
         }
-        return substr(hash_hmac('sha256', $subject, $privateKey), 0, 40);
+        return substr(hash_hmac('sha256', (string) $subject, (string) $privateKey), 0, 40);
     }
 
     // Function to verify a csrf_token
@@ -82,17 +80,38 @@ class CsrfUtils
         }
     }
 
-    // Function to manage when a csrf token is not verified
-    public static function csrfNotVerified($toScreen = true, $toLog = true, $die = true)
+    /**
+     * Record a CSRF violation: set HTTP 403, optionally echo and log.
+     *
+     * Use this when you need to record the failure but handle the
+     * response yourself (e.g. return a Response object or throw).
+     */
+    public static function csrfViolation(bool $toScreen = true, bool $toLog = true): void
     {
+        http_response_code(403);
         if ($toScreen) {
             echo xlt('Authentication Error');
         }
         if ($toLog) {
             error_log("OpenEMR CSRF token authentication error");
         }
-        if ($die) {
-            die;
+    }
+
+    /**
+     * Record a CSRF violation and terminate the request.
+     *
+     * @param ?(callable(): void) $beforeExit Optional callback to run before exiting
+     *                                         (e.g. render a template, clean up session)
+     */
+    public static function csrfNotVerified(
+        bool $toScreen = true,
+        bool $toLog = true,
+        ?callable $beforeExit = null,
+    ): never {
+        self::csrfViolation($toScreen, $toLog);
+        if ($beforeExit !== null) {
+            $beforeExit();
         }
+        exit;
     }
 }

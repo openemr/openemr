@@ -49,10 +49,10 @@ use OpenEMR\Common\Acl\AclMain;
             <?php foreach ($events as $event) { ?>
                 <?php
                 //Taken from appointments.inc.php - gets proper date details
-                $dayname = date("l", strtotime($event['pc_eventDate']));
+                $dayname = date("l", strtotime((string) $event['pc_eventDate']));
                 $dispampm = "am";
-                $disphour = substr($event['pc_startTime'], 0, 2) + 0;
-                $dispmin  = substr($event['pc_startTime'], 3, 2);
+                $disphour = substr((string) $event['pc_startTime'], 0, 2) + 0;
+                $dispmin  = substr((string) $event['pc_startTime'], 3, 2);
                 if ($disphour >= 12) {
                     $dispampm = "pm";
                     if ($disphour > 12) {
@@ -61,11 +61,11 @@ use OpenEMR\Common\Acl\AclMain;
                 }
 
                 //Taken from demographics.php - prepares date for add_edit_event url
-                $date_for_url = preg_replace("/-/", "", $event['pc_eventDate']);
+                $date_for_url = preg_replace("/-/", "", (string) $event['pc_eventDate']);
                 ?>
                 <div class="event_details">
                         <?php if ($edit) { ?>
-                            <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode($groupId) . "&date=" . urlencode($date_for_url) . "&eid=" . urlencode($event['pc_eid'])); ?>)">
+                            <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode((string) $groupId) . "&date=" . urlencode((string) $date_for_url) . "&eid=" . urlencode((string) $event['pc_eid'])); ?>)">
                         <?php } ?>
                         <span class="font-weight-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
                         <br />

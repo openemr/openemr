@@ -20,15 +20,14 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Sales by Item")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Sales by Item", xl("Sales by Item"));
 }
 
 if (!empty($_POST)) {
@@ -49,15 +48,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = false;
 }
 
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
-}
-
 /**
  * Render a line item for the sales by item html table.
  *
@@ -76,7 +66,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
 
-    $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
+    $invnumber = $irnumber ?: "$patient_id.$encounter_id";
     $rowamount = sprintf('%01.2f', $amount);
 
     $patdata = sqlQuery("SELECT " .
@@ -585,9 +575,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['title'],
+            $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'] ?? 1,
             $row['fee'],
             $row['invoice_refno']
@@ -625,7 +615,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $row['encounter'],
             xl('Products'),
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['fee'],
             $row['invoice_refno']

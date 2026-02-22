@@ -19,10 +19,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+// TODO: This is parameter validation, not authorization - see issue #10686
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
     exit;
 }
@@ -51,7 +53,7 @@ if (!empty($prow)) {
 // if we have phimail enabled, we are going to find out if our document is an xml file, if so, we are going to do a validation
 // report on the document.  This would be a great thing for caching if we wanted to do that, we'll just compute on the fly for now.
 $records = [];
-$prow = $prow ?? null;
+$prow ??= null;
 $cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
     if ($record['type1'] == 1) {
@@ -152,7 +154,7 @@ try {
     </div>
 </div>
     <?php }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 }

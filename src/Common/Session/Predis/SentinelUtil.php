@@ -16,8 +16,9 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\Predis\PredisSessionHandler;
+use Psr\Log\LoggerInterface;
 use Predis\Client;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 
 class SentinelUtil
 {
@@ -27,35 +28,25 @@ class SentinelUtil
     private static $masterCa = 'redis-master-ca';
     private static $masterCert = 'redis-master-cert';
     private static $masterKey = 'redis-master-key';
+    private readonly string $sessionStorageMode;
+    private readonly array $predisSentinels;
+    private readonly string $predisMaster;
+    private readonly ?string $predisSentinelsPassword;
+    private readonly ?string $predisMasterPassword;
 
-    private int $ttl;
-    private string $sessionStorageMode;
-    private array $predisSentinels;
-    private string $predisMaster;
-    private ?string $predisSentinelsPassword;
-    private ?string $predisMasterPassword;
+    private readonly bool $predisTls;
+    private readonly bool $predisX509;
 
-    private bool $predisTls;
-    private bool $predisX509;
+    private readonly ?string $predisSentinelCertKeyPath;
+    private readonly ?string $sentinelCaFile;
+    private readonly ?string $sentinelCertFile;
+    private readonly ?string $sentinelKeyFile;
+    private readonly ?string $masterCaFile;
+    private readonly ?string $masterCertFile;
+    private readonly ?string $masterKeyFile;
 
-    private ?string $predisSentinelCertKeyPath;
-    private ?string $sentinelCaFile;
-    private ?string $sentinelCertFile;
-    private ?string $sentinelKeyFile;
-    private ?string $masterCaFile;
-    private ?string $masterCertFile;
-    private ?string $masterKeyFile;
-
-    private SystemLogger $logger;
-
-    public function __construct(int $ttl, ?SystemLogger $logger = null)
+    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
     {
-        // Initialize the logger
-        $this->logger = $logger ?? new SystemLogger();
-
-        // Collect and validate environment variables
-        $this->ttl = $ttl;
-
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;
         if ($this->sessionStorageMode !== 'predis-sentinel') {
@@ -152,7 +143,12 @@ class SentinelUtil
         ]);
     }
 
-    public function configure(): \SessionHandlerInterface
+    public static function getRedisSessionStorage(): RedisSessionHandler
+    {
+        return new RedisSessionHandler((new self())->configureClient());
+    }
+
+    public function configureClient(): Client
     {
         $useTls = $this->predisTls;
         $useClientCert = $this->predisX509;
@@ -221,16 +217,22 @@ class SentinelUtil
         }
 
         // Create a new Predis client instance
-        $redis = new Client($sentinelParameters, $options);
+        $client = new Client($sentinelParameters, $options);
 
-        // Initialize and register the session handler
-        $handler = new PredisSessionHandler($redis, $this->ttl, 60, 70, 150000);
-        $success = session_set_save_handler($handler, true);
-        if (!$success) {
-            $this->logger->errorLogCaller("Failed to set session handler for Predis Sentinel.");
-            throw new \Exception("Failed to set session handler for Predis Sentinel.");
-        }
-        $this->logger->debug("Successfully set session handler for Predis Sentinel.");
-        return $handler;
+        // Explicitly connect to force sentinel master resolution before the client is used.
+        // This is required for compatibility with predis >= 3.4.0, which refactored the
+        // handshake process and now calls getParameters() on the aggregate connection earlier
+        // in the command execution lifecycle. Without this, SentinelReplication::getParameters()
+        // is called before a connection is established and returns an array instead of a
+        // ParametersInterface object, causing a fatal error.
+        // See: https://github.com/predis/predis/releases/tag/v3.4.0
+        $client->connect();
+
+        return $client;
+    }
+
+    public function configure(int $ttl): \SessionHandlerInterface {
+        $redis = self::configureClient();
+        return new RedisSessionHandler($redis, ['ttl' => $ttl]);
     }
 }

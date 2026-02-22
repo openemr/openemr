@@ -81,4 +81,3 @@ class ImmunizationOrder extends QDMBaseType
 
     public $_type = 'QDM::ImmunizationOrder';
 }
-

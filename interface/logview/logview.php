@@ -14,16 +14,16 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Logs Viewer")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Logs Viewer", xl("Logs Viewer"));
 }
 
 if (!empty($_GET)) {
@@ -137,11 +137,11 @@ if (!empty($_GET)) {
                                 <div class="form-row">
                                     <label class="col-sm-1 col-form-label" for="start_date"><?php echo xlt('Start Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('End Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('Patient'); ?>:</label>
                                     <div class="col-sm-3">
@@ -178,10 +178,10 @@ if (!empty($_GET)) {
                                     $ename_list = [];
                                     $j = 0;
                                     while ($erow = sqlFetchArray($res)) {
-                                        if (!trim($erow['event'])) {
+                                        if (!trim((string) $erow['event'])) {
                                             continue;
                                         }
-                                        $data = explode('-', $erow['event']);
+                                        $data = explode('-', (string) $erow['event']);
                                         $data_c = count($data);
                                         $ename = $data[0];
                                         for ($i = 1; $i < ($data_c - 1); $i++) {
@@ -193,10 +193,10 @@ if (!empty($_GET)) {
                                     $res1 = sqlStatement("select distinct event from extended_log order by event ASC");
                                     // $j=0; // This can't be right!  -- Rod 2013-08-23
                                     while ($row = sqlFetchArray($res1)) {
-                                        if (!trim($row['event'])) {
+                                        if (!trim((string) $row['event'])) {
                                             continue;
                                         }
-                                        $new_event = explode('-', $row['event']);
+                                        $new_event = explode('-', (string) $row['event']);
                                         $no = count($new_event);
                                         $events = $new_event[0];
                                         for ($i = 1; $i < ($no - 1); $i++) {
@@ -304,7 +304,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = new CryptoGen();
 
@@ -316,18 +316,10 @@ if (!empty($_GET)) {
 
                                                 //translate comments
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
-                                                $replace = [xl('success'), xl('failure'), xl('encounter', '', ' ')];
+                                                $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
-                                                if (!empty($iter['encrypt'])) {
-                                                    $commentEncrStatus = $iter['encrypt'];
-                                                } else {
-                                                    $commentEncrStatus = "No";
-                                                }
-                                                if (!empty($iter['version'])) {
-                                                    $encryptVersion = $iter['version'];
-                                                } else {
-                                                    $encryptVersion = 0;
-                                                }
+                                                $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
+                                                $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {
@@ -363,25 +355,21 @@ if (!empty($_GET)) {
                                                             $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                                                         }
                                                     } else { //$encryptVersion == 0
-                                                        // Use old mcrypt method
-                                                        if (extension_loaded('mcrypt')) {
-                                                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
-                                                        }
+                                                        // The old mcrypt method is no longer supported
+                                                        $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     }
                                                 } else {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                                                     //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                                                     if ($encryptVersion >= 4) {
-                                                        $iter["comments"] = base64_decode($iter["comments"]);
+                                                        $iter["comments"] = base64_decode((string) $iter["comments"]);
                                                     }
-                                                    $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+                                                    $trans_comments = preg_replace($patterns, $replace, (string) $iter["comments"]);
                                                 }
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
-                                                    <td><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
+                                                    <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                    <td><?php echo text(preg_replace('/select$/', 'Query', (string) $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
                                                     <td><?php echo text($iter["crt_user"]); ?></td>
@@ -407,12 +395,12 @@ if (!empty($_GET)) {
 
                                         if (($eventname == "disclosure") || ($gev == "")) {
                                             $eventname = "disclosure";
-                                            if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
+                                            if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
                                                         <td><?php echo xlt($iter["event"]); ?></td>
                                                         <td><?php echo xlt($iter["category"] ?? ''); ?></td>
                                                         <td><?php echo text($iter["user"]); ?></td>

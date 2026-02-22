@@ -21,8 +21,25 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use ReflectionMethod;
-use ReflectionProperty;
+
+/**
+ * Interface for mocking ADODB connection in tests
+ */
+interface MockAdodbConnection
+{
+    public function qstr(string $value): string;
+    public function Insert_ID(): int;
+    public function Execute(string $sql, array|false $inputarr = false): mixed;
+    public function ExecuteNoLog(string $sql, array|false $inputarr = false): mixed;
+}
+
+/**
+ * Interface for mocking ADODB result set in tests
+ */
+interface MockAdodbResultSet
+{
+    public function FetchRow(): array|false;
+}
 
 final class EventAuditLoggerTest extends TestCase
 {
@@ -30,8 +47,6 @@ final class EventAuditLoggerTest extends TestCase
      * @var EventAuditLogger
      */
     private $eventAuditLogger;
-
-    private \PHPUnit\Framework\MockObject\MockObject $cryptoGenMock;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -92,10 +107,9 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
-        $this->eventAuditLogger = EventAuditLogger::instance();
-
-        // Create mock for CryptoGen
-        $this->cryptoGenMock = $this->createMock(CryptoGen::class);
+        $this->eventAuditLogger = new EventAuditLogger(
+            new CryptoGen(),
+        );
 
         // Setup default test environment
         $this->setupTestEnvironment();
@@ -252,10 +266,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function createMockAdodb(): MockObject
     {
-        // Create a more specific mock that includes the methods we need
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['qstr', 'Insert_ID', 'Execute', 'ExecuteNoLog', 'FetchRow', 'EOF'])
-            ->getMock();
+        // Create a mock using the test interface
+        $mock = $this->createMock(MockAdodbConnection::class);
 
         $mock->method('qstr')->willReturnCallback(
             function ($value): string {
@@ -269,10 +281,8 @@ final class EventAuditLoggerTest extends TestCase
         );
         $mock->method('Insert_ID')->willReturn(123);
 
-        // Mock database execution methods
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        // Mock database execution methods using the result set interface
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
         $resultSetMock->method('FetchRow')->willReturn(false); // No breakglass user found
 
         // Set EOF property directly to avoid undefined property warning
@@ -288,8 +298,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testSingletonPattern(): void
     {
-        $eventAuditLogger = EventAuditLogger::instance();
-        $instance2 = EventAuditLogger::instance();
+        $eventAuditLogger = EventAuditLogger::getInstance();
+        $instance2 = EventAuditLogger::getInstance();
 
         $this->assertSame($eventAuditLogger, $instance2, 'EventAuditLogger should implement singleton pattern');
         $this->assertInstanceOf(EventAuditLogger::class, $eventAuditLogger);
@@ -303,6 +313,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -388,6 +399,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem to verify it gets called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // We expect recordLogItem to be called once (either patient portal path or regular path)
@@ -438,7 +450,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test delete operations that should trigger the specific delete case handling
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
@@ -460,14 +471,12 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        // Inject mock CryptoGen
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionProperty = $reflectionClass->getProperty('cryptoGen');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($this->eventAuditLogger, $this->cryptoGenMock);
+        $eventAuditLogger = new EventAuditLogger(
+            $this->createMock(CryptoGen::class)
+        );
 
         // Call recordLogItem - will return early due to disabled audit logging
-        $this->eventAuditLogger->recordLogItem(
+        $eventAuditLogger->recordLogItem(
             1,
             'patient-record-select',
             'testuser',
@@ -494,9 +503,22 @@ final class EventAuditLoggerTest extends TestCase
         $mockAdodb = $this->createMockAdodb();
         $this->setGlobalAdodbMock($mockAdodb);
 
+        // Create a mock CryptoGen to verify encryption calls
+        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['encryptStandard'])
+            ->getMock();
+
+        $cryptoMock->expects($this->exactly(1))
+            ->method('encryptStandard')
+            ->willReturnCallback(
+                fn(string $value): string => 'encrypted_' . $value
+            );
+
+        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+
         try {
             // This should execute the full recordLogItem flow including encryption
-            $this->eventAuditLogger->recordLogItem(
+            $eventAuditLogger->recordLogItem(
                 1,
                 'patient-record-select',
                 'testuser',
@@ -590,17 +612,13 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        // Inject the mock CryptoGen
-        $reflection = new \ReflectionClass($this->eventAuditLogger);
-        $cryptoProperty = $reflection->getProperty('cryptoGen');
-        $cryptoProperty->setAccessible(true);
-        $cryptoProperty->setValue($this->eventAuditLogger, $cryptoMock);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
         // Line 768: $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
         // Line 769: $api['response'] = (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
-        $this->eventAuditLogger->recordLogItem(
+        $eventAuditLogger->recordLogItem(
             1,
             'api-create',
             'apiuser',
@@ -640,6 +658,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock to verify newEvent is called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -681,6 +700,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -704,7 +724,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventActionCode');
-        $reflectionMethod->setAccessible(true);
 
         $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-create'));
         $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-insert'));
@@ -722,7 +741,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventIdDisplayName');
-        $reflectionMethod->setAccessible(true);
 
         $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-record'));
         $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'view'));
@@ -740,7 +758,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createRfc3881Msg');
-        $reflectionMethod->setAccessible(true);
 
         $message = $reflectionMethod->invoke(
             $this->eventAuditLogger,
@@ -807,7 +824,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test various table categories
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO lists (type) VALUES ('medical_problem')", 'patient-record', 'lists'));
@@ -827,7 +843,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test delete operations with lists: prefix for special list categories
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
@@ -848,7 +863,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test additional table categories for comprehensive coverage
         $this->assertEquals('Social and Family History', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE history_data SET smoking = ?', 'patient-record', 'history_data'));
@@ -882,7 +896,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-        $reflectionMethod->setAccessible(true);
 
         // Test with empty user
         $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, ''));
@@ -898,7 +911,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-        $reflectionMethod->setAccessible(true);
 
         // Test when sqlQueryNoLog returns a non-empty result
         // Since we can't easily mock sqlQueryNoLog, we'll test the property setting logic
@@ -906,7 +918,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // Access the private breakglassUser property
         $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-        $breakglassProperty->setAccessible(true);
 
         // Test the caching behavior: first set the property to true
         $breakglassProperty->setValue($this->eventAuditLogger, true);
@@ -966,7 +977,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createTlsConn');
-        $reflectionMethod->setAccessible(true);
 
         // Test with invalid host (should return false)
         $result = $reflectionMethod->invoke($this->eventAuditLogger, 'invalid.host', 9999, '', '');
@@ -981,6 +991,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1008,6 +1019,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1036,6 +1048,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1064,6 +1077,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1139,6 +1153,7 @@ final class EventAuditLoggerTest extends TestCase
             // Mock newEvent method
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             // With audit logging disabled, newEvent should not be called
@@ -1164,6 +1179,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1184,6 +1200,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1218,6 +1235,7 @@ final class EventAuditLoggerTest extends TestCase
 
                 $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                     ->onlyMethods(['newEvent'])
+                    ->disableOriginalConstructor()
                     ->getMock();
 
                 // With audit logging disabled, newEvent should not be called
@@ -1249,6 +1267,7 @@ final class EventAuditLoggerTest extends TestCase
 
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->never())
@@ -1522,6 +1541,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1558,6 +1578,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1599,9 +1620,7 @@ final class EventAuditLoggerTest extends TestCase
         $mockAdodb = $this->createMockAdodb();
 
         // Create a result set mock that returns successful menu lookup results
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
 
         // Mock successful database results for patient portal menu lookup
         $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
@@ -1757,7 +1776,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test additional table mappings for complete coverage
         $this->assertEquals('Immunization', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM immunizations', 'select', 'immunizations'));
@@ -1782,7 +1800,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createRFC3881Msg');
-        $reflectionMethod->setAccessible(true);
 
         // Test with different event types and parameters
         $result1 = $reflectionMethod->invoke($this->eventAuditLogger, 'testuser', 'providers', 'login', 1, 'Login successful', null, 'Security');
@@ -1804,6 +1821,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a partial mock that only mocks recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect recordLogItem to be called with specific parameters (regular path)
@@ -1837,9 +1855,7 @@ final class EventAuditLoggerTest extends TestCase
     {
         // Setup database mock for patient portal menu lookup
         $mockAdodb = $this->createMockAdodb();
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
         $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
             ['patient_portal_menu_id' => '1', 'menu_name' => 'dashboard'],
             false
@@ -1851,6 +1867,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked to avoid database calls
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1917,6 +1934,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked - we'll accept whatever menu_item_id we get
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1964,6 +1982,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with newEvent - should not be called when audit logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -1983,6 +2002,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with newEvent - should not be called when http request logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -2017,6 +2037,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2077,6 +2098,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2136,6 +2158,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2190,6 +2213,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2245,6 +2269,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2304,6 +2329,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2337,6 +2363,8 @@ final class EventAuditLoggerTest extends TestCase
      * Data provider for HTTP request tests
      *
      * @return array<string, array<string, string|int|null>>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function httpRequestDataProvider(): array
     {
@@ -2427,6 +2455,7 @@ final class EventAuditLoggerTest extends TestCase
         try {
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2525,7 +2554,6 @@ final class EventAuditLoggerTest extends TestCase
         // Use reflection to make the private method accessible
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-        $createTlsConnMethod->setAccessible(true);
 
         // Test with invalid host (should return false)
         $result = $createTlsConnMethod->invoke(
@@ -2566,7 +2594,6 @@ final class EventAuditLoggerTest extends TestCase
         // Use reflection to make the private method accessible
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         // Test message creation with various parameters
         $result = $createRfc3881MsgMethod->invoke(
@@ -2641,7 +2668,7 @@ final class EventAuditLoggerTest extends TestCase
         try {
             $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test login');
             $this->addToAssertionCount(1);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // If an exception is thrown, it should not be due to our test setup
             $this->fail('sendAtnaAuditMsg should handle connection failures gracefully: ' . $e->getMessage());
         }
@@ -2652,7 +2679,6 @@ final class EventAuditLoggerTest extends TestCase
         // Test createTlsConn returns appropriate result for invalid host
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-        $createTlsConnMethod->setAccessible(true);
 
         $connResult = $createTlsConnMethod->invoke(
             $this->eventAuditLogger,
@@ -2671,7 +2697,6 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['atna_audit_host'] = 'test.audit.host';
 
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         $msgResult = $createRfc3881MsgMethod->invoke(
             $this->eventAuditLogger,
@@ -2713,7 +2738,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // Test createRfc3881Msg private method
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         $msgResult = $createRfc3881MsgMethod->invoke(
             $this->eventAuditLogger,
@@ -2776,6 +2800,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a partial mock that only mocks the createTlsConn method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['createTlsConn'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Mock the protected createTlsConn method to return our mock connection

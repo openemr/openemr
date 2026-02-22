@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Services\ObservationService;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 // AI Generated Test Class for ObservationService
 class ObservationServiceTest extends TestCase
@@ -26,11 +27,14 @@ class ObservationServiceTest extends TestCase
 
     private ?string $backupAttendantType;
 
+    private ?int $backupDateFormat = null;
+
     protected function setUp(): void
     {
         $this->service = new ObservationService();
         $this->sessionBackup = $_SESSION;
         $this->backupAttendantType = $GLOBALS['attendant_type'] ?? null;
+        $this->backupDateFormat = $GLOBALS['date_display_format'] ?? null;
         $_SESSION = [
             'pid' => 1
             ,'encounter' => 1
@@ -38,6 +42,7 @@ class ObservationServiceTest extends TestCase
             ,'authUser' => 1
             ,'userauthorized' => 1
         ];
+        $GLOBALS['date_display_format'] = 0; // Y-m-d H:i:s
         $GLOBALS['attendant_type'] = 'pid';
     }
 
@@ -49,6 +54,11 @@ class ObservationServiceTest extends TestCase
             $GLOBALS['attendant_type'] = $this->backupAttendantType;
         } else {
             unset($GLOBALS['attendant_type']);
+        }
+        if ($this->backupDateFormat !== null) {
+            $GLOBALS['date_display_format'] = $this->backupDateFormat;
+        } else {
+            unset($GLOBALS['date_display_format']);
         }
         QueryUtils::sqlStatementThrowException("DELETE FROM forms WHERE formdir = ? AND form_id IN (select form_id FROM form_observation WHERE code LIKE ?)", ['observation', 'OETest:%']);
         QueryUtils::sqlStatementThrowException("DELETE FROM form_observation WHERE code LIKE ?", ['OETest:%']);
@@ -243,5 +253,14 @@ class ObservationServiceTest extends TestCase
     {
         // This test would require database mocking
         $this->markTestIncomplete("This test requires database mocking or integration test setup.");
+    }
+
+    public function testsearchAndPopulateChildObservationsWithNoDataReturnsEmptyResult(): void
+    {
+        $uuid = UuidV4::uuid4()->toString();
+        // non-existent uuid should return empty result
+        $result = $this->service->searchAndPopulateChildObservations(['uuid' => $uuid]);
+        $this->assertFalse($result->hasData());
+        $this->assertFalse($result->hasErrors());
     }
 }

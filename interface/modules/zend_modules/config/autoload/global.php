@@ -15,24 +15,15 @@
  *
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\DbUtils;
 
-// If to use utf-8 or not in my sql query
-if (!$GLOBALS['disable_utf8_flag']) {
-    if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
-        $tmp = "SET NAMES 'UTF8MB4', sql_mode = ''";
-    } else {
-        $tmp = "SET NAMES 'UTF8', sql_mode = ''";
-    }
-} else {
-    $tmp = "SET sql_mode = ''";
-}
-$tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
+$tmp = "SET NAMES 'UTF8MB4', sql_mode = '', time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
-} else {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+$utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
+    $utf8[PDO::ATTR_PERSISTENT] = true;
 }
 
 // Set mysql to use ssl, if applicable.
@@ -51,7 +42,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = [
-    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+    \Laminas\Db\Adapter\Adapter::class => function ($containerInterface, $requestedName) {
         $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
         \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
@@ -63,7 +54,7 @@ $factories = [
 $adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
-    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
+    $dbh = new PDO(DbUtils::buildMysqlDsn($GLOBALS['dbase'], $GLOBALS['host'], $GLOBALS['port']), $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
@@ -71,9 +62,8 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
             $cryptoGen = new CryptoGen();
             $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
-                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
+                'dsn' => DbUtils::buildMysqlDsn($row['dbname'], $row['host'], $row['port'] ?? ''),
                 'driver_options' => $utf8,
-                'port' => $row['port'],
                 'username' => $row['username'],
                 'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
             ];
@@ -89,17 +79,18 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
 
     $dbh = null; // Close pdo connection
 }
+// sites/<site_id>/sqlconf.php stores the database connection settings into a global sqlconf variable
+// we will use that instead of the individual globals set previously.
+$sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', 'pass' => '', 'port' => ''];
 
 return [
     'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
-        'username'       => $GLOBALS['login'] ?? '',
-        'password'       => $GLOBALS['pass'] ?? '',
-        'port'           => $GLOBALS['port'] ?? '',
+        'dsn'            => DbUtils::buildMysqlDsn($sqlConf['dbase'] ?? '', $sqlConf['host'] ?? '', $sqlConf['port'] ?? ''),
+        'username'       => $sqlConf['login'] ?? '',
+        'password'       => $sqlConf['pass'] ?? '',
         'driver_options' => $utf8,
-        'adapters' => $adapters
-
+        'adapters'       => $adapters
     ],
     'service_manager' => [
         'factories' => $factories
@@ -121,8 +112,8 @@ return [
 function my_decrypt($data)
 {
     // Remove the base64 encoding from our key
-    $encryption_key = base64_decode($GLOBALS['safe_key_database']);
+    $encryption_key = base64_decode((string) $GLOBALS['safe_key_database']);
     // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
-    [$encrypted_data, $iv] = explode('::', base64_decode($data), 2);
+    [$encrypted_data, $iv] = explode('::', base64_decode((string) $data), 2);
     return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
 }

@@ -1,21 +1,21 @@
 --
 --  Comment Meta Language for sql upgrades:
 --
---  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql 
+--  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql
 --  comments meant to be cryptic hints to -other developers about the sql goodness contained therein.  However, were you to rely on such basic premises,
 --  you would find yourself grossly deceived.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta language derived
---  for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public 
+--  for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public
 --  beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
 --
 --  While these lines are as enigmatic as they are functional, there is a method to the madness.  Let's take a moment to briefly go over proper comment meta language use.
---  
---  The #If* sections have the behavior of functions and come complete with arguments supplied command-line style 
 --
---  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and 
---  the blocks automatcially executed with out regard to the existing database state.   
+--  The #If* sections have the behavior of functions and come complete with arguments supplied command-line style
+--
+--  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and
+--  the blocks automatcially executed with out regard to the existing database state.
 --
 --  Comment Meta Language Constructs:
--- 
+--
 --  #IfNotTable
 --    argument: table_name
 --    behavior: if the table_name does not exist,  the block will be executed
@@ -48,7 +48,7 @@
 --               2) The table table_name does not have a row where colname = value AND colname3 = value3.
 
 --  #EndIf
---    all blocks are terminated with and #EndIf statement. 
+--    all blocks are terminated with and #EndIf statement.
 
 #IfMissingColumn log patient_id
 ALTER TABLE log ADD patient_id bigint(20) DEFAULT NULL;
@@ -525,7 +525,7 @@ CREATE TABLE `procedure_report` (
   `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',
   PRIMARY KEY (`procedure_report_id`),
   KEY procedure_order_id (procedure_order_id)
-) ENGINE=MyISAM; 
+) ENGINE=MyISAM;
 #EndIf
 
 #IfNotTable procedure_result
@@ -544,7 +544,7 @@ CREATE TABLE `procedure_result` (
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
   KEY procedure_report_id (procedure_report_id)
-) ENGINE=MyISAM; 
+) ENGINE=MyISAM;
 #EndIf
 
 #IfMissingColumn history_data recreational_drugs
@@ -646,7 +646,7 @@ CREATE TABLE `globals` (
   `gl_index`            int(11)        NOT NULL DEFAULT 0,
   `gl_value`            varchar(255)   NOT NULL DEFAULT '',
   PRIMARY KEY (`gl_name`, `gl_index`)
-) ENGINE=MyISAM; 
+) ENGINE=MyISAM;
 #EndIf
 
 #IfNotTable lang_custom
@@ -700,7 +700,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'co
 #EndIf
 
 #IfMissingColumn codes reportable
-ALTER TABLE `codes` 
+ALTER TABLE `codes`
   ADD `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable';
 #EndIf
 

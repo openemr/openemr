@@ -129,7 +129,7 @@ let vitals = [];
 vitals[0] = formdate + '-' + {{ vitals.get_height()|js_escape }} + '-' + {{ vitals.get_weight()|js_escape }}
     + '-' + {{ vitals.get_head_circ()|js_escape }};
 // historic values
-{% for result in reuslts %}
+{% for result in results %}
 vitals[vitals.length] = {{ result.get_date()|dateToTime|date("Ymd")|js_escape }} + '-' + {{ result.get_height()|js_escape }}
     + '-' + {{ result.get_weight()|js_escape }} + '-' + {{ result.get_head_circ()|js_escape }};
 {% endfor %}

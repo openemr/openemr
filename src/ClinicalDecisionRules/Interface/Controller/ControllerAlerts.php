@@ -63,26 +63,11 @@ class ControllerAlerts extends BaseController
 
         $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
-            if (!empty($actives[$i]) && ($actives[$i] == "on")) {
-                $actives_final[] = "1";
-            } else {
-                $actives_final[] = "0";
-                ;
-            }
+            $actives_final[] = !empty($actives[$i]) && $actives[$i] == "on" ? "1" : "0";
 
-            if (!empty($passives[$i]) && ($passives[$i] == "on")) {
-                $passives_final[] = "1";
-            } else {
-                $passives_final[] = "0";
-                ;
-            }
+            $passives_final[] = !empty($passives[$i]) && $passives[$i] == "on" ? "1" : "0";
 
-            if (!empty($reminders[$i]) && ($reminders[$i] == "on")) {
-                $reminders_final[] = "1";
-            } else {
-                $reminders_final[] = "0";
-                ;
-            }
+            $reminders_final[] = !empty($reminders[$i]) && $reminders[$i] == "on" ? "1" : "0";
         }
 
         // Reflect the changes to the database.

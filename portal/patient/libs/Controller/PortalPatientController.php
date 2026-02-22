@@ -97,7 +97,7 @@ class PortalPatientController extends AppBasePortalController
             $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -116,11 +116,11 @@ class PortalPatientController extends AppBasePortalController
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = [];
             foreach ($changed as $key => $val) {
-                $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower($key))))] = $val;
+                $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
             }
 
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -146,7 +146,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
             $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
             $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Dob = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'dob', $patient->Dob)));
             $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
             $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
             $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
@@ -162,7 +162,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
             $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
             $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
-            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $patient->Date)));
             $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
             $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
             $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
@@ -174,7 +174,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
             $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
             $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
-            //$patient->Interpretter = $this->SafeGetVal($json, 'interpretter', $patient->Interpretter);
+            //$patient->Interpreter = $this->SafeGetVal($json, 'interpreter', $patient->Interpreter);
             //$patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
             $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
             /*$patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
@@ -194,7 +194,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
             $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);*/
             if (!empty($patient->Regdate)) {
-                $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+                $patient->Regdate = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'regdate', $patient->Regdate)));
             }
             /*$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
             $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
@@ -220,7 +220,7 @@ class PortalPatientController extends AppBasePortalController
                 // $patient->Save(); //active records save
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -256,7 +256,7 @@ class PortalPatientController extends AppBasePortalController
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -266,7 +266,7 @@ class PortalPatientController extends AppBasePortalController
     public function Delete()
     {
         try {
-            // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
+            // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
@@ -276,7 +276,7 @@ class PortalPatientController extends AppBasePortalController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

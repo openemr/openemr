@@ -96,10 +96,10 @@ class ScopePermissionObject
         $lastPos = -1;
 
         $seen = [];
-        $strlen = strlen($input);
+        $strlen = strlen((string) $input);
         for ($i = 0; $i < $strlen; $i++) {
             $char = $input[$i];
-            $pos = strpos($allowed, $char);
+            $pos = strpos($allowed, (string) $char);
             if ($pos === false) {
                 return false; // invalid character
             }
@@ -148,6 +148,8 @@ class ScopePermissionObject
     {
         foreach ($constraints as $key => $value) {
             if (!empty($this->constraints[$key])) {
+                // TODO: This looks odd where we have a string in one instance and an array in another
+                // We should probably standardize on always using arrays for constraint values
                 if (is_string($this->constraints[$key])) {
                     $this->constraints[$key] = [$this->constraints[$key]];
                     $this->constraints[$key][] = $value;

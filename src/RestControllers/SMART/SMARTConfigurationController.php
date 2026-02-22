@@ -23,7 +23,7 @@ class SMARTConfigurationController
     /**
      * @var ServerConfig
      */
-    private ServerConfig $serverConfig;
+    private readonly ServerConfig $serverConfig;
 
     public function __construct()
     {
@@ -58,7 +58,7 @@ class SMARTConfigurationController
             // required fields for SMART v2
             "issuer" => $this->serverConfig->getFhirUrl(),
              "jwks_uri" => $this->serverConfig->getJsonWebKeySetUrl(),
-            "authorization_endpoint" => $this->serverConfig->getOauthAuthorizationUrl(),
+            "authorization_endpoint" => $this->serverConfig->getAuthorizeUrl(),
             "grant_types_supported" => ['client_credentials', 'authorization_code'],
             "token_endpoint" => $this->serverConfig->getTokenUrl(),
             "capabilities" => Capability::SUPPORTED_CAPABILITIES,

@@ -74,11 +74,11 @@ class ScopePermissionObjectTest extends TestCase
             $this->assertEquals($validSubset, $scopePermissionObject->getIdentifier(), "Identifier should match for valid permission string: " . $validSubset);
             $this->assertEmpty($scopePermissionObject->getConstraints(), "Constraints should be empty for valid permission string: " . $validSubset);
             // Check permissions based on the valid subset
-            $this->assertEquals(strpos($validSubset, 'c') !== false, $scopePermissionObject->create, "Create permission should match for valid permission string: " . $validSubset);
-            $this->assertEquals(strpos($validSubset, 'r') !== false, $scopePermissionObject->read, "Read permission should match for valid permission string: " . $validSubset);
-            $this->assertEquals(strpos($validSubset, 'u') !== false, $scopePermissionObject->update, "Update permission should match for valid permission string: " . $validSubset);
-            $this->assertEquals(strpos($validSubset, 'd') !== false, $scopePermissionObject->delete, "Delete permission should match for valid permission string: " . $validSubset);
-            $this->assertEquals(strpos($validSubset, 's') !== false, $scopePermissionObject->search, "Search permission should match for valid permission string: " . $validSubset);
+            $this->assertEquals(str_contains($validSubset, 'c'), $scopePermissionObject->create, "Create permission should match for valid permission string: " . $validSubset);
+            $this->assertEquals(str_contains($validSubset, 'r'), $scopePermissionObject->read, "Read permission should match for valid permission string: " . $validSubset);
+            $this->assertEquals(str_contains($validSubset, 'u'), $scopePermissionObject->update, "Update permission should match for valid permission string: " . $validSubset);
+            $this->assertEquals(str_contains($validSubset, 'd'), $scopePermissionObject->delete, "Delete permission should match for valid permission string: " . $validSubset);
+            $this->assertEquals(str_contains($validSubset, 's'), $scopePermissionObject->search, "Search permission should match for valid permission string: " . $validSubset);
             if (in_array($validSubset, ['cruds', 'cud', 'cuds', 'crud'])) {
                 $this->assertEquals(true, $scopePermissionObject->v1Write, "v1Write permission should be true for valid permission string: " . $validSubset);
             } else {

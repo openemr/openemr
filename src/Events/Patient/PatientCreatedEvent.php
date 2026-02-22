@@ -26,8 +26,6 @@ class PatientCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'patient.created';
 
-    private $patientData;
-
     /**
      * PatientUpdatedEvent constructor takes an array
      * of key/value pairs that represent fields of the patient_data
@@ -35,9 +33,8 @@ class PatientCreatedEvent extends Event
      *
      * @param array $patientData
      */
-    public function __construct(array $patientData)
+    public function __construct(private array $patientData)
     {
-        $this->patientData = $patientData;
     }
 
     /**

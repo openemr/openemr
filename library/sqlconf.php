@@ -12,12 +12,23 @@
  */
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SqlConfigEvent;
+use OpenEMR\Common\System\MissingSiteException;
 
-require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
+$siteDir = $GLOBALS['OE_SITE_DIR'] ?? '';
+if (empty($siteDir)) {
+    if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
+        throw new MissingSiteException();
+    }
+    // GLOBALS may not be defined consistently during static analysis.
+    $siteDir = __DIR__ . '/../sites/default';
+}
 
-if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel) {
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+require_once $siteDir . "/sqlconf.php";
+
+if (OEGlobalsBag::getInstance()->hasKernel()) {
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     $sqlConfigEvent = new SqlConfigEvent();
 
     if ($eventDispatcher->hasListeners(SqlConfigEvent::EVENT_NAME)) {
@@ -33,8 +44,6 @@ if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel
         $login = $configEntity->getUser();
         $pass = $configEntity->getPass();
         $dbase = $configEntity->getDatabaseName();
-        $db_encoding = $configEntity->getEncoding();
-        $disable_utf8_flag = $configEntity->getDisableUTF8();
         $config = $configEntity->getConfig();
     }
 }

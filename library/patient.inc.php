@@ -9,10 +9,12 @@
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,9 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\EmployerService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 require_once(__DIR__ . "/dupscore.inc.php");
 
@@ -93,7 +98,7 @@ function getInsuranceProviders()
         $rez = sqlStatement($sql);
 
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-            preg_match("/\d+/", $row['line1'], $matches);
+            preg_match("/\d+/", (string) $row['line1'], $matches);
             $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
               "," . $matches[0] . ")";
         }
@@ -134,6 +139,7 @@ function getFacility($facid = 0)
 {
     global $facilityService;
 
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $facility = null;
 
     if ($facid > 0) {
@@ -142,12 +148,12 @@ function getFacility($facid = 0)
 
     if ($GLOBALS['login_into_facility']) {
         //facility is saved in sessions
-        $facility  = $facilityService->getById($_SESSION['facilityId']);
+        $facility  = $facilityService->getById($session->get('facilityId'));
     } else {
         if ($facid == 0) {
             $facility = $facilityService->getPrimaryBillingLocation();
         } else {
-            $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $facility = $facilityService->getFacilityForUser($session->get('authUserID'));
         }
     }
 
@@ -290,16 +296,16 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
 function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
-    if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
-        if (!empty($pi[0]["mname"]) && (strlen($pi[0]["mname"]) > 0)) {
+    if (!empty($pi[0]["lname"]) && (strlen((string) $pi[0]["lname"]) > 0)) {
+        if (!empty($pi[0]["mname"]) && (strlen((string) $pi[0]["mname"]) > 0)) {
             $pi[0]["fname"] .= " " . $pi[0]["mname"];
         }
 
-        if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
+        if (!empty($pi[0]["suffix"]) && (strlen((string) $pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
 
-        if (!empty($pi[0]["valedictory"]) && (strlen($pi[0]["valedictory"]) > 0)) {
+        if (!empty($pi[0]["valedictory"]) && (strlen((string) $pi[0]["valedictory"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["valedictory"];
         }
 
@@ -426,12 +432,18 @@ function getInsuranceNameByDate(
     return $row['provider_name'];
 }
 
-// To prevent sql injection on this function, if a variable is used for $given parameter, then
-// it needs to be escaped via whitelisting prior to using this function.
+/**
+ * To prevent sql injection on this function, if a variable is used for $given parameter, then
+ * it needs to be escaped via whitelisting prior to using this function.
+ * @deprecated use EmployerService->getMostRecentEmployerData()
+ * @param $pid
+ * @param $given
+ * @return \OpenEMR\Common\Database\recordset
+ */
 function getEmployerData($pid, $given = "*")
 {
-    $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
-    return sqlQuery($sql, [$pid]);
+    $employerService = new EmployerService();
+    return $employerService->getMostRecentEmployerData($pid, $given);
 }
 
 // Generate a consistent header and footer, used for printed patient reports
@@ -450,7 +462,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
 
     // Footer
     $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
-    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . DateFormatterUtils::oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
     $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
     $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
     $s .= '</div></htmlpagefooter>';
@@ -496,15 +508,12 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $names = getPatientNameSplit($term);
 
     foreach ($names as $key => $val) {
         if (!empty($val)) {
-            if ((strlen($val) > 1) && ($names[$key][0] != strtoupper($names[$key][0]))) {
-                $names[$key] = '%' . $val . '%';
-            } else {
-                $names[$key] = $val . '%';
-            }
+            $names[$key] = strlen((string) $val) > 1 && $names[$key][0] != strtoupper((string) $names[$key][0]) ? '%' . $val . '%' : $val . '%';
         }
     }
 
@@ -547,11 +556,11 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= " AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                 " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                 add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION["authUser"]);
+            array_push($sqlBindArray, $session->get("authUser"));
         }
     }
 
@@ -584,15 +593,15 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 function getPatientNameSplit($term)
 {
     $term = trim($term);
-    if (strpos($term, ',') !== false) {
+    if (str_contains($term, ',')) {
         $names = explode(',', $term);
         $n['last'] = $names[0];
-        if (strpos(trim($names[1]), ' ') !== false) {
+        if (str_contains(trim($names[1]), ' ')) {
             [$n['first'], $n['middle']] = explode(' ', trim($names[1]));
         } else {
             $n['first'] = $names[1];
         }
-    } elseif (strpos($term, ' ') !== false) {
+    } elseif (str_contains($term, ' ')) {
         $names = explode(' ', $term);
         if (count($names) == 1) {
             $n['last'] = $names[0];
@@ -625,16 +634,16 @@ function getPatientNameSplit($term)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $sqlBindArray = [];
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid . "%");
     if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id']) {
-        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                     add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION["authUser"]);
+            array_push($sqlBindArray, $session->get("authUser"));
         }
     }
 
@@ -702,7 +711,7 @@ function getByPatientDemographicsFilter(
     $search_service_code = ''
 ) {
 
-    $layoutCols = explode('~', $searchFields);
+    $layoutCols = explode('~', (string) $searchFields);
     $sqlBindArray = [];
     $where = "";
     $i = 0;
@@ -802,7 +811,7 @@ function getPatientPID($args)
         $pid = "NULL";
     }
 
-    if (strstr($pid, "%")) {
+    if (strstr((string) $pid, "%")) {
         $command = "like";
     }
 
@@ -896,15 +905,16 @@ function getPatientNameFirstLast($pid)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $sqlBindArray = [];
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB . "%");
     if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                     add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION["authUser"]);
+            array_push($sqlBindArray, $session->get("authUser"));
         }
     }
 
@@ -954,7 +964,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $phone = preg_replace("/[[:punct:]]/", "", $phone);
+    $phone = preg_replace("/[[:punct:]]/", "", (string) $phone);
     $sqlBindArray = [];
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);
@@ -1000,7 +1010,7 @@ function newPatientData(
     $email = "",
     $language = "",
     $ethnoracial = "",
-    $interpretter = "",
+    $interpreter = "",
     $migrantseasonal = "",
     $family_size = "",
     $monthly_income = "",
@@ -1071,7 +1081,7 @@ function newPatientData(
         email='" . add_escape_custom($email) . "',
         language='" . add_escape_custom($language) . "',
         ethnoracial='" . add_escape_custom($ethnoracial) . "',
-        interpretter='" . add_escape_custom($interpretter) . "',
+        interpreter='" . add_escape_custom($interpreter) . "',
         migrantseasonal='" . add_escape_custom($migrantseasonal) . "',
         family_size='" . add_escape_custom($family_size) . "',
         monthly_income='" . add_escape_custom($monthly_income) . "',
@@ -1125,7 +1135,7 @@ function newPatientData(
 function fixDate($date, $default = "0000-00-00")
 {
     $fixed_date = $default;
-    $date = trim($date);
+    $date = trim((string) $date);
     if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
         $dmy = preg_split("'[/.-]'", $date);
         if ($dmy[0] > 99) {
@@ -1158,8 +1168,8 @@ function fixDate($date, $default = "0000-00-00")
 function pdValueOrNull($key, $value)
 {
     if (
-        ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-        str_starts_with($key, 'userdate') || $key == 'deceased_date') &&
+        (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
+        str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
         (empty($value) || $value == '0000-00-00')
     ) {
         return "NULL";
@@ -1178,7 +1188,7 @@ function pdValueOrNull($key, $value)
  *
  * @param $pid
  * @param $new
- * @param false $create
+ * @param bool $create
  * @return mixed
  */
 function updatePatientData($pid, $new, $create = false)
@@ -1227,44 +1237,18 @@ function newEmployerData(
 
 // Create or update employer data from an array.
 //
-function updateEmployerData($pid, $new, $create = false)
+/**
+ * @param $pid
+ * @param $new
+ * @param $create
+ * @param array|null $patientData
+ * @deprecated Use EmployerService->updateEmployerData() instead.
+ * @return void
+ */
+function updateEmployerData($pid, $new, $create = false, ?array $patientData = null): void
 {
-    // used to hard code colnames array('name','street','city','state','postal_code','country');
-    // but now adapted for layout based
-    $colnames = [];
-    foreach ($new as $key => $value) {
-        $colnames[] = $key;
-    }
-
-    if ($create) {
-        $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
-        foreach ($colnames as $key) {
-            $value = $new[$key] ?? '';
-            $set .= ", `$key` = '" . add_escape_custom($value) . "'";
-        }
-
-        return sqlInsert("INSERT INTO employer_data SET $set");
-    } else {
-        $set = '';
-        $old = getEmployerData($pid);
-        $modified = false;
-        foreach ($colnames as $key) {
-            $value = empty($old[$key]) ? '' : $old[$key];
-            if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
-                $value = $new[$key];
-                $modified = true;
-            }
-
-            $set .= "`$key` = '" . add_escape_custom($value) . "', ";
-        }
-
-        if ($modified) {
-            $set .= "pid = '" . add_escape_custom($pid) . "', date = NOW()";
-            return sqlInsert("INSERT INTO employer_data SET $set");
-        }
-
-        return ($old['id'] ?? '');
-    }
+    $employerService = new EmployerService();
+    $employerService->updateEmployerData($pid, $new, $create, $patientData);
 }
 
 // This updates or adds the given insurance data info, while retaining any
@@ -1304,7 +1288,7 @@ function newInsuranceData(
     $effective_date_end = null
 ) {
 
-    if (strlen($type) <= 0) {
+    if (strlen((string) $type) <= 0) {
         return false;
     }
 
@@ -1493,10 +1477,10 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
     $age = -1;
 
     // strip any dashes from the DOB
-    $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD, 6, 2);
-    $dobMonth = substr($dobYMD, 4, 2);
-    $dobYear = substr($dobYMD, 0, 4);
+    $dobYMD = preg_replace("/-/", "", (string) $dobYMD);
+    $dobDay = substr((string) $dobYMD, 6, 2);
+    $dobMonth = substr((string) $dobYMD, 4, 2);
+    $dobYear = substr((string) $dobYMD, 0, 4);
 
     // set the 'now' date values
     if ($nowYMD == null) {
@@ -1504,9 +1488,9 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
         $nowMonth = date("m");
         $nowYear = date("Y");
     } else {
-        $nowDay = substr($nowYMD, 6, 2);
-        $nowMonth = substr($nowYMD, 4, 2);
-        $nowYear = substr($nowYMD, 0, 4);
+        $nowDay = substr((string) $nowYMD, 6, 2);
+        $nowMonth = substr((string) $nowYMD, 4, 2);
+        $nowYear = substr((string) $nowYMD, 0, 4);
     }
 
     // do the date math
@@ -1531,7 +1515,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 }
 function dateToDB($date)
 {
-    $date = substr($date, 6, 4) . "-" . substr($date, 3, 2) . "-" . substr($date, 0, 2);
+    $date = substr((string) $date, 6, 4) . "-" . substr((string) $date, 3, 2) . "-" . substr((string) $date, 0, 2);
     return $date;
 }
 
@@ -1618,7 +1602,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
     $feres = sqlStatement($sqlstatement, $bindarray);
     while ($ferow = sqlFetchArray($feres)) {
         $encounter = $ferow['encounter'];
-        $dos = substr($ferow['date'], 0, 10);
+        $dos = substr((string) $ferow['date'], 0, 10);
         $insarr = getEffectiveInsurances($pid, $dos);
         $inscount = count($insarr);
         if (!$with_insurance && $ferow['last_level_closed'] < $inscount) {
@@ -1738,14 +1722,17 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// This computes, sets and returns the dup score for the given patient.
-//
+// Compute dupscore for a single patient using symmetric comparison (p2.pid != p1.pid).
+// This is required for single-patient updates (e.g., after demographics change) to detect
+// matches with higher-PID patients. Batch operations in dupscore.cli.php and calculateScores()
+// intentionally use asymmetric comparison (p2.pid < p1.pid) as a performance optimization
+// that works correctly when processing all patients.
 function updateDupScore($pid)
 {
     $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid < p1.pid",
+        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1",
         [$pid]
     );
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];

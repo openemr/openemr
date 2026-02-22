@@ -26,13 +26,8 @@ class PatientUpdatedEventAux extends Event
      */
     const EVENT_HANDLE = 'patient.updated.aux';
 
-    private $updatedPatientData;
-    private $pid;
-
-    public function __construct($pid, $updatedData)
+    public function __construct(private $pid, private $updatedPatientData)
     {
-        $this->updatedPatientData = $updatedData;
-        $this->pid = $pid;
     }
 
     /**

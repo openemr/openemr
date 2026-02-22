@@ -39,7 +39,7 @@ $multi = $_REQUEST['multi'] ?? '';
 $content = $_REQUEST['content'] ?? '';
 
 if ($Source == "add_template") {
-    $arr = explode("|", $multi);
+    $arr = explode("|", (string) $multi);
 
     for ($i = 0; $i < count($arr) - 1; $i++) {
         $sql = sqlStatement("SELECT * FROM customlists AS cl LEFT OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
@@ -60,7 +60,7 @@ if ($Source == "add_template") {
         echo "</select>";
     }
 } elseif ($Source == "save_provider") {
-    $arr = explode("|", $multi);
+    $arr = explode("|", (string) $multi);
     for ($i = 0; $i < count($arr) - 1; $i++) {
         $cnt = sqlNumRows(sqlStatement("SELECT * FROM template_users WHERE tu_user_id=? AND tu_template_id=?", [$arr[$i], $list_id]));
         if (!$cnt) {
@@ -110,7 +110,7 @@ if ($Source == "add_template") {
     }
     $Source = "add_template";
 } elseif ($Source == 'display_item') {
-    $multi = preg_replace('/\|$/', '', $multi);
+    $multi = preg_replace('/\|$/', '', (string) $multi);
     $val = str_replace("|", ",", $multi);
     echo "<select multiple name='topersonalizeditem[]' id='topersonalizeditem' size='6' style='width:220px' onchange='display_item()'>";
     $resTemplates = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=4 AND cl_deleted=0 AND cl_list_id IN (?) ORDER BY cl_list_item_long", [$val]);

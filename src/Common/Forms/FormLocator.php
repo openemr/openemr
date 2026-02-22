@@ -14,17 +14,19 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
 
 class FormLocator
 {
     private array $pathCache = [];
-    private string $fileRoot;
-    private SystemLogger $logger;
+    private readonly string $fileRoot;
+    private readonly LoggerInterface $logger;
 
     // AI GENERATED CODE: HEADER END
-    public function __construct(?SystemLogger $logger = null)
+    public function __construct(?LoggerInterface $logger = null)
     {
         if (!$logger) {
             $logger = new SystemLogger();
@@ -55,7 +57,7 @@ class FormLocator
 
     private function locateFile(string $formDir, string $fileName, string $page): string
     {
-        $isLBF = str_starts_with($formDir, 'LBF');
+        $isLBF = str_starts_with($formDir, 'LBF') || str_starts_with($formDir, 'LBT');
         $basePath = $isLBF ? "/interface/forms/LBF/" : "/interface/forms/{$formDir}/";
         $initialPath = $this->fileRoot . $basePath;
         $initialFilename = $initialPath . $fileName;
@@ -63,8 +65,9 @@ class FormLocator
         $event->setIsLayoutBasedForm($isLBF);
 
         // AI GENERATED CODE: HEADER END
-        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
+        $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
 
+        /** @var string */
         $finalPath = $filteredEvent->getFormIncludePath();
         if ($finalPath != $initialFilename) {
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {

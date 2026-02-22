@@ -12,14 +12,16 @@
 
 namespace OpenEMR\Modules\Dorn;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\Dorn\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
+ * @global EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 
-$bootstrap = new Bootstrap($eventDispatcher, $GLOBALS['kernel']);
+$bootstrap = new Bootstrap($eventDispatcher, OEGlobalsBag::getInstance()->getKernel());
 $bootstrap->subscribeToEvents();

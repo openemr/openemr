@@ -2,7 +2,7 @@
 
 /**
  * CompositeSearchField implements the ISearchField interface and represents a search that covers more than one search
- * field.  The class is heirarchical in that it has a one to many child relationship that can represent multiple complex
+ * field.  The class is hierarchical in that it has a one to many child relationship that can represent multiple complex
  * search operations up to 10 levels deep of unions or intersections.
  *
  * @package openemr
@@ -16,22 +16,12 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Services\Search\SearchFieldType;
 
-class CompositeSearchField implements ISearchField
+class CompositeSearchField implements ISearchField, \Stringable
 {
     /**
      * @var string
      */
-    private $name;
-
-    /**
-     * @var string
-     */
     private $field;
-
-    /**
-     * @var mixed[]
-     */
-    private $values;
 
     /**
      * @var ISearchField[]
@@ -44,11 +34,17 @@ class CompositeSearchField implements ISearchField
      */
     private $isAnd;
 
-    public function __construct($name, $values, $isAnd = true)
-    {
-        $this->name = $name;
-        $this->field = $name; // we will give the field the same name as our name.
-        $this->values = $values;
+    /**
+     * @param string $name
+     * @param mixed[] $values
+     * @param bool $isAnd
+     */
+    public function __construct(
+        private $name,
+        private $values,
+        $isAnd = true
+    ) {
+        $this->field = $this->name; // we will give the field the same name as our name.
         $this->children = [];
         $this->isAnd = $isAnd === true;
     }
@@ -124,7 +120,7 @@ class CompositeSearchField implements ISearchField
      * Useful for debugging, you can echo the object to see its values.
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $values = $this->getValues ?? [];
         $children = $this->getChildren() ?? [];

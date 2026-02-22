@@ -33,11 +33,14 @@ use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
-if (isset($_GET['pid']) && $_GET['pid'] != $_SESSION['pid']) {
+if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
     PatientSessionUtil::setPid($_GET['pid']);
 }
 // "issue" parameter exists if we are being invoked by clicking an issue title
@@ -69,7 +72,7 @@ if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad']))
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = ?", [$_SESSION['authUserID']]);
+  "where id = ?", [$session->get('authUserID')]);
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing'])) {
     $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -109,9 +112,9 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             $noteResultSet = sqlStatement($queryString, [$documentrow['id']]);
             $note = '';
             while ($row = sqlFetchArray($noteResultSet)) {
-                $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . $row['note'] . "\n";
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date']))) . " : " . $row['note'] . "\n";
             }
-            $docTitle = ( $note ) ? $note : xl("View document");
+            $docTitle = $note ?: xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
@@ -184,7 +187,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') == "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -222,7 +225,13 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo attr_url($pid); ?>&doc_id=' + encodeURIComponent(docid);
+  const params = new URLSearchParams({
+    doc_id: docid,
+    document: '',
+    patient_id: <?php echo js_escape($pid); ?>,
+    view: ''
+  });
+  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -238,7 +247,13 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    window.location.href = "encounters.php?billing=" + encodeURIComponent(billing) + "&issue=" + encodeURIComponent(issue) + "&pagestart=" + encodeURIComponent(pagestart) + "&pagesize=" + encodeURIComponent(pagesize);
+    const params = new URLSearchParams({
+        billing: billing,
+        issue: issue,
+        pagesize: pagesize,
+        pagestart: pagestart
+    });
+    window.location.href = "encounters.php?" + params;
 }
 
 window.onload = function() {
@@ -273,17 +288,9 @@ window.onload = function() {
     if (isset($_GET['pagesize'])) {
         $pagesize = $_GET['pagesize'];
     } else {
-        if (array_key_exists('encounter_page_size', $GLOBALS)) {
-            $pagesize = $GLOBALS['encounter_page_size'];
-        } else {
-            $pagesize = 0;
-        }
+        $pagesize = array_key_exists('encounter_page_size', $GLOBALS) ? $GLOBALS['encounter_page_size'] : 0;
     }
-    if (isset($_GET['pagestart'])) {
-        $pagestart = $_GET['pagestart'];
-    } else {
-        $pagestart = 0;
-    }
+    $pagestart = $_GET['pagestart'] ?? 0;
     $getStringForPage = "&pagesize=" . attr_url($pagesize) . "&pagestart=" . attr_url($pagestart);
 
     ?>
@@ -425,7 +432,7 @@ window.onload = function() {
                 $sqlBindArray[] = $pid;
             } else {
                 $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
-                $sqlBindArray[] = $_SESSION['therapy_group'];
+                $sqlBindArray[] = $session->get('therapy_group');
             }
 
             $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
@@ -467,13 +474,13 @@ window.onload = function() {
 
                     $raw_encounter_date = '';
 
-                    $raw_encounter_date = date("Y-m-d", strtotime($result4["date"]));
-                    $encounter_date = date("D F jS", strtotime($result4["date"]));
+                    $raw_encounter_date = date("Y-m-d", strtotime((string) $result4["date"]));
+                    $encounter_date = date("D F jS", strtotime((string) $result4["date"]));
 
                     //fetch acl for given pc_catid
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($result4['pc_catid']);
                 if ($postCalendarCategoryACO) {
-                    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                    $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                     $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                 } else { // if no aco is set for category
                     $authPostCalendarCategory = true;
@@ -505,7 +512,7 @@ window.onload = function() {
                     $encounter_rows = 1;
                 if (
                     !$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
-                        ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+                        ($auth_notes_a || ($auth_notes && $result4['user'] == $session->get('authUser')))
                 ) {
                     $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
                     $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
@@ -520,7 +527,7 @@ window.onload = function() {
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
-                    $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
+                    $feid = $result4['id'] ?: 0; // form_encounter id
                     echo "<td class='align-top'>";
                     echo "<div id='note_" . attr($feid) . "'>";
                     echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
@@ -583,7 +590,7 @@ window.onload = function() {
                         $formdir = $enc['formdir'];
                         if (
                             ($auth_notes_a) ||
-                            ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+                            ($auth_notes && $enc['user'] == $session->get('authUser')) ||
                             ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))
                         ) {
                         } else {
@@ -643,7 +650,7 @@ window.onload = function() {
                         // for therapy group view
                     } else {
                         $counselors = '';
-                        foreach (explode(',', $result4['counselors']) as $userId) {
+                        foreach (explode(',', (string) $result4['counselors']) as $userId) {
                             $counselors .= getUserNameById($userId) . ', ';
                         }
                         $counselors = rtrim($counselors, ", ");
@@ -654,7 +661,7 @@ window.onload = function() {
                     //this is where we print out the text of the billing that occurred on this encounter
                     $thisauth = $auth_coding_a;
                 if (!$thisauth && $auth_coding) {
-                    if ($result4['user'] == $_SESSION['authUser']) {
+                    if ($result4['user'] == $session->get('authUser')) {
                         $thisauth = $auth_coding;
                     }
                 }
@@ -903,11 +910,14 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
-                "&encid=" + encodeURIComponent(el.dataset.formenc) +
-                "&formname=" + encodeURIComponent(el.dataset.formdir) +
-                "&formid=" + encodeURIComponent(el.dataset.formid) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                encid: el.dataset.formenc,
+                formid: el.dataset.formid,
+                formname: el.dataset.formdir,
+                ptid: el.dataset.formpid
+            });
+            let url = "encounters_ajax.php?" + params;
             let fetchedReport;
             $.ajax({
                 url: url,
@@ -932,7 +942,7 @@ $(function () {
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
-    // height is overflowed. Poporver will eiter close when mouse leaves view
+    // height is overflowed. Popover will either close when mouse leaves view
     // or user clicks anywhere in view.
     $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
         let elements = $('[aria-describedby^="popover"]');

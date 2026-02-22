@@ -16,15 +16,14 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
 $facilityService = new FacilityService();
@@ -62,67 +61,22 @@ function AddIfPresent($tag, $text): void
     }
 }
 
-function OpenTag($tag): void
-{
-    global $out, $indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    ++$indent;
-    $out .= "<$tag>\n";
-}
-
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
-}
-
-// Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", $field);
-}
-
-// Translate sex.
-function Sex($field)
-{
-  /*******************************************************************
-  $sex = strtoupper(substr(trim($field), 0, 1));
-  if ($sex != "M" && $sex != "F") $sex = "U";
-  return $sex;
-  *******************************************************************/
-    return mappedOption('sex', $field);
-}
-
-// Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
-}
-
 function xmlTime($str, $default = '9999-12-31T23:59:59')
 {
     if (empty($default)) {
         $default = '1800-01-01T00:00:00';
     }
 
-    if (strlen($str) < 10 || str_starts_with($str, '0000')) {
+    if (strlen((string) $str) < 10 || str_starts_with((string) $str, '0000')) {
         $str = $default;
-    } elseif (strlen($str) > 10) {
-        $str = substr($str, 0, 10) . 'T' . substr($str, 11);
+    } elseif (strlen((string) $str) > 10) {
+        $str = substr((string) $str, 0, 10) . 'T' . substr((string) $str, 11);
     } else {
         $str .= 'T00:00:00';
     }
 
   // Per discussion with Daniel 2009-05-12, replace zero day or month with 01.
-    $str = preg_replace('/-00/', '-01', $str);
+    $str = preg_replace('/-00/', '-01', (string) $str);
     return $str;
 }
 
@@ -133,7 +87,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
 //
 function getTextListValue($string, $key)
 {
-    $tmp = explode('|', $string);
+    $tmp = explode('|', (string) $string);
     foreach ($tmp as $value) {
         if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
             if ($matches[1] == $key) {
@@ -161,7 +115,7 @@ function mappedOption($list_id, $option_id, $default = '9')
     }
 
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
-    $maparr = explode(':', $row['mapping']);
+    $maparr = explode(':', (string) $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
@@ -198,7 +152,7 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     }
 
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
-    $maparr = explode(':', $row['mapping']);
+    $maparr = explode(':', (string) $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
@@ -218,7 +172,7 @@ function exportEncounter($pid, $encounter, $date): void
     $bres = sqlStatement($query, [$pid, $encounter]);
     while ($brow = sqlFetchArray($bres)) {
         if (!empty($brow['related_code'])) {
-            $relcodes = explode(';', $brow['related_code']);
+            $relcodes = explode(';', (string) $brow['related_code']);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -279,7 +233,7 @@ function exportEncounter($pid, $encounter, $date): void
     "ORDER BY id";
     $tres = sqlStatement($query, [$pid, $date]);
     while ($trow = sqlFetchArray($tres)) {
-        $relcodes = explode(';', $trow['refer_related_code']);
+        $relcodes = explode(';', (string) $trow['refer_related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -292,7 +246,7 @@ function exportEncounter($pid, $encounter, $date): void
                 "code_type = '16' AND code = ? AND active = 1 " .
                 "ORDER BY id LIMIT 1", [$code]);
                 if (!empty($rrow['related_code'])) {
-                        [$codetype, $code] = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', (string) $rrow['related_code']);
                 }
             }
 
@@ -335,7 +289,7 @@ function endClient($pid, &$encarray): void
 
     while ($irow = sqlFetchArray($ires)) {
         OpenTag('IMS_eMRUpload_Issue');
-        Add('IssueType', substr($irow['type'], 0, 15)); // per email 2009-03-20
+        Add('IssueType', substr((string) $irow['type'], 0, 15)); // per email 2009-03-20
         Add('emrIssueId', $irow['id']);
         Add('IssueStartDate', xmlTime($irow['begdate'], 0));
         Add('IssueEndDate', xmlTime($irow['enddate']));
@@ -348,13 +302,12 @@ function endClient($pid, &$encarray): void
             }
 
             if (
-                $key == 'id' || $key == 'type' || $key == 'begdate' ||
-                $key == 'enddate' || $key == 'title' || $key == 'diagnosis'
+                in_array($key, ['id', 'type', 'begdate', 'enddate', 'title', 'diagnosis'])
             ) {
                 continue;
             }
 
-            $avalues = explode('|', $value);
+            $avalues = explode('|', (string) $value);
             foreach ($avalues as $tmp) {
                   OpenTag('IMS_eMRUpload_IssueData');
                   // TBD: Add IssueCodeGroup to identify the list, if any???
@@ -409,7 +362,7 @@ function endClient($pid, &$encarray): void
                     continue;
                 }
 
-                    $avalues = explode('|', $value);
+                    $avalues = explode('|', (string) $value);
                 foreach ($avalues as $tmp) {
                     OpenTag('IMS_eMRUpload_IssueData');
                     Add('IssueCodeGroup', '?');
@@ -503,7 +456,7 @@ if (!empty($form_submit)) {
     "fe.pid, " .
     "p.regdate, p.date AS last_update, p.contrastart, p.DOB, p.sex, " .
     "p.city, p.state, p.occupation, p.status, p.ethnoracial, " .
-    "p.interpretter, p.monthly_income, p.referral_source, p.pricelevel, " .
+    "p.interpreter, p.monthly_income, p.referral_source, p.pricelevel, " .
     "p.userlist1, p.userlist3, p.userlist4, p.userlist5, " .
     "p.usertext11, p.usertext12, p.usertext13, p.usertext14, p.usertext15, " .
     "p.usertext16, p.usertext17, p.usertext18, p.usertext19, p.usertext20, " .
@@ -577,7 +530,7 @@ if (!empty($form_submit)) {
         $methodid = '';
         $methodvalue = -999;
         if (!empty($crow['new_method'])) {
-              $methods = explode('|', $crow['new_method']);
+              $methods = explode('|', (string) $crow['new_method']);
               /***************************************************************
             foreach ($methods as $method) {
               $lorow = sqlQuery("SELECT option_value FROM list_options WHERE " .
@@ -600,7 +553,7 @@ if (!empty($form_submit)) {
         Add('Children', 0 + getTextListValue($hrow['genobshist'], 'nlc'));   // number of living children
         Add('Abortions', 0 + getTextListValue($hrow['genabohist'], 'nia'));   // number of induced abortions
         Add('Education', $education);
-        Add('Demo5', Sex($row['sex']));
+        Add('Demo5', mappedOption('sex', $row['sex']));
 
         // Things included if they are present (July 2010)
         AddIfPresent('City', $row['city']);
@@ -608,7 +561,7 @@ if (!empty($form_submit)) {
         AddIfPresent('Occupation', mappedOption('occupations', $row['occupation'], ''));
         AddIfPresent('MaritalStatus', mappedOption('marital', $row['status'], ''));
         AddIfPresent('Ethnoracial', mappedOption('ethrace', $row['ethnoracial'], ''));
-        AddIfPresent('Interpreter', $row['interpretter']);
+        AddIfPresent('Interpreter', $row['interpreter']);
         AddIfPresent('MonthlyIncome', $row['monthly_income']);
         AddIfPresent('ReferralSource', mappedOption('refsource', $row['referral_source'], ''));
         AddIfPresent('PriceLevel', mappedOption('pricelevel', $row['pricelevel'], ''));

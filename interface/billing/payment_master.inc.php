@@ -31,7 +31,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option   id='option_" . attr($lrow['option_id']) . "'" . " value='" . attr($lrow['option_id']) . "'";
-        if ((strlen($currvalue) == 0 && $lrow['is_default']) || (strlen($currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
+        if ((strlen((string) $currvalue) == 0 && $lrow['is_default']) || (strlen((string) $currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
             $s .= " selected";
             $got_selected = true;
         }
@@ -43,7 +43,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
         }
         $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && strlen((string) $currvalue) > 0) {
         $currescaped = text($currvalue);
         $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         $s .= "</select>";
@@ -158,11 +158,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
             <div class="pl-0">
                 <?php
-                if ($PaymentMethod == '' && $screen == 'edit_payment') {
-                    $blankValue = ' ';
-                } else {
-                    $blankValue = '';
-                }
+                $blankValue = $PaymentMethod == '' && $screen == 'edit_payment' ? ' ' : '';
                 echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "", 'CheckVisible("yes")');
                 ?>
             </div>
@@ -190,22 +186,14 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         <div class="forms col-3">
             <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
             <?php
-            if ($PaymentType == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $PaymentType == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "form-control", 'PayingEntityAction()');
             ?>
         </div>
         <div class="forms col-3">
             <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
             <?php
-            if ($AdjustmentCode == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $AdjustmentCode == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_list_payment_category(
                 "adjustment_code",
                 "payment_adjustment_code",

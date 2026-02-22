@@ -39,7 +39,7 @@ function gad7_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
 // include scores_array and total for backward compatibility
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key ==  "activity" || $key == "date" || $value == "" || $key == "scores_array" || $key == "total" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $key == "scores_array" || $key == "total" || $value == "0000-00-00 00:00:00") {
                 continue;
             }
             if ($key == "difficulty") {

@@ -29,7 +29,7 @@ function orderDate($order)
 $action = $_GET['action'];
 
 if ($action === 'code_detail') {
-    $code = strtoupper($_GET['code']);
+    $code = strtoupper((string) $_GET['code']);
     $dos = [];
 
     $query = "SELECT detail.name, ord.procedure_code AS code, detail.name AS title, detail.description, detail.notes FROM procedure_type det ";
@@ -67,8 +67,8 @@ if ($action === 'print_labels') {
     $pid = $_GET['pid'];
     $order = $_GET['order'];
     $specimen = [];
-    $specimens = explode(";", $_GET['specimen']);
-    $patient = strtoupper($_GET['patient']);
+    $specimens = explode(";", (string) $_GET['specimen']);
+    $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
     $count = 1;
@@ -96,11 +96,7 @@ if ($action === 'print_labels') {
             if (empty($t)) {
                 continue;
             }
-            if ($t === 'none') {
-                $ord = $order;
-            } else {
-                $ord = $order . '-' . $t;
-            }
+            $ord = $t === 'none' ? $order : $order . '-' . $t;
 
             $pdf->AddPage();
             $barcode = '<div style="text-align: center;vertical-align: bottom;">';
@@ -121,7 +117,7 @@ if ($action === 'print_labels') {
     // send to display where user decides to print etc...
     try {
         $pdf->Output($label_file, 'I');
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         echo $e->getMessage();
     }
 }

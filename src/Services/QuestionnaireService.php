@@ -83,18 +83,20 @@ class QuestionnaireService extends BaseService
     }
 
     /**
+     * TODO: There are so many arguments here this should be refactored to use a data object.
      * @param $q
      * @param $name
      * @param ?int $q_record_id
      * @param $q_id
      * @param $lform
      * @param $type
+     * @param ?string $category the grouping category of the questionnaire
      * @return false|int|mixed
      * @throws Exception
      */
-    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
+    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null, ?string $category = null)
     {
-        $type = $type ?? 'Questionnaire';
+        $type ??= 'Questionnaire';
         $id = 0;
         $fhir_ob = null;
         if (is_string($q)) {
@@ -117,12 +119,8 @@ class QuestionnaireService extends BaseService
         if (empty($name)) {
             $name = $q_ob['name'] ?? null;
         }
-        $name = trim($name);
-        if (empty($q_record_id)) {
-            $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
-        } else {
-            $id = $q_record_id;
-        }
+        $name = trim((string) $name);
+        $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
             $q_id = UuidRegistry::uuidToString($q_uuid);
@@ -161,11 +159,12 @@ class QuestionnaireService extends BaseService
             $q_code,
             $q_display,
             $content,
-            $lform
+            $lform,
+            $category
         ];
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?)";
-        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`,`category`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?,?)";
+        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ?, `category` = ? WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
@@ -181,6 +180,7 @@ class QuestionnaireService extends BaseService
                 $q_display,
                 $content,
                 $lform,
+                $category,
                 $id['id']
             ];
             sqlInsert($sql_update, $bind);
@@ -420,9 +420,9 @@ class QuestionnaireService extends BaseService
             $oOption = $this->fhirObjectToArray($option);
             if (count($oOption['extension'] ?? [])) {
                 foreach ($oOption['extension'] as $e) {
-                    if (stripos($e['url'], 'ordinalValue') !== false) {
+                    if (stripos((string) $e['url'], 'ordinalValue') !== false) {
                         foreach ($e as $k => $v) {
-                            if (stripos($k, 'value') !== false) {
+                            if (stripos((string) $k, 'value') !== false) {
                                 $score = $v;
                             }
                         }

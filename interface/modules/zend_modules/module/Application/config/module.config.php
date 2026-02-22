@@ -25,7 +25,7 @@ use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
-use OpenEmr\Core\Kernel;
+use OpenEMR\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 //
@@ -124,7 +124,7 @@ return [
         'factories' => [
             Listener::class => InvokableFactory::class,
             ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new ApplicationTable();
                 return $table;
             },

@@ -46,7 +46,7 @@ class ExportOnsiteMessagesTableDefinition extends ExportTableDefinition
         if (!empty($records)) {
             $patientPidsHash = array_combine($patientPids, $patientPids);
             foreach ($records as $record) {
-                $recipIdDecoded = json_decode($record['recip_id'], true);
+                $recipIdDecoded = json_decode((string) $record['recip_id'], true);
                 if (is_array($recipIdDecoded)) {
                     // don't think I need the string piece here.
 //                    $recipIdDecoded = array_map(function($pid) {

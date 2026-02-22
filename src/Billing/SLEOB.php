@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,7 +16,7 @@ namespace OpenEMR\Billing;
 
 require_once(__DIR__ . "/../../library/patient.inc.php");
 
-use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\PaymentProcessing\Recorder;
 
 class SLEOB
 {
@@ -27,29 +27,29 @@ class SLEOB
     public static function slInvoiceNumber(&$out)
     {
         $invnumber = $out['our_claim_id'];
-        $atmp = preg_split('/[ -]/', $invnumber);
-        $acount = count($atmp);
+        $atmp = preg_split('/[ -]/', (string) $invnumber);
+        $partCount = count($atmp);
 
         $pid = 0;
         $encounter = 0;
-        if ($acount == 2) {
+        if ($partCount == 2) {
             $pid = $atmp[0];
             $encounter = $atmp[1];
-        } elseif ($acount == 3) {
+        } elseif ($partCount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
                 "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
 
             $encounter = $brow['encounter'];
-        } elseif ($acount == 1) {
+        } elseif ($partCount == 1) {
             $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
                 "lname LIKE ? AND " .
                 "fname LIKE ? " .
                 "ORDER BY pid DESC", [$out['patient_lname'], $out['patient_fname']]);
             while ($prow = sqlFetchArray($pres)) {
-                if (str_starts_with($invnumber, $prow['pid'])) {
+                if (str_starts_with((string) $invnumber, (string) $prow['pid'])) {
                     $pid = $prow['pid'];
-                    $encounter = substr($invnumber, strlen($pid));
+                    $encounter = substr((string) $invnumber, strlen((string) $pid));
                     break;
                 }
             }
@@ -101,8 +101,21 @@ class SLEOB
         }
     }
 
-    // Post a payment, new style.
-    //
+    /**
+     * Post a payment, new style.
+     *
+     * @param string $patient_id
+     * @param string $encounter_id
+     * @param string $session_id
+     * @param string $amount
+     * @param string $code
+     * @param string $payer_type
+     * @param string $memo,
+     * @param string $codetype
+     * @param ?string $date,
+     * @param ?string $payer_claim_number
+     * @deprecated Use \OpenEMR\PaymentProcessing\Recorder::recordActivity directly
+     */
     public static function arPostPayment(
         $patient_id,
         $encounter_id,
@@ -111,54 +124,34 @@ class SLEOB
         $code,
         $payer_type,
         $memo,
-        $debug,
-        $time = '',
         $codetype = '',
         $date = null,
         $payer_claim_number = null
-    ) {
+    ): void {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
-        if (empty($time)) {
-            $time = date('Y-m-d H:i:s');
-        }
-
-        sqlBeginTrans();
-        $sequence_no = sqlQuery(
-            "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?",
-            [$patient_id, $encounter_id]
-        );
-        $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_date, post_user, " .
-            "session_id, memo, pay_amount, payer_claim_number " .
-            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        sqlStatement(
-            $query,
-            [
-                $patient_id,
-                $encounter_id,
-                $sequence_no['increment'],
-                $codetype,
-                $codeonly,
-                $modifier,
-                $payer_type,
-                $time,
-                $date,
-                $_SESSION['authUserID'],
-                $session_id,
-                $memo,
-                $amount,
-                $payer_claim_number
-            ]
-        );
-        sqlCommitTrans();
-        return;
+        $recorder = new Recorder();
+        $recorder->recordActivity([
+            'patientId' => $patient_id,
+            'encounterId' => $encounter_id,
+            'codeType' => $codetype,
+            'code' => $codeonly,
+            'modifier' => $modifier,
+            'payerType' => $payer_type,
+            'postDate' => $date,
+            'postUser' => $_SESSION['authUserID'],
+            'sessionId' => $session_id,
+            'memo' => $memo,
+            'payAmount' => $amount,
+            'adjustmentAmount' => '0.0',
+            'payerClaimNumber' => $payer_claim_number
+        ]);
     }
 
     // Post a charge.  This is called only from sl_eob_process.php where
@@ -188,10 +181,10 @@ class SLEOB
 
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         BillingUtilities::addBilling(
@@ -210,31 +203,43 @@ class SLEOB
         );
     }
 
-    // Post an adjustment, new style.
-    //
-    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time = '', $codetype = '')
+    /**
+     * Post an adjustment, new style.
+     *
+     * @param string $patient_id
+     * @param string $encounter_id
+     * @param string $session_id
+     * @param string $amount
+     * @param string $code
+     * @param string $payer_type
+     * @param string $reason
+     * @param string $codetype
+     * @deprecated Use \OpenEMR\PaymentProcessing\Recorder::recordActivity directly
+     */
+    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $codetype = '')
     {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
-        if (empty($time)) {
-            $time = date('Y-m-d H:i:s');
-        }
-
-        sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
-        $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_user, post_time, " .
-            "session_id, memo, adj_amount " .
-            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        sqlStatement($query, [$patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $_SESSION['authUserID'], $time, $session_id, $reason, $amount]);
-        sqlCommitTrans();
-        return;
+        $recorder = new Recorder();
+        $recorder->recordActivity([
+            'patientId' => $patient_id,
+            'encounterId' => $encounter_id,
+            'codeType' => $codetype,
+            'code' => $codeonly,
+            'modifier' => $modifier,
+            'payerType' => $payer_type,
+            'postUser' => $_SESSION['authUserID'],
+            'sessionId' => $session_id,
+            'payAmount' => '0.0',
+            'adjustmentAmount' => $amount,
+            'memo' => $reason,
+        ]);
     }
 
     public static function arGetPayerID($patient_id, $date_of_service, $payer_type)
@@ -258,7 +263,7 @@ class SLEOB
 
     // Make this invoice re-billable, new style.
     //
-    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
+    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0): void
     {
         if ($crossover == 1) {
             //if claim forwarded setting a new status
@@ -271,7 +276,7 @@ class SLEOB
         $ferow = sqlQuery("SELECT date, last_level_billed " .
             "FROM form_encounter WHERE " .
             "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
-        $date_of_service = substr($ferow['date'], 0, 10);
+        $date_of_service = substr((string) $ferow['date'], 0, 10);
         $new_payer_type = 0 + $ferow['last_level_billed'];
         if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {
             ++$new_payer_type;
@@ -290,7 +295,5 @@ class SLEOB
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
             }
         }
-
-        return xl("Encounter ") . $encounter_id . xl(" is ready for re-billing.");
     }
 }

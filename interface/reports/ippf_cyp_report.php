@@ -15,9 +15,9 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -33,15 +33,6 @@ function formatcyp($amount)
     }
 
     return '';
-}
-
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
 }
 
 /**
@@ -153,8 +144,7 @@ function cypReportLineItem(int $patient_id, int $encounter_id, string $descripti
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("CYP Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: CYP Report", xl("CYP Report"));
 }
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
@@ -327,7 +317,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['pid'],
             $row['encounter'],
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'],
             $row['cyp_factor'],
             $row['invoice_refno']
@@ -360,7 +350,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['pid'],
             $row['encounter'],
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['cyp_factor'],
             $row['invoice_refno']

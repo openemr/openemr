@@ -161,7 +161,7 @@ class ObservationLabService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['range'])) {
-            $highlow = preg_split("/[\s,-\--]+/", $record['range']);
+            $highlow = preg_split("/[\s,-\--]+/", (string) $record['range']);
             $low = $highlow[0];
             $high = $highlow[1];
             $record['range_low'] = $low;

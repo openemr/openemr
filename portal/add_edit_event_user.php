@@ -17,22 +17,24 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
 
 require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 //
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
@@ -41,7 +43,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/forms.inc.php");
@@ -64,33 +66,29 @@ $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
 if ($eid !== 0 && $checkEidInAppt === false) {
-    echo js_escape("error");
+    echo xlt("Error: Invalid Event ID");
     exit();
 }
 
 if (!empty($_POST['form_pid'])) {
     if ($_POST['form_pid'] != $pid) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid Patient ID");
         exit();
     }
-
-    if (! getAvailableSlots($_POST['form_date'], date('Y-m-d', strtotime("+1 year " . $_POST['form_date'])), $_POST['form_provider_ae'])) {
-        echo js_escape("error");
+    $event_date = fixDate($_POST['form_date']);
+    if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $_POST['form_provider_ae'])) {
+        echo xlt("Error: No available slots for selected provider(s)");
         exit();
     }
 
     $appointment_service = (new AppointmentService())->getOneCalendarCategory($_POST['form_category']);
     if (($_POST['form_duration'] * 60) != ($appointment_service[0]['pc_duration'])) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid appointment duration for selected category");
         exit();
     }
 }
 
-if ($date) {
-    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-} else {
-    $date = date("Y-m-d");
-}
+$date = $date ? substr((string) $date, 0, 4) . '-' . substr((string) $date, 4, 2) . '-' . substr((string) $date, 6) : date("Y-m-d");
 // internationalize the date
 $date = oeFormatShortDate($date);
 
@@ -131,7 +129,7 @@ if ($eid !== 0) {
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if ($GLOBALS['select_multi_providers']) {
+        if ($globalsBag->get('select_multi_providers')) {
             $mul = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min, $mul]);
         }
@@ -210,7 +208,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
     if (($_POST['form_repeat_type'] ?? null) == 5) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Tue") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -226,7 +224,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 6) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Wed") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -242,7 +240,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 7) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Thu") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -258,7 +256,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 8) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Fri") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -274,7 +272,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 9) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Sat") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -297,7 +295,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
-        if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
+        if ($globalsBag->get('select_multi_providers') && $row['pc_multiple']) {
             /* ==========================================
             // multi providers BOS
             ==========================================*/
@@ -333,7 +331,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         "'" . add_escape_custom($_POST['form_title']) . "', " .
                         "NOW(), " .
                         "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                        "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                        "'" . add_escape_custom($session->get('providerId')) . "', " .
                         "'" . add_escape_custom($event_date) . "', " .
                         "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                         "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -360,7 +358,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "pc_informant = '" . add_escape_custom($session->get('providerId')) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                     "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -379,11 +377,7 @@ if (($_POST['form_action'] ?? null) == "save") {
           // multi providers EOS
             ==========================================*/
         } elseif (!$row['pc_multiple']) {
-            if ($GLOBALS['select_multi_providers']) {
-                $prov = $_POST['form_provider_ae'][0];
-            } else {
-                $prov = $_POST['form_provider_ae'];
-            }
+            $prov = $globalsBag->get('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
             $insert = false;
             // simple provider case
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -393,7 +387,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
+                "pc_informant = '" . add_escape_custom($session->get('providerId')) . "', " .
                 "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                 "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'] ?? '')) . "', " .
                 "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -444,7 +438,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "'" . add_escape_custom($_POST['form_title']) . "', " .
                     "NOW(), " .
                     "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "'" . add_escape_custom($session->get('providerId')) . "', " .
                     "'" . add_escape_custom($event_date) . "', " .
                     "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                     "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -474,7 +468,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                "'" . add_escape_custom($session->get('providerId')) . "', " .
                 "'" . add_escape_custom($event_date) . "', " .
                 "'" . add_escape_custom(fixDate(($_POST['form_enddate'] ?? ''))) . "', " .
                 "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -494,7 +488,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 // =======================================
 //  multi providers case
 // =======================================
-    if ($GLOBALS['select_multi_providers']) {
+    if ($globalsBag->get('select_multi_providers')) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
         if ($row['pc_multiple']) {
@@ -515,14 +509,14 @@ if (!empty($_POST['form_action'])) {
     // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
-    $note .= $_SESSION['ptName'] . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
+    $note .= $session->get('ptName') . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
     $note .= !empty($_POST['form_comments']) ? (xl("Reason") . " " . $_POST['form_comments']) : "";
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$_POST['form_provider_ae']]);
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = '#appointmentcard';
+    $session->set('whereto', '#appointmentcard');
     header('Location:./home.php');
     exit();
 }
@@ -558,22 +552,22 @@ if ($eid !== 0) {
     $date = oeFormatShortDate($row['pc_eventDate']);
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
-    $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
-    $starttimem = substr($row['pc_startTime'], 3, 2);
+    $starttimeh = substr((string) $row['pc_startTime'], 0, 2) + 0;
+    $starttimem = substr((string) $row['pc_startTime'], 3, 2);
     $repeats = $row['pc_recurrtype'];
     $multiple_value = $row['pc_multiple'];
 
-    if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+    if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', (string) $row['pc_recurrspec'], $matches)) {
         $repeattype = $matches[1];
     }
 
-    if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+    if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', (string) $row['pc_recurrspec'], $matches)) {
         $repeatfreq = $matches[1];
     }
 
     $hometext = $row['pc_hometext'];
-    if (str_starts_with($hometext, ':text:')) {
-        $hometext = substr($hometext, 6);
+    if (str_starts_with((string) $hometext, ':text:')) {
+        $hometext = substr((string) $hometext, 6);
     }
 } else {
     $patientid = $pid;
@@ -848,10 +842,15 @@ if ($userid) {
                 <?php } else {?>
                 s = se.options[se.selectedIndex].value;
                 <?php }?>
-                var formDate = document.getElementById('form_date');
-                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=' + encodeURIComponent(catId)
-                    + '&startdate=' + encodeURIComponent(formDate.value);
-                var params = {
+                const formDate = document.getElementById('form_date');
+                const urlParams = new URLSearchParams({
+                    bypatient: '',
+                    catid: catId,
+                    providerid: s,
+                    startdate: formDate.value
+                });
+                const url = 'find_appt_popup_user.php?' + urlParams;
+                const dialogParams = {
                     buttons: [
                         {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
 
@@ -860,7 +859,7 @@ if ($userid) {
                     dialogId: 'apptDialog',
                     type: 'iframe'
                 };
-                dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', params);
+                dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', dialogParams);
             }
 
             // Check for errors when the form is submitted.

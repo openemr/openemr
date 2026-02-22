@@ -15,6 +15,7 @@
 require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 // This function is invoked from printPatientForms in report.inc.php
@@ -30,11 +31,11 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     getLayoutProperties($formname, $grparr, '*');
     // Check access control.
     if (!empty($grparr['']['grp_aco_spec'])) {
-        $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
+        $LBF_ACO = explode('|', (string) $grparr['']['grp_aco_spec']);
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
-            die(xlt('Access denied'));
+            AccessDeniedHelper::deny('Unauthorized access to LBF report');
         }
     }
 
@@ -71,7 +72,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
         if ($no_wrap || ($frow['data_type'] == 34 || $frow['data_type'] == 25)) {
             $arr[$field_id] = $currvalue;
         } else {
-            $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+            $arr[$field_id] = wordwrap((string) $currvalue, 30, "\n", true);
         }
     }
 

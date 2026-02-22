@@ -82,6 +82,8 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 // Include standard libraries/classes
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
+use OpenEMR\Common\Logging\SystemLogger;
+
 // Set up default configuration settings
 $installSettings = [];
 $installSettings['iuser']                    = 'admin';
@@ -104,7 +106,9 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i = 1; $i < count($argv); $i++) {
+$argc ??= 0;
+$argv ??= [];
+for ($i = 1; $i < $argc; $i++) {
     $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];
@@ -125,7 +129,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer($installSettings);
+$installer = new Installer($installSettings, new SystemLogger());
 if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

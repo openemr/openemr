@@ -65,7 +65,7 @@ function GetPortalAlertCounts(): array
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
     $qrtn = sqlQueryNoLog($query, [$s_user]);
-    $counts['chatCnt'] = $qrtn['count_chats'] ? $qrtn['count_chats'] : "0";
+    $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
         "WHERE `m`.status LIKE ? AND `m`.activity = ?";
@@ -103,7 +103,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for reminders not linked to a patient
+// --------- need to run patient query separately to allow for reminders not linked to a patient
         $pRow = [];
         if ($drRow['pid'] > 0) {
             $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
@@ -123,7 +123,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
         $reminders[$i]['fromName'] = $drRow['ffname'] . ' ' . $drRow['fmname'] . ' ' . $drRow['flname'];
 
 // --------- if the message is due or overdue set $hasAlerts to true, this will stop autohiding of reminders
-        if (strtotime($drRow['dr_message_due_date']) <= $today) {
+        if (strtotime((string) $drRow['dr_message_due_date']) <= $today) {
             $hasAlerts = true;
         }
     }
@@ -228,29 +228,29 @@ function getRemindersHTML($today, $reminders = []): string
         $class = 'text dr';
 
 // --------- check if reminder is  overdue
-        if (strtotime($r['dueDate']) < $today) {
+        if (strtotime((string) $r['dueDate']) < $today) {
             $warning = '<i class=\'fa fa-exclamation-triangle fa-lg text-danger\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
             //$class = 'bold alert dr';
             $class = '';
-        } elseif (strtotime($r['dueDate']) == $today) {
+        } elseif (strtotime((string) $r['dueDate']) == $today) {
             // --------- check if reminder is due
             $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
             $class = '';
-        } elseif (strtotime($r['dueDate']) > $today) {
+        } elseif (strtotime((string) $r['dueDate']) > $today) {
             $warning = '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
             $class = '';
         }
 
         // end check if reminder is due or overdue
-        // apend to html string
+        // append to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes($r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes($r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '
-            <span onclick="goPid(' . attr(addslashes($r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(addslashes((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']
@@ -289,7 +289,7 @@ function setReminderAsProcessed($rID, $userID = false): void
 
         // --- if this user can delete this message (ie if it was sent to this user)
         if ($rdrRow['c'] == 1) {
-            // ----- update the data, set the message to proccesses
+            // ----- update the data, set the message to processes
             sqlStatement("UPDATE `dated_reminders` SET  `message_processed` = 1, `processed_date` = NOW(), `dr_processed_by` = ? WHERE `dr_id` = ? ", [intval($userID), intval($rID)]);
         }
     }
@@ -358,11 +358,11 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $dueDate) and
+        preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) $dueDate) and
 // ------- check priority, only allow 1-3
         intval($priority) <= 3 and
 // ------- check message, only up to 255 characters
-        strlen($message) <= 255 and strlen($message) > 0 and
+        strlen((string) $message) <= 255 and strlen((string) $message) > 0 and
 // ------- check if PatientID is set and in numeric
         is_numeric($patID)
     ) {
@@ -449,7 +449,7 @@ function logRemindersArray(): array
     }
 
 //------------------------------------------
-// ----- HANDLE PROCCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
+// ----- HANDLE PROCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
     if (isset($_GET['processed']) and !isset($_GET['pending'])) {
         $where = ($where == '' ? 'dr.message_processed = 1' : $where . ' AND dr.message_processed = 1');
     } elseif (!isset($_GET['processed']) and isset($_GET['pending'])) {
@@ -492,7 +492,7 @@ function logRemindersArray(): array
     );
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for messages not linked to a patient
+// --------- need to run patient query separately to allow for messages not linked to a patient
         $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
         $pRow = sqlFetchArray($pSQL);
 

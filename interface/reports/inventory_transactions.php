@@ -15,9 +15,9 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
@@ -140,8 +140,7 @@ function inventoryTransactionsLineItem(array $row, bool $xfer = false): void
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory Transactions")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Inventory Transactions", xl("Inventory Transactions"));
 }
 
 // this is "" or "submit" or "export".
@@ -294,7 +293,7 @@ if ($form_action == 'export') {
        value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
      </td>
      <td class='label_custom'>
-        <?php xl('To{{Range}}', 'e'); ?>:
+        <?php echo xl('To{{Range}}'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />

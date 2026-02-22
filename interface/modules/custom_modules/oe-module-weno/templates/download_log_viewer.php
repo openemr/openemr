@@ -2,15 +2,14 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Download Log Viewer", xl("Weno Download Log Viewer"));
 }
 
 $logService = new WenoLogService();
@@ -143,11 +142,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         if ($backGroundTask ?? false) {
             echo '<h6 class="mb-2">';
             while ($task = sqlFetchArray($backGroundTask)) {
-                if ($task['name'] === 'WenoExchangePharmacies') {
-                    $title = xlt("Pharmacy Directory");
-                } else {
-                    $title = xlt("Sync Report");
-                }
+                $title = $task['name'] === 'WenoExchangePharmacies' ? xlt("Pharmacy Directory") : xlt("Sync Report");
                 $nextRun = $task['next_run'];
                 echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
@@ -235,8 +230,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             </div>
         </form>
         <?php
-        $fmtStartDate = date('Y-m-d', strtotime($startDate));
-        $fmtEndDate = date('Y-m-d', strtotime($endDate));
+        $fmtStartDate = date('Y-m-d', strtotime((string) $startDate));
+        $fmtEndDate = date('Y-m-d', strtotime((string) $endDate));
 
         if (isset($_GET['search'])) {
             if ($fmtStartDate > $fmtEndDate) {

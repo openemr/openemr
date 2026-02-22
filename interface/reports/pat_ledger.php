@@ -21,9 +21,9 @@ require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -49,8 +49,7 @@ $pat_pid = $_GET['patient_id'] ?? null;
 $type_form = $_GET['form'];
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Ledger by Date")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Patient Ledger by Date", xl("Patient Ledger by Date"));
 }
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
@@ -81,22 +80,6 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     }
 
     return($all);
-}
-
-function User_Id_Look($thisField)
-{
-    if (!$thisField) {
-        return '';
-    }
-
-    $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
-    $rrow = sqlFetchArray($rlist);
-    if ($rrow) {
-        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
-    }
-
-    return $ret;
 }
 
 function List_Look($thisData, $thisList)
@@ -147,20 +130,7 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr): void
-{
-    global $bgcolor, $orow;
-    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr class='bg-white'>";
-    if (strlen($rsn) > 50) {
-        $rsn = substr($rsn, 0, 50) . '...';
-    }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
-    echo "</tr>\n";
-    $orow++;
-}
 function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
@@ -195,11 +165,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        if ($unassigned) {
-              $memo = List_Look($pmt['adjustment_code'], 'payment_adjustment_code');
-        } else {
-              $memo = $pmt['memo'];
-        }
+        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -239,11 +205,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
             $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
-        if ($unassigned) {
-              $pmt_date = substr($pmt['post_to_date'], 0, 10);
-        } else {
-              $pmt_date = substr($pmt['post_time'], 0, 10);
-        }
+        $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
         text($pmt_date) . "&nbsp;/&nbsp;" . text($payer) . "</td>";
@@ -348,14 +310,14 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -677,11 +639,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             echo csvEscape("Chg/Pmt Amount") . "\n";
         }
     } else {
-        if (!$form_facility) {
-            $facility = $facilityService->getPrimaryBusinessEntity();
-        } else {
-            $facility = $facilityService->getById($form_facility);
-        }
+        $facility = !$form_facility ? $facilityService->getPrimaryBusinessEntity() : $facilityService->getById($form_facility);
 
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", [$form_patient]);
         $pat_dob = $patient['DOB'] ?? null;
@@ -828,8 +786,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $code_desc = $erow['code_text'];
-            if (strlen($code_desc) > 50) {
-                $code_desc = substr($code_desc, 0, 50) . '...';
+            if (strlen((string) $code_desc) > 50) {
+                $code_desc = substr((string) $code_desc, 0, 50) . '...';
             }
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");

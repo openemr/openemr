@@ -19,8 +19,11 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -42,12 +45,12 @@ $grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-    $sqlBindArray = [$form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized];
+    $sqlBindArray = [$form_id, $session->get('authUser'), $session->get('authProvider'), $userauthorized];
 
     if ($transid) {
         array_push($sqlBindArray, $transid);
@@ -119,7 +122,7 @@ if ($mode) {
 
 $CPR = 4; // cells per row
 
-function end_cell(): void
+function transaction_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -128,10 +131,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function transaction_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    transaction_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -142,11 +145,11 @@ function end_row(): void
     }
 }
 
-function end_group(): void
+function transaction_end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
-        end_row();
+    if (strlen((string) $last_group) > 0) {
+        transaction_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
@@ -302,12 +305,18 @@ function sel_related(e) {
     } ?>', '_blank', 500, 400);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+ const params = new URLSearchParams({
+  transaction: <?php echo js_escape($transid); ?>,
+  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+ });
+ dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
  return false;
 }
+// AI-generated code end
 
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
@@ -355,7 +364,7 @@ function submitme() {
 }
 
 <?php if (function_exists($form_id . '_javascript')) {
-    call_user_func($form_id . '_javascript');
+    ($form_id . '_javascript')();
 } ?>
 
 </script>
@@ -390,7 +399,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
@@ -487,8 +496,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($frow = sqlFetchArray($fres)) {
                             $this_group = $frow['group_id'];
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -544,9 +553,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                end_group();
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                transaction_end_group();
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -561,7 +570,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new row.
                             if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                                end_row();
+                                transaction_end_row();
                                 echo " <tr>";
                             }
 
@@ -571,7 +580,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new label cell.
                             if ($titlecols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td width='70' valign='top' colspan='" . attr($titlecols) . "'";
                                 echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
                                 if ($cell_count == 2) {
@@ -599,7 +608,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new data cell.
                             if ($datacols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
                                 // This ID is used by action conditions.
                                 echo " id='value_id_" . attr($field_id) . "'";
@@ -616,7 +625,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo "</div>";
                         }
 
-                        end_group();
+                        transaction_end_group();
                         ?>
                     </div><!-- end of tabContainer div -->
                 </div><!-- end of DEM div -->
@@ -640,7 +649,7 @@ var skipArray = [
 // titleChanged();
 <?php
 if (function_exists($form_id . '_javascript_onload')) {
-    call_user_func($form_id . '_javascript_onload');
+    ($form_id . '_javascript_onload')();
 }
 ?>
 

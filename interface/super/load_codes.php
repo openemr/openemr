@@ -17,14 +17,13 @@ set_time_limit(0);
 require_once '../globals.php';
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Install Code Set")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Install Code Set", xl("Install Code Set"));
 }
 
 $form_replace = !empty($_POST['form_replace']);
@@ -148,7 +147,7 @@ if (!empty($_POST['bn_upload'])) {
         // Cannot close ZIP object if not initialised, catch and do nothing
         try {
             $zipin->close();
-        } catch (ValueError $e) {
+        } catch (ValueError) {
         }
 
         echo "<p class='text-success'>" . xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " . xlt('replaced') . ": " . text($repcount) . "</p>\n";

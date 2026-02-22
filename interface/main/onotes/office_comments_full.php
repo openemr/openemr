@@ -14,16 +14,16 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Office Notes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes: Office Notes", xl("Office Notes"));
 }
 
 $oNoteService = new ONoteService();
@@ -42,7 +42,7 @@ if (isset($_POST['mode'])) {
 
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
-            if (str_starts_with($var, 'act')) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 $val == "true" ? $oNoteService->enableNoteById($id) : $oNoteService->disableNoteById($id);
             }
@@ -161,7 +161,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                         </form>
                     </td>
                     <td class="text-left">
-                        <?php echo oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s')) . " (" . text($note['user']) . ")"; ?>
+                        <?php echo text(DateFormatterUtils::oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s'))) . " (" . text($note['user']) . ")"; ?>
                     </td>
                     <td class="text-left"><?php echo nl2br(text($note['body'])); ?></td>
                     <td class="text-center">

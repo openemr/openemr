@@ -274,7 +274,7 @@ if (empty($ferow)) {
 }
 $patient_id = (int) $ferow['pid'];
 $encounter_id = (int) $ferow['encounter'];
-$svcdate = substr($ferow['date'], 0, 10);
+$svcdate = substr((string) $ferow['date'], 0, 10);
 $form_payer_id = (!empty($_POST['form_payer_id'])) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'] ?? null;
 $form_check_date   = fixDate(($_POST['form_check_date'] ?? ''), date('Y-m-d'));
@@ -308,7 +308,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
         if ($ALLOW_DELETE && !$debug) {
             if (!empty($_POST['form_del']) && is_array($_POST['form_del'])) {
                 foreach ($_POST['form_del'] as $arseq => $dummy) {
-                    row_modify(
+                    payment_row_modify(
                         "ar_activity",
                         "deleted = NOW()",
                         "pid = '" . add_escape_custom($patient_id) .
@@ -322,10 +322,10 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 
         $paytotal = 0;
         foreach ($_POST['form_line'] as $code => $cdata) {
-            $thispay = trim($cdata['pay']);
-            $thisadj = trim($cdata['adj']);
-            $thisins = trim($cdata['ins']);
-            $thiscodetype = trim($cdata['code_type']);
+            $thispay = trim((string) $cdata['pay']);
+            $thisadj = trim((string) $cdata['adj']);
+            $thisins = trim((string) $cdata['ins']);
+            $thiscodetype = trim((string) $cdata['code_type']);
             $reason = $cdata['reason'];
 
 // Get the adjustment reason type.  Possible values are:
@@ -339,9 +339,9 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
                 $tmp = sqlQuery("SELECT option_value FROM list_options WHERE list_id = 'adjreason' AND activity = 1 AND option_id = ?", [$reason]);
                 if (empty($tmp['option_value'])) {
 // This should not happen but if it does, apply old logic.
-                    if (preg_match("/To copay/", $reason)) {
+                    if (preg_match("/To copay/", (string) $reason)) {
                         $reason_type = 2;
-                    } elseif (preg_match("/To ded'ble/", $reason)) {
+                    } elseif (preg_match("/To ded'ble/", (string) $reason)) {
                         $reason_type = 3;
                     }
                     $info_msg .= xl("No adjustment reason type found for") . " \"$reason\". ";
@@ -355,7 +355,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
             }
 
             if (0.0 + $thispay) {
-                SLEOB::arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
+                SLEOB::arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $thiscodetype);
                 $paytotal += $thispay;
             }
 
@@ -384,11 +384,11 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 // An adjustment reason including "Ins" is assumed to be assigned by
 // insurance, and in that case we identify which one by appending
 // Ins1, Ins2 or Ins3.
-                    if (strpos(strtolower($reason), 'ins') != false) {
+                    if (str_contains(strtolower((string) $reason), 'ins')) {
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
                 }
-                SLEOB::arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
+                SLEOB::arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $thiscodetype);
             }
         }
 
@@ -638,14 +638,14 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             $dispcode = $code;
 
                             // remember the index of the first entry whose code is not "CO-PAY", i.e. it's a legitimate proc code
-                            if ($firstProcCodeIndex == -1 && strcmp($code, "CO-PAY") != 0) {
+                            if ($firstProcCodeIndex == -1 && strcmp((string) $code, "CO-PAY") != 0) {
                                 $firstProcCodeIndex = $encount;
                             }
 
                             // this sorts the details more or less chronologically:
                             ksort($cdata['dtl']);
                             foreach ($cdata['dtl'] as $dkey => $ddata) {
-                                $ddate = substr($dkey, 0, 10);
+                                $ddate = substr((string) $dkey, 0, 10);
                                 if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                                     $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
                                 }
@@ -707,7 +707,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal'], true)); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal']) ?: '0.00'); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>

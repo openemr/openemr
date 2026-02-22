@@ -245,7 +245,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
         if (sqlNumRows($dres) > 0 && $need_head) {
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
-                [$completed, $start_date, $template_name] = explode('|', $row['value'], 3);
+                [$completed, $start_date, $template_name] = explode('|', (string) $row['value'], 3);
                 $formRows['startDate'] = $start_date;
                 $formRws['templateName'] = $template_name;
                 $formRows['id'] = $row['id'];
@@ -291,7 +291,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken()));
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode((string) CsrfUtils::collectCsrfToken()));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";

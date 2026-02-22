@@ -15,14 +15,14 @@ require_once("../../library/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Automated Measure Calculations (AMC) Tracking")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Tracking", xl("Automated Measure Calculations (AMC) Tracking"));
 }
 
 if (!empty($_POST)) {
@@ -32,7 +32,7 @@ if (!empty($_POST)) {
 }
 
 // Collect form parameters (set defaults if empty)
-$begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
+$begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date'])) : "";
 $end_date = (isset($_POST['form_end_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_end_date'])) : "";
 $rule = (isset($_POST['form_rule'])) ? trim($_POST['form_rule']) : "";
 $provider  = trim($_POST['form_provider'] ?? '');
@@ -112,7 +112,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
      var mode = "complete_safe";
    }
    else {
-     var mode = "uncomplete_safe";
+     var mode = "incomplete_safe";
    }
    top.restoreSession();
    $.post( "../../library/ajax/amc_misc_data.php",
@@ -202,7 +202,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                         <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, "global", true)); ?>' class='datepicker form-control' />
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($begin_date, "global", true)); ?>' class='datepicker form-control' />
                       </td>
                  </tr>
 
@@ -211,7 +211,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                             <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, "global", true)); ?>' class='datepicker form-control' />
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, "global", true)); ?>' class='datepicker form-control' />
                         </td>
                 </tr>
 
@@ -367,7 +367,7 @@ if (!empty($_POST['form_refresh'])) {
         echo "<tr bgcolor='" . attr($bgcolor ?? '') . "'>";
         echo "<td>" . text($result['lname'] . "," . $result['fname']) . "</td>";
         echo "<td>" . text($result['pid']) . "</td>";
-        echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";
+        echo "<td>" . text(DateFormatterUtils::oeFormatDateTime($result['date'], "global", true)) . "</td>";
         if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
             echo "<td>" . text($result['id']) . "</td>";
         } else { //$rule == "provide_rec_pat_amc"

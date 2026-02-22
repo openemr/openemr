@@ -27,7 +27,7 @@ class PatientValidator extends BaseValidator
     {
         try {
             $uuidLookup = UuidRegistry::uuidToBytes($uuid);
-        } catch (InvalidUuidStringException $e) {
+        } catch (InvalidUuidStringException) {
             return false;
         }
 

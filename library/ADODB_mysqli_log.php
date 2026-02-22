@@ -19,8 +19,8 @@ class ADODB_mysqli_log extends ADODB_mysqli
      * ADODB Execute function wrapper to ensure proper auditing in OpenEMR.
      *
      * @param  string  $sql         query
-     * @param  array   $inputarr    binded variables array (optional)
-     * @return boolean              returns false if error
+     * @param  array|bool $inputarr    binded variables array (optional)
+     * @return ADORecordSet|false   returns false if error
      */
     function Execute($sql, $inputarr = false, $insertNeedReturn = false)
     {
@@ -42,7 +42,12 @@ class ADODB_mysqli_log extends ADODB_mysqli
         if ($insertNeedReturn) {
             $GLOBALS['lastidado'] = $this->Insert_ID();
         }
-        EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
+
+        // Skip SQL audit logging if $skipAuditLog is set (e.g., health checks)
+        global $skipAuditLog;
+        if (empty($skipAuditLog)) {
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $outcome, $inputarr);
+        }
         return $retval;
     }
 
@@ -51,9 +56,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
      *
      * Bypasses the OpenEMR auditing engine.
      *
-     * @param  string  $sql         query
-     * @param  array   $inputarr    binded variables array (optional)
-     * @return boolean              returns false if error
+     * @param string $sql query
+     * @param array|bool $inputarr binded variables array (optional)
+     * @return ADORecordSet|false false if error
      */
     function ExecuteNoLog($sql, $inputarr = false)
     {

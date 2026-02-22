@@ -63,7 +63,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
         $row_count = sqlNumRows($result);
         if ($row_count == 1) {
             $row = sqlFetchArray($result);
-            $row['definition'] = iconv('utf-8', 'utf-8', $row['definition']);
+            $row['definition'] = iconv('utf-8', 'utf-8', (string) $row['definition']);
             if ($row['definition'] === $definition) {
                 return '[2]' . xl('Definition Exists') . ':' . $infoText;
             } else {
@@ -129,8 +129,8 @@ function verify_file($filename, $language, $replace = true, $source_name = '', $
                 $definition = str_replace("\r\n", "\n", $data[$definition_column]);
                 if (!$first || $constant != 'constant_name') {
                     $result = verify_translation($constant, $definition, $language, $replace, $source_name);
-                    if ((!str_starts_with($result, '[2]')) && (!str_starts_with($result, '[1]'))) {
-                        echo text(substr($result, 3)) . "<br>";
+                    if ((!str_starts_with((string) $result, '[2]')) && (!str_starts_with((string) $result, '[1]'))) {
+                        echo text(substr((string) $result, 3)) . "<br>";
                     }
                 }
                 $first = false;

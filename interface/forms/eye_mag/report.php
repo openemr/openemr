@@ -77,7 +77,7 @@ $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER 
 $result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
-    $$LOCATION = text($prefs['GOVALUE']);
+    ${$LOCATION} = text($prefs['GOVALUE']);
 }
 
 function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
@@ -207,7 +207,7 @@ function left_overs(): void
 
     if ($data) {
         foreach ($data as $key => $value) {
-            $$key = $value;
+            ${$key} = $value;
         }
     }
 }
@@ -281,7 +281,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     </style>
     <div>
     <?php
-    if (($cols == 'Fax') || ($cols == 'Report') || ($cols == 'Fax-resend')) {
+    if (in_array($cols, ['Fax', 'Report', 'Fax-resend'])) {
         echo report_header($pid, 'PDF');
     }
 
@@ -496,7 +496,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                             }
                         }
-                    } catch (Exception $ex) {
+                    } catch (\Throwable $ex) {
                         echo "No patient photo " . $ex;
                     }
                 }
@@ -671,7 +671,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             <?php }
                         if (($CONTRASTODVA ?? '') || ($CONTRASTOSVA ?? '')) { ?>
                                 <tr>
-                                    <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                                    <td><?php echo xlt('Contrast{{Contrast Visual Acuity}}'); ?></td>
                                     <td><?php echo text($CONTRASTODVA); ?></td>
                                     <td><?php echo text($CONTRASTOSVA); ?></td>
                                 </tr>
@@ -728,7 +728,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 $bad = 0;
                 for ($z = 1; $z < 5; $z++) {
                     $ODzone = "ODVF" . $z;
-                    if ($$ODzone == '1') {
+                    if (${$ODzone} == '1') {
                         $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $ODVF[$z] = 'X';
@@ -743,7 +743,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
 
                     $OSzone = "OSVF" . $z;
-                    if ($$OSzone == "1") {
+                    if (${$OSzone} == "1") {
                         $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $OSVF[$z] = 'X';
@@ -875,7 +875,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             "MOTILITY_LLIO"
                         ];
                         for ($i = 0; $i < count($zone); ++$i) {
-                            ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
+                            (${$zone}[$i] >= '1') ? (${$zone}[$i] = "-" . ${$zone}[$i]) : (${$zone}[$i] = '');
                         }
                         ?>
                             <table cellspacing="2" style="margin:2px;text-align:center;">
@@ -1885,7 +1885,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($ODNPA); ?></td>
                                                 <td style="text-align:center;font-weight:bold;"><span
-                                                            title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?></span>
+                                                            title="<?php echo xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?></span>
                                                 </td>
                                                 <td style="text-align:left;
                                         flex-wrap: wrap;
@@ -2392,7 +2392,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
             echo '<div style="padding-left:15px;">';
             $pattern = '/Code/';
-            if (preg_match($pattern, $item['code'])) {
+            if (preg_match($pattern, (string) $item['code'])) {
                 $item['code'] = '';
             }
 
@@ -2484,7 +2484,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);
-        $fname = basename($d->get_url());
+        $fname = basename((string) $d->get_url());
 
         $extension = substr($fname, strrpos($fname, "."));
         $notes = $d->get_notes();
@@ -2537,7 +2537,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
 function report_ACT($term)
 {
-    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
+    $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
     return $term . "&nbsp;";
 }
 ?>

@@ -43,8 +43,10 @@ require_once("$srcdir/report.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\PatientIssuesService;
 
 $returnurl = 'encounter_top.php';
 
@@ -385,7 +387,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         <?php
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
-        call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
+        ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
         }
@@ -420,7 +422,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     // Store the IMPPLAN area.  This is separate from the rest of the form
     // It is in a separate table due to its one-to-many relationship with the form_id.
     if (($_REQUEST['action'] ?? '') == "store_IMPPLAN") {
-        $IMPPLAN = json_decode($_REQUEST['parameter'], true);
+        $IMPPLAN = json_decode((string) $_REQUEST['parameter'], true);
         //remove what is there and replace it with this data.
         $query = "DELETE from form_" . $form_folder . "_impplan where form_id=? and pid=?";
         sqlQuery($query, [$form_id, $pid]);
@@ -539,8 +541,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $form_type = $_REQUEST['form_type'];
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
         if ($deletion == 1) {
-            row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
-            row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
@@ -645,6 +647,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 $i = 0;
                 $form_begin = DateToYYYYMMDD($_REQUEST['form_begin']);
                 $form_end   = DateToYYYYMMDD($_REQUEST['form_end']);
+                $form_return = DateToYYYYMMDD($_REQUEST['form_return'] ?? '');
 
                 /**
                  *  When adding an issue, see if the issue is already here.
@@ -684,50 +687,101 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
-                    // TODO: @adunsulag do we need to have the eye-form use the PatientIssuesService?
-                    $query = "UPDATE lists SET " .
-                        "type = '" . add_escape_custom($form_type) . "', " .
-                        "title = '" . add_escape_custom($_REQUEST['form_title']) . "', " .
-                        "comments = '" . add_escape_custom($_REQUEST['form_comments']) . "', " .
-                        "begdate = " . QuotedOrNull($form_begin) . ", " .
-                        "enddate = " . QuotedOrNull($form_end) . ", " .
-                        "returndate = " . QuotedOrNull($form_return) . ", " .
-                        "diagnosis = '" . add_escape_custom($_REQUEST['form_diagnosis']) . "', " .
-                        "occurrence = '" . add_escape_custom($_REQUEST['form_occur']) . "', " .
-                        "classification = '" . add_escape_custom($_REQUEST['form_classification']) . "', " .
-                        "reinjury_id = '" . add_escape_custom($_REQUEST['form_reinjury_id']) . "', " .
-                        "referredby = '" . add_escape_custom($_REQUEST['form_referredby']) . "', " .
-                        "injury_grade = '" . add_escape_custom($_REQUEST['form_injury_grade']) . "', " .
-                        "injury_part = '" . add_escape_custom($form_injury_part) . "', " .
-                        "injury_type = '" . add_escape_custom($form_injury_type) . "', " .
-                        "outcome = '" . add_escape_custom($_REQUEST['form_outcome']) . "', " .
-                        "destination = '" . add_escape_custom($_REQUEST['form_destination']) . "', " .
-                        "reaction ='" . add_escape_custom($_REQUEST['form_reaction']) . "', " .
-                        "erx_uploaded = '0', " .
-                        "modifydate = NOW(), " .
-                        "subtype = '" . $subtype . "' " .
-                        "WHERE id = '" . add_escape_custom($issue) . "'";
-                    sqlStatement($query);
-                    if ($text_type == "medication" && enddate != '') {
-                        sqlStatement('UPDATE prescriptions SET '
-                            . 'medication = 0 where patient_id = ? '
-                            . " and upper(trim(drug)) = ? "
-                            . ' and medication = 1', [$pid, strtoupper($_REQUEST['form_title'])]);
+                    // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
+                    QueryUtils::sqlStatementThrowException(
+                        <<<'SQL'
+                        UPDATE `lists`
+                        SET `type` = ?,
+                            `title` = ?,
+                            `comments` = ?,
+                            `begdate` = ?,
+                            `enddate` = ?,
+                            `returndate` = ?,
+                            `diagnosis` = ?,
+                            `occurrence` = ?,
+                            `classification` = ?,
+                            `reinjury_id` = ?,
+                            `referredby` = ?,
+                            `injury_grade` = ?,
+                            `injury_part` = ?,
+                            `injury_type` = ?,
+                            `outcome` = ?,
+                            `destination` = ?,
+                            `reaction` = ?,
+                            `erx_uploaded` = '0',
+                            `modifydate` = NOW(),
+                            `subtype` = ?
+                        WHERE `id` = ?
+                        SQL,
+                        [
+                            $form_type,
+                            $_REQUEST['form_title'],
+                            $_REQUEST['form_comments'],
+                            $form_begin ?: null,
+                            $form_end ?: null,
+                            empty($form_return) ? null : $form_return,
+                            $_REQUEST['form_diagnosis'],
+                            $_REQUEST['form_occur'],
+                            $_REQUEST['form_classification'],
+                            $_REQUEST['form_reinjury_id'],
+                            $_REQUEST['form_referredby'],
+                            $_REQUEST['form_injury_grade'],
+                            $form_injury_part,
+                            $form_injury_type,
+                            $_REQUEST['form_outcome'],
+                            $_REQUEST['form_destination'],
+                            $_REQUEST['form_reaction'],
+                            $subtype,
+                            $issue,
+                        ]
+                    );
+                    if ($text_type == "medication" && $form_end != '') {
+                        QueryUtils::sqlStatementThrowException(
+                            <<<'SQL'
+                            UPDATE `prescriptions`
+                            SET `medication` = 0
+                            WHERE `patient_id` = ?
+                              AND UPPER(TRIM(`drug`)) = ?
+                              AND `medication` = 1
+                            SQL,
+                            [$pid, strtoupper((string) $_REQUEST['form_title'])]
+                        );
                     }
                 } else {
-                    $query = "INSERT INTO lists ( " .
-                        "date, pid, type, title, activity, comments, " .
-                        "begdate, enddate, returndate, " .
-                        "diagnosis, occurrence, classification, referredby, user, " .
-                        "groupname, outcome, destination,reaction,subtype " .
-                        ") VALUES ( " .
-                        "NOW(), ?,?,?,1,?," .
-                        QuotedOrNull($form_begin) . ", " . QuotedOrNull($form_end) . ", " . QuotedOrNull($form_return) . ", " .
-                        "?,?,?,?,?," .
-                        "?,?,?,?,?)";
-                    $issue = sqlInsert($query, [$pid, $form_type, $_REQUEST['form_title'], $_REQUEST['form_comments'],
-                        $_REQUEST['form_diagnosis'], $_REQUEST['form_occur'], $_REQUEST['form_clasification'], $_REQUEST['form_referredby'], $_SESSION['authUser'],
-                        $_SESSION['authProvider'], QuotedOrNull($_REQUEST['form_outcome']), $_REQUEST['form_destination'], $_REQUEST['form_reaction'], $subtype]);
+                    $issue = QueryUtils::sqlInsert(
+                        <<<'SQL'
+                        INSERT INTO `lists` (
+                            `date`, `pid`, `type`, `title`, `activity`, `comments`,
+                            `begdate`, `enddate`, `returndate`,
+                            `diagnosis`, `occurrence`, `classification`, `referredby`, `user`,
+                            `groupname`, `outcome`, `destination`, `reaction`, `subtype`
+                        ) VALUES (
+                            NOW(), ?, ?, ?, 1, ?,
+                            ?, ?, ?,
+                            ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?
+                        )
+                        SQL,
+                        [
+                            $pid,
+                            $form_type,
+                            $_REQUEST['form_title'],
+                            $_REQUEST['form_comments'],
+                            $form_begin ?: null,
+                            $form_end ?: null,
+                            empty($form_return) ? null : $form_return,
+                            $_REQUEST['form_diagnosis'],
+                            $_REQUEST['form_occur'],
+                            $_REQUEST['form_clasification'],
+                            $_REQUEST['form_referredby'],
+                            $_SESSION['authUser'],
+                            $_SESSION['authProvider'],
+                            empty($_REQUEST['form_outcome']) ? null : $_REQUEST['form_outcome'],
+                            $_REQUEST['form_destination'],
+                            $_REQUEST['form_reaction'],
+                            $subtype,
+                        ]
+                    );
 
                     // For record/reporting purposes, place entry in lists_touch table.
                     setListTouch($pid, $form_type);
@@ -735,10 +789,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     // If requested, link the issue to a specified encounter.
                     // we always link them, automatically.
                     if ($encounter) {
-                        $query = "INSERT INTO issue_encounter ( " .
-                            "pid, list_id, encounter " .
-                            ") VALUES ( ?,?,? )";
-                        sqlStatement($query, [$pid, $issue, $encounter]);
+                        $patientIssuesService = new PatientIssuesService();
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter, $issue, $_SESSION['authUserID']);
                     }
                 }
 
@@ -760,7 +812,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     }
 
     if (($_REQUEST['action'] ?? '') == 'code_visit') {
-        $CODING = json_decode($_REQUEST['parameter'], true);
+        $CODING = json_decode((string) $_REQUEST['parameter'], true);
         $query = "delete from billing where encounter =?";
         sqlStatement($query, [$encounter]);
         foreach ($CODING as $item) { //need toremove duplicate codes
@@ -837,7 +889,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['IOPTIME'] = date('H:i:s');
     }
 
-    $_POST['IOPTIME'] = date('H:i:s', strtotime($_POST['IOPTIME']));
+    $_POST['IOPTIME'] = date('H:i:s', strtotime((string) $_POST['IOPTIME']));
     // orders are checkboxes created from a user defined list in the PLAN area and stored as item1|item2|item3
     // if there are any, create the $field['PLAN'] value.
     // Remember --  If you uncheck a box, it won't be sent!
@@ -856,8 +908,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             if ($_POST['PLAN'][$i] == '') {
                 continue;
             }
-            $fields = $fields ?? [];
-            $fields['PLAN'] = $fields['PLAN'] ?? '';
+            $fields ??= [];
+            $fields['PLAN'] ??= '';
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
             $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, [$form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID]);
@@ -908,7 +960,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     }
 
     if ($_POST['DIL_MEDS']) {
-        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime($_POST['DIL_MEDS']));
+        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime((string) $_POST['DIL_MEDS']));
     }
 
     if (!($_POST['ATROPINE'] ?? '')) {
@@ -1199,7 +1251,7 @@ if ($_REQUEST['canvas'] ?? '') {
     $sql = "SELECT * from documents where documents.name like ?";
     $ans1 = sqlQuery($sql, ['%' . $base_name . '%']);
     if ($ans1['id'] ?? '') {  //it is new, add it
-        $file = substr($ans1['url'], 7);
+        $file = substr((string) $ans1['url'], 7);
         foreach (glob($file) as $file_to_delete) {
             unlink($file_to_delete);
         }
@@ -1216,7 +1268,7 @@ if ($_REQUEST['canvas'] ?? '') {
 
     $type = "image/jpeg"; // all our canvases are this type
     $data = $_POST["imgBase64"];
-    $data = substr($data, strpos($data, ",") + 1);
+    $data = substr((string) $data, strpos((string) $data, ",") + 1);
     $data = base64_decode($data);
     $size = strlen($data);
 
@@ -1234,15 +1286,6 @@ if ($_REQUEST['copy']) {
     return;
 }
 
-function QuotedOrNull($fld)
-{
-    if ($fld) {
-        return "'" . add_escape_custom($fld) . "'";
-    }
-
-    return "NULL";
-}
-
 function debug($local_var): void
 {
     echo "<pre><BR>We are in the debug function.<BR>";
@@ -1253,7 +1296,7 @@ function debug($local_var): void
 
 /* From original issue.php */
 
-function row_delete($table, $where): void
+function eye_mag_row_delete(string $table, string $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);
@@ -1269,10 +1312,10 @@ function row_delete($table, $where): void
                 $logstring .= " ";
             }
 
-            $logstring .= $key . "='" . addslashes($value) . "'";
+            $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -1280,24 +1323,6 @@ function row_delete($table, $where): void
         $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         sqlStatement($query);
     }
-}
-
-// Given an issue type as a string, compute its index.
-// Not sure of the value of this sub given transition to array $PMSFH
-// Can I use it to find out which PMSFH item we are looking for?  YES
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-
-        ++$i;
-    }
-
-    return $i;
 }
 
 exit;

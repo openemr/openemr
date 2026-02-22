@@ -26,6 +26,7 @@ use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
@@ -74,6 +75,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
         global $assignedEntity;
         global $representedOrganization;
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -102,8 +104,8 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // Date Range format.
-        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
-        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_to'))) : null;
         $filter_content = !empty($this->getRequest()->getPost('form_filter_content') ?? null);
         $this->date_options = [
             'date_start' => $date_start,
@@ -124,7 +126,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 view");
             exit;
         }
 
@@ -135,7 +137,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // For HTML view, you could add XSL transformation here if needed
             echo $document;
-            EventAuditLogger::instance()->newEvent("qrda3-consolidated-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 Consolidated view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 Consolidated view");
             exit;
         }
 
@@ -143,7 +145,7 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -160,7 +162,7 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -198,7 +200,7 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                $arr = explode('|', $combination);
+                $arr = explode('|', (string) $combination);
                 foreach ($arr as $row) {
                     $arr = explode('_', $row);
                     $this->patient_id = $arr[0];
@@ -319,7 +321,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
             }
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             die($e->getMessage());
         }
     }
@@ -335,7 +337,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // Get parameters using your existing pattern
             $combination = $this->params('pids');
-            $pids = !empty($combination) ? explode('|', $combination) : null;
+            $pids = !empty($combination) ? explode('|', (string) $combination) : null;
 
             // Get measures from request (same as your QRDA III logic)
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
@@ -349,7 +351,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // Use the enhanced downloadQrdaIII method with consolidated flag
             $xmlController->downloadQrdaIII($pids, $measures, [], true); // true = consolidated
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Follow your existing error handling pattern
@@ -370,6 +372,7 @@ class EncounterccdadispatchController extends AbstractActionController
      */
     public function getConsolidatedQrda3Content($pids = null, $measures = [])
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         try {
             $xmlController = new QrdaReportController();
 
@@ -382,16 +385,16 @@ class EncounterccdadispatchController extends AbstractActionController
             $content = $xmlController->getConsolidatedCategoryIIIReport($pids, $measures);
 
             // Log the event (following your existing audit pattern)
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-generation",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 "QRDA3 Consolidated content generated"
             );
 
             return $content;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
                 'message' => $e->getMessage()
             ]);

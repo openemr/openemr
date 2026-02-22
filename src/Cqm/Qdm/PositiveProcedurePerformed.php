@@ -26,4 +26,3 @@ class PositiveProcedurePerformed extends ProcedurePerformed
 
     public $_type = 'QDM::PositiveProcedurePerformed';
 }
-

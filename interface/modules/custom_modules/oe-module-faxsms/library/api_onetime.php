@@ -23,7 +23,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'contact-form')) {
 if (isset($_REQUEST['sendOneTime'])) {
     try {
         doOnetimeDocumentRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -31,7 +31,7 @@ if (isset($_REQUEST['sendOneTime'])) {
 if (isset($_REQUEST['sendInvoiceOneTime'])) {
     try {
         doOnetimeInvoiceRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -62,7 +62,7 @@ function doOnetimeInvoiceRequest(): void
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [
@@ -74,7 +74,7 @@ function doOnetimeInvoiceRequest(): void
     try {
         $rtn = $GLOBALS["kernel"]->getEventDispatcher()
             ->dispatch(new SendNotificationEvent($data['pid'], $data, 'email'), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -92,7 +92,7 @@ function doOnetimeDocumentRequest(): void
             throw new Exception(xlt("Error! Not authorised. You must be an authorised portal user or admin."));
         }
     }
-    $details = json_decode($service->getRequest('details'), true);
+    $details = json_decode((string) $service->getRequest('details'), true);
     $content = $service->getRequest('comments');
     $ot_pid = $details['pid'] ?? $service->getRequest('form_pid');
     if (!empty($ot_pid)) {
@@ -114,7 +114,7 @@ function doOnetimeDocumentRequest(): void
     ];
     try {
         $rtn = $service->dispatchPortalOneTimeDocumentRequest($ot_pid, $data, $content);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
     echo js_escape($rtn);

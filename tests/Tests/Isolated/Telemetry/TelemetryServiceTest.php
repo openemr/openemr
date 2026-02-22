@@ -402,38 +402,6 @@ class TelemetryServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testReportUsageDataReturnsFalseWhenSiteUuidNotFound(): void
-    {
-        /** @var TelemetryRepository|MockObject $mockRepository */
-        $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
-        $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        // Create a partial mock to mock the isTelemetryEnabled method and getUniqueInstallationUuid
-        $telemetryService = $this->getMockBuilder(TelemetryService::class)
-            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
-            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid'])
-            ->getMock();
-
-        // Mock isTelemetryEnabled to return true (enabled)
-        $telemetryService->expects($this->once())
-            ->method('isTelemetryEnabled')
-            ->willReturn(1);
-
-        // Mock getUniqueInstallationUuid to return empty string
-        $telemetryService->expects($this->once())
-            ->method('getUniqueInstallationUuid')
-            ->willReturn('');
-
-        $result = $telemetryService->reportUsageData();
-
-        $this->assertFalse($result);
-    }
-
     /**
      * Test reportUsageData with successful scenario.
      * Note: This method still has external dependencies (cURL) that would require
@@ -780,7 +748,7 @@ class TelemetryServiceTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($telemetryService, 'trackApiRequestEvent'));
-        $this->assertTrue(is_callable([$telemetryService, 'trackApiRequestEvent']));
+        $this->assertTrue(is_callable($telemetryService->trackApiRequestEvent(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($telemetryService, 'trackApiRequestEvent');
@@ -953,7 +921,7 @@ class TelemetryServiceTest extends TestCase
         // Mock error_log function using a custom error handler
         set_error_handler(function ($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
             // Check if this is our expected error_log call
-            if (strpos($message, 'cURL error: Connection timeout') !== false) {
+            if (str_contains($message, 'cURL error: Connection timeout')) {
                 $errorLogCalled = true;
                 $errorMessage = $message;
             }

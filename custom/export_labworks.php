@@ -39,28 +39,12 @@ function custom_labworks_Add($field)
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", $field);
-}
-
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
 
  // Translate a date.
 function LWDate($field)
 {
     $tmp = fixDate($field);
-    return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
+    return substr((string) $tmp, 5, 2) . substr((string) $tmp, 8, 2) . substr((string) $tmp, 0, 4);
 }
 
  // Translate insurance type.
@@ -150,11 +134,11 @@ if ($row['providerID']) {
  $out .= custom_labworks_Add($row['pubpid']);              // chart number
  $out .= custom_labworks_Add($row['lname']);               // last name
  $out .= custom_labworks_Add($row['fname']);               // first name
- $out .= custom_labworks_Add(substr($row['mname'], 0, 1)); // middle initial
+ $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1)); // middle initial
  $out .= custom_labworks_Add("");                          // alias
  $out .= custom_labworks_Add(Digits($row['ss']));          // ssn
  $out .= custom_labworks_Add(LWDate($row['DOB']));         // dob
- $out .= custom_labworks_Add(Sex($row['sex']));            // gender
+ $out .= custom_labworks_Add(hl7Sex($row['sex']));            // gender
  $out .= custom_labworks_Add("");                          // notes
  $out .= custom_labworks_Add($row['street']);              // address 1
  $out .= custom_labworks_Add("");                          // address2
@@ -166,10 +150,10 @@ if ($row['providerID']) {
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
-if (trim($row['lname1'])) {
+if (trim((string) $row['lname1'])) {
     $out .= custom_labworks_Add($row['lname1']);
     $out .= custom_labworks_Add($row['fname1']);
-    $out .= custom_labworks_Add(substr($row['mname1'], 0, 1));
+    $out .= custom_labworks_Add(substr((string) $row['mname1'], 0, 1));
     $out .= custom_labworks_Add($row['sstreet1']);
     $out .= custom_labworks_Add("");
     $out .= custom_labworks_Add($row['scity1']);
@@ -178,7 +162,7 @@ if (trim($row['lname1'])) {
 } else {
     $out .= custom_labworks_Add($row['lname']);
     $out .= custom_labworks_Add($row['fname']);
-    $out .= custom_labworks_Add(substr($row['mname'], 0, 1));
+    $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1));
     $out .= custom_labworks_Add($row['street']);
     $out .= custom_labworks_Add("");
     $out .= custom_labworks_Add($row['city']);
@@ -198,7 +182,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add("");
  $out .= custom_labworks_Add(InsType($row['instype1']));
  $out .= custom_labworks_Add($row['fname1'] . " " . $row['lname1']);
- $out .= custom_labworks_Add(ucfirst($row['relationship1']));
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship1']));
  $out .= custom_labworks_Add($row['group1']);
  $out .= custom_labworks_Add($row['policy1']);
 
@@ -214,7 +198,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add("");
  $out .= custom_labworks_Add(InsType($row['instype2']));
  $out .= custom_labworks_Add($row['fname2'] . " " . $row['lname2']);
- $out .= custom_labworks_Add(ucfirst($row['relationship2']));
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship2']));
  $out .= custom_labworks_Add($row['group2']);
  $out .= custom_labworks_Add($row['policy2']);
 
@@ -223,7 +207,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add($prow['id']);
  $out .= custom_labworks_Add($prow['lname']);
  $out .= custom_labworks_Add($prow['fname']);
- $out .= custom_labworks_Add(substr($prow['mname'], 0, 1));
+ $out .= custom_labworks_Add(substr((string) $prow['mname'], 0, 1));
  $out .= custom_labworks_Add(""); // UPIN not available
 
  // All done.

@@ -55,7 +55,7 @@ class SetupTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, [1]);
         foreach ($row as $result) {
-            $name       = $result['nickname'] ? $result['nickname'] : $result['name'];
+            $name       = $result['nickname'] ?: $result['name'];
             $directory  = "1|" . $result['directory'];
             $forms[]    = [$name, $directory];
         }
@@ -83,7 +83,7 @@ class SetupTable extends AbstractTableGateway
             $res_1 =  $appTable->zQuery("SELECT field_id,title FROM layout_options WHERE form_id=? ORDER BY title", [$result['option_id']]);
             $count_sub      = 0;
             foreach ($res_1 as $row_1) {
-                $lbf[$count][2][$count_sub][0] = ($row_1['title'] ? $row_1['title'] : $row_1['field_id']);
+                $lbf[$count][2][$count_sub][0] = ($row_1['title'] ?: $row_1['field_id']);
                 $lbf[$count][2][$count_sub][1] = $lbf[$count][1] . "|" . $row_1['field_id'];
                 $count_sub++;
             }

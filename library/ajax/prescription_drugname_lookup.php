@@ -50,7 +50,7 @@ if (isset($_GET['term'])) {
     $res = sqlStatement($sql, $val);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = [
-            'display_name' => text($row['name'] . " (RxCUI:" . trim($row['rxnorm']) . ")"),
+            'display_name' => text($row['name'] . " (RxCUI:" . trim((string) $row['rxnorm']) . ")"),
             'id_name' => text($row['name']),
             'rxnorm' => text($row['rxnorm'])
         ];

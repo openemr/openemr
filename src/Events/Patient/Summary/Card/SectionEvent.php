@@ -28,19 +28,17 @@ class SectionEvent extends Event
     const EVENT_HANDLE = 'section.render';
 
     /**
-     * @var string $section The section being rendered
-     */
-    private $section;
-
-    /**
      * @var array $cards Array of CardInterface objects
      */
     private $cards;
 
-    public function __construct(string $section)
-    {
+    /**
+     * @param string $section The section being rendered
+     */
+    public function __construct(
+        private readonly string $section
+    ) {
         $this->cards = [];
-        $this->section = $section;
     }
 
     /**

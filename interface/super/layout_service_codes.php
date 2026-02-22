@@ -16,14 +16,13 @@
 require_once('../globals.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Install Layout Service Codes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Install Layout Service Codes", xl("Install Layout Service Codes"));
 }
 
 $form_dryrun = !empty($_POST['form_dryrun']);
@@ -91,9 +90,9 @@ if (!empty($_POST['bn_upload'])) {
             if (count($acsv) < 3) {
                 continue;
             }
-            $layoutid = trim($acsv[0]);
-            $codetype = trim($acsv[1]);
-            $code     = trim($acsv[2]);
+            $layoutid = trim((string) $acsv[0]);
+            $codetype = trim((string) $acsv[1]);
+            $code     = trim((string) $acsv[2]);
             if (empty($layoutid) || empty($codetype) || empty($code)) {
                 continue;
             }
@@ -211,7 +210,7 @@ while ($row = sqlFetchArray($res)) {
     if ($row['grp_services'] == '*') {
         $row['grp_services'] = '';
     }
-    $codes = explode(';', $row['grp_services']);
+    $codes = explode(';', (string) $row['grp_services']);
     foreach ($codes as $codestring) {
         echo " <tr>\n";
 

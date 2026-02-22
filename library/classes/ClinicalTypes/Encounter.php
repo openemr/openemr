@@ -38,7 +38,7 @@ class Encounter extends ClinicalType
         $constants = $oClass->getConstants();
         $encounters = [];
         foreach ($constants as $constant) {
-            if (str_starts_with($constant, 'enc')) {
+            if (str_starts_with((string) $constant, 'enc')) {
                 $encounters[] = $constant;
             }
         }

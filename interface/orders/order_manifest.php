@@ -18,39 +18,14 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Summary")]);
-    exit;
-}
-
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = "($value)";
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Order Summary", xl("Order Summary"));
 }
 
 function generate_order_summary($orderid): void
@@ -102,7 +77,7 @@ function generate_order_summary($orderid): void
 
     $lab_id = intval($orow['lab_id']);
     $patient_id = intval($orow['patient_id']);
-    $encdate = substr($orow['date'], 0, 10);
+    $encdate = substr((string) $orow['date'], 0, 10);
 
   // Get insurance info.
     $ins_policy = '';
@@ -305,7 +280,7 @@ function generate_order_summary($orderid): void
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
                 // out how to deal with that as more labs are supported.
-                $answer = trim($qrow['answer']);
+                $answer = trim((string) $qrow['answer']);
                 $fldtype = $qrow['fldtype'];
                 if ($fldtype == 'G') {
                     $weeks = intval($answer / 7);

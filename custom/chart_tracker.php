@@ -23,12 +23,13 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
-$form_curpid  = isset($_POST['form_curpid' ]) ? trim($_POST['form_curpid' ]) : '';
-$form_curid   = isset($_POST['form_curid'  ]) ? trim($_POST['form_curid'  ]) : '';
-$form_newloc  = isset($_POST['form_newloc' ]) ? trim($_POST['form_newloc' ]) : '';
-$form_newuser = isset($_POST['form_newuser']) ? trim($_POST['form_newuser']) : '';
+$form_newid   = isset($_POST['form_newid'  ]) ? trim((string) $_POST['form_newid'  ]) : '';
+$form_curpid  = isset($_POST['form_curpid' ]) ? trim((string) $_POST['form_curpid' ]) : '';
+$form_curid   = isset($_POST['form_curid'  ]) ? trim((string) $_POST['form_curid'  ]) : '';
+$form_newloc  = isset($_POST['form_newloc' ]) ? trim((string) $_POST['form_newloc' ]) : '';
+$form_newuser = isset($_POST['form_newuser']) ? trim((string) $_POST['form_newuser']) : '';
 
 if ($form_newuser) {
     $form_newloc = '';
@@ -116,7 +117,10 @@ if (!empty($row)) {
     $current_location = xlt('Unassigned');
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
-        $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . oeFormatDateTime($row['ct_when'], "global", true));
+        if ($user === false) {
+            throw new \RuntimeException("User not found for ct_userid: " . json_encode($ct_userid));
+        }
+        $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true));
     } elseif ($ct_location) {
         $current_location = generate_display_field(['data_type' => '1','list_id' => 'chartloc'], $ct_location);
     }

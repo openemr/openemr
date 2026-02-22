@@ -117,7 +117,7 @@ function vbf_temperature_c_changed() {
 }
 ";
 
-    echo "// Temperature in farenheit has changed.
+    echo "// Temperature in Fahrenheit has changed.
 function vbf_temperature_f_changed() {
  var f = document.forms[0];
  var tf = f.form_temperature_f.value;
@@ -135,7 +135,7 @@ function vbf_temperature_f_changed() {
     $ptrow = sqlQuery("SELECT DOB, sex FROM patient_data WHERE " .
     "pid = ? LIMIT 1", [$pid]);
     $pt_age = 0 + getpatientAge($ptrow['DOB']);
-    $pt_sex = strtoupper(substr($ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
+    $pt_sex = strtoupper(substr((string) $ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
 
     echo "// Compute Body Fat Percentage.
 function vbfComputeBF() {
@@ -206,7 +206,7 @@ if (f.form_height_in && f.form_height_cm) {
  f.form_height_cm.onchange = function () { vbf_height_cm_changed(); };
 }
 if (f.form_temperature_f && f.form_temperature_c) {
- // Set onchange handlers to convert centigrade to farenheit and vice versa.
+ // Set onchange handlers to convert centigrade to Fahrenheit and vice versa.
  f.form_temperature_f.onchange = function () { vbf_temperature_f_changed(); };
  f.form_temperature_c.onchange = function () { vbf_temperature_c_changed(); };
 }

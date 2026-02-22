@@ -16,9 +16,9 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -31,8 +31,7 @@ if (!empty($_POST)) {
 // Might want something different here.
 //
 if (!AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Report", xl("Report"));
 }
 
 $facilityService = new FacilityService();
@@ -149,7 +148,7 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
   "ORDER BY group_name, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
-    if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') {
+    if (in_array($fid, ['fname', 'mname', 'lname'])) {
         continue;
     }
 
@@ -157,48 +156,9 @@ while ($lrow = sqlFetchArray($lres)) {
     $arr_titles[$fid] = [];
 }
 
-// Compute age in years given a DOB and "as of" date.
-//
-function getAge($dob, $asof = '')
-{
-    if (empty($asof)) {
-        $asof = date('Y-m-d');
-    }
-
-    $a1 = explode('-', substr($dob, 0, 10));
-    $a2 = explode('-', substr($asof, 0, 10));
-    $age = $a2[0] - $a1[0];
-    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
-        --$age;
-    }
-
-  // echo "<!-- $dob $asof $age -->\n"; // debugging
-    return $age;
-}
-
 $cellcount = 0;
 
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
-
-function getListTitle($list, $option)
+function ippf_stats_getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
     "list_id = ? AND option_id = ?", [$list, $option]);
@@ -211,7 +171,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
+function ippf_stats_genAnyCell($data, bool $right = false, string $class = '', int $colspan = 1): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -244,14 +204,14 @@ function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
     }
 }
 
-function genHeadCell($data, $right = false, $colspan = 1): void
+function ippf_stats_genHeadCell($data, bool $right = false, int $colspan = 1): void
 {
-    genAnyCell($data, $right, 'dehead', $colspan);
+    ippf_stats_genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum): void
+function ippf_stats_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -259,7 +219,7 @@ function genNumCell($num, $cnum): void
         $num = '&nbsp;';
     }
 
-    genAnyCell($num, true, 'detail');
+    ippf_stats_genAnyCell($num, true, 'detail');
 }
 
 // Translate an IPPF code to the corresponding descriptive name of its
@@ -268,33 +228,33 @@ function genNumCell($num, $cnum): void
 function getContraceptiveMethod($code)
 {
     $key = '';
-    if (preg_match('/^111101/', $code)) {
+    if (preg_match('/^111101/', (string) $code)) {
         $key = xl('Pills');
-    } elseif (preg_match('/^11111[1-9]/', $code)) {
+    } elseif (preg_match('/^11111[1-9]/', (string) $code)) {
         $key = xl('Injectables');
-    } elseif (preg_match('/^11112[1-9]/', $code)) {
+    } elseif (preg_match('/^11112[1-9]/', (string) $code)) {
         $key = xl('Implants');
-    } elseif (preg_match('/^111132/', $code)) {
+    } elseif (preg_match('/^111132/', (string) $code)) {
         $key = xl('Patch');
-    } elseif (preg_match('/^111133/', $code)) {
+    } elseif (preg_match('/^111133/', (string) $code)) {
         $key = xl('Vaginal Ring');
-    } elseif (preg_match('/^112141/', $code)) {
+    } elseif (preg_match('/^112141/', (string) $code)) {
         $key = xl('Male Condoms');
-    } elseif (preg_match('/^112142/', $code)) {
+    } elseif (preg_match('/^112142/', (string) $code)) {
         $key = xl('Female Condoms');
-    } elseif (preg_match('/^11215[1-9]/', $code)) {
+    } elseif (preg_match('/^11215[1-9]/', (string) $code)) {
         $key = xl('Diaphragms/Caps');
-    } elseif (preg_match('/^11216[1-9]/', $code)) {
+    } elseif (preg_match('/^11216[1-9]/', (string) $code)) {
         $key = xl('Spermicides');
-    } elseif (preg_match('/^11317[1-9]/', $code)) {
+    } elseif (preg_match('/^11317[1-9]/', (string) $code)) {
         $key = xl('IUD');
-    } elseif (preg_match('/^145212/', $code)) {
+    } elseif (preg_match('/^145212/', (string) $code)) {
         $key = xl('Emergency Contraception');
-    } elseif (preg_match('/^121181.13/', $code)) {
+    } elseif (preg_match('/^121181.13/', (string) $code)) {
         $key = xl('Female VSC');
-    } elseif (preg_match('/^122182.13/', $code)) {
+    } elseif (preg_match('/^122182.13/', (string) $code)) {
         $key = xl('Male VSC');
-    } elseif (preg_match('/^131191.10/', $code)) {
+    } elseif (preg_match('/^131191.10/', (string) $code)) {
         $key = xl('Awareness-Based');
     }
 
@@ -307,7 +267,7 @@ function getContraceptiveMethod($code)
 function getRelatedContraceptiveCode($row)
 {
     if (!empty($row['related_code'])) {
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -335,7 +295,7 @@ function getRelatedContraceptiveCode($row)
 function getRelatedAbortionMethod($row)
 {
     if (!empty($row['related_code'])) {
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -363,14 +323,14 @@ function getRelatedAbortionMethod($row)
 function getAbortionMethod($code)
 {
     $key = '';
-    if (preg_match('/^25222[34]/', $code)) {
-        if (preg_match('/^2522231/', $code)) {
+    if (preg_match('/^25222[34]/', (string) $code)) {
+        if (preg_match('/^2522231/', (string) $code)) {
             $key = xl('D&C');
-        } elseif (preg_match('/^2522232/', $code)) {
+        } elseif (preg_match('/^2522232/', (string) $code)) {
             $key = xl('D&E');
-        } elseif (preg_match('/^2522233/', $code)) {
+        } elseif (preg_match('/^2522233/', (string) $code)) {
             $key = xl('MVA');
-        } elseif (preg_match('/^252224/', $code)) {
+        } elseif (preg_match('/^252224/', (string) $code)) {
             $key = xl('Medical');
         } else {
             $key = xl('Other Surgical');
@@ -533,7 +493,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
         $areport[$key]['.age2'] = [0,0];               // age array
         $areport[$key]['.age9'] = [0,0,0,0,0,0,0,0,0]; // age array
         foreach ($arr_show as $askey => $dummy) {
-            if (str_starts_with($askey, '.')) {
+            if (str_starts_with((string) $askey, '.')) {
                 continue;
             }
 
@@ -585,7 +545,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
     $areport[$key]['.prp'] = $row['pid'];
 
   // Increment the correct sex category.
-    if (strcasecmp($row['sex'], 'Male') == 0) {
+    if (strcasecmp((string) $row['sex'], 'Male') == 0) {
         $areport[$key]['.men'] += $quantity;
     } else {
         $areport[$key]['.wom'] += $quantity;
@@ -603,7 +563,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
     $areport[$key]['.age2'][$i] += $quantity;
 
     foreach ($arr_show as $askey => $dummy) {
-        if (str_starts_with($askey, '.')) {
+        if (str_starts_with((string) $askey, '.')) {
             continue;
         }
 
@@ -624,9 +584,9 @@ function process_ippf_code($row, $code, $quantity = 1): void
   // SRH including Family Planning
   //
     if ($form_by === '1') {
-        if (preg_match('/^1/', $code)) {
+        if (preg_match('/^1/', (string) $code)) {
             $key = xl('SRH - Family Planning');
-        } elseif (preg_match('/^2/', $code)) {
+        } elseif (preg_match('/^2/', (string) $code)) {
             $key = xl('SRH Non Family Planning');
         } else {
             if ($form_content != 5) {
@@ -634,33 +594,33 @@ function process_ippf_code($row, $code, $quantity = 1): void
             }
         }
     } elseif ($form_by === '3') { // General Service Category
-        if (preg_match('/^1/', $code)) {
+        if (preg_match('/^1/', (string) $code)) {
             $key = xl('SRH - Family Planning');
-        } elseif (preg_match('/^2/', $code)) {
+        } elseif (preg_match('/^2/', (string) $code)) {
             $key = xl('SRH Non Family Planning');
-        } elseif (preg_match('/^3/', $code)) {
+        } elseif (preg_match('/^3/', (string) $code)) {
             $key = xl('Non-SRH Medical');
-        } elseif (preg_match('/^4/', $code)) {
+        } elseif (preg_match('/^4/', (string) $code)) {
             $key = xl('Non-SRH Non-Medical');
         } else {
             $key = xl('Invalid Service Codes');
         }
     } elseif ($form_by === '13') { // Abortion-Related Category
-        if (preg_match('/^252221/', $code)) {
+        if (preg_match('/^252221/', (string) $code)) {
             $key = xl('Pre-Abortion Counseling');
-        } elseif (preg_match('/^252222/', $code)) {
+        } elseif (preg_match('/^252222/', (string) $code)) {
             $key = xl('Pre-Abortion Consultation');
-        } elseif (preg_match('/^252223/', $code)) {
+        } elseif (preg_match('/^252223/', (string) $code)) {
             $key = xl('Induced Abortion');
-        } elseif (preg_match('/^252224/', $code)) {
+        } elseif (preg_match('/^252224/', (string) $code)) {
             $key = xl('Medical Abortion');
-        } elseif (preg_match('/^252225/', $code)) {
+        } elseif (preg_match('/^252225/', (string) $code)) {
             $key = xl('Incomplete Abortion Treatment');
-        } elseif (preg_match('/^252226/', $code)) {
+        } elseif (preg_match('/^252226/', (string) $code)) {
             $key = xl('Post-Abortion Care');
-        } elseif (preg_match('/^252227/', $code)) {
+        } elseif (preg_match('/^252227/', (string) $code)) {
             $key = xl('Post-Abortion Counseling');
-        } elseif (preg_match('/^25222/', $code)) {
+        } elseif (preg_match('/^25222/', (string) $code)) {
             $key = xl('Other/Generic Abortion-Related');
         } else {
             if ($form_content != 5) {
@@ -753,7 +713,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
     } elseif ($form_by === '8') { // Post-Abortion Care and Followup by Source.
         // Requirements just call for counting sessions, but this way the columns
         // can be anything - age category, religion, whatever.
-        if (preg_match('/^25222[567]/', $code)) { // care, followup and incomplete abortion treatment
+        if (preg_match('/^25222[567]/', (string) $code)) { // care, followup and incomplete abortion treatment
             $key = getGcacClientStatus($row);
         } else {
             return;
@@ -800,7 +760,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
         //   Decided not to have the abortion
         //
     } elseif ($form_by === '12') {
-        if (preg_match('/^252221/', $code)) { // all pre-abortion counseling
+        if (preg_match('/^252221/', (string) $code)) { // all pre-abortion counseling
             $key = getGcacClientStatus($row);
         } else {
             return;
@@ -888,8 +848,8 @@ function process_visit($row): void
       $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
       while ($drow = sqlFetchArray($dres)) {
         $a = explode('|', $drow['field_value']);
-        foreach ($a as $methid) {
-        if (empty($methid)) continue;
+        foreach ($a as $method) {
+        if (empty($method)) continue;
         $crow = sqlQuery("SELECT title FROM list_options WHERE " .
           "list_id = 'contrameth' AND option_id = '$methid'");
         $key = $crow['title'];
@@ -903,7 +863,7 @@ function process_visit($row): void
         // Note: If there are multiple complications, they will all be reported.
         $dres = LBFgcac_query($row['pid'], $row['encounter'], 'complications');
         while ($drow = sqlFetchArray($dres)) {
-            $a = explode('|', $drow['field_value']);
+            $a = explode('|', (string) $drow['field_value']);
             foreach ($a as $complid) {
                 if (empty($complid)) {
                     continue;
@@ -969,7 +929,7 @@ function process_referral($row): void
     $row['reply_related_code'] : $row['refer_related_code'];
 
     if (!empty($related_code)) {
-        $relcodes = explode(';', $related_code);
+        $relcodes = explode(';', (string) $related_code);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -983,7 +943,7 @@ function process_referral($row): void
                 "code_type = '16' AND code = ? AND active = 1 " .
                 "ORDER BY id LIMIT 1", [$code]);
                 if (!empty($rrow['related_code'])) {
-                        [$codetype, $code] = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', (string) $rrow['related_code']);
                 }
             }
 
@@ -1011,8 +971,7 @@ function process_referral($row): void
 
 function uses_description($form_by)
 {
-    return ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
-    $form_by === '10' || $form_by === '20' || $form_by === '104');
+    return (in_array($form_by, ['4', '102', '9', '10', '20', '104'], true));
 }
 
   // If we are doing the CSV export then generate the needed HTTP headers.
@@ -1278,14 +1237,12 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 if ($_POST['form_submit']) {
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {
-        if (str_starts_with($askey, '.')) {
+        if (str_starts_with((string) $askey, '.')) {
             continue;
         }
 
         if (
-            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-            $askey == 'contrastart' || $askey == 'referral_source'
+            in_array($askey, ['regdate', 'sex', 'DOB', 'lname', 'fname', 'mname', 'contrastart', 'referral_source'])
         ) {
             continue;
         }
@@ -1377,7 +1334,7 @@ if ($_POST['form_submit']) {
     }
 
     // Get referrals and related patient data.
-    if ($form_content != 5 && ($form_by === '9' || $form_by === '10' || $form_by === '20' || $form_by === '1')) {
+    if ($form_content != 5 && (in_array($form_by, ['9', '10', '20', '1'], true))) {
         $exttest = "t.refer_external = '1'";
         $datefld = "t.refer_date";
 
@@ -1511,7 +1468,7 @@ if ($_POST['form_submit']) {
             if ($row['code_type'] === 'MA') {
                 process_ma_code($row);
                 if (!empty($row['related_code'])) {
-                    $relcodes = explode(';', $row['related_code']);
+                    $relcodes = explode(';', (string) $row['related_code']);
                     foreach ($relcodes as $codestring) {
                         if ($codestring === '') {
                             continue;
@@ -1544,28 +1501,28 @@ if ($_POST['form_submit']) {
     genStartRow("bgcolor='#dddddd'");
     // If the key is an MA or IPPF code, then add a column for its description.
     if (uses_description($form_by)) {
-        genHeadCell(['', '']);
+        ippf_stats_genHeadCell(['', '']);
     } else {
-        genHeadCell('');
+        ippf_stats_genHeadCell('');
     }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
         if ($value == '.total') { // Total Services
-            genHeadCell('');
+            ippf_stats_genHeadCell('');
         } elseif ($value == '.age2') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 2);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif ($value == '.age9') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 9);
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif ($arr_show[$value]['list_id']) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         } elseif (!empty($arr_titles[$value])) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            ippf_stats_genHeadCell($arr_show[$value]['title'], false);
         }
     }
 
     if ($form_output != 3) {
-        genHeadCell('');
+        ippf_stats_genHeadCell('');
     }
 
     genEndRow();
@@ -1575,41 +1532,41 @@ if ($_POST['form_submit']) {
     genStartRow("bgcolor='#dddddd'");
     // If the key is an MA or IPPF code, then add a column for its description.
     if (uses_description($form_by)) {
-        genHeadCell([$arr_by[$form_by], xl('Description')]);
+        ippf_stats_genHeadCell([$arr_by[$form_by], xl('Description')]);
     } else {
-        genHeadCell($arr_by[$form_by]);
+        ippf_stats_genHeadCell($arr_by[$form_by]);
     }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
         if ($value == '.total') { // Total Services
-            genHeadCell(xl('Total'));
+            ippf_stats_genHeadCell(xl('Total'));
         } elseif ($value == '.age2') { // Age
-            genHeadCell(xl('0-24'), true);
-            genHeadCell(xl('25+'), true);
+            ippf_stats_genHeadCell(xl('0-24'), true);
+            ippf_stats_genHeadCell(xl('25+'), true);
         } elseif ($value == '.age9') { // Age
-            genHeadCell(xl('0-10'), true);
-            genHeadCell(xl('11-14'), true);
-            genHeadCell(xl('15-19'), true);
-            genHeadCell(xl('20-24'), true);
-            genHeadCell(xl('25-29'), true);
-            genHeadCell(xl('30-34'), true);
-            genHeadCell(xl('35-39'), true);
-            genHeadCell(xl('40-44'), true);
-            genHeadCell(xl('45+'), true);
+            ippf_stats_genHeadCell(xl('0-10'), true);
+            ippf_stats_genHeadCell(xl('11-14'), true);
+            ippf_stats_genHeadCell(xl('15-19'), true);
+            ippf_stats_genHeadCell(xl('20-24'), true);
+            ippf_stats_genHeadCell(xl('25-29'), true);
+            ippf_stats_genHeadCell(xl('30-34'), true);
+            ippf_stats_genHeadCell(xl('35-39'), true);
+            ippf_stats_genHeadCell(xl('40-44'), true);
+            ippf_stats_genHeadCell(xl('45+'), true);
         } elseif ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
+                ippf_stats_genHeadCell(ippf_stats_getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell($key, true);
+                ippf_stats_genHeadCell($key, true);
             }
         }
     }
 
     if ($form_output != 3) {
-        genHeadCell(xl('Total'), true);
+        ippf_stats_genHeadCell(xl('Total'), true);
     }
 
     genEndRow();
@@ -1634,7 +1591,7 @@ if ($_POST['form_submit']) {
 
         genStartRow("bgcolor='$bgcolor'");
 
-        genAnyCell($dispkey, false, 'detail');
+        ippf_stats_genAnyCell($dispkey, false, 'detail');
 
       // This is the column index for accumulating column totals.
         $cnum = 0;
@@ -1644,18 +1601,18 @@ if ($_POST['form_submit']) {
         foreach ($form_show as $value) {
             // if ($value == '1') { // Total Services
             if ($value == '.total') { // Total Services
-                genNumCell($totalsvcs, $cnum++);
+                ippf_stats_genNumCell($totalsvcs, $cnum++);
             } elseif ($value == '.age2') { // Age
                 for ($i = 0; $i < 2; ++$i) {
-                    genNumCell($areport[$key]['.age2'][$i], $cnum++);
+                    ippf_stats_genNumCell($areport[$key]['.age2'][$i], $cnum++);
                 }
             } elseif ($value == '.age9') { // Age
                 for ($i = 0; $i < 9; ++$i) {
-                    genNumCell($areport[$key]['.age9'][$i], $cnum++);
+                    ippf_stats_genNumCell($areport[$key]['.age9'][$i], $cnum++);
                 }
             } elseif (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
-                    genNumCell($areport[$key][$value][$title], $cnum++);
+                    ippf_stats_genNumCell($areport[$key][$value][$title], $cnum++);
                 }
             }
         }
@@ -1663,7 +1620,7 @@ if ($_POST['form_submit']) {
       // Write the Total column data.
         if ($form_output != 3) {
             $atotals[$cnum] += $totalsvcs;
-            genAnyCell($totalsvcs, true, 'dehead');
+            ippf_stats_genAnyCell($totalsvcs, true, 'dehead');
         }
 
         genEndRow();
@@ -1675,13 +1632,13 @@ if ($_POST['form_submit']) {
 
       // If the key is an MA or IPPF code, then add a column for its description.
         if (uses_description($form_by)) {
-            genHeadCell([xl('Totals'), '']);
+            ippf_stats_genHeadCell([xl('Totals'), '']);
         } else {
-            genHeadCell(xl('Totals'));
+            ippf_stats_genHeadCell(xl('Totals'));
         }
 
         for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
-            genHeadCell($atotals[$cnum], true);
+            ippf_stats_genHeadCell($atotals[$cnum], true);
         }
 
         genEndRow();

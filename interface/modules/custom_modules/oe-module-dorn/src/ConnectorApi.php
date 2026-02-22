@@ -13,7 +13,9 @@
 namespace OpenEMR\Modules\Dorn;
 
 use DateTime;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevAuthenticationException;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -103,7 +105,7 @@ class ConnectorApi
     {
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Orders/v1/SendLabOrder";
-        $base64 = base64_encode($hl7);
+        $base64 = base64_encode((string) $hl7);
         $data = new LabOrderViewModel();
         $data->labGuid = $labGuid . '';
         $data->orderNumber = $orderNumber . '';
@@ -315,7 +317,7 @@ class ConnectorApi
 
     public static function getServerInfo()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
         return $api_server;
@@ -334,18 +336,19 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev()
+    public static function canConnectToClaimRev(): bool
     {
-        $token = ClaimRevApi::GetAccessToken();
-        if ($token == "") {
-            return "No";
+        try {
+            ClaimRevApi::makeFromGlobals();
+            return true;
+        } catch (ClaimRevAuthenticationException) {
+            return false;
         }
-        return "Yes";
     }
 
     public static function getAccessToken()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $authority = $globalsConfig->getClientAuthority();
         $clientId = $globalsConfig->getClientId();

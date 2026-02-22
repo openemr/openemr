@@ -19,15 +19,10 @@ require_once("verysimple/HTTP/RequestUtil.php");
  */
 class ObserveToFile implements IObserver
 {
-    private $filepath;
-    private $eventtype;
     private $fh;
     private $fileIsOpen = false;
-    public function __construct($filepath, $eventtype = null)
+    public function __construct(private $filepath, private $eventtype = null)
     {
-        $this->filepath = $filepath;
-        $this->eventtype = $eventtype;
-
         $this->Init();
     }
     public function __destruct()
@@ -43,11 +38,7 @@ class ObserveToFile implements IObserver
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        if (is_object($obj) || is_array($obj)) {
-            $msg = "<pre>" . print_r($obj, 1) . "</pre>";
-        } else {
-            $msg = $obj;
-        }
+        $msg = is_object($obj) || is_array($obj) ? "<pre>" . print_r($obj, 1) . "</pre>" : $obj;
 
         $msg = date("Y-m-d H:i:s:u") . "\t" . getmypid() . "\t" . str_replace([
                 "\t",

@@ -17,9 +17,6 @@ require_once("verysimple/Phreeze/IRouter.php");
  */
 class ActionRouter implements IRouter
 {
-    private $_mode;
-    private $_appRoot;
-    private $_defaultRoute;
     protected $stripApi = true;
     protected $delim = '&';
     protected static $_format;
@@ -30,12 +27,9 @@ class ActionRouter implements IRouter
      * @param string $format
      *          sprintf compatible format
      */
-    public function __construct($format = "%s.%s.page?%s", $mode = UrlWriterMode::WEB, $appRoot = '', $defaultRoute = '')
+    public function __construct($format = "%s.%s.page?%s", private $_mode = UrlWriterMode::WEB, private $_appRoot = '', private $_defaultRoute = '')
     {
         self::$_format = $format;
-        $this->_mode = $mode;
-        $this->_appRoot = $appRoot;
-        $this->_defaultRoute = $defaultRoute;
     }
 
     /**
@@ -75,7 +69,7 @@ class ActionRouter implements IRouter
         if (is_array($params)) {
             foreach ($params as $key => $val) {
                 // if no val, the omit the equal sign (this might be used in rest-type requests)
-                $qs .= $d . $key . (strlen($val) ? ("=" . urlencode($val)) : "");
+                $qs .= $d . $key . (strlen((string) $val) ? ("=" . urlencode((string) $val)) : "");
                 $d = $this->delim;
             }
         } else {
@@ -107,7 +101,7 @@ class ActionRouter implements IRouter
                 $action = $this->_defaultRoute;
             }
 
-            $uri = $action ? $action : RequestUtil::GetCurrentURL();
+            $uri = $action ?: RequestUtil::GetCurrentURL();
         }
 
         // get the action requested
@@ -148,7 +142,7 @@ class ActionRouter implements IRouter
      */
     public function ModeIs($value)
     {
-        if (strcmp($this->_mode, $value) == 0) {
+        if (strcmp((string) $this->_mode, (string) $value) == 0) {
             return true;
         } else {
             return false;

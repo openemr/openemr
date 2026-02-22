@@ -23,12 +23,12 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
@@ -45,8 +45,7 @@ if (!$userMode) {
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configuration", xl("Configuration"));
     }
 }
 
@@ -169,13 +168,9 @@ function checkBackgroundServices(): void
                         [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            if (empty(trim($_POST["form_$i"]))) {
-                                $fldvalue = '';
-                            } else {
-                                $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
-                            }
+                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim((string)$_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
-                            $tmpValue = trim($_POST["form_$i"]);
+                            $tmpValue = trim((string)$_POST["form_$i"]);
                             if (empty($tmpValue)) {
                                 $fldvalue = '';
                             } else {
@@ -234,7 +229,7 @@ function checkBackgroundServices(): void
          */
 
         // Get all the globals from DB
-        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
+        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
         // start transaction
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
@@ -243,32 +238,24 @@ function checkBackgroundServices(): void
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && str_starts_with($fldtype, 'm_')) {
+                if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
                         sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
                         foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim($fldvalue);
+                            $fldvalue = trim((string)$fldvalue);
                             sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
                             ++$fldindex;
                         }
                     }
                 } else {
                     /* check value of single field. Don't update if the database holds the same value */
-                    if (isset($_POST["form_$i"])) {
-                        $fldvalue = trim($_POST["form_$i"]);
-                    } else {
-                        $fldvalue = "";
-                    }
+                    $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
 
                     if ($fldtype == 'encrypted') {
-                        if (empty(trim($fldvalue))) {
-                            $fldvalue = '';
-                        } else {
-                            $fldvalue = $cryptoGen->encryptStandard($fldvalue);
-                        }
+                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptStandard($fldvalue);
                     } elseif ($fldtype == 'encrypted_hash') {
                         $tmpValue = trim($fldvalue);
                         if (empty($tmpValue)) {
@@ -319,12 +306,12 @@ function checkBackgroundServices(): void
         $auditLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'");
         $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
         if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
         }
         $forceBreakglassLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'");
         $forceBreakglassLogStatusFieldNew = $forceBreakglassLogStatusNew['gl_value'];
         if ($forceBreakglassLogStatusFieldOld != $forceBreakglassLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
         }
 
         echo "<script>";
@@ -362,6 +349,10 @@ function checkBackgroundServices(): void
         #globals-div .tabContainer {
           width: 100%;
         }
+      }
+
+      .striped .row.form-group:nth-child(even) {
+        background: var(--light);
       }
     </style>
     <?php
@@ -412,11 +403,7 @@ function checkBackgroundServices(): void
                             </div>
                             <div class="input-group col-sm-4 oe-pull-away p-0">
                                 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                                if (!$userMode) {
-                                    $placeholder = xla('Search configuration');
-                                } else {
-                                    $placeholder = xla('Search user settings');
-                                }
+                                $placeholder = !$userMode ? xla('Search configuration') : xla('Search user settings');
                                 ?>
                                 <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo(!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                                 <span class="input-group-append">
@@ -447,7 +434,7 @@ function checkBackgroundServices(): void
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
-                                        echo "<div class=''>";
+                                        echo '<div class="striped">';
                                         $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
                                         echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
                                         echo "<div class='clearfix'></div>";
@@ -471,7 +458,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string)$_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;
@@ -538,11 +525,7 @@ function checkBackgroundServices(): void
                                                     echo "  </select>\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
                                                     if ($userMode) {
-                                                        if ($globalValue == 1) {
-                                                            $globalTitle = xlt('Checked');
-                                                        } else {
-                                                            $globalTitle = xlt('Not Checked');
-                                                        }
+                                                        $globalTitle = $globalValue == 1 ? xlt('Checked') : xlt('Not Checked');
                                                     }
                                                     echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
                                                     if ($fldvalue) {
@@ -668,9 +651,11 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
                                                         ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
-                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')]
+                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
+                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
+                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')],
                                                     ];
-                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='11'>\n";
+                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
@@ -688,7 +673,7 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' data-jscolor='' name='form_$i' id='form_$i' " .
                                                         "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                                         "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {

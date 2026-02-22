@@ -29,15 +29,15 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 // check for required values
-if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") {
+if ($_GET['listid'] == "" || trim((string) $_GET['newitem']) == "" || trim((string) $_GET['newitem_abbr']) == "") {
     exit;
 }
 
 // set the values for the new list item
 $is_default = 0;
 $list_id = $_GET['listid'];
-$title = trim($_GET['newitem']);
-$option_id = trim($_GET['newitem_abbr']);
+$title = trim((string) $_GET['newitem']);
+$option_id = trim((string) $_GET['newitem_abbr']);
 $option_value = 0;
 
 // make sure we're not adding a duplicate title or id

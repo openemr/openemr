@@ -25,13 +25,11 @@ class CcrController extends AbstractActionController
 {
     protected $ccrTable;
     protected $listenerObject;
-    private $documentsController;
 
-    public function __construct(CcrTable $ccrTable, DocumentsController $documentsController)
+    public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
         $this->listenerObject   = new Listener();
-        $this->documentsController = $documentsController;
     }
 
     /*
@@ -178,7 +176,7 @@ class CcrController extends AbstractActionController
                             } elseif ($key == 'phone_contact') {
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
                             } elseif ($key == 'abname') {
-                                $values = explode(' ', $val);
+                                $values = explode(' ', (string) $val);
                                 if ($values[0]) {
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                                 }
@@ -193,16 +191,12 @@ class CcrController extends AbstractActionController
                             $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
                         } else {
                             if ($sections == 'lists1' && $key == 'activity') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             if ($sections == 'lists2' && $key == 'type') {
-                                if (strpos($val, "-")) {
-                                    $vals = explode("-", $val);
+                                if (strpos((string) $val, "-")) {
+                                    $vals = explode("-", (string) $val);
                                     $val = $vals[0];
                                 } else {
                                     $val = "";
@@ -210,11 +204,7 @@ class CcrController extends AbstractActionController
                             }
 
                             if ($sections == 'prescriptions' && $key == 'active') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             $var['field_name_value_array'][$sections][$cnt][$key] = $val;
@@ -248,16 +238,16 @@ class CcrController extends AbstractActionController
     * Review the data imported from the CCR file
     * Approve/Discard the data imported
     *
-    * @param    amid            Audit mater table ID
+    * @param    amid            Audit master table ID
     * @param    pid             Patient ID to which the data has to be merged
     * @param    document_id     documents table ID
     */
     public function revandapproveAction()
     {
         $request            = $this->getRequest();
-        $audit_master_id    = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
-        $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
+        $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);

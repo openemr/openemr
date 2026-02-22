@@ -2,6 +2,8 @@
 
 /** @package    verysimple::Phreeze */
 
+require_once("SerializableTrait.php");
+
 /**
  * Phreezable Class
  *
@@ -13,8 +15,9 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.3
  */
-abstract class Phreezable implements Serializable
+abstract class Phreezable
 {
+    use SerializableTrait;
     private $_cache =  [];
     protected $_phreezer;
     protected $_val_errors =  [];
@@ -33,7 +36,7 @@ abstract class Phreezable implements Serializable
     ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache =  [];
+    private static array $PublicPropCache =  [];
 
     /**
      * Returns true if the current object has been loaded
@@ -113,9 +116,9 @@ abstract class Phreezable implements Serializable
      */
     public function GetPublicProperties()
     {
-        $className = $this::class;
+        $className = static::class;
 
-        if (! property_exists(self::$PublicPropCache, $className)) {
+        if (! isset(self::$PublicPropCache[$className])) {
             $props =  [];
             $ro = new ReflectionObject($this);
 
@@ -133,32 +136,6 @@ abstract class Phreezable implements Serializable
         }
 
         return self::$PublicPropCache [$className];
-    }
-
-    /**
-     * When serializing, make sure that we ommit certain properties that
-     * should never be cached or serialized.
-     */
-    function serialize()
-    {
-        $propvals =  [];
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->getName();
-
-            if (! in_array($propname, self::$NoCacheProperties)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
-                    $propvals [$propname] = $rp->getValue($this);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $propvals [$propname] = $rp->getValue($this);
-                }
-            }
-        }
-
-        return serialize($propvals);
     }
 
     /**
@@ -201,37 +178,12 @@ abstract class Phreezable implements Serializable
 
         foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
-                $newProp = ($camelCase) ? lcfirst($prop) : $prop;
+                $newProp = ($camelCase) ? lcfirst((string) $prop) : $prop;
                 $obj->$newProp = $this->$prop;
             }
         }
 
         return $obj;
-    }
-
-    /**
-     * Reload the object when it awakes from serialization
-     *
-     * @param
-     *          $data
-     */
-    function unserialize($data)
-    {
-        $propvals = unserialize($data);
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->name;
-            if (array_key_exists($propname, $propvals)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
-                    $rp->setValue($this, $propvals [$propname]);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $rp->setValue($this, $propvals [$propname]);
-                }
-            }
-        }
     }
 
     /**
@@ -256,7 +208,7 @@ abstract class Phreezable implements Serializable
     }
 
     /**
-     * Init is called after contruction.
+     * Init is called after construction.
      * When loading, Init is called prior to Load().
      * When creating a blank object, Init is called immediately after LoadDefaults()
      *
@@ -275,7 +227,7 @@ abstract class Phreezable implements Serializable
      */
     public function LoadDefaults()
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
 
         foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
@@ -330,7 +282,7 @@ abstract class Phreezable implements Serializable
         // if validation fails, remove this object from the cache otherwise invalid values can
         // hang around and cause troubles.
         if (! $is_valid) {
-            $this->_phreezer->DeleteCache($this::class, $this->GetPrimaryKeyValue());
+            $this->_phreezer->DeleteCache(static::class, $this->GetPrimaryKeyValue());
         }
 
         return $is_valid;
@@ -391,7 +343,7 @@ abstract class Phreezable implements Serializable
         $lenfunction = $this->_phreezer->DataAdapter->ConnectionSetting->Multibyte ? 'mb_strlen' : 'strlen';
 
         if (! $this->_base_validation_complete) {
-            $fms = $this->_phreezer->GetFieldMaps($this::class);
+            $fms = $this->_phreezer->GetFieldMaps(static::class);
 
             foreach ($fms as $fm) {
                 $prop = $fm->PropertyName;
@@ -509,7 +461,7 @@ abstract class Phreezable implements Serializable
      */
     function GetPrimaryKeyName()
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
         foreach ($fms as $fm) {
             if ($fm->IsPrimaryKey) {
                 return $fm->PropertyName;
@@ -527,7 +479,7 @@ abstract class Phreezable implements Serializable
          * die();
          */
 
-        throw new Exception("No Primary Key found for " . $this::class);
+        throw new Exception("No Primary Key found for " . static::class);
     }
 
     /**
@@ -552,7 +504,7 @@ abstract class Phreezable implements Serializable
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
         $cols =  [];
 
         foreach ($fms as $fm) {
@@ -595,8 +547,8 @@ abstract class Phreezable implements Serializable
      */
     function Load(&$row)
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
-        $this->_phreezer->Observe("Loading " . $this::class, OBSERVE_DEBUG);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
+        $this->_phreezer->Observe("Loading " . static::class, OBSERVE_DEBUG);
 
         $this->IsLoaded(true); // assume true until fail occurs
         $this->IsPartiallyLoaded(false); // at least we tried
@@ -605,7 +557,7 @@ abstract class Phreezable implements Serializable
                                          // sql statement. We need to strip that out so we can match it up to the property names
         $rowlocal =  [];
         foreach ($row as $key => $val) {
-            $info = explode("___", $key);
+            $info = explode("___", (string) $key);
 
             // we prefer to use tablename.colname if we have it, but if not
             // just use the colname
@@ -628,14 +580,14 @@ abstract class Phreezable implements Serializable
                 $this->$prop = $rowlocal [$fm->ColumnName];
             } else {
                 // there is a required column missing from this $row array - mark as partially loaded
-                $this->_phreezer->Observe("Missing column '" . $fm->ColumnName . "' while loading " . $this::class, OBSERVE_WARN);
+                $this->_phreezer->Observe("Missing column '" . $fm->ColumnName . "' while loading " . static::class, OBSERVE_WARN);
                 $this->IsLoaded(false);
                 $this->IsPartiallyLoaded(true);
             }
         }
 
         // now look for any eagerly loaded children - their fields should be available in this query
-        $kms = $this->_phreezer->GetKeyMaps($this::class);
+        $kms = $this->_phreezer->GetKeyMaps(static::class);
 
         foreach ($kms as $km) {
             if ($km->LoadType == KM_LOAD_EAGER || $km->LoadType == KM_LOAD_INNER) {
@@ -649,7 +601,7 @@ abstract class Phreezable implements Serializable
             }
         }
 
-        $this->_phreezer->Observe("Firing " . $this::class . "->OnLoad()", OBSERVE_DEBUG);
+        $this->_phreezer->Observe("Firing " . static::class . "->OnLoad()", OBSERVE_DEBUG);
         $this->OnLoad();
     }
 
@@ -787,10 +739,4 @@ abstract class Phreezable implements Serializable
     {
         throw new Exception("Unknown property: $key");
     }
-
-    function __serialize()
-    {}
-
-    function __unserialize($data)
-    {}
 }

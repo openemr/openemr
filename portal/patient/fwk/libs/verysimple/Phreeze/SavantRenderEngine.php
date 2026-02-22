@@ -105,7 +105,7 @@ class SavantRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clearAll()
      */
-    function clearAll()
+    function clearAll(): never
     {
         throw new Exception('clearAll not implemented for SavantRenderEngine');
     }

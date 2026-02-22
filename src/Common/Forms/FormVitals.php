@@ -5,10 +5,12 @@
  * For backwards compatibility it extends ORDataObject (which implements the a form of the Active record data pattern),
  * but the preferred mechanism is to use this as a POPO (Plain old PHP object) and save / retrieve data using
  * the VitalsService class.
- * @package openemr
- * @link      http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,10 +22,11 @@ namespace OpenEMR\Common\Forms;
  */
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
+use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\ORDataObject\ORDataObject;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Utils\MeasurementUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 
 class FormVitals extends ORDataObject
 {
@@ -61,7 +64,7 @@ class FormVitals extends ORDataObject
     public $respiration;
     public $note;
     public $BMI;
-    public $BMI_status;
+    public ?string $BMI_status = null;
     public $waist_circ;
     public $head_circ;
     public $oxygen_saturation;
@@ -87,7 +90,7 @@ class FormVitals extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    public function __construct($id = "", $_prefix = "")
+    public function __construct($id = "")
     {
         parent::__construct();
         if ($id > 0) {
@@ -319,11 +322,17 @@ class FormVitals extends ORDataObject
             $this->BMI = $bmi;
         }
     }
-    public function get_BMI_status()
+    public function get_BMI_status(bool $translate = false): ?string
     {
+        if ($this->BMI_status === null || $this->BMI_status === '') {
+            return null;
+        }
+        if ($translate) {
+            return BmiCategory::tryFrom($this->BMI_status)?->label() ?? $this->BMI_status;
+        }
         return $this->BMI_status;
     }
-    public function set_BMI_status($status)
+    public function set_BMI_status(?string $status): void
     {
         $this->BMI_status = $status;
     }
@@ -372,11 +381,7 @@ class FormVitals extends ORDataObject
     }
     public function set_oxygen_flow_rate($o)
     {
-        if (is_numeric($o)) {
-            $this->oxygen_flow_rate = $o;
-        } else {
-            $this->oxygen_flow_rate = 0.00;
-        }
+        $this->oxygen_flow_rate = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_inhaled_oxygen_concentration()
@@ -386,11 +391,7 @@ class FormVitals extends ORDataObject
 
     public function set_inhaled_oxygen_concentration($value)
     {
-        if (is_numeric($value)) {
-            $this->inhaled_oxygen_concentration = $value;
-        } else {
-            $this->inhaled_oxygen_concentration = 0.00;
-        }
+        $this->inhaled_oxygen_concentration = is_numeric($value) ? $value : 0.00;
     }
 
     public function get_ped_weight_height()
@@ -399,11 +400,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_weight_height($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_weight_height = $o;
-        } else {
-            $this->ped_weight_height = 0.00;
-        }
+        $this->ped_weight_height = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_ped_bmi()
@@ -412,11 +409,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_bmi($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_bmi = $o;
-        } else {
-            $this->ped_bmi = 0.00;
-        }
+        $this->ped_bmi = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_ped_head_circ()
@@ -425,11 +418,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_head_circ($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_head_circ = $o;
-        } else {
-            $this->ped_head_circ = 0.00;
-        }
+        $this->ped_head_circ = is_numeric($o) ? $o : 0.00;
     }
 
     /**
@@ -503,7 +492,7 @@ class FormVitals extends ORDataObject
                     // if we have a number 0 we want to let it through.  Originally this failed due to the empty check.
                     if (is_numeric($field) || !empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func([&$this,$func], $field);
+                        $this->$func($field);
                     }
                 }
             }

@@ -4,16 +4,14 @@ namespace OpenEMR\RestControllers\Authorization;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Utils\HttpUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class OAuth2PublicJsonWebKeyController
 {
-    private string $publicKeyPath;
-
-    public function __construct(string $publicKeyPath)
+    public function __construct(private readonly string $publicKeyPath)
     {
-        $this->publicKeyPath = $publicKeyPath;
         // Constructor can be used for dependency injection if needed
     }
 
@@ -34,8 +32,8 @@ class OAuth2PublicJsonWebKeyController
         }
         $key_info = [
             'kty' => 'RSA',
-            'n' => $this->base64url_encode($keyPublic['rsa']['n']),
-            'e' => $this->base64url_encode($keyPublic['rsa']['e']),
+            'n' => HttpUtils::base64url_encode($keyPublic['rsa']['n']),
+            'e' => HttpUtils::base64url_encode($keyPublic['rsa']['e']),
         ];
         $key_info['use'] = 'sig';
 
@@ -43,11 +41,5 @@ class OAuth2PublicJsonWebKeyController
 
         $request->getSession()->invalidate();
         return new JsonResponse($jsonData);
-    }
-
-
-    public function base64url_encode($input): string
-    {
-        return rtrim(strtr(base64_encode($input), '+/', '-_'), '=');
     }
 }

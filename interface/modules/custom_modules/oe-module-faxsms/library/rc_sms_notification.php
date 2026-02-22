@@ -19,6 +19,9 @@
 //hack add for command line version
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
+use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
+use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
@@ -30,7 +33,9 @@ $error = '';
 $runtime = [];
 
 // Check for other arguments and perform your script logic
-if (($argc ?? null) > 1) {
+$argc ??= 0;
+$argv ??= [];
+if ($argc > 1) {
     foreach ($argv as $k => $v) {
         if ($k == 0) {
             continue;
@@ -180,20 +185,20 @@ $db_sms_msg['message'] = $MESSAGE;
                                 $db_sms_msg['message'] ?? '',
                                 $db_sms_msg['email_sender'] ?? ''
                             );
-                            if (stripos($error, 'error') !== false) {
+                            if (stripos((string) $error, 'error') !== false) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
                                 error_log($strMsg); // text
                                 echo(nl2br($strMsg));
                                 continue;
                             } else {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         }
                         if (!$isValid) {
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
                             $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
@@ -210,26 +215,35 @@ $db_sms_msg['message'] = $MESSAGE;
                         $isValid = $emailApp->validEmail($prow['email']);
                         if ($bTestRun == 0 && $isValid) {
                             try {
-                                $error = $emailApp->emailReminder(
+                                $emailApp->emailReminder(
                                     $prow['email'] ?? '',
                                     $db_sms_msg['message'],
                                 );
-                            } catch (\PHPMailer\PHPMailer\Exception $e) {
-                                $error = 'Error' . ' ' . $e->getMessage();
-                            }
-                            if (stripos($error, 'error') !== false) {
-                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>\n";
+                                // Success - create notification log entry
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
+                            } catch (InvalidEmailAddressException) {
+                                $strMsg .= formatErrorMessage(xlt("Invalid email address"));
                                 echo(nl2br($strMsg));
                                 continue;
-                            } else {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            } catch (SmtpNotConfiguredException) {
+                                $strMsg .= formatErrorMessage(xlt("SMTP not configured"));
+                                echo(nl2br($strMsg));
+                                continue;
+                            } catch (EmailSendFailedException $e) {
+                                $strMsg .= formatErrorMessage(xlt("Failed to send email") . ": " . text($e->getMessage()));
+                                echo(nl2br($strMsg));
+                                continue;
+                            } catch (\PHPMailer\PHPMailer\Exception $e) {
+                                $strMsg .= formatErrorMessage(xlt("Email error") . ": " . text($e->getMessage()));
+                                echo(nl2br($strMsg));
+                                continue;
                             }
                         }
                         if (!$isValid) {
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Email") . text('$prow["email"]') . " " . xlt("EMAIL NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
                             $db_sms_msg['message'] = xlt("Error: INVALID EMAIL") . '# ' . text($prow['email']) . xlt("EMAIL NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
@@ -255,12 +269,12 @@ $db_sms_msg['message'] = $MESSAGE;
 <?php
 function isValidPhone($phone): array|bool|string|null
 {
-    $justNums = preg_replace("/[^0-9]/", '', $phone);
-    if (strlen($justNums) === 11) {
-        $justNums = preg_replace("/^1/", '', $justNums);
+    $justNums = preg_replace("/[^0-9]/", '', (string) $phone);
+    if (strlen((string) $justNums) === 11) {
+        $justNums = preg_replace("/^1/", '', (string) $justNums);
     }
     //if we have 10 digits left, it's probably valid.
-    if (strlen($justNums) === 10) {
+    if (strlen((string) $justNums) === 10) {
         return $justNums;
     } else {
         return false;
@@ -340,6 +354,17 @@ function cron_GetNotificationData($type): bool|array
 }
 
 /**
+ * Format an error message for display
+ *
+ * @param string $message The translated error message
+ * @return string Formatted error message with HTML
+ */
+function formatErrorMessage(string $message): string
+{
+    return " | " . xlt("Error:") . " <strong>" . $message . "</strong>\n";
+}
+
+/**
  * Cron Insert Notification Log Entry
  *
  * @param string $type
@@ -347,13 +372,9 @@ function cron_GetNotificationData($type): bool|array
  * @param array  $db_sms_msg
  * @return void
  */
-function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
+function cron_InsertNotificationLogEntryFaxsms($type, $prow, $db_sms_msg): void
 {
-    if ($type == 'SMS') {
-        $smsgateway_info = "";
-    } else {
-        $smsgateway_info = $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
-    }
+    $smsgateway_info = $type == 'SMS' ? "" : $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
 
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
     $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];
@@ -388,19 +409,6 @@ function cron_SetMessage($prow, $db_sms_msg): string
     $message = text($message);
 
     return $message;
-}
-
-/**
- * Get Notification Settings
- *
- * @return array|false
- */
-function cron_GetNotificationSettings(): bool|array
-{
-    $strQuery = "SELECT * FROM notification_settings WHERE type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return ($vectNotificationSettings);
 }
 
 function displayHelp(): void

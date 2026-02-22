@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Gacl\GaclApi;
+use Psr\Log\LoggerInterface;
 
 class Installer
 {
@@ -60,8 +61,9 @@ class Installer
      * Initialize the Installer with configuration variables.
      *
      * @param array $cgi_variables Configuration array containing installation parameters
+     * @param LoggerInterface $logger Logger instance for error reporting
      */
-    public function __construct(array $cgi_variables)
+    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -139,8 +141,9 @@ class Installer
      * @param string $input_text Text to validate
      * @return bool True if text is safe, false otherwise
      */
-    public function char_is_valid(string $input_text): bool
+    public function char_is_valid(?string $input_text): bool
     {
+        $input_text ??= '';
         // to prevent php injection
         $input_text = trim($input_text);
         if ($input_text == '') {
@@ -160,8 +163,11 @@ class Installer
      * @param string $name Database name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function databaseNameIsValid(string $name): bool
+    public function databaseNameIsValid(?string $name): bool
     {
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }
@@ -174,8 +180,12 @@ class Installer
      * @param string $name Collation name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function collateNameIsValid(string $name): bool
+    public function collateNameIsValid(?string $name): bool
     {
+
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }
@@ -513,7 +523,7 @@ class Installer
          * @var string $v_database
          * @var string $v_acl
          */
-        $version_fields = array_map([$this, 'escapeSql'], [
+        $version_fields = array_map($this->escapeSql(...), [
             'v_major' => $v_major,
             'v_minor' => $v_minor,
             'v_patch' => $v_patch,
@@ -563,7 +573,6 @@ class Installer
 
         $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
         $escapedHash = $this->escapeSql($hash);
-        /** @phpstan-ignore empty.variable */
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
@@ -678,7 +687,7 @@ class Installer
             if (!$this->clone_database) {
                 $files = $this->globPattern($destination_directory . "/documents/logs_and_misc/methods/*");
                 if ($files !== false) {
-                    array_map([$this, 'unlinkFile'], $files);
+                    array_map($this->unlinkFile(...), $files);
                 }
             }
         }
@@ -715,14 +724,11 @@ class Installer
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
         $this->writeToFile($fd, $string) or $it_died++;
-        $this->writeToFile($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        $this->writeToFile($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
         $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
         $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
         $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
         $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
         $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
-        $this->writeToFile($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -732,7 +738,6 @@ $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;
 $sqlconf["pass"] = $pass;
 $sqlconf["dbase"] = $dbase;
-$sqlconf["db_encoding"] = $db_encoding;
 
 //////////////////////////
 //////////////////////////
@@ -781,7 +786,7 @@ $config = 1; /////////////
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
-                if (is_array($fldtype) || !str_starts_with($fldtype, 'm_')) {
+                if (is_array($fldtype) || !str_starts_with((string) $fldtype, 'm_')) {
                     $this->writeGlobal($fldid, $flddef, 0, true);
                 }
             }
@@ -1443,7 +1448,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception $e) {
+            } catch (\Throwable) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1581,7 +1586,7 @@ $config = 1; /////////////
                 if ($showError) {
                     $error_mes = $this->mysqliError($this->dbh);
                     $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                    error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
+                    $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {error}", ['sql' => $sql, 'error' => $error_mes]);
                 }
                 return false;
             }
@@ -1589,7 +1594,7 @@ $config = 1; /////////////
         } catch (\mysqli_sql_exception $exception) {
             if ($showError) {
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $exception->getMessage();
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($exception->getMessage(), ENT_QUOTES));
+                $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {message}", ['sql' => $sql, 'message' => $exception->getMessage(), 'exception' => $exception]);
             }
             return false;
         }
@@ -1787,11 +1792,7 @@ $config = 1; /////////////
      */
     protected function get_backup_filename(): string
     {
-        if (stristr(PHP_OS, 'WIN')) {
-            $backup_file = 'C:/windows/temp/setup_dump.sql';
-        } else {
-            $backup_file = '/tmp/setup_dump.sql';
-        }
+        $backup_file = stristr(PHP_OS, 'WIN') ? 'C:/windows/temp/setup_dump.sql' : '/tmp/setup_dump.sql';
 
         return $backup_file;
     }
@@ -2069,7 +2070,7 @@ SETHLP;
      */
     protected function cryptoGenClassExists(): bool
     {
-        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+        return class_exists(\OpenEMR\Common\Crypto\CryptoGen::class);
     }
 
     /**

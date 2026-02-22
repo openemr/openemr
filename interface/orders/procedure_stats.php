@@ -20,14 +20,13 @@ require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Statistics Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Procedure Statistics Report", xl("Procedure Statistics Report"));
 }
 
 $from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : '0000-00-00';
@@ -77,10 +76,7 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
     if (
-        $fid == 'fname'
-        || $fid == 'mname'
-        || $fid == 'lname'
-        || $fid == 'additional_addresses'
+        in_array($fid, ['fname', 'mname', 'lname', 'additional_addresses'])
     ) {
         continue;
     }
@@ -89,48 +85,9 @@ while ($lrow = sqlFetchArray($lres)) {
     $arr_titles[$fid] = [];
 }
 
-// Compute age in years given a DOB and "as of" date.
-//
-function getAge($dob, $asof = '')
-{
-    if (empty($asof)) {
-        $asof = date('Y-m-d');
-    }
-
-    $a1 = explode('-', substr($dob, 0, 10));
-    $a2 = explode('-', substr($asof, 0, 10));
-    $age = $a2[0] - $a1[0];
-    if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
-        --$age;
-    }
-
-  // echo "<!-- $dob $asof $age -->\n"; // debugging
-    return $age;
-}
-
 $cellcount = 0;
 
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
-
-function getListTitle($list, $option)
+function proc_stats_getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
     "list_id = ? AND option_id = ? AND activity = 1", [$list, $option]);
@@ -143,7 +100,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = ''): void
+function proc_stats_genAnyCell($data, bool $right = false, string $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -174,14 +131,14 @@ function genAnyCell($data, $right = false, $class = ''): void
     }
 }
 
-function genHeadCell($data, $right = false): void
+function proc_stats_genHeadCell($data, bool $right = false): void
 {
-    genAnyCell($data, $right, 'dehead');
+    proc_stats_genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum): void
+function proc_stats_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -189,7 +146,7 @@ function genNumCell($num, $cnum): void
         $num = '&nbsp;';
     }
 
-    genAnyCell($num, true, 'detail');
+    proc_stats_genAnyCell($num, true, 'detail');
 }
 
 /**
@@ -217,7 +174,7 @@ function loadColumnData(string $key, array $row): void
         $areport[$key]['.neg'] = 0;       // number of negative results
         $areport[$key]['.age'] = [0,0,0,0,0,0,0,0,0]; // age array
         foreach ($arr_show as $askey => $dummy) {
-            if (str_starts_with($askey, '.')) {
+            if (str_starts_with((string) $askey, '.')) {
                 continue;
             }
 
@@ -235,7 +192,7 @@ function loadColumnData(string $key, array $row): void
     }
 
   // Increment the correct sex category.
-    if (strcasecmp($row['sex'], 'Male') == 0) {
+    if (strcasecmp((string) $row['sex'], 'Male') == 0) {
         ++$areport[$key]['.men'];
     } else {
         ++$areport[$key]['.wom'];
@@ -255,7 +212,7 @@ function loadColumnData(string $key, array $row): void
   // attributes.  A key of "Unspecified" is used where the attribute has
   // no assigned value.
     foreach ($arr_show as $askey => $dummy) {
-        if (str_starts_with($askey, '.')) {
+        if (str_starts_with((string) $askey, '.')) {
             continue;
         }
 
@@ -278,7 +235,7 @@ function process_result_code($row): void
         loadColumnData($key, $row);
     } elseif ($form_by === '5') {  // Recommended followup services.
         if (!empty($row['related_code'])) {
-            $relcodes = explode(';', $row['related_code']);
+            $relcodes = explode(';', (string) $row['related_code']);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -458,14 +415,12 @@ if (!empty($_POST['form_submit'])) {
 
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {
-        if (str_starts_with($askey, '.')) {
+        if (str_starts_with((string) $askey, '.')) {
             continue;
         }
 
         if (
-            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-            $askey == 'contrastart' || $askey == 'referral_source'
+            in_array($askey, ['regdate', 'sex', 'DOB', 'lname', 'fname', 'mname', 'contrastart', 'referral_source'])
         ) {
             continue;
         }
@@ -535,44 +490,44 @@ if (!empty($_POST['form_submit'])) {
 
     genStartRow("bgcolor='#dddddd'");
 
-    // genHeadCell($arr_by[$form_by]);
+    // proc_stats_genHeadCell($arr_by[$form_by]);
     // If the key is an MA or IPPF code, then add a column for its description.
     if ($form_by === '5') {
-        genHeadCell([$arr_by[$form_by], xl('Description')]);
+        proc_stats_genHeadCell([$arr_by[$form_by], xl('Description')]);
     } else {
-        genHeadCell($arr_by[$form_by]);
+        proc_stats_genHeadCell($arr_by[$form_by]);
     }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
       // if ($value == '.total') { // Total Positives
-      //   genHeadCell(xl('Total'));
+      //   proc_stats_genHeadCell(xl('Total'));
       // }
         if ($value == '.tneg') { // Total Negatives
-            genHeadCell(xl('Negatives'));
+            proc_stats_genHeadCell(xl('Negatives'));
         } elseif ($value == '.age') { // Age
-            genHeadCell(xl('0-10'), true);
-            genHeadCell(xl('11-14'), true);
-            genHeadCell(xl('15-19'), true);
-            genHeadCell(xl('20-24'), true);
-            genHeadCell(xl('25-29'), true);
-            genHeadCell(xl('30-34'), true);
-            genHeadCell(xl('35-39'), true);
-            genHeadCell(xl('40-44'), true);
-            genHeadCell(xl('45+'), true);
+            proc_stats_genHeadCell(xl('0-10'), true);
+            proc_stats_genHeadCell(xl('11-14'), true);
+            proc_stats_genHeadCell(xl('15-19'), true);
+            proc_stats_genHeadCell(xl('20-24'), true);
+            proc_stats_genHeadCell(xl('25-29'), true);
+            proc_stats_genHeadCell(xl('30-34'), true);
+            proc_stats_genHeadCell(xl('35-39'), true);
+            proc_stats_genHeadCell(xl('40-44'), true);
+            proc_stats_genHeadCell(xl('45+'), true);
         } elseif (!empty($arr_show[$value]['list_id'])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
+                proc_stats_genHeadCell(proc_stats_getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell($key, true);
+                proc_stats_genHeadCell($key, true);
             }
         }
     }
 
     if ($form_output != 3) {
-        genHeadCell(xl('Positives'), true);
+        proc_stats_genHeadCell(xl('Positives'), true);
     }
 
     genEndRow();
@@ -598,7 +553,7 @@ if (!empty($_POST['form_submit'])) {
 
         genStartRow("bgcolor='" . attr($bgcolor) . "'");
 
-        genAnyCell($dispkey, false, 'detail');
+        proc_stats_genAnyCell($dispkey, false, 'detail');
 
       // This is the column index for accumulating column totals.
         $cnum = 0;
@@ -607,17 +562,17 @@ if (!empty($_POST['form_submit'])) {
       // Generate data for this row.
         foreach ($form_show as $value) {
             // if ($value == '.total') { // Total Positives
-            //   genNumCell($totalsvcs, $cnum++);
+            //   proc_stats_genNumCell($totalsvcs, $cnum++);
             // }
             if ($value == '.tneg') { // Total Negatives
-                genNumCell($areport[$key]['.neg'], $cnum++);
+                proc_stats_genNumCell($areport[$key]['.neg'], $cnum++);
             } elseif ($value == '.age') { // Age
                 for ($i = 0; $i < 9; ++$i) {
-                    genNumCell($areport[$key]['.age'][$i], $cnum++);
+                    proc_stats_genNumCell($areport[$key]['.age'][$i], $cnum++);
                 }
             } elseif (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
-                    genNumCell($areport[$key][$value][$title], $cnum++);
+                    proc_stats_genNumCell($areport[$key][$value][$title], $cnum++);
                 }
             }
         }
@@ -625,7 +580,7 @@ if (!empty($_POST['form_submit'])) {
       // Write the Total column data.
         if ($form_output != 3) {
             $atotals[$cnum] += $totalsvcs;
-            genAnyCell($totalsvcs, true, 'dehead');
+            proc_stats_genAnyCell($totalsvcs, true, 'dehead');
         }
 
         genEndRow();
@@ -635,16 +590,16 @@ if (!empty($_POST['form_submit'])) {
       // Generate the line of totals.
         genStartRow("bgcolor='#dddddd'");
 
-      // genHeadCell(xl('Totals'));
+      // proc_stats_genHeadCell(xl('Totals'));
       // If the key is an MA or IPPF code, then add a column for its description.
         if ($form_by === '5') {
-            genHeadCell([xl('Totals'), '']);
+            proc_stats_genHeadCell([xl('Totals'), '']);
         } else {
-            genHeadCell(xl('Totals'));
+            proc_stats_genHeadCell(xl('Totals'));
         }
 
         for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
-            genHeadCell($atotals[$cnum], true);
+            proc_stats_genHeadCell($atotals[$cnum], true);
         }
 
         genEndRow();

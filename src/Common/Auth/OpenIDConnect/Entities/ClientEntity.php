@@ -32,7 +32,7 @@ class ClientEntity implements ClientEntityInterface
     protected $jwksUri;
 
     /**
-     * Confidential apps or apps with a 'launch' scope must be manually authorized by an adminstrator before their
+     * Confidential apps or apps with a 'launch' scope must be manually authorized by an administrator before their
      * client can be used.
      * @var bool
      */
@@ -93,7 +93,7 @@ class ClientEntity implements ClientEntityInterface
     {
         if (\is_string($uri)) {
             $this->redirectUri = [$uri];
-        } else if (\is_array($uri)) {
+        } elseif (\is_array($uri)) {
             $this->redirectUri = $uri;
         } else {
             throw new \InvalidArgumentException("redirectUri must be a string or array");
@@ -149,7 +149,7 @@ class ClientEntity implements ClientEntityInterface
 
         if (is_string($scopes)) {
             $scopes = explode(" ", $scopes);
-        } else if (!is_array($scopes)) {
+        } elseif (!is_array($scopes)) {
             throw new \InvalidArgumentException("scopes parameter must be a valid array or string");
         }
         $this->scopes = $scopes;
@@ -173,7 +173,7 @@ class ClientEntity implements ClientEntityInterface
      */
     public function getLaunchUri($launchParams = '')
     {
-        $launchParams = $launchParams ?? '';
+        $launchParams ??= '';
         return $this->launchUri . $launchParams;
     }
 

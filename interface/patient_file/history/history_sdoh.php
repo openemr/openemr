@@ -15,21 +15,25 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH form');
 }
 
-$csrf = CsrfUtils::collectCsrfToken();
+$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
 
 // Fetch record
 if ($is_new) {
@@ -89,11 +93,11 @@ function render_list_select(string $field, string $list_id, $current, string $pl
         $code = $system = '';
         if ($codes) {
             if ($codes[0] === '{') {
-                $cd = json_decode($codes, true) ?: [];
+                $cd = json_decode((string) $codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (strpos($codes, ':') !== false) {
-                [$system, $code] = explode(':', $codes, 2);
+            } elseif (str_contains((string) $codes, ':')) {
+                [$system, $code] = explode(':', (string) $codes, 2);
             }
         }
         echo "<option value='" . attr($o['option_id']) . "'"
@@ -103,7 +107,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
     echo "</select>";
 }
 
-$self = basename($_SERVER['PHP_SELF']);
+$self = basename((string) $_SERVER['PHP_SELF']);
 ?>
 <!doctype html>
 <html>
@@ -180,7 +184,7 @@ $self = basename($_SERVER['PHP_SELF']);
                             <select class="form-control" name="assessor">
                                 <option value=""><?php echo xlt("Select Assessor"); ?></option>
                                 <?php
-                                $current_user = $_SESSION['authUser'] ?? '';
+                                $current_user = $session->get('authUser') ?? '';
                                 $res = sqlStatement("SELECT id, username, CONCAT(fname, ' ', lname) as name FROM users WHERE authorized=1 ORDER BY lname, fname");
                                 while ($row = sqlFetchArray($res)) {
                                     $selected = '';
@@ -272,7 +276,7 @@ $self = basename($_SERVER['PHP_SELF']);
                                 echo "<div class='form-row align-items-end mb-2'>";
                                 echo "  <div class='form-group col-md'>";
                                 echo "    <label>" . text($label) . "</label>";
-                                render_list_select("dscale[$fieldKey][code]", $yesNoList, call_user_func($get, $fieldKey), 'Select...');
+                                render_list_select("dscale[$fieldKey][code]", $yesNoList, $get($fieldKey), 'Select...');
                                 echo "  </div>";
                                 echo "</div>";
                             }
@@ -374,6 +378,12 @@ $self = basename($_SERVER['PHP_SELF']);
                             <label><?php echo xlt("Postpartum End Date"); ?></label>
                             <input type="text" class="form-control datepicker" name="postpartum_end"
                                 value="<?php echo attr(v($info, 'postpartum_end')); ?>">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label><?php echo xlt("Pregnancy intention in the next year"); ?></label>
+                            <?php render_list_select('pregnancy_intent', 'pregnancy_intent', v($info, 'pregnancy_intent')); ?>
                         </div>
                     </div>
                 </div>

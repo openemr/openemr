@@ -34,7 +34,7 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label class="form-label">{{ "Status"|xlt }}:</label>
-                {{ selectList('sub_ob_status[]', 'observation-status', observation.status, '') }}
+                {{ selectList('sub_ob_status[]', 'observation-status', observation.ob_status, '') }}
             </div>
         </div>
         <div class="col-md-4">
@@ -44,6 +44,7 @@
                        value="{{ observation.description|default('')|attr }}">
                 <input id="sub-code-type-{{ nodeId|attr }}" type="hidden" name="sub_code_type[]" class="form-control"
                        value="{{ observation.code_type|default('')|attr }}">
+                <input id="observation-code-value-description" type="hidden" name="ob_value_code_description" value="{{ observation.ob_value_code_description|default('')|attr }}">
             </div>
         </div>
     </div>

@@ -14,9 +14,9 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 
@@ -24,8 +24,7 @@ use OpenEMR\Modules\Dorn\ConnectorApi;
 
 $tab = "lab setup";
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN Lab Setup", xl("DORN Lab Setup"));
 }
 
 if (!empty($_POST)) {
@@ -277,7 +276,7 @@ if (!empty($_POST)) {
                                         <td scope="row"><?php echo text($data->city); ?></td>
                                         <td scope="row"><?php echo text($data->state); ?></td>
                                         <td scope="row"><?php echo text($data->zipCode); ?></td>
-                                        <td scope="row"><?php echo text(substr($data->lastCompendiumUpdateDate, 0, 10)); ?></td>
+                                        <td scope="row"><?php echo text(substr((string) $data->lastCompendiumUpdateDate, 0, 10)); ?></td>
                                         <td scope="row"><?php echo text($data->compendiumDownloadDateTime); ?></td>
                                         <td scope="row"><?php echo text($data->numberOfActiveRoutes); ?></td>
                                         <td scope="row"><?php echo text($data->isEulaRequired ? 'Yes' : ''); ?></td>

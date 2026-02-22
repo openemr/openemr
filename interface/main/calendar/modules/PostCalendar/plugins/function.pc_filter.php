@@ -37,15 +37,15 @@ function smarty_function_pc_filter($args, &$smarty): void
 
     $Date = postcalendar_getDate();
     if (!isset($y)) {
-        $y = substr($Date, 0, 4);
+        $y = substr((string) $Date, 0, 4);
     }
 
     if (!isset($m)) {
-        $m = substr($Date, 4, 2);
+        $m = substr((string) $Date, 4, 2);
     }
 
     if (!isset($d)) {
-        $d = substr($Date, 6, 2);
+        $d = substr((string) $Date, 6, 2);
     }
 
     $tplview = pnVarCleanFromInput('tplview');
@@ -56,7 +56,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
 
-    $types = explode(',', $type);
+    $types = explode(',', (string) $type);
     $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -67,7 +67,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $pcTemplate = 'default';
     }
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
     //================================================================
     //  build the username filter pulldown
@@ -78,19 +78,20 @@ function smarty_function_pc_filter($args, &$smarty): void
 	 			FROM $pntable[postcalendar_events], users where users.id=pc_aid
 				ORDER BY pc_aid";
 
-        $result = $dbconn->Execute($sql);
-        if ($result !== false) {
+        try {
+            $result = $conn->executeQuery($sql);
             $useroptions  = "<select multiple='multiple' size='3' name=\"pc_username[]\" class=\"$class\">";
             $useroptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_USERS . "</option>";
             $selected = $pc_username == '__PC_ALL__' ? 'selected="selected"' : '';
             $useroptions .= "<option value=\"__PC_ALL__\" class=\"$class\" $selected>" . _PC_FILTER_USERS_ALL . "</option>";
-            for (; !$result->EOF; $result->MoveNext()) {
-                $sel = $pc_username == $result->fields[0] ? 'selected="selected"' : '';
-                $useroptions .= "<option value=\"" . $result->fields[0] . "\" $sel class=\"$class\">" . $result->fields[1] . ", " . $result->fields[2] . "</option>";
+            foreach ($result->iterateNumeric() as $row) {
+                $sel = $pc_username == $row[0] ? 'selected="selected"' : '';
+                $useroptions .= "<option value=\"" . $row[0] . "\" $sel class=\"$class\">" . $row[1] . ", " . $row[2] . "</option>";
             }
 
             $useroptions .= '</select>';
-            $result->Close();
+        } catch (Doctrine\DBAL\Exception) {
+            // Query failed - leave $useroptions undefined like old behavior
         }
     }
 
@@ -105,7 +106,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $catoptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_CATEGORY . "</option>";
         foreach ($categories as $c) {
             $sel = $category == $c['id'] ? 'selected="selected"' : '';
-            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c[name]) . "</option>";
+            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c['name']) . "</option>";
         }
 
         $catoptions .= '</select>';

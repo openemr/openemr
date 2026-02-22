@@ -44,7 +44,7 @@ updates:
       - dependency-name: "*/onc-certification-g10-test-kit"
       - dependency-name: "*/inferno-files"
 
-  # JavaScript dependencies
+  # JavaScript dependencies (not including ccdaservice)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -139,3 +139,23 @@ updates:
       - "dependencies"
       - "selenium"
       - "docker"
+
+  # JavaScript dependencies (ccdaservice)
+  - package-ecosystem: "npm"
+    directory: "/ccdaservice"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "CCDA Service"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      # Don't update major versions automatically
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

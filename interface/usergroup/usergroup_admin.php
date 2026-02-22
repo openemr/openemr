@@ -23,16 +23,18 @@
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\UserService;
-use OpenEMR\Events\User\UserUpdatedEvent;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserCreatedEvent;
+use OpenEMR\Events\User\UserUpdatedEvent;
+use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
@@ -41,8 +43,7 @@ if (!empty($_REQUEST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("User / Groups")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: User / Groups", xl("User / Groups"));
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -75,7 +76,7 @@ $show_message = 0;
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
-    $mail_id = explode(".", $SMTP_HOST);
+    $mail_id = explode(".", (string) $SMTP_HOST);
     for ($i = 0; $i < $bg_count; $i++) {
         if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
             if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
@@ -180,9 +181,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
             // Now process the selection of facilities and warehouses.
             foreach ($_POST["schedule_facility"] as $tqvar) {
-                if (($i = strpos($tqvar, '/')) !== false) {
-                    $facid = substr($tqvar, 0, $i);
-                    $whid = substr($tqvar, $i + 1);
+                if (($i = strpos((string) $tqvar, '/')) !== false) {
+                    $facid = substr((string) $tqvar, 0, $i);
+                    $whid = substr((string) $tqvar, $i + 1);
                     // If there was also a facility-only selection for this warehouse then remove it.
                     if (isset($olduf["$facid/"])) {
                         $olduf["$facid/"] = true;
@@ -301,11 +302,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set supervisor_id = ? where id = ? ", [(int)$_POST["supervisor_id"], $_POST["id"]]);
         }
         if (isset($_POST["google_signin_email"])) {
-            if (empty($_POST["google_signin_email"])) {
-                $googleSigninEmail = null;
-            } else {
-                $googleSigninEmail = $_POST["google_signin_email"];
-            }
+            $googleSigninEmail = empty($_POST["google_signin_email"]) ? null : $_POST["google_signin_email"];
             sqlStatement("update users set google_signin_email = ? where id = ? ", [$googleSigninEmail, $_POST["id"]]);
         }
 
@@ -322,7 +319,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
         // instead of the entire user data?  This makes the pre event data not very useful w/o doing a database hit...
         $userUpdatedEvent = new UserUpdatedEvent($user_data, $_POST);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($userUpdatedEvent, UserUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userUpdatedEvent, UserUpdatedEvent::EVENT_HANDLE);
     }
 }
 
@@ -336,7 +333,7 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
+        $res = sqlQuery("select username from users where username = ?", [trim((string) $_POST['rumple'])]);
         $doit = true;
         if (!empty($res['username'])) {
             $doit = false;
@@ -349,7 +346,7 @@ if (isset($_POST["mode"])) {
                 if (empty($_POST["google_signin_email"])) {
                     $googleSigninEmail = "NULL";
                 } else {
-                    $googleSigninEmail = "'" . add_escape_custom(trim($_POST["google_signin_email"])) . "'";
+                    $googleSigninEmail = "'" . add_escape_custom(trim((string) $_POST["google_signin_email"])) . "'";
                 }
             }
             $insertUserSQL =
@@ -462,7 +459,7 @@ if (isset($_POST["mode"])) {
             $submittedData['username'] = $submittedData['rumple'] ?? null;
             $userCreatedEvent = new UserCreatedEvent($submittedData);
             unset($submittedData); // clear things out in case we have any sensitive data here
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($userCreatedEvent, UserCreatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($userCreatedEvent, UserCreatedEvent::EVENT_HANDLE);
         }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
@@ -669,22 +666,14 @@ function resetCounter(username) {
                                 continue;
                             }
 
-                            if ($iter["authorized"]) {
-                                $iter["authorized"] = xl('yes');
-                            } else {
-                                $iter["authorized"] = xl('no');
-                            }
+                            $iter["authorized"] = $iter["authorized"] ? xl('yes') : xl('no');
 
                             $mfa = sqlQuery(
                                 "SELECT `method` FROM `login_mfa_registrations` " .
                                 "WHERE `user_id` = ? AND (`method` = 'TOTP' OR `method` = 'U2F')",
                                 [$iter['id']]
                             );
-                            if (!empty($mfa['method'])) {
-                                $isMfa = xl('yes');
-                            } else {
-                                $isMfa = xl('no');
-                            }
+                            $isMfa = !empty($mfa['method']) ? xl('yes') : xl('no');
 
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
@@ -705,10 +694,10 @@ function resetCounter(username) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<td>';
                                     echo xlt('Not Applicable');
-                                } elseif (strtotime($current_date) > strtotime($grace_time)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $grace_time)) {
                                     echo '<td class="bg-danger text-light">';
                                     echo xlt('Expired');
-                                } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $pwd_expires)) {
                                     echo '<td class="bg-warning text-dark">';
                                     echo xlt('Grace Period');
                                 } else {
@@ -726,7 +715,7 @@ function resetCounter(username) {
                                 if (!empty($queryCounter['login_fail_counter'])) {
                                     echo text($queryCounter['login_fail_counter']);
                                     if (!empty($queryCounter['last_login_fail'])) {
-                                        echo ' (' . xlt('last on') . ' ' . text(oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
+                                        echo ' (' . xlt('last on') . ' ' . text(DateFormatterUtils::oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
                                     }
                                     echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
@@ -744,7 +733,7 @@ function resetCounter(username) {
                                     if ($autoBlocked) {
                                         echo '<br>' . xlt("Currently Autoblocked");
                                         if (!empty($autoBlockEnd)) {
-                                            echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                            echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($autoBlockEnd)) . ')';
                                         }
                                     }
                                 } else {
@@ -773,7 +762,7 @@ function resetCounter(username) {
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
+                        substr((string) $list, 0, strlen((string) $list) - 2) . "</span><br />\n";
                 }
             }
             ?>

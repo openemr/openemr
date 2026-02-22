@@ -36,23 +36,19 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     use WritesToBillingLog;
 
     /**
-     * If "Allow Encounter Claims" is enabled, this allows the claims to use
-     * the alternate payor ID on the claim and sets the claims to report,
-     * not chargeable. ie: RP = reporting, CH = chargeable
-     *
-     * @var bool|mixed
-     */
-    protected $encounter_claim = false;
-
-    /**
      * @var BillingClaimBatch
      */
     protected $batch;
 
-    public function __construct($action, $encounter_claim = false)
-    {
+    /**
+     * @param mixed $action
+     * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
+     */
+    public function __construct(
+        $action,
+        protected $encounter_claim = false
+    ) {
         parent::__construct($action);
-        $this->encounter_claim = $encounter_claim;
     }
 
     /**
@@ -70,7 +66,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $hlCount = 1;
         $segs = explode(
             "~\n",
-            X125010837P::genX12837P(
+            (string) X125010837P::genX12837P(
                 $claim->getPid(),
                 $claim->getEncounter(),
                 $claim->getPartner(),

@@ -24,14 +24,11 @@ class ListOptionRule extends Rule
         self::INVALID_LIST_OPTION => '{{ listId }} does not have an option_id of "{{ name }}"',
     ];
 
-    private $listId;
-
     /**
      * @param $listId The id of the list to validate against from the list_options.list_id table
      */
-    public function __construct($listId)
+    public function __construct(private $listId)
     {
-        $this->listId = $listId;
     }
 
     public function validate($value)

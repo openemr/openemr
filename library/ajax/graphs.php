@@ -25,9 +25,9 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 //  $table is the sql table (or form name if LBF)
 //  $name identifies the desired data item
 //  $title is used as the title of the graph
-$table = trim($_POST['table']);
-$name = trim($_POST['name']);
-$title = trim($_POST['title']);
+$table = trim((string) $_POST['table']);
+$name = trim((string) $_POST['name']);
+$title = trim((string) $_POST['title']);
 
 $is_lbf = str_starts_with($table, 'LBF');
 
@@ -91,7 +91,7 @@ function graphsGetValues($name)
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
-        $values = SqlStatement("SELECT " .
+        $values = sqlStatement("SELECT " .
             escape_sql_column_name($name, [$table]) . ", " .
         "date " .
         "FROM " . escape_table_name($table) . " " .
@@ -198,11 +198,7 @@ if ($is_lbf) {
     if ($name == "bp_systolic" || $name == "bp_diastolic") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bp_systolic") {
-            $name_alt = "bp_diastolic";
-        } else {
-            $name_alt = "bp_systolic";
-        }
+        $name_alt = $name == "bp_systolic" ? "bp_diastolic" : "bp_systolic";
 
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);

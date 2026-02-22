@@ -26,13 +26,13 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
     }
     $responseService = new QuestionnaireResponseService();
     try {
-        $qr = json_decode($form['questionnaire_response'], true);
+        $qr = json_decode((string) $form['questionnaire_response'], true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             die(xlt('Nothing to report. Parse error.'));
         }
         $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt("Error") . " " . text($e->getMessage());
     }
 }

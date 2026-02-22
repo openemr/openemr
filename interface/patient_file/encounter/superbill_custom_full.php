@@ -20,19 +20,22 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
@@ -55,7 +58,7 @@ $financial_reporting = 0;
 $revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -115,7 +118,7 @@ if (isset($mode) && $thisauthwrite) {
 
             if (!$alertmsg) {
                 foreach ($_POST['fee'] as $key => $value) {
-                    $value = $value ?? 0;
+                    $value ??= 0;
                     if ($value) {
                         sqlStatement("INSERT INTO prices ( " .
                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
@@ -178,7 +181,7 @@ if (isset($mode) && $thisauthwrite) {
     // If codes history is enabled in the billing globals save data to codes history table
     if (
         $GLOBALS['save_codes_history'] && $alertmsg == '' &&
-        ($mode == "add" || $mode == "modify_complete" || $mode == "delete")
+        (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;
         $action_type = ($action_type == 'add') ? 'update' : $action_type;
@@ -218,7 +221,7 @@ if (isset($mode) && $thisauthwrite) {
             "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-            [$date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $_SESSION['authUser']]
+            [$date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $session->get('authUser')]
         );
     }
 }
@@ -424,14 +427,6 @@ if ($fend > ($count ?? null)) {
             f.submit();
         }
 
-        function submitList(offset) {
-            var f = document.forms[0];
-            var i = parseInt(f.fstart.value) + offset;
-            if (i < 0) i = 0;
-            f.fstart.value = i;
-            f.submit();
-        }
-
         function submitEdit(id) {
             var f = document.forms[0];
             f.mode.value = 'edit';
@@ -474,7 +469,7 @@ if ($fend > ($count ?? null)) {
 <body class="body_top">
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"/>
 
     <input type='hidden' name='mode' value=''/>
 
@@ -635,7 +630,7 @@ if ($fend > ($count ?? null)) {
                 "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
             while ($prow = sqlFetchArray($pres)) {
                 $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-                if (strpos(":$taxrates", $prow['option_id']) !== false) {
+                if (str_contains(":$taxrates", (string) $prow['option_id'])) {
                     $taxline .= " checked";
                 }
 
@@ -704,18 +699,16 @@ if ($fend > ($count ?? null)) {
                             echo ' checked';
                                 } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
-            <div class="col-md text-right">
-                <?php if ($fstart) { ?>
-                    <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                        &lt;&lt;
-                    </a>
-                    &nbsp;&nbsp;
-                <?php } ?>
-                <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count ?? ''); ?>
-                <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                    &gt;&gt;
-                </a>
-            </div>
+            <div class="col-md text-right"><?php
+                $paginator = new PaginationUtils();
+                echo $paginator->render(
+                    offset: $fstart,
+                    pageSize: $pagesize,
+                    totalCount: $count ?? 0,
+                    filename: basename(__FILE__),
+                    excludeParams: ['mode']
+                );
+                ?></div>
         </div>
     </div>
 </form>
@@ -803,7 +796,7 @@ if ($fend > ($count ?? null)) {
             if (related_codes_are_used() && $iter['related_code']) {
                 // Show related codes.
                 echo "  <td class='text'>";
-                $arel = explode(';', $iter['related_code']);
+                $arel = explode(';', (string) $iter['related_code']);
                 foreach ($arel as $tmp) {
                     [$reltype, $relcode] = explode(':', $tmp);
                     $code_description = lookup_code_descriptions($reltype . ":" . $relcode);

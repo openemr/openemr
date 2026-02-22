@@ -31,6 +31,7 @@ require_once(__DIR__ . "/gprelations.inc.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use OpenEMR\Services\VersionService;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -47,7 +48,7 @@ function phimail_connect(&$phimail_error)
         return false; //for safety
     }
 
-    $phimail_server = @parse_url($GLOBALS['phimail_server_address']);
+    $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = new CryptoGen();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
@@ -341,7 +342,7 @@ function phimail_check(): void
                     $idnum = $doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
                         filesize($body) . " bytes) Main message body";
                 }
@@ -394,7 +395,7 @@ function phimail_check(): void
                     $idnum = $att_doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $att_doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
                         $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
                 }
@@ -406,7 +407,7 @@ function phimail_check(): void
 
             $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
 
-            //logging only after succesful download, storage, and acknowledgement of message
+            //logging only after successful download, storage, and acknowledgement of message
             $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
                 "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
             $res = sqlStatementNoLog($sql, [$msg_id, $sender, $recipient, phimail_service_userID()]);
@@ -439,7 +440,7 @@ function phimail_check(): void
                     if (empty($body_text ?? '')) {
                         $body_text = xl("Please note, this message was received empty and is not an error.");
                     } else {
-                        // meager attempt to covert to text. @TODO convert our Messages message body from textarea to div so can display html.
+                        // meager attempt to convert to text. @TODO convert our Messages message body from textarea to div so can display html.
                         $body_text = trim(html_entity_decode(strip_tags(str_ireplace(["<br />", "<br>", "<br/>"], PHP_EOL, $body_text))));
                     }
                     $pnote_id = addPnote(
@@ -484,7 +485,7 @@ function phimail_check(): void
  */
 function phimail_write($fp, $text): void
 {
-    fwrite($fp, $text);
+    fwrite($fp, (string) $text);
     fflush($fp);
 }
 
@@ -510,16 +511,13 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
     if (!$success) {
         (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
     }
-    EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
 /**
  * Read a blob of data into a local temporary file
- *
- * @param $len number of bytes to read
- * @return the temp filename, or FALSE if failure
  */
-function phimail_read_blob($fp, $len)
+function phimail_read_blob($fp, $len): string|false
 {
 
     $fpath = $GLOBALS['temporary_files_dir'];
@@ -570,7 +568,7 @@ function phimail_read_blob($fp, $len)
  */
 function phimail_extension($mime)
 {
-    $m = explode("/", $mime);
+    $m = explode("/", (string) $mime);
     switch ($mime) {
         case 'text/plain':
             return (".txt");
@@ -612,7 +610,7 @@ function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
     if (!$isAllowedFile) {
         // we used to only bypass if the Direct mime type matched with what comes through in the event.
         // This fails though if there are multiple possible mime types such as application/xml vs text/xml and the Direct
-        // mime type differs from the local OS detection. We will just bypass the mime check alltogether.
+        // mime type differs from the local OS detection. We will just bypass the mime check altogether.
         $event->setAllowedFile(true);
     }
     return $event;
@@ -630,8 +628,8 @@ function phimail_store($name, $mime_type, $fn)
 
     $allowMimeTypeFunction = 'phimail_allow_document_mimetype';
     // we bypass the whitelisting JUST for phimail documents
-    if (isset($GLOBALS['kernel'])) {
-        $GLOBALS['kernel']->getEventDispatcher()
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
             ->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
     }
     // Collect phimail user id
@@ -644,7 +642,7 @@ function phimail_store($name, $mime_type, $fn)
         if (is_array($return)) {
             $return['filesize'] = $filesize;
         }
-    } catch (\Exception $exception) {
+    } catch (\Throwable $exception) {
         (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
@@ -652,8 +650,8 @@ function phimail_store($name, $mime_type, $fn)
         $phimail_direct_message_check_allowed_mimetype = null;
         // There shouldn't be another request in the system to add a document, but for security sake we will prevent code
         // after this from bypassing the whitelist filter
-        if (isset($GLOBALS['kernel'])) {
-            $GLOBALS['kernel']->getEventDispatcher()
+        if (OEGlobalsBag::getInstance()->hasKernel()) {
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
                 ->removeListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
         }
         // Remove the temporary file

@@ -36,7 +36,7 @@ class NQF_0028_2014_Numerator implements CqmFilterIF
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             foreach ($dates as $date) {
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-                $date = date('Y-m-d 23:59:59', strtotime($date));
+                $date = date('Y-m-d 23:59:59', strtotime((string) $date));
                 $date = date("Y-m-d H:i:s", strtotime('+1 days', strtotime($date)));
                 $beginMinus24Months = strtotime('-24 month', strtotime($date));
                 $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);

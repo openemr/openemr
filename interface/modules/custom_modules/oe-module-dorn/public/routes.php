@@ -12,19 +12,18 @@
 
 require_once "../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\Dorn\ConnectorApi;
 
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "routes";
 $pageTitle = xl("DORN - Routes");
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN - Routes", $pageTitle);
 }
 
 if (!empty($_POST)) {
@@ -125,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                                             <td scope="row">
                                                 <?php
                                                 // Convert to OpenEMR’s short date format
-                                                $created = oeFormatShortDate(date('Y-m-d', strtotime($data->createdDateTimeUtc)));
+                                                $created = oeFormatShortDate(date('Y-m-d', strtotime((string) $data->createdDateTimeUtc)));
                                                 echo text($created);
                                                 ?>
                                             </td>

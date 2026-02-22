@@ -26,4 +26,3 @@ class NegativeLaboratoryTestRecommended extends LaboratoryTestRecommended
 
     public $_type = 'QDM::NegativeLaboratoryTestRecommended';
 }
-

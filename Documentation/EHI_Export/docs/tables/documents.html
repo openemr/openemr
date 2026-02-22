@@ -133,6 +133,21 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
+                                                <td title="categories_to_documents.document_id references documents.id"><a href='categories_to_documents.html'>categories_to_documents</a><span class='relatedKey'>.document_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="clinical_notes_documents.document_id references documents.id"><a href='clinical_notes_documents.html'>clinical_notes_documents</a><span class='relatedKey'>.document_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job_tasks.export_document_id references documents.id via FK_task_ehi_export_document_id"><a href='ehi_export_job_tasks.html'>ehi_export_job_tasks</a><span class='relatedKey'>.export_document_id</span></td>
+                                                <td class="constraint detail">FK_task_ehi_export_document_id</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="notes.foreign_id references documents.id"><a href='notes.html'>notes</a><span class='relatedKey'>.foreign_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -219,6 +234,23 @@
                                     <td><p>Date when the document was created</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="date_expires">date_expires</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Date when the document expires and is no longer available.</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="url">url</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
@@ -234,6 +266,23 @@
                                         </table>
                                     </td>
                                     <td><p>URL of the document</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="thumb_url">thumb_url</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>URL of the document&rsquo;s thumbnail</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="mimetype">mimetype</span></td>
@@ -385,6 +434,40 @@
                                         </table>
                                     </td>
                                     <td><p>FK to lists.id associated with the document when the document is related to an issue</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="name">name</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Name of the document. Populated since OpenEMR versions 6.0.0+</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="drive_uuid">drive_uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>UUID of the document&rsquo;s drive. Empty in export</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="couch_docid">couch_docid</span></td>
@@ -562,23 +645,6 @@
                                     <td><p>Used for CCDA and lab documents where the individual / contents of the documentation of a service event is recorded</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="thumb_url">thumb_url</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>URL of the document&rsquo;s thumbnail</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="encrypted">encrypted</span></td>
                                     <td>TINYINT</td>
                                     <td>3</td>
@@ -597,8 +663,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="document_data">document_data</span></td>
-                                    <td>LONGTEXT</td>
-                                    <td>2147483647</td>
+                                    <td>MEDIUMTEXT</td>
+                                    <td>16777215</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -611,40 +677,6 @@
                                         </table>
                                     </td>
                                     <td><p>Additional metadata concerning the document is stored here.  CCDA/CDA documents store their validation log in this field and DICOM files store a JSON history of actions taken on the DICOM in this field</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="name">name</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Name of the document. Populated since OpenEMR versions 6.0.0+</p></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="drive_uuid">drive_uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>UUID of the document&rsquo;s drive. Empty in export</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="deleted">deleted</span></td>
@@ -662,23 +694,6 @@
                                         </table>
                                     </td>
                                     <td><p>Flag indicating if the document is deleted (0 or 1).  If a file has been marked as deleted the underlying file stored in the file storage system is NOT included in data exports and is no longer available for retrieval</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="date_expires">date_expires</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Date when the document expires and is no longer available.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="foreign_reference_id">foreign_reference_id</span></td>

@@ -34,10 +34,10 @@ class FhirOperationDocRefRestController
     const OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING = "processing";
     const OPERATION_OUTCOME_ISSUE_TYPE_NOT_SUPPORTED = "not-supported";
 
-    private FhirDocRefService $fhirDocRefService;
-    private FhirResourcesService $fhirService;
+    private readonly FhirDocRefService $fhirDocRefService;
+    private readonly FhirResourcesService $fhirService;
 
-    public function __construct(HttpRestRequest $request)
+    public function __construct(private readonly HttpRestRequest $request)
     {
         $this->fhirDocRefService = new FhirDocRefService($request->getApiBaseFullUrl());
         $this->fhirService = new FhirResourcesService();
@@ -51,6 +51,14 @@ class FhirOperationDocRefRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         try {
+            // TODO: figure out how to get the session storage down into the CCDA service
+            $sessionBag = $this->request->getSession()->all();
+            foreach ($sessionBag as $key => $value) {
+                if (str_starts_with((string) $key, "_")) {
+                    continue; // skip internal session keys
+                }
+                $_SESSION[$key] = $value;
+            }
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
             $bundleEntries = [];
             foreach ($processingResult->getData() as $searchResult) {
@@ -67,13 +75,13 @@ class FhirOperationDocRefRestController
             $response->getBody()->write(json_encode($bundleSearchResult));
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $response->getBody()->write(json_encode($operationOutcome));
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
             $response->getBody()->write(json_encode($operationOutcome));

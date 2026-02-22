@@ -16,15 +16,14 @@ require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Pending Followup from Results", xl("Pending Followup from Results"));
 }
 
 $facilityService = new FacilityService();
@@ -239,7 +238,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;

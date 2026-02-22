@@ -16,7 +16,7 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $serviceType = null;
 $action = $_REQUEST['_ACTION_COMMAND'] ?? null;
-$route = explode('/', $action);
+$route = explode('/', (string) $action);
 if (count($route ?? []) === 2) {
     $serviceType = $route[0];
     $action = $route[1] ?: $action;

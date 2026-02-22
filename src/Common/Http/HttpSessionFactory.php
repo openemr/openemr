@@ -28,19 +28,10 @@ class HttpSessionFactory implements SessionFactoryInterface
      */
     private string $sessionType;
 
-    private HttpRestRequest $request;
-
-    private string $web_root;
-
-    private bool $readOnly;
-
     private bool $useBridge = false;
 
-    public function __construct(HttpRestRequest $request, string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, bool $readOnly = false)
+    public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
-        $this->readOnly = $readOnly;
-        $this->web_root = $web_root;
-        $this->request = $request;
         if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE])) {
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }
@@ -97,8 +88,8 @@ class HttpSessionFactory implements SessionFactoryInterface
         if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
             $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
             try {
-                $sessionHandler = (new SentinelUtil($settings['gc_maxlifetime']))->configure();
-            } catch (\Exception $e) {
+                $sessionHandler = (new SentinelUtil())->configure($settings['gc_maxlifetime']);
+            } catch (\Throwable $e) {
                 // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
                 $this->getSystemLogger()->error(
                     "SessionUtil: failed to configure predis sentinel session storage: " . $e->getMessage(),
@@ -117,7 +108,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         // while we migrate the sessions to testable objects.
         if (!empty($_SESSION)) {
             foreach ($_SESSION as $key => $value) {
-                if ($key !== $session->getName()) { // Avoid overwriting session name
+                if (!in_array($key, [SessionUtil::OAUTH_SESSION_ID, SessionUtil::API_SESSION_ID, SessionUtil::CORE_SESSION_ID])) { // Avoid overwriting session name
                     $session->set($key, $value);
                 }
             }

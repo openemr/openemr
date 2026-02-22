@@ -32,7 +32,7 @@ class DornLabSubscriber implements EventSubscriberInterface
             $dorn = new DornGenHl7Order();
             $msg = $dorn->genHl7Order($event->getFormid(), $event->getHl7());
             $event->addMessage($msg);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $event->addMessage("GEN_HL7_ORDER error: " . $e->getMessage());
         }
     }
@@ -44,7 +44,7 @@ class DornLabSubscriber implements EventSubscriberInterface
             $dorn = new DornGenHl7Order();
             $msg = '';
             $event->addMessage($msg);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $event->addMessage("GEN_BARCODE error: " . $e->getMessage());
         }
     }
@@ -56,7 +56,7 @@ class DornLabSubscriber implements EventSubscriberInterface
             $msg = $dorn->sendHl7Order($event->getPpid(), $event->getFormid(), $event->getHl7());
             $event->setSendOrderResponse($msg);
             $event->addMessage("");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $event->addMessage("SEND_ORDER error: " . $e->getMessage());
         }
     }

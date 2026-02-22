@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -23,19 +24,15 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
 class BaseService implements BaseServiceInterface
 {
-    /**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table;
     private $fields;
     private $autoIncrements;
 
@@ -57,28 +54,44 @@ class BaseService implements BaseServiceInterface
     ];
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
     /**
-     * Default constructor.
+     * @var ?SessionInterface For handling session data in the service
      */
-    public function __construct($table)
-    {
-        $this->table = $table;
-        $this->fields = sqlListFields($table);
-        $this->autoIncrements = self::getAutoIncrements($table);
+    private ?SessionInterface $session = null;
+
+    /**
+     * Default constructor.
+     * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
+     */
+    public function __construct(
+        private $table
+    ) {
+        $this->fields = QueryUtils::listTableFields($table);
+        $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
+    }
+
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
     }
@@ -130,6 +143,9 @@ class BaseService implements BaseServiceInterface
         return $normalizedFields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return [];
@@ -163,11 +179,7 @@ class BaseService implements BaseServiceInterface
      */
     public function queryFields($map = null, $data = null)
     {
-        if ($data == null || $data == "*" || $data == "all") {
-            $value = "*";
-        } else {
-            $value = implode(", ", $data);
-        }
+        $value = in_array($data, [null, "*", "all"]) ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
     }
@@ -220,7 +232,7 @@ class BaseService implements BaseServiceInterface
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
                 // for dates which should be saved as null
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (str_contains((string) $key, 'date'))) {
                     $bind[] = null;
                 } else {
                     $bind[] = ($value === null || $value === false) ? $null_value : $value;
@@ -281,18 +293,14 @@ class BaseService implements BaseServiceInterface
                     $value === null
                     || $value === false
                 )
-                && (strpos($key, 'date') === false)
+                && (!str_contains((string) $key, 'date'))
             ) {
                 // in case unwanted values passed in.
                 continue;
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (strpos($key, 'date') !== false)) {
-                    $bind[] = null;
-                } else {
-                    $bind[] = $value;
-                }
+                $bind[] = empty($value) && str_contains((string) $key, 'date') ? null : $value;
             }
         }
 
@@ -343,7 +351,7 @@ class BaseService implements BaseServiceInterface
      * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
-    public static function throwException($message, $type = "Error")
+    public static function throwException($message, $type = "Error"): never
     {
         throw new InvalidValueException($message, $type);
     }
@@ -357,7 +365,7 @@ class BaseService implements BaseServiceInterface
      */
     public static function isValidDate($dateString)
     {
-        return (bool) strtotime($dateString);
+        return (bool) strtotime((string) $dateString);
     }
 
     /**
@@ -376,7 +384,7 @@ class BaseService implements BaseServiceInterface
      * Fetch ID by UUID of Resource
      *
      * @param string $uuid              - UUID of Resource
-     * @param string $table             - Table reffering to the ID field
+     * @param string $table             - Table referring to the ID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return ID
      */
@@ -391,7 +399,7 @@ class BaseService implements BaseServiceInterface
      * Fetch UUID by ID of Resource
      *
      * @param string $id                - ID of Resource
-     * @param string $table             - Table reffering to the UUID field
+     * @param string $table             - Table referring to the UUID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return UUID string
      */
@@ -518,7 +526,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     * @param array<string, mixed> $row The record returned from the database
+     * @return array<string, mixed>
      */
     protected function createResultRecordFromDatabaseResult($row)
     {
@@ -570,7 +579,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $fields                    - All IDs separated with | sign
      * @param string $table                     - Name of the table of targeted ID
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs

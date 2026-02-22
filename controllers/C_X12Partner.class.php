@@ -16,15 +16,13 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 class C_X12Partner extends Controller
 {
-    var $template_mod;
-    var $providers;
-    var $x12_partners;
+    public $providers;
+    public $x12_partners;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->x12_partners = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&");
         $this->assign("STYLE", $GLOBALS['style']);
@@ -71,11 +69,7 @@ class C_X12Partner extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->x12_partners[0] = new X12Partner($_POST['id']);
-        } else {
-            $this->x12_partners[0] = new X12Partner();
-        }
+        $this->x12_partners[0] = is_numeric($_POST['id']) ? new X12Partner($_POST['id']) : new X12Partner();
 
         parent::populate_object($this->x12_partners[0]);
 
@@ -86,10 +80,10 @@ class C_X12Partner extends Controller
         }
 
         $this->x12_partners[0]->persist();
-        //insurance numbers need to be repopulated so that insurance_company_name recieves a value
+        //insurance numbers need to be repopulated so that insurance_company_name receives a value
         $this->x12_partners[0]->populate();
 
-        //echo "action processeed";
+        //echo "action processed";
         $_POST['process'] = "";
         $this->_state = false;
         header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H

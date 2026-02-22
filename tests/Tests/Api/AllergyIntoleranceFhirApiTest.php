@@ -48,7 +48,7 @@ class AllergyIntoleranceFhirApiTest extends TestCase
         $this->assertEquals(Response::HTTP_OK, $actualResult->getStatusCode());
         $body = $actualResult->getBody()->getContents();
         $this->assertNotEmpty($body, "AllergyIntolerance search by patient should have returned a result");
-        $contents = json_decode($body, true);
+        $contents = json_decode((string) $body, true);
         $this->assertArrayhasKey("total", $contents);
         $this->assertEquals(0, $contents['total'], "AllergyIntolerance search by patient should have returned no results for a new patient");
     }

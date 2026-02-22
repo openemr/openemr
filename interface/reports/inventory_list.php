@@ -16,9 +16,9 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$include_root/drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -40,8 +40,7 @@ $auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
     AclMain::aclCheckCore('admin', 'drugs') ||
     AclMain::aclCheckCore('inventory', 'reporting'));
 if (!$auth_drug_reports) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory List")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs or inventory/reporting: Inventory List", xl("Inventory List"));
 }
 
 // Note if user is restricted to any facilities and/or warehouses.
@@ -181,7 +180,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         array_merge([$begdate], $prodbind, $extrabind)
     );
     while ($row = sqlFetchArray($res)) {
-        $thisdate = substr($row['destroy_date'], 0, 10);
+        $thisdate = substr((string) $row['destroy_date'], 0, 10);
         if (!isset($qtys[$thisdate])) {
             $qtys[$thisdate] = 0;
         }
@@ -425,7 +424,7 @@ function write_report_line(&$row): void
             addWarning(xl('Lot') . " '$lotno' " . xl('quantity seems unusable'));
         }
         if (!empty($irow['expiration'])) {
-            $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
+            $expdays = (int) ((strtotime((string) $irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
                 addWarning(xl('Lot') . " '$lotno' " . xl('has expired'));
             } elseif ($expdays <= $gbl_expired_lot_warning_days) {
@@ -460,7 +459,7 @@ function write_report_line(&$row): void
     }
 
     $relcodes = '';
-    $tmp = explode(';', $row['related_code']);
+    $tmp = explode(';', (string) $row['related_code']);
     foreach ($tmp as $codestring) {
         if ($codestring === '') {
             continue;
@@ -574,7 +573,7 @@ $orderby = $ORDERHASH[$form_orderby];
 // Incoming form_warehouse, if not empty is in the form "warehouse/facility".
 // The facility part is an attribute used by JavaScript logic.
 $form_warehouse = $_REQUEST['form_warehouse'] ?? '';
-$tmp = explode('/', $form_warehouse);
+$tmp = explode('/', (string) $form_warehouse);
 $form_warehouse = $tmp[0];
 
 $mmtype = empty($GLOBALS['gbl_min_max_months']) ? xl('Units') : xl('Months');

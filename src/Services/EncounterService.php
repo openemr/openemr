@@ -8,9 +8,11 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -367,7 +369,7 @@ class EncounterService extends BaseService
             return $processingResult;
         }
 
-        $encounter = generate_id();
+        $encounter = QueryUtils::generateId();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         if (empty($data['date'])) {
@@ -570,6 +572,9 @@ class EncounterService extends BaseService
 
     public function insertVital($pid, $eid, $data)
     {
+        // Strip any user-supplied id to prevent IDOR — insert must always
+        // create a new record, never update an existing one.
+        unset($data['id']);
         $data['eid'] = $eid;
         $data['authorized'] = '1';
         $data['pid'] = $pid;
@@ -689,7 +694,7 @@ class EncounterService extends BaseService
         ];
         foreach ($encounters as $index => $encounter) {
             $encounterList['ids'][$index] = $encounter['eid'];
-            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime((string) $encounter['date']));
             $encounterList['categories'][$index] = $encounter['pc_catname'];
         }
         return $encounterList;

@@ -6,7 +6,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 
 abstract class DecisionSupportInterventionEntity
 {
-    protected ?ClientEntity $client;
+    protected ?ClientEntity $client = null;
     protected string $id;
     protected string $name;
     protected string $type;

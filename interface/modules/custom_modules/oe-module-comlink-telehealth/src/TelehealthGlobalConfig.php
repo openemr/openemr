@@ -3,7 +3,7 @@
 /**
  * Contains all of the TeleHealth global settings and configuration
  *
- * @package openemr
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -35,7 +36,7 @@ class TelehealthGlobalConfig
     public const COMLINK_AUTO_PROVISION_PROVIDER = 'comlink_autoprovision_provider';
     public const COMLINK_ENABLE_THIRDPARTY_INVITATIONS = "comlink_telehealth_thirdparty_enabled";
     public const UNIQUE_INSTALLATION_ID = "unique_installation_id";
-    public const INSTALLATION_NAME  = "openemr_name";
+    public const INSTALLATION_NAME = "openemr_name";
     public const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
 
     public const COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT = "comlink_telehealth_minimized_position_default";
@@ -75,17 +76,11 @@ class TelehealthGlobalConfig
      */
     private $publicWebPath;
 
-    /**
-     * @var Environment $twig
-     */
-    private $twig;
 
-
-    public function __construct($publicWebPath, $moduleDirectoryName, Environment $twig)
+    public function __construct($publicWebPath, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
-        $this->twig = $twig;
     }
 
     public function getPortalTimeout()
@@ -115,7 +110,7 @@ class TelehealthGlobalConfig
             return $this->getQualifiedSiteAddress() . '/portal/patient';
         } else {
             $site_addr = $this->getGlobalSetting('portal_onsite_two_address');
-            if (stripos($site_addr, "portal") !== false) {
+            if (stripos((string)$site_addr, "portal") !== false) {
                 $site_addr = strtok($site_addr, '?');
                 if (stripos($site_addr, "index.php") !== false) {
                     $site_addr = dirname($site_addr);
@@ -166,6 +161,7 @@ class TelehealthGlobalConfig
 
     /**
      * Checks if the core telehealth configuration settings are properly setup.
+     *
      * @return false|void
      */
     public function isTelehealthCoreSettingsConfigured()
@@ -185,8 +181,10 @@ class TelehealthGlobalConfig
         }
         return true;
     }
+
     /**
      * Returns true if all of the telehealth settings have been configured.  Otherwise it returns false.
+     *
      * @return bool
      */
     public function isTelehealthConfigured()
@@ -204,6 +202,7 @@ class TelehealthGlobalConfig
 
     /**
      * Checks to determine if the mail server email notifications is setup properly
+     *
      * @return bool
      */
     public function isEmailNotificationsConfigured()
@@ -305,9 +304,8 @@ class TelehealthGlobalConfig
 
     public function getGlobalSetting($settingKey)
     {
-        global $GLOBALS;
         // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
-        return $GLOBALS[$settingKey] ?? null;
+        return $GLOBALS[$settingKey] ?? '';
     }
 
     public function getAppRegistrationCodeLength()
@@ -320,89 +318,89 @@ class TelehealthGlobalConfig
         $settings = [
             self::COMLINK_VIDEO_REGISTRATION_API => [
                 'title' => 'Telehealth Registration URI'
-                ,'description' => 'Registration endpoint URI'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
+                , 'description' => 'Registration endpoint URI'
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                , 'default' => ''
             ]
-            ,self::COMLINK_VIDEO_TELEHEALTH_API => [
+            , self::COMLINK_VIDEO_TELEHEALTH_API => [
                 'title' => 'Telehealth Video API URI'
-                ,'description' => 'The URI for the video bridge api'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
+                , 'description' => 'The URI for the video bridge api'
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                , 'default' => ''
             ]
-            ,self::COMLINK_VIDEO_API_USER_ID => [
+            , self::COMLINK_VIDEO_API_USER_ID => [
                 'title' => 'Telehealth Installation User ID'
-                ,'description' => 'This is your unique video application api user id. Contact ComLink if you have not received it'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
+                , 'description' => 'This is your unique video application api user id. Contact ComLink if you have not received it'
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                , 'default' => ''
             ]
-            ,self::COMLINK_VIDEO_API_USER_PASSWORD => [
+            , self::COMLINK_VIDEO_API_USER_PASSWORD => [
                 'title' => 'Telehealth Installation User Password (Encrypted)'
-                ,'description' => 'This is your unique video application api password. Contact ComLink if you have not received it'
-                ,'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
-                ,'default' => ''
+                , 'description' => 'This is your unique video application api password. Contact ComLink if you have not received it'
+                , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
+                , 'default' => ''
             ]
-            ,self::COMLINK_VIDEO_TELEHEALTH_CMS_ID => [
+            , self::COMLINK_VIDEO_TELEHEALTH_CMS_ID => [
                 'title' => 'Telehealth Installation CMSID'
-                ,'description' => 'This is your unique video application CMSID. Contact ComLink if you have not received it'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
+                , 'description' => 'This is your unique video application CMSID. Contact ComLink if you have not received it'
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                , 'default' => ''
             ]
-            ,self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID => [
+            , self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID => [
                 'title' => 'Telehealth Payment Subscription ID'
-                ,'description' => 'This is your unique video application payment subscription id. Signup via the Manage Modules configuration screen if you have not received it'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
+                , 'description' => 'This is your unique video application payment subscription id. Signup via the Manage Modules configuration screen if you have not received it'
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                , 'default' => ''
             ]
-            ,self::COMLINK_AUTO_PROVISION_PROVIDER => [
+            , self::COMLINK_AUTO_PROVISION_PROVIDER => [
                 'title' => 'Auto Register Providers For Telehealth'
-                ,'description' => 'Disable this setting if you will manually enable the providers you wish to be registered for Telehealth'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => '1'
+                , 'description' => 'Disable this setting if you will manually enable the providers you wish to be registered for Telehealth'
+                , 'type' => GlobalSetting::DATA_TYPE_BOOL
+                , 'default' => '1'
             ]
-            ,self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS => [
+            , self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS => [
                 'title' => 'Third Party Session Invitations Allowed (Requires Portal To Be Configured)'
                 , 'description' => 'Allow an existing patient to be invited or new patient to be invited to a telehealth session'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
+                , 'type' => GlobalSetting::DATA_TYPE_BOOL
+                , 'default' => ''
             ]
-            ,self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT => [
+            , self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT => [
                 'title' => 'Default Minimized Telehealth Location'
-                ,'description' => 'Where should the minimized window appear by default on the screen'
-                ,'default' => self::DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT
+                , 'description' => 'Where should the minimized window appear by default on the screen'
+                , 'default' => self::DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT
                 // really don't like how the 'type' can be an array of values, but we have to work with existing architecture
-                ,'type' => [
+                , 'type' => [
                     'bottom-left' => xl('Bottom Left')
-                    ,'top-left' => xl('Top Left')
-                    ,'bottom-right' => xl('Bottom Right')
-                    ,'top-right' => xl('Top Right')
+                    , 'top-left' => xl('Top Left')
+                    , 'bottom-right' => xl('Bottom Right')
+                    , 'top-right' => xl('Top Right')
                 ]
             ]
-            ,self::COMLINK_ONETIME_PASSWORD_LOGIN => [
+            , self::COMLINK_ONETIME_PASSWORD_LOGIN => [
                 'title' => 'Enable Pre-Authenticated Patient Login Link'
                 , 'description' => 'Allow patients to receive a time limited link to access their telehealth session'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
+                , 'type' => GlobalSetting::DATA_TYPE_BOOL
+                , 'default' => ''
             ]
-            ,self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT => [
+            , self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT => [
                 'title' => 'Pre-Authenticated Patient Login Link Timeout (Minutes)'
                 , 'description' => 'The amount of minutes the pre-authenticated link will be valid for (maximum of 30 minutes). Note provide sufficient time as email delivery delays can cause the link to expire before the patient can use it. '
                 , 'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => '15'
+                , 'default' => '15'
             ]
-            ,self::DEBUG_MODE_FLAG => [
+            , self::DEBUG_MODE_FLAG => [
                 'title' => 'Debug Mode'
                 , 'description' => 'Turn on debug versions of javascript and other debug settings'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
+                , 'type' => GlobalSetting::DATA_TYPE_BOOL
+                , 'default' => ''
             ]
-            ,self::COMLINK_SECTION_FOOTER_BOX => [
+            , self::COMLINK_SECTION_FOOTER_BOX => [
                 'title' => 'Telehealth Footer Box'
                 , 'description' => 'This is an information section for providing additional information about this configuration'
-                ,'type' => GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION
-                ,'default' => ''
-                ,'options' => [
-                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => [$this, 'renderFooterBox']
+                , 'type' => GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION
+                , 'default' => ''
+                , 'options' => [
+                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => $this->renderFooterBox(...)
                 ]
             ]
 //            ,self::VERIFY_SETTINGS_BUTTON => [
@@ -425,26 +423,26 @@ class TelehealthGlobalConfig
         // need to check and make sure the portal site address has the same hostname / address as the site address override
         $qualifiedSiteAddress = $this->getQualifiedSiteAddress();
         $portalAddress = $this->getPortalOnsiteAddress();
-        $qualifiedHost = parse_url($qualifiedSiteAddress, PHP_URL_HOST);
-        $portalHost = parse_url($portalAddress, PHP_URL_HOST);
+        $qualifiedHost = parse_url((string)$qualifiedSiteAddress, PHP_URL_HOST);
+        $portalHost = parse_url((string)$portalAddress, PHP_URL_HOST);
         $hostnamesMatch = $qualifiedHost === $portalHost;
 
-        $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);
-        $isValidTelehealthApi = filter_var($this->getTelehealthAPIURI(), FILTER_VALIDATE_URL);
+        $isValidRegistrationUri = ValidationUtils::isValidUrl($this->getRegistrationAPIURI());
+        $isValidTelehealthApi = ValidationUtils::isValidUrl($this->getTelehealthAPIURI());
 
         $isLocaleConfigured = $this->isLocaleConfigured();
 
         $dataArray = [
             'emailNotificationsConfigured' => $emailNotificationsConfigured
-            ,'isThirdPartyConfigurationSetup' => $isThirdPartyConfigurationSetup
-            ,'hostnamesMatch' => $hostnamesMatch
-            ,'isValidTelehealthApi' => $isValidTelehealthApi
-            ,'isValidRegistrationUri' => $isValidRegistrationUri
-            ,'fldid' => $fldid
-            ,'fldarray' => $fldarray
-            ,'verifyInstallationPathUrl' => $this->publicWebPath . 'index.php?action=verify_installation_settings'
-            ,'telehealthCvbUrl' => $this->publicWebPath . 'assets/js/src/cvb.min.js'
-            ,'isLocaleConfigured' => $isLocaleConfigured
+            , 'isThirdPartyConfigurationSetup' => $isThirdPartyConfigurationSetup
+            , 'hostnamesMatch' => $hostnamesMatch
+            , 'isValidTelehealthApi' => $isValidTelehealthApi
+            , 'isValidRegistrationUri' => $isValidRegistrationUri
+            , 'fldid' => $fldid
+            , 'fldarray' => $fldarray
+            , 'verifyInstallationPathUrl' => $this->publicWebPath . 'index.php?action=verify_installation_settings'
+            , 'telehealthCvbUrl' => $this->publicWebPath . 'assets/js/src/cvb.min.js'
+            , 'isLocaleConfigured' => $isLocaleConfigured
         ];
 
         return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
@@ -458,7 +456,7 @@ class TelehealthGlobalConfig
             if (empty($record[0]['gl_value'])) {
                 return false;
                 // default can get translated so we need to go with that
-            } else if ($record[0]['gl_value'] == xl(self::LOCALE_TIMEZONE_DEFAULT)) {
+            } elseif ($record[0]['gl_value'] == xl(self::LOCALE_TIMEZONE_DEFAULT)) {
                 return false;
             }
         }
@@ -467,7 +465,6 @@ class TelehealthGlobalConfig
 
     public function setupConfiguration(GlobalsService $service)
     {
-        global $GLOBALS;
         $section = xlt("TeleHealth");
         $service->createSection($section, 'Portal');
 
@@ -497,20 +494,13 @@ class TelehealthGlobalConfig
 
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER
-            || $key == self::VERIFY_SETTINGS_BUTTON
-            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
-            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
-            || $key == self::DEBUG_MODE_FLAG
-            || $key == self::COMLINK_SECTION_FOOTER_BOX
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT
-            || $key == self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID; // we don't require the payment subscription id
+        return in_array($key, [self::COMLINK_AUTO_PROVISION_PROVIDER, self::VERIFY_SETTINGS_BUTTON, self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS, self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT, self::DEBUG_MODE_FLAG, self::COMLINK_SECTION_FOOTER_BOX, self::COMLINK_ONETIME_PASSWORD_LOGIN, self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT, self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID]); // we don't require the payment subscription id
     }
 
     /**
      * Returns the One Time Password Timeout Setting in PHP DatePeriod format IE PT{minutes}M
      * If the setting exceeds
+     *
      * @return string
      */
     public function getOneTimePasswordTimeoutSetting()
@@ -518,7 +508,7 @@ class TelehealthGlobalConfig
         $setting = intval($this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT));
         if ($setting > self::MAX_LOGIN_LIMIT_TIME) {
             $setting = self::MAX_LOGIN_LIMIT_TIME;
-        } else if ($setting <= 0) { // set it to the default setting
+        } elseif ($setting <= 0) { // set it to the default setting
             $setting = 15;
         }
         return "PT{$setting}M";

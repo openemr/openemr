@@ -14,16 +14,15 @@
 
 require_once('../../globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 
 ?>
 <?php
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: CAMOS admin", xl("admin"));
 }
 
 
@@ -54,7 +53,7 @@ if ($_POST['export']) {
                     $tmp = $result3['item'];
                     $tmp = "<item>$tmp</item>" . "\n";
                     fwrite($temp, $tmp);
-                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], $result3['content']);
+                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], (string) $result3['content']);
                     $tmp = "<content>$tmp</content>" . "\n";
                     fwrite($temp, $tmp);
                 }

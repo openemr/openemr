@@ -20,15 +20,14 @@
 //require_once("../../../../globals.php");
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
 }
 
 $widgetConstants = [
@@ -46,9 +45,9 @@ $pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
 $activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
 
 // should always be set, but just in case we will set it to 0 so we can grab it
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$small_form = $small_form ?? '';
+$small_form ??= '';
 
 $pharmacyService = new PharmacyService();
 $prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
@@ -570,8 +569,8 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
             },
             // Error handling
             error: function (error) {
-                let msg = jsText(xl('Something went wrong. Try again!')) + ' ' + jsAttr(error);
-                syncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
+                let msg = xl('Something went wrong. Try again!') + ' ' + error;
+                asyncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
             }
         });
     }

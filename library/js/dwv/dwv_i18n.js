@@ -49,7 +49,7 @@ dwv.i18nInitialise = function (language, localesPath)
 };
 
 /**
- * Initialise i18n with recources as input.
+ * Initialise i18n with resources as input.
  * @param {String} language The language to translate to. Defaults to 'auto' and
  *   gets the language from the browser.
  * @param {Object} resources Languages provided as object.
@@ -142,7 +142,7 @@ dwv.i18nExists = function (key, options) {
 dwv.i18nPage = function () {
     // get all elements
     var elements = document.getElementsByTagName("*");
-    // if the element defines data-i18n, replace its content with the tranlation
+    // if the element defines data-i18n, replace its content with the translation
     for (var i = 0; i < elements.length; ++i) {
         if (typeof elements[i].dataset.i18n !== "undefined") {
             elements[i].innerHTML = dwv.i18n(elements[i].dataset.i18n);

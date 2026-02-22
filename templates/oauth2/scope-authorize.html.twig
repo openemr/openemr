@@ -1,178 +1,620 @@
 {#
-# Handles the display of the scope authorization for the oauth2 form.
+# Improved Scope Authorization Template with Granular Permissions
+# UPDATED: Reconstructs scope strings based on user selection
 #
 # @package   OpenEMR
 # @link      http://www.open-emr.org
-# @author    Jerry Padgett <sjpadgett@gmail.com>
-# @author    Stephen Nielson <snielson@discoverandchange.com>
-# @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
-# @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
-# @copyright Copyright (c) 2025 JustNi LTD. <chris@justni.com>
+# @author    AI Generated - Claude (Anthropic)
+# @copyright Copyright (c) 2025
 # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
+
+{# ============================================================================
+   AI-GENERATED CODE START - UPDATED VERSION
+   Generated using Claude (Anthropic) on 2025-01-15
+   Updated to properly reconstruct scope strings on form submission
+   ============================================================================ #}
+
 {% extends "oauth2/oauth2-base.html.twig" %}
-    {% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
-    {% block content %}
-        {# include the original contents page #}
-        <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
-            {% block form_header %}{% endblock %}
-            <div class="row w-100">
-                <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
-                    <div class="text-md-center mt-2">
-                        {% block clientHeader %}
-                            <h4 class="mb-4 mt-1">{{ "Authorizing for Application"|xlt  }} <strong>{{ client.name|text }}</strong></h4>
-                        {% endblock %}
-                    </div>
-                    <div class="row w-100 mb-3">
-                        {% block scopesContainer %}
-                            {% block resourceScopesContainer %}
-                                <div class="col-sm-8">
-                                    <div class="card">
-                                        <div class="card-body pt-1">
-                                            <h5 class="card-title text-sm-center">{{ "Grant this application access to do the following"|xlt }}</h5>
-                                            <hr />
-                                            {% block resourcePermissions %}
-                                                <h6>{{ "Resource Permissions"|xlt }}</h6>
-                                                <div class="list-group pl-2 mt-1">
-                                                    {% for resource,scopeCollection in scopesByResource %}
-                                                        <label class="list-group-item m-0">
-                                                            <strong>{{ resource|xlt }}</strong><br />
-                                                            {% for scope,permission in scopeCollection.permissions %}
-                                                                <input type="checkbox" class='app-scope' name="scope[{{ scope|attr  }}]" value="{{ scope|attr  }}" checked>
-                                                                {{ permission|text }}
-                                                                <br />
-                                                            {% endfor %}
-                                                            <details><summary><small>({{ "Scopes granted"|xlt }})</small></summary>
-                                                                <ul>
-                                                                    {% for scope,permission in scopeCollection.permissions %}
-                                                                        <li>{{ scope|text }}</li>
-                                                                    {% endfor %}
-                                                                </ul>
-                                                            </details>
-                                                        </label>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endblock %}
-                                            {% block otherPermissions %}
-                                                <h6>{{ "Other Permissions"|xlt  }}</h6>
-                                                <div class="list-group pl-2 mt-1">
-                                                    {% for scope,description in otherScopes %}
-                                                        <label class="list-group-item m-0">
-                                                            <input type="checkbox" class='app-scope' name="scope[{{ scope|attr  }}]" value="{{ scope|attr }}" checked>
-                                                            {{ description|text }}
-                                                            <details><summary><small>({{ "Scopes granted"|xlt }})</small></summary>{{ scope|text }}</details>
-                                                        </label>
-                                                    {% endfor %}
-                                                    {% for scope in hiddenScopes %}
-                                                        <input type="hidden" class='app-scope' name="scope[{{ scope|attr }}]" value="{{ scope|attr }}" checked>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endblock %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endblock %}
-                            {% block claimsContainer %}
-                                <div class="col-sm-4 mt-3 mt-sm-0">
-                                    <div class="card">
-                                        <div class="card-body pt-1">
-                                            <h5 class="card-title text-sm-center">{{ "Identity Information Requested"|xlt }}</h5>
-                                            <hr />
-                                            <p>{{ "This application is requesting access to the following information about you"|xlt }}</p>
-                                            <ul class="pl-2 mt-1">
-                                                {% for key,value in claims %}
-                                                    {% if key == 'fhirUser' %}
-                                                        <li class='col-text'>
-                                                            <strong>{{ "Permission to retrieve information about the current logged-in user"|xlt }}</strong>
-                                                            {{ userAccount.firstName|default("")|text }} {{ userAccount.lastName|default("")|text }}
-                                                        </li>
-                                                    {% else %}
-                                                        <li class='col-text'><strong>{{ key|text }}:</strong>  {{ value|text }}</li>
-                                                    {% endif %}
+{% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
+{% block content %}
+    <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
+        {% block form_header %}{% endblock %}
+        <div class="row w-100">
+            <div class="col-12 col-sm-10 col-lg-9 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
+                <div class="text-md-center mt-2">
+                    {% block clientHeader %}
+                        <h4 class="mb-4 mt-1">{{ "Authorizing for Application"|xlt  }} <strong>{{ client.name|text }}</strong></h4>
+                    {% endblock %}
+                </div>
+
+                <div class="row w-100 mb-3">
+                    {% block scopesContainer %}
+                        {# Main permissions column #}
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-body pt-2">
+                                    <h5 class="card-title text-sm-center mb-3">{{ "Grant this application access to do the following"|xlt }}</h5>
+                                    <hr />
+
+                                    {% block resourcePermissions %}
+                                        {% if structuredScopes is defined and structuredScopes|length > 0 %}
+                                            <h6 class="mb-3">{{ "Resource Permissions"|xlt }}</h6>
+                                            <p class="text-muted small mb-3">
+                                                {{ "Select the data and actions this application can access. You can customize permissions for each resource type."|xlt }}
+                                            </p>
+
+                                            {# Resource accordion #}
+                                            <div class="accordion" id="resourceAccordion">
+                                                {% for resourceKey, resource in structuredScopes %}
+                                                    <div class="card mb-2 resource-card">
+                                                        <div class="card-header p-0" id="heading{{ resourceKey|attr }}">
+                                                            <div class="d-flex align-items-center">
+                                                                {# Master checkbox for entire resource #}
+                                                                <div class="pl-3 pr-2">
+                                                                    <input type="checkbox"
+                                                                           class="resource-master-checkbox"
+                                                                           id="resource_{{ resourceKey|attr }}_master"
+                                                                           data-resource="{{ resourceKey|attr }}"
+                                                                           data-unrestricted="{{ resource.isUnrestricted ? '1' : '0' }}"
+                                                                           checked>
+                                                                </div>
+
+                                                                {# Collapsible header #}
+                                                                <button class="btn btn-link text-left flex-grow-1 text-decoration-none collapsed"
+                                                                        type="button"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#collapse{{ resourceKey|attr }}"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="collapse{{ resourceKey|attr }}">
+                                                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                                                        <div>
+                                                                            <strong class="text-dark">{{ resource.name|text }}</strong>
+                                                                            <br>
+                                                                            <small class="text-muted">{{ resource.description|text }}</small>
+                                                                        </div>
+                                                                        <span class="badge badge-info ml-2">
+                                                                            {{ resource.context|upper|text }}
+                                                                        </span>
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="collapse{{ resourceKey|attr }}"
+                                                             class="collapse"
+                                                             aria-labelledby="heading{{ resourceKey|attr }}"
+                                                             data-parent="#resourceAccordion">
+                                                            <div class="card-body">
+                                                                {# Store resource context and version for scope reconstruction #}
+                                                                <input type="hidden"
+                                                                       class="resource-context"
+                                                                       data-resource="{{ resourceKey|attr }}"
+                                                                       value="{{ resource.context|attr }}">
+                                                                <input type="hidden"
+                                                                       class="resource-version"
+                                                                       data-resource="{{ resourceKey|attr }}"
+                                                                       value="{{ resource.version|default('v2')|attr }}">
+                                                                {% if resource.requestedRestrictions|default([])|length > 0 %}
+                                                            <input type="hidden"
+                                                                   class="resource-requested-restrictions"
+                                                                   data-resource="{{ resourceKey|attr }}"
+                                                                   value="{{ resource.requestedRestrictions|join(',')|attr }}">
+                                                                {% endif %}
+
+                                                                {# Action permissions grid #}
+                                                                <div class="mb-3">
+                                                                    <label class="font-weight-bold small text-muted mb-2">{{ "Actions this application can perform:"|xlt }}</label>
+                                                                    <div class="d-flex flex-wrap gap-2 action-permissions">
+                                                                        {% for actionKey, action in resource.actions %}
+                                                                            {% if action.enabled %}
+                                                                                <div class="form-check form-check-inline">
+                                                                                    <input class="form-check-input action-checkbox"
+                                                                                           type="checkbox"
+                                                                                           id="action_{{ resourceKey|attr }}_{{ actionKey|attr }}"
+                                                                                           data-resource="{{ resourceKey|attr }}"
+                                                                                           data-action="{{ actionKey|attr }}"
+                                                                                           value="{{ actionKey|attr }}"
+                                                                                           checked>
+                                                                                    <label class="form-check-label" for="action_{{ resourceKey|attr }}_{{ actionKey|attr }}">
+                                                                                        {% if actionKey == 'c' %}
+                                                                                            <span class="badge badge-success">{{ "Create"|xlt }}</span>
+                                                                                        {% elseif actionKey == 'r' %}
+                                                                                            <span class="badge badge-primary">{{ "Read"|xlt }}</span>
+                                                                                        {% elseif actionKey == 'u' %}
+                                                                                            <span class="badge badge-warning">{{ "Update"|xlt }}</span>
+                                                                                        {% elseif actionKey == 'd' %}
+                                                                                            <span class="badge badge-danger">{{ "Delete"|xlt }}</span>
+                                                                                        {% elseif actionKey == 's' %}
+                                                                                            <span class="badge badge-info">{{ "Search"|xlt }}</span>
+                                                                                        {% endif %}
+                                                                                    </label>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </div>
+
+                                                                {# Restricted scopes / subcategories #}
+                                                                {% if resource.hasRestrictions and resource.restrictions|length > 0 %}
+                                                                    <hr class="my-2">
+                                                                    <div class="restrictions-section">
+                                                                        <label class="font-weight-bold small text-muted mb-2">
+                                                                            {% if resource.isUnrestricted %}
+                                                                                {{ "Select specific data categories to authorize:"|xlt }}
+                                                                            {% else %}
+                                                                                {{ "Limit access to specific categories:"|xlt }}
+                                                                            {% endif %}
+                                                                        </label>
+                                                                        {% if resource.isUnrestricted %}
+                                                                            <div class="alert alert-info alert-sm py-2 px-3 mb-2" role="alert">
+                                                                                <small>
+                                                                                    <i class="fas fa-info-circle"></i>
+                                                                                    {{ "This application has requested access to all"|xlt }} <strong>{{ resource.name|text }}</strong> {{ "data. You can limit access by unchecking specific categories below."|xlt }}
+                                                                                </small>
+                                                                            </div>
+                                                                        {% else %}
+                                                                            <p class="text-muted small mb-2">
+                                                                                {{ "Uncheck categories to deny access to that data"|xlt }}
+                                                                            </p>
+                                                                        {% endif %}
+                                                                        <div class="pl-3">
+                                                                            {% for restrictionKey, restriction in resource.restrictions %}
+                                                                                <div class="form-check mb-2">
+                                                                                    <input class="form-check-input restriction-checkbox"
+                                                                                           type="checkbox"
+                                                                                           id="restriction_{{ resourceKey|attr }}_{{ loop.index|attr }}"
+                                                                                           data-resource="{{ resourceKey|attr }}"
+                                                                                           data-restriction="{{ restriction.value|attr }}"
+                                                                                           checked>
+                                                                                    <label class="form-check-label" for="restriction_{{ resourceKey|attr }}_{{ loop.index|attr }}">
+                                                                                        {{ restriction.label|text }}
+                                                                                    </label>
+                                                                                </div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endblock %}
+
+                                    {% block otherPermissions %}
+                                        {% if otherScopes|length > 0 %}
+                                            <h6 class="mt-4 mb-3">{{ "Other Permissions"|xlt  }}</h6>
+                                            <div class="list-group">
+                                                {% for scope, description in otherScopes %}
+                                                    <label class="list-group-item d-flex align-items-start">
+                                                        <input type="checkbox"
+                                                               class='app-scope mr-2 mt-1'
+                                                               name="scope[{{ scope|attr  }}]"
+                                                               value="{{ scope|attr }}"
+                                                               checked>
+                                                        <div>
+                                                            <div>{{ description|text }}</div>
+                                                        </div>
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+
+                                        {# Hidden scopes #}
+                                        {% for scope in hiddenScopes %}
+                                            <input type="hidden" class='app-scope' name="scope[{{ scope|attr }}]" value="{{ scope|attr }}">
+                                        {% endfor %}
+                                    {% endblock %}
                                 </div>
-                            {% endblock %}
-                        {% endblock %}
-                    </div>
-                    {% block offlineFooter %}
-                        {% if offlineRequested %}
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <div class="alert alert-warning">
-                                        <p>
-                                            {{ "This application has requested offline access to your data. This permission will allow the data you authorize below to be accessed for an extended period of time"|xlt }}
-                                        </p>
-                                        <p>{{ "Offline access end date"|xlt }} <strong>{{ offline_access_date|text}}</strong></p>
-                                        <p>{{ "If you do not want to allow this application to have offline access to your data, uncheck the Offline Access permission"|xlt  }}</p>
-                                        <label class="list-group-item m-0">
-                                            <input type="checkbox" class='app-scope' name="scope[offline_access]" value="offline_access" checked>
-                                            {{ "Offline Access"|xlt }}
-                                        </label>
+                            </div>
+                        </div>
+
+                        {# Identity information column #}
+                        {% block claimsContainer %}
+                            <div class="col-lg-4 mt-3 mt-lg-0">
+                                <div class="card">
+                                    <div class="card-body pt-2">
+                                        <h5 class="card-title text-sm-center mb-3">{{ "Identity Information Requested"|xlt }}</h5>
+                                        <hr />
+                                        <p class="text-muted small">{{ "This application is requesting access to the following information about you"|xlt }}</p>
+                                        <ul class="pl-3">
+                                            {% for key, value in claims %}
+                                                {% if key == 'fhirUser' %}
+                                                    <li class='mb-2'>
+                                                        <strong class="d-block">{{ "Current User Information"|xlt }}</strong>
+                                                        <span class="text-muted small">{{ userAccount.firstName|default("")|text }} {{ userAccount.lastName|default("")|text }}</span>
+                                                    </li>
+                                                {% else %}
+                                                    <li class='mb-2'>
+                                                        <strong>{{ key|text }}:</strong>
+                                                        <span class="text-muted">{{ value|text }}</span>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                        {% endif %}
-                        <hr />
+                        {% endblock %}
                     {% endblock %}
+                </div>
 
-                    {% block csrf %}
-                        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
-                    {% endblock %}
+                {# Offline access warning #}
+                {% block offlineFooter %}
+                    {% if offlineRequested %}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-exclamation-triangle"></i> {{ "Offline Access Requested"|xlt }}
+                                    </h6>
+                                    <p class="mb-2">
+                                        {{ "This application has requested offline access to your data. This permission will allow the data you authorize below to be accessed for an extended period of time"|xlt }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>{{ "Offline access end date"|xlt }}:</strong> {{ offline_access_date|text }}
+                                    </p>
+                                    <div class="form-check">
+                                        <input type="checkbox"
+                                               class='form-check-input app-scope'
+                                               name="scope[offline_access]"
+                                               id="offline_access_check"
+                                               value="offline_access"
+                                               checked>
+                                        <label class="form-check-label font-weight-bold" for="offline_access_check">
+                                            {{ "Allow Offline Access"|xlt }}
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ "If you do not want to allow this application to have offline access to your data, uncheck this option"|xlt  }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <hr />
+                {% endblock %}
 
-                    {% block form_controls %}
-                        <div class="row mb-2">
-                            <div class="col-md-12">
+                {# Container for dynamically generated scope inputs #}
+                <div id="dynamic-scopes-container"></div>
+
+                {% block csrf %}
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                {% endblock %}
+
+                {% block form_controls %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     {% block form_buttons %}{% endblock %}
                                     <button type="submit" name="proceed" value="1" class="btn btn-primary d-flex align-items-center" id="authorize-btn">
+                                        <i class="fas fa-check mr-2"></i>
                                         {{ "Authorize"|xlt }}
                                         <span class="spinner-border spinner-border-sm ml-2 d-none" role="status" aria-hidden="true" id="spinner"></span>
                                     </button>
+                                    <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+                                        <i class="fas fa-times mr-2"></i>
+                                        {{ "Cancel"|xlt }}
+                                    </button>
                                 </div>
-                                <div class="form-check-inline float-right">
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
                                     <label for="persist_login" class="form-check-label">{{ "Remember Me"|xlt  }}</label>
                                 </div>
                             </div>
                         </div>
-                    {% endblock %}
-                    {% block form_footer %}{% endblock %}
-                </div>
+                    </div>
+                {% endblock %}
+                {% block form_footer %}{% endblock %}
             </div>
-        </form>
-        <!-- Add JavaScript -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const button = document.getElementById('authorize-btn');
-                const spinner = document.getElementById('spinner');
-                const form = document.getElementById('userLogin');
+        </div>
+    </form>
 
-                button.addEventListener('click', function (event) {
-                    if (!button.disabled) {
-                        event.preventDefault(); // Prevent default form submission for now
+    {# JavaScript for interactive controls and scope reconstruction #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('userLogin');
+            const button = document.getElementById('authorize-btn');
+            const spinner = document.getElementById('spinner');
+            const dynamicScopesContainer = document.getElementById('dynamic-scopes-container');
 
-                        // Add the "proceed=1" parameter if it doesn't already exist
-                        if (!form.querySelector('input[name="proceed"]')) {
-                            const proceedInput = document.createElement('input');
-                            proceedInput.type = 'hidden';
-                            proceedInput.name = 'proceed';
-                            proceedInput.value = '1';
-                            form.appendChild(proceedInput);
-                        }
+            // Master checkbox handling - controls whether global (unrestricted) access is allowed
+            // When checked: allows consolidation to global scope if all sub-scopes checked
+            // When unchecked: only restricted sub-scopes can be granted, no global access
+            document.querySelectorAll('.resource-master-checkbox').forEach(masterCheckbox => {
+                masterCheckbox.addEventListener('change', function() {
+                    const resource = this.dataset.resource;
+                    const isChecked = this.checked;
 
-                        // Show spinner and disable the button
-                        button.disabled = true;
-                        spinner.classList.remove('d-none');
+                    if (isChecked) {
+                        // Master checkbox was CHECKED - enable all actions and restrictions
+                        // This resets to the "allow everything" state
+                        document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = true;
+                        });
 
-                        // Submit the form
-                        form.submit();
+                        document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = true;
+                        });
+                    } else {
+                        // Master checkbox was UNCHECKED - disable actions but keep restrictions available
+                        // User can still grant specific sub-scope permissions
+                        document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = false;
+                        });
+                        // Note: We do NOT uncheck restrictions - user can still select specific sub-scopes
                     }
                 });
             });
 
-        </script>
+            // Action checkbox handling with V1 scope linking
+            document.querySelectorAll('.action-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const resource = this.dataset.resource;
+                    const action = this.dataset.action;
 
-    {% endblock %}
+                    // Get version for this resource
+                    const versionInput = document.querySelector(`.resource-version[data-resource="${resource}"]`);
+                    const version = versionInput ? versionInput.value : 'v2';
+
+                    // For V1 scopes, link related actions together
+                    if (version === 'v1') {
+                        handleV1ActionChange(resource, action, this.checked);
+                    }
+
+                    updateMasterCheckbox(resource);
+                });
+            });
+
+            // Restriction checkbox handling
+            document.querySelectorAll('.restriction-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateMasterCheckbox(this.dataset.resource);
+                });
+            });
+
+            /**
+             * Handle V1 scope action changes - link read+search and create+update+delete
+             */
+            function handleV1ActionChange(resource, changedAction, isChecked) {
+                // Read and Search are linked in V1
+                if (changedAction === 'r' || changedAction === 's') {
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"][data-action="r"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="s"]`).forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                }
+                // Create, Update, Delete are linked in V1
+                else if (changedAction === 'c' || changedAction === 'u' || changedAction === 'd') {
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"][data-action="c"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="u"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="d"]`).forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                }
+            }
+
+            // Function to update master checkbox based on child checkboxes
+            function updateMasterCheckbox(resource) {
+                const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resource}"]`);
+                if (!masterCheckbox) return;
+
+                const actionCheckboxes = document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`);
+                const restrictionCheckboxes = document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`);
+
+                // Check action states
+                const allActionsChecked = Array.from(actionCheckboxes).every(cb => cb.checked);
+                const someActionsChecked = Array.from(actionCheckboxes).some(cb => cb.checked);
+
+                // Check restriction states (if any exist)
+                const hasRestrictions = restrictionCheckboxes.length > 0;
+                const allRestrictionsChecked = !hasRestrictions || Array.from(restrictionCheckboxes).every(cb => cb.checked);
+                const someRestrictionsChecked = !hasRestrictions || Array.from(restrictionCheckboxes).some(cb => cb.checked);
+
+                // Master checkbox should be:
+                // - CHECKED if all actions AND all restrictions are checked (full access)
+                // - INDETERMINATE if some actions or restrictions are checked but not all
+                // - UNCHECKED if no actions are checked (even if restrictions are checked)
+
+                if (!someActionsChecked) {
+                    // No actions checked = master unchecked (no global access possible)
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = someRestrictionsChecked;
+                    // once the master checkbox is unchecked, we do not set it to checked even if all restrictions are checked
+                    // as sub-scopes only are allowed in this state
+                    // to trigger a full access state, user must re-check the master checkbox manually
+                // } else if (allActionsChecked && allRestrictionsChecked) {
+                //     // Everything checked = master checked (global access enabled)
+                //     masterCheckbox.checked = true;
+                //     masterCheckbox.indeterminate = false;
+                } else {
+                    // Partial selection = indeterminate (restricted access only)
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = true;
+                }
+            }
+
+            // Form submission handling - RECONSTRUCT SCOPES
+            button.addEventListener('click', function (event) {
+                if (!button.disabled) {
+                    event.preventDefault();
+
+                    // Clear any previously generated scopes
+                    dynamicScopesContainer.innerHTML = '';
+
+                    // Reconstruct scopes based on user selections
+                    reconstructScopes();
+
+                    // Add proceed input if not exists
+                    if (!form.querySelector('input[name="proceed"]')) {
+                        const proceedInput = document.createElement('input');
+                        proceedInput.type = 'hidden';
+                        proceedInput.name = 'proceed';
+                        proceedInput.value = '1';
+                        form.appendChild(proceedInput);
+                    }
+
+                    // Show spinner and disable button
+                    button.disabled = true;
+                    spinner.classList.remove('d-none');
+
+                    // Submit form
+                    form.submit();
+                }
+            });
+
+            /**
+             * Reconstruct scope strings based on user selections
+             * Handles V1 format, V2 format, and sub-scope consolidation
+             */
+            function reconstructScopes() {
+                // Get all unique resources
+                const resources = new Set();
+                document.querySelectorAll('.action-checkbox').forEach(cb => {
+                    resources.add(cb.dataset.resource);
+                });
+
+                resources.forEach(resource => {
+                    // Get context and version for this resource
+                    const contextInput = document.querySelector(`.resource-context[data-resource="${resource}"]`);
+                    const versionInput = document.querySelector(`.resource-version[data-resource="${resource}"]`);
+                    if (!contextInput) return;
+
+                    const context = contextInput.value;
+                    const version = versionInput ? versionInput.value : 'v2';
+
+                    // Get checked actions
+                    const checkedActions = [];
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
+                        checkedActions.push(cb.dataset.action);
+                    });
+
+                    // If no actions selected, skip this resource
+                    if (checkedActions.length === 0) return;
+
+                    // Handle V1 scopes
+                    if (version === 'v1') {
+                        reconstructV1Scope(context, resource, checkedActions);
+                    }
+                    // Handle V2 scopes
+                    else {
+                        reconstructV2Scope(context, resource, checkedActions);
+                    }
+                });
+            }
+
+            /**
+             * Reconstruct V1 format scopes (context/resource.read or context/resource.write)
+             */
+            function reconstructV1Scope(context, resource, checkedActions) {
+                const hasRead = checkedActions.includes('r') || checkedActions.includes('s');
+                const hasWrite = checkedActions.includes('c') || checkedActions.includes('u') || checkedActions.includes('d');
+
+                if (hasRead) {
+                    const scopeString = `${context}/${resource}.read`;
+                    addScopeInput(scopeString);
+                }
+
+                if (hasWrite) {
+                    const scopeString = `${context}/${resource}.write`;
+                    addScopeInput(scopeString);
+                }
+            }
+
+            /**
+             * Reconstruct V2 format scopes with sub-scope consolidation
+             * Respects master checkbox state - if unchecked, only grants restricted sub-scopes
+             */
+            function reconstructV2Scope(context, resource, checkedActions) {
+                // Sort actions in CRUDS order
+                const actionOrder = ['c', 'r', 'u', 'd', 's'];
+                checkedActions.sort((a, b) => actionOrder.indexOf(a) - actionOrder.indexOf(b));
+                const actionsString = checkedActions.join('');
+
+                // Check if master checkbox is checked (allows global/unrestricted access)
+                const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resource}"]`);
+                const masterChecked = masterCheckbox ? masterCheckbox.checked : true;
+                const unrestricted = masterCheckbox.dataset['unrestricted'] === '1';
+
+                // Get checked restrictions
+                const checkedRestrictions = [];
+                document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
+                    checkedRestrictions.push(cb.dataset.restriction);
+                });
+
+                // SUB-SCOPE CONSOLIDATION LOGIC:
+                // 1. If master checkbox is UNCHECKED: only grant checked restricted sub-scopes (no global access)
+                // 2. If master checkbox is CHECKED but is a restricted resource grant only checked sub-scopes
+                // 3. If master checkbox is CHECKED and is not a restricted resource (global scope requested): grant global access
+
+                if (!masterChecked || !unrestricted) {
+                    // Master unchecked - or we are not a global scope requested, only allow restricted sub-scope access
+                    if (checkedRestrictions.length > 0) {
+                        checkedRestrictions.forEach(restriction => {
+                            const scopeString = `${context}/${resource}.${actionsString}?category=${restriction}`;
+                            addScopeInput(scopeString);
+                        });
+                    }
+                } else {
+                    // Master checked, no restrictions - create single unrestricted scope
+                    const scopeString = `${context}/${resource}.${actionsString}`;
+                    addScopeInput(scopeString);
+                }
+            }
+
+            /**
+             * Add a scope input to the form
+             */
+            function addScopeInput(scopeString) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `scope[${scopeString}]`;
+                input.value = scopeString;
+                dynamicScopesContainer.appendChild(input);
+            }
+        });
+    </script>
+
+    {# Custom styles #}
+    <style>
+        .resource-card {
+            border-left: 3px solid #007bff;
+            transition: all 0.2s;
+        }
+
+        .resource-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .action-permissions {
+            gap: 0.5rem;
+        }
+
+        .form-check-inline .badge {
+            font-size: 0.85rem;
+            padding: 0.35rem 0.65rem;
+        }
+
+        .restrictions-section {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+
+        .card-header button.btn-link {
+            padding: 0.75rem;
+        }
+
+        .card-header button.btn-link:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+
+{% endblock %}
+
+{# ============================================================================
+   AI-GENERATED CODE END
+   ============================================================================ #}

@@ -52,8 +52,8 @@ if ($_REQUEST['go'] == 'Preferences') {
 
         $facilities = implode("|", $_REQUEST['facilities']);
         $providers = implode("|", $_REQUEST['providers']);
-        $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ? $_REQUEST['ME_hipaa_default_override'] : '');
-        $country_code = ($_REQUEST['PHONE_country_code'] ? $_REQUEST['PHONE_country_code'] : '1');
+        $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ?: '');
+        $country_code = ($_REQUEST['PHONE_country_code'] ?: '1');
 
         $myValues = [$facilities, $providers, $HIPAA, $country_code, $_REQUEST['POSTCARDS_local'], $_REQUEST['POSTCARDS_remote'], $_REQUEST['LABELS_local'], $_REQUEST['chart_label_type'], $_REQUEST['combine_time'], $_REQUEST['postcard_top']];
 
@@ -150,7 +150,7 @@ if ($_REQUEST['MedEx'] == "start") {
         }
         //then redirect user to preferences with a success message!
     } else {
-        echo xlt("Sorry you are not privileged enough. Enrollment is limited to Adminstrator accounts.");
+        echo xlt("Sorry you are not privileged enough. Enrollment is limited to Administrator accounts.");
     }
     exit;
 }
@@ -221,16 +221,16 @@ SessionUtil::unsetSession('pidList');
 $pid_list = [];
 
 if ($_REQUEST['action'] == "process") {
-    $new_pid = json_decode($_POST['parameter'], true);
-    $new_pc_eid = json_decode($_POST['pc_eid'], true);
+    $new_pid = json_decode((string) $_POST['parameter'], true);
+    $new_pc_eid = json_decode((string) $_POST['pc_eid'], true);
 
     if (($_POST['item'] == "phone") || (($_POST['item'] == "notes") && ($_POST['msg_notes'] > ''))) {
         $sql = "INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";
         sqlQuery($sql, ['recall_' . $new_pid[0], $_POST['item'], $_SESSION['authUserID'], $_POST['msg_notes']]);
         return "done";
     }
-    $pc_eidList = json_decode($_POST['pc_eid'], true);
-    $pidList = json_decode($_POST['parameter'], true);
+    $pc_eidList = json_decode((string) $_POST['pc_eid'], true);
+    $pidList = json_decode((string) $_POST['parameter'], true);
     $sessionSetArray['pc_eidList'] = $pc_eidList[0];
     $sessionSetArray['pidList'] = $pidList;
     SessionUtil::setSession($sessionSetArray);

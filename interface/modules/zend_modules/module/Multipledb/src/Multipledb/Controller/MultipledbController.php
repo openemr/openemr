@@ -31,21 +31,16 @@ use Error;
 
 class MultipledbController extends BaseController
 {
-    /**
-     * TableGateway for the Multipledb data.
-     * @var MultipledbTable
-     */
-    private $MultipledbTable;
-
-    private Listener $listenerObject;
+    private readonly Listener $listenerObject;
 
     /**
      * MultipledbController constructor.
+     * @param MultipledbTable $MultipledbTable TableGateway for the Multipledb data.
      */
-    public function __construct(MultipledbTable $MultipledbTable)
-    {
+    public function __construct(
+        private readonly MultipledbTable $MultipledbTable
+    ) {
         parent::__construct();
-        $this->MultipledbTable = $MultipledbTable;
         $this->listenerObject = new Listener();
         //todo add permission of admin
     }
@@ -61,7 +56,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl();
 
         return new ViewModel([
@@ -79,7 +74,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl('write');
 
         return new ViewModel([
@@ -105,7 +100,7 @@ class MultipledbController extends BaseController
         $db = [];
         if ($_REQUEST['db']) {
             foreach ($_REQUEST['db'] as $key => $value) {
-                $db[$key] = htmlentities($value, ENT_QUOTES | ENT_IGNORE, "UTF-8");
+                $db[$key] = htmlentities((string) $value, ENT_QUOTES | ENT_IGNORE, "UTF-8");
             }
 
             $this->getMultipledbTable()->storeMultipledb($id, $db);
@@ -119,7 +114,7 @@ class MultipledbController extends BaseController
         ]);
     }
 
-    public function checknamespacejsonAction()
+    public function checknamespacejsonAction(): never
     {
         $this->checkAcl('write');
         $namespace = $_REQUEST['namespace'];
@@ -135,7 +130,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl('write');
 
         return new ViewModel([

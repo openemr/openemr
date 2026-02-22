@@ -1,6 +1,6 @@
 # Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
 # MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
-# MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
+# MYSQL_USER, MYSQL_PASS, OE_USER, OE_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
 services:
   mysql:
@@ -25,7 +25,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:7.0.3
+    image: openemr/openemr:7.0.4
     ports:
     - 80:80
     - 443:443
@@ -51,7 +51,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       start_period: 3m
       start_interval: 10s
       interval: 1m

@@ -20,8 +20,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirValueSetRestController
 {
-    private FhirResourcesService $fhirService;
-    private FhirValueSetService $fhirResourceService;
+    private readonly FhirResourcesService $fhirService;
+    private readonly FhirValueSetService $fhirResourceService;
 
     public function __construct()
     {

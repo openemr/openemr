@@ -16,21 +16,14 @@
 require_once(__DIR__ . "/../globals.php");
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\{
-    Acl\AclMain,
-    Csrf\CsrfUtils,
-    Twig\TwigContainer
-};
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (
-        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Billing Manager")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
 ?>
@@ -94,10 +87,12 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                         "render": function(data, type, row, meta) {
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
-                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' +
-                                    'key=' + encodeURIComponent(data) +
-                                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?> +
-                                    '&partner=' + encodeURIComponent(row.x12_partner_id);
+                                const params = new URLSearchParams({
+                                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                    key: data,
+                                    partner: row.x12_partner_id
+                                });
+                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' + params;
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 

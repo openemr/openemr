@@ -20,9 +20,9 @@ class DupeCheckIndexIsDeprecated
 
 require_once("../../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -35,8 +35,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplication Check")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Duplication Check", xl("Duplication Check"));
 }
 
 /* Use this code to identify duplicate patients in OpenEMR
@@ -273,12 +272,17 @@ $(function () {
 
     // begin the merge of a block into a single record
     $(".onerow").on("click", function() {
-        var dupecount = $(this).attr("dupecount");
-        var masterid = $(this).attr("oemrid");
-        var newurl = "mergerecords.php?dupecount=" + encodeURIComponent(dupecount) + "&masterid=" + encodeURIComponent(masterid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        $("[dupecount="+dupecount+"]").each(function (i) {
-            if (this.id != masterid) { newurl += "&otherid[]=" + encodeURIComponent(this.id); }
+        const dupecount = $(this).attr("dupecount");
+        const masterid = $(this).attr("oemrid");
+        const params = new URLSearchParams({
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            dupecount: dupecount,
+            masterid: masterid
         });
+        $("[dupecount="+dupecount+"]").each(function (i) {
+            if (this.id != masterid) { params.append("otherid[]", this.id); }
+        });
+        const newurl = "mergerecords.php?" + params;
         // open a new window and show the merge results
         moreinfoWin = window.open(newurl, "mergewin");
     });

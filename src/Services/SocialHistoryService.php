@@ -2,7 +2,8 @@
 
 /**
  * SocialHistoryService.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -13,6 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -26,6 +28,9 @@ class SocialHistoryService extends BaseService
     use ServiceEventTrait;
 
     public const TABLE_NAME = "history_data";
+
+    const COLUMN_SMOKING_PACKS_PER_DAY = 'packs_per_day';
+    const COLUMN_SMOKING_STATUS_CODES = 'smoking_status_codes';
 
     public function __construct()
     {
@@ -44,11 +49,11 @@ class SocialHistoryService extends BaseService
         }
 
         if ($dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid,$dateStart,$dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
         } elseif ($dateStart && !$dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid,$dateStart]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid, $dateStart]);
         } elseif (!$dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid,$dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid, $dateEnd]);
         } else {
             $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", [$pid]);
         }
@@ -124,7 +129,7 @@ class SocialHistoryService extends BaseService
         }
 
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
@@ -139,9 +144,18 @@ class SocialHistoryService extends BaseService
         $listService = new ListService();
         $tobaccoColumn = $record['tobacco'] ?? "";
         $tobacco = explode('|', $tobaccoColumn);
-        if (!empty($tobacco[3])) {
-            $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
-            $record['smoking_status_codes'] = $this->addCoding($listOption['codes']);
+        if (!empty($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_STATUS])) {
+            $listOption = $listService->getListOption('smoking_status', $tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_STATUS]) ?? "";
+            $record[self::COLUMN_SMOKING_STATUS_CODES] = '';
+            if (!empty($listOption['codes'])) {
+                $record[self::COLUMN_SMOKING_STATUS_CODES] = $this->addCoding($listOption['codes']);
+            }
+        }
+        if (!empty($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT])) {
+            $record[self::COLUMN_SMOKING_PACKS_PER_DAY] = 0;
+            if (!empty($listOption['codes'])) {
+                $record[self::COLUMN_SMOKING_PACKS_PER_DAY] = intval($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT]) ?? 0;
+            }
         }
 
         return $record;

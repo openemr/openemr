@@ -14,8 +14,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Visolve
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (C) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,14 +26,14 @@ require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Reports\FinancialSummaryReportService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Financial Summary by Service Code")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Financial Summary by Service Code", xl("Financial Summary by Service Code"));
 }
 
 if (!empty($_POST)) {
@@ -48,8 +50,8 @@ $grand_total_amt_balance  = 0;
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility  = $_POST['form_facility'] ?? null;
-$form_provider  = $_POST['form_provider'] ?? null;
+$form_facility  = isset($_POST['form_facility']) && $_POST['form_facility'] !== '' ? (int) $_POST['form_facility'] : null;
+$form_provider  = isset($_POST['form_provider']) && $_POST['form_provider'] !== '' ? (int) $_POST['form_provider'] : null;
 
 if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
@@ -209,61 +211,23 @@ if (!empty($_POST['form_csvexport'])) {
    // end not export
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
+    $service = new FinancialSummaryReportService();
+    $summaries = $service->getServiceCodeSummary(
+        new \DateTimeImmutable($form_from_date),
+        new \DateTimeImmutable($form_to_date),
+        $form_facility,
+        $form_provider,
+        !empty($_POST['form_details']),
+    );
     $rows = [];
-    $from_date = $form_from_date;
-    $to_date   = $form_to_date;
-    $sqlBindArray = [];
-    $query = "select b.code,sum(b.units) as units,sum(b.fee) as billed,sum(ar_act.paid) as PaidAmount, " .
-    "sum(ar_act.adjust) as AdjustAmount,(sum(b.fee)-(sum(ar_act.paid)+sum(ar_act.adjust))) as Balance, " .
-    "c.financial_reporting " .
-    "FROM form_encounter as fe " .
-    "JOIN billing as b on b.pid=fe.pid and b.encounter=fe.encounter " .
-    "JOIN (select pid, encounter, code, sum(pay_amount) as paid, sum(adj_amount) as adjust " .
-    "from ar_activity WHERE deleted IS NULL group by pid, encounter, code) as ar_act " .
-    "ON ar_act.pid=b.pid and ar_act.encounter=b.encounter and ar_act.code=b.code " .
-    "LEFT OUTER JOIN codes AS c ON c.code = b.code " .
-    "INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1' " .
-    "WHERE b.code_type != 'COPAY' AND b.activity = 1 /* AND b.fee != 0 */ AND " .
-    "fe.date >=  ? AND fe.date <= ?";
-    array_push($sqlBindArray, "$from_date 00:00:00", "$to_date 23:59:59");
-    // If a facility was specified.
-    if ($form_facility) {
-        $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray, $form_facility);
+    foreach ($summaries as $summary) {
+        $rows[$summary->code . '|' . $summary->units] = $summary->toArray();
     }
-
-    // If a provider was specified.
-    if ($form_provider) {
-        $query .= " AND b.provider_id = ?";
-        array_push($sqlBindArray, $form_provider);
-    }
-
-    // If selected important codes
-    if (!empty($_POST['form_details'])) {
-        $query .= " AND c.financial_reporting = '1'";
-    }
-
-    $query .= " GROUP BY b.code ORDER BY b.code, fe.date, fe.id ";
-    $res = sqlStatement($query, $sqlBindArray);
     $grand_total_units  = 0;
     $grand_total_amt_billed  = 0;
     $grand_total_amt_paid  = 0;
     $grand_total_amt_adjustment  = 0;
     $grand_total_amt_balance  = 0;
-
-    while ($erow = sqlFetchArray($res)) {
-        $row = [];
-        $row['pid'] = $erow['pid'] ?? null;
-        $row['provider_id'] = $erow['provider_id'] ?? null;
-        $row['Procedure codes'] = $erow['code'];
-        $row['Units'] = $erow['units'];
-        $row['Amt Billed'] = $erow['billed'];
-        $row['Paid Amt'] = $erow['PaidAmount'];
-        $row['Adjustment Amt'] = $erow['AdjustAmount'];
-        $row['Balance Amt'] = $erow['Balance'];
-        $row['financial_reporting'] = $erow['financial_reporting'];
-        $rows[($erow['pid'] ?? null) . '|' . $erow['code'] . '|' . $erow['units']] = $row;
-    }
 
     if ($_POST['form_csvexport']) {
       // CSV headers:
@@ -308,11 +272,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $print = '';
         $csv = '';
 
-        if ($row['financial_reporting']) {
-            $bgcolor = "#FFFFDD";
-        } else {
-            $bgcolor = "#FFDDDD";
-        }
+        $bgcolor = $row['financial_reporting'] ? "#FFFFDD" : "#FFDDDD";
 
         $print = "<tr bgcolor='" . attr($bgcolor) . "'><td class='detail'>" . text($row['Procedure codes']) . "</td><td class='detail'>" . text($row['Units']) . "</td><td class='detail'>" . text(oeFormatMoney($row['Amt Billed'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Paid Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Adjustment Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Balance Amt'])) . "</td>";
 

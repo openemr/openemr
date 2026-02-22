@@ -19,6 +19,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
@@ -31,14 +32,8 @@ class SMARTSessionTokenContextBuilder
 {
     use SystemLoggerAwareTrait;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $sessionArray)
+    public function __construct(private ServerConfig $serverConfig, private SessionInterface $session)
     {
-        $this->session = $sessionArray;
-        $this->globalsBag = $globalsBag;
     }
 
     /**
@@ -76,7 +71,7 @@ class SMARTSessionTokenContextBuilder
                 $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }
@@ -93,7 +88,7 @@ class SMARTSessionTokenContextBuilder
                 'need_patient_banner' => true
                 ,'smart_style_url' => $this->getSmartStyleURL()
             ];
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $returnContext = [
                 'need_patient_banner' => false
                 ,'smart_style_url' => $this->getSmartStyleURL()
@@ -122,7 +117,7 @@ class SMARTSessionTokenContextBuilder
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $context = $this->getEHRLaunchContext();
         }
         return $context;
@@ -150,7 +145,7 @@ class SMARTSessionTokenContextBuilder
     {
         // "/public/smart-styles/smart-light.json";
         // need to make sure we grab the site id for this.
-        return $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . "/oauth2/" . $this->session->get('site_id') . SMARTAuthorizationController::SMART_STYLE_URL;
+        return $this->serverConfig->getOauthAuthorizationUrl() . SMARTAuthorizationController::SMART_STYLE_URL;
     }
 
     /**

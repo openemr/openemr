@@ -24,6 +24,11 @@
 $result = getAlertData();
 $row = sqlFetchArray($result);
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Alerts(created in createCCR.php)
+ */
+
 do {
 //while ($row = sqlFetchArray($result)) {
 

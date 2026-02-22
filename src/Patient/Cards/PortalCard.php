@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\Patient\Card\Card;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
@@ -27,15 +29,11 @@ class PortalCard extends CardModel
 
     private $opts = [];
 
-    /**
-     * @var EventDispatcher
-     */
-    private $ed;
+    private readonly EventDispatcherInterface $ed;
 
     public function __construct()
     {
-        global $GLOBALS;
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
         $this->setOpts();
         parent::__construct($this->opts);
@@ -93,7 +91,7 @@ class PortalCard extends CardModel
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),
-                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal($pid)
+                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal()
             ],
         ];
     }
@@ -105,12 +103,12 @@ class PortalCard extends CardModel
 
     private function addListener()
     {
-        $this->ed->addListener(SectionEvent::EVENT_HANDLE, [$this, 'addPatientCardToSection']);
+        $this->ed->addListener(SectionEvent::EVENT_HANDLE, $this->addPatientCardToSection(...));
     }
 
     public function addPatientCardToSection(SectionEvent $e)
     {
-        if ($e->getSection('secondary')) {
+        if ($e->getSection()) {
             $card = new CardModel($this->getOpts());
             $e->addCard($card);
         }

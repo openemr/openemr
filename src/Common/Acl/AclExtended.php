@@ -46,7 +46,7 @@ class AclExtended
     public static function aclGetSquads()
     {
         $squads = self::aclGetSectionAcos('squads');
-        uasort($squads, "self::aclSquadCompare");
+        uasort($squads, self::aclSquadCompare(...));
         return $squads;
     }
 
@@ -242,11 +242,7 @@ class AclExtended
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
-            $gacl_protect = true;
-        } else {
-            $gacl_protect = false;
-        }
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin" ? true : false;
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();
@@ -270,11 +266,7 @@ class AclExtended
                 if ($middle_name) {
                     $full_name = $first_name . " " . $middle_name . " " . $last_name;
                 } else {
-                    if ($last_name) {
-                        $full_name = $first_name . " " . $last_name;
-                    } else {
-                        $full_name = $first_name;
-                    }
+                    $full_name = $last_name ? $first_name . " " . $last_name : $first_name;
                 }
 
                 //If this is not the first group to be added, then will skip below
@@ -313,7 +305,7 @@ class AclExtended
                     if (!empty($arr_admin)) {
                         foreach ($arr_admin as $value3) {
                             $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
-                            if (strcmp($arr_admin_data[2], 'admin') == 0) {
+                            if (strcmp((string) $arr_admin_data[2], 'admin') == 0) {
                                 $boolean_admin = 1;
                             }
                         }
@@ -603,18 +595,18 @@ class AclExtended
                 //                         Translate return value
                 //                         Translate description
                 $message .= "\t<acl>\n" .
-                    "\t\t<value>" . $value . "</value>\n" .
-                    "\t\t<title>" . xl_gacl_group($value) . "</title>\n" .
-                    "\t\t<returnid>" . $ret  . "</returnid>\n" .
-                    "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n" .
-                    "\t\t<note>" . xl($note)  . "</note>\n" .
+                    "\t\t<value>" . xmlEscape($value) . "</value>\n" .
+                    "\t\t<title>" . xmlEscape(xl_gacl_group($value)) . "</title>\n" .
+                    "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n" .
+                    "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n" .
+                    "\t\t<note>" . xlx($note)  . "</note>\n" .
                     "\t</acl>\n";
             }
         }
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -658,7 +650,7 @@ class AclExtended
 
                         // Modified 6-2009 by BM - Translate gacl aco section name
                         $message .= "\t\t<section>\n" .
-                            "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                            "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
                     }
 
                     $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
@@ -667,9 +659,9 @@ class AclExtended
                     $message .= "\t\t\t<aco>\n";
 
                     // Modified 6-2009 by BM - Translate gacl aco name
-                    $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                    $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                    $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                    $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                     $message .= "\t\t\t</aco>\n";
                 }
             }
@@ -687,7 +679,7 @@ class AclExtended
 
             // Modified 6-2009 by BM - Translate gacl aco section name
             $message .= "\t\t<section>\n" .
-                "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
 
             foreach ($active_aco_objects[$key] as $value2) {
                 $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
@@ -696,9 +688,9 @@ class AclExtended
                 $message .= "\t\t\t<aco>\n";
 
                 // Modified 6-2009 by BM - Translate gacl aco name
-                $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                 $message .= "\t\t\t</aco>\n";
             }
 
@@ -708,7 +700,7 @@ class AclExtended
         $message .= "\t</active>\n";
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -735,8 +727,8 @@ class AclExtended
                 if (!in_array($ret, $returns)) {
                     // Modified 6-2009 by BM - Translate return value
                     $message .= "\t<return>\n";
-                    $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
-                    $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n";
+                    $message .= "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n";
+                    $message .= "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n";
                     $message .= "\t</return>\n";
 
                     array_push($returns, $ret);
@@ -746,7 +738,7 @@ class AclExtended
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 

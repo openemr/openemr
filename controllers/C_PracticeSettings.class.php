@@ -1,26 +1,22 @@
 <?php
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 
 class C_PracticeSettings extends Controller
 {
-    var $template_mod;
+    public $direction;
 
-    var $direction;
-
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
 
         if (!AclMain::aclCheckCore('admin', 'practice')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Practice Settings", xl("Practice Settings"));
         }
     }
 

@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   phpstan:
     runs-on: ubuntu-24.04
@@ -22,59 +26,90 @@ jobs:
         php-version: ['8.4']
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v5
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
+      uses: actions/checkout@v6
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        coverage: none
-    - name: Get composer cache directory
-      id: composer-cache
-      run: |
-        {
-          printf 'dir='
-          composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
-    - name: Composer Cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
-    - name: Composer Install
-      run: |
-        composer install --prefer-dist --no-progress
-        # Hack: temporarily uninstall rector, which interferes with PHPStan
-        composer remove --dev --optimize-autoloader rector/rector
+    # Hack: temporarily uninstall rector, which interferes with PHPStan
+    # (it bundles some type-incomplete polyfills which can throw off results)
+    - name: Remove Rector
+      run: composer remove --dev --optimize-autoloader rector/rector
     - name: PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: "phpstan-result-cache-${{ github.run_id }}"
+        key: phpstan-result-cache-${{ github.run_id }}
         restore-keys: |
           phpstan-result-cache-
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
+    # Use CI config which sets reportUnmatchedIgnoredErrors: false so this step
+    # only fails for NEW errors, not stale baseline entries.
     - name: PHPStan Analyze
-      id: phpstan-analyze
-      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
-      continue-on-error: true
-    # Generate baseline only if analyze step failed
-    - name: PHPStan Baseline
-      if: steps.phpstan-analyze.outcome == 'failure'
-      run: vendor/bin/phpstan --memory-limit=8G --generate-baseline=baseline.neon
-      continue-on-error: true
-    # Upload baseline only if baseline.neon file exists
+      id: analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze -c .phpstan/phpstan.ci.neon --error-format=github
+    - name: PHPStan Errors Summary
+      if: failure() && steps.analyze.outcome == 'failure'
+      run: |
+        {
+          echo '## ❌ PHPStan Errors Introduced'
+          echo
+          echo 'New errors were introduced that are not in the baseline.'
+          echo
+          echo '### Run PHPStan locally'
+          echo
+          echo '| Method | Command |'
+          echo '|--------|---------|'
+          # shellcheck disable=SC2016
+          echo '| Pre-commit hook | `prek install` or `pre-commit install` (runs automatically on commit) |'
+          # shellcheck disable=SC2016
+          echo '| Composer | `composer phpstan` |'
+          # shellcheck disable=SC2016
+          echo '| Docker | `openemr-cmd pst` |'
+        } >> "$GITHUB_STEP_SUMMARY"
+    # Regenerate baseline for artifact upload (runs always).
+    - name: Regenerate PHPStan Baseline
+      if: always()
+      run: composer phpstan-baseline
+    # Check for baseline drift. Only meaningful when analysis passed - if analysis
+    # failed, the baseline will differ due to the new errors.
+    - name: Ensure baseline is stable
+      if: steps.analyze.outcome == 'success'
+      run: |
+        if git diff --exit-code .phpstan/baseline/; then
+          echo '## ✅ PHPStan Passed' >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+        {
+          echo '## ❌ PHPStan Baseline Needs Regeneration'
+          echo
+          echo 'Your PR does not introduce new errors, but the baseline files are out'
+          echo 'of sync. This can mean the baseline was manually edited'
+          echo 'or errors were fixed but the baseline was not regenerated.'
+          echo
+          echo '### Quick fix'
+          echo
+          echo 'Apply the regenerated baseline from this workflow:'
+          echo
+          echo '```bash'
+          echo "gh run download $GITHUB_RUN_ID --name phpstan-baseline-php${{ matrix.php-version }} -D .phpstan/baseline/"
+          echo '```'
+          echo
+          echo 'Then commit and push the changes.'
+          echo
+          echo '### Regenerate locally'
+          echo
+          # shellcheck disable=SC2016
+          echo 'Or run `composer phpstan-baseline` to regenerate the baseline locally.'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit 1
+    # Upload the resulting baseline as an artifact. This is intended mostly for
+    # debugging and isn't actively used by GH workflows.
     - name: Upload PHPStan Baseline
-      if: hashFiles('baseline.neon') != ''
-      uses: actions/upload-artifact@v4
+      if: failure()
+      uses: actions/upload-artifact@v6
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
-        path: baseline.neon
-      continue-on-error: true
-    - name: Check PHPStan Results
-      if: steps.phpstan-analyze.outcome == 'failure'
-      run: false
+        path: .phpstan/baseline/*.php

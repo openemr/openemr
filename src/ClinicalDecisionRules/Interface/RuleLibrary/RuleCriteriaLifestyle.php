@@ -18,13 +18,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaLifestyle extends RuleCriteria
 {
-    var $type;
-    var $matchValue;
-
-    function __construct($type, $matchValue)
+    function __construct(public $type, public $matchValue)
     {
-        $this->type = $type;
-        $this->matchValue = $matchValue;
     }
 
     function getRequirements()
@@ -90,10 +85,6 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $this->type = $lifestyle;
 
-        if ($matchType == "any") {
-            $this->matchValue = null;
-        } else {
-            $this->matchValue = $value;
-        }
+        $this->matchValue = $matchType == "any" ? null : $value;
     }
 }

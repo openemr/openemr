@@ -53,7 +53,7 @@ function make_task($ajax_req): void
         $dated = $dated->format('Y/m/d');
         $sent_date = oeFormatShortDate($dated);
     }
-    if (!($doc['ID'] ?? '') && $task['ID'] && (strtotime($task['REQ_DATE']) < (time() - 60))) {
+    if (!($doc['ID'] ?? '') && $task['ID'] && (strtotime((string) $task['REQ_DATE']) < (time() - 60))) {
         // The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
@@ -189,19 +189,19 @@ function deliver_document($task)
     if (!empty($from_data['suffix'])) {
         $from_name .= ", " . $from_data['suffix'];
     }
-    $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
+    $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
     $email_sender   = $GLOBALS['patient_reminder_sender_email'];
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
-    $to_fax         = preg_replace("/[^0-9]/", "", $to_data['fax']);
+    $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
 
     $mail           = new MyMailer();
 
     $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
-    $file_to_attach = preg_replace('/^file:\/\//', "", $task['DOC_url']);
-    $file_name      = preg_replace('/^.*\//', "", $task['DOC_url']);
+    $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
+    $file_name      = preg_replace('/^.*\//', "", (string) $task['DOC_url']);
 
     $mail->AddReplyTo($email_sender, $from_name);
     $mail->SetFrom($email_sender, $from_name);
@@ -267,7 +267,7 @@ function make_document($task)
         $to_name .= ", " . $to_data['suffix'];
     }
     $task['to_name'] = $to_name;
-    $to_fax         = preg_replace("/[^0-9]/", "", $to_data['fax']);
+    $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
     $task['to_fax'] = $to_fax;
 
     $query          = "SELECT * FROM patient_data where pid=?";

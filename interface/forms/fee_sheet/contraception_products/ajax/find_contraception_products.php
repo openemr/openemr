@@ -3,6 +3,7 @@
 require_once("../../../../globals.php");
 require_once("../../../../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 function find_contraceptive_methods($contraceptive_code)
@@ -18,7 +19,7 @@ function find_contraceptive_methods($contraceptive_code)
         if (!isProductSelectable($row['drug_id'])) {
             continue;
         }
-        $rel_codes = explode(";", $row['related_code']);
+        $rel_codes = explode(";", (string) $row['related_code']);
         $match = false;
         foreach ($rel_codes as $cur_code) {
             if ($cur_code === $code) {
@@ -45,9 +46,7 @@ function get_method_description($contraceptive_code)
 }
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    header("HTTP/1.0 403 Forbidden");
-    echo "Not authorized for billing";
-    return false;
+    AccessDeniedHelper::deny('Unauthorized access to contraception products');
 }
 
 $retval = [];

@@ -18,7 +18,7 @@ use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
 class StandardRouteFinder implements IRouteFinder
 {
-    public function __construct(private OEHttpKernel $kernel)
+    public function __construct(private readonly OEHttpKernel $kernel)
     {
     }
 
@@ -30,7 +30,7 @@ class StandardRouteFinder implements IRouteFinder
         // Implementation details would depend on the specific requirements of the application.
         // For example, you might want to add custom routes or modify existing ones.
         $restApiCreateEvent = new RestApiCreateEvent($routes, [], [], $request);
-        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
+        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE);
         $routes = $restApiCreateEvent->getRouteMap();
         return $routes;
     }

@@ -26,11 +26,9 @@
 class QRDAXml extends XmlWriterOemr
 {
     public $unique_id;
-    public $nqf_code;
 
-    function __construct($nqf_code = '', $indent = '  ')
+    function __construct(public $nqf_code = '', $indent = '  ')
     {
-        $this->nqf_code = $nqf_code;
         parent::__construct($indent);
     }
 
@@ -486,7 +484,7 @@ class QRDAXml extends XmlWriterOemr
 
     function innerContent($arr = [])
     {
-        $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim($arr['value']);
+        $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim((string) $arr['value']);
     }
 
     function self_customTag($tag, $arr)

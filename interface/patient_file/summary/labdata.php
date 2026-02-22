@@ -37,14 +37,16 @@ require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Labs")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Labs", xl("Labs"));
 }
 
 // Set the path to this script
@@ -83,7 +85,7 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') === "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -282,7 +284,7 @@ function checkAll(bx) {
                                 echo "<td class='list_item'>" . text($myrow['result_text']) . "</td>";
 
 
-                                if ($myrow['abnormal'] == 'No' || $myrow['abnormal'] == 'no'  || $myrow['abnormal'] == '' || $myrow['abnormal'] == null) {
+                                if (in_array($myrow['abnormal'], ['No', 'no', '', null])) {
                                     echo "<td class='list_result'>&nbsp;&nbsp;&nbsp;" . text($myrow['result']) . "&nbsp;&nbsp;</td>";
                                 } else {
                                     echo "<td class='list_result_abnorm'>&nbsp;" ;
@@ -341,7 +343,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){
@@ -411,7 +413,7 @@ function checkAll(bx) {
                             $date_collected[$key] = $row['date_collected'];
                         }
 
-                        array_multisort(array_map('strtolower', $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
+                        array_multisort(array_map(strtolower(...), $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
 
                         $cellcount = count($datelist);
                         $itemcount = count($value_matrix);
@@ -446,7 +448,7 @@ function checkAll(bx) {
                                     if ($value_matrix[$i]['result'] == null) {
                                         echo "<td class='matrix_result'> </td>";
                                     } else {
-                                        if ($value_matrix[$i]['abnormal'] == 'No' || $value_matrix[$i]['abnormal'] == 'no'  || $value_matrix[$i]['abnormal'] == '' || $value_matrix[$i]['abnormal'] == null) {
+                                        if (in_array($value_matrix[$i]['abnormal'], ['No', 'no', '', null])) {
                                             echo "<td class='matrix_result'>&nbsp;&nbsp;&nbsp;" . text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";
                                         } else {
                                             echo "<td class='matrix_result_abnorm'>&nbsp;&nbsp;" ;
@@ -505,4 +507,3 @@ function checkAll(bx) {
     </div>
 </body>
 </html>
-

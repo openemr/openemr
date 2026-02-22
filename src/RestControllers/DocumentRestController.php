@@ -17,6 +17,7 @@ use OpenEMR\Services\DocumentService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DocumentRestController
 {
@@ -33,9 +34,9 @@ class DocumentRestController
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
-    public function postWithPath($pid, $path, $fileData)
+    public function postWithPath($pid, $path, $fileData, $eid)
     {
-        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData);
+        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData, $eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
@@ -59,5 +60,10 @@ class DocumentRestController
             // TODO: @adunsulag we should return a 404 here if the file does not exist... but prior behavior was to return a 400
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    public function setSession(SessionInterface $getSession)
+    {
+        $this->documentService->setSession($getSession);
     }
 }

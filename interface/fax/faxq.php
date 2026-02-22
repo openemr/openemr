@@ -30,7 +30,7 @@ $slines = [];
 if ($GLOBALS['enable_hylafax']) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
-    exec("faxstat -r -l -h " . escapeshellarg($GLOBALS['hylafax_server']), $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -50,7 +50,7 @@ if ($GLOBALS['enable_hylafax']) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = [];
-    exec("faxstat -s -d -l -h " . escapeshellarg($GLOBALS['hylafax_server']), $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {

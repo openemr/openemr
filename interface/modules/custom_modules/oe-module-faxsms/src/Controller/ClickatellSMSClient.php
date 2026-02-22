@@ -48,7 +48,7 @@ class ClickatellSMSClient extends AppDispatch
             $this->credentials['appKey'],
             $toPhone,
             $this->credentials['phone'],
-            rawurlencode($message)
+            rawurlencode((string) $message)
         );
         $context = stream_context_create([
             'http' => [

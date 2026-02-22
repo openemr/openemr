@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
@@ -34,7 +35,7 @@ function temp_copy($filename, $type)
         }
     }
 
-    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename($filename))) {
+    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename))) {
         return true;
     } else {
         return false;
@@ -45,7 +46,7 @@ function temp_copy($filename, $type)
 // $type (RXNORM, SNOMED etc.)
 function temp_unarchive($filename, $type)
 {
-    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename($filename);
+    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename);
     if (!file_exists($filename)) {
         return false;
     } elseif ($type == "ICD10") {
@@ -84,9 +85,9 @@ function rxnorm_import($is_windows_flag)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir'] . "/RXNORM/scripts/mysql";
@@ -144,7 +145,7 @@ function rxnorm_import($is_windows_flag)
             $replacement = $dir . "/" . $file_name;
 
             $pattern = '/' . $file_name . '/';
-            if (strpos($val, $file_name) !== false) {
+            if (str_contains($val, $file_name)) {
                 $val1 = str_replace($file_name, $replacement, $val);
                 if (trim($val1) != '') {
                     sqlStatementNoLog($val1);
@@ -159,9 +160,9 @@ function rxnorm_import($is_windows_flag)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -172,9 +173,9 @@ function snomed_import($us_extension = false)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     // set up array
@@ -245,15 +246,15 @@ function snomed_import($us_extension = false)
                         $array_replace = ["#FILENAME#","#TABLE#"];
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace = $path . $filename1;
-                            if (strpos($filename1, "Concepts") !== false) {
+                            if (str_contains($filename1, "Concepts")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_concepts"], $load_script);
                             }
 
-                            if (strpos($filename1, "Descriptions") !== false) {
+                            if (str_contains($filename1, "Descriptions")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_descriptions"], $load_script);
                             }
 
-                            if (strpos($filename1, "Relationships") !== false) {
+                            if (str_contains($filename1, "Relationships")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_relationships"], $load_script);
                             }
 
@@ -273,9 +274,9 @@ function snomed_import($us_extension = false)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -330,9 +331,9 @@ function snomedRF2_import()
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up array
@@ -444,22 +445,22 @@ function snomedRF2_import()
                         $array_replace = ["#FILENAME#","#TABLE#"];
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace = $path . $filename1;
-                            if (strpos($filename1, "Concept") !== false) {
+                            if (str_contains($filename1, "Concept")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_concept"], $load_script);
                             }
-                            if (strpos($filename1, "Description") !== false) {
+                            if (str_contains($filename1, "Description")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_description"], $load_script);
                             }
-                            if (strpos($filename1, "Identifier") !== false) {
+                            if (str_contains($filename1, "Identifier")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_identifier"], $load_script);
                             }
-                            if (strpos($filename1, "Relationship") !== false) {
+                            if (str_contains($filename1, "Relationship")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_relationship"], $load_script);
                             }
-                            if (strpos($filename1, "StatedRelationship") !== false) {
+                            if (str_contains($filename1, "StatedRelationship")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_statedrelationship"], $load_script);
                             }
-                            if (strpos($filename1, "TextDefinition") !== false) {
+                            if (str_contains($filename1, "TextDefinition")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_textdefinition"], $load_script);
                             }
                             if ($new_str != '') {
@@ -476,9 +477,9 @@ function snomedRF2_import()
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -490,9 +491,9 @@ function icd_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up paths
@@ -558,7 +559,7 @@ function icd_import($type)
                             $run_sql .= $incoming[$this_key][$fld] . ", ";
                             $sql_place .= "?, ";
                             // concat this fields template in the sql string
-                            array_push($sql_values, substr($value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                            array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
                             if (!array_key_exists($nxtfld, $incoming[$this_key])) {
                                 $run_sql .= "active, revision) VALUES ";
                                 $sql_place .= "?, ?)";
@@ -590,9 +591,9 @@ function icd_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -602,9 +603,9 @@ function valueset_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
@@ -677,9 +678,9 @@ function valueset_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
         return true;
 }

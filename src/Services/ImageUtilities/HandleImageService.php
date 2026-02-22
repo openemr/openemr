@@ -15,45 +15,9 @@ namespace OpenEMR\Services\ImageUtilities;
 use Exception;
 use Imagick;
 use ImagickException;
-use OpenEMR\Pdf\MpdfGenericPdfCreator;
 
 class HandleImageService
 {
-    /**
-     * @param $imageData
-     * @param $pdfPath
-     * @return false|string
-     */
-
-    public function convertImageToPdfUseGD($imageData, $pdfPath): false|string
-    {
-        try {
-            $imageRaw = base64_decode($imageData); // Decode base64 image data (if needed)
-            $image = imagecreatefromstring($imageRaw); // Load image using GD
-            if ($image === false) {
-                throw new Exception('Failed to create image from data');
-            }
-            ob_start();
-            imagepng($image);
-            $imagePngData = ob_get_clean();
-            imagedestroy($image);
-
-            $pdf = new MpdfGenericPdfCreator();
-            $pdf->addImageToPDF($imagePngData); // Add image to PDF
-
-            return $pdf->outputPDF($pdfPath, 'S'); // Output PDF as a string
-        } catch (Exception $e) {
-            // Handle exceptions
-            error_log('Error: ' . text($e->getMessage()));
-            return false;
-        } finally {
-            // Clean up GD resources
-            if (is_resource($image)) {
-                imagedestroy($image);
-            }
-        }
-    }
-
     /**
      * @param $imageContent
      * @param $pdfOutPath
@@ -63,7 +27,7 @@ class HandleImageService
     {
         try {
             $imagick = new Imagick();
-            $imageRaw = base64_decode($imageContent); // Decode base64 image data (if needed)
+            $imageRaw = base64_decode((string) $imageContent); // Decode base64 image data (if needed)
             $imagick->readImageBlob($imageRaw); // Load image using Imagick from binary data
             $imagick->setFirstIterator(); // Set iterator to first page
             $imagick->setImageFormat('pdf');
@@ -72,7 +36,7 @@ class HandleImageService
             // Handle Imagick-related exceptions
             error_log('Imagick error: ' . text($e->getMessage()));
             return false;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Handle other exceptions
             error_log('Error: ' . text($e->getMessage()));
             return false;
@@ -214,7 +178,7 @@ class HandleImageService
      */
     private function saveImageToFile($sourceImage, $targetImage, $imageType): string
     {
-        $base = pathinfo($sourceImage, PATHINFO_FILENAME);
+        $base = pathinfo((string) $sourceImage, PATHINFO_FILENAME);
         $outputImage = $base . '_resized' . ($imageType == IMAGETYPE_PNG ? '.png' : '.jpg');
 
         match ($imageType) {
@@ -258,11 +222,7 @@ class HandleImageService
     {
         $content = '';
 
-        if (is_file($imageData)) {
-            $imageContent = file_get_contents($imageData);
-        } else {
-            $imageContent = $imageData;
-        }
+        $imageContent = is_file($imageData) ? file_get_contents($imageData) : $imageData;
         // Check for extension availability
         $usingImagick =  $this->isImagickAvailable() && $useExt === 'imagick';
         $usingGd =  $this->isGdAvailable() && $useExt === 'gd' && !$usingImagick;
@@ -279,7 +239,7 @@ class HandleImageService
                 $content = false; // Placeholder for actual GD implementation
                 error_log('GD based conversion not implemented.');
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error converting image to PDF using ' . ($usingImagick ? 'Imagick' : 'GD') . ': ' . text($e->getMessage()));
             return false;
         }

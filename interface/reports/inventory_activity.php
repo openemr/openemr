@@ -23,9 +23,9 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -360,8 +360,7 @@ function inventoryActivityLineItem(
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory Activity")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Inventory Activity", xl("Inventory Activity"));
 }
 
 // this is "" or "submit" or "export".
@@ -687,11 +686,7 @@ if ($form_action) { // if submit or export
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
-                    $qtys[3] = $row['quantity'];
-                } else {
-                    $qtys[3] = 0 - $row['quantity'];
-                }
+                $qtys[3] = $row['inventory_id'] == $row['xfer_inventory_id'] ? $row['quantity'] : 0 - $row['quantity'];
             } elseif ($row['pid']) {
                 $qtys[0] = 0 - $row['quantity'];
             } elseif ($row['distributor_id']) {

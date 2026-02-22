@@ -51,7 +51,7 @@ class DocumentService extends BaseService
 
     public function isValidPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
 
         unset($docPathParts[0]);
 
@@ -62,7 +62,7 @@ class DocumentService extends BaseService
         $lastParent = null;
         $isValidPath = true;
         foreach ($docPathParts as $index => $part) {
-            $categoryResults = sqlQuery($categoriesSql, str_replace("_", "", $part));
+            $categoryResults = sqlQuery($categoriesSql, [str_replace("_", "", $part)]);
 
             if ($index === 1) {
                 $lastParent = $categoryResults["id"];
@@ -82,14 +82,14 @@ class DocumentService extends BaseService
 
     public function getLastIdOfPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
         $lastInPath = end($docPathParts);
 
         $sql  = "  SELECT id";
         $sql .= "    FROM categories";
         $sql .= "    WHERE replace(LOWER(name), ' ', '') = ?";
 
-        $results = sqlQuery($sql, str_replace("_", "", $lastInPath));
+        $results = sqlQuery($sql, [str_replace("_", "", $lastInPath)]);
         return $results['id'];
     }
 
@@ -121,11 +121,11 @@ class DocumentService extends BaseService
         return $fileResults;
     }
 
-    public function insertAtPath($pid, $path, $fileData)
+    public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
         if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
-            error_log("OpenEMR API Error: Attempt to upload unsecure patient document was declined");
+            error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }
 
@@ -147,7 +147,7 @@ class DocumentService extends BaseService
 
         // Store the document in OpenEMR
         $doc = new \Document();
-        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file);
+        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file, eid: $eid);
         if (!empty($ret)) {
             error_log("OpenEMR API Error: There was an error in attempt to upload a patient document");
             return false;
@@ -160,11 +160,7 @@ class DocumentService extends BaseService
     {
         $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty($filenameSql['name'])) {
-            $filename = "unknownName";
-        } else {
-            $filename = $filenameSql['name'];
-        }
+        $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
 
         $obj = new \C_Document();
         $obj->onReturnRetrieveKey();
@@ -277,12 +273,12 @@ class DocumentService extends BaseService
             if (is_int($limit) && $limit > 0) {
                 $sql .= " LIMIT " . $limit;
             }
-
+            $username = $this->getSession()?->get('authUser');
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
             while ($row = sqlFetchArray($statementResults)) {
                 // if the current user cannot access the document we do not allow it be passed back as a reference.
                 $document = new \Document($row['id']);
-                if (!$document->can_access()) {
+                if (!$document->can_access($username)) {
                     continue;
                 }
                 $resultRecord = $this->createResultRecordFromDatabaseResult($row);

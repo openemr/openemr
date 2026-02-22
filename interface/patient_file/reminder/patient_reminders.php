@@ -18,10 +18,10 @@ require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\OeUI\OemrUI;
 
 $thisauth = true;
@@ -32,8 +32,7 @@ if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder',
     $thisauth = false;
 }
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or patients/reminder: Patient Reminders", xl("Patient Reminders"));
 }
 
 ?>
@@ -53,8 +52,8 @@ if (!$thisauth) {
 
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
-$mode = ($_GET['mode']) ? $_GET['mode'] : "simple";
+$patient_id = $_GET['patient_id'] ?: "";
+$mode = $_GET['mode'] ?: "simple";
 $sortby = $_GET['sortby'] ?? null;
 $sortorder = $_GET['sortorder'] ?? null;
 $begin = $_GET['begin'] ?? null;
@@ -166,11 +165,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   "FROM `patient_reminders` as a, `patient_data` as b " .
                   "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '');
                 $result = sqlStatement($sql, $sqlBindArray);
-                if (sqlNumRows($result) != 0) {
-                    $total = sqlNumRows($result);
-                } else {
-                    $total = 0;
-                }
+                $total = sqlNumRows($result) != 0 ? sqlNumRows($result) : 0;
 
                 if ($begin == "" or $begin == 0) {
                     $begin = 0;
@@ -268,7 +263,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
 
                     //Escape sort by parameter
-                    $escapedsortby = explode(',', $sortby);
+                    $escapedsortby = explode(',', (string) $sortby);
                 foreach ($escapedsortby as $key => $columnName) {
                     $escapedsortby[$key] = escape_sql_column_name(trim($columnName), ['patient_reminders','patient_data']);
                 }

@@ -22,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
@@ -241,12 +242,12 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): never
     {
         // implement this if we want to allow inserts on this resource
         throw new \BadMethodCallException("insert is not supported in this resource");
@@ -260,7 +261,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): never
     {
         // implement this if we want to allow updates on this resource
         throw new \BadMethodCallException("update is not supported in this resource");
@@ -269,15 +270,14 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->userService->search($openEMRSearchParameters);
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false): never
     {
         // TODO: If Required in Future
         throw new \BadMethodCallException("provenance record is not supported in this resource");

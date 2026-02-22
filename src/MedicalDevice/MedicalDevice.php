@@ -24,7 +24,7 @@ class MedicalDevice
 
     public function __construct($udi_data)
     {
-        $this->udi_data = json_decode($udi_data, true);
+        $this->udi_data = json_decode((string) $udi_data, true);
     }
 
     // This function returns the GMDN PT Name
@@ -127,7 +127,7 @@ class MedicalDevice
         $logger->debug("MedicalDevice::createStandardJson will collect information for udi", ['udi' => $udi]);
         $response = oeHttp::get('https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json', ['udi' => $udi]);
         $data = $response->body();
-        $udiData = json_decode($data, true);
+        $udiData = json_decode((string) $data, true);
 
         # Create standardized results and return this along with raw results
         $results = [

@@ -24,6 +24,9 @@ require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $facilityService = new FacilityService();
 
@@ -32,7 +35,7 @@ function genColumn($ix)
     global $html;
     global $SBCODES;
     for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
-        $a = explode('|', $SBCODES[$ix], 2);
+        $a = explode('|', (string) $SBCODES[$ix], 2);
         $cmd = trim($a[0]);
         if ($cmd == '*C') { // column break
             return++$ix;
@@ -96,21 +99,17 @@ $header_height = 44; // height of page headers in points
 // This tells us if patient/encounter data is to be filled in.
 // 1 = single PID from popup, 2=array of PIDs for session
 
-if (empty($_GET['fill'])) {
-    $form_fill = 0;
-} else {
-    $form_fill = $_GET['fill'];
-}
+$form_fill = empty($_GET['fill']) ? 0 : $_GET['fill'];
 
 // Show based on session array or single pid?
 $pid_list = [];
 $apptdate_list = [];
 
 
-if (!empty($_SESSION['pidList']) and $form_fill == 2) {
-    $pid_list = $_SESSION['pidList'];
+if (!empty($session->get('pidList')) and $form_fill == 2) {
+    $pid_list = $session->get('pidList');
     // If PID list is in Session, then Appt. Date list is expected to be a parallel array
-    $apptdate_list = $_SESSION['apptdateList'];
+    $apptdate_list = $session->get('apptdateList');
 } elseif ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
@@ -153,10 +152,10 @@ if (empty($SBCODES)) {
         $fs_codes = $row['fs_codes'];
         if ($fs_category !== $last_category) {
             $last_category = $fs_category;
-            $SBCODES[] = '*G|' . substr($fs_category, 1);
+            $SBCODES[] = '*G|' . substr((string) $fs_category, 1);
         }
 
-        $SBCODES[] = " |" . substr($fs_option, 1);
+        $SBCODES[] = " |" . substr((string) $fs_option, 1);
     }
 
     // Create entries based on categories defined within the codes.
@@ -354,12 +353,8 @@ if (empty($frow)) {
 }
 
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
-if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "$web_root/$ma_logo_path";
-} else {
-    $logo = "";
-}
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
+$logo = is_file("$webserver_root/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
@@ -485,7 +480,7 @@ foreach ($pid_list as $pid) {
                         if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
-                            $insco_name = trim($icobj->get_name());
+                            $insco_name = trim((string) $icobj->get_name());
                             if ($instype != 'primary') {
                                 $html .= ",";
                             }
@@ -503,7 +498,7 @@ foreach ($pid_list as $pid) {
                 $html .= xlt('Visit date');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
-                    $html .= text(substr($encdata['date'], 0, 10));
+                    $html .= text(substr((string) $encdata['date'], 0, 10));
                 } else {
                     $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
                 }

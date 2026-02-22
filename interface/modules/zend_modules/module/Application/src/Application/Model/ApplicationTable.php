@@ -20,6 +20,7 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Database\QueryUtils;
 
 class ApplicationTable extends AbstractTableGateway
 {
@@ -44,7 +45,7 @@ class ApplicationTable extends AbstractTableGateway
      * Function zQuery
      * All DB Transactions take place
      *
-     * @param String  $sql    SQL Query Statment
+     * @param String  $sql    SQL Query Statement
      * @param array   $params SQL Parameters
      * @param boolean $log    Logging True / False
      * @param boolean $error  Error Display True / False
@@ -66,7 +67,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement = $this->adapter->query($sql);
             $return = $statement->execute($params);
             $result = true;
-        } catch (\Exception | ExceptionInterface $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -82,7 +83,7 @@ class ApplicationTable extends AbstractTableGateway
          * Logging, if the $log is true
          */
         if ($log) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -92,7 +93,7 @@ class ApplicationTable extends AbstractTableGateway
      * Function errorHandler
      * All error display and log
      * Display the Error, Line and File
-     * Same behavior of HelpfulDie fuction in OpenEMR
+     * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
      * @param type   $e
@@ -103,8 +104,8 @@ class ApplicationTable extends AbstractTableGateway
     {
         $escaper = new \Laminas\Escaper\Escaper('utf-8');
         $trace = $e->getTraceAsString();
-        $nLast = strpos($trace, '[internal function]');
-        $trace = substr($trace, 0, ($nLast - 3));
+        $nLast = strpos((string) $trace, '[internal function]');
+        $trace = substr((string) $trace, 0, ($nLast - 3));
         $logMsg = '';
         do {
             $logMsg .= "\r Exception: " . $escaper->escapeHtml($e->getMessage());
@@ -253,17 +254,9 @@ class ApplicationTable extends AbstractTableGateway
         $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
 
         if (isset($GLOBALS['set_autosuggest_options'])) {
-            if ($GLOBALS['set_autosuggest_options'] == 1) {
-                $leading = '%';
-            } else {
-                $leading = $post->leading;
-            }
+            $leading = $GLOBALS['set_autosuggest_options'] == 1 ? '%' : $post->leading;
 
-            if ($GLOBALS['set_autosuggest_options'] == 2) {
-                $trailing = '%';
-            } else {
-                $trailing = $post->trailing;
-            }
+            $trailing = $GLOBALS['set_autosuggest_options'] == 2 ? '%' : $post->trailing;
 
             if ($GLOBALS['set_autosuggest_options'] == 3) {
                 $leading = '%';
@@ -281,14 +274,10 @@ class ApplicationTable extends AbstractTableGateway
         $searchType = $post->searchType;
         $searchEleNo = $post->searchEleNo;
 
-        if ($page == '') {
-            $limitStart = 0;
-        } else {
-            $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
-        }
+        $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
 
         $keyword = $leading . $queryString . $trailing;
-        if (strtolower($searchType) == 'patient') {
+        if (strtolower((string) $searchType) == 'patient') {
             $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data
                 WHERE pid LIKE ?
                 OR  CONCAT(fname, ' ', lname) LIKE ?
@@ -316,7 +305,7 @@ class ApplicationTable extends AbstractTableGateway
                 $keyword,
 
             ]);
-        } elseif (strtolower($searchType) == 'emrdirect') {
+        } elseif (strtolower((string) $searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
                 OR  CONCAT(lname, ' ', fname) LIKE ?
@@ -412,9 +401,9 @@ class ApplicationTable extends AbstractTableGateway
         if ($input_format) {
             $inputFormat = self::dateFormat($input_format);
         } else {
-            if (preg_match('/^\d{8}$/', $input_date)) {
+            if (preg_match('/^\d{8}$/', (string) $input_date)) {
                 $inputFormat = 'Ymd';
-            } elseif (preg_match('/^\d{14}$/', $input_date)) {
+            } elseif (preg_match('/^\d{14}$/', (string) $input_date)) {
                 $inputFormat = 'YmdHis';
             } else {
                 $inputFormat = null;
@@ -425,7 +414,7 @@ class ApplicationTable extends AbstractTableGateway
         } else {
             try {
                 $dateObj = new DateTime($input_date);
-            } catch (Exception $e) {
+            } catch (\Throwable) {
                 return false;
             }
         }
@@ -445,6 +434,6 @@ class ApplicationTable extends AbstractTableGateway
     */
     public function generateSequenceID()
     {
-        return generate_id();
+        return QueryUtils::generateId();
     }
 }

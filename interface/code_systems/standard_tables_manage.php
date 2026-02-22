@@ -36,7 +36,7 @@ $rf = $_GET['rf'] ?? '0';
 $file_revision_date = $_GET['file_revision_date'] ?? '0';
 $file_checksum = $_GET['file_checksum'] ?? '0';
 $newInstall =   $_GET['newInstall'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower($db);
+$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) $db);
 
 $files_array = scandir($mainPATH);
 array_shift($files_array); // get rid of "."
@@ -44,7 +44,7 @@ array_shift($files_array); // get rid of ".."
 
 foreach ($files_array as $file) {
     $this_file = $mainPATH . "/" . $file;
-    if (strpos($file, ".zip") === false) {
+    if (!str_contains($file, ".zip")) {
         continue;
     }
 

@@ -79,19 +79,19 @@ if ($_POST) {
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
-  // for incase of data error, this allows the previously entered data to re-populate the boxes
+  // in case of a data error, this allows the previously entered data to re-populate the boxes
     $this_message['message'] = ($_POST['message'] ?? '');
     $this_message['priority'] = ($_POST['priority'] ?? '');
     $this_message['dueDate'] = ($_POST['dueDate'] ?? '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
-// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
+// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handler
     if (
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
+        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
         isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
@@ -124,7 +124,7 @@ if ($_POST) {
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("' . xls('Reminder Sent') . '");';
+            echo '   alert(' . xlj('Reminder Sent') . ');';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';

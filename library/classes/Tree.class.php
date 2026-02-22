@@ -5,7 +5,7 @@ define("ROOT_TYPE_NAME", 2);
 
 /**
  * class Tree
- * This class is a clean implementation of a modified preorder tree traversal hierachy to relational model
+ * This class is a clean implementation of a modified preorder tree traversal hierarchy to relational model
  * Don't use this class directly as it won't work, extend it and set the $this->_table variable, currently
  * this class needs its own sequence per table. MPTT uses a lot of self referential parent child relationships
  * and having ids that are more or less sequential makes human reading, fixing and reconstruction much easier.
@@ -17,34 +17,29 @@ class Tree
     *   This is the name of the table this tree is stored in
     *   @var string
     */
-    var $_table;
+    public $_table;
 
     /*
     *   This is a lookup table so that you can get a node name or parent id from its id
     *   @var array
     */
-    var $_id_name;
+    public $_id_name;
 
     /*
     *   This is a db abstraction object compatible with ADODB
     *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
     */
-    var $_db;
-
-    var $_root;
-    var $_root_type;
-    var $tree;
+    public $_db;
+    public $tree;
 
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
     *   @param mixed $root name or id of desired root node
     *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
     */
-    function __construct($root, $root_type = ROOT_TYPE_ID)
+    function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
-        $this->_root = $root;
-        $this->_root_type = $root_type;
         $this->load_tree();
     }
 
@@ -135,7 +130,7 @@ class Tree
             //now eval the string to create the tree array
             //there must be a more efficient way to do this than eval?
             // TODO: refactor this eval out... there's tons of ways to construct trees w/o needing to do eval code.
-            // not sure how many nodes they needed to account for, but our category heirarchy has to be less than a few
+            // not sure how many nodes they needed to account for, but our category hierarchy has to be less than a few
             // thousand records. An n-ary tree w/ pointers would accomplish this very quickly w/o the potential of sneaking a eval
             // code execution into our category database names.
             // There could be tens of thousands of documents,  However, leaf nodes which are documents will not have any
@@ -143,7 +138,7 @@ class Tree
             // which we sort by document name order.
             eval($ar_string);
 
-            //merge the evaled array with all of the already exsiting tree elements,
+            //merge the evaled array with all of the already existing tree elements,
             //merge recursive is used so that no keys are replaced in other words a key
             //with a specific value will not be replace but instead that value will be turned into an array
             //consisting of the previous value and the new value
@@ -313,7 +308,7 @@ class Tree
         //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-        //only update the childrens parent setting if the node has children
+        //only update the children's parent setting if the node has children
         if ($right > ($left + 1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
             //echo $sql . "<br />";

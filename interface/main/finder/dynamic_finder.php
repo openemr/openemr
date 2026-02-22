@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
@@ -59,7 +60,7 @@ while ($row = sqlFetchArray($res)) {
         $coljson .= ", ";
     }
 
-    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"";
+    $coljson .= "{\"sName\": \"" . addcslashes((string) $colname, "\t\r\n\"\\") . "\"";
     if ($title1 == xl('Name')) {
         $coljson .= ", \"mRender\": wrapInLink";
     }
@@ -67,7 +68,7 @@ while ($row = sqlFetchArray($res)) {
     if ($orderjson) {
         $orderjson .= ", ";
     }
-    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
+    $orderjson .= "[\"$colcount\", \"" . addcslashes((string) $colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
 $loading = "";
@@ -356,7 +357,7 @@ $loading = "";
 </script>
 <?php
     /** @var EventDispatcher */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     $arrOeUiSettings = [
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -469,7 +470,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 

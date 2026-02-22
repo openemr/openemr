@@ -4,7 +4,7 @@
  * DateSearchField.php  Holds the DateSearchField class which represents a date/datetime search field on a piece of
  * data contained in the OpenEMR system.  The search field will take in an array of values that are in the ISO8601 format
  * and parse them.  Fuzzy matching is supporting from left to right matching (in order of specificity ie a fuzzy search on
- * month must be preceeded by year).  If a time component is specified both hours and minutes are required with seconds
+ * month must be preceded by year).  If a time component is specified both hours and minutes are required with seconds
  * being optional.  Currently Timezone parsing is not supported.
  *
  * In order to support fuzzy matching (equality, greater than, greater than or equal to, etc) each value being searched
@@ -133,7 +133,7 @@ class DateSearchField extends BasicSearchField
         // unfortunately php will fill in the date with the current date which does not conform to spec.
         // spec requires that we fill in missing values with the lowest bounds of missing parameters.
 
-        if (preg_match(self::COMPARATOR_MATCH, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+        if (preg_match(self::COMPARATOR_MATCH, (string) $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
             throw new \InvalidArgumentException("Date format invalid must match ISO8601 format and values SHALL be populated from left to right");
         }
         if (empty($matches[self::COMPARATOR_INDEX_YEAR])) {

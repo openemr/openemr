@@ -31,6 +31,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -60,7 +61,7 @@ class PatientAccessOnsiteService
     {
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
-        $this->kernel = $GLOBALS['kernel'];
+        $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
         $this->logger = new SystemLogger();
     }
@@ -102,7 +103,7 @@ class PatientAccessOnsiteService
 
         $updatedEvent = $this->kernel->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_PRE) ?? $preUpdateEvent;
         $query_parameters = [$updatedEvent->getUsername(), $updatedEvent->getLoginUsername()];
-        $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
+        $hash = (new AuthHash())->passwordHash($clear_pass);
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
@@ -113,7 +114,7 @@ class PatientAccessOnsiteService
         $query_parameters[] = $forced_reset_disable;
         $query_parameters[] = $pid;
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "patient-access",
             $this->authUser,
             $this->authProvider,
@@ -140,7 +141,7 @@ class PatientAccessOnsiteService
             'uname' => $updatedEvent->getUsername()
             , 'login_uname' => $updatedEvent->getLoginUsername()
             , 'pwd' => $clear_pass
-            , 'email_direct' => trim($trustedEmail['email_direct'])
+            , 'email_direct' => trim((string) $trustedEmail['email_direct'])
         ];
     }
 
@@ -155,7 +156,7 @@ class PatientAccessOnsiteService
             , 'uname' => $username
             , 'login_uname' => $loginUsername
             , 'pwd' => $pwd
-            , 'email_direct' => trim($emailDirect)
+            , 'email_direct' => trim((string) $emailDirect)
             , 'fhir_address' => $fhirServerConfig->getFhirUrl()
             , 'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
         ];
@@ -220,7 +221,7 @@ class PatientAccessOnsiteService
         $dup_check = sqlQueryNoLog("SELECT * FROM patient_access_onsite WHERE pid != ? AND portal_login_username = ?", [$pid, $trustedUserName]);
 // make unique if needed
         if (!empty($dup_check)) {
-            if (strpos($trustedUserName, '@')) {
+            if (strpos((string) $trustedUserName, '@')) {
                 $trustedUserName = str_replace("@", "$pid@", $trustedUserName);
             } else {
                 // account name will be used and is unique
@@ -242,7 +243,7 @@ class PatientAccessOnsiteService
     public function getTrustedEmailForPid($pid)
     {
         $trustedEmail = sqlQueryNoLog("SELECT email_direct, email FROM `patient_data` WHERE `pid`=?", [$pid]);
-        $trustedEmail['email_direct'] = !empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : text(trim($trustedEmail['email']));
+        $trustedEmail['email_direct'] = !empty(trim((string) $trustedEmail['email_direct'])) ? text(trim((string) $trustedEmail['email_direct'])) : text(trim((string) $trustedEmail['email']));
         return $trustedEmail;
     }
 

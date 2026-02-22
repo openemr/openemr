@@ -46,8 +46,8 @@ $args = getopt('cq', ['webdir:', 'site:', 'maxmins:']);
 
 // print_r($args); // debugging
 
-$args['webdir'] = $args['webdir'] ?? dirname(__DIR__, 2);
-$args['site'] = $args['site'] ?? 'default';
+$args['webdir'] ??= dirname(__DIR__, 2);
+$args['site'] ??= 'default';
 $args['maxmins'] = floatval($args['maxmins'] ?? 60);
 
 if (stripos(PHP_OS, 'WIN') === 0) {

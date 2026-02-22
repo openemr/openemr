@@ -9,6 +9,7 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
 
@@ -18,25 +19,21 @@ use OpenEMR\Common\ORDataObject\Address;
  */
 class Company extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $foreign_id;
-    var $line1;
-    var $line2;
-    var $city;
-    var $state;
-    var $zip;
-    var $plus_four;
-    var $country;
+    public $name;
+    public $line1;
+    public $line2;
+    public $city;
+    public $state;
+    public $zip;
+    public $plus_four;
+    public $country;
 
     /**
      * Constructor sets all Company attributes to their default value
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(public $id = "", public $foreign_id = "")
     {
-        $this->id = $id;
         $this->name = "";
-        $this->foreign_id = $foreign_id;
         $this->_table = "companies";
         $this->line1 = "";
         $this->line2 = "";
@@ -45,7 +42,7 @@ class Company extends ORDataObject
         $this->zip = "";
         $this->plus_four = "";
         $this->country = "USA";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
@@ -62,10 +59,7 @@ class Company extends ORDataObject
 
         $a = new Address();
         $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id " . $foreign_id_sql;
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql, $sqlArray);
-        //echo "sql: $sql";
-        $row = sqlFetchArray($results);
+        $row = QueryUtils::querySingleRow($sql, $sqlArray);
         if (!empty($row)) {
             $a = new Address($row['id']);
         }
@@ -80,7 +74,7 @@ class Company extends ORDataObject
         . "FID: " . $this->foreign_id . "\n"
         . $this->line1 . "\n"
         . $this->line2 . "\n"
-        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->city . ", " . strtoupper((string) $this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
         . $this->country . "\n";
         return $html ? nl2br($string) : $string;
     }

@@ -36,11 +36,7 @@ class HttpResponseHelper
                 }
 
                 header("Content-Type: application/json; charset=utf-8");
-                if (!empty($messageObject)) {
-                    $response = json_encode($messageObject);
-                } else {
-                    $response = json_encode($payload);
-                }
+                $response = !empty($messageObject) ? json_encode($messageObject) : json_encode($payload);
                 break;
         }
 

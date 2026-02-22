@@ -49,7 +49,7 @@ if ($searchAny) {
         $aColumns[] = $row['field_id'];
     }
 } else {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', (string) $_GET['sColumns']);
 }
 // Paging parameters.  -1 means not applicable.
 //
@@ -101,11 +101,11 @@ function dateSearch($sSearch)
         ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
-    if (preg_match('/[^0-9]/', $sSearch)) {
+    if (preg_match('/[^0-9]/', (string) $sSearch)) {
         // Delimiter found. Separate it all into year, month and day components.
-        $parts = preg_split('/[^0-9]/', $sSearch);
-        $parts[1] = $parts[1] ?? '';
-        $parts[2] = $parts[2] ?? '';
+        $parts = preg_split('/[^0-9]/', (string) $sSearch);
+        $parts[1] ??= '';
+        $parts[2] ??= '';
         // If the first part is more than 2 digits then assume y/m/d format.
         // Otherwise assume MDY or DMY format as appropriate.
         if (strlen($parts[0]) <= 2) {
@@ -135,7 +135,7 @@ function dateSearch($sSearch)
 $where = "";
 $srch_bind = [];
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = trim($_GET['sSearch']);
+    $sSearch = trim((string) $_GET['sSearch']);
     foreach ($aColumns as $colname) {
         $where .= $where ? " OR " : " ( ";
         if ($colname == 'name') {
@@ -201,7 +201,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE, 10);
+$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
@@ -210,7 +210,7 @@ $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
 // Always includes pid because we need it for row identification.
 //
 if ($searchAny) {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', (string) $_GET['sColumns']);
 }
 $sellist = 'pid';
 foreach ($aColumns as $colname) {
@@ -233,11 +233,7 @@ $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-if (empty($where)) {
-    $where = $customWhere;
-} else {
-    $where = "$customWhere AND ( $where )";
-}
+$where = empty($where) ? $customWhere : "$customWhere AND ( $where )";
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
 

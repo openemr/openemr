@@ -65,11 +65,7 @@ class pcSmarty extends Smarty_Legacy
         $open_basedir   = ini_get('open_basedir');
 
         $use_safe_mode = ((bool)$safe_mode || (bool)$safe_mode_gid || !empty($open_basedir));
-        if ($use_safe_mode) {
-            $this->use_sub_dirs = false;
-        } else {
-            $this->use_sub_dirs = true;
-        }
+        $this->use_sub_dirs = $use_safe_mode ? false : true;
 
         unset($use_safe_mode, $safe_mode, $safe_mode_gid, $open_basedir);
 

@@ -24,11 +24,7 @@ $facility = sqlQuery($sql);
 
 $sql = "SELECT * FROM medex_prefs";
 $prefs = sqlQuery($sql);
-if ($prefs['postcard_top']) {
-    $postcard_top = $prefs['postcard_top'];
-} else {
-    $postcard_top = '';
-}
+$postcard_top = $prefs['postcard_top'] ?: '';
 
 $postcard_message = $postcard_top . "\n" . xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $facility['phone'] . ".
 	\n\n" . $facility['street'] . "\n

@@ -21,47 +21,26 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Manager")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
 //global variables:
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -84,52 +63,24 @@ if (!isset($_GET["mode"])) {
 <br />
 
 <?php
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';
 }
 
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -138,17 +89,9 @@ if (!isset($_GET["mode"])) {
     $my_authorized = $_GET["authorized"];
 }
 
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';
@@ -166,7 +109,7 @@ $the_first_time = 1;
 $itero = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
-// checking to see if there is any information in the array if not display a message (located after this if statment)
+// checking to see if there is any information in the array if not display a message (located after this if statement)
     $anypats = count($ret);
 
 
@@ -181,21 +124,21 @@ if ($ret = getBillsBetweendayReport($code_type)) {
           $catch_user[] = $iter['user'];
     }
 
-//This statment uniques the array removing duplicates
+//This statement uniques the array removing duplicates
     $user_list = array_unique($catch_user);
 // reorder the list starting with array element zero
     $final_list = array_values($user_list);
-// sort array in assending order
+// sort array in ascending order
     sort($final_list);
 
-    $all4 = array_natsort($ret, pid, fulname, asc);
+    $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
     if ($_POST['end_of_day_totals_only'] == 1) {
         $totals_only = 1;
     }
 
     foreach ($all4 as $iter) {
-        // Case statment to tally information by user
+        // Case statement to tally information by user
         switch ($iter['user']) {
             case $final_list[0]:
                 $us0_user = $iter['user'];
@@ -381,7 +324,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 print "<tr><td colspan=50><hr><span class=bold>" . "     " . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                       print "<td width=40><span class=text><center><b>" . xlt("Units") . "</b></center>";
                       print "</span></td><td width=100><span class=text><center><b>" . xlt("Fee") . "</b></center>" ;
                       print "</span></td><td width=100><span class=text><center><b>" . xlt("Code") . "</b></center>" ;
@@ -409,7 +352,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
             // get dollar amounts to appear on pat,ins payments and copays
 
             if ($iter['code_type'] != 'payment_info') {
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                        print "<td width=40><span class=text><center>" . "1" . "</center>" ;
 
                       // start fee output
@@ -474,22 +417,22 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                       print  "</span></td><td width=100><span class=text><center>" . text($iter['provider_id']) . "</center>";
                       print  "</span></td><td width=100><span class=text><center>" . text($iter['user']) . "</center>" ;
                       print  "</span></td><td width=100><span class=text>";
-                      print  "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter["date"]))) . "</center>";
+                      print  "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime((string) $iter["date"]))) . "</center>";
                       print  "</span></td>\n";
                 } else {
-                    if (date("Y-m-d", strtotime($iter['bill_date'])) === '1969-12-31') {
+                    if (date("Y-m-d", strtotime((string) $iter['bill_date'])) === '1969-12-31') {
                         print "<td width=40><span class=text><center>" . text($iter['units']) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . text($iter['fee']) . "</center>";
                         if ($GLOBALS['language_default'] === 'English (Standard)') {
-                            print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 38)))) . "</center>";
+                            print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                         } else {
-                            print "</span></td><td width=250><span class=text><center>" . text(substr($iter['code_text'], 0, 38)) . "</center>";
+                            print "</span></td><td width=250><span class=text><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
                         }
 
                         print "</span></td><td width=100><span class=text><center>" . text($iter['provider_id']) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . text($iter['user']) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . xlt("Not Billed") . "</center>";
-                        print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
+                        print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime((string) $iter['date']))) . "</center>";
                         print "</span></td><td width=100><span class=small><center>" . text($iter['encounter']) . "</center>";
                         print "</span></td>\n";
                     } else {
@@ -497,15 +440,15 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             print "<td width=40><span class=text><center>" . text($iter["units"]) . "</center>";
                             print "</span></td><td width=100><span class=text><center>" . text($iter['fee']) . "</center>";
                             if ($GLOBALS['language_default'] === 'English (Standard)') {
-                                  print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 38)))) . "</center>";
+                                  print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                             } else {
-                                  print "</span></td><td width=250><span class=text><center>" . text(substr($iter['code_text'], 0, 38)) . "</center>";
+                                  print "</span></td><td width=250><span class=text><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
                             }
 
                             print "</span></td><td width=100><span class=text><center>" . text($iter['provider_id']) . "</center>";
                             print "</span></td><td width=100><span class=text><center>" . text($iter['user']) . "</center>";
-                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter['bill_date']))) . "</center>";
-                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
+                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime((string) $iter['bill_date']))) . "</center>";
+                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime((string) $iter['date']))) . "</center>";
                             print "</span></td><td width=100><span class=small><center>" . text($iter['encounter']) . "</center>";
                             print "</span></td>\n";
                         }
@@ -534,7 +477,7 @@ if ($anypats == 0) {
     ?><font size = 5 ><?php echo xlt('No Data to Process')?></font><?php
 }
 
-// TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
+// TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
 
 if ($us0_fee != 0 || $us0_inspay != 0 || $us0_insadj != 0 || $us0_patadj != 0 || $us0_patpay != 0) {
     $user_info['user'][$k] = $us0_user;
@@ -737,8 +680,8 @@ if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 
 }
 
 if ($totals_only == 1) {
-    $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
-    $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
+    $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
+    $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));
     print "<br /><br />";
     ?><font size = 5 ><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }

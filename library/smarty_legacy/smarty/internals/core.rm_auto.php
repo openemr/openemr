@@ -56,7 +56,7 @@ function smarty_core_rm_auto($params, &$smarty)
             while (false !== ($_filename = readdir($_handle))) {
                 if($_filename == '.' || $_filename == '..') {
                     continue;
-                } elseif (str_starts_with($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, $_tname)) {
+                } elseif (str_starts_with($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, (string) $_tname)) {
                     $_res &= (bool)$smarty->_unlink($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, $params['exp_time']);
                 }
             }

@@ -11,7 +11,7 @@ use OpenEMR\RestControllers\Finder\IRouteFinder;
 
 class FhirRouteFinder implements IRouteFinder
 {
-    public function __construct(private OEHttpKernel $kernel)
+    public function __construct(private readonly OEHttpKernel $kernel)
     {
     }
 
@@ -24,7 +24,7 @@ class FhirRouteFinder implements IRouteFinder
         // Implementation details would depend on the specific requirements of the application.
         // For example, you might want to add custom routes or modify existing ones.
         $restApiCreateEvent = new RestApiCreateEvent([], $routes, [], $request);
-        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
+        $restApiCreateEvent = $this->kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE);
         $routes = $restApiCreateEvent->getFHIRRouteMap();
         return $routes;
     }

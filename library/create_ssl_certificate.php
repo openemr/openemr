@@ -142,7 +142,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     /* Convert the user certificate to .p12 (PKCS 12) format, which is the
      * standard format used by browsers.
      */
-    $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     if (openssl_pkcs12_export($cert, $p12Out, $privkey, $clientPassPhrase) === false) {
         return false;
     }

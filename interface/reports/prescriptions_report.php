@@ -18,14 +18,13 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions and Dispensations")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Prescriptions and Dispensations", xl("Prescriptions and Dispensations"));
 }
 
 if (!empty($_POST)) {
@@ -286,7 +285,7 @@ if (!empty($_POST['form_refresh'])) {
                    ' ' .
                        generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']);
             //if ($row['patient_id'] == $last_patient_id) {
-            if (strcmp($row['pubpid'], $last_patient_id) == 0) {
+            if (strcmp((string) $row['pubpid'], (string) $last_patient_id) == 0) {
                 $patient_name = $patient_id  = '';
                 if ($row['id'] == $last_prescription_id) {
                     $prescription_id = $drug_name = $ndc_number = $drug_units = $refills = $reactions = $instructed = '';

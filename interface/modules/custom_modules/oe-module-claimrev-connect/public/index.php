@@ -12,15 +12,14 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Twig\TwigContainer;
 
     $tab = "home";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Home")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - Home", xl("ClaimRev Connect - Home"));
 }
 ?>
 <html>
@@ -66,9 +65,9 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
                 <h6><?php echo xlt("Support/Sales"); ?></h6>
                 <ul>
-                    <li> <?php echo xlt("Call"); ?>: <a href="tel:9189430020">1-918-943-0020<a>   </li>
-                    <li> <?php echo xlt("Email Support"); ?>: <a href = "support@claimrev.com">support@claimrev.com</a> </li>
-                    <li> <?php echo xlt("Email Sales"); ?>: <a href = "sales@claimrev.com">sales@claimrev.com</a> </li>
+                    <li><?php echo xlt("Call"); ?>: <a href="tel:9189430020">1-918-943-0020</a></li>
+                    <li><?php echo xlt("Email Support"); ?>: <a href="mailto:support@claimrev.com">support@claimrev.com</a></li>
+                    <li><?php echo xlt("Email Sales"); ?>: <a href="mailto:sales@claimrev.com">sales@claimrev.com</a></li>
                 </ul>
             </div>
 

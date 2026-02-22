@@ -18,16 +18,15 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/forms.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Delete Encounter Form", xl("Delete Encounter Form"));
 }
 
 // when the Cancel button is pressed, where do we go?
@@ -44,11 +43,14 @@ if (!empty($_POST['confirm'])) {
         sqlStatement($sql, [$_POST['id']]);
       // set the procedure order to deleted
         $sql = "update procedure_order p
-                left join
-                       forms f
+                left join forms f
                 on f.form_id = p.procedure_order_id
                 set activity=0
                 where f.id=?";
+        sqlStatement($sql, [$_POST['id']]);
+        $sql = "update procedure_specimen p
+                set deleted=1
+                where `procedure_order_id`=?";
         sqlStatement($sql, [$_POST['id']]);
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
@@ -62,7 +64,7 @@ if (!empty($_POST['confirm'])) {
         );
     }
     // log the event
-    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
+    EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

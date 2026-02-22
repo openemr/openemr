@@ -39,11 +39,6 @@ class InstModuleTable
     protected $applicationTable;
 
     /**
-     * We have to create and populate some classes so we use the service container to load them
-     */
-    private $container;
-
-    /**
      * The path for the zend modules locations
      *
      * @var string
@@ -53,14 +48,19 @@ class InstModuleTable
     public const MODULE_TYPE_ZEND = 1;
     public const MODULE_TYPE_CUSTOM = 0;
 
-    public function __construct(TableGateway $tableGateway, ContainerInterface $container)
-    {
+    /**
+     * @param TableGateway $tableGateway
+     * @param ContainerInterface $container We have to create and populate some classes so we use the service container to load them
+     */
+    public function __construct(
+        TableGateway $tableGateway,
+        private readonly ContainerInterface $container
+    ) {
         $this->tableGateway = $tableGateway;
         $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->applicationTable = new ApplicationTable();
-        $this->container = $container;
         $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
             . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
     }
@@ -87,7 +87,7 @@ class InstModuleTable
     public function installSQL($modId, $mod_type, $dir)
     {
         // TODO: we will leave zend modules alone for now until we can come up with a mechanism to allow them to have
-        // backwards compatability to fix the sql line bug.
+        // backwards compatibility to fix the sql line bug.
         $installScript = $this->getInstallScript($dir);
         if (empty($installScript)) {
             error_log("install script does not exist. skipping InstModuleTable->installSQL for module");
@@ -133,11 +133,11 @@ class InstModuleTable
                 $specialPattern = '/#SpecialSql[\w\W]*#EndSpecialSql/sU';
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
-                //separate spacial sql and clean sql string
+                //separate special sql and clean sql string
                 $sql = preg_replace($specialPattern, $specialReplacement, $sql);
                 // Note: this fails if there are any semicolon(;) characters in a string constant
                 // this is why we migrated to installSQLWithUpgradeService
-                $sqla = explode(";", $sql);
+                $sqla = explode(";", (string) $sql);
 
                 foreach ($sqla as $sqlq) {
                     $query = rtrim("$sqlq");
@@ -153,7 +153,7 @@ class InstModuleTable
                     $query = rtrim("$sqlq");
                     //remove special sql prefix suffix
                     $query = preg_replace($cleanSpecialPattern, $specialReplacement, $query);
-                    if (strlen($query) > 5) {
+                    if (strlen((string) $query) > 5) {
                         if (!$this->applicationTable->zQuery($query)) {
                             return false;
                         }
@@ -176,18 +176,19 @@ class InstModuleTable
             try {
                 // TODO: do we want to display any kind of message of the statements that were executed like we do in
                 // sql_upgrade.php ??
-                $fileName = basename($installScript);
-                $dir = dirname($installScript);
+                $fileName = basename((string) $installScript);
+                $dir = dirname((string) $installScript);
                 $sqlUpgradeService = new SQLUpgradeService();
                 $sqlUpgradeService->setThrowExceptionOnError(true);
                 $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
-            } catch (SqlQueryException | \Exception $exception) {
-                (new SystemLogger())->errorLogCaller(
-                    "Error: " . $exception->getMessage(),
-                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
-                );
+            } catch (\Throwable $exception) {
+                $context = ['trace' => $exception->getTraceAsString()];
+                if ($exception instanceof SqlQueryException) {
+                    $context['statement'] = $exception->getSqlStatement();
+                }
+                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {
@@ -257,13 +258,9 @@ class InstModuleTable
             if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
                 $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
             }
-            if (!empty($lines)) {
-                $name = $lines[0];
-            } else {
-                $name = $directory;
-            }
+            $name = !empty($lines) ? $lines[0] : $directory;
 
-            $uiname = ucwords(strtolower($directory));
+            $uiname = ucwords(strtolower((string) $directory));
             $section_id = 0;
             $sec_count = "SELECT count(*) as total FROM module_acl_sections";
             $sec_result = $this->applicationTable->zQuery($sec_count);
@@ -304,7 +301,7 @@ class InstModuleTable
                 $name,
                 $state,
                 $uiname,
-                strtolower($rel_path),
+                strtolower((string) $rel_path),
                 $directory,
                 $mod_type
             ];
@@ -313,7 +310,7 @@ class InstModuleTable
             $moduleInsertId = $result->getGeneratedValue();
 
             $sql = "INSERT INTO module_acl_sections VALUES (?,?,0,?,?)";
-            $params = [$moduleInsertId, $name, strtolower($directory), $moduleInsertId];
+            $params = [$moduleInsertId, $name, strtolower((string) $directory), $moduleInsertId];
             $result = $this->applicationTable->zQuery($sql, $params);
             return $moduleInsertId;
         }
@@ -359,7 +356,7 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return Ambigous <boolean, unknown>
+     * @return InstModule
      */
     function getRegistryEntry($id, $cols = "")
     {
@@ -797,7 +794,7 @@ class InstModuleTable
                         $ret_str .= ", ";
                     }
 
-                    $ret_str .= trim($modDir) . "(" . $this->getModuleStatusByDirectoryName($modDir) . ")";
+                    $ret_str .= trim((string) $modDir) . "(" . $this->getModuleStatusByDirectoryName($modDir) . ")";
                     $count++;
                 }
             }
@@ -821,7 +818,7 @@ class InstModuleTable
     public function getModuleStatusByDirectoryName($moduleDir)
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
-        $res = $this->applicationTable->zQuery($sql, [trim($moduleDir)]);
+        $res = $this->applicationTable->zQuery($sql, [trim((string) $moduleDir)]);
         foreach ($res as $row) {
             $check = $row;
         }
@@ -1030,7 +1027,7 @@ class InstModuleTable
             $obj = $this->container->get($className);
         }
         if (!empty($obj)) {
-            $setup['module_dir'] = strtolower($moduleDirectory);
+            $setup['module_dir'] = strtolower((string) $moduleDirectory);
             $setup['title'] = $obj->getTitle();
         }
 

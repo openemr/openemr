@@ -10,6 +10,6 @@
     {% if e.referringProvider %}
         <br />{{ "Referring Provider"|xlt }} - {{ e.referringProvider|text }}
     {% endif %}
-
+    {% include "templates/newpatient/partials/report/_dispensed-medications.html.twig" %}
 {% endfor %}
 </div>

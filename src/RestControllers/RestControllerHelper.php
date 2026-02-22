@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Core\OEGlobalsBag;
 use Http\Message\Encoding\GzipEncodeStream;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
@@ -56,11 +57,8 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    private string $restURL = "";
-
-    public function __construct($restAPIUrl = "")
+    public function __construct(private readonly string $restURL = "")
     {
-        $this->restURL = $restAPIUrl;
     }
 
     const FHIR_PREFER_HEADER_RETURN_VALUES = ['minimal', 'representation', 'OperationOutcome'];
@@ -365,7 +363,7 @@ class RestControllerHelper
             }
 
             foreach ($capResource->getSearchParam() as $searchParam) {
-                if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
+                if (strcmp($searchParam->getName(), (string) $fhirSearchField) == 0) {
                     $paramExists = true;
                 }
             }
@@ -421,7 +419,7 @@ class RestControllerHelper
             $definitionName = 'export';
             $operationName = 'export';
             if ($resource != '$export') {
-                $definitionName = strtolower($resource) . '-export';
+                $definitionName = strtolower((string) $resource) . '-export';
             }
             // define export operation
             $fhirOperation = new FHIRCapabilityStatementOperation();
@@ -446,7 +444,7 @@ class RestControllerHelper
 
     public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
     {
-        $reqMethod = trim($items[0], " ");
+        $reqMethod = trim((string) $items[0], " ");
         $numberItems = count($items);
         $code = "";
         // we want to skip over $export operations.
@@ -456,11 +454,7 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
-                $code = "read";
-            } else {
-                $code = "search-type";
-            }
+            $code = !empty(preg_match('/:/', (string) $items[$numberItems - 1])) ? "read" : "search-type";
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $code = "create";
         } elseif (strcmp($reqMethod, "PUT") == 0) {
@@ -488,7 +482,7 @@ class RestControllerHelper
 
         $resourcesHash = [];
         foreach ($routes as $key => $function) {
-            $items = explode("/", $key);
+            $items = explode("/", (string) $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];
@@ -557,7 +551,7 @@ class RestControllerHelper
      */
     private static function getResponseForPayload($payload)
     {
-        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload)) {
+        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload) || is_bool($payload)) {
             $response = new JsonResponse($payload);
         } else if ($payload instanceof \Stringable || is_string($payload)) {
             $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
@@ -597,8 +591,9 @@ class RestControllerHelper
      */
     private static function filterServiceClassForResource(string $resource, ?string $serviceClass)
     {
-        if (!empty($GLOBALS['kernel'])) {
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $dispatcher = $globalsBag->getKernel()->getEventDispatcher();
             $event = $dispatcher->dispatch(new RestApiResourceServiceEvent($resource, $serviceClass), RestApiResourceServiceEvent::EVENT_HANDLE);
             return $event->getServiceClass();
         }

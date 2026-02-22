@@ -15,32 +15,33 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment: Amendments", xl("Amendments"));
 }
 $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
 $addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
 
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $currentUser = $_SESSION['authUserID'];
+    $currentUser = $session->get('authUserID');
     $created_time = date('Y-m-d H:i');
     if ($_POST["amendment_id"] == "") {
         // New. Insert
         if (!$addAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment/addonly: Amendment Add", xl("Amendment Add"));
         }
         $query = "INSERT INTO amendments SET
 			amendment_date = ?,
@@ -65,8 +66,7 @@ if (isset($_POST['mode'])) {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
         if (!$editAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment/write: Amendment Edit", xl("Amendment Edit"));
         }
         $query = "UPDATE amendments SET
 			amendment_date = ?,
@@ -103,11 +103,11 @@ if (isset($_POST['mode'])) {
         $created_time
     ];
     sqlStatement($query, $sqlBindArray);
-    header("Location:add_edit_amendments.php?id=" . urlencode($amendment_id));
+    header("Location:add_edit_amendments.php?id=" . urlencode((string) $amendment_id));
     exit;
 }
 
-$amendment_id = $amendment_id ?? ($_REQUEST['id'] ?? '');
+$amendment_id ??= $_REQUEST['id'] ?? '';
 if (!empty($amendment_id)) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
     $resultSet = sqlQuery($query, [$amendment_id]);
@@ -179,7 +179,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Requested Date'); ?></label>
@@ -250,7 +250,7 @@ $(function () {
                 <?php
                 if (sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
-                        $created_date = date('Y-m-d', strtotime($row['created_time']));
+                        $created_date = date('Y-m-d', strtotime((string) $row['created_time']));
                         echo "<tr>";
                         $userName = $row['lname'] . ", " . $row['fname'];
                         echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";

@@ -26,16 +26,14 @@ class GlobalConfig
 
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
-    private $globalsArray;
 
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
 
-    public function __construct(array $globalsArray)
+    public function __construct(private array $globalsArray)
     {
-        $this->globalsArray = $globalsArray;
         $this->cryptoGen = new CryptoGen();
     }
 
@@ -89,23 +87,6 @@ class GlobalConfig
     public function getApiServer()
     {
         return $this->getGlobalSetting(self::CONFIG_OPTION_API_URL);
-    }
-
-
-    public function getTextOption()
-    {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
-    }
-
-    /**
-     * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
-     *
-     * @return bool|string
-     */
-    public function getEncryptedOption()
-    {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
     }
 
     public function getGlobalSetting($settingKey)

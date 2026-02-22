@@ -15,14 +15,29 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("phq9.inc.php"); //common strings
 require_once("$srcdir/api.inc.php");
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $viewmode
+ * @var string $str_default
+ * @var string $str_not
+ * @var string $str_several
+ * @var string $str_more
+ * @var string $str_nearly
+ * @var string $str_somewhat
+ * @var string $str_very
+ * @var string $str_extremely
+ * @var string $str_nosave_confirm
+ * @var string $str_form_name
+ * @var string $str_form_title
+ * @var string $str_q10
+ * @var string $str_q10_2
+ */
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if ($viewmode == 'update') {
-    $obj = formFetch("form_phq9", $_GET["id"]);
-} else {
-    $obj = null;
-}
+$obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
 ?>
 <html>
 <head>
@@ -43,7 +58,7 @@ if ($viewmode == 'update') {
         // stuff that uses embedded php must go here, not in the include javascript file -
         // it must be executed on server side before page is sent to client. included
         // javascript is only executed on the client
-        function create_q10(question, menue ) {
+        function create_q10(question, menu ) {
             // create the 10th question - the second part is italicised. Only displayed if score > 0
             var text = document.createTextNode(jsAttr("10" + ". "+<?php echo js_escape($str_q10); ?>));
             question.appendChild(text);
@@ -54,12 +69,12 @@ if ($viewmode == 'update') {
             question.name = "tenth";
             question.appendChild(new_line);
             question.appendChild(ital);
-// populate the   the menue
-            menue.options[0] = new Option( <?php echo js_escape($str_not); ?>, "0");
-            menue.options[1] = new Option( <?php echo js_escape($str_somewhat); ?>, "1");
-            menue.options[2] = new Option( <?php echo js_escape($str_very); ?>, "2");
-            menue.options[3] = new Option( <?php echo js_escape($str_extremely);?>, "3");
-            menue.options[4] = new Option( <?php echo js_escape($str_default);  ?>, "undef");
+// populate the   the menu
+            menu.options[0] = new Option( <?php echo js_escape($str_not); ?>, "0");
+            menu.options[1] = new Option( <?php echo js_escape($str_somewhat); ?>, "1");
+            menu.options[2] = new Option( <?php echo js_escape($str_very); ?>, "2");
+            menu.options[3] = new Option( <?php echo js_escape($str_extremely);?>, "3");
+            menu.options[4] = new Option( <?php echo js_escape($str_default);  ?>, "undef");
         }
     </script>
     <div class="col-12">
@@ -83,7 +98,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the default to the previous value - so it is displayed in the menue box
+                            // set the default to the previous value - so it is displayed in the menu box
                             document.my_form.interest_score.options[<?php echo attr($obj['interest_score']); ?>].defaultSelected=true;
                             var i = <?php echo js_escape($obj['interest_score']); ?>; //the value from last time
                             phq9_score += parseInt (i);
@@ -106,7 +121,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the default to the previous value - so it is displayed in the menue box
+                            // set the default to the previous value - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['hopeless_score']); ?>; //the value from last time
                             document.my_form.hopeless_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -129,7 +144,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['sleep_score']); ?> ; //the value from last time
                             document.my_form.sleep_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -152,7 +167,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['fatigue_score']); ?> ; //the value from last time
                             document.my_form.fatigue_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -175,7 +190,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['appetite_score']); ?> ; //the value from last time
                             document.my_form.appetite_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -198,7 +213,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['failure_score']); ?> ; //the value from last time
                             document.my_form.failure_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -221,7 +236,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['focus_score']);?> ; //the value from last time
                             document.my_form.focus_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -244,7 +259,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['psychomotor_score']);?> ; //the value from last time
                             document.my_form.psychomotor_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);
@@ -267,7 +282,7 @@ if ($viewmode == 'update') {
                         </select>
                         <?php if ($obj) { ?>
                         <script>
-                            // set the previous value to the default - so it is displayed in the menue box
+                            // set the previous value to the default - so it is displayed in the menu box
                             var i = <?php echo js_escape($obj['suicide_score']);?> ; //the value from last time
                             document.my_form.suicide_score.options[i].defaultSelected=true;
                             phq9_score += parseInt (i);

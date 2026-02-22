@@ -98,20 +98,17 @@ class SpreadSheetServiceTest extends TestCase
 
         // Check that row property is populated
         $rowProperty = $reflection->getProperty('row');
-        $rowProperty->setAccessible(true);
         $rowData = $rowProperty->getValue($service);
         $this->assertNotEmpty($rowData);
         $this->assertCount(2, $rowData); // Should have 2 data rows
 
         // Check that header property is populated
         $headerProperty = $reflection->getProperty('header');
-        $headerProperty->setAccessible(true);
         $headerData = $headerProperty->getValue($service);
         $this->assertNotEmpty($headerData);
 
         // Check that fields property remains unchanged (was set in constructor)
         $fieldsProperty = $reflection->getProperty('fields');
-        $fieldsProperty->setAccessible(true);
         $fieldsData = $fieldsProperty->getValue($service);
         $this->assertEquals(['Name', 'Age'], $fieldsData);
     }
@@ -134,7 +131,6 @@ class SpreadSheetServiceTest extends TestCase
         // Check that fields property is populated from array keys
         $reflection = new \ReflectionClass(SpreadSheetService::class);
         $fieldsProperty = $reflection->getProperty('fields');
-        $fieldsProperty->setAccessible(true);
         $fieldsData = $fieldsProperty->getValue($serviceWithoutFields);
 
         // Fields should be populated with keys from the data array

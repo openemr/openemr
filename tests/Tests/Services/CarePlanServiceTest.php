@@ -13,7 +13,6 @@ namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -27,7 +26,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(CarePlanService::class)]
 class CarePlanServiceTest extends TestCase
 {
     /**

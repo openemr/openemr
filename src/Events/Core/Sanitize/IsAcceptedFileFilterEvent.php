@@ -63,18 +63,11 @@ class IsAcceptedFileFilterEvent extends Event
         $this->setAcceptedList($acceptedList);
     }
 
-    /**
-     * @return This
-     */
     public function getAcceptedList(): array
     {
         return $this->acceptedList;
     }
 
-    /**
-     * @param This $acceptedList
-     * @return IsAcceptedFileFilterEvent
-     */
     public function setAcceptedList(array $acceptedList): IsAcceptedFileFilterEvent
     {
         $this->acceptedList = $acceptedList;

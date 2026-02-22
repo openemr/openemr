@@ -11,8 +11,8 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorizations.
@@ -28,8 +28,7 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for inventory: Drug Inventory", xl("Drug Inventory"));
 }
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
@@ -57,7 +56,7 @@ $form_consumable = isset($_REQUEST['form_consumable']) ? intval($_REQUEST['form_
 // Incoming form_warehouse, if not empty is in the form "warehouse/facility".
 // The facility part is an attribute used by JavaScript logic.
 $form_warehouse = empty($_REQUEST['form_warehouse']) ? '' : $_REQUEST['form_warehouse'];
-$tmp = explode('/', $form_warehouse);
+$tmp = explode('/', (string) $form_warehouse);
 $form_warehouse = $tmp[0];
 
 // Get the order hash array value and key for this request.
@@ -113,7 +112,7 @@ function generateEmptyTd($n): void
     }
     echo $temp;
 }
-function processData($data)
+function inventory_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -123,7 +122,7 @@ function processData($data)
     $data['expiration'] = [$data['expiration']];
     return $data;
 }
-function mergeData($d1, $d2)
+function inventory_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
@@ -133,7 +132,7 @@ function mergeData($d1, $d2)
     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
     return $d1;
 }
-function mapToTable($row): void
+function inventory_mapToTable($row): void
 {
     global $auth_admin, $auth_lots;
     $today = date('Y-m-d');
@@ -141,7 +140,7 @@ function mapToTable($row): void
         echo " <tr class='detail'>\n";
         $lastid = $row['drug_id'];
         if ($auth_admin) {
-            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
+            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes((string) $lastid)) . ")'>" .
             "<a href='' onclick='return false'>" .
             text($row['name']) . "</a></td>\n";
         } else {
@@ -203,7 +202,7 @@ function mapToTable($row): void
 
             foreach ($row['expiration'] as $value) {
                 // Make the expiration date red if expired.
-                $expired = !empty($value) && strcmp($value, $today) <= 0;
+                $expired = !empty($value) && strcmp((string) $value, $today) <= 0;
                 $value = !empty($value) ? oeFormatShortDate($value) : xl('N/A');
                 echo "<div" . ($expired ? " style='color:red'" : "") . ">" . text($value) . "</div>";
             }
@@ -256,15 +255,19 @@ function refreshme() {
  location.href = location.href;
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on drug title.
 function dodclick(id) {
- dlgopen('add_edit_drug.php?drug=' + id, '_blank', 900, 600);
+ const params = new URLSearchParams({ drug: id });
+ dlgopen('add_edit_drug.php?' + params.toString(), '_blank', 900, 600);
 }
 
 // Process click on drug QOO or lot.
 function doiclick(id, lot) {
- dlgopen('add_edit_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
+ const params = new URLSearchParams({ drug: id, lot: lot });
+ dlgopen('add_edit_lot.php?' + params.toString(), '_blank', 600, 475);
 }
+// AI-generated code end
 
 // Enable/disable warehouse options depending on current facility.
 function facchanged() {
@@ -407,19 +410,19 @@ while ($row = sqlFetchArray($res)) {
     if (!empty($row['inventory_id']) && $is_user_restricted && !isWarehouseAllowed($row['facid'], $row['warehouse_id'])) {
         continue;
     }
-    $row = processData($row);
+    $row = inventory_processData($row);
     if ($prevRow == '') {
         $prevRow = $row;
         continue;
     }
     if ($prevRow['drug_id'] == $row['drug_id']) {
-        $row = mergeData($prevRow, $row);
+        $row = inventory_mergeData($prevRow, $row);
     } else {
-        mapToTable($prevRow);
+        inventory_mapToTable($prevRow);
     }
     $prevRow = $row;
 } // end while
-mapToTable($prevRow);
+inventory_mapToTable($prevRow);
 ?>
  </tbody>
 </table>

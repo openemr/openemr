@@ -70,35 +70,94 @@ initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-        repo_root="$(git rev-parse --show-toplevel)" || exit 1
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    composer_install
+    npm_build
+    ccda_build
+    cd -
+    dockers_env_start
+    install_configure
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+
+    # Configure coverage after containers are running and OpenEMR is initialized
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set COMPOSE_FILE so docker compose commands work from any directory
+        local compose_file="${repo_root}/ci/inferno/compose.yml"
+        export COMPOSE_FILE="${compose_file}"
+
         cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        main_build
-        ccda_build
-        cd -
-        dockers_env_start
-        install_configure
-        "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-        "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-        # configure_coverage
-        echo 'OpenEMR initialized'
-    )
+        configure_coverage
+        setup_e2e_bookends apache
+        # Stay in repo root - we have write permissions here
+        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
+    fi
+
+    echo 'OpenEMR initialized'
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-        cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        cd -
-        phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
-        # merge_coverage
-        echo 'Certification Tests Executed'
-    )
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    # Run PHPUnit tests with coverage if enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        phpunit --testsuite certification \
+                --coverage-clover coverage.inferno-phpunit.clover.xml \
+                --log-junit junit-inferno.xml \
+                -c "${OPENEMR_DIR}/phpunit.xml"
+    else
+        phpunit --testsuite certification \
+                --log-junit junit-inferno.xml \
+                -c "${OPENEMR_DIR}/phpunit.xml"
+    fi
+
+    echo 'Certification Tests Executed'
+}
+
+collect_inferno_coverage() {
+    local -x DOCKER_DIR=inferno
+    local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    echo 'Collecting Inferno coverage...'
+
+    # Convert HTTP request coverage to clover.xml format
+    # Run inside the container so file paths resolve correctly
+    convert_coverage /tmp/openemr-coverage/inferno \
+                     /dev/null \
+                     --clover=coverage.inferno-http.clover.xml
+    ls -lah coverage.inferno-http.clover.xml || true
+
+    # Note: Individual coverage files (coverage.inferno-phpunit.clover.xml and
+    # coverage.inferno-http.clover.xml) are uploaded separately to Codecov,
+    # which handles server-side merging. No local merge needed.
+
+    echo 'Inferno coverage collection completed'
 }
 
 fix_redis_permissions() {
@@ -157,8 +216,18 @@ main() {
     if ! run_testsuite; then
         local exit_code=$?
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
+        # Still try to collect coverage even on failure
+        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            collect_inferno_coverage || echo "Warning: Coverage collection failed"
+        fi
         exit "${exit_code}"
     fi
+
+    # Collect coverage if enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        collect_inferno_coverage
+    fi
+
     echo 'SUCCESS: All Inferno certification tests completed successfully!'
 }
 

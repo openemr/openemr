@@ -98,15 +98,15 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      *
      * @param $filename
      * @param $location
-     * @param false $delete
+     * @param bool $delete
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
         $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
-            'key=' . urlencode($filename) .
-            '&location=' . urlencode($location) .
+            'key=' . urlencode((string) $filename) .
+            '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .
-            '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken());
+            '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());
         echo "<script type='text/JavaScript'>window.location = " . js_escape($url) . "</script>";
     }
 }

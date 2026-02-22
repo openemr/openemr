@@ -25,11 +25,8 @@ use OpenEMR\Services\ListService;
  */
 class RuleCriteriaSex extends RuleCriteria
 {
-    var $value;
-
-    function __construct($value)
+    function __construct(public $value)
     {
-        $this->value = $value;
     }
 
     function getRequirements()

@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023-24 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
  */
 
@@ -29,7 +29,7 @@ class EtherFaxActions extends AppDispatch
     protected $credentials;
     public string $portalUrl;
     protected CryptoGen $crypto;
-    private EtherFaxClient $client;
+    private readonly EtherFaxClient $client;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;
@@ -123,8 +123,9 @@ class EtherFaxActions extends AppDispatch
                 break;
             }
             if (!empty($fax->JobId)) {
-                $this->insertFaxQueue($fax);
-                $this->client->setFaxReceived($fax->JobId);
+                if ($this->client->setFaxReceived($fax->JobId)) {
+                    $this->insertFaxQueue($fax);
+                }
             }
         }
         // return the count of faxes processed
@@ -141,7 +142,7 @@ class EtherFaxActions extends AppDispatch
             return '';
         }
 
-        $name = basename($_FILES['fax']['name']);
+        $name = basename((string)$_FILES['fax']['name']);
         $tmp_name = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
 
@@ -179,7 +180,6 @@ class EtherFaxActions extends AppDispatch
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         }
-        // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
@@ -187,52 +187,117 @@ class EtherFaxActions extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS['SMTP_USER'] ?? null);
+
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
-        $csid = $this->formatPhone($this->credentials['phone']);
-        $tag = $user['username'];
+        $facility = substr((string)($user['facility'] ?? ''), 0, 20);
+        $csid = $this->formatPhone($this->credentials['phone'] ?? '');
+        $tag = $user['username'] ?? '';
+        $fileName = '';
 
+        // Validate file path if not content
+        $allowedTempDir = realpath($this->baseDir . '/send/');
         if (empty($isContent)) {
-            if (str_starts_with($file, 'file://')) {
-                // Remove the "file://" prefix
-                $file = substr($file, 7);
+            if (str_starts_with((string)$file, 'file://')) {
+                $file = substr((string)$file, 7);
             }
-            $realPath = realpath($file);
+            $realPath = realpath((string)$file);
             if ($realPath !== false) {
+                if ($allowedTempDir === false || !str_starts_with($realPath, $allowedTempDir)) {
+                    error_log("Path traversal blocked: " . $realPath);
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
+                $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
             } else {
-                return xlt('Error: No content');
+                return xlt('Error: No Fax content');
             }
         }
 
+        // If document mode, load from Document table instead
         if ($isDocuments) {
-            $file = (new Document($docId))->get_data();
+            $doc = new Document($docId);
+            $file = $doc->get_data();
+            $fileName = $doc->get_name() ?? 'document';
         }
 
+        // Optional email copy
         if ($hasEmail && $smtpEnabled) {
             self::emailDocument($email, '', $file, $user);
         }
 
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, pathinfo($file, PATHINFO_BASENAME));
-            if (!$fax->FaxResult) {
-                return 'Error: ' . json_encode($fax->Message);
+            $fax = $this->client->etherFaxSend(
+                $phone,
+                $file,
+                null,
+                $facility,
+                $csid,
+                $tag,
+                $isDocuments,
+                $fileName
+            );
+            // FaxResult::Success = 0, FaxResult::InProgress = 2
+            if (!is_object($fax) || !property_exists($fax, 'FaxResult')) {
+                return 'Error: ' . json_encode(xlt('Unable to send fax (no response)'));
             }
-            if ($fax->FaxResult == FaxResult::InProgress) {
-                while (true) {
-                    $status = $this->client->getFaxStatus($fax->JobId);
-                    if (!$status || $status->FaxResult != FaxResult::InProgress) {
-                        break;
+            $status = $fax;
+            // If InProgress, poll for a short time to catch early failure/success,
+            // but do NOT block indefinitely.
+            if (!empty($fax->JobId) && ($fax->FaxResult == FaxResult::InProgress)) {
+                $jobId = $fax->JobId;
+                $maxSeconds = 15; // keep short to avoid blocking request
+                $deadline = time() + $maxSeconds;
+                $sleep = 2;
+                $maxSleep = 8;
+                $nullCount = 0;
+                while (time() < $deadline) {
+                    $polled = $this->client->getFaxStatus($jobId);
+                    $http = (int)($this->client->getHttpCode() ?? 0);
+                    if (!empty($polled) && isset($polled->FaxResult)) {
+                        $status = $polled;
+                        $nullCount = 0;
+                        if ($status->FaxResult != FaxResult::InProgress) {
+                            break;
+                        }
+                    } else {
+                        // If HTTP was a hard failure (4xx/5xx), stop
+                        $nullCount++;
+                        if ($http >= 400) {
+                            break;
+                        }
+                        if ($nullCount >= 3) {
+                            break;
+                        }
                     }
-                    sleep(5);
+                    sleep($sleep);
+                    $sleep = min($sleep + 2, $maxSleep);
                 }
             }
-        } catch (Exception $e) {
+            // Always store sent fax in queue for tracking (even if still InProgress)
+            // Use JobId from initial response if polling didn't return a JobId
+            if (!empty($fax->JobId)) {
+                $status->JobId ??= $fax->JobId;
+                // Preserve the FaxImage from initial response (status response may not include it)
+                if (!empty($fax->FaxImage)) {
+                    $status->FaxImage = $fax->FaxImage;
+                }
+                $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
+            }
+        } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
         }
-
-        return $status->FaxResult ? 'Error: ' . json_encode(FaxResult::getFaxResult($status->FaxResult)) : json_encode(FaxResult::getFaxResult($status->FaxResult));
+        $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
+        // Treat InProgress as non-error (queued for tracking)
+        if (($status->FaxResult ?? null) === FaxResult::InProgress) {
+            return json_encode($resultName);
+        }
+        // Success => OK
+        if (($status->FaxResult ?? null) === FaxResult::Success) {
+            return json_encode($resultName);
+        }
+        // Everything else => Error (include mapped name)
+        return 'Error: ' . json_encode($resultName);
     }
 
     /**
@@ -255,28 +320,12 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $number
-     * @return string
-     */
-    public function formatPhone($number): string
-    {
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } elseif (!empty($n)) {
-            $n = '+1' . $n;
-        }
-
-        return $this->validatePhone($n) ? $n : '';
-    }
-
-    /**
      * @param $n
      * @return bool
      */
     public function validatePhone($n): bool
     {
-        return preg_match("/^\+[1-9]\d{10,14}$/", $n);
+        return preg_match("/^\+[1-9]\d{10,14}$/", (string)$n);
     }
 
     /**
@@ -289,9 +338,9 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
+        $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
         $tag = xlt("Forwarded");
         $statusMsg = xlt("Forwarding Requests") . "<br />";
@@ -314,7 +363,7 @@ class EtherFaxActions extends AppDispatch
             mkdir($this->baseDir . '/send', 0777, true);
         }
 
-        file_put_contents($filepath, base64_decode($content));
+        file_put_contents($filepath, base64_decode((string)$content));
 
         if ($hasEmail && $smtpEnabled) {
             $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filepath, $user) . "<br />";
@@ -322,7 +371,7 @@ class EtherFaxActions extends AppDispatch
 
         if ($faxNumber) {
             try {
-                $fax = $this->client->sendFax($faxNumber, $filepath, null, $facility, $csid, $tag, false);
+                $fax = $this->client->etherFaxSend($faxNumber, $filepath, null, $facility, $csid, $tag, false);
                 if (!$fax->FaxResult) {
                     return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
                 }
@@ -336,7 +385,7 @@ class EtherFaxActions extends AppDispatch
                     }
                 }
                 $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape('Error: ' . $e->getMessage());
             }
         }
@@ -362,15 +411,21 @@ class EtherFaxActions extends AppDispatch
         $dateTo = date("Y-m-d H:i:s", strtotime($this->getRequest('dateto') . 'T23:59:59'));
         $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo, false);
 
-        $responseMsg = [0 => '', 2 => xlt('Not Implemented')];
+        $responseMsg = [0 => '', 1 => '', 2 => xlt('Not Implemented')];
 
         foreach ($faxStore as $faxDetails) {
             $id = $faxDetails->JobId;
             $record_id = $faxDetails->RecordId;
-            $faxDate = strtotime($faxDetails->ReceivedOn . ' UTC');
+            $faxDate = strtotime(($faxDetails->ReceivedOn ?? '') . ' UTC');
             $formattedDate = date('M j, Y g:i:sa T', $faxDate);
             $docLen = round($faxDetails->DocumentParams->Length / 1000, 2) . "KB";
-            $transactionType = $this->getTransactionTypeWord($faxDetails->TransactionType);
+            $transaction = 0;
+            if (!empty($faxDetails->SentOn ?? null)) {
+                $transaction = 1;
+                $faxDate = strtotime($faxDetails->SentOn . ' UTC');
+                $formattedDate = date('M j, Y g:i:sa T', $faxDate);
+            }
+            $transactionType = $this->getTransactionTypeWord($transaction);
 
             $recognizeResult = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
             $form = $this->generateFaxForm($id, $recognizeResult);
@@ -380,7 +435,7 @@ class EtherFaxActions extends AppDispatch
             $actionLinks = $this->generateActionLinks($id, $record_id, $pid_assumed);
             $detailLink = $this->generateDetailLink($id, $recognizeResult);
 
-            if ($faxDetails->TransactionType == '0') {
+            if ($transaction == 0) {
                 $faxRow = "<tr>
                 <td>" . text($formattedDate) . "</td>
                 <td>" . text($faxDetails->CallingNumber) . "</td>
@@ -399,13 +454,13 @@ class EtherFaxActions extends AppDispatch
                 <td>" . text($faxDetails->CallingNumber) . "</td>
                 <td>" . text($faxDetails->RemoteId) . "</td>
                 <td>" . text($faxDetails->CalledNumber) . "</td>
-                <td>" . text($faxDetails->PagesReceived) . "</td>
-                <td>" . text($docLen) . "</td>
+                <td>" . text($faxDetails->PagesDelivered) . "</td>
+                <td>" . text($faxDetails->DocumentParams->Name ?? '') . "</td>
                 <td>" . text($transactionType) . "</td>
                 <td class='text-left'>" . $actionLinks . "</td>
                 <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
             }
-            $responseMsg[$faxDetails->TransactionType == '0' ? 0 : 1] .= $faxRow . $form;
+            $responseMsg[$transaction] .= $faxRow . $form;
         }
 
         if (empty($responseMsg[0])) {
@@ -508,7 +563,7 @@ class EtherFaxActions extends AppDispatch
 
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return "Error: Retrieving Fax:\n" . $e->getMessage();
         }
 
@@ -521,6 +576,7 @@ class EtherFaxActions extends AppDispatch
         $c_header = $apiResponse->DocumentParams->Type;
 
         if ($c_header == 'image/tiff' || $c_header == 'image/tif') {
+            // imagick if installed
             $formattedImage = $this->formatFax($faxImage);
             $c_header = $formattedImage ? 'application/pdf' : 'image/tiff';
             $faxImage = $formattedImage ?: $faxImage;
@@ -535,7 +591,7 @@ class EtherFaxActions extends AppDispatch
             }
 
             $file_name = "{$faxStoreDir}/Fax_{$docId}" . ($c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' ? '.tiff' : '.txt'));
-            file_put_contents($file_name, base64_decode($faxImage));
+            file_put_contents($file_name, base64_decode((string)$faxImage));
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
 
@@ -561,45 +617,153 @@ class EtherFaxActions extends AppDispatch
     /**
      * @return string
      */
+
     public function disposeDocument(): string
     {
+        if (!$this->authenticate()) {
+            http_response_code(403);
+            return json_encode(['success' => false, 'message' => xlt('Unauthorized')]);
+        }
+
         $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = $this->getRequest('file_path') ?? $this->getSession('where');
+        $where = (string)($this->getRequest('file_path') ?? $this->getSession('where') ?? '');
 
         if (empty($where)) {
-            die(xlt('Problem with download. Use browser back button'));
+            return json_encode(['success' => false, 'message' => xlt('No file path specified')]);
+        }
+        $allowedRoot = realpath($this->baseDir) ?: $this->baseDir;
+        $targetPath = $this->normalizePath($where);
+
+        if (!$this->isPathAllowed($targetPath, $allowedRoot)) {
+            error_log("SECURITY: Fax disposeDocument path violation: {$targetPath}");
+            http_response_code(403);
+            return json_encode(['success' => false, 'message' => xlt('Access denied')]);
         }
 
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
+        $content = (string)$this->getRequest('content', '');
+        $action = (string)$this->getRequest('action', '');
 
-        if ($action == 'download') {
-            $this->sendFile($where);
-            sleep(2);
-            unlink($where);
-            exit;
-        }
-
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode($content);
-            if (file_put_contents($where, $decodedContent) !== false) {
-                $response['success'] = true;
-                $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
+        if ($action === 'download') {
+            // Only allow download from allowed root
+            if (!is_file($targetPath)) {
+                return json_encode(['success' => false, 'message' => xlt('File not found')]);
             }
-        } elseif ($action == 'setup') {
-            $response['success'] = true;
-            $response['url'] = $where;
+            $this->sendFile($targetPath);
+            // Best effort cleanup for temp files created by this controller
+            @unlink($targetPath);
+            return json_encode(['success' => true, 'url' => $targetPath]);
         }
 
-        return json_encode($response);
+        if (!empty($content) && $action === 'setup') {
+            // Only allow fax-safe extensions
+            $ext = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+            $allowedExtensions = ['pdf', 'tif', 'tiff', 'txt'];
+            if (!in_array($ext, $allowedExtensions, true)) {
+                error_log("SECURITY: Disallowed file extension in disposeDocument: .{$ext}");
+                return json_encode(['success' => false, 'message' => xlt('Invalid file type')]);
+            }
+
+            $decoded = base64_decode($content, true);
+            if ($decoded === false) {
+                return json_encode(['success' => false, 'message' => xlt('Invalid content encoding')]);
+            }
+
+            // Simple executable content guard (PHP tags, HTML script). This is a defense-in-depth measure.
+            if ($this->containsExecutableCode($decoded)) {
+                error_log("SECURITY: Executable content blocked in disposeDocument");
+                return json_encode(['success' => false, 'message' => xlt('Malicious content detected')]);
+            }
+
+            // Ensure directory exists
+            $dir = dirname($targetPath);
+            if (!is_dir($dir) && !mkdir($dir, 0770, true)) {
+                return json_encode(['success' => false, 'message' => xlt('Failed to create directory')]);
+            }
+
+            // Write atomically
+            $tmp = tempnam($dir, 'fax_');
+            if ($tmp === false) {
+                return json_encode(['success' => false, 'message' => xlt('Failed to create temp file')]);
+            }
+            $bytes = file_put_contents($tmp, $decoded, LOCK_EX);
+            if ($bytes === false) {
+                @unlink($tmp);
+                return json_encode(['success' => false, 'message' => xlt('Failed to write file')]);
+            }
+            // Move to destination
+            if (!@rename($tmp, $targetPath)) {
+                @unlink($tmp);
+                return json_encode(['success' => false, 'message' => xlt('Failed to finalize file')]);
+            }
+            @chmod($targetPath, 0660);
+
+            $response['success'] = true;
+            $response['url'] = $targetPath;
+            return json_encode($response);
+        } elseif ($action === 'setup') {
+            // Setup without content should not create files; just acknowledge if path is allowed
+            $response['success'] = true;
+            $response['url'] = $targetPath;
+            return json_encode($response);
+        }
+
+        // Default: unsupported action
+        return json_encode(['success' => false, 'message' => xlt('Unsupported action')]);
     }
 
     /**
-     * @param string $filePath
-     * @return void
+     * Normalize a filesystem path without resolving symlinks from user input.
      */
+    private function normalizePath(string $path): string
+    {
+        $parts = [];
+        foreach (explode(DIRECTORY_SEPARATOR, $path) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                array_pop($parts);
+            } else {
+                $parts[] = $segment;
+            }
+        }
+        $prefix = DIRECTORY_SEPARATOR;
+        $isWindowsDrive = strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === DIRECTORY_SEPARATOR);
+        if ($isWindowsDrive) {
+            $prefix = '';
+        }
+        return $prefix . implode(DIRECTORY_SEPARATOR, $parts);
+    }
+
+    /**
+     * Enforce that target path is at or below allowed root.
+     */
+    private function isPathAllowed(string $targetPath, string $allowedRoot): bool
+    {
+        $allowed = realpath($allowedRoot) ?: $allowedRoot;
+        $real = realpath($targetPath);
+        if ($real === false) {
+            // If file does not exist yet, check its directory
+            $real = realpath(dirname($targetPath));
+            if ($real === false) {
+                // Directory might not exist; check against intended dir under allowed
+                $intended = $this->normalizePath(dirname($targetPath));
+                return str_starts_with($intended, $allowed);
+            }
+        }
+        return str_starts_with($real, $allowed);
+    }
+
+    /**
+     * Lightweight detector for executable content we never expect for fax artifacts.
+     */
+    private function containsExecutableCode(string $data): bool
+    {
+        // Check for PHP tags or HTML/JS script tags in first 1MB to be safe.
+        $snippet = substr($data, 0, 1024 * 1024);
+        return (bool)preg_match('/<\?(php|=)|<script\b/i', $snippet);
+    }
+
     private function sendFile(string $filePath): void
     {
         ob_end_clean();
@@ -645,7 +809,7 @@ class EtherFaxActions extends AppDispatch
                 $pinfo = str_replace("|||", " ", $row['patient_info']);
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
@@ -667,17 +831,88 @@ class EtherFaxActions extends AppDispatch
     public function insertFaxQueue($faxDetails): int
     {
         $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
-        $jobId = $faxDetails->JobId;
-        $to = $faxDetails->CalledNumber;
-        $from = $faxDetails->CallingNumber;
-        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
-        $docType = $faxDetails->DocumentParams->Type;
+        $uid = (int)($_SESSION['authUserID'] ?? 0);
+        $jobId = (string)($faxDetails->JobId ?? '');
+        $to = (string)($faxDetails->CalledNumber ?? '');
+        $from = (string)($faxDetails->CallingNumber ?? '');
+        $received = date('Y-m-d H:i:s', strtotime(($faxDetails->ReceivedOn ?? '') . ' UTC'));
+        $docType = (string)($faxDetails->DocumentParams->Type ?? '');
         $details_encoded = json_encode($faxDetails);
+        if ($details_encoded === false) {
+            $details_encoded = '{}';
+        }
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+        $sql = <<<SQL
+INSERT INTO `oe_faxsms_queue`
+    (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
+VALUES
+    (NULL, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE
+    `id` = LAST_INSERT_ID(`id`),
+    `uid` = VALUES(`uid`),
+    `receive_date` = VALUES(`receive_date`),
+    `calling_number` = VALUES(`calling_number`),
+    `called_number` = VALUES(`called_number`),
+    `mime` = VALUES(`mime`),
+    `details_json` = VALUES(`details_json`)
+SQL;
 
-        return sqlInsert($sql, [$uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded]);
+        return (int)sqlInsert($sql, [
+            $uid,
+            $account,
+            $jobId,
+            $received,
+            $from,
+            $to,
+            $docType,
+            $details_encoded
+        ]);
+    }
+
+    /**
+     * Insert a sent fax into the queue for status tracking.
+     * TransactionType 0 = Received, 1 = Sent
+     *
+     * @param object $faxStatus  The FaxStatus object returned from sendFax
+     * @param string $dialNumber The destination fax number
+     * @param string $callerId   The sender's caller ID
+     * @param string $tag        Optional tag for the fax
+     * @param string $fileName   Original filename
+     * @return int The inserted record ID
+     */
+    public function insertSentFaxQueue($faxStatus, string $dialNumber, string $callerId, string $tag = '', string $fileName = ''): int
+    {
+        $account = $this->credentials['account'];
+        $uid = $_SESSION['authUserID'];
+        $jobId = $faxStatus->JobId;
+
+        // Build a details object similar to received faxes but for sent
+        $details = new \stdClass();
+        $details->JobId = $jobId;
+        $details->TransactionType = 1; // 1 = Sent
+        $details->CalledNumber = $dialNumber;
+        $details->CallingNumber = $callerId;
+        $details->Tag = $tag;
+        $details->FaxResult = $faxStatus->FaxResult ?? FaxResult::InProgress;
+        $details->FaxResultText = FaxResult::getFaxResult($details->FaxResult);
+        $details->SentOn = date('c'); // ISO 8601 format
+        $details->CompletedOn = $faxStatus->CompletedOn ?? '';
+        $details->PagesDelivered = $faxStatus->PagesDelivered ?? 0;
+        $details->RemoteId = $faxStatus->RemoteId ?? '';
+        $details->FaxImage = $faxStatus->FaxImage ?? '';
+        // DocumentParams for consistency
+        $details->DocumentParams = new \stdClass();
+        $details->DocumentParams->Name = $fileName;
+        $details->DocumentParams->Type = 'application/pdf';
+        $details->DocumentParams->Length = strlen($details->FaxImage);
+
+        $details_encoded = json_encode($details);
+        $sentDate = date('Y-m-d H:i:s');
+
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
+        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
+
+        return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);
     }
 
     /**
@@ -693,13 +928,28 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
+        $sql = <<< 'QUERY'
+            SELECT
+                `id`,
+                CASE
+                    WHEN JSON_VALID(`details_json`)
+                        THEN JSON_REMOVE(`details_json`, '$.FaxImage')
+                    ELSE `details_json`
+                END AS `details_json`,
+                `receive_date`
+            FROM `oe_faxsms_queue`
+            WHERE `deleted` = '0'
+              AND (`receive_date` > ? AND `receive_date` < ?)
+            QUERY;
+
+        $result = sqlStatement($sql, [$start, $end]);
         while ($row = sqlFetchArray($result)) {
-            $detail = json_decode($row['details_json']);
+            $detail = json_decode((string)$row['details_json']);
             if (json_last_error()) {
                 continue;
             }
+
             $detail->RecordId = $row['id'];
             $rows[] = $detail;
         }
@@ -714,9 +964,13 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
-        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? LIMIT 1", [$id]);
-        $detail = json_decode($row['details_json']);
-        $detail->RecordId = $row['id'];
+        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$id]);
+        if (empty($row)) {
+            error_log("Fax not found or corrupt: " . text($jobId));
+            return [];
+        }
+        $detail = json_decode((string)$row['details_json']);
+        $detail->RecordId = $row['id'] ?? 0;
 
         return $detail;
     }
@@ -763,8 +1017,8 @@ class EtherFaxActions extends AppDispatch
         $fax = $this->fetchFaxFromQueue($docId);
         $mime = $fax->DocumentParams->Type;
         $ext = $mime == 'application/pdf' ? '.pdf' : ($mime == 'image/tiff' || $mime == 'image/tif' ? '.tiff' : '.txt');
-        $fileName = $fileName ?? xlt("fax") . '_' . text($docId) . $ext;
-        $content = base64_decode($fax->FaxImage);
+        $fileName ??= xlt("fax") . '_' . text($docId) . $ext;
+        $content = base64_decode((string)$fax->FaxImage);
         $document = new Document();
 
         $result = $document->createDocument($pid, $catid, $fileName, $mime, $content);
@@ -789,10 +1043,10 @@ class EtherFaxActions extends AppDispatch
         foreach ($source as $src) {
             foreach ($val as $k => $v) {
                 foreach ($v as $s) {
-                    if (stripos($src->Name, $s) !== false) {
+                    if (stripos((string)$src->Name, $s) !== false) {
                         if ($k == "sex") {
-                            $src->Text = ucfirst($src->Text);
-                            $src->Text = stripos($src->Name, 'Male') !== false ? 'Male' : (stripos($src->Name, 'Female') !== false ? 'Female' : ($src->Text == 'M' ? 'Male' : ($src->Text == 'F' ? 'Female' : $src->Text)));
+                            $src->Text = ucfirst((string)$src->Text);
+                            $src->Text = stripos((string)$src->Name, 'Male') !== false ? 'Male' : (stripos((string)$src->Name, 'Female') !== false ? 'Female' : ($src->Text == 'M' ? 'Male' : ($src->Text == 'F' ? 'Female' : $src->Text)));
                         }
                         $rtn[$k] = $src->Text;
                     }

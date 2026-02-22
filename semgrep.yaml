@@ -1,0 +1,333 @@
+rules:
+  # Override echoed-request rule from p/php to add OpenEMR sanitizers
+  # This prevents false positives for OpenEMR's escaping functions like attr(), text(), xlt(), etc.
+  # See: library/htmlspecialchars.inc.php for function implementations
+- id: echoed-request
+  mode: taint
+  message: >-
+    `Echo`ing user input risks cross-site scripting vulnerability.
+    Use `attr()` for attribute values or `text()` for text content.
+    See library/htmlspecialchars.inc.php for available sanitizers.
+  languages: [php]
+  severity: ERROR
+  pattern-sources:
+  - pattern: $_REQUEST
+  - pattern: $_GET
+  - pattern: $_POST
+  pattern-sinks:
+  - pattern: echo $...VARS;
+  pattern-sanitizers:
+      # Standard PHP sanitizers
+  - pattern: htmlentities(...)
+  - pattern: htmlspecialchars(...)
+  - pattern: strip_tags(...)
+  - pattern: isset(...)
+  - pattern: empty(...)
+  - pattern: intval(...)
+  - pattern: http_build_query(...)
+      # WordPress sanitizers
+  - pattern: esc_html(...)
+  - pattern: esc_attr(...)
+  - pattern: wp_kses(...)
+      # Laravel/Symfony/Twig sanitizers
+  - pattern: e(...)
+  - pattern: twig_escape_filter(...)
+      # CodeIgniter sanitizers
+  - pattern: xss_clean(...)
+  - pattern: html_escape(...)
+      # Drupal sanitizers
+  - pattern: Html::escape(...)
+  - pattern: Xss::filter(...)
+      # Laminas sanitizers
+  - pattern: escapeHtml(...)
+  - pattern: escapeHtmlAttr(...)
+      # OpenEMR sanitizers (library/htmlspecialchars.inc.php)
+  - pattern: text(...)
+  - pattern: attr(...)
+  - pattern: attr_url(...)
+  - pattern: attr_js(...)
+  - pattern: js_escape(...)
+  - pattern: js_url(...)
+  - pattern: xlt(...)
+  - pattern: xla(...)
+  - pattern: xlj(...)
+  - pattern: xlx(...)
+  - pattern: xmlEscape(...)
+  - pattern: csvEscape(...)
+  - pattern: errorLogEscape(...)
+      # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
+  - pattern: generate_display_field(...)
+  - pattern: generate_select_list(...)
+      # JSON encoding - safe for HTML context (encodes special chars)
+  - pattern: json_encode(...)
+  fix: echo attr($...VARS);
+  metadata:
+    technology:
+    - php
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A07:2017 - Cross-Site Scripting (XSS)
+    - A03:2021 - Injection
+    category: security
+    references:
+    - https://www.php.net/manual/en/function.htmlentities.php
+    - https://www.php.net/manual/en/reserved.variables.request.php
+    - https://www.php.net/manual/en/reserved.variables.post.php
+    - https://www.php.net/manual/en/reserved.variables.get.php
+    - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+    cwe2022-top25: true
+    cwe2021-top25: true
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: MEDIUM
+    confidence: MEDIUM
+
+  # Override printed-request rule from p/php to add OpenEMR sanitizers
+  # Same as echoed-request above, but for print statements instead of echo
+- id: printed-request
+  mode: taint
+  message: >-
+    `Print`ing user input risks cross-site scripting vulnerability.
+    Use `attr()` for attribute values or `text()` for text content.
+    See library/htmlspecialchars.inc.php for available sanitizers.
+  languages: [php]
+  severity: ERROR
+  pattern-sources:
+  - pattern: $_REQUEST
+  - pattern: $_GET
+  - pattern: $_POST
+  pattern-sinks:
+  - pattern: print $...VARS;
+  pattern-sanitizers:
+      # Standard PHP sanitizers
+  - pattern: htmlentities(...)
+  - pattern: htmlspecialchars(...)
+  - pattern: strip_tags(...)
+  - pattern: isset(...)
+  - pattern: empty(...)
+  - pattern: intval(...)
+  - pattern: http_build_query(...)
+      # WordPress sanitizers
+  - pattern: esc_html(...)
+  - pattern: esc_attr(...)
+  - pattern: wp_kses(...)
+      # Laravel/Symfony/Twig sanitizers
+  - pattern: e(...)
+  - pattern: twig_escape_filter(...)
+      # CodeIgniter sanitizers
+  - pattern: xss_clean(...)
+  - pattern: html_escape(...)
+      # Drupal sanitizers
+  - pattern: Html::escape(...)
+  - pattern: Xss::filter(...)
+      # Laminas sanitizers
+  - pattern: escapeHtml(...)
+  - pattern: escapeHtmlAttr(...)
+      # OpenEMR sanitizers (library/htmlspecialchars.inc.php)
+  - pattern: text(...)
+  - pattern: attr(...)
+  - pattern: attr_url(...)
+  - pattern: attr_js(...)
+  - pattern: js_escape(...)
+  - pattern: js_url(...)
+  - pattern: xlt(...)
+  - pattern: xla(...)
+  - pattern: xlj(...)
+  - pattern: xlx(...)
+  - pattern: xmlEscape(...)
+  - pattern: csvEscape(...)
+  - pattern: errorLogEscape(...)
+      # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
+  - pattern: generate_display_field(...)
+  - pattern: generate_select_list(...)
+      # JSON encoding - safe for HTML context (encodes special chars)
+  - pattern: json_encode(...)
+  fix: print attr($...VARS);
+  metadata:
+    technology:
+    - php
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A07:2017 - Cross-Site Scripting (XSS)
+    - A03:2021 - Injection
+    category: security
+    references:
+    - https://www.php.net/manual/en/function.htmlentities.php
+    - https://www.php.net/manual/en/reserved.variables.request.php
+    - https://www.php.net/manual/en/reserved.variables.post.php
+    - https://www.php.net/manual/en/reserved.variables.get.php
+    - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+    cwe2022-top25: true
+    cwe2021-top25: true
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: MEDIUM
+    confidence: MEDIUM
+
+  # OpenEMR-specific SQL functions with string concatenation
+  # These functions are unique to OpenEMR and not covered by p/php or p/security-audit
+- id: openemr-sql-injection-sqlstatement
+  patterns:
+  - pattern: sqlStatement($QUERY, ...)
+  - pattern-not: sqlStatement("...", ...)
+  - metavariable-pattern:
+      metavariable: $QUERY
+      pattern-either:
+      - pattern: $X . $Y
+      - pattern: '"$X$Y"'
+  message: Potential SQL injection in sqlStatement() - use parameterized queries
+  languages: [php]
+  severity: ERROR
+- id: openemr-sql-injection-sqlquery
+  patterns:
+  - pattern: sqlQuery($QUERY, ...)
+  - pattern-not: sqlQuery("...", ...)
+  - metavariable-pattern:
+      metavariable: $QUERY
+      pattern-either:
+      - pattern: $X . $Y
+      - pattern: '"$X$Y"'
+  message: Potential SQL injection in sqlQuery() - use parameterized queries
+  languages: [php]
+  severity: ERROR
+
+  # --- JavaScript rules ---
+
+  # Detect eval() on dynamic data (e.g. AJAX responses, variables).
+  # Excludes eval of literal strings which are safe.
+- id: openemr-js-eval-ajax-response
+  patterns:
+  - pattern: eval($DATA)
+  - pattern-not: eval("...")
+  message: >-
+    eval() on dynamic data risks code injection. Use JSON.parse() for data
+    or a safer alternative to eval().
+  languages: [javascript]
+  severity: ERROR
+  metadata:
+    technology:
+    - javascript
+    cwe:
+    - "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: HIGH
+    confidence: MEDIUM
+
+  # Detect dynamic innerHTML assignments (DOM-based XSS).
+  # Excludes assignments of literal strings which are safe.
+- id: openemr-js-innerhtml-dynamic
+  patterns:
+  - pattern: $EL.innerHTML = $DATA;
+  - pattern-not: $EL.innerHTML = "...";
+  - pattern-not: $EL.innerHTML = '';
+  message: >-
+    Assigning dynamic data to innerHTML risks DOM-based XSS.
+    Use textContent for text or sanitize HTML before insertion.
+  languages: [javascript]
+  severity: WARNING
+  metadata:
+    technology:
+    - javascript
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: MEDIUM
+    impact: MEDIUM
+    confidence: MEDIUM
+
+  # --- Twig template rules (generic mode) ---
+  # Autoescape is globally disabled in OpenEMR (TwigContainer.php:66),
+  # so all escaping is manual. These rules target high-risk attribute contexts
+  # where unescaped output leads to XSS.
+
+  # Detect unescaped Twig output in href attributes.
+  # Safe patterns use |e or |attr_url filters.
+- id: openemr-twig-unescaped-output-in-href
+  pattern: href="{{ $VAR }}"
+  message: >-
+    Unescaped Twig variable in href attribute. Autoescape is disabled in OpenEMR.
+    Use |e('html_attr') or |attr_url to prevent XSS.
+  languages: [generic]
+  severity: ERROR
+  paths:
+    include:
+    - '*.twig'
+  metadata:
+    technology:
+    - twig
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: HIGH
+    confidence: MEDIUM
+
+  # Detect unescaped Twig output in form action attributes.
+- id: openemr-twig-unescaped-output-in-action
+  pattern: action="{{ $VAR }}"
+  message: >-
+    Unescaped Twig variable in action attribute. Autoescape is disabled in OpenEMR.
+    Use |e('html_attr') or |attr_url to prevent XSS.
+  languages: [generic]
+  severity: ERROR
+  paths:
+    include:
+    - '*.twig'
+  metadata:
+    technology:
+    - twig
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: HIGH
+    confidence: MEDIUM
+
+  # --- XSL template rules (generic mode) ---
+
+  # Detect disable-output-escaping in XSL transforms.
+  # Bypasses XML output encoding, risky when transforming untrusted CCR/CCD data.
+- id: openemr-xsl-disable-output-escaping
+  pattern: disable-output-escaping="yes"
+  message: >-
+    disable-output-escaping bypasses XML output encoding. When transforming
+    untrusted CCR/CCD data, this can lead to XSS in the rendered output.
+  languages: [generic]
+  severity: WARNING
+  paths:
+    include:
+    - '*.xsl'
+  metadata:
+    technology:
+    - xsl
+    cwe:
+    - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+    owasp:
+    - A03:2021 - Injection
+    category: security
+    subcategory:
+    - audit
+    likelihood: LOW
+    impact: MEDIUM
+    confidence: MEDIUM

@@ -42,29 +42,29 @@ class Config_File_Legacy {
     /**
      * Controls whether variables with the same name overwrite each other.
      */
-    var $overwrite        =    true;
+    public $overwrite        =    true;
 
     /**
      * Controls whether config values of on/true/yes and off/false/no get
      * converted to boolean values automatically.
      */
-    var $booleanize        =    true;
+    public $booleanize        =    true;
 
     /**
      * Controls whether hidden config sections/vars are read from the file.
      */
-    var $read_hidden     =    true;
+    public $read_hidden     =    true;
 
     /**
      * Controls whether or not to fix mac or dos formatted newlines.
      * If set to true, \r or \r\n will be changed to \n.
      */
-    var $fix_newlines =    true;
+    public $fix_newlines =    true;
     /**#@-*/
 
     /** @access private */
-    var $_config_path    = "";
-    var $_config_data    = [];
+    public $_config_path    = "";
+    public $_config_data    = [];
     /**#@-*/
 
     /**
@@ -150,7 +150,7 @@ class Config_File_Legacy {
      */
     function &get_key($config_key)
     {
-        [$file_name, $section_name, $var_name] = explode('/', $config_key, 3);
+        [$file_name, $section_name, $var_name] = explode('/', (string) $config_key, 3);
         $result = &$this->get($file_name, $section_name, $var_name);
         return $result;
     }
@@ -231,10 +231,7 @@ class Config_File_Legacy {
      */
     function load_file($file_name, $prepend_path = true)
     {
-        if ($prepend_path && $this->_config_path != "")
-            $config_file = $this->_config_path . $file_name;
-        else
-            $config_file = $file_name;
+        $config_file = $prepend_path && $this->_config_path != "" ? $this->_config_path . $file_name : $file_name;
 
         ini_set('track_errors', true);
         $fp = @fopen($config_file, "r");
@@ -282,7 +279,7 @@ class Config_File_Legacy {
         $vars =& $config_data['vars'];
 
         /* parse file line by line */
-        preg_match_all('!^.*\r?\n?!m', $contents, $match);
+        preg_match_all('!^.*\r?\n?!m', (string) $contents, $match);
         $lines = $match[0];
         for ($i=0, $count=count($lines); $i<$count; $i++) {
             $line = $lines[$i];
@@ -363,9 +360,9 @@ class Config_File_Legacy {
         }
 
         if ($booleanize) {
-            if (preg_match("/^(on|true|yes)$/i", $var_value))
+            if (preg_match("/^(on|true|yes)$/i", (string) $var_value))
                 $var_value = true;
-            else if (preg_match("/^(off|false|no)$/i", $var_value))
+            else if (preg_match("/^(off|false|no)$/i", (string) $var_value))
                 $var_value = false;
         }
 

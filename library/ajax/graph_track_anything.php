@@ -23,11 +23,11 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 // get $_POSTed data
-$titleGraph       = json_decode($_POST['track'], true);
-$the_date_array   = json_decode($_POST['dates'], true);
-$the_value_array  = json_decode($_POST['values'], true);
-$the_item_names   = json_decode($_POST['items'], true);
-$the_checked_cols = json_decode($_POST['thecheckboxes'], true);
+$titleGraph       = json_decode((string) $_POST['track'], true);
+$the_date_array   = json_decode((string) $_POST['dates'], true);
+$the_value_array  = json_decode((string) $_POST['values'], true);
+$the_item_names   = json_decode((string) $_POST['items'], true);
+$the_checked_cols = json_decode((string) $_POST['thecheckboxes'], true);
 // ++++++/end get POSTed data
 
 // check if something was sent

@@ -21,7 +21,7 @@
  *                * none : no encoding (default)
  *                * javascript : encode with javascript
  *                * javascript_charcode : encode with javascript charcode
- *                * hex : encode with hexidecimal (no javascript)
+ *                * hex : encode with hexadecimal (no javascript)
  *         - cc = (optional) address(es) to carbon copy
  *         - bcc = (optional) address(es) to blind carbon copy
  *         - subject = (optional) e-mail subject
@@ -71,17 +71,17 @@ function smarty_function_mailto($params, &$smarty)
             case 'bcc':
             case 'followupto':
                 if (!empty($value))
-                    $mail_parms[] = $var.'='.str_replace($search,$replace,rawurlencode($value));
+                    $mail_parms[] = $var.'='.str_replace($search,$replace,rawurlencode((string) $value));
                 break;
 
             case 'subject':
             case 'newsgroups':
-                $mail_parms[] = $var.'='.rawurlencode($value);
+                $mail_parms[] = $var.'='.rawurlencode((string) $value);
                 break;
 
             case 'extra':
             case 'text':
-                $$var = $value;
+                ${$var} = $value;
 
             default:
         }
@@ -145,8 +145,8 @@ function smarty_function_mailto($params, &$smarty)
             }
         }
         $text_encode = '';
-        for ($x=0; $x < strlen($text); $x++) {
-            $text_encode .= '&#x' . bin2hex($text[$x]).';';
+        for ($x=0; $x < strlen((string) $text); $x++) {
+            $text_encode .= '&#x' . bin2hex((string) $text[$x]).';';
         }
 
         $mailto = "&#109;&#97;&#105;&#108;&#116;&#111;&#58;";

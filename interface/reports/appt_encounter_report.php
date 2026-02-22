@@ -33,16 +33,15 @@ require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments and Encounters")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Appointments and Encounters", xl("Appointments and Encounters"));
 }
 
 if (!empty($_POST)) {
@@ -354,7 +353,7 @@ if (!empty($_POST['form_refresh'])) {
         while ($row = sqlFetchArray($res)) {
             $patient_id = $row['pid'];
             $encounter  = $row['encounter'];
-            $docname    = $row['docname'] ? $row['docname'] : xl('Unknown');
+            $docname    = $row['docname'] ?: xl('Unknown');
 
             if ($docname != $docrow['docname']) {
                 endDoctor($docrow);
@@ -415,7 +414,7 @@ if (!empty($_POST['form_refresh'])) {
 
                         $query .= " LIMIT 1";
                         $tmp = sqlQuery($query, $sqlBindArray);
-                        $relcodes = explode(';', $tmp['related_code']);
+                        $relcodes = explode(';', (string) $tmp['related_code']);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
@@ -505,9 +504,9 @@ if (!empty($_POST['form_refresh'])) {
          }
          *****************************************************************/
         if (empty($row['pc_eventDate'])) {
-            echo text(oeFormatShortDate(substr($row['encdate'], 0, 10)));
+            echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {
-            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr($row['pc_startTime'], 0, 5));
+            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr((string) $row['pc_startTime'], 0, 5));
         }
         ?>
          </td>

@@ -23,14 +23,16 @@
 namespace OpenEMR\Forms\NewPatient;
 
 use OpenEMR\Billing\MiscBillingOptions;
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CareTeamService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
@@ -44,17 +46,9 @@ use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {
-    private Environment $twig;
-    private array $issueTypes;
+    private readonly Environment $twig;
 
-    private string $rootdir;
-
-    /**
-     * @var string $pageName The name to use when firing off any events for this page
-     */
-    private string $pageName;
-
-    private EventDispatcher $eventDispatcher;
+    private readonly EventDispatcherInterface $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;
@@ -62,21 +56,24 @@ class C_EncounterVisitForm
     /**
      * @param $templatePath
      * @param Kernel $kernel
-     * @param $issueTypes
-     * @param $rootdir
+     * @param array $issueTypes
+     * @param string $rootdir
+     * @param string $pageName The name to use when firing off any events for this page
      * @throws \Exception
      */
-    public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
-    {
+    public function __construct(
+        $templatePath,
+        Kernel $kernel,
+        private array $issueTypes,
+        private readonly string $rootdir,
+        private readonly string $pageName = 'newpatient/common.php'
+    ) {
         // Initialize Twig
-        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->issueTypes = $issueTypes;
+        $twig = new TwigContainer($templatePath . '/templates/', OEGlobalsBag::getInstance()->getKernel());
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
-        $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
+        $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
         $this->eventDispatcher = $kernel->getEventDispatcher();
-        $this->rootdir = $rootdir;
-        $this->pageName = $pageName;
         $this->viewmode = false;
         $this->mode = 'edit';
     }
@@ -104,7 +101,7 @@ class C_EncounterVisitForm
         // TODO: @adunsulag right now care facility is an array... the original code in common.php treats this as a single value
         // we need to look at fixing this if there is multiple facilities
         if (!empty($care_team_facility['care_team_facility'])) {
-            $facilities = explode("|", $care_team_facility['care_team_facility']);
+            $facilities = explode("|", (string) $care_team_facility['care_team_facility']);
             return $facilities[0] ?? null;
         }
         return null;
@@ -126,11 +123,15 @@ class C_EncounterVisitForm
                 } else {
                     continue;
                 }
+            } else {
+                // user is authorized (aka is a provider) then if the provider hasn't been set default to user
+                $provider_id = !empty($provider_id) ? $provider_id : $_SESSION['authUserID'];
             }
 
             $name = $user['fname'] . ' ' . ($user['mname'] ? $user['mname'] . ' ' : '') .
                 $user['lname'] . ($user['suffix'] ? ', ' . $user['suffix'] : '') .
                 ($user['valedictory'] ? ', ' . $user['valedictory'] : '');
+
             $providers[] = [
                 'id' => $user['id'],
                 'name' => $name . $flag_it,
@@ -216,7 +217,7 @@ class C_EncounterVisitForm
             // Check ACL
             $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($row['pc_catid']);
             if ($postCalendarCategoryACO) {
-                $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                 if (!AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write')) {
                     continue;
                 }
@@ -250,7 +251,7 @@ class C_EncounterVisitForm
             return [];
         }
 
-        usort($sensitivities, [$this, "sensitivity_compare"]);
+        usort($sensitivities, $this->sensitivity_compare(...));
 
         $options = [];
         foreach ($sensitivities as $value) {
@@ -453,7 +454,7 @@ class C_EncounterVisitForm
                 "ORDER BY fe.encounter DESC LIMIT 1", [$pid, date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')]);
 
             if (!empty($erow['encounter'])) {
-                $duplicate = ['isDuplicate' => true, 'encounter' => $erow['encounter'], 'date' => oeFormatShortDate(substr($erow['date'], 0, 10))];
+                $duplicate = ['isDuplicate' => true, 'encounter' => $erow['encounter'], 'date' => oeFormatShortDate(substr((string) $erow['date'], 0, 10))];
             }
         }
         return $duplicate;
@@ -509,21 +510,24 @@ class C_EncounterVisitForm
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                     "WHERE fe.id = ? AND f.deleted = 0 ";
                 $followup_enc = sqlQuery($q, [$encounter_followup_id]);
-                $followup_date = date("m/d/Y", strtotime($followup_enc['date']));
+                $followup_date = date("m/d/Y", strtotime((string) $followup_enc['date']));
                 $encounter_followup = $followup_enc['encounter'];
             }
             // @todo why is this here?
             if ($mode === "followup") {
-                $followup_date = date("m/d/Y", strtotime($encounter['date']));
+                $followup_date = date("m/d/Y", strtotime((string) $encounter['date']));
                 $encounter_followup = $encounter['encounter'];
                 $encounter['reason'] = '';
                 $encounter['date'] = date('Y-m-d H:i:s');
                 $parentEncounterId = $encounter['id'];
             }
 
-            if ($encounter['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $encounter['sensitivity'])) {
-                $this->twig->render("newpatient/unauthorized.html.twig");
-                exit();
+            $sensitivity = $encounter['sensitivity'];
+            if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+                AccessDeniedHelper::denyWithTemplate(
+                    "ACL check failed for sensitivities/$sensitivity: Patient Encounter",
+                    xl("Patient Encounter")
+                );
             }
         }
 
@@ -564,7 +568,7 @@ class C_EncounterVisitForm
             $validationConstraints = [];
         } else {
             // grab our validation constraints
-            $validationConstraints = json_decode($validationConstraints["new_encounter"]["rules"], true);
+            $validationConstraints = json_decode((string) $validationConstraints["new_encounter"]["rules"], true);
             if ($validationConstraints === false) {
                 $validationConstraints = [];
                 (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Error decoding validation constraints for encounter form");
@@ -651,11 +655,7 @@ class C_EncounterVisitForm
         }
 // START AI GENERATED CODE
 // If viewing an existing encounter, use its POS code instead of facility default
-        if ($viewmode && !empty($encounter['pos_code'])) {
-            $facilityPosCode = $encounter['pos_code'];
-        } else {
-            $facilityPosCode = null;
-        }
+        $facilityPosCode = $viewmode && !empty($encounter['pos_code']) ? $encounter['pos_code'] : null;
         $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility'] ?? null);
         $inCollectionOptions = $this->getInCollectionOptionsForTemplate($encounter);
         $dischargeDispositions = $this->getDischargeDispositionsForTemplate($viewmode ? $encounter : null);

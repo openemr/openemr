@@ -16,7 +16,7 @@ class NQF_0028b_Denominator implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
+        // See if user has been a tobacco user before or simultaneously to the encounter within two years (24 months)
         $date_array = [];
         foreach ($this->getApplicableEncounters() as $encType) {
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
@@ -30,7 +30,7 @@ class NQF_0028b_Denominator implements CqmFilterIF
         // go through each unique date from most recent
         foreach ($date_array as $date) {
             // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-            $date = date('Y-m-d 23:59:59', strtotime($date));
+            $date = date('Y-m-d 23:59:59', strtotime((string) $date));
             $beginMinus24Months = strtotime('-24 month', strtotime($date));
             $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
             // this is basically a check to see if the patient is an reported as an active smoker on their last encounter

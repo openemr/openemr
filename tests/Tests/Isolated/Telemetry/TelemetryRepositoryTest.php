@@ -26,7 +26,7 @@ class TelemetryRepositoryTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'saveTelemetryEvent'));
-        $this->assertTrue(is_callable([$repository, 'saveTelemetryEvent']));
+        $this->assertTrue(is_callable($repository->saveTelemetryEvent(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'saveTelemetryEvent');
@@ -54,7 +54,7 @@ class TelemetryRepositoryTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'fetchUsageRecords'));
-        $this->assertTrue(is_callable([$repository, 'fetchUsageRecords']));
+        $this->assertTrue(is_callable($repository->fetchUsageRecords(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'fetchUsageRecords');
@@ -71,7 +71,7 @@ class TelemetryRepositoryTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'clearTelemetryData'));
-        $this->assertTrue(is_callable([$repository, 'clearTelemetryData']));
+        $this->assertTrue(is_callable($repository->clearTelemetryData(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'clearTelemetryData');

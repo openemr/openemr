@@ -154,8 +154,8 @@ class EncountermanagerTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
-        $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
+        $format = $format ?: 'm/d/y';
+        $temp = explode(' ', (string) $date); //split using space and consider the first portion, in case of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -181,7 +181,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     $cryptoGen = new CryptoGen();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
-                    $content = base64_decode($resp->data);
+                    $content = base64_decode((string) $resp->data);
                 }
             } elseif (!$row['couch_docid']) {
                 if (!filesize($row['ccda_data'])) {
@@ -213,7 +213,7 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function getCcdaAsHTML($ccda)
     {
-        $xml = simplexml_load_string($ccda);
+        $xml = simplexml_load_string((string) $ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -243,7 +243,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];
         $xml_type = strtolower($data['xml_type'] ?? '');
-        $rec_arr = explode(";", $recipients);
+        $rec_arr = explode(";", (string) $recipients);
         $d_Address = '';
         // no point in continuing if we are not setup here
         $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
@@ -251,20 +251,16 @@ class EncountermanagerTable extends AbstractTableGateway
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
-            $verifyMessageReceivedChecked = true;
-        } else {
-            $verifyMessageReceivedChecked = false;
-        }
+        $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? true : false;
 
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
-                $arr = explode('|', $ccda_combination);
+                $arr = explode('|', (string) $ccda_combination);
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = $appTable->zQuery($query, [$value]);
-                    // wierd foreach loop considering the limit 1 up above?
+                    // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
                         // gets connected at the time the ccda is created
@@ -308,7 +304,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     }
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
             return ("Delivery failed to send");
         }

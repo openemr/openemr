@@ -35,10 +35,10 @@ require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
-    Twig\TwigContainer,
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
@@ -51,8 +51,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Appointments Report", xl("Appointments Report"));
 }
 
 # Clear the pidList session whenever load this page.
@@ -128,7 +127,7 @@ function fetch_rule_txt($list_id, $option_id): array|false
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date): array
+function appointments_fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = [];
@@ -567,7 +566,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                    echo date('D', strtotime($appointment['pc_eventDate']));
+                    echo date('D', strtotime((string) $appointment['pc_eventDate']));
                 ?>
             </td>
 
@@ -614,7 +613,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $rems = [];
                 if ($patient_id && $incl_reminders) {
                     // collect reminders first, so can skip it if empty
-                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                    $rems = appointments_fetch_reminders($patient_id, $appointment['pc_eventDate']);
                 }
                 ?>
                 <?php
@@ -623,7 +622,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
         <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
                     <?php
-                    if (trim($appointment['pc_hometext'])) {
+                    if (trim((string) $appointment['pc_hometext'])) {
                         echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
                     }
 

@@ -58,8 +58,8 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
             $has_inventory = sellDrug($code, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
             if (
                 $has_inventory && (
-                (strlen($defaultwh) == 0 && $lrow['is_default']           ) ||
-                (strlen($defaultwh)  > 0 && $lrow['option_id'] == $default))
+                (strlen((string) $defaultwh) == 0 && $lrow['is_default']           ) ||
+                (strlen((string) $defaultwh)  > 0 && $lrow['option_id'] == $default))
             ) {
                 $wh .= " selected";
             } else {
@@ -76,7 +76,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
         $desc = '';
         $price = 0;
         if ($crow = sqlFetchArray($cres)) {
-            $desc = trim($crow['code_text']);
+            $desc = trim((string) $crow['code_text']);
             if ($code_types[$codetype]['fee']) {
                 if ($code_types[$codetype]['external'] == 0) {
                     $prow = sqlQuery(
@@ -110,7 +110,7 @@ $pricelevel = $_GET['pricelevel'] ?? '';
 
 if (!empty($_GET['list'])) {
   // This case supports packages of codes.
-    $arrcodes = explode('~', $_GET['list']);
+    $arrcodes = explode('~', (string) $_GET['list']);
     foreach ($arrcodes as $codestring) {
         if ($codestring === '') {
             continue;

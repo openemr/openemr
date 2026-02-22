@@ -22,16 +22,6 @@ class SpherePayment
     /**
      * @var string
      */
-    private $front;
-
-    /**
-     * @var int
-     */
-    private $patientIdCc;
-
-    /**
-     * @var string
-     */
     private $serverSite;
 
     /**
@@ -47,14 +37,8 @@ class SpherePayment
     /**
      * Constructor
      */
-    public function __construct(string $front, int $patientIdCc)
+    public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
-        // Set if front is 'clinic' (via clinic desk or via clinic phone) or 'patient' (via patient portal)
-        $this->front = $front;
-
-        // Set the patient pid
-        $this->patientIdCc = $patientIdCc;
-
         // Set if in testing mode (or false for production mode)
         $testing = empty($GLOBALS['gateway_mode_production']);
 
@@ -87,9 +71,9 @@ class SpherePayment
         $this->serverSite = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'];
 
         // Calculate the $mainUrl
-        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
         if ($this->front == 'clinic') {
-            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
         }
 
         if ($this->front == 'patient') {

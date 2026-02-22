@@ -87,7 +87,7 @@ function edih_upload_sftp()
 
         if (is_string($fa['name'])) {
             // check for null byte in file name, linux hidden file, directory
-            if (str_starts_with($fa['name'], '.') || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false) {
+            if (str_starts_with($fa['name'], '.') || str_contains($fa['name'], "\0") || str_contains($fa['name'], "./")) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
                 $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
                 $f_ar['reject'][] = ['name' => $fname,'comment' => 'null byte, hidden, invalid'];
@@ -227,7 +227,7 @@ function edih_disp_sftp_upload()
 
 
 if (php_sapi_name() == 'cli') {
-    parse_str(implode('&', array_slice($argv, 1)), $_GET);
+    parse_str(implode('&', array_slice($argv ?? [], 1)), $_GET);
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
     $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
@@ -289,7 +289,7 @@ if (isset($ppid)) {
     while ($rsrec = sqlFetchArray($rs)) {
         $sftp_hosts[] = $rsrec;
     }
-} else { // fill in host detais from parameters
+} else { // fill in host details from parameters
     if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir))) {
         $sftp_hosts[] =  [
          'remote_host'  => $host
@@ -312,7 +312,7 @@ if (
 
 if (!$exitcd) {
     foreach ($sftp_hosts as $sftp_host) {
-        $wrk =  explode(':', $sftp_host['remote_host']);
+        $wrk =  explode(':', (string) $sftp_host['remote_host']);
         $sftp_host['remote_host'] = $wrk[0];
         if (!isset($sftp_host['port'])) {
             $sftp_host['port'] = ($wrk[1] ?? '22');

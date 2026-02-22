@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01'); // From date filter
 $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
 
-function processData($data)
+function destroyed_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -39,7 +39,8 @@ function processData($data)
     $data['destroy_notes'] = [$data['destroy_notes']];
     return $data;
 }
-function mergeData($d1, $d2)
+
+function destroyed_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
@@ -50,7 +51,11 @@ function mergeData($d1, $d2)
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
-function mapToTable($row): void
+
+/**
+ * @param array $row
+ */
+function destroyed_mapToTable($row): void
 {
     if ($row) {
         echo "<tr>\n";
@@ -58,7 +63,7 @@ function mapToTable($row): void
         echo "<td>" . text($row["ndc_number"]) . " </td>\n";
         echo "<td>";
         foreach ($row['inventory_id'] as $key => $value) {
-            echo "<div onclick='doclick(" . attr(addslashes($row['drug_id'])) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+            echo "<div onclick='doclick(" . attr(addslashes((string) $row['drug_id'])) . "," . attr(addslashes((string) $row['inventory_id'][$key])) . ")'>" .
             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
         }
         echo "</td>\n<td>";
@@ -130,7 +135,11 @@ a, a:visited, a:hover {
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
- dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
+ const params = new URLSearchParams({
+     drug: id,
+     lot: lot
+ });
+ dlgopen('../drugs/destroy_lot.php?' + params, '_blank', 600, 475);
 }
 
 $(function () {
@@ -206,19 +215,19 @@ if ($_POST['form_refresh']) {
     $res = sqlStatement($query, [$form_from_date, $form_to_date]);
     $prevRow = '';
     while ($row = sqlFetchArray($res)) {
-        $row = processData($row);
+        $row = destroyed_processData($row);
         if ($prevRow == '') {
             $prevRow = $row;
             continue;
         }
         if ($prevRow['drug_id'] == $row['drug_id']) {
-            $row = mergeData($prevRow, $row);
+            $row = destroyed_mergeData($prevRow, $row);
         } else {
-            mapToTable($prevRow);
+            destroyed_mapToTable($prevRow);
         }
         $prevRow = $row;
     }
-    mapToTable($prevRow);
+    destroyed_mapToTable($prevRow);
 }
 ?>
 

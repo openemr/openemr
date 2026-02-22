@@ -8,11 +8,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright  Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
- * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
@@ -22,49 +24,49 @@ require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Services\DemographicsRelatedPersonsService;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
 // Session pid must be right or bad things can happen when demographics are saved!
 //
 $set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
-if ($set_pid && $set_pid != $_SESSION["pid"]) {
+if ($set_pid && $set_pid != $session->get("pid")) {
     setpid($set_pid);
 }
-$pid = $_SESSION["pid"] ?: $set_pid;
+$pid = $session->get("pid") ?: $set_pid;
 if (!$pid) {
     die(xlt('No patient selected.'));
 }
 
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
-
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);      // adds related* keys/values into $result
-
 // Check authorization.
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
+    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||
         !AclMain::aclCheckCore('patients', 'demo', '', 'write')
     ) {
-        die(xlt('Updating demographics is not authorized.'));
+        AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
 
     if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
-        die(xlt('Adding demographics is not authorized.'));
+        AccessDeniedHelper::deny('Adding demographics is not authorized');
     }
 }
 
@@ -73,7 +75,7 @@ $CPR = 4; // cells per row
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common', 'select2', 'erx']);
+    <?php Header::setupHeader(['datetime-picker','datetime-picker-translated', 'common', 'select2', 'erx']);
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 
@@ -109,7 +111,7 @@ $CPR = 4; // cells per row
                     // delete from table.
                     const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
                     let doData = new FormData();
-                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
                     doData.append('id', data.id);
                     doData.append('task_name_history', 'delete');
                     fetch(url, {
@@ -263,16 +265,19 @@ $CPR = 4; // cells per row
 
         function address_verify() {
             top.restoreSession();
-            var f = document.demographics_form;
+            const f = document.demographics_form;
 
-            dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
-                '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
-                '&city=' + encodeURIComponent(f.form_city.value) +
-                '&state=' + encodeURIComponent(f.form_state.value) +
-                '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0, 5)) +
-                '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5, 9))
-                , '_blank', 400, 150, '', xl('Address Verify'));
+            const params = new URLSearchParams({
+                address1: f.form_street.value,
+                address2: f.form_street_line_2.value,
+                city: f.form_city.value,
+                state: f.form_state.value,
+                zip4: f.form_postal_code.value.substring(5, 9),
+                zip5: f.form_postal_code.value.substring(0, 5)
+            });
 
+            dlgopen('../../practice/address_verify.php?' + params,
+                '_blank', 400, 150, '', xl('Address Verify'));
             return false;
         }
 
@@ -388,7 +393,7 @@ $CPR = 4; // cells per row
       }
 
       <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($session->get('language_direction') == 'ltr')) { ?>
       div.label_custom {
         text-align: right !important;
       }
@@ -412,9 +417,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-    <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
+        <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
         <input type="hidden" name="isSwapClicked" value="" />
@@ -551,7 +556,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 "ORDER BY group_id, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id = $mfrow['field_id'];
-                if (str_starts_with($field_id, 'em_')) {
+                if (str_starts_with((string) $field_id, 'em_')) {
                     continue;
                 }
 
@@ -606,7 +611,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
-            <?php if ($GLOBALS['usps_webtools_enable']) { ?>
+            <?php if ($GLOBALS['usps_apiv3_client_id']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>

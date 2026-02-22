@@ -24,19 +24,18 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\Dorn\ConnectorApi;
 
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "orders";
 $pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: DORN Orders", $pageTitle);
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 if (!empty($_POST)) {
@@ -146,7 +145,7 @@ if (!empty($_POST)) {
                                         ?>
                                         <tr>
                                             <td scope="row"><?php echo text($data->labName); ?></td>
-                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime($data->createdDateTimeUtc))); ?></td>
+                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime((string) $data->createdDateTimeUtc))); ?></td>
                                             <td scope="row"><?php echo text($data->orderNumber); ?></td>
                                             <td scope="row"><?php echo text($data->orderStatusLong); ?></td>
                                             <td scope="row"><?php echo text($data->isPending); ?></td>

@@ -16,11 +16,15 @@ use CURLFile;
 use DOMDocument;
 use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
 
 class CdaValidateDocuments
 {
+    use SystemLoggerAwareTrait;
+
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
 
@@ -33,7 +37,7 @@ class CdaValidateDocuments
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
+            $this->externalValidatorUrl = trim((string) ($GLOBALS['mdht_conformance_server'] ?? null)) ?: '';
             if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }
@@ -71,7 +75,7 @@ class CdaValidateDocuments
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
             return [];
         }
@@ -211,11 +215,12 @@ class CdaValidateDocuments
             'curesUpdate' => true,
             'ccdaFile' => $file
         ];
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -259,9 +264,9 @@ class CdaValidateDocuments
             foreach ($errors as $error) {
                 $detail = $this->formatXsdError($error);
                 $xsd_log['xsd'][] = $detail;
-                error_log($detail);
             }
             libxml_clear_errors();
+            $this->getSystemLogger()->errorLogCaller("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;
@@ -283,7 +288,7 @@ class CdaValidateDocuments
         ];
         try {
             $result = $this->schematronValidateDocument($xml, $type);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $e = $e->getMessage();
             error_log($e);
             $result = [];
@@ -312,7 +317,7 @@ class CdaValidateDocuments
                 $error_str .= "Fatal Error $error->code: ";
                 break;
         }
-        $error_str .= trim($error->message);
+        $error_str .= trim((string) $error->message);
         $error_str .= " on line $error->line\n";
 
         return $error_str;
@@ -327,7 +332,7 @@ class CdaValidateDocuments
         $errors = $this->fetchValidationLog($amid);
 
         if (count($errors ?? [])) {
-            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
             $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
             $html = xlt("No Errors or Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");

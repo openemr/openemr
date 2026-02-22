@@ -15,18 +15,17 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Print")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/amendment: Amendment Print", xl("Amendment Print"));
 }
 
 $amendments = $_REQUEST["ids"];
-$amendments = rtrim($amendments, ",");
+$amendments = rtrim((string) $amendments, ",");
 $amendmentsList = explode(",", $amendments);
 
 $patientDetails = getPatientData($pid, "fname,lname");
@@ -76,7 +75,7 @@ function printAmendment($amendmentID, $lastAmendment): void
     $resultSet = sqlStatement($query, [$amendmentID]);
     while ($row = sqlFetchArray($resultSet)) {
         echo "<tr class=text>";
-        $created_date = date('Y-m-d', strtotime($row['created_time']));
+        $created_date = date('Y-m-d', strtotime((string) $row['created_time']));
         echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";
         echo "<td>" . text($row['lname']) . ", " . text($row['fname']) . "</td>";
         echo "<td>" . text($row['amendment_note']) . "</td>";

@@ -4,22 +4,21 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 
 class C_DocumentCategory extends Controller
 {
-    var $template_mod;
-    var $document_categories;
-    var $tree;
-    var $link;
-    var $_last_node;
+    public $document_categories;
+    public $tree;
+    public $link;
+    public $_last_node;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->document_categories = [];
-        $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&document_category&");
         $this->link = $GLOBALS['webroot'] . "/controller.php?" . "document_category&";
         $this->assign("STYLE", $GLOBALS['style']);
@@ -51,7 +50,7 @@ class C_DocumentCategory extends Controller
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
         return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 
@@ -165,12 +164,12 @@ class C_DocumentCategory extends Controller
             if (is_array($ar) || !empty($id)) {
                 if ($node == null) {
                     //echo "r:" . $this->tree->get_node_name($id) . "<br />";
-                    $rnode = new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false]);
+                    $rnode = new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode((string) $id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false]);
                     $this->_last_node = &$rnode;
                     $node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode((string) $id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
                 }
 
                 if (is_array($ar)) {

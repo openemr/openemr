@@ -16,7 +16,7 @@
  *          $loader->prependPath(\dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR);
  *     }
  * }
- * $GLOBALS['kernel']->getEventDispatcher()->addListener(TwigEnvironmentEvent::EVENT_CREATED, ['addTemplateOverrideLoader']);
+ * OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->addListener(TwigEnvironmentEvent::EVENT_CREATED, ['addTemplateOverrideLoader']);
  *
  * @package openemr
  * @link      http://www.open-emr.org
@@ -37,14 +37,8 @@ class TwigEnvironmentEvent extends Event
      */
     const EVENT_CREATED = 'core.twig.environment.create';
 
-    /**
-     * @var Environment
-     */
-    private $environment;
-
-    public function __construct(Environment $environment)
+    public function __construct(private readonly Environment $environment)
     {
-        $this->environment = $environment;
     }
 
     public function getTwigEnvironment(): Environment

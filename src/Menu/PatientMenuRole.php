@@ -15,6 +15,7 @@
 namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Menu\PatientMenuEvent;
@@ -38,7 +39,7 @@ class PatientMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
-        $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     /**
@@ -156,7 +157,7 @@ class PatientMenuRole extends MenuRole
                 }
 
                 $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;
@@ -231,10 +232,10 @@ class PatientMenuRole extends MenuRole
      */
     private function getAbsoluteWebRoot($rel_url)
     {
-        if ($rel_url && !strpos($rel_url, "://")) {
+        if ($rel_url && !strpos((string) $rel_url, "://")) {
             // Normalize URL if it starts with a forward or backward slash
-            if (str_starts_with($rel_url, '/') || str_starts_with($rel_url, '\\')) {
-                $rel_url = ltrim($rel_url, '/\\');
+            if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
+                $rel_url = ltrim((string) $rel_url, '/\\');
             }
             return $GLOBALS['webroot'] . "/" . $rel_url;
         }

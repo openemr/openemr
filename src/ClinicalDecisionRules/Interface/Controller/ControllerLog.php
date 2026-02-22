@@ -10,6 +10,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -67,7 +68,7 @@ class ControllerLog extends BaseController
                     $record['value'],
                     $record['new_value']
                 ]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
                 (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
             }
@@ -95,16 +96,12 @@ class ControllerLog extends BaseController
             }
 
             //Prepare the targets
-            $all_alerts = json_decode($row['value'], true);
-            if (!empty($row['new_value'])) {
-                $new_alerts = json_decode($row['new_value'], true);
-            } else {
-                $new_alerts = [];
-            }
+            $all_alerts = json_decode((string) $row['value'], true);
+            $new_alerts = !empty($row['new_value']) ? json_decode((string) $row['new_value'], true) : [];
             $row['category_title'] = $category_title;
             $row['all_alerts'] = $all_alerts;
             $row['new_alerts'] = $new_alerts;
-            $row['date_formatted'] = oeFormatDateTime($row['date'], "global", true);
+            $row['date_formatted'] = DateFormatterUtils::oeFormatDateTime($row['date'], "global", true);
             $row['formatted_all_alerts'] = $this->getFormattedAlerts($all_alerts, $row);
             $row['formatted_new_alerts'] = $this->getFormattedAlerts($new_alerts, $row);
             $records[] = $row;
@@ -118,7 +115,7 @@ class ControllerLog extends BaseController
         foreach ($alerts as $targetInfo => $alert) {
             if (($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup')) {
                 $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
-                $catAndTarget = explode(':', $targetInfo);
+                $catAndTarget = explode(':', (string) $targetInfo);
                 $category = $catAndTarget[0];
                 $target = $catAndTarget[1];
                 $formattedAlerts[] = [

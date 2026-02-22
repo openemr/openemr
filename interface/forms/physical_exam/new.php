@@ -108,8 +108,8 @@ if ($_POST['bn_save']) {
     foreach ($form_obs as $line_id => $line_array) {
         $wnl = $line_array['wnl'] ? '1' : '0';
         $abn = $line_array['abn'] ? '1' : '0';
-        $diagnosis = $line_array['diagnosis'] ? $line_array['diagnosis'] : '';
-        $comments  = $line_array['comments']  ? $line_array['comments'] : '';
+        $diagnosis = $line_array['diagnosis'] ?: '';
+        $comments  = $line_array['comments'] ?: '';
         if ($wnl || $abn || $diagnosis || $comments) {
             $query = "INSERT INTO form_physical_exam (
              forms_id, line_id, wnl, abn, diagnosis, comments

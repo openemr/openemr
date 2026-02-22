@@ -1,0 +1,70 @@
+name: API Docs Freshness Checks
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-version: ['8.2']
+    name: API Docs Freshness Check
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Refresh API Documentation
+      run: php bin/console openemr:create-api-documentation --skip-globals
+
+    # If after docs regeneration there are any diff - that means docs are not in sync with new API code changes
+    - name: Check Docs Freshness
+      run: |
+        if git diff --quiet; then
+          echo "✅ The API documentation is in sync with the code"
+          echo "# ✅ The API documentation is in sync with the code" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`openemr-api.yaml\` is in sync with your changes" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+        echo '⚠️ The API documentation is not in sync with the code — see the Job Summary for next steps.'
+        # shellcheck disable=SC2016
+        {
+          echo '# ⚠️ The API documentation is not in sync with the code'
+          echo 'Looks like `openemr-api.yaml` is not in sync with your changes.'
+          echo
+          echo '## Option 1: Download the updated file'
+          echo 'Download `openemr-api.yaml` from the **Artifacts** section of this workflow run and commit it to your PR.'
+          echo
+          echo '## Option 2: Regenerate locally'
+          echo 'Run `php bin/console openemr:create-api-documentation --skip-globals` and push the updated file.'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit 1
+
+    - name: Upload updated API docs
+      if: failure()
+      uses: actions/upload-artifact@v6
+      with:
+        name: openemr-api-yaml
+        path: swagger/openemr-api.yaml
+        retention-days: 14

@@ -12,14 +12,14 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Direct Message Log")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Direct Message Log", xl("Direct Message Log"));
 }
 
 if (!empty($_POST)) {
@@ -34,11 +34,7 @@ if (!empty($_POST)) {
 <head>
 <?php
 $logstart = $_POST['logstart'] ?? 0;
-if (isset($_POST['lognext']) && $_POST['lognext']) {
-    $logtop = $logstart + $_POST['lognext'];
-} else {
-    $logtop = 0;
-}
+$logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lognext'] : 0;
 ?>
 
 <?php Header::setupHeader(); ?>
@@ -168,7 +164,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'>&nbsp;</td>
     <?php } ?>
 
-    <td align='center'><?php echo text(oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
+    <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
     <td align='center'><?php echo text($row['sender']); ?></td>
     <td align='center'><?php echo text($row['recipient']); ?></td>
 
@@ -201,4 +197,3 @@ while ($row = sqlFetchArray($res)) {
 
 </body>
 </html>
-

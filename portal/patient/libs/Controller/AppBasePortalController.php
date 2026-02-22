@@ -24,7 +24,7 @@ class AppBasePortalController extends PortalController
 
     /**
      * Init is called by the base controller before the action method
-     * is called.  This provided an oportunity to hook into the system
+     * is called.  This provided an opportunity to hook into the system
      * for all application actions.  This is a good place for authentication
      * code.
      */
@@ -103,12 +103,12 @@ class AppBasePortalController extends PortalController
 
         if ($errors != null) {
             foreach ($errors as $key => $val) {
-                $err->errors[lcfirst($key)] = $val;
+                $err->errors[lcfirst((string) $key)] = $val;
             }
         }
 
         if ($exception) {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
+            $err->stackTrace = explode("\n#", substr((string) $exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');

@@ -44,32 +44,20 @@ class IdTokenSMARTResponse extends IdTokenResponse
     private $isAuthorizationGrant;
 
     /**
-     * @var SMARTSessionTokenContextBuilder
-     */
-    private SMARTSessionTokenContextBuilder $contextBuilder;
-
-    /**
      * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
      * access token.  We have to use our existing values.
      * @var array
      */
     private $contextForNewTokens;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
     public function __construct(
-        OEGlobalsBag $globalsBag,
-        SessionInterface $session,
+        private OEGlobalsBag $globalsBag,
+        private SessionInterface $session,
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor,
-        SMARTSessionTokenContextBuilder $sessionTokenContextBuilder,
+        private SMARTSessionTokenContextBuilder $contextBuilder,
     ) {
-        $this->globalsBag = $globalsBag;
         $this->isAuthorizationGrant = false;
-        $this->session = $session;
-        $this->contextBuilder = $sessionTokenContextBuilder;
         parent::__construct($identityProvider, $claimExtractor);
     }
 
@@ -119,7 +107,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         return $response;
     }
 
-    protected function getExtraParams(AccessTokenEntityInterface $accessToken)
+    protected function getExtraParams(AccessTokenEntityInterface $accessToken): array
     {
         $extraParams = parent::getExtraParams($accessToken);
 
@@ -161,7 +149,8 @@ class IdTokenSMARTResponse extends IdTokenResponse
             // it won't allow custom scope permissions even though this is valid per Open ID Connect spec
             // so we will just skip listing in the 'scopes' response that is sent back to
             // the client.
-            if (strpos($scopeId, ':') === false) {
+            // note granular scopes contain the color character so we prefix with api:
+            if (!str_starts_with((string) $scopeId, 'api:')) {
                 $scopeList[] = $scopeId;
             }
         }
@@ -191,7 +180,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
     }
 
     /**
-     * Sets the context array that will be saved to the database for new acess tokens.
+     * Sets the context array that will be saved to the database for new access tokens.
      * @param array $context The array of context variables.  If this is not an array the context is set to null;
      */
     public function setContextForNewTokens(array $context)

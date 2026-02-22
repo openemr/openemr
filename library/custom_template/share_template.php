@@ -91,11 +91,7 @@ $list_id = $_REQUEST['list_id'];
                             $row_sel = sqlQuery($sel_query, [$list_id]);
                             while ($row = sqlFetchArray($res)) {
                                 foreach ($row_sel as $value) {
-                                    if ($value == $row['id']) {
-                                        $sel = "selected";
-                                    } else {
-                                        $sel = '';
-                                    }
+                                    $sel = $value == $row['id'] ? "selected" : '';
                                 }
                                 echo "<option value='" . attr($row['id']) . "' $sel>" . text($row['lname'] . "," . $row['fname']) . "</option>";
                             }

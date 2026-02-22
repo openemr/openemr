@@ -17,14 +17,14 @@ require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Clinical Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Clinical Reports", xl("Clinical Reports"));
 }
 
 if (!empty($_POST)) {
@@ -224,8 +224,8 @@ $communication = trim($_POST["communication"] ?? '');
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->
-<div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
-      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
+<div id="report_parameters_daterange"> <?php echo text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)) .
+      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div id="report_parameters">
@@ -238,13 +238,13 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td class='col-form-label' width="100"><?php echo xlt('Facility'); ?>: </td>
                         <td width="250"> <?php dropdown_facility($facility, 'facility', false); ?> </td>
                         <td class='col-form-label' width="100"><?php echo xlt('From'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, "global", true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Patient ID'); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
                         <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, "global", true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Age Range'); ?>:</td>
@@ -449,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt .= ",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
@@ -506,7 +506,7 @@ if (!empty($_POST['form_refresh'])) {
     $sqlstmt .= " from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
     }
 
@@ -547,7 +547,7 @@ if (!empty($_POST['form_refresh'])) {
 
 //where
       $whr_stmt = "where 1=1";
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
@@ -569,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
 
     if ($type == 'Procedure') {
          $whr_stmt .= " AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
-             array_push($sqlBindArray, substr($sql_date_from, 0, 10), substr($sql_date_to, 0, 10), date("Y-m-d"));
+             array_push($sqlBindArray, substr((string) $sql_date_from, 0, 10), substr((string) $sql_date_to, 0, 10), date("Y-m-d"));
     }
 
     if ($type == "Service Codes") {
@@ -671,6 +671,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 // order by
+    $odrstmt = "";
     if (!empty($_POST['form_pt_name'])) {
         $odrstmt .= ",patient_name";
     }
@@ -702,11 +703,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 
-    if (empty($odrstmt)) {
-        $odrstmt = " ORDER BY patient_id";
-    } else {
-        $odrstmt = " ORDER BY " . ltrim($odrstmt, ",");
-    }
+    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim($odrstmt, ",");
 
     if ($type == 'Medical History') {
         $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ",history_data_date desc) a group by patient_id";
@@ -786,7 +783,7 @@ if (!empty($_POST['form_refresh'])) {
                 <td colspan='10'><strong><?php echo xlt('Diagnosis Name');?></strong></td>
                 </tr>
                 <tr class='bg-white'>
-                <td><?php echo text(oeFormatDateTime($row['lists_date'], "global", true)); ?>&nbsp;</td>
+                <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['lists_date'], "global", true)); ?>&nbsp;</td>
                 <td><?php echo text($row['lists_diagnosis']); ?>&nbsp;</td>
                                 <td colspan='10'><?php echo text($row['lists_title']); ?>&nbsp;</td>
                 </tr>
@@ -889,7 +886,7 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                             <tr class='bg-white'>
                     <?php
-                                    $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
+                                    $procedure_type_standard_code_arr = explode(':', (string) $row['procedure_type_standard_code']);
                                     $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
                     ?>
                                   <!-- Procedure -->
@@ -922,9 +919,9 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                 <tr class='bg-white'>
                     <?php
-                    $tmp_t = explode('|', $row['history_data_tobacco']);
-                    $tmp_a = explode('|', $row['history_data_alcohol']);
-                    $tmp_d = explode('|', $row['history_data_recreational_drugs']);
+                    $tmp_t = explode('|', (string) $row['history_data_tobacco']);
+                    $tmp_a = explode('|', (string) $row['history_data_alcohol']);
+                    $tmp_d = explode('|', (string) $row['history_data_recreational_drugs']);
                     $his_tobac =  generate_display_field(['data_type' => '1','list_id' => 'smoking_status'], $tmp_t[3]);
                     ?>
                 <td> <?php echo text(oeFormatShortDate($row['history_data_date'])); ?>&nbsp;</td>
@@ -1017,7 +1014,7 @@ if (!empty($_POST['form_refresh'])) {
                         <td colspan="7"><strong><?php echo xlt('Notes');?></strong></td>
                     </tr>
                     <tr class='bg-white'>
-                        <td><?php echo text(oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
+                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
                         <td><?php echo text($row['cvx_code']); ?>&nbsp;</td>
                         <td><?php echo text($row['imm_code_short']) . " (" . text($row['imm_code']) . ")"; ?>&nbsp;</td>
                         <td>

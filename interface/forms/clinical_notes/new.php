@@ -28,8 +28,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientService;
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
@@ -89,10 +92,15 @@ if ($formid) {
     ];
 }
 
-$twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
+$patientService = new PatientService();
+$patient = $patientService->findByPid($_SESSION['pid']);
+$listService = new ListService();
+$resultCategories = $listService->getOptionsByListName('Observation_Types');
+$twig = new TwigContainer(dirname(__DIR__), OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
+    ,'patientUuid' => UuidRegistry::uuidToString($patient['uuid'])
     ,'clinical_notes_category' => $clinical_notes_category
     ,'oemrUiSettings' =>  [
         'heading_title' => xl('Clinical Notes Form'),
@@ -111,6 +119,8 @@ $viewArgs = [
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
+    ,'csrfToken' => CsrfUtils::collectCsrfToken('api')
+    ,'resultCategories' => $resultCategories ?? []
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',
@@ -118,10 +128,7 @@ $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/templates/new.html.twig',
     $viewArgs
 );
-$event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
-if (!$event instanceof TemplatePageEvent) {
-    throw new \RuntimeException('Invalid event returned from template page event');
-}
+$event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 // Render template
 echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

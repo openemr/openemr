@@ -166,23 +166,23 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
     $invoice_refno = $ferow['invoice_refno'];
     $docname = '';
     if (!empty($ferow['fname'])) {
-        $docname = trim($ferow['fname']);
+        $docname = trim((string) $ferow['fname']);
     }
     if (!empty($ferow['mname'])) {
         if ($docname) {
             $docname .= ' ';
         }
-        $docname .= trim($ferow['fname']);
+        $docname .= trim((string) $ferow['fname']);
     }
     if (!empty($ferow['lname'])) {
         if ($docname) {
             $docname .= ' ';
         }
-        $docname .= trim($ferow['lname']);
+        $docname .= trim((string) $ferow['lname']);
     }
 
     // Get details for the visit's facility and organization facility.

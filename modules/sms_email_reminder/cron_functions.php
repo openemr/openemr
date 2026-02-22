@@ -57,11 +57,11 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $cnt .= "\nBody : \n" . $vBody . "\n";
 
         if (1) {
-            //WriteLog($cnt);
+            //cron_WriteLog($cnt);
         }
 
         $mstatus = true;
-        $mstatus = @mail($to, $subject, $vBody, $headers);
+        $mstatus = @mail((string) $to, (string) $subject, (string) $vBody, $headers);
         // larry :: debug
         //echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
         //echo "\nDEBUG :email: send status=".$mstatus."\n";
@@ -78,11 +78,11 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line = __LINE__;
         $strTo = $to;
         $recipient_line = __LINE__;
-        if (strlen($strFrom) == 0) {
+        if (strlen((string) $strFrom) == 0) {
             return( false );
         }
 
-        if (strlen($strTo) == 0) {
+        if (strlen((string) $strTo) == 0) {
             return( false );
         }
 
@@ -136,7 +136,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
             echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {
-             echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
+             echo "Could not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
              $mstatus = false;
         }
 
@@ -146,11 +146,12 @@ function cron_SendMail($to, $subject, $vBody, $from)
     return $mstatus;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    WriteLog
-// Purpose: written log into file
-////////////////////////////////////////////////////////////////////
-function WriteLog($data): void
+/**
+ * Write log into file.
+ *
+ * @param string $data
+ */
+function cron_WriteLog($data): void
 {
     global $log_folder_path;
 
@@ -172,7 +173,7 @@ function WriteLog($data): void
 }
 
 ////////////////////////////////////////////////////////////////////
-// define my_print_r - used for debuging - if not defined
+// define my_print_r - used for debugging - if not defined
 ////////////////////////////////////////////////////////////////////
 if (!function_exists('my_print_r')) {
     function my_print_r($data): void
@@ -187,9 +188,8 @@ if (!function_exists('my_print_r')) {
 // Function:    cron_SendSMS
 // Purpose: send sms
 ////////////////////////////////////////////////////////////////////
-function cron_SendSMS($to, $subject, $vBody, $from)
+function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
 {
-    global $mysms;
     $cnt = "";
     $cnt .= "\nDate Time :" . date("d M, Y  h:i:s");
     $cnt .= "\nTo : " . $to;
@@ -197,7 +197,7 @@ function cron_SendSMS($to, $subject, $vBody, $from)
     $cnt .= "\nSubject : " . $subject;
     $cnt .= "\nBody : \n" . $vBody . "\n";
     if (1) {
-        //WriteLog($cnt);
+        //cron_WriteLog($cnt);
     }
 
     $mstatus = true;
@@ -209,31 +209,6 @@ function cron_SendSMS($to, $subject, $vBody, $from)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-    // larry :: this was commented - i remove comment - what it means * in this field ?
-    //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
-    //$set = " pc_apptstatus='*' ";
-
-    //$query="update openemr_postcalendar_events set $set ";
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } else {
-        $query .= " pc_sendalertemail='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
-}
-
-////////////////////////////////////////////////////////////////////
 // Function:    cron_getAlertpatientData
 // Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
@@ -241,7 +216,7 @@ function cron_getAlertpatientData($type)
 {
     // larry :: move this at the top - not in the function body
     global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
-    // larry :: end commment
+    // larry :: end comment
 
 
     //$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";
@@ -303,10 +278,6 @@ function cron_getNotificationData($type)
     return $db_email_msg;
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg): void
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
@@ -368,16 +339,4 @@ function cron_setmessage($prow, $db_email_msg)
     //echo "DEBUG :2: msg=".$message."\n";
 
     return $message;
-}
-
-////////////////////////////////////////////////////////////////////
-// Function:    cron_GetNotificationSettings
-// Purpose: get notification settings
-////////////////////////////////////////////////////////////////////
-function cron_GetNotificationSettings()
-{
-    $strQuery = "select * from notification_settings where type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return( $vectNotificationSettings );
 }

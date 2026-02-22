@@ -51,8 +51,8 @@ class Savant3_Plugin_htmlAttribs extends Savant3_Plugin
                 $val = implode(' ', $val);
             }
 
-            $key = htmlspecialchars($key);
-            $val = htmlspecialchars($val);
+            $key = htmlspecialchars((string) $key);
+            $val = htmlspecialchars((string) $val);
 
             $xhtml .= " $key=\"$val\"";
         }

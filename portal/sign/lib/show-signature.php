@@ -22,18 +22,18 @@ $signer = '';
 $ignoreAuth = false;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
     // Will start the (patient) portal OpenEMR session/cookie.
     // Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
     require_once(__DIR__ . "/../../../vendor/autoload.php");
-    SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // authorized by patient portal
-        $req_pid = $_SESSION['pid'];
+        $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
     } else {
         SessionUtil::portalSessionCookieDestroy();
@@ -80,17 +80,9 @@ if (($data['mode'] ?? null) === 'fetch_info') {
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as ptName From patient_data Where pid = ?";
     $pt_result = sqlQuery($stmt, [$req_pid]) ?: [];
     $signature = [];
-    if ($pt_result) {
-        $info_query = array_merge($pt_result, $user_result, $signature);
-    } else {
-        $info_query = array_merge($user_result, $signature);
-    }
+    $info_query = $pt_result ? array_merge($pt_result, $user_result, $signature) : array_merge($user_result, $signature);
 
-    if ($isAdmin) {
-        $signer = $user_result['userName'];
-    } else {
-        $signer = $pt_result['ptName'];
-    }
+    $signer = $isAdmin ? $user_result['userName'] : $pt_result['ptName'];
     if (!$signer) {
         echo js_escape("error");
         exit();

@@ -62,7 +62,7 @@ namespace OpenEMR\FHIR\R4;
  *
  */
 
-class FHIRResourceContainer implements \JsonSerializable
+class FHIRResourceContainer implements \JsonSerializable, \Stringable
 {
     /**
      * @var \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAccount
@@ -3458,7 +3458,7 @@ class FHIRResourceContainer implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

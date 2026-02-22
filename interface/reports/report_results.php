@@ -18,14 +18,14 @@ require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report Results/History")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report Results/History", xl("Report Results/History"));
 }
 
 if (!empty($_POST)) {
@@ -108,7 +108,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, "global", true)); ?>'
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_begin_date, "global", true)); ?>'
                             class='datepicker form-control' />
                       </td>
                    </tr>
@@ -118,7 +118,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, "global", true)); ?>'
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_end_date, "global", true)); ?>'
                                 class='datepicker form-control' />
                         </td>
                 </tr>
@@ -253,7 +253,7 @@ while ($row = sqlFetchArray($res)) {
     <?php } else { ?>
       <td class='text-center'><?php echo text($type_title); ?></td>
     <?php } ?>
-  <td class='text-center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
+  <td class='text-center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row["date_report"], "global", true)); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
       <td class='text-center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>

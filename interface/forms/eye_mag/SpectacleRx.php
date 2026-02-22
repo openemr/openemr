@@ -83,7 +83,7 @@ $query = "select  *,form_encounter.date as encounter_date
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
 
-if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispense table
+if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
@@ -93,13 +93,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'date'])
             ) {
                 continue;
             }
@@ -113,7 +107,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
     }
 
     exit;
-} elseif ($_REQUEST['mode'] ?? '' == "remove") {
+} elseif (($_REQUEST['mode'] ?? '') == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
@@ -142,11 +136,7 @@ if ($_REQUEST['REFTYPE']) {
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
-    if (!$_REQUEST['encounter']) {
-        $encounter = $_SESSION['encounter'];
-    } else {
-        $encounter = $_REQUEST['encounter'];
-    }
+    $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
 
 
 
@@ -259,15 +249,7 @@ if ($_REQUEST['REFTYPE']) {
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'RXTYPE' ||
-                $row['Field'] == 'REFDATE' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'RXTYPE', 'REFDATE', 'date'])
             ) {
                 continue;
             }
@@ -434,11 +416,11 @@ if ($_REQUEST['dispensed'] ?? '') {
                     $Progressive = "checked='checked'";
                 }
 
-                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
+                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
                 if ($row['REFTYPE'] == "CTL") {
-                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
                 } else {
-                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
                 }
                 $expir_date = oeFormatShortDate($expir);
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
@@ -446,7 +428,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                 ?>
                     <div class="position-relative text-center mt-2 mb-2 mx-auto" id="RXID_<?php echo attr($row['id']); ?>">
                         <i class="float-right fas fa-times"
-                           onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
+                           onclick="delete_me('<?php echo attr(addslashes((string) $row['id'])); ?>');"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <div class="table-responsive">
                             <table class="table mt-1 mb-1 mx-auto">
@@ -551,11 +533,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                 </table>
                                                 <?php
                                     } else {
-                                        if (!empty($row['ODADD']) || !empty($row['OSADD'])) {
-                                            $adds = 1;
-                                        } else {
-                                            $adds = '';
-                                        }
+                                        $adds = !empty($row['ODADD']) || !empty($row['OSADD']) ? 1 : '';
                                         ?>
                                                 <table id="CTLRx" name="CTLRx" class="refraction">
                                                     <tr>
@@ -913,9 +891,9 @@ if ($_REQUEST['dispensed'] ?? '') {
 <br/><br/>
 <?php
 if ($REFTYPE == "CTL") {
-    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
 } else {
-    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
 }
     $expir_date = oeFormatShortDate($expir);
 ?>
@@ -1159,11 +1137,7 @@ if ($REFTYPE == "CTL") {
                             </table>&nbsp;<br/><br/><br/>
                             <?php
                     } else {
-                        if (!empty($ODADD) || !empty($OSADD)) {
-                            $adds = 1;
-                        } else {
-                            $adds = '';
-                        }
+                        $adds = !empty($ODADD) || !empty($OSADD) ? 1 : '';
                         ?>
                             <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
                                 <tr class="bold center">

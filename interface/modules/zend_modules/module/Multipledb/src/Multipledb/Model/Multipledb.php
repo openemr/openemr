@@ -36,7 +36,7 @@ class Multipledb implements InputFilterAwareInterface
     public $port;
     public $date;
 
-    private ?InputFilterInterface $inputFilter;
+    private ?InputFilterInterface $inputFilter = null;
 
     public function exchangeArray($data)
     {

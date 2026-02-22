@@ -8,15 +8,24 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configure Orders and Results", xl("Configure Orders and Results"));
+}
 
 $typeid = ($_REQUEST['typeid'] ?? '') + 0;
 $parent = ($_REQUEST['parent'] ?? '') + 0;
@@ -25,47 +34,10 @@ $disabled = $ordtype ? "disabled" : '';
 $labid = $_GET['labid'] ?? 0;
 $info_msg = "";
 
-function QuotedOrNull($fld)
-{
-    $fld = add_escape_custom(trim($fld));
-    if ($fld) {
-        return "'$fld'";
-    }
-
-    return "NULL";
-}
-
-function invalue($name)
+function types_invalue(string $name): string
 {
     $fld = formData($name, "P", true);
     return "'$fld'";
-}
-
-function rbinput($name, $value, $desc, $colname)
-{
-    global $row;
-    $ret = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
-}
-
-function rbvalue($rbname)
-{
-    $tmp = $_POST[$rbname];
-    if (!$tmp) {
-        $tmp = '0';
-    }
-
-    return "'$tmp'";
-}
-
-function cbvalue($cbname)
-{
-    return empty($_POST[$cbname]) ? 0 : 1;
 }
 
 function recursiveDelete($typeid): void
@@ -269,29 +241,35 @@ function recursiveDelete($typeid): void
         <?php
         // If we are saving, then save and close the window.
         //
+        if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                CsrfUtils::csrfNotVerified();
+            }
+        }
+
         if (!empty($_POST['form_save'])) {
-            $p_procedure_code = invalue('form_procedure_code');
+            $p_procedure_code = types_invalue('form_procedure_code');
 
             if ($_POST['form_procedure_type'] == 'grp') {
                 $p_procedure_code = "''";
             }
 
             $sets =
-                "name = " . invalue('form_name') . ", " .
-                "lab_id = " . invalue('form_lab_id') . ", " .
+                "name = " . types_invalue('form_name') . ", " .
+                "lab_id = " . types_invalue('form_lab_id') . ", " .
                 "procedure_code = $p_procedure_code, " .
-                "procedure_type = " . invalue('form_procedure_type') . ", " .
-                "procedure_type_name = " . invalue('form_procedure_type_name') . ", " .
-                "body_site = " . invalue('form_body_site') . ", " .
-                "specimen = " . invalue('form_specimen') . ", " .
-                "route_admin = " . invalue('form_route_admin') . ", " .
-                "laterality = " . invalue('form_laterality') . ", " .
-                "description = " . invalue('form_description') . ", " .
-                "units = " . invalue('form_units') . ", " .
-                "`range` = " . invalue('form_range') . ", " .
-                "standard_code = " . invalue('form_standard_code') . ", " .
-                "related_code = " . (isset($_POST['form_diagnosis_code']) ? invalue('form_diagnosis_code') : invalue('form_related_code')) . ", " .
-                "seq = " . invalue('form_seq');
+                "procedure_type = " . types_invalue('form_procedure_type') . ", " .
+                "procedure_type_name = " . types_invalue('form_procedure_type_name') . ", " .
+                "body_site = " . types_invalue('form_body_site') . ", " .
+                "specimen = " . types_invalue('form_specimen') . ", " .
+                "route_admin = " . types_invalue('form_route_admin') . ", " .
+                "laterality = " . types_invalue('form_laterality') . ", " .
+                "description = " . types_invalue('form_description') . ", " .
+                "units = " . types_invalue('form_units') . ", " .
+                "`range` = " . types_invalue('form_range') . ", " .
+                "standard_code = " . types_invalue('form_standard_code') . ", " .
+                "related_code = " . (isset($_POST['form_diagnosis_code']) ? types_invalue('form_diagnosis_code') : types_invalue('form_related_code')) . ", " .
+                "seq = " . types_invalue('form_seq');
 
             if ($typeid) {
                 sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '" . add_escape_custom($typeid) . "'");
@@ -336,8 +314,9 @@ function recursiveDelete($typeid): void
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform' class="form-horizontal"
-                    action='types_edit.php?typeid=<?php echo attr_url($typeid); ?>&parent=<?php echo attr_url($parent); ?>'>
-                    <!-- no restoreSession() on submit because session data are not relevant -->
+                    action='types_edit.php?typeid=<?php echo attr_url($typeid); ?>&parent=<?php echo attr_url($parent); ?>'
+                    onsubmit='return top.restoreSession()'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Details'); ?> <i id='enter_details' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i></legend>
                         <div class="row">
@@ -756,7 +735,7 @@ function recursiveDelete($typeid): void
                 </form>
             </div>
         </div>
-    </div><!--end of conatainer div-->
+    </div><!--end of container div-->
     <script>
         //jqury-ui tooltip
         $(function () {

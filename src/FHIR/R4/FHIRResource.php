@@ -65,7 +65,7 @@ namespace OpenEMR\FHIR\R4;
 /**
  * This is the base resource type for everything.
  */
-class FHIRResource implements \JsonSerializable
+class FHIRResource implements \JsonSerializable, \Stringable
 {
     /**
      * The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.
@@ -210,7 +210,7 @@ class FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getId();
     }

@@ -11,9 +11,11 @@
  * @authorRod Roark <rod@sunsetsystems.com>
  * @authorRay Magauran <magauran@MedFetch.com>
  * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -52,7 +55,7 @@ $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
 if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    die(xlt("Edit is not authorized!"));
+    AccessDeniedHelper::deny('Editing eye exam issue is not authorized');
 }
 
 if (
@@ -61,7 +64,7 @@ if (
     'addonly'
     ])
 ) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
 }
 
 $PMSFH = build_PMSFH($pid);
@@ -97,7 +100,7 @@ $rres = sqlQuery($query, [
     $pid
 ]);
 foreach (explode(',', $given) as $item) {
-    $$item = $rres[$item];
+    ${$item} = $rres[$item];
 }
 ?>
 <html>
@@ -107,7 +110,7 @@ foreach (explode(',', $given) as $item) {
         var aitypes = new Array(); // issue type attributes
         var aopts = new Array(); // Option objects
         <?php
-//This builds the litle quick pick list in this section.
+//This builds the little quick pick list in this section.
 // If the provider has more 2 items already defined in the last month, they are collated
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
@@ -199,9 +202,9 @@ foreach (explode(',', $given) as $item) {
 
             if ($local == "1") { // leave FH/SocHx/ROS for later - done below separately
                 while ($res = sqlFetchArray($qry ?? '')) { //Should we take the top 10 and display alphabetically?
-                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
                     if ($res['codes']) {
-                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim($res['codes'])) . "');\n";
+                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
                     }
                 }
             }
@@ -552,10 +555,10 @@ foreach (explode(',', $given) as $item) {
                 $("#smoke_code").html("");
         }
 
-        function setSelectBoxByText(eid, etxt) {
+        function setSelectBoxByText(eid, text) {
             var eid = document.getElementById(eid);
             for (var i = 0; i < eid.options.length; ++i) {
-                if (eid.options[i].text === etxt)
+                if (eid.options[i].text === text)
                     eid.options[i].selected = true;
             }
         }
@@ -866,9 +869,9 @@ foreach (explode(',', $given) as $item) {
                             }
 
                             $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
-                            $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
-                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
-                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
+                            $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars((string) $result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars((string) $result2[$field_id]['resdate'], ENT_QUOTES);
                         } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
