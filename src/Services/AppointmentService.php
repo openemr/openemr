@@ -357,7 +357,7 @@ class AppointmentService extends BaseService
                 $_SESSION['authUserID'] ?? 1, // Grab authenticated user ID or default to 1
                 $data["pc_aid"] ?? null,
                 $data["pc_website"] ?? null,
-            )
+            ]
         );
 
         return $results;
