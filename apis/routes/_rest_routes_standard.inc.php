@@ -45,6 +45,7 @@ use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
 // TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
 use OpenEMR\RestControllers\Config\RestConfig;
+use OpenApi\Annotations as OA;
 
 return [
     /**

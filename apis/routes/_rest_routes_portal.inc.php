@@ -22,6 +22,7 @@ use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenApi\Annotations as OA;
 
 // Note that the portal (api) route is only for patient role
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)
