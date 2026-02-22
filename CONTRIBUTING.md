@@ -83,6 +83,20 @@ npm run stylelint         # CSS/SCSS linting
 
 These provide higher memory limits than Docker devtools and are what CI runs.
 
+### PHPStan Baseline
+
+Do not manually edit the PHPStan baseline file. To regenerate it:
+
+```sh
+composer phpstan-baseline
+```
+
+Changes should not increase the baseline error count (except when adding new rules). "Trades" are acceptable during refactors where an error moves from one file to another.
+
+### Translation Files
+
+Translation files are **append-only**. Never remove entries from translation files.
+
 ## Isolated Tests (no Docker required)
 
 Some tests run on the host without a database or Docker:
@@ -120,6 +134,8 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - (Recommend using Ubuntu Desktop 22.04 for above video and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
+    - **Important:** Always work in feature branches, never directly on `master`.
+    - **Branch naming:** When addressing a specific issue, use `issuenumber/brief-description` (e.g., `1234/fix-calendar-date-parsing`).
 
     - For the Video Tutorial, click below:
 
