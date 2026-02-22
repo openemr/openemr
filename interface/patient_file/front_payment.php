@@ -56,7 +56,7 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     }
 }
 
-$pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
+$pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? (int) $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
 $recorder = new Recorder();

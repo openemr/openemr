@@ -48,11 +48,13 @@ if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    /** @var string|int $rawForcedResetDisable */
-    $rawForcedResetDisable = $_POST['forced_reset_disable'] ?? 0;
-    $forced_reset_disable = $option == '2' ? intval($rawForcedResetDisable) : $option;
+    $rawForcedResetDisable = intval($_POST['forced_reset_disable'] ?? 0);
+    $forced_reset_disable = $option == '2' ? $rawForcedResetDisable : $option;
+    $postPwd = strip_tags((string) ($_POST['pwd'] ?? ''));
+    $postUname = strip_tags((string) ($_POST['uname'] ?? ''));
+    $postLoginUname = strip_tags((string) ($_POST['login_uname'] ?? ''));
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
-    $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
+    $result = $patientAccessOnSiteService->saveCredentials($pid, $postPwd, $postUname, $postLoginUname, $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
         $credPlainMessage = strip_tags((string) $emailResult['plainMessage']);
