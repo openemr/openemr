@@ -91,6 +91,13 @@ trait PatientAddTrait
                 WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_FORM_FNAME_FIELD)
             )
         );
+        // Wait for Create button to be clickable before filling form
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)
+            )
+        );
+
         $this->crawler = $this->client->refreshCrawler();
         $newPatient = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
         $newPatient['form_fname'] = $firstname;
@@ -98,9 +105,18 @@ trait PatientAddTrait
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
         $newPatient['form_sex_identified'] = $sex;
-        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+
+        // Close any open datepicker popups by blurring the active element
+        // The datetimepicker opens on focus and can intercept button clicks
+        $this->client->executeScript('if (document.activeElement) document.activeElement.blur();');
+
+        // Scroll Create button into view and click using JavaScript
+        // WebDriver click can fail if invisible overlays intercept at coordinates
+        $createButton = $this->client->findElement(
+            WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)
+        );
+        $this->client->executeScript('arguments[0].scrollIntoView({block: "center"});', [$createButton]);
+        $this->client->executeScript('arguments[0].click();', [$createButton]);
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
