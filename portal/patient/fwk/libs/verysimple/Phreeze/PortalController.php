@@ -506,7 +506,7 @@ abstract class PortalController
 
                     $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
 
-                    $xml .= "<" . htmlspecialchars($var) . ">" . $val . "</" . htmlspecialchars($var) . ">\r\n";
+                    $xml .= "<" . htmlspecialchars((string) $var) . ">" . $val . "</" . htmlspecialchars((string) $var) . ">\r\n";
                 }
             }
 

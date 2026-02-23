@@ -1096,7 +1096,7 @@ class RCFaxClient extends AppDispatch
                 'availability' => 'Alive'
             ]);
             $json = $response->json();
-            return (string)text(count($json->records));
+            return text(count($json->records));
         } catch (\Throwable $e) {
             error_log('Error fetching incoming faxes in Reminder tasking: ' . text($e->getMessage()));
             return false;
