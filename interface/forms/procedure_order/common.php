@@ -1777,7 +1777,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
+                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead class="thead-dark">
                                     <tr>
