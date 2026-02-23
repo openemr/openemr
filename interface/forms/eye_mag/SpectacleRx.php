@@ -171,7 +171,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['ARODADD'];
         $OSADD2     = $data['AROSADD'];
-
     } elseif ($REFTYPE == "MR") {
         $ODSPH      = $data['MRODSPH'];
         $ODAXIS     = $data['MRODAXIS'];
@@ -184,7 +183,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['MRODADD'];
         $OSADD2     = $data['MROSADD'];
-
     } elseif ($REFTYPE == "CR") {
         $ODSPH      = $data['CRODSPH'];
         $ODAXIS     = $data['CRODAXIS'];
