@@ -3385,7 +3385,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('resize-action', $output);
 
         // Verify modal controls
-        $this->assertStringContainsString('data-dismiss="modal"', $output);
+        $this->assertStringContainsString('data-bs-dismiss="modal"', $output);
         $this->assertStringContainsString('Close', $output);
     }
 
