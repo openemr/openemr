@@ -70,7 +70,7 @@ final class Version20260000020210 extends AbstractMigration
         ]);
         $table->addColumn('value_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('value_boolean', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE);
+        $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('status', Types::STRING, ['notnull' => false, 
             'length' => 20,
             'default' => 'final',

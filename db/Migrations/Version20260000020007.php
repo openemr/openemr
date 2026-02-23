@@ -41,8 +41,8 @@ final class Version20260000020007 extends AbstractMigration
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
         $table->addColumn('ip_address', Types::STRING, ['length' => 100]);
         $table->addColumn('type', Types::SMALLINT, ['comment' => '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment']);
-        $table->addColumn('is_qrda_document', Types::BOOLEAN, ['notnull' => false]);
-        $table->addColumn('is_unstructured_document', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('is_qrda_document', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('is_unstructured_document', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

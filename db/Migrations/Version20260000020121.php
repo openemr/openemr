@@ -84,8 +84,8 @@ final class Version20260000020121 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('ppid')

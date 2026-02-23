@@ -63,7 +63,7 @@ final class Version20260000010054 extends AbstractMigration
         $table->addColumn('pc_active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('pc_seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'encounters|notes']);
-        $table->addColumn('pc_last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('pc_last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('pc_catid')

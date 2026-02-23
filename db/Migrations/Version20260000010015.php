@@ -152,7 +152,7 @@ final class Version20260000010015 extends AbstractMigration
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

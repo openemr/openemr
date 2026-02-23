@@ -55,7 +55,7 @@ final class Version20260000020202 extends AbstractMigration
         $table->addColumn('onetime_token', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('redirect_url', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('expires', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('last_accessed', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 255, 'comment' => 'context scope for this token']);
         $table->addColumn('profile', Types::TEXT, ['notnull' => false, 'length' => 255, 'comment' => 'profile of scope for this token']);

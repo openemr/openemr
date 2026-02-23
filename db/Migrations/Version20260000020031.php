@@ -75,8 +75,8 @@ final class Version20260000020031 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to list_options.option_id where list_id=pharmacy_supply_type to indicate type of dispensing first order, refil, emergency, partial order, etc',
         ]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

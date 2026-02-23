@@ -169,8 +169,8 @@ final class Version20260000010008 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('inactive', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('organization_type', Types::STRING, [
             'length' => 50,
             'default' => 'prov',

@@ -81,7 +81,7 @@ final class Version20260000020044 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('note_related_to', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

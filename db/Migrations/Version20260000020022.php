@@ -36,7 +36,7 @@ final class Version20260000020022 extends AbstractMigration
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('person_id', Types::BIGINT, ['comment' => 'FK to person.id']);
         $table->addColumn('patient_id', Types::BIGINT, ['comment' => 'FK to patient_data.id']);
-        $table->addColumn('linked_date', Types::DATETIME_MUTABLE, ['comment' => 'When the link was created']);
+        $table->addColumn('linked_date', Types::DATETIME_MUTABLE, ['comment' => 'When the link was created', 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('linked_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

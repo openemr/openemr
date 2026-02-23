@@ -38,7 +38,7 @@ final class Version20260000020084 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('care_team_provider', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('care_team_facility', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pid', Types::BIGINT);

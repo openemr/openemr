@@ -114,13 +114,13 @@ final class Version20260000020020 extends AbstractMigration
         ]);
         $table->addColumn('inactive_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('created_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

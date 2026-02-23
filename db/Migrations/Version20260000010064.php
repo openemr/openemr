@@ -252,8 +252,8 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('supervisor_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('billing_facility', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

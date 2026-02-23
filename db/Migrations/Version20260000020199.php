@@ -49,8 +49,8 @@ final class Version20260000020199 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('version', Types::INTEGER, ['default' => 1]);
-        $table->addColumn('created_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('modified_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('modified_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('name', Types::STRING, [
             'length' => 255,
             'notnull' => false,

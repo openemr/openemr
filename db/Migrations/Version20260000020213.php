@@ -40,7 +40,7 @@ final class Version20260000020213 extends AbstractMigration
         $table->addColumn('health_concern_id', Types::BIGINT, [
             'comment' => 'FK to lists.id where type=health_concern or medical_problem',
         ]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'comment' => 'FK to users.id',

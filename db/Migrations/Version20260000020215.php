@@ -47,6 +47,7 @@ final class Version20260000020215 extends AbstractMigration
         ]);
         $table->addColumn('creation_date', Types::DATETIME_MUTABLE, [
             'comment' => 'datetime the grant authorization was requested',
+            'default' => 'CURRENT_TIMESTAMP',
         ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

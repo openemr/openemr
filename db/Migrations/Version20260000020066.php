@@ -47,7 +47,7 @@ final class Version20260000020066 extends AbstractMigration
         $table->addColumn('subtype', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('edit_options', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('timestamp', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('list_id', 'option_id')

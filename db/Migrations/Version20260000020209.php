@@ -44,8 +44,8 @@ final class Version20260000020209 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE);
-        $table->addColumn('updated_at', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,

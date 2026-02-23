@@ -72,7 +72,7 @@ final class Version20260000020200 extends AbstractMigration
             'default' => null,
             'comment' => 'user id if answers are provider',
         ]);
-        $table->addColumn('create_time', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('create_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('version', Types::INTEGER, ['default' => 1]);
         $table->addColumn('status', Types::STRING, [

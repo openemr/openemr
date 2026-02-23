@@ -44,7 +44,7 @@ final class Version20260000020196 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('modified_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('modified_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('profile', Types::STRING, ['length' => 63]);
         $table->addColumn('category', Types::STRING, ['length' => 63]);
         $table->addColumn('location', Types::STRING, [
@@ -62,7 +62,7 @@ final class Version20260000020196 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('send_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('send_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('end_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('size', Types::INTEGER, ['default' => 0]);
         $table->addColumn('template_content', Types::BLOB, ['length' => 16777215, 'notnull' => false, 'default' => null]);

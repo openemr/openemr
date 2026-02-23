@@ -45,8 +45,8 @@ final class Version20260000020208 extends AbstractMigration
             'default' => 'active',
             'comment' => 'fk to list_options.option_id where list_id=Care_Team_Status',
         ]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('date_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('date_updated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id and is the user that added this team member']);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id and is the user that last updated this team member']);
         $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);

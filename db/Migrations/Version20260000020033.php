@@ -62,8 +62,8 @@ final class Version20260000020033 extends AbstractMigration
         $table->addColumn('drug_code', Types::STRING, ['length' => 25, 'notnull' => false]);
         $table->addColumn('consumable', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = will not show on the fee sheet']);
         $table->addColumn('dispensable', Types::BOOLEAN, ['default' => 1, 'comment' => '0 = pharmacy elsewhere, 1 = dispensed here']);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('drug_id')

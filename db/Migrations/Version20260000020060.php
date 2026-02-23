@@ -53,8 +53,8 @@ final class Version20260000020060 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to users.id for the user that last updated the issue encounter data',
         ]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was created']);
-        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was last updated']);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was created', 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was last updated', 'default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

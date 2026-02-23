@@ -48,7 +48,7 @@ final class Version20260000020083 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -42,7 +42,7 @@ final class Version20260000020197 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('modified_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('modified_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('member_of', Types::STRING, ['length' => 64]);
         $table->addColumn('active', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('recurring', Types::BOOLEAN, ['default' => 1]);

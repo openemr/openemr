@@ -33,7 +33,7 @@ final class Version20260000020201 extends AbstractMigration
     {
         $table = new Table('form_questionnaire_assessments');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('response_id', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'The foreign id to the questionnaire_response repository']);
         $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
         $table->addColumn('user', Types::STRING, [

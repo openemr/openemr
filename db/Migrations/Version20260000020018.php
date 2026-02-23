@@ -65,13 +65,13 @@ final class Version20260000020018 extends AbstractMigration
             'default' => null,
             'comment' => '[Values: Moved, Mail Returned, etc]',
         ]);
-        $table->addColumn('created_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
