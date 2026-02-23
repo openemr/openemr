@@ -33,7 +33,7 @@ final class Version20260000020151 extends AbstractMigration
     {
         $table = new Table('form_observation');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

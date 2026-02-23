@@ -89,7 +89,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ODPUPILREACTIVITY', Types::STRING, [
+        $table->addColumn('ODPUPILREACTIVITY', Types::STRING, ['fixed' => true, 
             'length' => 25,
             'notnull' => false,
             'default' => null,
@@ -109,7 +109,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('OSPUPILREACTIVITY', Types::STRING, [
+        $table->addColumn('OSPUPILREACTIVITY', Types::STRING, ['fixed' => true, 
             'length' => 25,
             'notnull' => false,
             'default' => null,

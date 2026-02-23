@@ -33,7 +33,7 @@ final class Version20260000010048 extends AbstractMigration
     {
         $table = new Table('lang_languages');
         $table->addColumn('lang_id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('lang_code', Types::STRING, ['length' => 2, 'default' => '']);
+        $table->addColumn('lang_code', Types::STRING, ['fixed' => true, 'length' => 2, 'default' => '']);
         $table->addColumn('lang_description', Types::STRING, [
             'length' => 100,
             'notnull' => false,

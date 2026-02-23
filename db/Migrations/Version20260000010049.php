@@ -33,7 +33,7 @@ final class Version20260000010049 extends AbstractMigration
     {
         $table = new Table('lists');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

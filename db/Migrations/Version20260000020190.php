@@ -34,7 +34,7 @@ final class Version20260000020190 extends AbstractMigration
         $table = new Table('export_job');
         $table->addOption('comment', 'fhir export jobs');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

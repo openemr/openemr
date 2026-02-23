@@ -33,7 +33,7 @@ final class Version20260000010042 extends AbstractMigration
     {
         $table = new Table('history_data');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

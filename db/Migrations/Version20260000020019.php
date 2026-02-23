@@ -40,12 +40,12 @@ final class Version20260000020019 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('status', Types::STRING, [
+        $table->addColumn('status', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'notnull' => false,
             'comment' => 'A=active,I=inactive',
         ]);
-        $table->addColumn('is_primary', Types::STRING, [
+        $table->addColumn('is_primary', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'notnull' => false,
             'comment' => 'Y=yes,N=no',

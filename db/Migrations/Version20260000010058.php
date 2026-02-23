@@ -38,12 +38,12 @@ final class Version20260000010058 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('area_code', Types::STRING, [
+        $table->addColumn('area_code', Types::STRING, ['fixed' => true, 
             'length' => 3,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('prefix', Types::STRING, [
+        $table->addColumn('prefix', Types::STRING, ['fixed' => true, 
             'length' => 3,
             'notnull' => false,
             'default' => null,

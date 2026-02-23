@@ -62,13 +62,13 @@ final class Version20260000020110 extends AbstractMigration
         $table->addColumn('x12_isa02', Types::STRING, ['length' => 10, 'default' => '          ', 'comment' => 'User Logon']);
         $table->addColumn('x12_isa03', Types::STRING, ['length' => 2, 'default' => '00', 'comment' => 'User password required Indicator']);
         $table->addColumn('x12_isa04', Types::STRING, ['length' => 10, 'default' => '          ', 'comment' => 'User Password']);
-        $table->addColumn('x12_isa05', Types::STRING, ['length' => 2, 'default' => 'ZZ']);
-        $table->addColumn('x12_isa07', Types::STRING, ['length' => 2, 'default' => 'ZZ']);
-        $table->addColumn('x12_isa14', Types::STRING, ['length' => 1, 'default' => 0]);
-        $table->addColumn('x12_isa15', Types::STRING, ['length' => 1, 'default' => 'P']);
+        $table->addColumn('x12_isa05', Types::STRING, ['fixed' => true, 'length' => 2, 'default' => 'ZZ']);
+        $table->addColumn('x12_isa07', Types::STRING, ['fixed' => true, 'length' => 2, 'default' => 'ZZ']);
+        $table->addColumn('x12_isa14', Types::STRING, ['fixed' => true, 'length' => 1, 'default' => 0]);
+        $table->addColumn('x12_isa15', Types::STRING, ['fixed' => true, 'length' => 1, 'default' => 'P']);
         $table->addColumn('x12_gs02', Types::STRING, ['length' => 15, 'default' => '']);
         $table->addColumn('x12_per06', Types::STRING, ['length' => 80, 'default' => '']);
-        $table->addColumn('x12_dtp03', Types::STRING, ['length' => 1, 'default' => 'A']);
+        $table->addColumn('x12_dtp03', Types::STRING, ['fixed' => true, 'length' => 1, 'default' => 'A']);
         $table->addColumn('x12_gs03', Types::STRING, [
             'length' => 15,
             'notnull' => false,

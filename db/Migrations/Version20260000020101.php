@@ -32,7 +32,7 @@ final class Version20260000020101 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('session_tracker');
-        $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'default' => '']);
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('number_scripts', Types::BIGINT, ['notnull' => false, 'default' => 1]);

@@ -49,7 +49,7 @@ final class Version20260000010065 extends AbstractMigration
         $table->addColumn('ODCMT', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('OSCMT', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('RETINA_COMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('DIL_RISKS', Types::STRING, ['length' => 2, 'default' => 'on']);
+        $table->addColumn('DIL_RISKS', Types::STRING, ['fixed' => true, 'length' => 2, 'default' => 'on']);
         $table->addColumn('DIL_MEDS', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
         $table->addColumn('WETTYPE', Types::STRING, ['length' => 10]);
         $table->addColumn('ATROPINE', Types::STRING, ['length' => 25]);

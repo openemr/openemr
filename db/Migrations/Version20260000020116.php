@@ -59,7 +59,7 @@ final class Version20260000020116 extends AbstractMigration
             'default' => 0,
         ]);
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
-        $table->addColumn('follow_up', Types::STRING, ['length' => 1]);
+        $table->addColumn('follow_up', Types::STRING, ['fixed' => true, 'length' => 1]);
         $table->addColumn('follow_up_note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('account_code', Types::STRING, ['length' => 15]);
         $table->addColumn('reason_code', Types::STRING, [

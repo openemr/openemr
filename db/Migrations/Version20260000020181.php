@@ -179,7 +179,7 @@ final class Version20260000020181 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('BALANCED', Types::STRING, ['length' => 2]);
+        $table->addColumn('BALANCED', Types::STRING, ['fixed' => true, 'length' => 2]);
         $table->addColumn('ARODSPH', Types::STRING, [
             'length' => 25,
             'notnull' => false,

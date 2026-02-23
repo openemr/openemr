@@ -35,7 +35,7 @@ final class Version20260000020041 extends AbstractMigration
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('facility_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

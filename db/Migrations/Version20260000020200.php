@@ -33,7 +33,7 @@ final class Version20260000020200 extends AbstractMigration
     {
         $table = new Table('questionnaire_response');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

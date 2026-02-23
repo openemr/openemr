@@ -33,7 +33,7 @@ final class Version20260000020106 extends AbstractMigration
     {
         $table = new Table('uuid_mapping');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'default' => '']);
         $table->addColumn('resource', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('resource_path', Types::STRING, [
             'length' => 255,
@@ -41,7 +41,7 @@ final class Version20260000020106 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('table', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('target_uuid', Types::BINARY, ['length' => 16, 'default' => '']);
+        $table->addColumn('target_uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'default' => '']);
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

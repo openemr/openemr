@@ -34,7 +34,7 @@ final class Version20260000020044 extends AbstractMigration
         $table = new Table('form_clinical_notes');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('form_id', Types::BIGINT);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

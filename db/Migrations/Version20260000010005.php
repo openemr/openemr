@@ -48,7 +48,7 @@ final class Version20260000010005 extends AbstractMigration
         $table->addColumn('superbill', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('related_code', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('taxrates', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('cyp_factor', Types::FLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
+        $table->addColumn('cyp_factor', Types::SMALLFLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
         $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
         $table->addColumn('reportable', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => '0 = non-reportable, 1 = reportable']);
         $table->addColumn('financial_reporting', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => '0 = negative, 1 = considered important code in financial reporting']);

@@ -44,7 +44,7 @@ final class Version20260000020125 extends AbstractMigration
             'default' => '',
             'comment' => 'descriptive name of the procedure code',
         ]);
-        $table->addColumn('procedure_source', Types::STRING, [
+        $table->addColumn('procedure_source', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 1,
             'comment' => '1=original order, 2=added after order sent',

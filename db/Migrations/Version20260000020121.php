@@ -33,7 +33,7 @@ final class Version20260000020121 extends AbstractMigration
     {
         $table = new Table('procedure_providers');
         $table->addColumn('ppid', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,
@@ -60,12 +60,12 @@ final class Version20260000020121 extends AbstractMigration
             'default' => '',
             'comment' => 'Receiving facility ID (MSH-6.1)',
         ]);
-        $table->addColumn('DorP', Types::STRING, [
+        $table->addColumn('DorP', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 'D',
             'comment' => 'Debugging or Production (MSH-11)',
         ]);
-        $table->addColumn('direction', Types::STRING, [
+        $table->addColumn('direction', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 'B',
             'comment' => 'Bidirectional or Results-only',

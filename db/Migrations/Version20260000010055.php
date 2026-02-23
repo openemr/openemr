@@ -110,7 +110,7 @@ final class Version20260000010055 extends AbstractMigration
         $table->addColumn('pc_sendalertemail', Types::STRING, ['length' => 3, 'default' => 'NO']);
         $table->addColumn('pc_billing_location', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('pc_room', Types::STRING, ['length' => 20, 'default' => '']);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

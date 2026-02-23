@@ -51,7 +51,7 @@ final class Version20260000020123 extends AbstractMigration
         ]);
         $table->addColumn('required', Types::SMALLINT, ['default' => 0, 'comment' => '1 = required, 0 = not']);
         $table->addColumn('maxsize', Types::INTEGER, ['default' => 0, 'comment' => 'maximum length if text input field']);
-        $table->addColumn('fldtype', Types::STRING, [
+        $table->addColumn('fldtype', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 'T',
             'comment' => 'Text, Number, Select, Multiselect, Date, Gestational-age',

@@ -33,7 +33,7 @@ final class Version20260000010043 extends AbstractMigration
     {
         $table = new Table('insurance_companies');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

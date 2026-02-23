@@ -49,7 +49,7 @@ final class Version20260000020065 extends AbstractMigration
         $table->addColumn('description', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('fld_rows', Types::INTEGER, ['default' => 0]);
         $table->addColumn('list_backup_id', Types::STRING, ['length' => 100, 'default' => '']);
-        $table->addColumn('source', Types::STRING, [
+        $table->addColumn('source', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 'F',
             'comment' => 'F=Form, D=Demographics, H=History, E=Encounter',

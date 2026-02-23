@@ -34,9 +34,9 @@ final class Version20260000020179 extends AbstractMigration
         $table = new Table('form_eye_vitals');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('alert', Types::STRING, ['notnull' => false, 'length' => 3, 'default' => 'yes']);
-        $table->addColumn('oriented', Types::STRING, ['notnull' => false, 'length' => 3, 'default' => 'TPP']);
-        $table->addColumn('confused', Types::STRING, ['notnull' => false, 'length' => 3, 'default' => 'nml']);
+        $table->addColumn('alert', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 3, 'default' => 'yes']);
+        $table->addColumn('oriented', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 3, 'default' => 'TPP']);
+        $table->addColumn('confused', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 3, 'default' => 'nml']);
         $table->addColumn('ODIOPAP', Types::STRING, [
             'length' => 10,
             'notnull' => false,

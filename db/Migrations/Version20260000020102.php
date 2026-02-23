@@ -32,7 +32,7 @@ final class Version20260000020102 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('payment_processing_audit');
-        $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'default' => '']);
         $table->addColumn('service', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -62,7 +62,7 @@ final class Version20260000020102 extends AbstractMigration
         ]);
         $table->addColumn('audit_data', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('map_uuid', Types::BINARY, [
+        $table->addColumn('map_uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

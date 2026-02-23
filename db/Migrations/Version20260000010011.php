@@ -108,12 +108,12 @@ final class Version20260000010011 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('box_14_date_qual', Types::STRING, [
+        $table->addColumn('box_14_date_qual', Types::STRING, ['fixed' => true, 
             'length' => 3,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('box_15_date_qual', Types::STRING, [
+        $table->addColumn('box_15_date_qual', Types::STRING, ['fixed' => true, 
             'length' => 3,
             'notnull' => false,
             'default' => null,

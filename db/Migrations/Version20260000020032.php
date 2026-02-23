@@ -47,7 +47,7 @@ final class Version20260000020032 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pkgqty', Types::FLOAT, ['default' => 1.0, 'comment' => 'Number of product items per template item']);
+        $table->addColumn('pkgqty', Types::SMALLFLOAT, ['default' => 1.0, 'comment' => 'Number of product items per template item']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('drug_id', 'selector')

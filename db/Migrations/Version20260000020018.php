@@ -47,12 +47,12 @@ final class Version20260000020018 extends AbstractMigration
             'comment' => 'FK to list_options.option_id for list_id address-uses',
         ]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 255]);
-        $table->addColumn('status', Types::STRING, [
+        $table->addColumn('status', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'notnull' => false,
             'comment' => 'A=active,I=inactive',
         ]);
-        $table->addColumn('is_primary', Types::STRING, [
+        $table->addColumn('is_primary', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'notnull' => false,
             'comment' => 'Y=yes,N=no',

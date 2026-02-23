@@ -33,7 +33,7 @@ final class Version20260000020026 extends AbstractMigration
     {
         $table = new Table('documents');
         $table->addColumn('id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,
@@ -77,7 +77,7 @@ final class Version20260000020026 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('drive_uuid', Types::BINARY, [
+        $table->addColumn('drive_uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

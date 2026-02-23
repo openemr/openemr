@@ -33,7 +33,7 @@ final class Version20260000020214 extends AbstractMigration
     {
         $table = new Table('form_vitals_calculation_components');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('fvc_uuid', Types::BINARY, [
+        $table->addColumn('fvc_uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'comment' => 'fk to form_vitals_calculation.uuid',
         ]);

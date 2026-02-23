@@ -33,7 +33,7 @@ final class Version20260000020033 extends AbstractMigration
     {
         $table = new Table('drugs');
         $table->addColumn('drug_id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,
@@ -41,8 +41,8 @@ final class Version20260000020033 extends AbstractMigration
         $table->addColumn('name', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('ndc_number', Types::STRING, ['length' => 20, 'default' => '']);
         $table->addColumn('on_order', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('reorder_point', Types::FLOAT, ['default' => 0.0]);
-        $table->addColumn('max_level', Types::FLOAT, ['default' => 0.0]);
+        $table->addColumn('reorder_point', Types::SMALLFLOAT, ['default' => 0.0]);
+        $table->addColumn('max_level', Types::SMALLFLOAT, ['default' => 0.0]);
         $table->addColumn('last_notify', Types::DATE_MUTABLE, ['notnull' => false]);
         $table->addColumn('reactions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('form', Types::STRING, ['length' => 31, 'default' => 0]);
@@ -55,7 +55,7 @@ final class Version20260000020033 extends AbstractMigration
             'default' => '',
             'comment' => 'may reference a related codes.code',
         ]);
-        $table->addColumn('cyp_factor', Types::FLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
+        $table->addColumn('cyp_factor', Types::SMALLFLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
         $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
         $table->addColumn('allow_combining', Types::SMALLINT, ['default' => 0, 'comment' => '1 = allow filling an order from multiple lots']);
         $table->addColumn('allow_multiple', Types::SMALLINT, ['default' => 1, 'comment' => '1 = allow multiple lots at one warehouse']);

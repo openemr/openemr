@@ -34,7 +34,7 @@ final class Version20260000020020 extends AbstractMigration
         $table = new Table('person');
         $table->addOption('comment', 'Core person demographics - contact info in contact_telecom');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

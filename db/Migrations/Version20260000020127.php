@@ -33,7 +33,7 @@ final class Version20260000020127 extends AbstractMigration
     {
         $table = new Table('procedure_report');
         $table->addColumn('procedure_report_id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

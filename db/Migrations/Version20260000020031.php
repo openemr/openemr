@@ -32,7 +32,7 @@ final class Version20260000020031 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('drug_sales');
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

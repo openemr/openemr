@@ -37,7 +37,7 @@ final class Version20260000020066 extends AbstractMigration
         $table->addColumn('title', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('is_default', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('option_value', Types::FLOAT, ['default' => 0]);
+        $table->addColumn('option_value', Types::SMALLFLOAT, ['default' => 0]);
         $table->addColumn('mapping', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('codes', Types::STRING, ['length' => 255, 'default' => '']);

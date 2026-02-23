@@ -33,7 +33,7 @@ final class Version20260000020057 extends AbstractMigration
     {
         $table = new Table('immunizations');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,
@@ -74,7 +74,7 @@ final class Version20260000020057 extends AbstractMigration
         $table->addColumn('update_date', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('amount_administered', Types::FLOAT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('amount_administered', Types::SMALLFLOAT, ['notnull' => false, 'default' => null]);
         $table->addColumn('amount_administered_unit', Types::STRING, [
             'length' => 50,
             'notnull' => false,

@@ -33,7 +33,7 @@ final class Version20260000020210 extends AbstractMigration
     {
         $table = new Table('patient_treatment_intervention_preferences');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,

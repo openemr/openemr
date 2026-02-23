@@ -36,7 +36,7 @@ final class Version20260000020130 extends AbstractMigration
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('procedure_order_id', Types::BIGINT, ['comment' => 'Links to procedure_order.procedure_order_id']);
         $table->addColumn('resource_type', Types::STRING, ['length' => 50, 'comment' => 'FHIR resource type (Observation, Condition, etc.)']);
-        $table->addColumn('resource_uuid', Types::BINARY, ['length' => 16, 'comment' => 'UUID of the related resource']);
+        $table->addColumn('resource_uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'comment' => 'UUID of the related resource']);
         $table->addColumn('relationship', Types::STRING, [
             'length' => 50,
             'notnull' => false,

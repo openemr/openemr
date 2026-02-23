@@ -33,13 +33,13 @@ final class Version20260000020128 extends AbstractMigration
     {
         $table = new Table('procedure_result');
         $table->addColumn('procedure_result_id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('uuid', Types::BINARY, [
+        $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 
             'length' => 16,
             'notnull' => false,
             'default' => null,
         ]);
         $table->addColumn('procedure_report_id', Types::BIGINT, ['comment' => 'references procedure_report.procedure_report_id']);
-        $table->addColumn('result_data_type', Types::STRING, [
+        $table->addColumn('result_data_type', Types::STRING, ['fixed' => true, 
             'length' => 1,
             'default' => 'S',
             'comment' => 'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',

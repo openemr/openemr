@@ -45,7 +45,7 @@ final class Version20260000020069 extends AbstractMigration
         $table->addColumn('mod_description', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('mod_nick_name', Types::STRING, ['length' => 25, 'default' => '']);
         $table->addColumn('mod_enc_menu', Types::STRING, ['length' => 10, 'default' => 'no']);
-        $table->addColumn('permissions_item_table', Types::STRING, [
+        $table->addColumn('permissions_item_table', Types::STRING, ['fixed' => true, 
             'length' => 100,
             'notnull' => false,
             'default' => null,
