@@ -72,7 +72,7 @@ final class Version20260000020021 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['contact_id'], null);
+        $table->addIndex(['contact_id'], 'contact_id');
         $table->addIndex(['target_table', 'target_id'], 'idx_contact_target_table');
 
         $this->createTable($table);

@@ -39,7 +39,7 @@ final class Version20260000020037 extends AbstractMigration
         ]);
         $table->addColumn('main_cat_id', Types::INTEGER, ['default' => 0, 'comment' => 'category id from event category in openemr_postcalendar_categories']);
 
-        $table->addIndex(['rule_enc_id', 'main_cat_id'], null);
+        $table->addIndex(['rule_enc_id', 'main_cat_id'], 'rule_enc_id');
 
         $this->createTable($table);
     }

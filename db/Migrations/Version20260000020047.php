@@ -43,6 +43,8 @@ final class Version20260000020047 extends AbstractMigration
                 ->setUnquotedColumnNames('dx_id')
                 ->create()
         );
+        $table->addUniqueIndex(['dx_id'], 'dx_id');
+
         $this->createTable($table);
     }
 

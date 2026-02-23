@@ -71,7 +71,7 @@ final class Version20260000020108 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addUniqueIndex(['email'], null);
+        $table->addUniqueIndex(['email'], 'email');
 
         $this->createTable($table);
     }

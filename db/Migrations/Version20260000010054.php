@@ -70,7 +70,7 @@ final class Version20260000010054 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pc_catname', 'pc_catcolor'], 'basic_cat');
-        $table->addUniqueIndex(['pc_constant_id'], null);
+        $table->addUniqueIndex(['pc_constant_id'], 'pc_constant_id');
 
         $this->createTable($table);
     }

@@ -60,8 +60,8 @@ final class Version20260000020087 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['eid'], null);
-        $table->addIndex(['pid'], null);
+        $table->addIndex(['eid'], 'eid');
+        $table->addIndex(['pid'], 'pid');
 
         $this->createTable($table);
     }

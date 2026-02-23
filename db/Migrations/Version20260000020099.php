@@ -49,7 +49,7 @@ final class Version20260000020099 extends AbstractMigration
         ]);
         $table->addColumn('value', Types::STRING, ['length' => 255, 'default' => '']);
 
-        $table->addIndex(['id'], null);
+        $table->addIndex(['id'], 'id');
 
         $this->createTable($table);
     }

@@ -78,6 +78,7 @@ final class Version20260000010066 extends AbstractMigration
         $table->addColumn('ACT1CCNEAR', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ACT2CCNEAR', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ACT3CCNEAR', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ACT4CCNEAR', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('MOTILITYNORMAL', Types::STRING, ['fixed' => true, 'length' => 3, 'default' => 'on']);
         $table->addColumn('MOTILITY_RS', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 1, 'default' => '0']);
         $table->addColumn('MOTILITY_RI', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 1, 'default' => '0']);

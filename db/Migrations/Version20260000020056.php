@@ -49,6 +49,8 @@ final class Version20260000020056 extends AbstractMigration
                 ->setUnquotedColumnNames('map_id')
                 ->create()
         );
+        $table->addUniqueIndex(['map_id'], 'map_id');
+
         $this->createTable($table);
     }
 

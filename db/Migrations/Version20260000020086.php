@@ -68,7 +68,7 @@ final class Version20260000020086 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['pid'], 'pid');
-        $table->addIndex(['category', 'item'], null);
+        $table->addIndex(['category', 'item'], 'category');
 
         $this->createTable($table);
     }

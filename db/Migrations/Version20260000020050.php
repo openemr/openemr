@@ -45,6 +45,7 @@ final class Version20260000020050 extends AbstractMigration
                 ->setUnquotedColumnNames('pcs_id')
                 ->create()
         );
+        $table->addUniqueIndex(['pcs_id'], 'pcs_id');
         $table->addIndex(['pcs_code'], 'pcs_code');
         $table->addIndex(['active'], 'active');
 

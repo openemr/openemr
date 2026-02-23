@@ -56,8 +56,8 @@ final class Version20260000020098 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['pid'], null);
-        $table->addIndex(['category', 'item'], null);
+        $table->addIndex(['pid'], 'pid');
+        $table->addIndex(['category', 'item'], 'category');
 
         $this->createTable($table);
     }

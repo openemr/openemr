@@ -49,7 +49,7 @@ final class Version20260000020093 extends AbstractMigration
         ]);
         $table->addColumn('item_details', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON with specific sub item results for a clinical rule']);
 
-        $table->addIndex(['report_id', 'itemized_test_id', 'numerator_label', 'pass'], null);
+        $table->addIndex(['report_id', 'itemized_test_id', 'numerator_label', 'pass'], 'report_id');
 
         $this->createTable($table);
     }

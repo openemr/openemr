@@ -67,6 +67,7 @@ final class Version20260000020132 extends AbstractMigration
                 ->setUnquotedColumnNames('ct_key')
                 ->create()
         );
+        $table->addUniqueIndex(['ct_id'], 'ct_id');
         $this->createTable($table);
     }
 

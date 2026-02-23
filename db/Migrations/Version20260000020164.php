@@ -35,7 +35,7 @@ final class Version20260000020164 extends AbstractMigration
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('namespace', Types::STRING, ['length' => 255]);
         $table->addColumn('username', Types::STRING, ['length' => 255]);
-        $table->addColumn('password', Types::TEXT);
+        $table->addColumn('password', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('dbname', Types::STRING, ['length' => 255]);
         $table->addColumn('host', Types::STRING, ['length' => 255, 'default' => 'localhost']);
         $table->addColumn('port', Types::SMALLINT, ['default' => 3306]);

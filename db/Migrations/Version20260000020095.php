@@ -49,7 +49,7 @@ final class Version20260000020095 extends AbstractMigration
             'comment' => 'Maps to the item column in the rule_action_item table',
         ]);
 
-        $table->addIndex(['id'], null);
+        $table->addIndex(['id'], 'id');
 
         $this->createTable($table);
     }

@@ -40,7 +40,7 @@ final class Version20260000020017 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['foreign_id'], null);
+        $table->addIndex(['foreign_id'], 'foreign_id');
 
         $this->createTable($table);
     }

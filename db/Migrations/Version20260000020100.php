@@ -52,7 +52,7 @@ final class Version20260000020100 extends AbstractMigration
         ]);
         $table->addColumn('interval', Types::BIGINT, ['default' => 0, 'comment' => 'Only used in interval entries']);
 
-        $table->addIndex(['id'], null);
+        $table->addIndex(['id'], 'id');
 
         $this->createTable($table);
     }

@@ -47,7 +47,7 @@ final class Version20260000020088 extends AbstractMigration
             'comment' => 'This is the user that created this element',
         ]);
 
-        $table->addIndex(['pt_tracker_id', 'seq'], null);
+        $table->addIndex(['pt_tracker_id', 'seq'], 'pt_tracker_id');
 
         $this->createTable($table);
     }

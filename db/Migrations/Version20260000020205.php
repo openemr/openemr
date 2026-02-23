@@ -52,6 +52,8 @@ final class Version20260000020205 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
+        $table->addUniqueIndex(['list_id', 'option_id', 'client_id'], 'list_id');
+
         $this->createTable($table);
     }
 

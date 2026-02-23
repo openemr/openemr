@@ -90,8 +90,8 @@ final class Version20260000020102 extends AbstractMigration
                 ->setUnquotedColumnNames('uuid')
                 ->create()
         );
-        $table->addIndex(['pid'], null);
-        $table->addIndex(['success'], null);
+        $table->addIndex(['pid'], 'pid');
+        $table->addIndex(['success'], 'success');
 
         $this->createTable($table);
     }

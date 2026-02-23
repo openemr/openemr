@@ -48,7 +48,7 @@ final class Version20260000020001 extends AbstractMigration
         $table->addColumn('date_completed', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('soc_provided', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
 
-        $table->addIndex(['amc_id', 'pid', 'map_id'], null);
+        $table->addIndex(['amc_id', 'pid', 'map_id'], 'amc_id');
 
         $this->createTable($table);
     }

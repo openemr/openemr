@@ -41,7 +41,7 @@ final class Version20260000020023 extends AbstractMigration
                 ->setUnquotedColumnNames('id')
                 ->create()
         );
-        $table->addIndex(['lists_id'], null);
+        $table->addIndex(['lists_id'], 'lists_id');
 
         $this->createTable($table);
     }

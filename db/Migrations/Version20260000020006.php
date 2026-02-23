@@ -53,7 +53,7 @@ final class Version20260000020006 extends AbstractMigration
                 ->create()
         );
         $table->addIndex(['client_id', 'user_id'], 'api_refresh_token_usr_client_idx');
-        $table->addUniqueIndex(['token'], null);
+        $table->addUniqueIndex(['token'], 'token');
 
         $this->createTable($table);
     }

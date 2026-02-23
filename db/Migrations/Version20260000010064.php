@@ -43,7 +43,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('password', Types::TEXT);
+        $table->addColumn('password', Types::TEXT, ['notnull' => false]);
         $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('info', Types::TEXT, ['notnull' => false]);
         $table->addColumn('source', Types::SMALLINT, ['notnull' => false, 'default' => null]);
