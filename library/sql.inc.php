@@ -73,10 +73,6 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 // set up associations in adodb calls (not sure why above define
 //  command does not work)
     $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
-
-    if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
-        error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
-    }
 } // End of OPENEMR_STATIC_ANALYSIS guard
 
 
