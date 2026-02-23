@@ -321,25 +321,25 @@ if (isset($this_message['pid'])) {
                             </fieldset>
 
                             <div class="section-header mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
-                                <h6 class="text-muted"><?php echo xlt('Message Recipients');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Message Recipients');?></h6>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="patientName">
                                     <?php echo xlt('Link To Patient') ?>:
-                                    <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
+                                    <i id="link-tooltip" class="fa fa-info-circle text-primary ms-1" aria-hidden="true" data-original-title="" title=""></i>
                                 </label>
                                 <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
                                 <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
-                                    <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>
+                                    <i class="fa fa-unlink me-1"></i><?php echo xlt('Unlink Patient') ?>
                                 </button>
                             </div>
 
-                            <div class="form-group mt-3">
+                            <div class="mb-3 mt-3">
                                 <label for="sendTo">
                                     <?php echo xlt('Send To') ?>:
-                                    <small class="text-muted">
+                                    <small class="text-body-secondary">
                                         <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
                                     </small>
                                 </label>
@@ -353,25 +353,25 @@ if (isset($this_message['pid'])) {
                                     ?>
                                 </select>
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="selectAll();">
-                                    <i class="fa fa-users mr-1"></i><?php echo xlt('Select All') ?>
+                                    <i class="fa fa-users me-1"></i><?php echo xlt('Select All') ?>
                                 </button>
                             </div>
 
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />
-                                    <label class="custom-control-label" for="sendSeperately">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />
+                                    <label class="form-check-label" for="sendSeperately">
                                         <?php echo xlt('Each recipient must set their own messages as completed.') ?>
-                                        <i id="select-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
+                                        <i id="select-tooltip" class="fa fa-info-circle text-primary ms-1" aria-hidden="true" data-original-title="" title=""></i>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="section-header mt-4 mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
-                                <h6 class="text-muted"><?php echo xlt('Due Date & Priority');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Due Date & Priority');?></h6>
                             </div>
 
-                            <div class="form-group row">
+                            <div class="mb-3 row">
                                 <div class="col-12 col-md-5">
                                     <label for="dueDate"><?php echo xlt('Due Date') ?>:</label>
                                     <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
@@ -395,36 +395,36 @@ if (isset($this_message['pid'])) {
                                 </div>
                             </div>
 
-                            <div class="form-group mt-3">
+                            <div class="mb-3 mt-3">
                                 <label for="priority"><?php echo xlt('Priority') ?>:</label>
                                 <div class="mt-2">
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_3" value='3'>
-                                        <label class="custom-control-label" for="priority_3"><strong><?php echo xlt('Low{{Priority}}') ?></strong></label>
+                                    <div class="form-check form-check-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" class="form-check-input" name="priority" id="priority_3" value='3'>
+                                        <label class="form-check-label" for="priority_3"><strong><?php echo xlt('Low{{Priority}}') ?></strong></label>
                                     </div>
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_2" value='2'>
-                                        <label class="custom-control-label" for="priority_2"><strong><?php echo xlt('Medium{{Priority}}') ?></strong></label>
+                                    <div class="form-check form-check-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" class="form-check-input" name="priority" id="priority_2" value='2'>
+                                        <label class="form-check-label" for="priority_2"><strong><?php echo xlt('Medium{{Priority}}') ?></strong></label>
                                     </div>
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" class="custom-control-input" name="priority" id="priority_1" value='1'>
-                                        <label class="custom-control-label" for="priority_1"><strong><?php echo xlt('High{{Priority}}') ?></strong></label>
+                                    <div class="form-check form-check-inline">
+                                        <input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" class="form-check-input" name="priority" id="priority_1" value='1'>
+                                        <label class="form-check-label" for="priority_1"><strong><?php echo xlt('High{{Priority}}') ?></strong></label>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="section-header mt-4 mb-2" style="max-width: 100%; box-sizing: border-box; overflow: hidden;">
-                                <h6 class="text-muted"><?php echo xlt('Message Content');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Message Content');?></h6>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="message"><?php echo xlt('Type Your Message Here');?>:</label>
                                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr_js($max_reminder_words); ?>);"
                                         onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr_js($max_reminder_words); ?>);"
                                         class="form-control" rows="5" name="message" id="message"
                                         placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text'] ?? '');?></textarea>
 
-                                <div class="form-row mt-2">
+                                <div class="row gx-2 mt-2">
                                     <label class="col-form-label" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
                                     <div class="col-2">
                                         <input class="form-control form-control-sm" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>" />
@@ -434,10 +434,10 @@ if (isset($this_message['pid'])) {
                         </div>
                         <div class="card-footer">
                             <button type='submit' class='btn btn-primary' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>" onclick='return this.clicked = true;'>
-                                <i class="fa fa-paper-plane mr-1"></i><?php echo xlt('Send This Message'); ?>
+                                <i class="fa fa-paper-plane me-1"></i><?php echo xlt('Send This Message'); ?>
                             </button>
-                            <button type="reset" class="btn btn-secondary ml-1">
-                                <i class="fa fa-eraser mr-1"></i><?php echo xlt('Reset') ?>
+                            <button type="reset" class="btn btn-secondary ms-1">
+                                <i class="fa fa-eraser me-1"></i><?php echo xlt('Reset') ?>
                             </button>
                         </div>
                     </form>

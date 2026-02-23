@@ -112,7 +112,7 @@ body {
     padding: 0;
 
     > iframe {
-      border: 0 solid var(--black);
+      border: 0 solid var(--bs-black);
       flex: 1 0 auto;
       width: 100%;
     }
@@ -130,9 +130,9 @@ body {
 
 .tabSpan {
   border-bottom: 0;
-  border-left: 1px solid var(--primary);
-  border-right: 1px solid var(--primary);
-  border-top: 4px solid var(--primary);
+  border-left: 1px solid var(--bs-primary);
+  border-right: 1px solid var(--bs-primary);
+  border-top: 4px solid var(--bs-primary);
   cursor: pointer;
   flex: 0 1 auto;
   font-size: 0.9rem;
@@ -148,7 +148,7 @@ body {
 }
 
 .tabNotchosen {
-  border-bottom: 1px solid var(--primary);
+  border-bottom: 1px solid var(--bs-primary);
   border-left: 0;
   border-right: 0;
   border-top: 4px solid transparent !important;
@@ -158,7 +158,7 @@ body {
 
 .tabsNoHover {
   background: transparent !important;
-  border-bottom: 1px solid var(--primary);
+  border-bottom: 1px solid var(--bs-primary);
   border-left: 0;
   border-right: 0;
   border-top: 4px solid transparent;
@@ -166,11 +166,11 @@ body {
 }
 
 #attendantData {
-  background-color: var(--light);
+  background-color: var(--bs-light);
 }
 
 .patientInfo a {
-  color: var(--dark) !important;
+  color: var(--bs-dark) !important;
 }
 
 .patientPicture {
@@ -187,7 +187,7 @@ body {
 }
 
 .patientCurrentEncounter a {
-  color: var(--dark) !important;
+  color: var(--bs-dark) !important;
 }
 
 .patientDataColumn {
@@ -202,8 +202,8 @@ body {
 }
 
 .patientEncounterList {
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: var(--bs-white);
+  border: 1px solid var(--bs-black);
   cursor: pointer;
   overflow: hidden;
   position: fixed;
@@ -231,12 +231,12 @@ body {
 .patientEncounterList > div:hover,
 .patientEncounterList table.encounters td:hover,
 .patientInfo .clear:hover i {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientEncounterList .review {
   background-color: var(--gray);
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-radius: 5px;
   padding: 2px;
 }
@@ -268,8 +268,8 @@ body {
 
 .appMenu > span:hover,
 .appMenu .appMenu > span:hover {
-  background-color: var(--primary);
-  color: var(--white);
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
   text-decoration: none;
   text-shadow: none;
 }
@@ -337,7 +337,7 @@ body {
  * This currently controls ALL links in menu, no bueno
  * --Robert Down */
 .menuLabel {
-  color: var(--dark);
+  color: var(--bs-dark);
   font-weight: 700;
   padding: 0.9375rem 0.625rem;
   transition: background-color 0.1s ease;
@@ -351,8 +351,8 @@ body {
  */
 
 .menuLabel:hover {
-  background-color: var(--dark);
-  color: var(--light);
+  background-color: var(--bs-dark);
+  color: var(--bs-light);
 }
 
 /** Only apply if not an actual link **/
@@ -368,8 +368,8 @@ div.menuLabel:hover {
 }
 
 .menuEntries li .menuLabel:hover {
-  background-color: var(--dark);
-  color: var(--light);
+  background-color: var(--bs-dark);
+  color: var(--bs-light);
 }
 
 .logo {
@@ -393,26 +393,17 @@ div.menuLabel:hover {
 
 /* Main menu bar */
 .body_top {
-  background-color: var(--light);
-  color: var(--dark);
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
   margin: 0;
   padding: 0;
   z-index: 10;
 }
 
 .body_title {
-  background-color: var(--light);
-  color: var(--black);
+  background-color: var(--bs-light);
+  color: var(--bs-black);
   padding: 10px 0 0;
-}
-
-#username:hover > .userfunctions {
-  display: block;
-  width: 98%;
-}
-
-#username > .userfunctions > div:hover {
-  color: var(--danger);
 }
 
 .menu_arrow {

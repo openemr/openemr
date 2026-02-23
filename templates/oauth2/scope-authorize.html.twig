@@ -21,7 +21,7 @@
     <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
         {% block form_header %}{% endblock %}
         <div class="row w-100">
-            <div class="col-12 col-sm-10 col-lg-9 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
+            <div class="col-12 col-sm-10 col-lg-9 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ms-auto me-auto">
                 <div class="text-md-center mt-2">
                     {% block clientHeader %}
                         <h4 class="mb-4 mt-1">{{ "Authorizing for Application"|xlt  }} <strong>{{ client.name|text }}</strong></h4>
@@ -51,7 +51,7 @@
                                                         <div class="card-header p-0" id="heading{{ resourceKey|attr }}">
                                                             <div class="d-flex align-items-center">
                                                                 {# Master checkbox for entire resource #}
-                                                                <div class="pl-3 pr-2">
+                                                                <div class="ps-3 pe-2">
                                                                     <input type="checkbox"
                                                                            class="resource-master-checkbox"
                                                                            id="resource_{{ resourceKey|attr }}_master"
@@ -61,10 +61,10 @@
                                                                 </div>
 
                                                                 {# Collapsible header #}
-                                                                <button class="btn btn-link text-left flex-grow-1 text-decoration-none collapsed"
+                                                                <button class="btn btn-link text-start flex-grow-1 text-decoration-none collapsed"
                                                                         type="button"
-                                                                        data-toggle="collapse"
-                                                                        data-target="#collapse{{ resourceKey|attr }}"
+                                                                        data-bs-toggle="collapse"
+                                                                        data-bs-target="#collapse{{ resourceKey|attr }}"
                                                                         aria-expanded="false"
                                                                         aria-controls="collapse{{ resourceKey|attr }}">
                                                                     <div class="d-flex justify-content-between align-items-center w-100">
@@ -73,7 +73,7 @@
                                                                             <br>
                                                                             <small class="text-muted">{{ resource.description|text }}</small>
                                                                         </div>
-                                                                        <span class="badge badge-info ml-2">
+                                                                        <span class="badge bg-info text-dark ms-2">
                                                                             {{ resource.context|upper|text }}
                                                                         </span>
                                                                     </div>
@@ -84,7 +84,7 @@
                                                         <div id="collapse{{ resourceKey|attr }}"
                                                              class="collapse"
                                                              aria-labelledby="heading{{ resourceKey|attr }}"
-                                                             data-parent="#resourceAccordion">
+                                                             data-bs-parent="#resourceAccordion">
                                                             <div class="card-body">
                                                                 {# Store resource context and version for scope reconstruction #}
                                                                 <input type="hidden"
@@ -104,7 +104,7 @@
 
                                                                 {# Action permissions grid #}
                                                                 <div class="mb-3">
-                                                                    <label class="font-weight-bold small text-muted mb-2">{{ "Actions this application can perform:"|xlt }}</label>
+                                                                    <label class="fw-bold small text-muted mb-2">{{ "Actions this application can perform:"|xlt }}</label>
                                                                     <div class="d-flex flex-wrap gap-2 action-permissions">
                                                                         {% for actionKey, action in resource.actions %}
                                                                             {% if action.enabled %}
@@ -118,15 +118,15 @@
                                                                                            checked>
                                                                                     <label class="form-check-label" for="action_{{ resourceKey|attr }}_{{ actionKey|attr }}">
                                                                                         {% if actionKey == 'c' %}
-                                                                                            <span class="badge badge-success">{{ "Create"|xlt }}</span>
+                                                                                            <span class="badge bg-success">{{ "Create"|xlt }}</span>
                                                                                         {% elseif actionKey == 'r' %}
-                                                                                            <span class="badge badge-primary">{{ "Read"|xlt }}</span>
+                                                                                            <span class="badge bg-primary">{{ "Read"|xlt }}</span>
                                                                                         {% elseif actionKey == 'u' %}
-                                                                                            <span class="badge badge-warning">{{ "Update"|xlt }}</span>
+                                                                                            <span class="badge bg-warning text-dark">{{ "Update"|xlt }}</span>
                                                                                         {% elseif actionKey == 'd' %}
-                                                                                            <span class="badge badge-danger">{{ "Delete"|xlt }}</span>
+                                                                                            <span class="badge bg-danger">{{ "Delete"|xlt }}</span>
                                                                                         {% elseif actionKey == 's' %}
-                                                                                            <span class="badge badge-info">{{ "Search"|xlt }}</span>
+                                                                                            <span class="badge bg-info text-dark">{{ "Search"|xlt }}</span>
                                                                                         {% endif %}
                                                                                     </label>
                                                                                 </div>
@@ -139,7 +139,7 @@
                                                                 {% if resource.hasRestrictions and resource.restrictions|length > 0 %}
                                                                     <hr class="my-2">
                                                                     <div class="restrictions-section">
-                                                                        <label class="font-weight-bold small text-muted mb-2">
+                                                                        <label class="fw-bold small text-muted mb-2">
                                                                             {% if resource.isUnrestricted %}
                                                                                 {{ "Select specific data categories to authorize:"|xlt }}
                                                                             {% else %}
@@ -158,7 +158,7 @@
                                                                                 {{ "Uncheck categories to deny access to that data"|xlt }}
                                                                             </p>
                                                                         {% endif %}
-                                                                        <div class="pl-3">
+                                                                        <div class="ps-3">
                                                                             {% for restrictionKey, restriction in resource.restrictions %}
                                                                                 <div class="form-check mb-2">
                                                                                     <input class="form-check-input restriction-checkbox"
@@ -190,7 +190,7 @@
                                                 {% for scope, description in otherScopes %}
                                                     <label class="list-group-item d-flex align-items-start">
                                                         <input type="checkbox"
-                                                               class='app-scope mr-2 mt-1'
+                                                               class='app-scope me-2 mt-1'
                                                                name="scope[{{ scope|attr  }}]"
                                                                value="{{ scope|attr }}"
                                                                checked>
@@ -219,7 +219,7 @@
                                         <h5 class="card-title text-sm-center mb-3">{{ "Identity Information Requested"|xlt }}</h5>
                                         <hr />
                                         <p class="text-muted small">{{ "This application is requesting access to the following information about you"|xlt }}</p>
-                                        <ul class="pl-3">
+                                        <ul class="ps-3">
                                             {% for key, value in claims %}
                                                 {% if key == 'fhirUser' %}
                                                     <li class='mb-2'>
@@ -263,7 +263,7 @@
                                                id="offline_access_check"
                                                value="offline_access"
                                                checked>
-                                        <label class="form-check-label font-weight-bold" for="offline_access_check">
+                                        <label class="form-check-label fw-bold" for="offline_access_check">
                                             {{ "Allow Offline Access"|xlt }}
                                         </label>
                                     </div>
@@ -291,16 +291,16 @@
                                 <div class="btn-group">
                                     {% block form_buttons %}{% endblock %}
                                     <button type="submit" name="proceed" value="1" class="btn btn-primary d-flex align-items-center" id="authorize-btn">
-                                        <i class="fas fa-check mr-2"></i>
+                                        <i class="fas fa-check me-2"></i>
                                         {{ "Authorize"|xlt }}
-                                        <span class="spinner-border spinner-border-sm ml-2 d-none" role="status" aria-hidden="true" id="spinner"></span>
+                                        <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true" id="spinner"></span>
                                     </button>
                                     <button type="button" class="btn btn-secondary" onclick="window.history.back();">
-                                        <i class="fas fa-times mr-2"></i>
+                                        <i class="fas fa-times me-2"></i>
                                         {{ "Cancel"|xlt }}
                                     </button>
                                 </div>
-                                <div class="form-check">
+                                <div class="form-check-inline float-end">
                                     <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
                                     <label for="persist_login" class="form-check-label">{{ "Remember Me"|xlt  }}</label>
                                 </div>

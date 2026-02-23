@@ -65,7 +65,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-<div class="form-row">
+<div class="row g-2">
 <div class="col-auto">
     <input type='entry' size='10' class='form-control form-control-sm' name='patient' id='searchparm' />
 </div>

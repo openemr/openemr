@@ -268,7 +268,9 @@ const actpage = {
     showDetailDialog: function (m) {
 
         // show the modal dialog
-        $('#onsiteActivityViewDetailDialog').modal({show: true});
+        var onsiteActivityModalEl = document.getElementById('onsiteActivityViewDetailDialog');
+        var onsiteActivityModal = bootstrap.Modal.getOrCreateInstance(onsiteActivityModalEl);
+        onsiteActivityModal.show();
 
         // if a model was specified then that means a user is editing an existing record
         // if not, then the user is creating a new record

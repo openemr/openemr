@@ -116,7 +116,11 @@ window.observationForm = {
             const summary = $(this).siblings('.questionnaire-summary');
             const icon = $(this).find('i');
 
-            summary.collapse('toggle');
+            const collapseEl = summary[0];
+            if (collapseEl) {
+                const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                collapse.toggle();
+            }
 
             summary.on('shown.bs.collapse', function() {
                 icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
@@ -344,7 +348,20 @@ window.observationForm = {
         this.updateQuestionnaireDisplay(questionnaireName, responseId, date, status);
 
         // Close dialog
-        $('.modal').modal('hide');
+        document.querySelectorAll('.modal').forEach(function(modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+                // BS5: Ensure backdrop is removed after hide
+                setTimeout(function() {
+                    var backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) { backdrop.remove(); }
+                    document.body.classList.remove('modal-open');
+                    document.body.style.paddingRight = '';
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        });
     },
 
     // AI Generated: Update questionnaire display on main form

@@ -38,58 +38,58 @@ class MedicalDevice
     {
         $html = '';
         if (!empty($this->udi_data['standard_elements']['deviceName'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Name (GMDN PT Name)') . ': </span>' . text($this->udi_data['standard_elements']['deviceName']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Name (GMDN PT Name)') . ': </span>' . text($this->udi_data['standard_elements']['deviceName']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['deviceDescription'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Description') . ': </span>' . text($this->udi_data['standard_elements']['deviceDescription']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Description') . ': </span>' . text($this->udi_data['standard_elements']['deviceDescription']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['brandName'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Brand Name') . ': </span>' . text($this->udi_data['standard_elements']['brandName']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Brand Name') . ': </span>' . text($this->udi_data['standard_elements']['brandName']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['companyName'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Company Name') . ': </span>' . text($this->udi_data['standard_elements']['companyName']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Company Name') . ': </span>' . text($this->udi_data['standard_elements']['companyName']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['versionModelNumber'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Version/Model Number') . ': </span>' . text($this->udi_data['standard_elements']['versionModelNumber']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Version/Model Number') . ': </span>' . text($this->udi_data['standard_elements']['versionModelNumber']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['di'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('DI (Device Identifier)') . ': </span>' . text($this->udi_data['standard_elements']['di']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('DI (Device Identifier)') . ': </span>' . text($this->udi_data['standard_elements']['di']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['serialNumber'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Serial Number') . ': </span>' . text($this->udi_data['standard_elements']['serialNumber']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Serial Number') . ': </span>' . text($this->udi_data['standard_elements']['serialNumber']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['lotNumber'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Lot Number') . ': </span>' . text($this->udi_data['standard_elements']['lotNumber']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Lot Number') . ': </span>' . text($this->udi_data['standard_elements']['lotNumber']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['donationId'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Donation ID') . ': </span>' . text($this->udi_data['standard_elements']['donationId']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Donation ID') . ': </span>' . text($this->udi_data['standard_elements']['donationId']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['expirationDate'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Expiration Date') . ': </span>' . text($this->udi_data['standard_elements']['expirationDate']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Expiration Date') . ': </span>' . text($this->udi_data['standard_elements']['expirationDate']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['manufacturingDate'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Manufacturing Date') . ': </span>' . text($this->udi_data['standard_elements']['manufacturingDate']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('Manufacturing Date') . ': </span>' . text($this->udi_data['standard_elements']['manufacturingDate']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['MRISafetyStatus'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('MRI Safety Status') . ': </span>' . text($this->udi_data['standard_elements']['MRISafetyStatus']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('MRI Safety Status') . ': </span>' . text($this->udi_data['standard_elements']['MRISafetyStatus']) . '<br>';
         }
         if (!empty($this->udi_data['standard_elements']['labeledContainsNRL'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('This device is required to be labeled as containing natural rubber latex or dry natural rubber.') . '</span><br>';
+            $html .= '<span class="fw-bold">' . xlt('This device is required to be labeled as containing natural rubber latex or dry natural rubber.') . '</span><br>';
         }
         if (!empty($this->udi_data['standard_elements']['deviceHCTP'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).') . '</span><br>';
+            $html .= '<span class="fw-bold">' . xlt('This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).') . '</span><br>';
         }
         if (!empty($this->udi_data['standard_elements']['issuingAgency'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Issuing Agency') . ': </span>' . text($this->udi_data['standard_elements']['issuingAgency']);
+            $html .= '<span class="fw-bold">' . xlt('Issuing Agency') . ': </span>' . text($this->udi_data['standard_elements']['issuingAgency']);
             $html .= '<br>';
 
             if (in_array($this->udi_data['standard_elements']['issuingAgency'], self::ISSUING_AGENCY_FDA_AUTHORITY)) {
                 // we don't translate the FDA as its a US agency.
-                $html .= '<span class="font-weight-bold">' . xlt('Assigning Authority') . ': </span>FDA<br />';
+                $html .= '<span class="fw-bold">' . xlt('Assigning Authority') . ': </span>FDA<br />';
             }
         }
         if ($showUdi && !empty($this->udi_data['standard_elements']['udi'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('UDI (Unique Device Identifier)') . ': </span>' . text($this->udi_data['standard_elements']['udi']) . '<br>';
+            $html .= '<span class="fw-bold">' . xlt('UDI (Unique Device Identifier)') . ': </span>' . text($this->udi_data['standard_elements']['udi']) . '<br>';
         }
         return $html;
     }
@@ -97,24 +97,24 @@ class MedicalDevice
     public static function fullOutputJavascript($jsVar, $jsVal, $showUdi = true)
     {
         $js = '';
-        $js .= 'if (' . $jsVal . '.standard_elements.deviceName) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Name (GMDN PT Name)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.deviceName) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.deviceDescription) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Description")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.deviceDescription) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.brandName) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Brand Name")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.brandName) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.companyName) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Company Name")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.companyName) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.versionModelNumber) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Version/Model Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.versionModelNumber) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.di) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("DI (Device Identifier)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.di) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.serialNumber) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Serial Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.serialNumber) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.lotNumber) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Lot Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.lotNumber) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.donationId) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Donation ID")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.donationId) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.expirationDate) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Expiration Date")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.expirationDate) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.manufacturingDate) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Manufacturing Date")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.manufacturingDate) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.MRISafetyStatus) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("MRI Safety Status")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.MRISafetyStatus) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.labeledContainsNRL) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("This device is required to be labeled as containing natural rubber latex or dry natural rubber.")) + \'</span><br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.deviceHCTP) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).")) + \'</span><br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.issuingAgency) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Issuing Agency")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAgency) + \'<br>\';}';
-        $js .= 'if (' . $jsVal . '.standard_elements.issuingAuthority) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Assigning Authority")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAuthority) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.deviceName) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Name (GMDN PT Name)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.deviceName) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.deviceDescription) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Description")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.deviceDescription) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.brandName) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Brand Name")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.brandName) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.companyName) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Company Name")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.companyName) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.versionModelNumber) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Version/Model Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.versionModelNumber) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.di) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("DI (Device Identifier)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.di) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.serialNumber) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Serial Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.serialNumber) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.lotNumber) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Lot Number")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.lotNumber) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.donationId) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Donation ID")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.donationId) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.expirationDate) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Expiration Date")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.expirationDate) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.manufacturingDate) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Manufacturing Date")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.manufacturingDate) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.MRISafetyStatus) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("MRI Safety Status")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.MRISafetyStatus) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.labeledContainsNRL) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("This device is required to be labeled as containing natural rubber latex or dry natural rubber.")) + \'</span><br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.deviceHCTP) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).")) + \'</span><br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.issuingAgency) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Issuing Agency")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAgency) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.issuingAuthority) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("Assigning Authority")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAuthority) + \'<br>\';}';
         if ($showUdi) {
-            $js .= 'if (' . $jsVal . '.standard_elements.udi) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("UDI (Unique Device Identifier)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.udi) + \'<br>\';}';
+            $js .= 'if (' . $jsVal . '.standard_elements.udi) {' . $jsVar . ' += \'<span class="fw-bold">\' + jsText(xl("UDI (Unique Device Identifier)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.udi) + \'<br>\';}';
         }
         return $js;
     }

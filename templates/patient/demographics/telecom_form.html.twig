@@ -13,9 +13,9 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="form-row mt-3">
+<div id="{{ table_id|attr }}" class="row g-2 mt-3">
     <div class="table_edit_telecoms col-12">
-        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+        <div class="display_telecoms_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                     {% if foreign_table == 'patient_data' %}
@@ -24,9 +24,9 @@
                         {{ 'Telecom Contacts'|xlt }}
                     {% endif %}
                 </div>
-                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary ps-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_{{ table_id|attr }}">
                 <label class="form-check-label" for="show_inactive_telecoms_{{ table_id|attr }}" style="font-size: 0.9em;">
                     {{ 'Show Inactive'|xlt }}
@@ -36,7 +36,7 @@
 
         {% if telecoms|length == 0 %}
         <div class="no_telecoms">
-            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
@@ -45,7 +45,7 @@
         {% for telecom in telecoms %}
         {% set is_inactive = telecom.status != 'A' %}
         {% set telecom_index = loop.index0 %}
-        <div class="telecoms_group col-12 pl-0 {{ is_inactive ? 'telecom-inactive d-none' : '' }}" data-status="{{ telecom.status|attr }}" data-index="{{ telecom_index }}">
+        <div class="telecoms_group col-12 ps-0 {{ is_inactive ? 'telecom-inactive d-none' : '' }}" data-status="{{ telecom.status|attr }}" data-index="{{ telecom_index }}">
 
             {# Hidden fields - always submitted #}
             <input type="hidden" class="form_telecoms_data_action"
@@ -57,14 +57,14 @@
             <input type="hidden" class="form_telecoms_status"
                 name="{{ name_field_id|attr }}[{{ telecom_index }}][status]" value="{{ telecom.status|attr }}" />
 
-            <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+            <div class="display_telecoms row g-0 justify-content-between ps-1">
                 <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
                     <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
-                    <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} mr-1"></i>
+                    <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} me-1"></i>
                     <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;">
                         {{ list_telecom_systems[telecom.system]|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary text-white ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge bg-secondary text-white ms-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -88,7 +88,7 @@
                 {% endif %}
             </div>
 
-            <div class='d-none form_telecoms form-row mx-3 my-2'>
+            <div class='d-none form_telecoms row g-2 mx-3 my-2'>
                 {% include 'patient/demographics/telecom_form_fields.html.twig' with {
                     'telecom': telecom,
                     'field_id_esc': field_id_esc,
@@ -105,7 +105,7 @@
 
 {# Template for adding new telecoms #}
 <template class="template_add_telecom">
-    <div class="telecoms_group col-12 pl-0" data-status="A" data-index="__T-INDEX__">
+    <div class="telecoms_group col-12 ps-0" data-status="A" data-index="__T-INDEX__">
 
         {# Hidden fields #}
         <input type="hidden" class="form_telecoms_data_action"
@@ -117,10 +117,10 @@
         <input type="hidden" class="form_telecoms_status"
             name="{{ name_field_id|attr }}[__T-INDEX__][status]" value="A" />
 
-        <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+        <div class="display_telecoms row g-0 justify-content-between ps-1">
             <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
-                <i class="fas fa-phone mr-1"></i>
+                <i class="fas fa-phone me-1"></i>
                 <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;"></span>
             </div>
 
@@ -135,7 +135,7 @@
             <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
         </div>
 
-        <div class='form_telecoms form-row mx-3 my-2'>
+        <div class='form_telecoms row g-2 mx-3 my-2'>
             {% include 'patient/demographics/telecom_form_fields.html.twig' with {
                 'telecom': {
                     'system': 'phone',
@@ -487,7 +487,7 @@
                         iconElement.className = 'fas fa-' +
                             (record.system === 'phone' || record.system === 'mobile' ? 'phone' :
                                 record.system === 'email' ? 'envelope' :
-                                record.system === 'fax' ? 'fax' : 'link') + ' mr-1';
+                                record.system === 'fax' ? 'fax' : 'link') + ' me-1';
                     }
                 }
             }
@@ -551,7 +551,7 @@
                     systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
                     if (!systemSpan.querySelector('.badge')) {
                         badge = document.createElement('span');
-                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.className = 'badge bg-secondary text-white ms-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         systemSpan.appendChild(badge);

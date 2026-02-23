@@ -16,7 +16,7 @@ function doTemplateEditor(_this, event, oContext = '') {
         id = event.target.name;
         ccFlag = 'name';
     }
-    let title = '<i class="fa fa-th"></i><h4 class="ml-2">'+ xl("Text Templates") +'</h4>';
+    let title = '<i class="fa fa-th"></i><h4 class="ms-2">'+ xl("Text Templates") +'</h4>';
     const params = new URLSearchParams({
         ccFlag: ccFlag,
         contextName: oContext,

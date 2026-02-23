@@ -33,9 +33,9 @@ class RenderEvent extends GenericEvent
     /**
      * Inject a new BS card in portal Dashboard.
      * Example card.
-     * <div class="card d-flex mr-1 mb-1">
+     * <div class="card d-flex me-1 mb-1">
      *   <div class="card-body">
-     *     <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'Card Name' | xlt }}</h4>
+     *     <h4 class="card-title"><i class="fa fa-file- me-1"></i>{{ 'Card Name' | xlt }}</h4>
      *     <a id="id it" class="btn btn-success" href="{{ web_root }} /...URL?pid={{ pid | attr_url }} ">{{ 'Name of anchor task' | xlt }}</a>
      *   </div>
      * </div>

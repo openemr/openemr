@@ -64,7 +64,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title"><?php echo xlt('About Portal Dashboard') ?></h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div>
@@ -74,19 +74,19 @@ $v_js_includes = $globalsBag->get('v_js_includes');
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="okButton" data-dismiss="modal" class="btn btn-secondary"><?php echo xlt('Close...') ?></button>
+                <button id="okButton" data-bs-dismiss="modal" class="btn btn-secondary"><?php echo xlt('Close...') ?></button>
             </div>
         </div>
     </div>
 </div>
 <div class="container p-3">
-    <div class="jumbotron jumbotron-fluid text-center p-1">
-        <h3><?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ml-2" style="font-size: 3rem;"></i></h3>
+    <div class="bg-body-tertiary text-center p-1">
+        <h3><?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ms-2" style="font-size: 3rem;"></i></h3>
         <p>
-        <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog"><?php echo xlt('Tell me more') ?></button>
+        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#formdialog"><?php echo xlt('Tell me more') ?></button>
         </p>
     </div>
-<div class='jumbotron jumbotron-fluid p-4'>
+<div class='bg-body-tertiary rounded-3 p-4'>
     <div class="row">
         <div class="col">
             <h4><i class="icon-cogs"></i><?php echo xlt('Templates') ?></h4>
@@ -102,7 +102,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
         </div>
         <div class="col">
             <h4><i class="icon-signin"></i><?php echo xlt('Signature') ?></h4>
-            <p><a data-type="admin-signature" class="btn btn-primary btn-sm" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">
+            <p><a data-type="admin-signature" class="btn btn-primary btn-sm" href="#openSignModal" data-bs-toggle="modal" data-bs-backdrop="true" data-bs-target="#openSignModal">
              <span><?php echo xlt('Signature on File') . '  '; ?></span><i class="fa fa-sign-in"></i></a></p>
         </div>
     </div>

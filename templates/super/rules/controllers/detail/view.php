@@ -166,7 +166,7 @@ $rule = $viewBean->rule ?>
                     </div>
 
                     <?php foreach ($targets->criteria as $criteria) { ?>
-                        <div class="form-row">
+                        <div class="row gx-2">
                             <span class="left_col">
                                 <a href="index.php?action=edit!target&id=<?php echo attr_url($rule->id); ?>&guid=<?php echo attr_url($criteria->guid); ?>"
                                    class="action_link" onclick="top.restoreSession()">
