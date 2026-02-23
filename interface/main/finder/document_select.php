@@ -140,7 +140,7 @@ foreach ($searchResult as $docResult) {
 <div class="container-responsive">
     <div id="searchCriteria" class="bg-light p-2 pt-3">
         <form method='post' name='theform' id="theform" action='document_select.php'>
-            <div class="form-row">
+            <div class="row gx-2">
                 <?php if (!empty($pid)) : ?>
                 <input type="hidden" name="pid" value="<?php echo attr($pid); ?>" />
                 <p>
@@ -148,7 +148,7 @@ foreach ($searchResult as $docResult) {
                 </p>
                 <?php endif; ?>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('Search by name:'), ENT_NOQUOTES); ?></label>
                 <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12'
                        value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>'

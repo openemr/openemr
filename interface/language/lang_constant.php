@@ -70,12 +70,12 @@ if (!empty($_POST['add'])) {
 <form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <!-- Constant Name -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>
         <input type="text" class="form-control" id="constantName" name="constant_name" size="100" value="<?php echo attr($val_constant ?? ''); ?>">
     </div>
     <!-- Submit Button -->
-    <div class="form-group">
+    <div class="mb-3">
         <input type="submit" class="btn btn-primary" name="add" value="<?php echo xla('Add'); ?>">
     </div>
 </form>

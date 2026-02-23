@@ -95,7 +95,7 @@ $font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Robot
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
-$close-text-shadow: 0 1 0 $black;
+// BS5: $close-text-shadow removed - was: 0 1 0 $black
 
 $displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
 

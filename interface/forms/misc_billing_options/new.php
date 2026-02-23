@@ -97,7 +97,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                     <div class="container">
 <!-- ai generated code by google-labs-jules starts -->
                         <span class="text"><?php echo xlt('Select Yes/No where appropriate'); ?><br /><br /></span>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>
                             <select name="employment_related" id="employment_related" class="form-control">
                                 <option value="" <?php
@@ -118,7 +118,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                             </select>
 <!-- ai gen'ed code ends -->
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
 <!-- ai generated code by google-labs-jules starts -->
                                 <label for="auto_accident"><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
@@ -147,7 +147,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     value="<?php echo attr($obj["accident_state"] ?? ''); ?>" />
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
 <!-- ai generated code by google-labs-jules starts -->
                             <label for="other_accident"><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
                             <select name="other_accident" id="other_accident" class="form-control">
@@ -168,7 +168,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                 ?>><?php echo xlt('No'); ?></option>
                             </select>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label for="box10d"><?php echo xlt('Box 10 D. Claim Codes (Designated by NUCC)'); ?></label>
 <!-- ai gen'ed code ends -->
@@ -184,7 +184,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     } ?> />
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label><?php echo xlt('Box 14. Onset Date:'); ?></label>
                             </div>
@@ -197,7 +197,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                 <?php echo $MBO->generateDateQualifierSelect("box_14_date_qual", $MBO->box_14_qualifier_options, $obj); ?>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label><?php echo xlt('Box 15. Other Date:'); ?></label>
                             </div>
@@ -211,7 +211,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                 <?php $MBO->generateDateQualifierSelect("box_15_date_qual", $MBO->box_15_qualifier_options, $obj); ?>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label for='off_work_from'>
                                     <?php echo xlt('Box 16. Date unable to work from'); ?>:
@@ -234,7 +234,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
                             if (!empty($obj["provider_id"])) {
@@ -243,13 +243,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                 $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                             } ?>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
 <!-- ai generated code by google-labs-jules starts -->
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), xlt('Provider Qualifier Code'), ' ', '', '', '', null, false, '', true); ?>
 <!-- ai gen'ed code ends -->
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label for='hospitalization_date_from'>
                                     <?php echo xlt('Box 18. Hospitalization date from'); ?>:
@@ -273,7 +273,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
 <!-- ai generated code by google-labs-jules starts -->
                                 <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
@@ -301,7 +301,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     value="<?php echo attr($obj["lab_amount"] ?? ''); ?>" />
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
 <!-- ai gen'ed code ends -->
@@ -314,12 +314,12 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                     value="<?php echo attr($obj["medicaid_original_reference"] ?? ''); ?>" />
                             </div>
                         </div>
-                        <div class="form-group mt-3">
+                        <div class="mb-3 mt-3">
                             <label><?php echo xlt('Box 23. Prior Authorization No.'); ?>:</label>
                             <input type="text" class="form-control" name="prior_auth_number" id="prior_auth_number"
                                 value="<?php echo attr($obj["prior_auth_number"] ?? ''); ?>" />
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="row gx-2 mt-3">
                             <div class="col-md">
                                 <input type="radio" class="btn-check" name="replacement_claim" id="replacement_claim" autocomplete="Off" value="1"
                                     <?php
@@ -353,13 +353,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                 <fieldset>
                     <legend><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="container">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <textarea name="comments" id="comments" class="form-control" cols="80"
                                 rows="3"><?php echo text($obj["comments"] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </fieldset>
-                <div class="form-group">
+                <div class="mb-3">
                     <div class="col-sm-12 position-override">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save save"><?php echo xlt('Save'); ?></button>

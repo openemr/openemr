@@ -29,12 +29,12 @@ class RuleTemplateExtension
     public static function textfield_row($args)
     {
         ?>
-        <p class="form-row">
+        <p class="row gx-2">
             <span class="left_col colhead req" data-field="<?php echo attr($args['name']); ?>"><?php echo text($args['title']); ?></span>
             <span class="end_col">
         <input id="<?php echo $args['id'] ? attr($args['id']) : "" ?>" data-grp-tgt="<?php echo attr($args['target'] ?? ''); ?>" class="form-control field <?php echo attr($args['class'] ?? ''); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
     </span>
-            <span class="ml-1"><?php echo $args['render_link'] ?? ""; ?></span>
+            <span class="ms-1"><?php echo $args['render_link'] ?? ""; ?></span>
         </p>
     <?php }
 
@@ -42,7 +42,7 @@ class RuleTemplateExtension
     {
         ?>
         <?php $criteria = $args['criteria'];  ?>
-        <p class="form-row">
+        <p class="row gx-2">
             <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
             <span class="end_col">
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
@@ -52,7 +52,7 @@ class RuleTemplateExtension
         </span>
         </p>
 
-        <p class="form-row">
+        <p class="row gx-2">
             <span class="left_col colhead req" data-field="fld_inclusion"><?php echo xlt('Inclusion'); ?></span>
             <span class="end_col">
             <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="yes"
@@ -63,7 +63,7 @@ class RuleTemplateExtension
         </p>
 
         <?php if ($criteria->interval && $criteria->intervalType) { ?>
-        <p class="form-row">
+        <p class="row gx-2">
             <span class="left_col colhead req" data-field="fld_target_interval"><?php echo xlt('Interval'); ?></span>
             <span class="end_col">
             <input data-grp-tgt="flt_target_interval" class="form-control field short" type="text" name="fld_target_interval" value="<?php echo xlt($criteria->interval); ?>" />

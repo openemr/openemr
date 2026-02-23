@@ -190,9 +190,7 @@ if (!empty($_POST['bn_upload'])) {
                         <div class="input-group mt-3">
                           <label for="form_dest_filename"><?php echo xlt('Destination Filename'); ?>:</label>
                           <input type='text' class="form-control" name='form_dest_filename' id='form_dest_filename' size='30' />
-                          <div class="input-group-append">
-                            <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
-                          </div>
+                          <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
                         </div>
                      </div>
                   </div>

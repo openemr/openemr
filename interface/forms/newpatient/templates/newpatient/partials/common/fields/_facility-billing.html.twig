@@ -1,7 +1,7 @@
 {# Billing Facility #}
 <div class="col-sm {{ globals.hide_billing_widget ? 'd-none' : '' }}">
-    <div class="form-group">
-        <label for="billing_facility" class="text-right">{{ "Billing Facility"|xlt }}:</label>
+    <div class="mb-3">
+        <label for="billing_facility" class="text-end">{{ "Billing Facility"|xlt }}:</label>
         <select name="billing_facility" id="billing_facility" class="form-control">
             <option value="">-- {{ "Select Facility"|xlt }} --</option>
             {% for facility in billingFacilities %}

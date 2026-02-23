@@ -1069,13 +1069,13 @@
     function getStatusClass(status) {
         switch (status?.toLowerCase()) {
             case 'final':
-                return 'badge-success';
+                return 'bg-success';
             case 'preliminary':
-                return 'badge-warning';
+                return 'bg-warning';
             case 'corrected':
-                return 'badge-info';
+                return 'bg-info';
             default:
-                return 'badge-secondary';
+                return 'bg-secondary';
         }
     }
 

@@ -39,13 +39,13 @@ $enable-responsive-font-sizes: true;
 }
 
 .navbar-custom {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   padding: 0 !important;
 }
 
 .navbar-nav {
   > .nav-item > a {
-    color: var(--black) !important;
+    color: var(--bs-black) !important;
     padding-bottom: 5px !important;
     padding-left: 10px !important;
     padding-right: 20px !important;
@@ -54,12 +54,12 @@ $enable-responsive-font-sizes: true;
   }
 
   > li .open > a {
-    background-color: var(--primary) !important;
-    color: var(--white) !important;
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
   }
 
   > li > a:hover {
-    color: var(--white) !important;
+    color: var(--bs-white) !important;
   }
 }
 
@@ -71,17 +71,17 @@ $enable-responsive-font-sizes: true;
 
   > li > a:focus,
   > li:focus {
-    background-color: var(--primary) !important;
+    background-color: var(--bs-primary) !important;
     /* this is the "hover" blue */
-    color: var(--white) !important;
+    color: var(--bs-white) !important;
     text-decoration: none !important;
   }
 }
 
 .nav > .active > a,
 .navbar-nav > .open > a {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-white) !important;
   /* Mac Menu title bar background color */
 }
 
@@ -91,8 +91,8 @@ $enable-responsive-font-sizes: true;
 
   > li > a:hover,
   > li > a:focus {
-    background-color: var(--primary) !important;
-    color: var(--white) !important;
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
     text-decoration: none !important;
     text-shadow: none !important;
   }
@@ -106,14 +106,14 @@ $enable-responsive-font-sizes: true;
 }
 
 .navbar-brand {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   height: 24px !important;
   margin: 10px 0 2px !important;
   padding: 10px 5px 0 10px !important;
 }
 
 li.open > a:first {
-  color: var(--white) !important;
+  color: var(--bs-white) !important;
 }
 
 .dropdown {

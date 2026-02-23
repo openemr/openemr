@@ -305,7 +305,7 @@ class CareTeamViewCard extends CardModel
         // Get team status information
         $teamStatus = $careTeamResult['team_status'] ?? 'active';
         $teamStatusDisplay = '';
-        $teamStatusBadgeClass = 'badge-secondary';
+        $teamStatusBadgeClass = 'bg-secondary';
 
         // Get status display information
         foreach ($templateData['statuses'] as $status) {
@@ -313,11 +313,11 @@ class CareTeamViewCard extends CardModel
                 $teamStatusDisplay = $status['title'];
                 // Set badge class based on status
                 $teamStatusBadgeClass = match ($teamStatus) {
-                    'active' => 'badge-success',
-                    'inactive' => 'badge-warning',
-                    'proposed' => 'badge-info',
-                    'entered-in-error' => 'badge-danger',
-                    default => 'badge-secondary',
+                    'active' => 'bg-success',
+                    'inactive' => 'bg-warning text-dark',
+                    'proposed' => 'bg-info text-dark',
+                    'entered-in-error' => 'bg-danger',
+                    default => 'bg-secondary',
                 };
                 break;
             }

@@ -269,10 +269,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             let dModal = "<div class='modal fade' id='confirmDialog' aria-hidden='true'><div class='modal-dialog'><div class='modal-content'>" +
                 "<div class='modal-header'><h4 class='modal-title'>" + mConfirm + "</h4></div><div class='modal-body'>" +
                 "<label>" + Message + "</label></div><div class='modal-footer'>" +
-                "<button type='button' class='btn btn-primary btn-clear' data-dismiss='modal'>" + mClear + "</button>" +
-                "<button type='button' class='btn btn-primary btn-validate' data-dismiss='modal'>" + mVal + "</button>" +
-                "<button type='button' class='btn btn-primary btn-continue' data-dismiss='modal'>" + mCont + "</button>" +
-                "<button type='button' class='btn btn-secondary btn-cancel' data-dismiss='modal'>" + mCancel + "</button>" +
+                "<button type='button' class='btn btn-primary btn-clear' data-bs-dismiss='modal'>" + mClear + "</button>" +
+                "<button type='button' class='btn btn-primary btn-validate' data-bs-dismiss='modal'>" + mVal + "</button>" +
+                "<button type='button' class='btn btn-primary btn-continue' data-bs-dismiss='modal'>" + mCont + "</button>" +
+                "<button type='button' class='btn btn-secondary btn-cancel' data-bs-dismiss='modal'>" + mCancel + "</button>" +
                 "</div></div></div></div>";
 
             $("body").append(dModal);
@@ -744,13 +744,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <div class="container-fluid mt-1">
         <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
             <nav class="nav navbar-expand-md navbar-light bg-light px-3 py-2">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
                     <span><?php echo xlt('More Actions'); ?></span>
                 </button>
                 <!-- begin detail nav -->
                 <div class="collapse navbar-collapse clearfix" id="billing-nav-detail" role="group">
                     <div class="btn-group dropdown">
-                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown" name="bn_x12_support" title=""><?php echo xla('X12 OPTIONS') ?>
+                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_x12_support" title=""><?php echo xla('X12 OPTIONS') ?>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -789,7 +789,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         </ul>
                     </div>
                     <div class="btn-group dropdown">
-                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown" name="bn_process_hcfa_support" title=""><?php echo xlt('HCFA FORM') ?>
+                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_process_hcfa_support" title=""><?php echo xlt('HCFA FORM') ?>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -814,7 +814,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     </div>
                     <?php if ($GLOBALS['ub04_support']) { ?>
                     <div class="btn-group dropdown">
-                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown" name="bn_process_ub04_support" title=""><?php echo xlt('UB04 FORM') ?>
+                        <button type="button" class="btn nav-link btn-link dropdown-toggle" data-bs-toggle="dropdown" name="bn_process_ub04_support" title=""><?php echo xlt('UB04 FORM') ?>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -895,7 +895,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) { ?>
                     <tr>
-                        <td class="text-right" colspan='9'>
+                        <td class="text-end" colspan='9'>
                             <table>
                                 <tr>
                                     <td id='expandAllCollapseAll'>
@@ -1029,7 +1029,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $raw_encounter_date = date("Y-m-d", strtotime((string) $iter['enc_date']));
                                 $billing_note = $name['billing_note'];
                                 // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<span class='font-weight-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
+                                $lhtml .= "<span class='fw-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
                                 // Encounter details are stored to javascript as array.
                                 $result4 = sqlStatement(
@@ -1108,13 +1108,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $divnos += 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                    $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
+                                    $lhtml .= '<span class="fw-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
 
                                 if ($iter['id']) {
                                     $lcount += 2;
                                     $lhtml .= "<br />\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", [$iter['enc_encounter']])['last_level_closed'];
@@ -1138,7 +1138,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                     $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                     $lhtml .= "</select>&nbsp;&nbsp;\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>X12: ";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>X12: ";
                                     $lhtml .= "<select class='form-control' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
                                     $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                     foreach ($partners as $xid => $xname) {
@@ -1155,7 +1155,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $divPut = true;
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
+                                        $lhtml .= "<br /><span class='fw-bold text-success ms-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
                                     $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr((string) $iter['date'], 0, 10))) . text(substr((string) $iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 

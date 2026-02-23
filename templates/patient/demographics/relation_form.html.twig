@@ -33,13 +33,13 @@
 
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_edit_relations col-12">
-        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
+        <div class="display_relations_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
-                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_{{ table_id|attr }}"
+                <div class="fas fa-plus-square text-primary ps-3" id="btn_add_relation_{{ table_id|attr }}"
                     style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_relations_{{ table_id|attr }}">
                 <label class="form-check-label" for="show_inactive_relations_{{ table_id|attr }}" style="font-size: 0.9em;">
                     {{ 'Show Inactive'|xlt }}
@@ -55,7 +55,7 @@
 
         {% if relatedPersons|length == 0 %}
         <div class="no_relations">
-            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NO RELATED PERSONS'|xlt }}</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">{{ 'NO RELATED PERSONS'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
@@ -64,7 +64,7 @@
         {% for relatedPerson in relatedPersons %}
         {% set is_inactive = not relatedPerson.active %}
         {% set relatedPerson_index = loop.index0 %}
-        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}" data-index="{{ relatedPerson_index }}">
+        <div class="relations_group col-12 ps-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}" data-index="{{ relatedPerson_index }}">
 
             {# Hidden fields - always submitted #}
             <input type="hidden" class="form_relations_data_action"
@@ -88,20 +88,20 @@
             <div class="relation-card">
                 <div class="relation-card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="display_related_person form-row">
+                        <div class="display_related_person row g-2">
 
                             <div class="col-2;">
-                                <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation me-2" style="width:10px; line-height: 1.2;"></i>
                                 <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;">
                                     {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
                                     {% if is_inactive %}
-                                        <span class="badge   text-white ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                                        <span class="badge   text-white ms-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                                     {% endif %}
                                 </span>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;">
+                                <small class="text-muted ms-4 display_relations_relationship" style="vertical-align: 0.1rem;">
                                     {{ list_relationships[relatedPerson.relationship]|text }}
                                     {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
                                 </small>
@@ -114,18 +114,18 @@
                         <div>
                             <span class="display_relations_badges">
                                 {% if relatedPerson.is_emergency_contact %}
-                                    <span class="badge badge-danger mr-1">{{ 'Emergency'|xlt }}</span>
+                                    <span class="badge bg-danger me-1">{{ 'Emergency'|xlt }}</span>
                                 {% endif %}
                                 {% if relatedPerson.is_primary_contact %}
-                                    <span class="badge badge-primary mr-1">{{ 'Primary'|xlt }}</span>
+                                    <span class="badge bg-primary me-1">{{ 'Primary'|xlt }}</span>
                                 {% endif %}
                             </span>
                             {% if is_inactive %}
-                                <button type="button" class="btn btn-sm btn-success btn-activate-relation ml-2">
+                                <button type="button" class="btn btn-sm btn-success btn-activate-relation ms-2">
                                     <i class="fas fa-check"></i> {{ 'Reactivate'|xlt }}
                                 </button>
                             {% else %}
-                                <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                                <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ms-2">
                                     <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
                                 </button>
                             {% endif %}
@@ -150,7 +150,7 @@
 
 {# Template for adding new relations #}
 <template class="template_add_relation">
-    <div class="relations_group col-12 pl-0" data-active="1" data-index="__RP-INDEX__">
+    <div class="relations_group col-12 ps-0" data-active="1" data-index="__RP-INDEX__">
 
         {# Hidden fields #}
 
@@ -175,25 +175,25 @@
         <div class="relation-card">
             <div class="relation-card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="display_related_person form-row">
+                    <div class="display_related_person row g-2">
 
                             <div class="col-2;">
-                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation me-2" style="width:10px; line-height: 1.2;"></i>
                                 <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;"></span>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-muted ms-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-muted ms-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
                             </div>
                         </div>
 
                     <div>
                         <span class="display_relations_badges"></span>
-                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ms-2">
                             <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
                         </button>
                     </div>
@@ -500,7 +500,7 @@
                     const isInactive = relationsGroup.getAttribute('data-active') === '0';
                     let nameHtml = nameParts.join(' ');
                     if (isInactive) {
-                        nameHtml += ' <span class="badge text-white ml-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
+                        nameHtml += ' <span class="badge text-white ms-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
                     }
                     displayName.innerHTML = nameHtml;
                 }
@@ -525,10 +525,10 @@
                 if (displayBadges) {
                     let badgesHtml = '';
                     if (emergencyCheckbox && emergencyCheckbox.checked) {
-                        badgesHtml += '<span class="badge badge-danger mr-1">' + window.xl('Emergency') + '</span>';
+                        badgesHtml += '<span class="badge bg-danger me-1">' + window.xl('Emergency') + '</span>';
                     }
                     if (primaryCheckbox && primaryCheckbox.checked) {
-                        badgesHtml += '<span class="badge badge-primary mr-1">' + window.xl('Primary') + '</span>';
+                        badgesHtml += '<span class="badge bg-primary me-1">' + window.xl('Primary') + '</span>';
                     }
                     displayBadges.innerHTML = badgesHtml;
                 }

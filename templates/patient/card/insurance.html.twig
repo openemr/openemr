@@ -14,13 +14,13 @@
     {% for t in types %}
     {% if loop.first or ins[t] %}
     <li class="nav-item" role="presentation">
-        <a data-type="{{ t|attr }}" href="#{{ t|attr }}" id="{{ t|attr }}-tab" data-toggle="tab" role="tab" aria-controls="{{ t|attr }}" aria-selected="{{ loop.first ? "true" : "false" }}" class="nav-link {{ loop.first ? "active" : "" }}">
+        <a data-type="{{ t|attr }}" href="#{{ t|attr }}" id="{{ t|attr }}-tab" data-bs-toggle="tab" role="tab" aria-controls="{{ t|attr }}" aria-selected="{{ loop.first ? "true" : "false" }}" class="nav-link {{ loop.first ? "active" : "" }}">
             {{ t|capitalize|text }}
         </a>
     {% endif %}
     {% endfor %}
     <li class="nav-item" role="presentation">
-        <a id='eligibility-tab' class="nav-link" href='#eligibility' data-toggle="tab" aria-controls="eligibility" role="tab" aria-selected="false">{{ "Eligibility"|xlt }}</a>
+        <a id='eligibility-tab' class="nav-link" href='#eligibility' data-bs-toggle="tab" aria-controls="eligibility" role="tab" aria-selected="false">{{ "Eligibility"|xlt }}</a>
     </li>
 </ul>
 <div class="tab-content px-1">
@@ -44,7 +44,7 @@
                             {{ c.insco.address.city|text }} {{ c.insco.address.state|text }}, {{ c.insco.address.postal|text }}
                         </address>
                     {% else %}
-                        <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                        <span class="fw-bold text-danger">{{ "Unassigned"|xlt }}</span>
                     {% endif %}
                 </div>
                 <div class="subscriber">
@@ -85,16 +85,16 @@
                 </div>
             </div>
             <div class="d-flex justify-content-between policy-details pt-2">
-                <div class="list-group list-group-flush flex-fill mr-4">
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Plan Name"|xlt }}:</strong> <span class="text-right">{{ c.plan_name|text }}</span></div>
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Policy Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.policy_number|text }}</span></div>
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Group Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.group_number|text }}</span></div>
+                <div class="list-group list-group-flush flex-fill me-4">
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Plan Name"|xlt }}:</strong> <span class="text-end">{{ c.plan_name|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Policy Number"|xlt }}:</strong> <span class="text-end font-monospace">{{ c.policy_number|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Group Number"|xlt }}:</strong> <span class="text-end font-monospace">{{ c.group_number|text }}</span></div>
                 </div>
                 <div class="list-group list-group-flush flex-fill">
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-right">{{ c.copay|text }}</span></div>
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == 'TRUE' ? "Yes"|xlt : "No"|xlt }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-end">{{ c.copay|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-end">{{ c.accept_assignment == 'TRUE' ? "Yes"|xlt : "No"|xlt }}</span></div>
                     {% if c.policy_type %}
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong class="flex-fill">{{ "Secondary Medicare Type"|xlt }}:</strong> <span class="text-right flex-fill">{{ c.policy_type|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong class="flex-fill">{{ "Secondary Medicare Type"|xlt }}:</strong> <span class="text-end flex-fill">{{ c.policy_type|text }}</span></div>
                     {% endif %}
                 </div>
             </div>
@@ -128,7 +128,7 @@
         {% if enable_eligibility_requests %}
         <form action="./demographics.php" method="post">
             <div>
-                <button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>{{ "Update Status"|xlt }}</button>
+                <button class='btn btn-success btn-sm btn-transmit float-end' name='status_update' value='true'>{{ "Update Status"|xlt }}</button>
             </div>
             {{ eligibility }}
         </form>

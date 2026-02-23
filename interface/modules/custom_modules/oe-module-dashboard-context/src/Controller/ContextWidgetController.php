@@ -327,7 +327,7 @@ class ContextWidgetController
                     }
 
                     // Strategy 2: data-target
-                    $widget = $('[data-target="#' + widgetId + '"]').closest('.card');
+                    $widget = $('[data-bs-target="#' + widgetId + '"]').closest('.card');
                     if ($widget.length) {
                         return $widget;
                     }
@@ -406,7 +406,7 @@ class ContextWidgetController
                     // Header
                     var $header = $('<div>', { class: 'context-dialog-header' });
                     $header.append($('<h5>', { class: 'm-0' }).append(
-                        $('<i>', { class: 'fa fa-cog mr-2' }),
+                        $('<i>', { class: 'fa fa-cog me-2' }),
                         document.createTextNode(self.xl.widgetSettings)
                     ));
                     $header.append($('<button>', { type: 'button', class: 'btn btn-sm btn-secondary close-dialog' }).html('&times;'));
@@ -419,7 +419,7 @@ class ContextWidgetController
                     var $leftCol = $('<div>', { class: 'col-md-7' });
                     $leftCol.append($('<h6>', { class: 'border-bottom pb-2 mb-3' }).append(
                         document.createTextNode(self.xl.currentContext + ': '),
-                        $('<span>', { class: 'text-primary font-weight-bold' }).text(contextLabel)
+                        $('<span>', { class: 'text-primary fw-bold' }).text(contextLabel)
                     ));
                     $leftCol.append($('<p>', { class: 'text-muted small' }).text(self.xl.selectWidgets));
                     $leftCol.append($('<div>', { class: 'widget-grid', style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;' }).html(widgetToggles));
@@ -428,16 +428,16 @@ class ContextWidgetController
                     var $rightCol = $('<div>', { class: 'col-md-5 border-left' });
                     $rightCol.append($('<h6>', { class: 'border-bottom pb-2 mb-3' }).text(self.xl.createCustom));
                     $rightCol.append(
-                        $('<div>', { class: 'form-group' }).append(
-                            $('<label>', { class: 'font-weight-bold' }).text(self.xl.contextName),
+                        $('<div>', { class: 'mb-3' }).append(
+                            $('<label>', { class: 'fw-bold' }).text(self.xl.contextName),
                             $('<input>', { type: 'text', class: 'form-control form-control-sm', id: 'navCustomContextName' })
                         ),
-                        $('<div>', { class: 'form-group' }).append(
+                        $('<div>', { class: 'mb-3' }).append(
                             $('<label>').text(self.xl.description),
                             $('<textarea>', { class: 'form-control form-control-sm', id: 'navCustomContextDesc', rows: 2 })
                         ),
                         $('<button>', { type: 'button', class: 'btn btn-sm btn-success', id: 'navCreateCustomBtn' }).append(
-                            $('<i>', { class: 'fa fa-plus mr-1' }),
+                            $('<i>', { class: 'fa fa-plus me-1' }),
                             document.createTextNode(self.xl.createContext)
                         )
                     );
@@ -447,7 +447,7 @@ class ContextWidgetController
                     $body.append($('<hr>'));
                     $body.append(
                         $('<button>', { type: 'button', class: 'btn btn-warning', id: 'navResetDefaultsBtn' }).append(
-                            $('<i>', { class: 'fa fa-undo mr-1' }),
+                            $('<i>', { class: 'fa fa-undo me-1' }),
                             document.createTextNode(self.xl.resetDefaults)
                         )
                     );
@@ -455,9 +455,9 @@ class ContextWidgetController
                     // Footer
                     var $footer = $('<div>', { class: 'context-dialog-footer' });
                     $footer.append(
-                        $('<button>', { type: 'button', class: 'btn btn-secondary mr-2 close-dialog' }).text(self.xl.cancel),
+                        $('<button>', { type: 'button', class: 'btn btn-secondary me-2 close-dialog' }).text(self.xl.cancel),
                         $('<button>', { type: 'button', class: 'btn btn-primary', id: 'navSaveSettingsBtn' }).append(
-                            $('<i>', { class: 'fa fa-save mr-1' }),
+                            $('<i>', { class: 'fa fa-save me-1' }),
                             document.createTextNode(self.xl.saveSettings)
                         )
                     );
@@ -650,7 +650,7 @@ class ContextWidgetController
                         class: 'alert ' + alertClass + ' alert-dismissible',
                         style: 'position:fixed;top:10px;right:10px;z-index:10001;min-width:200px;'
                     }).text(message).append(
-                        $('<button>', { type: 'button', class: 'close ml-2' }).html('&times;').on('click', function() {
+                        $('<button>', { type: 'button', class: 'close ms-2' }).html('&times;').on('click', function() {
                             $(this).parent().remove();
                         })
                     );
@@ -767,7 +767,7 @@ class ContextWidgetController
 
           /* Optional: compact selector spacing */
           #dashboard-context-widget .input-group-sm > .form-control,
-          #dashboard-context-widget .input-group-sm > .input-group-append > .btn {
+          #dashboard-context-widget .input-group-sm > .btn {
             height: 32px;
           }
 
@@ -782,7 +782,7 @@ class ContextWidgetController
                 <div class="col-md-5 p-1">
                     <?php if ($isLocked) : ?>
                         <div class="alert alert-warning py-1 px-2 mb-2 small d-flex align-items-center">
-                            <i class="fa fa-lock mr-1"></i>
+                            <i class="fa fa-lock me-1"></i>
                             <?php echo xlt('Context locked by administrator'); ?>
                         </div>
                     <?php endif; ?>
@@ -807,13 +807,11 @@ class ContextWidgetController
                             <?php endif; ?>
                         </select>
                         <?php if ($canSwitch) : ?>
-                            <div class="input-group-append">
-                                <button type="button"
-                                    class="btn btn-lg btn-setting py-0 px-2"
-                                    id="open-context-settings"
-                                    title="<?php echo xla('Configure Widgets'); ?>">
-                                </button>
-                            </div>
+                            <button type="button"
+                                class="btn btn-lg btn-setting py-0 px-2"
+                                id="open-context-settings"
+                                title="<?php echo xla('Configure Widgets'); ?>">
+                            </button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -903,7 +901,7 @@ class ContextWidgetController
                         // Header
                         var $header = $('<div>', {class: 'context-dialog-header'});
                         $header.append($('<h5>', {class: 'm-0'}).append(
-                            $('<i>', {class: 'fa fa-cog mr-2'}),
+                            $('<i>', {class: 'fa fa-cog me-2'}),
                             document.createTextNode(self.xl.widgetSettings)
                         ));
                         $header.append($('<button>', {type: 'button', class: 'btn btn- btn-cancel close-dialog'}));
@@ -916,7 +914,7 @@ class ContextWidgetController
                         var $leftCol = $('<div>', {class: 'col-md-7'});
                         $leftCol.append($('<h6>', {class: 'border-bottom pb-2 mb-3'}).append(
                             document.createTextNode(self.xl.currentContext + ': '),
-                            $('<span>', {class: 'text-primary font-weight-bold', id: 'currentContextLabel'}).text(contextLabel)
+                            $('<span>', {class: 'text-primary fw-bold', id: 'currentContextLabel'}).text(contextLabel)
                         ));
                         $leftCol.append($('<p>', {class: 'text-muted small'}).text(self.xl.selectWidgets));
                         $leftCol.append($('<div>', {class: 'widget-grid'}).html(widgetToggles));
@@ -925,16 +923,16 @@ class ContextWidgetController
                         var $rightCol = $('<div>', {class: 'col-md-5 border-left'});
                         $rightCol.append($('<h6>', {class: 'border-bottom pb-2 mb-3'}).text(self.xl.createCustom));
                         $rightCol.append(
-                            $('<div>', {class: 'form-group'}).append(
-                                $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextName),
+                            $('<div>', {class: 'mb-3'}).append(
+                                $('<label>', {class: 'fw-bold'}).text(self.xl.contextName),
                                 $('<input>', {type: 'text', class: 'form-control form-control-sm', id: 'customContextName'})
                             ),
-                            $('<div>', {class: 'form-group'}).append(
+                            $('<div>', {class: 'mb-3'}).append(
                                 $('<label>').text(self.xl.description),
                                 $('<textarea>', {class: 'form-control form-control-sm', id: 'customContextDesc', rows: 2})
                             ),
                             $('<button>', {type: 'button', class: 'btn btn-sm btn-success', id: 'createCustomBtn'}).append(
-                                $('<i>', {class: 'fa fa-plus mr-1'}),
+                                $('<i>', {class: 'fa fa-plus me-1'}),
                                 document.createTextNode(self.xl.createContext)
                             )
                         );
@@ -944,7 +942,7 @@ class ContextWidgetController
                         $body.append($('<hr>'));
                         $body.append(
                             $('<button>', {type: 'button', class: 'btn btn-warning', id: 'resetDefaultsBtn'}).append(
-                                $('<i>', {class: 'fa fa-undo mr-1'}),
+                                $('<i>', {class: 'fa fa-undo me-1'}),
                                 document.createTextNode(self.xl.resetDefaults)
                             )
                         );
@@ -952,9 +950,9 @@ class ContextWidgetController
                         // Footer
                         var $footer = $('<div>', {class: 'context-dialog-footer'});
                         $footer.append(
-                            $('<button>', {type: 'button', class: 'btn btn-secondary mr-2 close-dialog'}).text(self.xl.cancel),
+                            $('<button>', {type: 'button', class: 'btn btn-secondary me-2 close-dialog'}).text(self.xl.cancel),
                             $('<button>', {type: 'button', class: 'btn btn-primary', id: 'saveSettingsBtn'}).append(
-                                $('<i>', {class: 'fa fa-save mr-1'}),
+                                $('<i>', {class: 'fa fa-save me-1'}),
                                 document.createTextNode(self.xl.saveSettings)
                             )
                         );
@@ -1082,7 +1080,7 @@ class ContextWidgetController
                         }
 
                         // Strategy 2: Button/header with data-target pointing to this ID
-                        $widget = $('[data-target="#' + widgetId + '"]').closest('.card');
+                        $widget = $('[data-bs-target="#' + widgetId + '"]').closest('.card');
                         if ($widget.length) {
                             return $widget;
                         }
@@ -1264,7 +1262,7 @@ class ContextWidgetController
                             class: 'alert ' + alertClass + ' alert-dismissible',
                             style: 'position:fixed;top:10px;right:10px;z-index:10000;min-width:200px;'
                         }).text(message).append(
-                            $('<button>', {type: 'button', class: 'close ml-2'}).html('&times;').on('click', function () {
+                            $('<button>', {type: 'button', class: 'close ms-2'}).html('&times;').on('click', function () {
                                 $(this).parent().remove();
                             })
                         );

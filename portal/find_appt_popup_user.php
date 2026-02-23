@@ -290,7 +290,7 @@ if ($_REQUEST['providerid']) {
     <div class="table-primary" id="searchCriteria">
         <form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr_url($providerid); ?>&catid=<?php echo attr_url($input_catid); ?>'>
             <input type="hidden" name='bypatient' />
-            <div class="form-row mx-0 align-items-center">
+            <div class="row gx-2 mx-0 align-items-center">
                 <label for="startdate" class="col-1 mx-2 col-form-label"><?php echo xlt('Start date:'); ?></label>
                 <div class="col-auto">
                     <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(DateFormatterUtils::oeFormatShortDate($sdate)); ?>' title='starting date for search' />
@@ -301,7 +301,7 @@ if ($_REQUEST['providerid']) {
                 </div>
                 <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('days'); ?></label>
                 <div class="col-auto">
-                    <input type='submit' class="btn btn-primary btn-sm btn-block" value='<?php echo xla('Search'); ?>' />
+                    <input type='submit' class="btn btn-primary btn-sm" value='<?php echo xla('Search'); ?>' />
                 </div>
             </div>
     </div>

@@ -127,8 +127,8 @@ if (!empty($row)) {
     ?>
 
     <div class="row">
-        <div class="col-sm-6 jumbotron jumbotron-fluid p-3">
-            <div class="form-row">
+        <div class="col-sm-6 bg-body-tertiary p-3">
+            <div class="row gx-2">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('Patient ID') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <p class="form-control-static"><?php echo text($row['pid']) ?></p>
@@ -136,37 +136,37 @@ if (!empty($row)) {
                     <input type='hidden' name='form_curid' value='<?php echo attr($row['pubpid']); ?>' />
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('Name') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <p class="form-control-static"><?php echo text($row['lname'] . ", " . $row['fname'] . " " . $row['mname']) ?></p>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('DOB') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <p class="form-control-static"><?php echo text(oeFormatShortDate($row['DOB'])) ?></p>
                 </div>
               </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('SSN') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <p class="form-control-static"><?php echo text($row['ss']) ?></p>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('Current Location') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <p class="form-control-static"><?php echo text($current_location) ?></p>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_curr_loc" class='col-form-label col-sm-3'><?php echo xlt('Check In To') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <?php generate_form_field(['data_type' => 1,'field_id' => 'newloc','list_id' => 'chartloc','empty_title' => ''], ''); ?>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <label for="form_out_to" class='col-form-label col-sm-3'><?php echo xlt('Our Out To') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <select name='form_newuser' class='form-control' onchange='userSelect()'>
@@ -183,7 +183,7 @@ if (!empty($row)) {
                     </select>
                 </div>
             </div>
-        <div class="form-row">
+        <div class="row gx-2">
             <div class="offset-sm-3 col-sm-9">
                     <button type='submit' class='btn btn-secondary btn-save' name='form_save'><?php echo xlt("Save"); ?></button>
             </div>
@@ -194,14 +194,14 @@ if (!empty($row)) {
     <?php
 }
 ?>
-        <div class="col-sm-6 jumbotron jumbotron-fluid p-3">
-            <div class="form-row">
+        <div class="col-sm-6 bg-body-tertiary p-3">
+            <div class="row gx-2">
                 <label for='form_newid' class='col-form-label col-sm-3'><?php echo xlt('New Patient ID') . ":"; ?></label>
                 <div class='col-sm-9'>
                     <input type='text' name='form_newid' id='form_newid' class='form-control' title='<?php echo xla('Type or scan the patient identifier here'); ?>' />
                 </div>
             </div>
-            <div class="form-row">
+            <div class="row gx-2">
                 <div class='offset-sm-3 col-sm-9'>
                     <button type='submit' class='btn btn-secondary btn-search' name='form_lookup'><?php echo xlt("Look Up"); ?></button>
                 </div>

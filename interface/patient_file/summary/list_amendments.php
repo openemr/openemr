@@ -85,7 +85,7 @@ echo "<title>" . xlt('Amendment List') . "</title>";
                                     <a href="javascript:ListAmendments();" class="btn btn-primary"><?php echo xlt("List"); ?></a>
                                     <a href="demographics.php" class="btn btn-secondary"><?php echo xlt("Return Dashboard"); ?></a>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <a href="#" class="small" onClick="checkUncheck(1);"><?php echo xlt('Check All');?></a> |
                                     <a href="#" class="small" onClick="checkUncheck(0);"><?php echo xlt('Clear All');?></a>
                                 </td>

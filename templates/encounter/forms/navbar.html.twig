@@ -1,6 +1,6 @@
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -13,7 +13,7 @@
             {% for category, details in menuArray %}
                 {% if details.children is iterable %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|attr }}" role="button" data-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|attr }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ category|text }}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}" style="z-index:9999;">
@@ -36,7 +36,7 @@
                 {% endif %}
             {% endfor %}
         </ul>
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ms-auto">
             {% if enableFollowUpEncounters %}
             <li class="nav-item"><a href="#" class="nav-link" onclick="return createFollowUpEncounter()">{{ "Create follow-up encounter"|xlt }}</a></li>
             {% endif %}

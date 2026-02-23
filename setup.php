@@ -117,7 +117,7 @@ function recursive_writable_directory_test($dir)
         echo "(configure directory permissions; see below for further instructions)</p>\r\n";
         return 1;
     } else {
-        echo "<code class='ml-5'>" . text(realpath($dir)) . "</code> directory and its subdirectories are <span class='text-success font-weight-bold'>ready</span>.<br /><br />\r\n";
+        echo "<code class='ms-5'>" . text(realpath($dir)) . "</code> directory and its subdirectories are <span class='text-success fw-bold'>ready</span>.<br /><br />\r\n";
         return 0;
     }
 }
@@ -160,7 +160,7 @@ if (empty($_REQUEST['site']) && $allow_multisite_setup && empty($state)) {
            <div class="collapse navbar-collapse justify-content-end">
                <ul class="navbar-nav">
                    <li class="nav-item active">
-                       <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
+                       <a class="nav-link" href="#" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
                    </li>
                </ul>
            </div>
@@ -171,7 +171,7 @@ if (empty($_REQUEST['site']) && $allow_multisite_setup && empty($state)) {
             <div class="row">
                 <div class="col-12">
                     <h3 class="mb-3 border-bottom">Optional Site ID Selection</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>
                             Most OpenEMR installations support only one site.  If that is
                             true for you then ignore the rest of this text and just click Continue.
@@ -205,7 +205,7 @@ if (empty($_REQUEST['site']) && $allow_multisite_setup && empty($state)) {
                         <br />
                         <form method='post'>
                             <input type='hidden' name='state' value='0' />
-                            <div class="form-row">
+                            <div class="row g-3">
                                 <div class="col-auto">
                                     Site ID:
                                 </div>
@@ -450,7 +450,7 @@ function cloneClicked() {
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
+                        <a class="nav-link" href="#" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
                     </li>
                 </ul>
             </div>
@@ -460,10 +460,10 @@ function cloneClicked() {
         <div class="row">
             <div class="col-12">
             <?php
-            $error = "<span class='text-danger font-weight-bold'>ERROR</span>";
-            $caution = "<span class='text-danger font-weight-bold'>CAUTION</span>";
-            $ok = "<span class='text-success font-weight-bold'>OK</span>";
-            $note = "<span class='text-primary font-weight-bold'>NOTE</span>";
+            $error = "<span class='text-danger fw-bold'>ERROR</span>";
+            $caution = "<span class='text-danger fw-bold'>CAUTION</span>";
+            $ok = "<span class='text-success fw-bold'>OK</span>";
+            $note = "<span class='text-primary fw-bold'>NOTE</span>";
 
             if (strtolower(ini_get('register_globals')) != 'off' && (bool) ini_get('register_globals')) {
                 echo "$caution: It appears that you have register_globals enabled in your php.ini\n" .
@@ -497,7 +497,7 @@ function cloneClicked() {
             if ($state == 7) {
                 ?>
             <h3 class="mb-3 border-bottom">Final step - Success</h3>
-            <div class="jumbotron p-5">
+            <div class="bg-body-tertiary rounded-3 p-5">
             <p>Congratulations! OpenEMR is now installed.</p>
             <ul>
                 <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
@@ -564,10 +564,10 @@ ENDDIV;
                     $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state2'));
                     $step1 = <<<STP1
                     <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use. For me to create the database, you will need to supply the MySQL root password.</p>
                         <br />
-                        <p class='p-1 bg-warning'>$caution: clicking on <span class="font-weight-bold">Proceed to Step 2</span> may delete or cause damage to existing data on your system. Before you continue <span class="font-weight-bold">please backup your data</span>.</p>
+                        <p class='p-1 bg-warning'>$caution: clicking on <span class="fw-bold">Proceed to Step 2</span> may delete or cause damage to existing data on your system. Before you continue <span class="fw-bold">please backup your data</span>.</p>
                         <br />
                         <form method='post'>
                             <input name='state' type='hidden' value='2' />
@@ -608,7 +608,7 @@ STP1;
                     $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state3'));
                     $step2top = <<<STP2TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                         <p>Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the
                             <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u>
                             </a> manual file.
@@ -625,19 +625,19 @@ STP2TOP;
                     $step2tabletop1 = <<<STP2TBLTOP1
                     <fieldset>
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend'>MySQL Server Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="server">Server Host:</label>
-                                    <a href="#server_info" class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="server">Server Host:</label>
+                                    <a href="#server_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='server' id='server' type='text' class='form-control' value='localhost' />
                                 </div>
                             </div>
                             <div id="server_info" class="collapse">
-                                <a href="#server_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#server_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>If you run MySQL and Apache/PHP on the same computer, then leave this as 'localhost'.</p>
                                 <p>If they are on separate computers, then enter the IP address of the computer running MySQL.</p>
                             </div>
@@ -645,15 +645,15 @@ STP2TOP;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="port">Server Port:</label>
-                                    <a href="#port_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="port">Server Port:</label>
+                                    <a href="#port_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='port' id='port' type='text' class='form-control' value='3306' />
                                 </div>
                             </div>
                             <div id="port_info" class="collapse">
-                                <a href="#port_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#port_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the MySQL port.</p>
                                 <p>The default port for MySQL is 3306.</p>
                             </div>
@@ -661,32 +661,32 @@ STP2TOP;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="dbname">Database Name:</label> <a href="#dbname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="dbname">Database Name:</label> <a href="#dbname_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='dbname' id='dbname' type='text' class='form-control' value='openemr' />
                                 </div>
                             </div>
                             <div id="dbname_info" class="collapse">
-                                <a href="#dbname_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#dbname_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This will be the name of the OpenEMR database in MySQL.</p>
                                 <p>'openemr' is the recommended name.</p>
                                 <p>This database will contain patient data as well as data pertaining to the OpenEMR installation.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="login">Login Name:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="login">Login Name:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='login' ID='login' type='text' class='form-control' value='openemr' />
                                 </div>
                             </div>
                             <div id="login_info" class="collapse">
-                                <a href="#login_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#login_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the name that OpenEMR will use to login to the MySQL database.</p>
                                 <p>'openemr' is the recommended name.</p>
                             </div>
@@ -694,15 +694,15 @@ STP2TOP;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="pass">Password:</label>
-                                    <a href="#pass_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="pass">Password:</label>
+                                    <a href="#pass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='pass' id='pass' class='form-control' type='password' value='' required />
                                 </div>
                             </div>
                             <div id="pass_info" class="collapse">
-                                <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#pass_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the Login Password that OpenEMR will use to accesses the MySQL database.</p>
                                 <p>It should be at least 12 characters long and composed of both numbers and letters.</p>
                                 <p>It cannot contain any of these characters: \ ; ( ) < > / ' "</p>
@@ -715,48 +715,48 @@ STP2TBLTOP1;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="root">Name for Root Account:</label>
-                                    <a href="#root_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="root">Name for Root Account:</label>
+                                    <a href="#root_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='root' id='root' type='text' class='form-control' value='root' />
                                 </div>
                             </div>
                             <div id="root_info" class="collapse">
-                                <a href="#root_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#root_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is name for the MySQL root account.</p>
                                 <p>For localhost, it is usually ok to leave it as 'root'.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="rootpass">Root Password:</label>
-                                    <a href="#rootpass_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="rootpass">Root Password:</label>
+                                    <a href="#rootpass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='rootpass' id='rootpass' type='password' class='form-control' value='' />
                                 </div>
                             </div>
                             <div id="rootpass_info" class="collapse">
-                                <a href="#rootpass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#rootpass_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is your MySQL server root password.</p>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="loginhost">User Hostname:</label>
-                                    <a href="#loginhost_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="loginhost">User Hostname:</label>
+                                    <a href="#loginhost_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='loginhost' id='loginhost' type='text' class='form-control' value='localhost' />
                                 </div>
                             </div>
                             <div id="loginhost_info" class="collapse">
-                                <a href="#loginhost_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#loginhost_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'.</p>
                                 <p>If they are on separate computers, then enter the IP address of the computer running Apache/PHP.</p>
                             </div>
@@ -764,7 +764,7 @@ STP2TBLTOP1;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <select name='collate' id='collate' class='form-control'>
@@ -844,7 +844,7 @@ STP2TBLTOP1;
                                 </div>
                             </div>
                             <div id="collate_info" class="collapse">
-                                <a href="#collate_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#collate_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the collation setting for MySQL.</p>
                                 <p>Collation refers to a set of rules that determine how data is sorted and compared in a database.</p>
                                 <p>Leave as 'General' if you are not sure.</p>
@@ -895,12 +895,12 @@ STP2TBLTOP2;
                     if (!empty($siteslist)) {
                         ksort($siteslist);
                         $source_site_top = <<<SOURCESITETOP
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="source_site_id">Source Site:</label>
-                                    <a href="#source_site_id_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="source_site_id">Source Site:</label>
+                                    <a href="#source_site_id_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <select name='source_site_id'id='source_site_id' class='form-control'>
@@ -920,22 +920,22 @@ SOURCESITETOP;
                                 </div>
                             </div>
                             <div id="source_site_id_info" class="collapse">
-                                <a href="#source_site_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#source_site_id_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>The site directory that will be a model for the new site.</p>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="clone_database">Clone Source Database:</label>
-                                    <a href="#clone_database_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="clone_database">Clone Source Database:</label>
+                                    <a href="#clone_database_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
                                 </div>
                             </div>
                             <div id="clone_database_info" class="collapse">
-                                <a href="#clone_database_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#clone_database_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>Clone the source site's database instead of creating a fresh one.</p>
                             </div>
                         </div>
@@ -971,18 +971,18 @@ SOURCESITEBOT;
                 <br />
                 <fieldset class='noclone'>
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend'>OpenEMR Initial User Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername_esc' minlength='12' />
                                 </div>
                             </div>
                             <div id="iuser_info" class="collapse">
-                                <a href="#iuser_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#iuser_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the login name of the first user that will be created for you.</p>
                                 <p>Limit this to one word with at least 12 characters and composed of both numbers and letters.</p>
                             </div>
@@ -990,62 +990,62 @@ SOURCESITEBOT;
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="iuserpass">Initial User Password:</label>
-                                    <a href="#iuserpass_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="iuserpass">Initial User Password:</label>
+                                    <a href="#iuserpass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='iuserpass' id='iuserpass' type='password' class='form-control' value='' minlength='12' />
                                 </div>
                             </div>
                             <div id="iuserpass_info" class="collapse">
-                                <a href="#iuserpass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#iuserpass_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the password for the initial user.
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="iufname">Initial User's First Name:</label>
-                                    <a href="#iufname_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="iufname">Initial User's First Name:</label>
+                                    <a href="#iufname_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='iufname' id='iufname 'type='text' class='form-control' value='Administrator' />
                                 </div>
                             </div>
                             <div id="iufname_info" class="collapse">
-                                <a href="#iufname_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#iufname_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the First name of the 'initial user'.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="iuname">Initial User's Last Name:</label>
-                                    <a href="#iuname_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="iuname">Initial User's Last Name:</label>
+                                    <a href="#iuname_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='iuname' id='iuname' type='text' class='form-control' value='Administrator' />
                                 </div>
                             </div>
                             <div id="iuname_info" class="collapse">
-                                <a href="#iuname_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#iuname_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the Last name of the 'initial user'.</p>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="igroup">Initial Group:</label>
-                                    <a href="#igroup_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="igroup">Initial Group:</label>
+                                    <a href="#igroup_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='igroup' id='igroup' class='form-control' type='text' value='Default' />
                                 </div>
                             </div>
                             <div id="igroup_info" class="collapse">
-                                <a href="#igroup_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#igroup_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>This is the group that will be created for your users.</p>
                                 <p>This should be the name of your practice.</p>
                             </div>
@@ -1055,12 +1055,12 @@ SOURCESITEBOT;
                 <br />
                 <fieldset class='noclone py-2 bg-warning'>
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend text-danger'>Enable 2 Factor Authentication for Initial User (more secure - optional) <i id="2fa-section" class="fa fa-info-circle oe-text-black oe-superscript 2fa-section-tooltip" aria-hidden="true"></i></legend>
-                    <div class="ml-2 row">
+                    <div class="ms-2 row">
                         <div class="col-sm-3">
                             <div class="clearfix form-group">
                                 <div class="label-div">
-                                    <label class="font-weight-bold" for="i2fa">Configure 2FA:</label>
-                                    <a href="#i2fa_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold" for="i2fa">Configure 2FA:</label>
+                                    <a href="#i2fa_info"  class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA
@@ -1068,14 +1068,14 @@ SOURCESITEBOT;
                                 </div>
                             </div>
                             <div id="i2fa_info" class="collapse">
-                                <a href="#i2fa_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                <a href="#i2fa_info" data-bs-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                 <p>If selected will allow TOTP 2 factor authentication for the initial user.</p>
                                 <p>Click on the help file for more information.</p>
                             </div>
                         </div>
                         <div class="col-sm-5">
                             <div class="clearfix form-group">
-                                <p class="text-danger font-weight-bold">IMPORTANT IF ENABLED</p>
+                                <p class="text-danger fw-bold">IMPORTANT IF ENABLED</p>
                                 <p>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</p>
                             </div>
                         </div>
@@ -1094,7 +1094,7 @@ SOURCESITEBOT;
                 </fieldset>
                         <p class='mt-4 mark'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
                         <p class='p-1 bg-success text-white oe-spinner' style='visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
-                        <div class="form-row">
+                        <div class="row g-3">
                             <div class="col-12">
                                 <button type='submit' id='create_db_button' value='Continue' class='wait btn btn-primary'>
                                     <i class="fas fa-chevron-right"></i>  Create DB and User
@@ -1188,7 +1188,7 @@ STP2TBLBOT;
                     }
 
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Creating Database and First User</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
 
                     // Skip below if database shell has already been created.
                     if ($inst != 2) {
@@ -1453,7 +1453,7 @@ TOTP;
                     }
                                 $btn_text_esc = text($btn_text);
                                 $form_bottom = <<<FRMBOT
-                                <div class="form-row">
+                                <div class="row g-3">
                                     <div class="col-12">
                                         <button type='submit' id='step-4-btn' class="btn btn-primary" value='Continue'>
                                             <i class="fas fa-chevron-right"></i>  $btn_text_esc
@@ -1471,7 +1471,7 @@ FRMBOT;
                     $state_esc = text($state);
                     $step4_top = <<<STP4TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Configure PHP</h3>
-                    <div class="jumbotron p-5">
+                    <div class="bg-body-tertiary rounded-3 p-5">
                     <p>Configuration of PHP...</p>
                     <p>We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:</p>
                     <ul>
@@ -1603,7 +1603,7 @@ STP4TOP;
                         <input name='port' type='hidden' value='" . attr($installer->port) . "' />
                         <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
                         <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
-                        <div class='form-row'>
+                        <div class='row g-3'>
                             <div class='col-12'>
                                 <button type='submit' class='btn btn-primary' value='Continue'>
                                     <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
@@ -1622,7 +1622,7 @@ STP4TOP;
                     $docsDirectoryGlob = text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory)));
                     $openemrDirectory = text(realpath(__DIR__));
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Web Server</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
                     echo "<p>Select your web server configuration to see the required setup instructions.</p>";
 
                     echo "
@@ -1719,7 +1719,7 @@ STP4TOP;
                         <input name='port' type='hidden' value='" . attr($installer->port) . "' />
                         <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
                         <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
-                        <div class='form-row'>
+                        <div class='row g-3'>
                             <div class='col-12'>
                                 <button type='submit' class='btn btn-primary' value='Continue'>
                                     <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
@@ -1733,7 +1733,7 @@ STP4TOP;
                 case 6:
                     $_SESSION['bootstrapStateInSetup'] = 7;
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Select a Theme</h3>";
-                    echo "<div class='jumbotron p-5'>";
+                    echo "<div class='bg-body-tertiary rounded-3 p-5'>";
                     echo "<p>Select a theme for OpenEMR...</p>\n";
                     $btn_text = "Proceed to Final Step";
                     $installer->displaySelectedThemeDiv();
@@ -1781,7 +1781,7 @@ STP4TOP;
                 default:
                     $top = <<<TOP
                         <h3 class="mb-3 border-bottom">Pre Install - Checking File and Directory Permissions</h3>
-                            <div class="jumbotron p-5">
+                            <div class="bg-body-tertiary rounded-3 p-5">
                                 <p>
                                     Welcome to OpenEMR. This utility will step you through the installation and configuration of OpenEMR for your practice.
                                 </p>
@@ -1804,7 +1804,7 @@ TOP;
                         $errorWritable = 0;
                         foreach ($writableFileList as $tempFile) {
                             if (is_writable($tempFile)) {
-                                    echo "<code class='ml-5'>" . text(realpath($tempFile)) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
+                                    echo "<code class='ms-5'>" . text(realpath($tempFile)) . "</code> file is <span class='text-success fw-bold'>ready</span><br /><br />\n";
                             } else {
                                     echo "<p><span class='text-danger'>UNABLE</span> to open file '" . text(realpath($tempFile)) . "' for writing.<br />\n";
                                     echo "(configure file permissions; see below for further instructions)</p>\n";
@@ -1856,7 +1856,7 @@ CHKDIR;
                         $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
                         $form = <<<FRM
                                     <p>All required files and directories have been verified.</p>
-                                    <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
+                                    <p class='mark'>Click <span class="fw-bold">Proceed to Step 1</span> to continue with a new installation.</p>
                                     <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual file.</p>
                                     <br />
                                     <form method='post'>

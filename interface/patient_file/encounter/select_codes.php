@@ -180,7 +180,7 @@ if (!empty($codetype)) {
     <div class="container-fluid">
         <form method='post' name='theform'>
             <?php
-            echo "<div class='form-group row mb-3'>\n";
+            echo "<div class='mb-3 row mb-3'>\n";
             if (isset($allowed_codes)) {
                 if (count($allowed_codes) == 1) {
                     echo "<div class='col'><input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly /></div>\n";

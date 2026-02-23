@@ -44,15 +44,15 @@ use OpenEMR\Common\Acl\AclMain;
     <br  /><br  /><br  />
     <div id="filters">
         <div class="row">
-            <div class="form-group col-md">
+            <div class="mb-3 col-md">
               <label for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
               <input type="text" class="form-control" id="group_name_filter"  />
             </div>
-            <div class="form-group col-md">
+            <div class="mb-3 col-md">
                 <label for="group_id_filter"><?php echo xlt('Group Id');?>:</label>
                 <input type="number" class="form-control" id="group_id_filter"  />
             </div>
-            <div class="form-group col-md">
+            <div class="mb-3 col-md">
                 <label for="group_type_filter"><?php echo xlt('Group Type');?>:</label>
                 <select type="text" class="form-control" id="group_type_filter">
                     <option value=""><?php echo xlt('choose');?></option>
@@ -61,7 +61,7 @@ use OpenEMR\Common\Acl\AclMain;
                     <?php } ?>
                 </select>
             </div>
-            <div class="form-group col-md">
+            <div class="mb-3 col-md">
                 <label for="group_status_filter"><?php echo xlt('Status');?>:</label>
                 <select class="form-control" id="group_status_filter">
                     <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
@@ -73,7 +73,7 @@ use OpenEMR\Common\Acl\AclMain;
                     <option value="all"><?php echo xlt("all");?></option>
                 </select>
             </div>
-            <div class="form-group col-md">
+            <div class="mb-3 col-md">
                 <label for="counselors_filter"><?php echo xlt('Main Counselors');?>:</label>
                 <select class="form-control" id="counselors_filter">
                     <option value=""><?php echo xlt('choose');?></option>
@@ -84,19 +84,19 @@ use OpenEMR\Common\Acl\AclMain;
             </div>
         </div>
         <div class="row">
-            <div class="form-group col-md-3">
+            <div class="mb-3 col-md-3">
                 <label for="group_from_start_date_filter"><?php echo xlt('Starting Date From');?>:</label>
                 <input type="text" class="form-control datepicker" id="group_from_start_date_filter" />
             </div>
-            <div class="form-group col-md-3">
+            <div class="mb-3 col-md-3">
                 <label for="group_to_start_date_filter"><?php echo xlt('Starting Date To');?>:</label>
                 <input type="text" class="form-control datepicker" id="group_to_start_date_filter" />
             </div>
-            <div class="form-group col-md-3">
+            <div class="mb-3 col-md-3">
                 <label for="group_from_end_date_filter"><?php echo xlt('End Date From');?>:</label>
                 <input type="text" class="form-control datepicker" id="group_from_end_date_filter" />
             </div>
-            <div class="form-group col-md-3">
+            <div class="mb-3 col-md-3">
                 <label for="group_to_end_date_filter"><?php echo xlt('End Date To');?>:</label>
                 <input type="text" class="form-control datepicker" id="group_to_end_date_filter" />
             </div>

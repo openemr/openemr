@@ -26,7 +26,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 </head>
 
 <!-- table -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-field="fld_table"><?php echo xlt('Table'); ?></span>
     <span class="end_col">
         <?php echo RuleTemplateExtension::render_select(array( "id"       =>  "fld_table",
@@ -38,7 +38,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 </p>
 
 <!-- column -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead" data-field="fld_table"><?php echo xlt('Column'); ?></span>
     <span class="end_col">
         <?php echo RuleTemplateExtension::render_select(array( "id"       =>  "fld_column",
@@ -50,7 +50,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 </p>
 
 <!-- value -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-field="fld_value"><?php echo xlt('Value'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
@@ -68,7 +68,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 </p>
 
 <!-- frequency -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">

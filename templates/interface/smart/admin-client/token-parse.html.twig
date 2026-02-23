@@ -9,7 +9,7 @@
     <hr />
     <h3>{{ "Token details"|xlt }}
         {% if databaseRecord.revoked == 0 %}
-        <a href="{{ parts.revoke_link|attr }}" class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()">
+        <a href="{{ parts.revoke_link|attr }}" class="btn btn-sm btn-primary float-end" onclick="top.restoreSession()">
             {{ 'Revoke Token'|xlt }}
         </a>
         {% endif %}

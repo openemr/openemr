@@ -511,21 +511,21 @@ $templateService = new DocumentTemplateService();
         }
     </script>
     <div class="container-xl px-1">
-        <div class="text-center"><span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
-            <?php if (!empty($is_portal)) { ?>
-                <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
-            <?php } ?>
+        <div class="text-center"> <span class="h3 mt-1 me-1"><?php echo xlt("Documents and Forms") ?></span>
+        <?php if (!empty($is_portal)) { ?>
+            <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
+        <?php } ?>
         </div>
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div id="topmenu" class="collapse navbar-collapse">
-                <ul class="navbar-nav navCollapse mr-auto">
+                <ul class="navbar-nav navCollapse me-auto">
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-bs-toggle="modal" data-bs-backdrop="true" data-bs-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="#" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
@@ -535,7 +535,7 @@ $templateService = new DocumentTemplateService();
                     </div>
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
-                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php echo xlt('Select Form') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -558,10 +558,10 @@ $templateService = new DocumentTemplateService();
                         </li>
                     <?php } ?>
                 </ul>
-                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
+                <a class='btn btn-outline-primary btn-refresh me-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
                 <?php if ($allow_portal_uploads ?? 1) { ?>
                     <!--Infeg : Added event.preventDefault to prevent page reload on click.-->
-                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='#' onclick="event.preventDefault();$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                    <a id="idShow" class="btn btn-outline-primary float-end  me-0 mb-1" href='#' onclick="event.preventDefault();$('#hideUpload').toggle();"><i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
@@ -586,32 +586,32 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
-                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                        <header class="card-header fw-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-end" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- File upload -->
                         <?php if ($allow_portal_uploads ?? 1) { ?>
-                            <div class="card col-12 col-lg-5 col-md-3">
-                                <div id="hideUpload" class="card-body" style="display: none;">
-                                    <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
-                                    <div class="row">
-                                        <div class="container-fluid h-25" id="file-queue-container">
-                                            <div id="file-queue">
-                                                <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
-                                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
-                                                </form>
-                                                <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
-                                            </div>
+                        <div class="card col-12 col-lg-5 col-md-3">
+                            <div id="hideUpload" class="card-body" style="display: none;">
+                                <h4 class="card-title"><i class="fa fa-file-text me-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
+                                <div class="row">
+                                    <div class="container-fluid h-25" id="file-queue-container">
+                                        <div id="file-queue">
+                                            <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
+                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                                            </form>
+                                            <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         <?php } ?>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
                                 <div id="templatecontent" class="template-body bg-light">
-                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ms-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
@@ -624,14 +624,14 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-end m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <span>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="col-form-label"></label>
                                         <div class="controls">
                                             <button id="deleteOnsiteDocumentButton" class="btn btn-delete btn-sm btn-danger mt-1"><?php echo xlt('Delete Document'); ?></button>

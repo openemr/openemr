@@ -12,7 +12,7 @@ Render the login button, and google signin button, if set
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 {% block buttons %}
-<div class="{{ button_container_class_list|default(['form-group', 'd-flex', 'justify-content-between'])|join(' ') }}">
+<div class="{{ button_container_class_list|default(['mb-3', 'd-flex', 'justify-content-between'])|join(' ') }}">
     <button id="login-button" class="btn btn-primary flex-fill" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
     {% if displayGoogleSignin %}
         <div class="g_id_signin flex-fill" data-type="standard"></div>

@@ -33,7 +33,7 @@
         <fieldset>
 
             <div id="visit-details" class="px-3">
-                <div class="form-row align-items-center">
+                <div class="row gx-2 align-items-center">
                     {# Visit Category #}
                     {% include "newpatient/partials/common/fields/_visit-category.html.twig" %}
                     {# Class #}
@@ -44,7 +44,7 @@
                     {% include "newpatient/partials/common/fields/_sensitivities.html.twig" %}
                 </div>
 
-                <div class="form-row align-items-center">
+                <div class="row gx-2 align-items-center">
                     {# Provider Selection #}
                     {% include "newpatient/partials/common/fields/_provider.html.twig" %}
 
@@ -62,7 +62,7 @@
                 </div>
 
                 {# Additional form rows for dates, POS code, etc #}
-                <div class="form-row align-items-center">
+                <div class="row gx-2 align-items-center">
                     {# Date Of Service #}
                     {% include "newpatient/partials/common/fields/_date-of-service.html.twig" %}
 
@@ -78,7 +78,7 @@
                     {# In Collection #}
                     {% include "newpatient/partials/common/fields/_in-collection.html.twig" %}
                 </div>
-                <div class="form-row align-items-center">
+                <div class="row gx-2 align-items-center">
                 {# Discharge Disposition #}
                     {% include "newpatient/partials/common/fields/_discharge-disposition.html.twig" %}
 
@@ -89,7 +89,7 @@
         </fieldset>
 
         {# Reason for Visit & Issues Section #}
-        <div class="form-row">
+        <div class="row gx-2">
             {% include "newpatient/partials/common/fields/_reason-for-visit.html.twig" %}
             {% include "newpatient/partials/common/fields/_issues.html.twig" %}
         </div>

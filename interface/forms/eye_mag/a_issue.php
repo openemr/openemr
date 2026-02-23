@@ -655,7 +655,7 @@ foreach (explode(',', $given) as $item) {
                 echo $HELLO['POH'] . $HELLO['POS'] . $HELLO['Eye Meds'] . $HELLO['PMH'] . $HELLO['Medication'] . $HELLO['Surgery'] . $HELLO['Allergy'] . $HELLO['FH'] . $HELLO['SOCH'] . $HELLO['ROS'];
                 ?>
             </div>
-            <div class="borderShadow text-left issues">
+            <div class="borderShadow text-start issues">
                 <style>
                     input[type="text"] {
                         display: inline-block;
@@ -688,14 +688,14 @@ foreach (explode(',', $given) as $item) {
                         <td>
                     </tr>
                     <tr id="row_title">
-                        <td class="right font-weight-bold text-nowrap" id='title_diagnosis' style="vertical-align:middle;">
+                        <td class="right fw-bold text-nowrap" id='title_diagnosis' style="vertical-align:middle;">
                            <?php echo xlt('Title'); ?>:</td>
                         <td colspan="3">
                             <input type='text' name='form_title' id='form_title' value='<?php echo attr($irow['title'] ?? '') ?>' />
                         </td>
                     </tr>
                     <tr id="row_diagnosis">
-                        <td class="right font-weight-bold text-nowrap" style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
+                        <td class="right fw-bold text-nowrap" style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
                         <td colspan="3">
                             <input type='text' name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis'] ?? '') ?>' onclick='top.restoreSession();sel_diagnosis();' title='<?php echo xla('Click to select or change diagnoses'); ?>' />
                         </td>

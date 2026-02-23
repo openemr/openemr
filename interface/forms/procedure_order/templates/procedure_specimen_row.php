@@ -24,11 +24,11 @@ $rows = $specimen_by_seq[$seq];
     <td colspan="6" class="bg-light">
         <div class="card my-2">
             <div class="card-header py-1 d-flex justify-content-between align-items-center bg-info m-1">
-                <span class="font-weight-bold"><?php echo xlt('Specimens for Test') . ' => ' . text($oprow['procedure_name']); ?></span>
+                <span class="fw-bold"><?php echo xlt('Specimens for Test') . ' => ' . text($oprow['procedure_name']); ?></span>
                 <button type="button"
                     class="btn btn-sm btn-secondary add-specimen-row"
                     data-specimen-line="<?php echo attr($i); ?>">
-                    <i class="fa fa-plus mr-1"></i><?php echo xlt('Add Specimen'); ?>
+                    <i class="fa fa-plus me-1"></i><?php echo xlt('Add Specimen'); ?>
                 </button>
             </div>
             <div class="card-body p-2">
@@ -46,7 +46,7 @@ $rows = $specimen_by_seq[$seq];
                             <th><?php echo xlt('Volume'); ?></th>
                             <th><?php echo xlt('Condition'); ?></th>
                             <th><?php echo xlt('Comments'); ?></th>
-                            <th class="text-right"><?php echo xlt('Actions'); ?></th>
+                            <th class="text-end"><?php echo xlt('Actions'); ?></th>
                         </tr>
                         </thead>
                         <tbody id="specimen_rows_<?php echo attr($i); ?>">
@@ -150,7 +150,7 @@ $rows = $specimen_by_seq[$seq];
                                     name="form_proc_specimen_comments[<?php echo $i; ?>][]"
                                     placeholder="<?php echo xla('Notes'); ?>"><?php echo text($sp['comments'] ?? ''); ?></textarea>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <button type="button" class="btn btn-sm btn-link text-danger remove-specimen-row" title="<?php echo xla('Remove'); ?>">
                                         <i class="fa fa-trash"></i>
                                     </button>
@@ -250,7 +250,7 @@ $rows = $specimen_by_seq[$seq];
                         name="form_proc_specimen_comments[<?php echo $i; ?>][]"
                         placeholder="<?php echo xla('Notes'); ?>"></textarea>
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     <button type="button" class="btn btn-sm btn-link text-danger remove-specimen-row" title="<?php echo xla('Remove'); ?>">
                         <i class="fa fa-trash"></i>
                     </button>

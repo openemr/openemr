@@ -66,7 +66,7 @@ $res = sqlStatement(
                 <th><?php echo xlt("Tool"); ?></th>
                 <th><?php echo xlt("Assessor"); ?></th>
                 <th><?php echo xlt("Updated"); ?></th>
-                <th class="text-right"><?php echo xlt("Action"); ?></th>
+                <th class="text-end"><?php echo xlt("Action"); ?></th>
             </tr>
             </thead>
             <tbody>
@@ -76,7 +76,7 @@ $res = sqlStatement(
                     <td><?php echo text($r['screening_tool'] ?: ''); ?></td>
                     <td><?php echo text($r['assessor'] ?: ''); ?></td>
                     <td><?php echo text($r['updated_at'] ?: ''); ?></td>
-                    <td class="text-right">
+                    <td class="text-end">
                         <a class="btn btn-sm btn-secondary"
                             href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php?pid=" . urlencode((string) $pid) . "&id=" . (int)$r['id']); ?>">
                             <?php echo xlt("Edit"); ?>

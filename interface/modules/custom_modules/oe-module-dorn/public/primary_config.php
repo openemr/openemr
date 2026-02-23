@@ -98,7 +98,7 @@ if (!empty($_POST)) {
                                 <div class="card">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="npi"><?php echo xlt("NPI") ?>:</label>
                                                 <input type="text" class="form-control" id="npi" name="npi" value="<?php echo isset($_POST['npi']) ? attr($_POST['npi']) : '' ?>" />
                                             </div>

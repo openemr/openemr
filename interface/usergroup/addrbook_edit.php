@@ -580,9 +580,9 @@ if ($type) { // note this only happens when its new
 <div id="npi-lookup-results"></div>
 
 <?php if (AclMain::aclCheckCore('admin', 'practice')) { // allow choose type option if have admin access ?>
-<div class="form-row">
+<div class="row gx-2">
     <div class='col-2'>
-        <label class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Type'); ?>:</label>
+        <label class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Type'); ?>:</label>
     </div>
     <div class="col">
         <?php echo generate_select_list('form_abook_type', 'abook_type', ($row['abook_type'] ?? null), '', 'Unassigned', 'form-control-sm', 'typeSelect(this.value)'); ?>
@@ -590,88 +590,88 @@ if ($type) { // note this only happens when its new
 </div>
 <?php } // end of if has admin access ?>
 
-<div class="form-row nameRow my-1">
+<div class="row gx-2 nameRow my-1">
     <div class="col-auto">
-        <label for="title" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Name'); ?>:</label>
+        <label for="title" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Name'); ?>:</label>
     </div>
     <div class="col-auto">
         <?php generate_form_field(['data_type' => 1,'field_id' => 'title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '], ($row['title'] ?? '')); ?>
     </div>
     <div class="col-auto">
-        <label for="form_lname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
+        <label for="form_lname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
     </div>
     <div class="col-auto">
         <input type='text' size='10' id='form_lname' name='form_lname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['lname'] ?? ''); ?>'/>
     </div>
     <div class="col-auto">
-        <label for="form_fname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('First{{Name}}'); ?>:</label>
+        <label for="form_fname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('First{{Name}}'); ?>:</label>
     </div>
     <div class="col-auto">
         <input type='text' size='10' id='form_fname' name='form_fname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['fname'] ?? ''); ?>' />
     </div>
     <div class="col-auto">
-        <label for="form_mname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Middle{{Name}}'); ?>:</label>
+        <label for="form_mname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Middle{{Name}}'); ?>:</label>
     </div>
     <div class="col-auto">
         <input type='text' size='4' id='form_mname' name='form_mname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['mname'] ?? ''); ?>' />
     </div>
     <div class="col-auto">
-        <label for="form_suffix" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Suffix'); ?>:</label>
+        <label for="form_suffix" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Suffix'); ?>:</label>
     </div>
     <div class="col-auto">
         <input type='text' size='4' id='form_suffix' name='form_suffix' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['suffix'] ?? ''); ?>' />
     </div>
 </div>
 
-<div class="form-row specialtyRow my-1">
+<div class="row gx-2 specialtyRow my-1">
     <div class="col-2">
-        <label for="form_specialty" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Specialty'); ?>:</label>
+        <label for="form_specialty" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Specialty'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='40' id='form_specialty' name='form_specialty' maxlength='250' value='<?php echo attr($row['specialty'] ?? ''); ?>' class='form-control form-control-sm inputtext w-100' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_organization" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Organization'); ?>:</label>
+        <label for="form_organization" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Organization'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='40' id='form_organization' name='form_organization' maxlength='250' value='<?php echo attr($row['organization'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     <span id='cpoe_span' style="display:none;">
         <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php echo (!empty($row['cpoe']) && ($row['cpoe'] == '1')) ? "CHECKED" : ""; ?>/>
-        <label for='form_cpoe' class="font-weight-bold"><?php echo xlt('CPOE'); ?></label>
+        <label for='form_cpoe' class="fw-bold"><?php echo xlt('CPOE'); ?></label>
    </span>
     </div>
 </div>
 <div class="nameDirectorRow">
-    <label for="director_title" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Director Name'); ?>:</label>
-    <div class="form-row my-1">
+    <label for="director_title" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Director Name'); ?>:</label>
+    <div class="row gx-2 my-1">
         <div class="col-auto">
             <?php
             generate_form_field(['data_type' => 1,'field_id' => 'director_title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '], ($row['title'] ?? ''));
             ?>
         </div>
         <div class="col-auto">
-            <label for="form_director_lname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
+            <label for="form_director_lname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
         </div>
         <div class="col-auto">
             <input type='text' size='10' id='form_director_lname' name='form_director_lname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['lname'] ?? ''); ?>'/>
         </div>
         <div class="col-auto">
-            <label for="form_director_fname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('First{{Name}}'); ?>:</label>
+            <label for="form_director_fname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('First{{Name}}'); ?>:</label>
         </div>
         <div class="col-auto">
             <input type='text' size='10' id='form_director_fname' name='form_director_fname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['fname'] ?? ''); ?>' />
         </div>
         <div class="col-auto">
-            <label for="form_director_mname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Middle{{Name}}'); ?>:</label>
+            <label for="form_director_mname" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Middle{{Name}}'); ?>:</label>
         </div>
         <div class="col-auto">
             <input type='text' size='4' id='form_director_mname' name='form_director_mname' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['mname'] ?? ''); ?>' />
         </div>
         <div class="col-auto">
-            <label for="form_director_suffix" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Suffix'); ?>:</label>
+            <label for="form_director_suffix" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Suffix'); ?>:</label>
         </div>
         <div class="col-auto">
             <input type='text' size='4' id='form_director_suffix' name='form_director_suffix' class='form-control form-control-sm inputtext' maxlength='50' value='<?php echo attr($row['suffix'] ?? ''); ?>' />
@@ -679,89 +679,89 @@ if ($type) { // note this only happens when its new
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_valedictory" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Valedictory'); ?>:</label>
+        <label for="form_valedictory" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Valedictory'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='40' id='form_valedictory' name='form_valedictory' maxlength='250' value='<?php echo attr($row['valedictory'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_phone" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Home Phone'); ?>:</label>
+        <label for="form_phone" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Home Phone'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='11' id='form_phone' name='form_phone' value='<?php echo attr($row['phone'] ?? ''); ?>' maxlength='30' class='form-control form-control-sm inputtext' />
     </div>
     <div class="col-2">
-        <label for="form_phonecell" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Mobile'); ?>:</label>
+        <label for="form_phonecell" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Mobile'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='11' id='form_phonecell' name='form_phonecell' maxlength='30' value='<?php echo attr($row['phonecell'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     </div>
 </div>
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_phonew1" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Work Phone'); ?>:</label>
+        <label for="form_phonew1" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Work Phone'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='11' id='form_phonew1' name='form_phonew1' value='<?php echo attr($row['phonew1'] ?? ''); ?>' maxlength='30' class='form-control form-control-sm inputtext' />
     </div>
     <div class="col-1">
-        <label class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('2nd'); ?>:</label>
+        <label class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('2nd'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='11' id='form_phonew2' name='form_phonew2' value='<?php echo attr($row['phonew2'] ?? ''); ?>' maxlength='30' class='form-control form-control-sm inputtext' />
     </div>
     <div class="col-1">
-        <label class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Fax'); ?>:</label>
+        <label class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Fax'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='11' id='form_fax' name='form_fax' value='<?php echo attr($row['fax'] ?? ''); ?>' maxlength='30' class='form-control form-control-sm inputtext' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_assistant" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Assistant'); ?>:</label>
+        <label for="form_assistant" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Assistant'); ?>:</label>
     </div>
     <div class="col-10">
         <input type='text' size='40' id='form_assistant' name='form_assistant' maxlength='250' value='<?php echo attr($row['assistant'] ?? ''); ?>' class='form-control form-control-sm inputtext w-100' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_email" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Email'); ?>:</label>
+        <label for="form_email" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Email'); ?>:</label>
     </div>
     <div class='col-10'>
         <input type='text' size='40' id='form_email' name='form_email' maxlength='250' value='<?php echo attr($row['email'] ?? ''); ?>' class='form-control form-control-sm inputtext w-100' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_email_direct" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Trusted Email'); ?>:</label>
+        <label for="form_email_direct" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Trusted Email'); ?>:</label>
     </div>
     <div class="col-10">
         <input type='text' size='40' id='form_email_direct' name='form_email_direct' maxlength='250' value='<?php echo attr($row['email_direct'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_url" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Website'); ?>:</label>
+        <label for="form_url" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Website'); ?>:</label>
     </div>
     <div class="col-10">
         <input type='text' size='40' id='form_url' name='form_url' maxlength='250' value='<?php echo attr($row['url'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     </div>
 </div>
 
-<div class="form-row my-1 align-items-center">
+<div class="row gx-2 my-1 align-items-center">
     <div class="col-2">
-        <label for="form_street form_streetb" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Main Address'); ?>:</label>
+        <label for="form_street form_streetb" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Main Address'); ?>:</label>
     </div>
     <div class="col-10">
         <input type='text' size='40' id='form_street' name='form_street' maxlength='60' value='<?php echo attr($row['street'] ?? ''); ?>' class='form-control form-control-sm inputtext mb-1' placeholder="<?php echo xla('Address Line 1'); ?>" />
@@ -769,38 +769,38 @@ if ($type) { // note this only happens when its new
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_city" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('City'); ?>:</label>
+        <label for="form_city" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('City'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='10' id='form_city' name='form_city' maxlength='30' value='<?php echo attr($row['city'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('City'); ?>" />
     </div>
 </div>
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State') . "/" . xlt('county'); ?>:</label>
+        <label for="form_state" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col">
         <?php echo generate_select_list('form_state', 'state', ($row['state'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
     <div class="col-2">
-        <label for="form_zip" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Postal code'); ?>:</label>
+        <label for="form_zip" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Postal code'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='10' id='form_zip' name='form_zip' maxlength='20' value='<?php echo attr($row['zip'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Postal code'); ?>" />
     </div>
     <div class="col-2">
-        <label for="form_country_code" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Country'); ?>:</label>
+        <label for="form_country_code" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Country'); ?>:</label>
     </div>
     <div class="col">
         <?php echo generate_select_list('form_country_code', 'country', ($row['country_code'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
 </div>
 
-<div class="form-row my-1 align-items-center">
+<div class="row gx-2 my-1 align-items-center">
     <div class="col-2">
-        <label for="form_street2 form_streetb2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Address'); ?>:</label>
+        <label for="form_street2 form_streetb2" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Address'); ?>:</label>
     </div>
     <div class="col-10">
         <input type='text' size='40' id='form_street2' name='form_street2' maxlength='60' value='<?php echo attr($row['street2'] ?? ''); ?>' class='form-control form-control-sm mb-1 inputtext' placeholder="<?php echo xla('Address Line 1'); ?>" />
@@ -808,70 +808,68 @@ if ($type) { // note this only happens when its new
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_city2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt City'); ?>:</label>
+        <label for="form_city2" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Alt City'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='10' id='form_city2' name='form_city2' maxlength='30' value='<?php echo attr($row['city2'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt City'); ?>" />
     </div>
 </div>
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-2">
-        <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State') . "/" . xlt('county'); ?>:</label>
+        <label for="form_state2" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col">
         <?php echo generate_select_list('form_state2', 'state', ($row['state2'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
     <div class="col-2">
-        <label for="form_zip2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>
+        <label for="form_zip2" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>
     </div>
     <div class="col">
         <input type='text' size='10' id='form_zip2' name='form_zip2' maxlength='20' value='<?php echo attr($row['zip2'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt Postal code'); ?>" />
     </div>
     <div class="col-2">
-        <label for="form_country_code2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Country'); ?>:</label>
+        <label for="form_country_code2" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Country'); ?>:</label>
     </div>
     <div class="col">
         <?php echo generate_select_list('form_country_code2', 'country', ($row['country_code'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
 </div>
 
-<div class="form-row my-1">
+<div class="row gx-2 my-1">
     <div class="col-auto">
-        <label for="form_upin" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('UPIN'); ?>:</label>
+        <label for="form_upin" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('UPIN'); ?>:</label>
     </div>
     <div class="col-auto">
         <input type='text' size='6' id='form_upin' name='form_upin' maxlength='6' value='<?php echo attr($row['upin'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
    </div>
    <div class="col-auto">
-        <label for="form_npi" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('NPI'); ?>:</label>
+        <label for="form_npi" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('NPI'); ?>:</label>
    </div>
    <div class="col-auto">
         <div class="input-group input-group-sm">
             <input type='text' size='10' id='form_npi' name='form_npi' maxlength='10' value='<?php echo attr($row['npi'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
-            <div class="input-group-append">
-                <button type="button" id="btn-npi-lookup" class="btn btn-sm btn-info" onclick="lookupNPI()" title="<?php echo xla('Search NPPES Registry'); ?>">
-                    <i class="fa fa-search"></i> <?php echo xlt('Lookup'); ?>
-                </button>
-            </div>
+            <button type="button" id="btn-npi-lookup" class="btn btn-sm btn-info" onclick="lookupNPI()" title="<?php echo xla('Search NPPES Registry'); ?>">
+                <i class="fa fa-search"></i> <?php echo xlt('Lookup'); ?>
+            </button>
         </div>
    </div>
    <div class="col-auto">
-        <label for="form_federaltaxid" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('TIN'); ?>:</label>
+        <label for="form_federaltaxid" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('TIN'); ?>:</label>
    </div>
    <div class="col-auto">
         <input type='text' size='10' id='form_federaltaxid' name='form_federaltaxid' maxlength='10' value='<?php echo attr($row['federaltaxid'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
     </div>
     <div class="col-auto">
-        <label for="form_taxonomy" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Taxonomy'); ?>:</label>
+        <label for="form_taxonomy" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Taxonomy'); ?>:</label>
     </div>
    <div class="col-auto">
         <input type='text' size='10' id='form_taxonomy' name='form_taxonomy' maxlength='10' value='<?php echo attr($row['taxonomy'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
    </div>
 </div>
-<div class="form-group">
-    <label for="form_notes" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Notes'); ?>:</label>
+<div class="mb-3">
+    <label for="form_notes" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Notes'); ?>:</label>
     <textarea rows='3' cols='40' id='form_notes' name='form_notes' wrap='virtual' class='form-control inputtext w-100'><?php echo text($row['notes'] ?? '') ?></textarea>
 </div>
 

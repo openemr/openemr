@@ -99,7 +99,7 @@ const TABLE_TD = "</td><td>";
             <form id="theform" method="post" action="index.php" onsubmit="top.restoreSession()">
                 <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
                 <input type="hidden" id="id" name="id" value="">
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col">
                         <input class="form-control" id="authorization" name="authorization" value="" placeholder="<?php echo xla('Authorization Number') ?>">
                     </div>
@@ -113,12 +113,12 @@ const TABLE_TD = "</td><td>";
                         <input class="form-control datepicker" id="end_date" name="end_date" value="" placeholder="<?php echo xla('End Date') ?>" readonly>
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col my-1">
                         <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPTs') ?>">
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col">
                         <input class="form-control btn btn-primary" type="submit" value="<?php echo xla('Save') ?>">
                     </div>

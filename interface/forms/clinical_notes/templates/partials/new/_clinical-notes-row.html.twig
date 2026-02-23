@@ -1,11 +1,11 @@
 <div class="tb_row" id="tb_row_{{ index|attr }}">
     <fieldset>
-        <div class="form-row">
+        <div class="row gx-2">
             <input type="hidden" id="id_{{ index|attr }}" name="id[]" class="id" value="{{ obj.id|attr }}" />
             <input type="hidden" id="code_{{ index|attr }}" name="code[]" class="code" value="{{ obj.code|attr }}" />
             <input type="hidden" id="codetext_{{ index|attr }}" name="codetext[]" class="codetext" value="{{ obj.codetext|attr }}" />
             <div class="forms col-lg-4">
-                <div class="row pl-2">
+                <div class="row ps-2">
                     <div class="col-12">
                         <label for="code_date_{{ index|attr }}" class="h5">{{ "Date"|xlt }}:</label>
                         <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="forms col-lg-8">
-                <div class="row pl-2 pr-2">
+                <div class="row ps-2 pe-2">
                     <div class="col-12">
                         <label for="description_{{ index|attr }}" class="h5">{{ "Narrative"|xlt }}:</label>
                         <textarea name="description[]" id="description_{{ index|attr }}" data-textcontext="{{ context|attr }}" class="form-control description" rows="14">{{ obj.description|text }}</textarea>
@@ -76,15 +76,15 @@
                     <!-- Linked Documents Section -->
                     <div class="col-12 mt-3">
                         <label class="h6">
-                            <i class="fa fa-file-alt text-secondary mr-1"></i>
+                            <i class="fa fa-file-alt text-secondary me-1"></i>
                             {{ "Linked Documents"|xlt }}:
                         </label>
                         <div id="linked_documents_{{ index|attr }}" class="linked-documents-container border rounded p-2 mb-2" style="min-height: 60px; background-color: #f8f9fa;">
                             {% if obj.documents is defined and obj.documents|length > 0 %}
                                 {% for document in obj.documents %}
-                                    <div class="document-item badge badge-secondary mr-1 mb-1" data-uuid="{{ document.uuid|attr }}">
+                                    <div class="document-item badge bg-secondary me-1 mb-1" data-uuid="{{ document.uuid|attr }}">
                                         <span title="{{ document.name|attr }} ({{ document.type|attr }})">{{ document.name|text }} ({{ document.type|text }})</span>
-                                        <button type="button" class="btn-close-document ml-1" data-note-index="{{ index|attr }}" data-uuid="{{ document.uuid|attr }}" title="{{ 'Remove document'|xla }}">&times;</button>
+                                        <button type="button" class="btn-close-document ms-1" data-note-index="{{ index|attr }}" data-uuid="{{ document.uuid|attr }}" title="{{ 'Remove document'|xla }}">&times;</button>
                                     </div>
                                 {% endfor %}
                             {% else %}
@@ -100,17 +100,17 @@
                     <!-- Linked Procedure Results Section -->
                     <div class="col-12 mt-3">
                         <label class="h6">
-                            <i class="fa fa-flask text-info mr-1"></i>
+                            <i class="fa fa-flask text-info me-1"></i>
                             {{ "Linked Procedure Results"|xlt }}:
                         </label>
                         <div id="linked_results_{{ index|attr }}" class="linked-results-container border rounded p-2 mb-2" style="min-height: 60px; background-color: #f8f9fa;">
                             {% if obj.linked_results is defined and obj.linked_results|length > 0 %}
                                 {% for result in obj.linked_results %}
-                                    <div class="result-item badge badge-info mr-1 mb-1" data-uuid="{{ result.uuid|attr }}">
+                                    <div class="result-item badge bg-info text-dark me-1 mb-1" data-uuid="{{ result.uuid|attr }}">
                                         <span title="{{ result.procedure_name|attr }} {{ result.result_text|attr }}: {{ result.result|attr }} ({{ result.date|attr }})">
                                             {{ result.result_text|text }}: {{ result.result|text }}
                                         </span>
-                                        <button type="button" class="btn-close-result ml-1" data-note-index="{{ index|attr }}" data-uuid="{{ result.uuid|attr }}" title="{{ 'Remove result'|xla }}">&times;</button>
+                                        <button type="button" class="btn-close-result ms-1" data-note-index="{{ index|attr }}" data-uuid="{{ result.uuid|attr }}" title="{{ 'Remove result'|xla }}">&times;</button>
                                     </div>
                                 {% endfor %}
                             {% else %}
@@ -226,10 +226,10 @@
 <!-- Document Item Template (for search results) -->
 <template id="document-item-template">
     <div class="document-item border rounded p-2 mb-2" style="cursor: pointer;">
-        <div class="document-name font-weight-bold"></div>
+        <div class="document-name fw-bold"></div>
         <div class="document-meta small text-muted">
-            <span class="badge badge-secondary mr-1 document-type-badge"></span>
-            <span class="document-size mr-2"></span>
+            <span class="badge bg-secondary me-1 document-type-badge"></span>
+            <span class="document-size me-2"></span>
             <span class="document-date"></span>
         </div>
     </div>
@@ -239,7 +239,7 @@
 <template id="result-item-template">
     <div class="result-item border rounded p-2 mb-2" style="cursor: pointer;">
         <div class="d-flex justify-content-between">
-            <div class="procedure-name font-weight-bold"></div>
+            <div class="procedure-name fw-bold"></div>
             <div class="result-status badge"></div>
         </div>
         <div class="result-value text-primary"></div>
@@ -251,17 +251,17 @@
 
 <!-- Document Badge Template (for linked documents) -->
 <template id="document-badge-template">
-    <div class="document-item badge badge-secondary mr-1 mb-1">
+    <div class="document-item badge bg-secondary me-1 mb-1">
         <span class="document-badge-text"></span>
-        <button type="button" class="btn-close-document ml-1" title="{{ 'Remove document'|xla }}">&times;</button>
+        <button type="button" class="btn-close-document ms-1" title="{{ 'Remove document'|xla }}">&times;</button>
     </div>
 </template>
 
 <!-- Result Badge Template (for linked results) -->
 <template id="result-badge-template">
-    <div class="result-item badge badge-info mr-1 mb-1">
+    <div class="result-item badge bg-info text-dark me-1 mb-1">
         <span class="result-badge-text"></span>
-        <button type="button" class="btn-close-result ml-1" title="{{ 'Remove result'|xla }}">&times;</button>
+        <button type="button" class="btn-close-result ms-1" title="{{ 'Remove result'|xla }}">&times;</button>
     </div>
 </template>
 
