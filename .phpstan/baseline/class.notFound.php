@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method Execute\\(\\) on an unknown class connection\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcherInterface\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/search_payments.php',
@@ -1015,11 +1010,6 @@ $ignoreErrors[] = [
     'message' => '#^Method NumberToText\\:\\:n2t_convertthree\\(\\) has invalid return type The\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method Execute\\(\\) on an unknown class connection\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function listingCDRReminderLog\\(\\) has invalid return type sqlret\\.$#',

@@ -33752,11 +33752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
@@ -33772,33 +33767,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'postal_code\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'prescriptions\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'street\' on mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [

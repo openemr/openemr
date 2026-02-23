@@ -1162,16 +1162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method MoveNext\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method RecordCount\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
