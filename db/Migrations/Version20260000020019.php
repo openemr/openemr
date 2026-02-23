@@ -35,6 +35,16 @@ final class Version20260000020019 extends AbstractMigration
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('rank', Types::INTEGER, ['notnull' => false, 'comment' => 'Specify preferred order of use (1 = highest)']);
+        $table->addColumn('system', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'comment' => 'FK to list_options.option_id for list_id telecom_systems [phone, fax, email, pager, url, sms, other]',
+        ]);
+        $table->addColumn('use', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'comment' => 'FK to list_options.option_id for list_id telecom_uses [home, work, temp, old, mobile]',
+        ]);
         $table->addColumn('value', Types::STRING, [
             'length' => 255,
             'notnull' => false,

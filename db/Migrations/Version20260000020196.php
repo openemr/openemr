@@ -65,7 +65,7 @@ final class Version20260000020196 extends AbstractMigration
         $table->addColumn('send_date', Types::DATETIME_MUTABLE);
         $table->addColumn('end_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('size', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('template_content', Types::BLOB, ['notnull' => false, 'default' => null]);
+        $table->addColumn('template_content', Types::BLOB, ['length' => 16777215, 'notnull' => false, 'default' => null]);
         $table->addColumn('mime', Types::STRING, [
             'length' => 31,
             'notnull' => false,

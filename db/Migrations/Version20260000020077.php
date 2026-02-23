@@ -64,7 +64,7 @@ final class Version20260000020077 extends AbstractMigration
         $table->addColumn('denial_reason', Types::STRING, ['length' => 255]);
         $table->addColumn('authorized_signature', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('patient_signature', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('full_document', Types::BLOB, ['notnull' => false]);
+        $table->addColumn('full_document', Types::BLOB, ['length' => 16777215, 'notnull' => false]);
         $table->addColumn('file_name', Types::STRING, ['length' => 255]);
         $table->addColumn('file_path', Types::STRING, ['length' => 255]);
         $table->addColumn('template_data', Types::TEXT, ['notnull' => false]);
