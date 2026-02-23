@@ -49,12 +49,12 @@ final class Version20260000020087 extends AbstractMigration
             'default' => '',
             'comment' => 'The element file should contain this number of elements',
         ]);
-        $table->addColumn('random_drug_test', Types::SMALLINT, [
+        $table->addColumn('random_drug_test', Types::BOOLEAN, [
             'notnull' => false,
             'default' => null,
             'comment' => 'NULL if not randomized. If randomized, 0 is no, 1 is yes',
         ]);
-        $table->addColumn('drug_screen_completed', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('drug_screen_completed', Types::BOOLEAN, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -46,8 +46,8 @@ final class Version20260000010059 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('title', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -58,7 +58,7 @@ final class Version20260000010059 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
+        $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
         $table->addColumn('message_status', Types::STRING, ['length' => 20, 'default' => 'New']);
         $table->addColumn('portal_relation', Types::STRING, ['length' => 100, 'notnull' => false]);
         $table->addColumn('is_msg_encrypted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);

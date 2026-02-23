@@ -48,7 +48,7 @@ final class Version20260000020051 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $table->addPrimaryKeyConstraint(

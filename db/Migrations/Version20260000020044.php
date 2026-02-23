@@ -56,8 +56,8 @@ final class Version20260000020044 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('code', Types::STRING, [
             'length' => 255,
             'notnull' => false,

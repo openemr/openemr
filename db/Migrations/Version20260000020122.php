@@ -96,7 +96,7 @@ final class Version20260000020122 extends AbstractMigration
             'comment' => 'default for procedure_result.range',
         ]);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0, 'comment' => 'sequence number for ordering']);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 1, 'comment' => '1=active, 0=inactive']);
+        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1, 'comment' => '1=active, 0=inactive']);
         $table->addColumn('notes', Types::STRING, [
             'length' => 255,
             'default' => '',

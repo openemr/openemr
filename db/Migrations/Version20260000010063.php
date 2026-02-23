@@ -38,7 +38,7 @@ final class Version20260000010063 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('groupname', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -46,7 +46,7 @@ final class Version20260000020006 extends AbstractMigration
         ]);
         $table->addColumn('token', Types::STRING, ['length' => 128]);
         $table->addColumn('expiry', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('revoked', Types::SMALLINT, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
+        $table->addColumn('revoked', Types::BOOLEAN, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

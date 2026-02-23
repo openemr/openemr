@@ -38,11 +38,11 @@ final class Version20260000020015 extends AbstractMigration
             'comment' => 'Unique and maps to list_options list clinical_rules',
         ]);
         $table->addColumn('pid', Types::BIGINT, ['default' => 0, 'comment' => '0 is default for all patients, while > 0 is id from patient_data table']);
-        $table->addColumn('active_alert_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Active Alert Widget Module flag - note not yet utilized']);
-        $table->addColumn('passive_alert_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Passive Alert Widget Module flag']);
-        $table->addColumn('cqm_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Clinical Quality Measure flag (unable to customize per patient)']);
-        $table->addColumn('cqm_2011_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2011 Clinical Quality Measure flag (unable to customize per patient)']);
-        $table->addColumn('cqm_2014_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2014 Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('active_alert_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => 'Active Alert Widget Module flag - note not yet utilized']);
+        $table->addColumn('passive_alert_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => 'Passive Alert Widget Module flag']);
+        $table->addColumn('cqm_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => 'Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('cqm_2011_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2011 Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('cqm_2014_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2014 Clinical Quality Measure flag (unable to customize per patient)']);
         $table->addColumn('cqm_nqf_code', Types::STRING, [
             'length' => 10,
             'default' => '',
@@ -53,10 +53,10 @@ final class Version20260000020015 extends AbstractMigration
             'default' => '',
             'comment' => 'Clinical Quality Measure PQRI identifier',
         ]);
-        $table->addColumn('amc_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Automated Measure Calculation flag (unable to customize per patient)']);
-        $table->addColumn('amc_2011_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2011 Automated Measure Calculation flag for (unable to customize per patient)']);
-        $table->addColumn('amc_2014_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2014 Automated Measure Calculation flag for (unable to customize per patient)']);
-        $table->addColumn('amc_2015_flag', Types::SMALLINT, [
+        $table->addColumn('amc_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => 'Automated Measure Calculation flag (unable to customize per patient)']);
+        $table->addColumn('amc_2011_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2011 Automated Measure Calculation flag for (unable to customize per patient)']);
+        $table->addColumn('amc_2014_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2014 Automated Measure Calculation flag for (unable to customize per patient)']);
+        $table->addColumn('amc_2015_flag', Types::BOOLEAN, [
             'notnull' => false,
             'default' => null,
             'comment' => '2015 Automated Measure Calculation flag for (unable to customize per patient)',
@@ -76,9 +76,9 @@ final class Version20260000020015 extends AbstractMigration
             'default' => '',
             'comment' => 'Automated Measure Calculation 2014 identifier (MU rule)',
         ]);
-        $table->addColumn('amc_2014_stage1_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)']);
-        $table->addColumn('amc_2014_stage2_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)']);
-        $table->addColumn('patient_reminder_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Clinical Reminder Module flag']);
+        $table->addColumn('amc_2014_stage1_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)']);
+        $table->addColumn('amc_2014_stage2_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)']);
+        $table->addColumn('patient_reminder_flag', Types::BOOLEAN, ['notnull' => false, 'comment' => 'Clinical Reminder Module flag']);
         $table->addColumn('bibliographic_citation', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('developer', Types::STRING, [
             'length' => 255,

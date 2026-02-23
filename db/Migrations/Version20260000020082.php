@@ -44,8 +44,8 @@ final class Version20260000020082 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('signator', Types::STRING, ['length' => 255]);
         $table->addColumn('sig_image', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('signature', Types::TEXT, ['notnull' => false, 'length' => 65535]);

@@ -65,7 +65,7 @@ final class Version20260000020108 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

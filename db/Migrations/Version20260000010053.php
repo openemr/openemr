@@ -60,9 +60,9 @@ final class Version20260000010053 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pn_admin_capable', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('pn_user_capable', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('pn_state', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('pn_admin_capable', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('pn_user_capable', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('pn_state', Types::BOOLEAN, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('pn_id')

@@ -39,7 +39,7 @@ final class Version20260000020093 extends AbstractMigration
             'default' => '',
             'comment' => 'Only used in special cases',
         ]);
-        $table->addColumn('pass', Types::SMALLINT, ['default' => 0, 'comment' => '0 is fail, 1 is pass, 2 is excluded']);
+        $table->addColumn('pass', Types::BOOLEAN, ['default' => 0, 'comment' => '0 is fail, 1 is pass, 2 is excluded']);
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('rule_id', Types::STRING, [
             'length' => 31,

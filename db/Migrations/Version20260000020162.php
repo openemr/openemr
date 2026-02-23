@@ -34,9 +34,9 @@ final class Version20260000020162 extends AbstractMigration
         $table = new Table('product_registration');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('email', Types::STRING, ['length' => 255, 'notnull' => false]);
-        $table->addColumn('opt_out', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('opt_out', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('auth_by_id', Types::INTEGER, ['notnull' => false]);
-        $table->addColumn('telemetry_disabled', Types::SMALLINT, ['notnull' => false, 'comment' => '1 opted out, disabled. NULL ask. 0 use option scopes']);
+        $table->addColumn('telemetry_disabled', Types::BOOLEAN, ['notnull' => false, 'comment' => '1 opted out, disabled. NULL ask. 0 use option scopes']);
         $table->addColumn('last_ask_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('options', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON array of scope options']);
         $table->addPrimaryKeyConstraint(

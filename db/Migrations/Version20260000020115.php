@@ -35,7 +35,7 @@ final class Version20260000020115 extends AbstractMigration
         $table->addColumn('session_id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('payer_id', Types::INTEGER, ['comment' => '0=pt else references insurance_companies.id']);
         $table->addColumn('user_id', Types::INTEGER, ['comment' => 'references users.id for session owner']);
-        $table->addColumn('closed', Types::SMALLINT, ['default' => 0, 'comment' => '0=no, 1=yes']);
+        $table->addColumn('closed', Types::BOOLEAN, ['default' => 0, 'comment' => '0=no, 1=yes']);
         $table->addColumn('reference', Types::STRING, [
             'length' => 255,
             'default' => '',

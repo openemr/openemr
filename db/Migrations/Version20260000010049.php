@@ -76,7 +76,7 @@ final class Version20260000010049 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('comments', Types::TEXT, ['notnull' => false]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, [

@@ -65,7 +65,7 @@ final class Version20260000010043 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('inactive', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('inactive', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('eligibility_id', Types::STRING, [
             'length' => 32,
             'notnull' => false,

@@ -46,22 +46,22 @@ final class Version20260000020132 extends AbstractMigration
             'default' => '',
             'comment' => 'formatting mask for code values',
         ]);
-        $table->addColumn('ct_fee', Types::SMALLINT, ['default' => 0, 'comment' => '1 if fees are used']);
-        $table->addColumn('ct_rel', Types::SMALLINT, ['default' => 0, 'comment' => '1 if can relate to other code types']);
-        $table->addColumn('ct_nofs', Types::SMALLINT, ['default' => 0, 'comment' => '1 if to be hidden in the fee sheet']);
-        $table->addColumn('ct_diag', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this is a diagnosis type']);
-        $table->addColumn('ct_active', Types::SMALLINT, ['default' => 1, 'comment' => '1 if this is active']);
+        $table->addColumn('ct_fee', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if fees are used']);
+        $table->addColumn('ct_rel', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if can relate to other code types']);
+        $table->addColumn('ct_nofs', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if to be hidden in the fee sheet']);
+        $table->addColumn('ct_diag', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this is a diagnosis type']);
+        $table->addColumn('ct_active', Types::BOOLEAN, ['default' => 1, 'comment' => '1 if this is active']);
         $table->addColumn('ct_label', Types::STRING, [
             'length' => 31,
             'default' => '',
             'comment' => 'label of this code type',
         ]);
-        $table->addColumn('ct_external', Types::SMALLINT, ['default' => 0, 'comment' => '0 if stored codes in codes tables, 1 or greater if codes stored in external tables']);
-        $table->addColumn('ct_claim', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this is used in claims']);
-        $table->addColumn('ct_proc', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this is a procedure type']);
-        $table->addColumn('ct_term', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this is a clinical term']);
-        $table->addColumn('ct_problem', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this code type is used as a medical problem']);
-        $table->addColumn('ct_drug', Types::SMALLINT, ['default' => 0, 'comment' => '1 if this code type is used as a medication']);
+        $table->addColumn('ct_external', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if stored codes in codes tables, 1 or greater if codes stored in external tables']);
+        $table->addColumn('ct_claim', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this is used in claims']);
+        $table->addColumn('ct_proc', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this is a procedure type']);
+        $table->addColumn('ct_term', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this is a clinical term']);
+        $table->addColumn('ct_problem', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this code type is used as a medical problem']);
+        $table->addColumn('ct_drug', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this code type is used as a medication']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('ct_key')

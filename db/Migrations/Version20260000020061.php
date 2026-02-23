@@ -32,7 +32,7 @@ final class Version20260000020061 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('issue_types');
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('category', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('type', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('plural', Types::STRING, ['length' => 75, 'default' => '']);

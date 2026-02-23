@@ -33,7 +33,7 @@ final class Version20260000020086 extends AbstractMigration
     {
         $table = new Table('patient_reminders');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => '1 if active and 0 if not active']);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1, 'comment' => '1 if active and 0 if not active']);
         $table->addColumn('date_inactivated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('reason_inactivated', Types::STRING, [
             'length' => 31,
@@ -58,10 +58,10 @@ final class Version20260000020086 extends AbstractMigration
         ]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('date_sent', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('voice_status', Types::SMALLINT, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
-        $table->addColumn('sms_status', Types::SMALLINT, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
-        $table->addColumn('email_status', Types::SMALLINT, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
-        $table->addColumn('mail_status', Types::SMALLINT, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
+        $table->addColumn('voice_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
+        $table->addColumn('sms_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
+        $table->addColumn('email_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
+        $table->addColumn('mail_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

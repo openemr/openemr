@@ -37,7 +37,7 @@ final class Version20260000020050 extends AbstractMigration
         $table->addColumn('valid_for_coding', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 1]);
         $table->addColumn('short_desc', Types::STRING, ['notnull' => false, 'length' => 60]);
         $table->addColumn('long_desc', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $table->addPrimaryKeyConstraint(

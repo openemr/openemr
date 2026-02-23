@@ -36,9 +36,9 @@ final class Version20260000020163 extends AbstractMigration
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('code', Types::STRING, ['notnull' => false, 'length' => 25]);
         $table->addColumn('modifier', Types::STRING, ['notnull' => false, 'length' => 12]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false]);
-        $table->addColumn('diagnosis_reporting', Types::SMALLINT, ['notnull' => false]);
-        $table->addColumn('financial_reporting', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('diagnosis_reporting', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('financial_reporting', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('category', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('code_type_name', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('code_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);

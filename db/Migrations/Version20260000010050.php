@@ -57,7 +57,7 @@ final class Version20260000010050 extends AbstractMigration
         $table->addColumn('comments', Types::TEXT, ['notnull' => false]);
         $table->addColumn('user_notes', Types::TEXT, ['notnull' => false]);
         $table->addColumn('patient_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('success', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('success', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
         $table->addColumn('crt_user', Types::STRING, [
             'length' => 255,

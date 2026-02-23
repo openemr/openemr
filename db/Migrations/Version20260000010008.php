@@ -89,9 +89,9 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('service_location', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('billing_location', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('accepts_assignment', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('service_location', Types::BOOLEAN, ['default' => 1]);
+        $table->addColumn('billing_location', Types::BOOLEAN, ['default' => 1]);
+        $table->addColumn('accepts_assignment', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('x12_sender_id', Types::STRING, [
             'length' => 25,
@@ -126,7 +126,7 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('extra_validation', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('extra_validation', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('mail_street', Types::STRING, [
             'length' => 30,
             'notnull' => false,
@@ -168,7 +168,7 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('inactive', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('inactive', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
         $table->addColumn('organization_type', Types::STRING, [

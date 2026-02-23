@@ -75,14 +75,14 @@ final class Version20260000020179 extends AbstractMigration
         $table->addColumn('OSIOPTARGET', Types::STRING, ['length' => 10]);
         $table->addColumn('AMSLEROD', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('AMSLEROS', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODVF1', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODVF2', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODVF3', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ODVF4', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSVF1', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSVF2', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSVF3', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('OSVF4', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('ODVF1', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('ODVF2', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('ODVF3', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('ODVF4', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('OSVF1', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('OSVF2', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('OSVF3', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('OSVF4', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

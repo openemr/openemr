@@ -36,16 +36,16 @@ final class Version20260000020066 extends AbstractMigration
         $table->addColumn('option_id', Types::STRING, ['length' => 100, 'default' => '']);
         $table->addColumn('title', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('is_default', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('is_default', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('option_value', Types::SMALLFLOAT, ['default' => 0]);
         $table->addColumn('mapping', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('codes', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('toggle_setting_1', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('toggle_setting_2', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('toggle_setting_1', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('toggle_setting_2', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('subtype', Types::STRING, ['length' => 31, 'default' => '']);
-        $table->addColumn('edit_options', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('edit_options', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('timestamp', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
         $table->addPrimaryKeyConstraint(

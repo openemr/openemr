@@ -46,8 +46,8 @@ final class Version20260000020201 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('copyright', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('form_name', Types::STRING, [
             'length' => 255,

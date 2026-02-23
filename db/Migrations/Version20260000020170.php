@@ -37,9 +37,9 @@ final class Version20260000020170 extends AbstractMigration
         $table->addColumn('group_id', Types::INTEGER, ['notnull' => false]);
         $table->addColumn('user', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('groupname', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('encounter_id', Types::INTEGER, ['notnull' => false]);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

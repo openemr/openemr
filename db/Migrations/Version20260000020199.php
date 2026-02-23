@@ -62,7 +62,7 @@ final class Version20260000020199 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('status', Types::STRING, [
             'length' => 31,
             'notnull' => false,

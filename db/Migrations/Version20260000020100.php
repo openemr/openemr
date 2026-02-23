@@ -38,8 +38,8 @@ final class Version20260000020100 extends AbstractMigration
             'comment' => 'Maps to the id column in the clinical_rules table',
         ]);
         $table->addColumn('group_id', Types::BIGINT, ['default' => 1, 'comment' => 'Contains group id to identify collection of targets in a rule']);
-        $table->addColumn('include_flag', Types::SMALLINT, ['default' => 0, 'comment' => '0 is exclude and 1 is include']);
-        $table->addColumn('required_flag', Types::SMALLINT, ['default' => 0, 'comment' => '0 is required and 1 is optional']);
+        $table->addColumn('include_flag', Types::BOOLEAN, ['default' => 0, 'comment' => '0 is exclude and 1 is include']);
+        $table->addColumn('required_flag', Types::BOOLEAN, ['default' => 0, 'comment' => '0 is required and 1 is optional']);
         $table->addColumn('method', Types::STRING, [
             'length' => 31,
             'default' => '',

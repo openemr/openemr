@@ -123,7 +123,7 @@ final class Version20260000020129 extends AbstractMigration
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('procedure_specimen_id')

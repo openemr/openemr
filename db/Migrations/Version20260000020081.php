@@ -40,7 +40,7 @@ final class Version20260000020081 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('require_audit', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('require_audit', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addColumn('pending_action', Types::STRING, [
             'length' => 255,
             'notnull' => false,

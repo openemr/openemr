@@ -40,7 +40,7 @@ final class Version20260000020212 extends AbstractMigration
         $table->addColumn('answer_display', Types::STRING, ['length' => 255]);
         $table->addColumn('answer_definition', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('sort_order', Types::INTEGER, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

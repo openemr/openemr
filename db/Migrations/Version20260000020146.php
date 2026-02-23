@@ -55,7 +55,7 @@ final class Version20260000020146 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('user_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('timestamp', Types::DATETIME_MUTABLE);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

@@ -56,12 +56,12 @@ final class Version20260000020033 extends AbstractMigration
             'comment' => 'may reference a related codes.code',
         ]);
         $table->addColumn('cyp_factor', Types::SMALLFLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
-        $table->addColumn('allow_combining', Types::SMALLINT, ['default' => 0, 'comment' => '1 = allow filling an order from multiple lots']);
-        $table->addColumn('allow_multiple', Types::SMALLINT, ['default' => 1, 'comment' => '1 = allow multiple lots at one warehouse']);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
+        $table->addColumn('allow_combining', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = allow filling an order from multiple lots']);
+        $table->addColumn('allow_multiple', Types::BOOLEAN, ['default' => 1, 'comment' => '1 = allow multiple lots at one warehouse']);
         $table->addColumn('drug_code', Types::STRING, ['length' => 25, 'notnull' => false]);
-        $table->addColumn('consumable', Types::SMALLINT, ['default' => 0, 'comment' => '1 = will not show on the fee sheet']);
-        $table->addColumn('dispensable', Types::SMALLINT, ['default' => 1, 'comment' => '0 = pharmacy elsewhere, 1 = dispensed here']);
+        $table->addColumn('consumable', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = will not show on the fee sheet']);
+        $table->addColumn('dispensable', Types::BOOLEAN, ['default' => 1, 'comment' => '0 = pharmacy elsewhere, 1 = dispensed here']);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
         $table->addPrimaryKeyConstraint(

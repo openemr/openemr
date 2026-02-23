@@ -49,8 +49,8 @@ final class Version20260000020078 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('header', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -87,7 +87,7 @@ final class Version20260000020078 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
+        $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
         $table->addColumn('delete_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('mtype', Types::STRING, [
             'length' => 128,

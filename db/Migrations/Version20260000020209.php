@@ -190,7 +190,7 @@ final class Version20260000020209 extends AbstractMigration
         $table->addColumn('interventions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('instrument_score', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('positive_domain_count', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('declined_flag', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('declined_flag', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('disability_status', Types::STRING, [
             'length' => 50,
             'notnull' => false,

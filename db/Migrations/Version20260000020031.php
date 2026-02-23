@@ -56,7 +56,7 @@ final class Version20260000020031 extends AbstractMigration
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('billed', Types::SMALLINT, ['default' => 0, 'comment' => 'indicates if the sale is posted to accounting']);
+        $table->addColumn('billed', Types::BOOLEAN, ['default' => 0, 'comment' => 'indicates if the sale is posted to accounting']);
         $table->addColumn('xfer_inventory_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('distributor_id', Types::BIGINT, ['default' => 0, 'comment' => 'references users.id']);
         $table->addColumn('notes', Types::STRING, ['length' => 255, 'default' => '']);

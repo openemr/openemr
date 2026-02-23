@@ -41,7 +41,7 @@ final class Version20260000020056 extends AbstractMigration
         $table->addColumn('ICD9_04', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_05', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_06', Types::STRING, ['notnull' => false, 'length' => 5]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $table->addPrimaryKeyConstraint(

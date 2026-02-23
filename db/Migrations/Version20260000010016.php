@@ -48,8 +48,8 @@ final class Version20260000010016 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::SMALLINT, ['default' => 0, 'comment' => 'flag indicates form has been deleted']);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0, 'comment' => 'flag indicates form has been deleted']);
         $table->addColumn('formdir', Types::TEXT, ['notnull' => false]);
         $table->addColumn('therapy_group_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('issue_id', Types::BIGINT, ['default' => 0, 'comment' => 'references lists.id to identify a case']);

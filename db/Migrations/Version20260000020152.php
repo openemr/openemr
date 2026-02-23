@@ -46,7 +46,7 @@ final class Version20260000020152 extends AbstractMigration
         ]);
         $table->addColumn('instruction', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

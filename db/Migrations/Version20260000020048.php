@@ -35,7 +35,7 @@ final class Version20260000020048 extends AbstractMigration
         $table->addColumn('sq_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('sg_code', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('long_desc', Types::STRING, ['notnull' => false, 'length' => 300]);
-        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $table->addPrimaryKeyConstraint(

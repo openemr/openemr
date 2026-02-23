@@ -78,7 +78,7 @@ final class Version20260000020121 extends AbstractMigration
         $table->addColumn('results_path', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('lab_director', Types::BIGINT, ['default' => 0]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('type', Types::STRING, [
             'length' => 31,
             'notnull' => false,
