@@ -545,6 +545,10 @@ function sqlRollbackTrans(): void
  */
 function getPrivDB()
 {
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php")) {
+        \OpenEMR\BC\ServiceContainer::getLogger()
+            ->error('secure_sqlconf.php file detected but is no longer supported.');
+    }
     return get_db();
 }
 /**
