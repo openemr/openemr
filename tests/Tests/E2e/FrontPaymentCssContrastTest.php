@@ -8,7 +8,7 @@
  * ensure readability across all themes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @see       https://github.com/openemr/openemr/issues/10842
  * @author    Josh Baiad <josh@jbaiad.com>
  * @copyright Copyright (c) 2026 Josh Baiad <josh@jbaiad.com>

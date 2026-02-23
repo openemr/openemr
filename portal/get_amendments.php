@@ -20,7 +20,7 @@
  * @package OpenEMR
  * @author  Hema Bandaru <hemab@drcloudemr.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once("verify_session.php");

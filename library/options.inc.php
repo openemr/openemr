@@ -5,7 +5,6 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @link      https://opencoreemr.com
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Andrew Moore <amoore@cpan.org>
  * @author    Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
@@ -21,7 +20,7 @@
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
- * @copyright 2026 OpenCoreEMR Inc
+ * @copyright 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * Note: there are translation wrappers for the lists and layout labels

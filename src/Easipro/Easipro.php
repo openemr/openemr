@@ -9,7 +9,7 @@
  *  getting an account at https://www.assessmentcenter.net
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>

@@ -4,7 +4,7 @@
  * ModulesApplication class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>

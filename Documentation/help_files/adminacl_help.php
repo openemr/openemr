@@ -4,7 +4,7 @@
  * Access Control List Help.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

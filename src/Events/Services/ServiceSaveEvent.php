@@ -4,7 +4,7 @@
  * ServiceSaveEvent is intended to be used and dispatched whenever an OpenEMR Service saves a record.  Listeners
  * can filter data before the record is saved and respond to whatever data was saved by the service.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

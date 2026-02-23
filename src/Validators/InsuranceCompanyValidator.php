@@ -8,7 +8,7 @@ use Particle\Validator\Validator;
  * Supports Insurance Company Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

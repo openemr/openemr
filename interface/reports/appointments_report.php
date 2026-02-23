@@ -9,7 +9,7 @@
  * RM choose a selection of providers from the drop down menu
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>

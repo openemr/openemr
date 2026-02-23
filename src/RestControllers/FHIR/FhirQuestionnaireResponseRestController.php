@@ -4,7 +4,7 @@
  * FHIR Resource Controller example for handling and responding to QuestionnaireResponse
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>

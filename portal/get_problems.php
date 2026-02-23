@@ -19,7 +19,7 @@
  * @package OpenEMR
  * @author  Cassian LUP <cassi.lup@gmail.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  */
 

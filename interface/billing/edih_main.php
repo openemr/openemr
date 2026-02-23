@@ -4,7 +4,7 @@
  * edi_history_main.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>

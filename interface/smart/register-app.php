@@ -6,7 +6,7 @@
  * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>

@@ -36,7 +36,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Coverage Service - US Core 8.0 / USCDI v5 Compliant
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @author             Jerry Padgett <sjpadgett@gmail.com>
  * @copyright          Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>

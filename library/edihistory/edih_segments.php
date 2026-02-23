@@ -4,7 +4,7 @@
  * edih_segments.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas

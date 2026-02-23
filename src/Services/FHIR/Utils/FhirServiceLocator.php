@@ -5,7 +5,7 @@
  * the Capability statement this can take 500-900ms to execute and should be used with caution.
  * TODO: @adunsulag Look at changing up this class to not use the capability statement or optimize that class to be more performant.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

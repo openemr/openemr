@@ -5,7 +5,7 @@
  * Test fixture manager for Condition-related tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for most of this file marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot
  *            Minor additions were made by Stephen Nielson

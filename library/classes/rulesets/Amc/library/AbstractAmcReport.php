@@ -21,7 +21,7 @@
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author Discover and Change, Inc. <snielson@discoverandchange.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/../../library/RsFilterIF.php");

@@ -38,7 +38,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
 require_once(__DIR__ . '/../../globals.php');

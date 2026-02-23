@@ -2,7 +2,7 @@
  * Core javascript functions for the fee sheet review features
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>

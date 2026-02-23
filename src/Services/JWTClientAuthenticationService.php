@@ -5,7 +5,7 @@
  * Implements RFC 7523 and SMART Backend Services specifications
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for portions marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot

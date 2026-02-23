@@ -7,7 +7,7 @@
  * @see https://github.com/jumbojett/OpenID-Connect-PHP
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Michael Jett <mjett@mitre.org>
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright  MITRE 2020

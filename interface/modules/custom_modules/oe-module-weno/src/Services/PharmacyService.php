@@ -4,7 +4,7 @@
  * WenoPharmacyService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>

@@ -4,7 +4,7 @@
  * patient.inc.php includes functions for manipulating patient information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>

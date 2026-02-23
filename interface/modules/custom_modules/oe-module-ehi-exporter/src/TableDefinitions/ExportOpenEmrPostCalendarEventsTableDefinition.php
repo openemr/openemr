@@ -5,7 +5,7 @@
  * therapy groups calendar events.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
