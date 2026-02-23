@@ -37,9 +37,9 @@ final class Version20260000020059 extends AbstractMigration
         $table->addColumn('total_ip_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_last_login_fail', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ip_auto_block_emailed', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('ip_force_block', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('ip_no_prevent_timing_attack', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_auto_block_emailed', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_force_block', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_no_prevent_timing_attack', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

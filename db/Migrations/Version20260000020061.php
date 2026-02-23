@@ -39,7 +39,7 @@ final class Version20260000020061 extends AbstractMigration
         $table->addColumn('singular', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('abbreviation', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('style', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('force_show', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('force_show', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('ordering', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'patients|med']);
         $table->addPrimaryKeyConstraint(

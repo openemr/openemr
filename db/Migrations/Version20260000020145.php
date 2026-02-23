@@ -56,10 +56,10 @@ final class Version20260000020145 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('view', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('transfer', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('emr_transfer', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('encrypted', Types::SMALLINT, ['default' => 0, 'comment' => '0->No,1->Yes']);
+        $table->addColumn('view', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('transfer', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('emr_transfer', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('encrypted', Types::BOOLEAN, ['default' => 0, 'comment' => '0->No,1->Yes']);
         $table->addColumn('transaction_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to transaction referral record']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
