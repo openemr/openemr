@@ -25,7 +25,9 @@ use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\EmployerService;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 require_once(__DIR__ . "/dupscore.inc.php");
@@ -1048,6 +1050,12 @@ function newPatientData(
 
         $fitness = $rez['fitness'];
         $referral_source = $rez['referral_source'];
+    }
+
+    // Validate email before writing to database
+    if ($email !== '' && !ValidationUtils::isValidEmail($email)) {
+        ServiceContainer::getLogger()->warning("newPatientData: invalid email sanitized", ['email' => $email]);
+        $email = '';
     }
 
     // Get the default price level.
