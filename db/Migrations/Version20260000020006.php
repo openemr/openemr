@@ -32,6 +32,7 @@ final class Version20260000020006 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('api_refresh_token');
+        $table->addOption('comment', 'Holds information about api refresh tokens.');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('user_id', Types::STRING, [
             'length' => 40,

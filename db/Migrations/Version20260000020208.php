@@ -32,6 +32,7 @@ final class Version20260000020208 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('care_team_member');
+        $table->addOption('comment', 'Stores members of a care team for a patient');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('care_team_id', Types::INTEGER);
         $table->addColumn('user_id', Types::BIGINT, ['comment' => 'fk to users.id represents a provider or staff member']);

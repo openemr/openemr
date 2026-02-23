@@ -32,6 +32,7 @@ final class Version20260000020206 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('track_events');
+        $table->addOption('comment', 'Telemetry Event Data');
         $table->addColumn('id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('event_type', Types::TEXT);
         $table->addColumn('event_label', Types::STRING, [

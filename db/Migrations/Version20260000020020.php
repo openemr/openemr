@@ -32,6 +32,7 @@ final class Version20260000020020 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('person');
+        $table->addOption('comment', 'Core person demographics - contact info in contact_telecom');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,

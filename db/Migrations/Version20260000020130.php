@@ -32,6 +32,7 @@ final class Version20260000020130 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('procedure_order_relationships');
+        $table->addOption('comment', 'Links ServiceRequests to supporting clinical information');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('procedure_order_id', Types::BIGINT, ['comment' => 'Links to procedure_order.procedure_order_id']);
         $table->addColumn('resource_type', Types::STRING, ['length' => 50, 'comment' => 'FHIR resource type (Observation, Condition, etc.)']);

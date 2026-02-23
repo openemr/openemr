@@ -32,6 +32,7 @@ final class Version20260000020117 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('users_facility');
+        $table->addOption('comment', 'joins users or patient_data to facility table');
         $table->addColumn('tablename', Types::STRING, ['length' => 64]);
         $table->addColumn('table_id', Types::INTEGER);
         $table->addColumn('facility_id', Types::INTEGER);

@@ -32,6 +32,7 @@ final class Version20260000020205 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('dsi_source_attributes');
+        $table->addOption('comment', 'Holds information about decision support intervention system source attributes');
         $table->addColumn('id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('client_id', Types::STRING, ['length' => 80]);
         $table->addColumn('list_id', Types::STRING, ['length' => 100]);

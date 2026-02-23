@@ -32,6 +32,7 @@ final class Version20260000010068 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('clinical_notes_documents');
+        $table->addOption('comment', 'Links clinical notes to patient documents');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('clinical_note_id', Types::BIGINT, ['comment' => 'Foreign key to form_clinical_notes.id']);
         $table->addColumn('document_id', Types::BIGINT, ['comment' => 'Foreign key to documents.id']);

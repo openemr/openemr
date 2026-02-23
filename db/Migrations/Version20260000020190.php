@@ -32,6 +32,7 @@ final class Version20260000020190 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('export_job');
+        $table->addOption('comment', 'fhir export jobs');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,

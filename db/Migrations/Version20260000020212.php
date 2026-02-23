@@ -32,6 +32,7 @@ final class Version20260000020212 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('preference_value_sets');
+        $table->addOption('comment', 'Answer lists for preference codes');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('loinc_code', Types::STRING, ['length' => 50]);
         $table->addColumn('answer_code', Types::STRING, ['length' => 100]);

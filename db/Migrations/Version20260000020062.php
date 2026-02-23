@@ -47,6 +47,7 @@ final class Version20260000020062 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE keys');
+        // $this->addSql('DROP TABLE keys');
+        $schema->dropTable('keys');
     }
 }

@@ -32,6 +32,7 @@ final class Version20260000020079 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('onsite_messages');
+        $table->addOption('comment', 'Portal messages');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('username', Types::STRING, ['length' => 64]);
         $table->addColumn('message', Types::TEXT);

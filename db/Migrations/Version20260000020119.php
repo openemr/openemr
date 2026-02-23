@@ -32,6 +32,7 @@ final class Version20260000020119 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('lbt_data');
+        $table->addOption('comment', 'contains all data from layout-based transactions');
         $table->addColumn('form_id', Types::BIGINT, ['comment' => 'references transactions.id']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
         $table->addColumn('field_value', Types::TEXT);

@@ -32,6 +32,7 @@ final class Version20260000020192 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('form_vitals_calculation');
+        $table->addOption('comment', 'Main calculation records - one per logical calculation (e.g., average BP)');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('uuid', Types::BINARY, [
             'length' => 16,

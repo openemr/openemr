@@ -32,6 +32,7 @@ final class Version20260000020191 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('form_vital_details');
+        $table->addOption('comment', 'Detailed information of each vital_forms observation column');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('form_id', Types::BIGINT, ['comment' => 'FK to vital_forms.id']);
         $table->addColumn('vitals_column', Types::STRING, ['length' => 64, 'comment' => 'Column name from form_vitals']);

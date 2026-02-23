@@ -32,6 +32,7 @@ final class Version20260000020022 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('person_patient_link');
+        $table->addOption('comment', 'Links person records to patient_data records when person becomes patient');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('person_id', Types::BIGINT, ['comment' => 'FK to person.id']);
         $table->addColumn('patient_id', Types::BIGINT, ['comment' => 'FK to patient_data.id']);

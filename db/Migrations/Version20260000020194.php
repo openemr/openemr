@@ -32,6 +32,7 @@ final class Version20260000020194 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('form_vitals_calculation_form_vitals');
+        $table->addOption('comment', 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records');
         $table->addColumn('fvc_uuid', Types::BINARY, ['length' => 16, 'comment' => 'fk to form_vitals_calculation.uuid']);
         $table->addColumn('vitals_id', Types::BIGINT, ['comment' => 'fk to form_vitals.id']);
         $table->addPrimaryKeyConstraint(

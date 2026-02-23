@@ -32,6 +32,7 @@ final class Version20260000020120 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('gprelations');
+        $table->addOption('comment', 'general purpose relations');
         $table->addColumn('type1', Types::INTEGER);
         $table->addColumn('id1', Types::BIGINT);
         $table->addColumn('type2', Types::INTEGER);

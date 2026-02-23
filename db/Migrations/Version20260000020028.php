@@ -32,6 +32,7 @@ final class Version20260000020028 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('documents_legal_master');
+        $table->addOption('comment', 'List of Master Docs to be signed');
         $table->addColumn('dlm_category', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,
