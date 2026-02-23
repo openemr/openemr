@@ -552,9 +552,9 @@ function getPrivDB()
     return get_db();
 }
 /**
- * @deprecated Use the standard DB connections instead.
- *
  * mechanism to use "super user" for SQL queries related to password operations
+ *
+ * @deprecated Use the standard DB connections instead.
  *
  * @param string $sql
  * @param array|null $params
