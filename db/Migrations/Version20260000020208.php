@@ -49,7 +49,7 @@ final class Version20260000020208 extends AbstractMigration
         $table->addColumn('date_updated', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, ['comment' => 'fk to users.id and is the user that added this team member']);
         $table->addColumn('updated_by', Types::BIGINT, ['comment' => 'fk to users.id and is the user that last updated this team member']);
-        $table->addColumn('note', Types::TEXT);
+        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

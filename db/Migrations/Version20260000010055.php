@@ -52,7 +52,7 @@ final class Version20260000010055 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pc_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('pc_hometext', Types::TEXT);
+        $table->addColumn('pc_hometext', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pc_comments', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_counter', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
         $table->addColumn('pc_topic', Types::INTEGER, ['default' => 1]);
@@ -65,12 +65,12 @@ final class Version20260000010055 extends AbstractMigration
         $table->addColumn('pc_endDate', Types::DATE_MUTABLE, ['default' => '0000-00-00']);
         $table->addColumn('pc_duration', Types::BIGINT, ['default' => 0]);
         $table->addColumn('pc_recurrtype', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('pc_recurrspec', Types::TEXT);
+        $table->addColumn('pc_recurrspec', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pc_recurrfreq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_startTime', Types::TIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pc_endTime', Types::TIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pc_alldayevent', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('pc_location', Types::TEXT);
+        $table->addColumn('pc_location', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pc_conttel', Types::STRING, [
             'length' => 50,
             'notnull' => false,

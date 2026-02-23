@@ -35,7 +35,7 @@ final class Version20260000010047 extends AbstractMigration
         $table->addColumn('def_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('cons_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('lang_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('definition', Types::TEXT);
+        $table->addColumn('definition', Types::TEXT, ['length' => 16777215]);
 
         $table->addIndex(['cons_id'], 'cons_id');
         $table->addIndex(['lang_id', 'cons_id'], 'lang_cons');

@@ -57,8 +57,8 @@ final class Version20260000020150 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('codetext', Types::TEXT);
-        $table->addColumn('description', Types::TEXT);
+        $table->addColumn('codetext', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('description', Types::TEXT, ['length' => 65535]);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 30,
             'notnull' => false,

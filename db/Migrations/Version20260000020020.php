@@ -113,7 +113,7 @@ final class Version20260000020020 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('inactive_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('notes', Types::TEXT);
+        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('created_date', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,

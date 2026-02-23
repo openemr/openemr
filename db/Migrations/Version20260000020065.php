@@ -35,7 +35,7 @@ final class Version20260000020065 extends AbstractMigration
         $table->addColumn('form_id', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('group_id', Types::STRING, ['length' => 31, 'default' => '']);
-        $table->addColumn('title', Types::TEXT);
+        $table->addColumn('title', Types::TEXT, ['length' => 65535]);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('data_type', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('uor', Types::SMALLINT, ['default' => 1]);
@@ -46,7 +46,7 @@ final class Version20260000020065 extends AbstractMigration
         $table->addColumn('datacols', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('default_value', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('edit_options', Types::STRING, ['length' => 36, 'default' => '']);
-        $table->addColumn('description', Types::TEXT);
+        $table->addColumn('description', Types::TEXT, ['length' => 65535]);
         $table->addColumn('fld_rows', Types::INTEGER, ['default' => 0]);
         $table->addColumn('list_backup_id', Types::STRING, ['length' => 100, 'default' => '']);
         $table->addColumn('source', Types::STRING, [
@@ -54,7 +54,7 @@ final class Version20260000020065 extends AbstractMigration
             'default' => 'F',
             'comment' => 'F=Form, D=Demographics, H=History, E=Encounter',
         ]);
-        $table->addColumn('conditions', Types::TEXT, ['comment' => 'serialized array of skip conditions']);
+        $table->addColumn('conditions', Types::TEXT, ['length' => 65535, 'comment' => 'serialized array of skip conditions']);
         $table->addColumn('validation', Types::STRING, [
             'length' => 100,
             'notnull' => false,

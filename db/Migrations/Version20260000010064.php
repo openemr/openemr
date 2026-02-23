@@ -218,7 +218,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('notes', Types::TEXT);
+        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('cal_ui', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('taxonomy', Types::STRING, ['length' => 30, 'default' => '207Q00000X']);
         $table->addColumn('calendar', Types::SMALLINT, ['default' => 0, 'comment' => '1 = appears in calendar']);
@@ -250,7 +250,7 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('patient_menu_role', Types::STRING, ['length' => 50, 'default' => 'standard']);
         $table->addColumn('portal_user', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('supervisor_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('billing_facility', Types::TEXT);
+        $table->addColumn('billing_facility', Types::TEXT, ['length' => 65535]);
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);

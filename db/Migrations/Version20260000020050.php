@@ -36,7 +36,7 @@ final class Version20260000020050 extends AbstractMigration
         $table->addColumn('pcs_code', Types::STRING, ['length' => 7]);
         $table->addColumn('valid_for_coding', Types::STRING, ['length' => 1]);
         $table->addColumn('short_desc', Types::STRING, ['length' => 60]);
-        $table->addColumn('long_desc', Types::TEXT);
+        $table->addColumn('long_desc', Types::TEXT, ['length' => 65535]);
         $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
 

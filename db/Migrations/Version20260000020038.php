@@ -37,7 +37,7 @@ final class Version20260000020038 extends AbstractMigration
         $table->addColumn('date', Types::STRING, ['length' => 25]);
         $table->addColumn('time', Types::STRING, ['length' => 15]);
         $table->addColumn('code', Types::INTEGER);
-        $table->addColumn('status', Types::TEXT);
+        $table->addColumn('status', Types::TEXT, ['length' => 65535]);
         $table->addColumn('message_id', Types::STRING, [
             'length' => 100,
             'notnull' => false,

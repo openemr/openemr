@@ -35,7 +35,7 @@ final class Version20260000020111 extends AbstractMigration
         $table->addColumn('notification_id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('sms_gateway_type', Types::STRING, ['length' => 255]);
         $table->addColumn('provider_name', Types::STRING, ['length' => 100]);
-        $table->addColumn('message', Types::TEXT);
+        $table->addColumn('message', Types::TEXT, ['length' => 65535]);
         $table->addColumn('email_sender', Types::STRING, ['length' => 100]);
         $table->addColumn('email_subject', Types::STRING, ['length' => 100]);
         $table->addColumn('type', Types::ENUM, [

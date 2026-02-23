@@ -109,7 +109,7 @@ final class Version20260000020026 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('encrypted', Types::SMALLINT, ['default' => 0, 'comment' => '0->No,1->Yes']);
-        $table->addColumn('document_data', Types::TEXT);
+        $table->addColumn('document_data', Types::TEXT, ['length' => 16777215]);
         $table->addColumn('deleted', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('foreign_reference_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('foreign_reference_table', Types::STRING, [

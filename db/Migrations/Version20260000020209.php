@@ -77,63 +77,63 @@ final class Version20260000020209 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
         ]);
-        $table->addColumn('food_insecurity_notes', Types::TEXT);
+        $table->addColumn('food_insecurity_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('housing_instability', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_housing_worry',
         ]);
-        $table->addColumn('housing_instability_notes', Types::TEXT);
+        $table->addColumn('housing_instability_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('transportation_insecurity', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_transportation_barrier',
         ]);
-        $table->addColumn('transportation_insecurity_notes', Types::TEXT);
+        $table->addColumn('transportation_insecurity_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('utilities_insecurity', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_utilities_shutoff',
         ]);
-        $table->addColumn('utilities_insecurity_notes', Types::TEXT);
+        $table->addColumn('utilities_insecurity_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('interpersonal_safety', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
         ]);
-        $table->addColumn('interpersonal_safety_notes', Types::TEXT);
+        $table->addColumn('interpersonal_safety_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('financial_strain', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
         ]);
-        $table->addColumn('financial_strain_notes', Types::TEXT);
+        $table->addColumn('financial_strain_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('social_isolation', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_social_isolation_freq',
         ]);
-        $table->addColumn('social_isolation_notes', Types::TEXT);
+        $table->addColumn('social_isolation_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('childcare_needs', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_childcare_needs',
         ]);
-        $table->addColumn('childcare_needs_notes', Types::TEXT);
+        $table->addColumn('childcare_needs_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('digital_access', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_digital_access',
         ]);
-        $table->addColumn('digital_access_notes', Types::TEXT);
+        $table->addColumn('digital_access_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('employment_status', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -186,8 +186,8 @@ final class Version20260000020209 extends AbstractMigration
             'default' => null,
             'comment' => 'PostPartum end date',
         ]);
-        $table->addColumn('goals', Types::TEXT);
-        $table->addColumn('interventions', Types::TEXT);
+        $table->addColumn('goals', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('interventions', Types::TEXT, ['length' => 65535]);
         $table->addColumn('instrument_score', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('positive_domain_count', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('declined_flag', Types::SMALLINT, ['notnull' => false, 'default' => null]);
@@ -197,8 +197,8 @@ final class Version20260000020209 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to list_options.option_id WHERE list_id=disability_status',
         ]);
-        $table->addColumn('disability_status_notes', Types::TEXT);
-        $table->addColumn('disability_scale', Types::TEXT);
+        $table->addColumn('disability_status_notes', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('disability_scale', Types::TEXT, ['length' => 65535]);
         $table->addColumn('hunger_q1', Types::STRING, [
             'length' => 50,
             'notnull' => false,

@@ -67,7 +67,7 @@ final class Version20260000020210 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to preference_value_sets.answer_display',
         ]);
-        $table->addColumn('value_text', Types::TEXT);
+        $table->addColumn('value_text', Types::TEXT, ['length' => 65535]);
         $table->addColumn('value_boolean', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE);
         $table->addColumn('status', Types::STRING, [
@@ -75,7 +75,7 @@ final class Version20260000020210 extends AbstractMigration
             'default' => 'final',
             'comment' => 'valid options are final,amended,preliminary',
         ]);
-        $table->addColumn('note', Types::TEXT);
+        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

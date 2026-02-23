@@ -36,7 +36,7 @@ final class Version20260000020172 extends AbstractMigration
         $table->addColumn('msg_type', Types::STRING, ['length' => 50]);
         $table->addColumn('msg_status', Types::STRING, ['length' => 10]);
         $table->addColumn('i_description', Types::STRING, ['length' => 255]);
-        $table->addColumn('i_html', Types::TEXT);
+        $table->addColumn('i_html', Types::TEXT, ['length' => 65535]);
         $table->addColumn('i_blob', Types::TEXT);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

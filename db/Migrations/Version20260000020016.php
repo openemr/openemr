@@ -41,8 +41,8 @@ final class Version20260000020016 extends AbstractMigration
             'default' => '',
             'comment' => 'An example category is clinical_reminder_widget',
         ]);
-        $table->addColumn('value', Types::TEXT);
-        $table->addColumn('new_value', Types::TEXT);
+        $table->addColumn('value', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('new_value', Types::TEXT, ['length' => 65535]);
         $table->addColumn('facility_id', Types::INTEGER, ['default' => 0, 'comment' => 'facility where the rule was executed, 0 if unknown']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

@@ -60,7 +60,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('audit_data', Types::TEXT);
+        $table->addColumn('audit_data', Types::TEXT, ['length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('map_uuid', Types::BINARY, [
             'length' => 16,
@@ -83,7 +83,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('revert_audit_data', Types::TEXT);
+        $table->addColumn('revert_audit_data', Types::TEXT, ['length' => 65535]);
         $table->addColumn('revert_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

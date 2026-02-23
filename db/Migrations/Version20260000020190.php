@@ -46,10 +46,10 @@ final class Version20260000020190 extends AbstractMigration
         $table->addColumn('resource_include_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('output_format', Types::STRING, ['length' => 128]);
         $table->addColumn('request_uri', Types::STRING, ['length' => 128]);
-        $table->addColumn('resources', Types::TEXT);
-        $table->addColumn('output', Types::TEXT);
-        $table->addColumn('errors', Types::TEXT);
-        $table->addColumn('access_token_id', Types::TEXT);
+        $table->addColumn('resources', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('output', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('errors', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('access_token_id', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

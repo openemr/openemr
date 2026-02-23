@@ -37,7 +37,7 @@ final class Version20260000020141 extends AbstractMigration
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
         $table->addColumn('last_update', Types::DATETIME_MUTABLE, ['comment' => 'time of last update']);
         $table->addColumn('user_id', Types::BIGINT, ['comment' => 'user who last updated']);
-        $table->addColumn('field_value', Types::TEXT);
+        $table->addColumn('field_value', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('pid', 'encounter', 'field_id')

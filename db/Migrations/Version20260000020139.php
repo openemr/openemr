@@ -38,7 +38,7 @@ final class Version20260000020139 extends AbstractMigration
         $table->addColumn('uid', Types::INTEGER, ['comment' => 'user id for the signing user']);
         $table->addColumn('datetime', Types::DATETIME_MUTABLE, ['comment' => 'datetime of the signature action']);
         $table->addColumn('is_lock', Types::SMALLINT, ['default' => 0, 'comment' => 'sig, lock or amendment']);
-        $table->addColumn('amendment', Types::TEXT, ['comment' => 'amendment text, if any']);
+        $table->addColumn('amendment', Types::TEXT, ['length' => 65535, 'comment' => 'amendment text, if any']);
         $table->addColumn('hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signed data']);
         $table->addColumn('signature_hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signature itself']);
         $table->addPrimaryKeyConstraint(

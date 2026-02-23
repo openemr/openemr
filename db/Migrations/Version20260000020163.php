@@ -41,9 +41,9 @@ final class Version20260000020163 extends AbstractMigration
         $table->addColumn('financial_reporting', Types::SMALLINT);
         $table->addColumn('category', Types::STRING, ['length' => 255]);
         $table->addColumn('code_type_name', Types::STRING, ['length' => 255]);
-        $table->addColumn('code_text', Types::TEXT);
-        $table->addColumn('code_text_short', Types::TEXT);
-        $table->addColumn('prices', Types::TEXT);
+        $table->addColumn('code_text', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('code_text_short', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('prices', Types::TEXT, ['length' => 65535]);
         $table->addColumn('action_type', Types::STRING, ['length' => 25]);
         $table->addColumn('update_by', Types::STRING, ['length' => 255]);
         $table->addPrimaryKeyConstraint(

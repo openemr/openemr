@@ -46,7 +46,7 @@ final class Version20260000020135 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('cl_list_item_long', Types::TEXT);
+        $table->addColumn('cl_list_item_long', Types::TEXT, ['length' => 65535]);
         $table->addColumn('cl_list_item_level', Types::INTEGER, [
             'notnull' => false,
             'default' => null,

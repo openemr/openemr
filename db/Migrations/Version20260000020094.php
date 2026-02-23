@@ -34,7 +34,7 @@ final class Version20260000020094 extends AbstractMigration
         $table = new Table('report_results');
         $table->addColumn('report_id', Types::BIGINT);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'default' => '']);
-        $table->addColumn('field_value', Types::TEXT);
+        $table->addColumn('field_value', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('report_id', 'field_id')

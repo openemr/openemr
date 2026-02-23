@@ -34,19 +34,19 @@ final class Version20260000020178 extends AbstractMigration
         $table = new Table('form_eye_ros');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ROSGENERAL', Types::TEXT);
-        $table->addColumn('ROSHEENT', Types::TEXT);
-        $table->addColumn('ROSCV', Types::TEXT);
-        $table->addColumn('ROSPULM', Types::TEXT);
-        $table->addColumn('ROSGI', Types::TEXT);
-        $table->addColumn('ROSGU', Types::TEXT);
-        $table->addColumn('ROSDERM', Types::TEXT);
-        $table->addColumn('ROSNEURO', Types::TEXT);
-        $table->addColumn('ROSPSYCH', Types::TEXT);
-        $table->addColumn('ROSMUSCULO', Types::TEXT);
-        $table->addColumn('ROSIMMUNO', Types::TEXT);
-        $table->addColumn('ROSENDOCRINE', Types::TEXT);
-        $table->addColumn('ROSCOMMENTS', Types::TEXT);
+        $table->addColumn('ROSGENERAL', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSHEENT', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSCV', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSPULM', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSGI', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSGU', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSDERM', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSNEURO', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSPSYCH', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSMUSCULO', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSIMMUNO', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSENDOCRINE', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSCOMMENTS', Types::TEXT, ['length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

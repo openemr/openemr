@@ -50,7 +50,7 @@ final class Version20260000010010 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('billing_note', Types::TEXT);
+        $table->addColumn('billing_note', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pc_catid', Types::INTEGER, ['default' => 5, 'comment' => 'event category from openemr_postcalendar_categories']);
         $table->addColumn('last_level_billed', Types::INTEGER, ['default' => 0, 'comment' => '0=none, 1=ins1, 2=ins2, etc']);
         $table->addColumn('last_level_closed', Types::INTEGER, ['default' => 0, 'comment' => '0=none, 1=ins1, 2=ins2, etc']);
@@ -86,7 +86,7 @@ final class Version20260000010010 extends AbstractMigration
             'default' => null,
             'comment' => 'not all types are categories',
         ]);
-        $table->addColumn('encounter_type_description', Types::TEXT);
+        $table->addColumn('encounter_type_description', Types::TEXT, ['length' => 65535]);
         $table->addColumn('referring_provider_id', Types::INTEGER, ['default' => 0, 'comment' => 'referring provider, if any, for this visit']);
         $table->addColumn('date_end', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('in_collection', Types::SMALLINT, ['notnull' => false, 'default' => null]);

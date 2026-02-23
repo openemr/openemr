@@ -39,7 +39,7 @@ final class Version20260000020165 extends AbstractMigration
         $table->addColumn('group_type', Types::SMALLINT);
         $table->addColumn('group_participation', Types::SMALLINT);
         $table->addColumn('group_status', Types::INTEGER);
-        $table->addColumn('group_notes', Types::TEXT);
+        $table->addColumn('group_notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('group_guest_counselors', Types::STRING, ['length' => 255]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

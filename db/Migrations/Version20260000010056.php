@@ -81,11 +81,11 @@ final class Version20260000010056 extends AbstractMigration
             'default' => '',
             'comment' => 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter',
         ]);
-        $table->addColumn('interpreter_needed', Types::TEXT, ['comment' => 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter']);
+        $table->addColumn('interpreter_needed', Types::TEXT, ['length' => 65535, 'comment' => 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter']);
         $table->addColumn('migrantseasonal', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('family_size', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('monthly_income', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('billing_note', Types::TEXT);
+        $table->addColumn('billing_note', Types::TEXT, ['length' => 65535]);
         $table->addColumn('homeless', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('financial_review', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pubpid', Types::STRING, ['length' => 255, 'default' => '']);
@@ -138,7 +138,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('advance_directive_user_authenticator', Types::BIGINT, ['comment' => 'fk to users.id of the user who authenticates that the advance care directive is valid.']);
         $table->addColumn('vfc', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('mothersname', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('guardiansname', Types::TEXT);
+        $table->addColumn('guardiansname', Types::TEXT, ['length' => 65535]);
         $table->addColumn('allow_imm_reg_use', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('allow_imm_info_share', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('allow_health_info_ex', Types::STRING, ['length' => 255, 'default' => '']);
@@ -151,39 +151,39 @@ final class Version20260000010056 extends AbstractMigration
             'comment' => '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',
         ]);
         $table->addColumn('cmsportal_login', Types::STRING, ['length' => 60, 'default' => '']);
-        $table->addColumn('care_team_provider', Types::TEXT);
-        $table->addColumn('care_team_facility', Types::TEXT);
-        $table->addColumn('care_team_status', Types::TEXT);
+        $table->addColumn('care_team_provider', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('care_team_facility', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('care_team_status', Types::TEXT, ['length' => 65535]);
         $table->addColumn('county', Types::STRING, ['length' => 40, 'default' => '']);
-        $table->addColumn('industry', Types::TEXT);
-        $table->addColumn('imm_reg_status', Types::TEXT);
-        $table->addColumn('imm_reg_stat_effdate', Types::TEXT);
-        $table->addColumn('publicity_code', Types::TEXT);
-        $table->addColumn('publ_code_eff_date', Types::TEXT);
-        $table->addColumn('protect_indicator', Types::TEXT);
-        $table->addColumn('prot_indi_effdate', Types::TEXT);
-        $table->addColumn('guardianrelationship', Types::TEXT);
-        $table->addColumn('guardiansex', Types::TEXT);
-        $table->addColumn('guardianaddress', Types::TEXT);
-        $table->addColumn('guardiancity', Types::TEXT);
-        $table->addColumn('guardianstate', Types::TEXT);
-        $table->addColumn('guardianpostalcode', Types::TEXT);
-        $table->addColumn('guardiancountry', Types::TEXT);
-        $table->addColumn('guardianphone', Types::TEXT);
-        $table->addColumn('guardianworkphone', Types::TEXT);
-        $table->addColumn('guardianemail', Types::TEXT);
-        $table->addColumn('sexual_orientation', Types::TEXT);
-        $table->addColumn('gender_identity', Types::TEXT);
-        $table->addColumn('birth_fname', Types::TEXT);
-        $table->addColumn('birth_lname', Types::TEXT);
-        $table->addColumn('birth_mname', Types::TEXT);
+        $table->addColumn('industry', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('imm_reg_status', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('imm_reg_stat_effdate', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('publicity_code', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('publ_code_eff_date', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('protect_indicator', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('prot_indi_effdate', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianrelationship', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardiansex', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianaddress', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardiancity', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianstate', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianpostalcode', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardiancountry', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianphone', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianworkphone', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('guardianemail', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('sexual_orientation', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('gender_identity', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('birth_fname', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('birth_lname', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('birth_mname', Types::TEXT, ['length' => 65535]);
         $table->addColumn('dupscore', Types::INTEGER);
-        $table->addColumn('name_history', Types::TEXT);
-        $table->addColumn('suffix', Types::TEXT);
-        $table->addColumn('street_line_2', Types::TEXT);
-        $table->addColumn('patient_groups', Types::TEXT);
-        $table->addColumn('prevent_portal_apps', Types::TEXT);
-        $table->addColumn('provider_since_date', Types::TEXT);
+        $table->addColumn('name_history', Types::TEXT, ['length' => 255]);
+        $table->addColumn('suffix', Types::TEXT, ['length' => 255]);
+        $table->addColumn('street_line_2', Types::TEXT, ['length' => 255]);
+        $table->addColumn('patient_groups', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('prevent_portal_apps', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('provider_since_date', Types::TEXT, ['length' => 255]);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
@@ -194,11 +194,11 @@ final class Version20260000010056 extends AbstractMigration
             'default' => null,
             'comment' => 'users.id the user that last modified this record',
         ]);
-        $table->addColumn('preferred_name', Types::TEXT);
-        $table->addColumn('nationality_country', Types::TEXT);
+        $table->addColumn('preferred_name', Types::TEXT, ['length' => 255]);
+        $table->addColumn('nationality_country', Types::TEXT, ['length' => 255]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
-        $table->addColumn('tribal_affiliations', Types::TEXT);
-        $table->addColumn('sex_identified', Types::TEXT, ['comment' => 'Patient reported current sex']);
+        $table->addColumn('tribal_affiliations', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('sex_identified', Types::TEXT, ['length' => 65535, 'comment' => 'Patient reported current sex']);
         $table->addColumn('pronoun', Types::TEXT);
 
         $table->addIndex(['lname', 'fname'], 'idx_patient_name');

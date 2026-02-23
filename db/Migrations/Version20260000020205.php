@@ -42,7 +42,7 @@ final class Version20260000020205 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('source_value', Types::TEXT);
+        $table->addColumn('source_value', Types::TEXT, ['length' => 65535]);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('last_updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE);

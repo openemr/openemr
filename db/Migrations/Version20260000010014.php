@@ -47,10 +47,10 @@ final class Version20260000010014 extends AbstractMigration
         ]);
         $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('activity', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('subjective', Types::TEXT);
-        $table->addColumn('objective', Types::TEXT);
-        $table->addColumn('assessment', Types::TEXT);
-        $table->addColumn('plan', Types::TEXT);
+        $table->addColumn('subjective', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('objective', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('assessment', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('plan', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

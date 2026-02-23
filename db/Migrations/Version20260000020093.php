@@ -47,7 +47,7 @@ final class Version20260000020093 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to clinical_rules.rule_id',
         ]);
-        $table->addColumn('item_details', Types::TEXT, ['comment' => 'JSON with specific sub item results for a clinical rule']);
+        $table->addColumn('item_details', Types::TEXT, ['length' => 65535, 'comment' => 'JSON with specific sub item results for a clinical rule']);
 
         $table->addIndex(['report_id', 'itemized_test_id', 'numerator_label', 'pass'], null);
 

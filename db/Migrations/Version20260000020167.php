@@ -34,7 +34,7 @@ final class Version20260000020167 extends AbstractMigration
         $table = new Table('therapy_groups_participant_attendance');
         $table->addColumn('form_id', Types::INTEGER);
         $table->addColumn('pid', Types::BIGINT);
-        $table->addColumn('meeting_patient_comment', Types::TEXT);
+        $table->addColumn('meeting_patient_comment', Types::TEXT, ['length' => 65535]);
         $table->addColumn('meeting_patient_status', Types::STRING, ['length' => 15]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

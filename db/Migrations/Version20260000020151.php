@@ -104,7 +104,7 @@ final class Version20260000020151 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ob_reason_text', Types::TEXT);
+        $table->addColumn('ob_reason_text', Types::TEXT, ['length' => 65535]);
         $table->addColumn('ob_documentationof_table', Types::STRING, [
             'length' => 255,
             'notnull' => false,

@@ -44,7 +44,7 @@ final class Version20260000020033 extends AbstractMigration
         $table->addColumn('reorder_point', Types::FLOAT, ['default' => 0.0]);
         $table->addColumn('max_level', Types::FLOAT, ['default' => 0.0]);
         $table->addColumn('last_notify', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addColumn('reactions', Types::TEXT);
+        $table->addColumn('reactions', Types::TEXT, ['length' => 65535]);
         $table->addColumn('form', Types::STRING, ['length' => 31, 'default' => 0]);
         $table->addColumn('size', Types::STRING, ['length' => 25, 'default' => '']);
         $table->addColumn('unit', Types::STRING, ['length' => 31, 'default' => 0]);

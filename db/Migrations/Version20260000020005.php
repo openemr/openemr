@@ -49,9 +49,9 @@ final class Version20260000020005 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('scope', Types::TEXT, ['comment' => 'json encoded']);
+        $table->addColumn('scope', Types::TEXT, ['length' => 65535, 'comment' => 'json encoded']);
         $table->addColumn('revoked', Types::SMALLINT, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
-        $table->addColumn('context', Types::TEXT, ['comment' => 'context values that change/govern how access token are used']);
+        $table->addColumn('context', Types::TEXT, ['length' => 65535, 'comment' => 'context values that change/govern how access token are used']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -68,13 +68,13 @@ final class Version20260000020199 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('source_url', Types::TEXT);
+        $table->addColumn('source_url', Types::TEXT, ['length' => 65535]);
         $table->addColumn('code', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('code_display', Types::TEXT);
+        $table->addColumn('code_display', Types::TEXT, ['length' => 65535]);
         $table->addColumn('questionnaire', Types::TEXT);
         $table->addColumn('lform', Types::TEXT);
         $table->addColumn('category', Types::STRING, [

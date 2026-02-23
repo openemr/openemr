@@ -56,7 +56,7 @@ final class Version20260000020123 extends AbstractMigration
             'default' => 'T',
             'comment' => 'Text, Number, Select, Multiselect, Date, Gestational-age',
         ]);
-        $table->addColumn('options', Types::TEXT, ['comment' => 'choices for fldtype S and T']);
+        $table->addColumn('options', Types::TEXT, ['length' => 65535, 'comment' => 'choices for fldtype S and T']);
         $table->addColumn('tips', Types::STRING, [
             'length' => 255,
             'default' => '',

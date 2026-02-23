@@ -69,7 +69,7 @@ final class Version20260000020057 extends AbstractMigration
             'default' => null,
             'comment' => 'Date of VIS Statement',
         ]);
-        $table->addColumn('note', Types::TEXT);
+        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
         $table->addColumn('create_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('update_date', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -119,7 +119,7 @@ final class Version20260000020057 extends AbstractMigration
             'default' => null,
             'comment' => 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
         ]);
-        $table->addColumn('reason_description', Types::TEXT, ['comment' => 'Human readable text description of the reason_code column']);
+        $table->addColumn('reason_description', Types::TEXT, ['length' => 65535, 'comment' => 'Human readable text description of the reason_code column']);
         $table->addColumn('encounter_id', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

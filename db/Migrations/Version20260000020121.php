@@ -76,7 +76,7 @@ final class Version20260000020121 extends AbstractMigration
         $table->addColumn('password', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('orders_path', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('results_path', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('notes', Types::TEXT);
+        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
         $table->addColumn('lab_director', Types::BIGINT, ['default' => 0]);
         $table->addColumn('active', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('type', Types::STRING, [

@@ -55,7 +55,7 @@ final class Version20260000020109 extends AbstractMigration
             'default' => 0,
             'comment' => 'for checkout,receipt total voided payments',
         ]);
-        $table->addColumn('other_info', Types::TEXT, ['comment' => 'for checkout,receipt the old invoice refno']);
+        $table->addColumn('other_info', Types::TEXT, ['length' => 65535, 'comment' => 'for checkout,receipt the old invoice refno']);
         $table->addColumn('reason', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('notes', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addPrimaryKeyConstraint(

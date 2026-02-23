@@ -39,7 +39,7 @@ final class Version20260000020004 extends AbstractMigration
         $table->addColumn('ip_address', Types::STRING, ['length' => 255]);
         $table->addColumn('method', Types::STRING, ['length' => 20]);
         $table->addColumn('request', Types::STRING, ['length' => 255]);
-        $table->addColumn('request_url', Types::TEXT);
+        $table->addColumn('request_url', Types::TEXT, ['length' => 65535]);
         $table->addColumn('request_body', Types::TEXT);
         $table->addColumn('response', Types::TEXT);
         $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false]);

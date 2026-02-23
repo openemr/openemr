@@ -106,15 +106,15 @@ final class Version20260000020015 extends AbstractMigration
             'default' => 'patients:med',
             'comment' => 'ACO link for access control',
         ]);
-        $table->addColumn('patient_dob_usage', Types::TEXT, ['comment' => 'Description of how patient DOB is used by this rule']);
-        $table->addColumn('patient_ethnicity_usage', Types::TEXT, ['comment' => 'Description of how patient ethnicity is used by this rule']);
-        $table->addColumn('patient_health_status_usage', Types::TEXT, ['comment' => 'Description of how patient health status assessments are used by this rule']);
-        $table->addColumn('patient_gender_identity_usage', Types::TEXT, ['comment' => 'Description of how patient gender identity information is used by this rule']);
-        $table->addColumn('patient_language_usage', Types::TEXT, ['comment' => 'Description of how patient language information is used by this rule']);
-        $table->addColumn('patient_race_usage', Types::TEXT, ['comment' => 'Description of how patient race information is used by this rule']);
-        $table->addColumn('patient_sex_usage', Types::TEXT, ['comment' => 'Description of how patient birth sex information is used by this rule']);
-        $table->addColumn('patient_sexual_orientation_usage', Types::TEXT, ['comment' => 'Description of how patient sexual orientation is used by this rule']);
-        $table->addColumn('patient_sodh_usage', Types::TEXT, ['comment' => 'Description of how patient social determinants of health are used by this rule']);
+        $table->addColumn('patient_dob_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient DOB is used by this rule']);
+        $table->addColumn('patient_ethnicity_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient ethnicity is used by this rule']);
+        $table->addColumn('patient_health_status_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient health status assessments are used by this rule']);
+        $table->addColumn('patient_gender_identity_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient gender identity information is used by this rule']);
+        $table->addColumn('patient_language_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient language information is used by this rule']);
+        $table->addColumn('patient_race_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient race information is used by this rule']);
+        $table->addColumn('patient_sex_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient birth sex information is used by this rule']);
+        $table->addColumn('patient_sexual_orientation_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient sexual orientation is used by this rule']);
+        $table->addColumn('patient_sodh_usage', Types::TEXT, ['length' => 65535, 'comment' => 'Description of how patient social determinants of health are used by this rule']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id', 'pid')

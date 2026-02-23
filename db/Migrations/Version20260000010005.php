@@ -33,8 +33,8 @@ final class Version20260000010005 extends AbstractMigration
     {
         $table = new Table('codes');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('code_text', Types::TEXT);
-        $table->addColumn('code_text_short', Types::TEXT);
+        $table->addColumn('code_text', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('code_text_short', Types::TEXT, ['length' => 65535]);
         $table->addColumn('code', Types::STRING, ['length' => 25, 'default' => '']);
         $table->addColumn('code_type', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('modifier', Types::STRING, ['length' => 12, 'default' => '']);

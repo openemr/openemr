@@ -34,7 +34,7 @@ final class Version20260000020201 extends AbstractMigration
         $table = new Table('form_questionnaire_assessments');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('response_id', Types::TEXT, ['comment' => 'The foreign id to the questionnaire_response repository']);
+        $table->addColumn('response_id', Types::TEXT, ['length' => 65535, 'comment' => 'The foreign id to the questionnaire_response repository']);
         $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,
@@ -48,14 +48,14 @@ final class Version20260000020201 extends AbstractMigration
         ]);
         $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('activity', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('copyright', Types::TEXT);
+        $table->addColumn('copyright', Types::TEXT, ['length' => 65535]);
         $table->addColumn('form_name', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('response_meta', Types::TEXT, ['comment' => 'json meta data for the response resource']);
-        $table->addColumn('questionnaire_id', Types::TEXT, ['comment' => 'The foreign id to the questionnaire_repository']);
+        $table->addColumn('response_meta', Types::TEXT, ['length' => 65535, 'comment' => 'json meta data for the response resource']);
+        $table->addColumn('questionnaire_id', Types::TEXT, ['length' => 65535, 'comment' => 'The foreign id to the questionnaire_repository']);
         $table->addColumn('questionnaire', Types::TEXT);
         $table->addColumn('questionnaire_response', Types::TEXT);
         $table->addColumn('lform', Types::TEXT);

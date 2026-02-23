@@ -68,7 +68,7 @@ final class Version20260000020027 extends AbstractMigration
         $table->addColumn('dld_file_for_pdf_generation', Types::BLOB, ['comment' => 'The filled details in the fdf file is stored here.Patient Registration Screen']);
         $table->addColumn('dld_denial_reason', Types::TEXT);
         $table->addColumn('dld_moved', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('dld_patient_comments', Types::TEXT, ['comment' => 'Patient comments stored here']);
+        $table->addColumn('dld_patient_comments', Types::TEXT, ['length' => 65535, 'comment' => 'Patient comments stored here']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('dld_id')

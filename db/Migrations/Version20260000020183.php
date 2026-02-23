@@ -34,16 +34,16 @@ final class Version20260000020183 extends AbstractMigration
         $table = new Table('form_eye_external');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('RUL', Types::TEXT);
-        $table->addColumn('LUL', Types::TEXT);
-        $table->addColumn('RLL', Types::TEXT);
-        $table->addColumn('LLL', Types::TEXT);
-        $table->addColumn('RBROW', Types::TEXT);
-        $table->addColumn('LBROW', Types::TEXT);
-        $table->addColumn('RMCT', Types::TEXT);
-        $table->addColumn('LMCT', Types::TEXT);
-        $table->addColumn('RADNEXA', Types::TEXT);
-        $table->addColumn('LADNEXA', Types::TEXT);
+        $table->addColumn('RUL', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LUL', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RLL', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LLL', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RBROW', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LBROW', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RMCT', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LMCT', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RADNEXA', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LADNEXA', Types::TEXT, ['length' => 65535]);
         $table->addColumn('RMRD', Types::STRING, [
             'length' => 25,
             'notnull' => false,
@@ -89,15 +89,15 @@ final class Version20260000020183 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('RCAROTID', Types::TEXT);
-        $table->addColumn('LCAROTID', Types::TEXT);
-        $table->addColumn('RTEMPART', Types::TEXT);
-        $table->addColumn('LTEMPART', Types::TEXT);
-        $table->addColumn('RCNV', Types::TEXT);
-        $table->addColumn('LCNV', Types::TEXT);
-        $table->addColumn('RCNVII', Types::TEXT);
-        $table->addColumn('LCNVII', Types::TEXT);
-        $table->addColumn('EXT_COMMENTS', Types::TEXT);
+        $table->addColumn('RCAROTID', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LCAROTID', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RTEMPART', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LTEMPART', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RCNV', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LCNV', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('RCNVII', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('LCNVII', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('EXT_COMMENTS', Types::TEXT, ['length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

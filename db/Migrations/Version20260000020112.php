@@ -37,11 +37,11 @@ final class Version20260000020112 extends AbstractMigration
         $table->addColumn('pc_eid', Types::INTEGER, ['unsigned' => true, 'notnull' => false]);
         $table->addColumn('sms_gateway_type', Types::STRING, ['length' => 50]);
         $table->addColumn('smsgateway_info', Types::STRING, ['length' => 255]);
-        $table->addColumn('message', Types::TEXT);
+        $table->addColumn('message', Types::TEXT, ['length' => 65535]);
         $table->addColumn('email_sender', Types::STRING, ['length' => 255]);
         $table->addColumn('email_subject', Types::STRING, ['length' => 255]);
         $table->addColumn('type', Types::ENUM, ['values' => ['SMS', 'Email']]);
-        $table->addColumn('patient_info', Types::TEXT);
+        $table->addColumn('patient_info', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pc_eventDate', Types::DATE_MUTABLE);
         $table->addColumn('pc_endDate', Types::DATE_MUTABLE);
         $table->addColumn('pc_startTime', Types::TIME_MUTABLE);

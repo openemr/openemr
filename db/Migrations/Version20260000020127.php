@@ -68,7 +68,7 @@ final class Version20260000020127 extends AbstractMigration
             'default' => 'received',
             'comment' => 'pending review status: received,reviewed',
         ]);
-        $table->addColumn('report_notes', Types::TEXT, ['comment' => 'notes from the lab']);
+        $table->addColumn('report_notes', Types::TEXT, ['length' => 65535, 'comment' => 'notes from the lab']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('procedure_report_id')

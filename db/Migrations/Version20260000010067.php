@@ -34,8 +34,8 @@ final class Version20260000010067 extends AbstractMigration
         $table = new Table('form_eye_locking');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('IMP', Types::TEXT);
-        $table->addColumn('PLAN', Types::TEXT);
+        $table->addColumn('IMP', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('PLAN', Types::TEXT, ['length' => 65535]);
         $table->addColumn('Resource', Types::STRING, [
             'length' => 50,
             'notnull' => false,

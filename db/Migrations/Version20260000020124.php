@@ -53,7 +53,7 @@ final class Version20260000020124 extends AbstractMigration
             'default' => '',
             'comment' => 'pending,routed,complete,canceled',
         ]);
-        $table->addColumn('patient_instructions', Types::TEXT);
+        $table->addColumn('patient_instructions', Types::TEXT, ['length' => 65535]);
         $table->addColumn('activity', Types::SMALLINT, ['default' => 1, 'comment' => '0 if deleted']);
         $table->addColumn('control_id', Types::STRING, [
             'length' => 255,

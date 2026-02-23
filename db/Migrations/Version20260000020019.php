@@ -50,7 +50,7 @@ final class Version20260000020019 extends AbstractMigration
             'notnull' => false,
             'comment' => 'Y=yes,N=no',
         ]);
-        $table->addColumn('notes', Types::TEXT);
+        $table->addColumn('notes', Types::TEXT, ['length' => 255]);
         $table->addColumn('period_start', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'Date the telecom became active']);
         $table->addColumn('period_end', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'Date the telecom became deactivated']);
         $table->addColumn('inactivated_reason', Types::STRING, [

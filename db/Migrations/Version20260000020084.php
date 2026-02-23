@@ -39,8 +39,8 @@ final class Version20260000020084 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('care_team_provider', Types::TEXT);
-        $table->addColumn('care_team_facility', Types::TEXT);
+        $table->addColumn('care_team_provider', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('care_team_facility', Types::TEXT, ['length' => 65535]);
         $table->addColumn('pid', Types::BIGINT);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

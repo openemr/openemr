@@ -49,7 +49,7 @@ final class Version20260000020207 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('note', Types::TEXT);
+        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('date_updated', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, ['comment' => 'fk to users.id for user who created this record']);

@@ -118,7 +118,7 @@ final class Version20260000020129 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('comments', Types::TEXT);
+        $table->addColumn('comments', Types::TEXT, ['length' => 65535]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE);
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);

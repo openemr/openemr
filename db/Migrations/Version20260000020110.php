@@ -110,12 +110,12 @@ final class Version20260000020110 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('x12_token_endpoint', Types::TEXT);
-        $table->addColumn('x12_eligibility_endpoint', Types::TEXT);
-        $table->addColumn('x12_claim_status_endpoint', Types::TEXT);
-        $table->addColumn('x12_attachment_endpoint', Types::TEXT);
-        $table->addColumn('x12_client_id', Types::TEXT);
-        $table->addColumn('x12_client_secret', Types::TEXT);
+        $table->addColumn('x12_token_endpoint', Types::TEXT, ['length' => 255]);
+        $table->addColumn('x12_eligibility_endpoint', Types::TEXT, ['length' => 255]);
+        $table->addColumn('x12_claim_status_endpoint', Types::TEXT, ['length' => 255]);
+        $table->addColumn('x12_attachment_endpoint', Types::TEXT, ['length' => 255]);
+        $table->addColumn('x12_client_id', Types::TEXT, ['length' => 255]);
+        $table->addColumn('x12_client_secret', Types::TEXT, ['length' => 255]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -49,7 +49,7 @@ final class Version20260000020125 extends AbstractMigration
             'default' => 1,
             'comment' => '1=original order, 2=added after order sent',
         ]);
-        $table->addColumn('diagnoses', Types::TEXT, ['comment' => 'diagnoses and maybe other coding (e.g. ICD9:111.11)']);
+        $table->addColumn('diagnoses', Types::TEXT, ['length' => 65535, 'comment' => 'diagnoses and maybe other coding (e.g. ICD9:111.11)']);
         $table->addColumn('do_not_send', Types::SMALLINT, ['default' => 0, 'comment' => '0 = normal, 1 = do not transmit to lab']);
         $table->addColumn('procedure_order_title', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
         $table->addColumn('procedure_type', Types::STRING, [
@@ -68,7 +68,7 @@ final class Version20260000020125 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('reason_description', Types::TEXT);
+        $table->addColumn('reason_description', Types::TEXT, ['length' => 65535]);
         $table->addColumn('reason_date_low', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('reason_date_high', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('reason_status', Types::STRING, [

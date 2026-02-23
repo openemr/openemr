@@ -43,7 +43,7 @@ final class Version20260000020173 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('msg_extra_text', Types::TEXT);
+        $table->addColumn('msg_extra_text', Types::TEXT, ['length' => 65535]);
         $table->addColumn('medex_uid', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

@@ -69,15 +69,15 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ODCONJ', Types::TEXT);
-        $table->addColumn('ODCORNEA', Types::TEXT);
-        $table->addColumn('OSCORNEA', Types::TEXT);
-        $table->addColumn('ODAC', Types::TEXT);
-        $table->addColumn('OSAC', Types::TEXT);
-        $table->addColumn('ODLENS', Types::TEXT);
-        $table->addColumn('OSLENS', Types::TEXT);
-        $table->addColumn('ODIRIS', Types::TEXT);
-        $table->addColumn('OSIRIS', Types::TEXT);
+        $table->addColumn('ODCONJ', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ODCORNEA', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('OSCORNEA', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ODAC', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('OSAC', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ODLENS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('OSLENS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ODIRIS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('OSIRIS', Types::TEXT, ['length' => 65535]);
         $table->addColumn('PUPIL_NORMAL', Types::STRING, ['length' => 2, 'default' => 1]);
         $table->addColumn('ODPUPILSIZE1', Types::STRING, [
             'length' => 25,
@@ -149,7 +149,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('PUPIL_COMMENTS', Types::TEXT);
+        $table->addColumn('PUPIL_COMMENTS', Types::TEXT, ['length' => 65535]);
         $table->addColumn('ODKTHICKNESS', Types::STRING, [
             'length' => 25,
             'notnull' => false,
@@ -170,7 +170,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ANTSEG_COMMENTS', Types::TEXT);
+        $table->addColumn('ANTSEG_COMMENTS', Types::TEXT, ['length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

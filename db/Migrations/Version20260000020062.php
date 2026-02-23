@@ -34,7 +34,7 @@ final class Version20260000020062 extends AbstractMigration
         $table = new Table('keys');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('name', Types::STRING, ['length' => 20, 'default' => '']);
-        $table->addColumn('value', Types::TEXT);
+        $table->addColumn('value', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

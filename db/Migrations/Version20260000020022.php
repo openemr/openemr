@@ -47,7 +47,7 @@ final class Version20260000020022 extends AbstractMigration
             'default' => 'manual',
             'comment' => 'How link was created: manual, auto_detected, migrated, import',
         ]);
-        $table->addColumn('notes', Types::TEXT, ['comment' => 'Optional notes about why/how they were linked']);
+        $table->addColumn('notes', Types::TEXT, ['length' => 65535, 'comment' => 'Optional notes about why/how they were linked']);
         $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => 'Whether link is active (allows soft delete)']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

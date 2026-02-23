@@ -163,8 +163,8 @@ final class Version20260000010044 extends AbstractMigration
         ]);
         $table->addColumn('accept_assignment', Types::STRING, ['length' => 5, 'default' => 'TRUE']);
         $table->addColumn('policy_type', Types::STRING, ['length' => 25, 'default' => '']);
-        $table->addColumn('subscriber_street_line_2', Types::TEXT);
-        $table->addColumn('subscriber_employer_street_line_2', Types::TEXT);
+        $table->addColumn('subscriber_street_line_2', Types::TEXT, ['length' => 255]);
+        $table->addColumn('subscriber_employer_street_line_2', Types::TEXT, ['length' => 255]);
         $table->addColumn('date_end', Types::DATE_MUTABLE, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

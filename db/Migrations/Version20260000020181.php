@@ -290,7 +290,7 @@ final class Version20260000020181 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('CTL_COMMENTS', Types::TEXT);
+        $table->addColumn('CTL_COMMENTS', Types::TEXT, ['length' => 65535]);
         $table->addColumn('CTLMANUFACTUREROD', Types::STRING, [
             'length' => 50,
             'notnull' => false,

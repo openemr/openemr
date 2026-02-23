@@ -128,15 +128,15 @@ final class Version20260000010042 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('history_mother', Types::TEXT);
-        $table->addColumn('dc_mother', Types::TEXT);
+        $table->addColumn('dc_mother', Types::TEXT, ['length' => 65535]);
         $table->addColumn('history_father', Types::TEXT);
-        $table->addColumn('dc_father', Types::TEXT);
+        $table->addColumn('dc_father', Types::TEXT, ['length' => 65535]);
         $table->addColumn('history_siblings', Types::TEXT);
-        $table->addColumn('dc_siblings', Types::TEXT);
+        $table->addColumn('dc_siblings', Types::TEXT, ['length' => 65535]);
         $table->addColumn('history_offspring', Types::TEXT);
-        $table->addColumn('dc_offspring', Types::TEXT);
+        $table->addColumn('dc_offspring', Types::TEXT, ['length' => 65535]);
         $table->addColumn('history_spouse', Types::TEXT);
-        $table->addColumn('dc_spouse', Types::TEXT);
+        $table->addColumn('dc_spouse', Types::TEXT, ['length' => 65535]);
         $table->addColumn('relatives_cancer', Types::TEXT);
         $table->addColumn('relatives_tuberculosis', Types::TEXT);
         $table->addColumn('relatives_diabetes', Types::TEXT);
@@ -177,9 +177,9 @@ final class Version20260000010042 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('additional_history', Types::TEXT);
-        $table->addColumn('exams', Types::TEXT);
-        $table->addColumn('usertext11', Types::TEXT);
+        $table->addColumn('additional_history', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('exams', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('usertext11', Types::TEXT, ['length' => 65535]);
         $table->addColumn('usertext12', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('usertext13', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('usertext14', Types::STRING, ['length' => 255, 'default' => '']);
@@ -204,8 +204,8 @@ final class Version20260000010042 extends AbstractMigration
         $table->addColumn('userdate13', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('userdate14', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('userdate15', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('userarea11', Types::TEXT);
-        $table->addColumn('userarea12', Types::TEXT);
+        $table->addColumn('userarea11', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('userarea12', Types::TEXT, ['length' => 65535]);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

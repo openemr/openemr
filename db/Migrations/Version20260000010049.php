@@ -55,7 +55,7 @@ final class Version20260000010049 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('udi_data', Types::TEXT);
+        $table->addColumn('udi_data', Types::TEXT, ['length' => 65535]);
         $table->addColumn('begdate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('enddate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('returndate', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);

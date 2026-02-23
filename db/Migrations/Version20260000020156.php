@@ -269,8 +269,8 @@ final class Version20260000020156 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('RXCOMMENTS', Types::TEXT);
-        $table->addColumn('COMMENTS', Types::TEXT);
+        $table->addColumn('RXCOMMENTS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('COMMENTS', Types::TEXT, ['length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
