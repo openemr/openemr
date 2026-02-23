@@ -652,7 +652,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
         'menuArray' => $menu->getMenuData(),
         'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
-        'pid' => (int) $pid, // @phpstan-ignore cast.int ($pid comes from global scope)
+        'pid' => (int) $pid,
     ]);
     ?>
 
