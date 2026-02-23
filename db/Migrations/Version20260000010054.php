@@ -48,10 +48,10 @@ final class Version20260000010054 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pc_catdesc', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('pc_catdesc', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pc_recurrtype', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_enddate', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('pc_recurrspec', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('pc_recurrspec', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pc_recurrfreq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_duration', Types::BIGINT, ['default' => 0]);
         $table->addColumn('pc_end_date_flag', Types::SMALLINT, ['default' => 0]);

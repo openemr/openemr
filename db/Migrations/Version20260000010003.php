@@ -45,7 +45,7 @@ final class Version20260000010003 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('msg_text', Types::TEXT, ['length' => 16777215]);
+        $table->addColumn('msg_text', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
         $table->addColumn('msg_date_sent', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

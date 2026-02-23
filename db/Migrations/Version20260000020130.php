@@ -43,7 +43,7 @@ final class Version20260000020130 extends AbstractMigration
             'default' => null,
             'comment' => 'Type of relationship',
         ]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

@@ -34,7 +34,7 @@ final class Version20260000010059 extends AbstractMigration
         $table = new Table('pnotes');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('body', Types::TEXT);
+        $table->addColumn('body', Types::TEXT, ['notnull' => false]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,
@@ -58,10 +58,10 @@ final class Version20260000010059 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('deleted', Types::SMALLINT, ['default' => 0, 'comment' => 'flag indicates note is deleted']);
+        $table->addColumn('deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
         $table->addColumn('message_status', Types::STRING, ['length' => 20, 'default' => 'New']);
         $table->addColumn('portal_relation', Types::STRING, ['length' => 100, 'notnull' => false]);
-        $table->addColumn('is_msg_encrypted', Types::SMALLINT, ['default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
+        $table->addColumn('is_msg_encrypted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
         $table->addColumn('update_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('update_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(

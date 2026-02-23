@@ -32,13 +32,13 @@ final class Version20260000020174 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $table = new Table('medex_prefs');
-        $table->addColumn('MedEx_id', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('MedEx_id', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ME_username', Types::STRING, [
             'length' => 100,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ME_api_key', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ME_api_key', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ME_facilities', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -86,7 +86,7 @@ final class Version20260000020174 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('status', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('status', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('MedEx_lastupdated', Types::DATETIME_MUTABLE);
 
         $table->addUniqueIndex(['ME_username'], 'ME_username');

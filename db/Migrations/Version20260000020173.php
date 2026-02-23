@@ -43,8 +43,8 @@ final class Version20260000020173 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('msg_extra_text', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('medex_uid', Types::INTEGER);
+        $table->addColumn('msg_extra_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('medex_uid', Types::INTEGER, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('msg_uid')

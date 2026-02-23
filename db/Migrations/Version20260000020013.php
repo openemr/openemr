@@ -38,10 +38,10 @@ final class Version20260000020013 extends AbstractMigration
             'comment' => 'Unique and maps to list_options list clinical_plans',
         ]);
         $table->addColumn('pid', Types::BIGINT, ['default' => 0, 'comment' => '0 is default for all patients, while > 0 is id from patient_data table']);
-        $table->addColumn('normal_flag', Types::SMALLINT, ['comment' => 'Normal Activation Flag']);
-        $table->addColumn('cqm_flag', Types::SMALLINT, ['comment' => 'Clinical Quality Measure flag (unable to customize per patient)']);
-        $table->addColumn('cqm_2011_flag', Types::SMALLINT, ['comment' => '2011 Clinical Quality Measure flag (unable to customize per patient)']);
-        $table->addColumn('cqm_2014_flag', Types::SMALLINT, ['comment' => '2014 Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('normal_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Normal Activation Flag']);
+        $table->addColumn('cqm_flag', Types::SMALLINT, ['notnull' => false, 'comment' => 'Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('cqm_2011_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2011 Clinical Quality Measure flag (unable to customize per patient)']);
+        $table->addColumn('cqm_2014_flag', Types::SMALLINT, ['notnull' => false, 'comment' => '2014 Clinical Quality Measure flag (unable to customize per patient)']);
         $table->addColumn('cqm_measure_group', Types::STRING, [
             'length' => 10,
             'default' => '',

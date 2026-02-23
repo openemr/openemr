@@ -38,15 +38,15 @@ final class Version20260000010042 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('coffee', Types::TEXT);
-        $table->addColumn('tobacco', Types::TEXT);
-        $table->addColumn('alcohol', Types::TEXT);
-        $table->addColumn('sleep_patterns', Types::TEXT);
-        $table->addColumn('exercise_patterns', Types::TEXT);
-        $table->addColumn('seatbelt_use', Types::TEXT);
-        $table->addColumn('counseling', Types::TEXT);
-        $table->addColumn('hazardous_activities', Types::TEXT);
-        $table->addColumn('recreational_drugs', Types::TEXT);
+        $table->addColumn('coffee', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('tobacco', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('alcohol', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('sleep_patterns', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('exercise_patterns', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('seatbelt_use', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('counseling', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('hazardous_activities', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('recreational_drugs', Types::TEXT, ['notnull' => false]);
         $table->addColumn('last_breast_exam', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -127,25 +127,25 @@ final class Version20260000010042 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('history_mother', Types::TEXT);
-        $table->addColumn('dc_mother', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('history_father', Types::TEXT);
-        $table->addColumn('dc_father', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('history_siblings', Types::TEXT);
-        $table->addColumn('dc_siblings', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('history_offspring', Types::TEXT);
-        $table->addColumn('dc_offspring', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('history_spouse', Types::TEXT);
-        $table->addColumn('dc_spouse', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('relatives_cancer', Types::TEXT);
-        $table->addColumn('relatives_tuberculosis', Types::TEXT);
-        $table->addColumn('relatives_diabetes', Types::TEXT);
-        $table->addColumn('relatives_high_blood_pressure', Types::TEXT);
-        $table->addColumn('relatives_heart_problems', Types::TEXT);
-        $table->addColumn('relatives_stroke', Types::TEXT);
-        $table->addColumn('relatives_epilepsy', Types::TEXT);
-        $table->addColumn('relatives_mental_illness', Types::TEXT);
-        $table->addColumn('relatives_suicide', Types::TEXT);
+        $table->addColumn('history_mother', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('dc_mother', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('history_father', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('dc_father', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('history_siblings', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('dc_siblings', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('history_offspring', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('dc_offspring', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('history_spouse', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('dc_spouse', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('relatives_cancer', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_tuberculosis', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_diabetes', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_high_blood_pressure', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_heart_problems', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_stroke', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_epilepsy', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_mental_illness', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('relatives_suicide', Types::TEXT, ['notnull' => false]);
         $table->addColumn('cataract_surgery', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('tonsillectomy', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('cholecystestomy', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
@@ -177,9 +177,9 @@ final class Version20260000010042 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('additional_history', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('exams', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('usertext11', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('additional_history', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('exams', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('usertext11', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('usertext12', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('usertext13', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('usertext14', Types::STRING, ['length' => 255, 'default' => '']);
@@ -204,8 +204,8 @@ final class Version20260000010042 extends AbstractMigration
         $table->addColumn('userdate13', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('userdate14', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('userdate15', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('userarea11', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('userarea12', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('userarea11', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('userarea12', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

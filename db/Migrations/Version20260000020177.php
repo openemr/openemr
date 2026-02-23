@@ -39,7 +39,7 @@ final class Version20260000020177 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('HPI1', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('HPI1', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('QUALITY1', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -95,26 +95,26 @@ final class Version20260000020177 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('CC2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('HPI2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('QUALITY2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('TIMING2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('DURATION2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('CONTEXT2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('SEVERITY2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('MODIFY2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ASSOCIATED2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('LOCATION2', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('CC3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('HPI3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('QUALITY3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('TIMING3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('DURATION3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('CONTEXT3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('SEVERITY3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('MODIFY3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ASSOCIATED3', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('LOCATION3', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('CC2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('HPI2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('QUALITY2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('TIMING2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('DURATION2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('CONTEXT2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('SEVERITY2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('MODIFY2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ASSOCIATED2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('LOCATION2', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('CC3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('HPI3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('QUALITY3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('TIMING3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('DURATION3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('CONTEXT3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('SEVERITY3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('MODIFY3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ASSOCIATED3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('LOCATION3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

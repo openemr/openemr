@@ -50,7 +50,7 @@ final class Version20260000020157 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('ZONE_ORDER', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('GOVALUE', Types::STRING, ['length' => 10, 'default' => 0]);
+        $table->addColumn('GOVALUE', Types::STRING, ['notnull' => false, 'length' => 10, 'default' => 0]);
         $table->addColumn('ordering', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('FILL_ACTION', Types::STRING, ['length' => 10, 'default' => 'ADD']);
         $table->addColumn('GORIGHT', Types::STRING, ['length' => 50]);

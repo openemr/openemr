@@ -35,7 +35,7 @@ final class Version20260000020118 extends AbstractMigration
         $table->addOption('comment', 'contains all data from layout-based forms');
         $table->addColumn('form_id', Types::INTEGER, ['autoincrement' => true, 'comment' => 'references forms.form_id']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
-        $table->addColumn('field_value', Types::TEXT);
+        $table->addColumn('field_value', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('form_id', 'field_id')

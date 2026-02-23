@@ -39,7 +39,7 @@ final class Version20260000020207 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pid', Types::INTEGER, ['comment' => 'fk to patient_data.pid']);
-        $table->addColumn('status', Types::STRING, [
+        $table->addColumn('status', Types::STRING, ['notnull' => false, 
             'length' => 100,
             'default' => 'active',
             'comment' => 'fk to list_options.option_id where list_id=Care_Team_Status',
@@ -49,11 +49,11 @@ final class Version20260000020207 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('date_updated', Types::DATETIME_MUTABLE);
-        $table->addColumn('created_by', Types::BIGINT, ['comment' => 'fk to users.id for user who created this record']);
-        $table->addColumn('updated_by', Types::BIGINT, ['comment' => 'fk to users.id for user who last updated this record']);
+        $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('date_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id for user who created this record']);
+        $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id for user who last updated this record']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

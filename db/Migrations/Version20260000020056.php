@@ -33,16 +33,16 @@ final class Version20260000020056 extends AbstractMigration
     {
         $table = new Table('icd10_reimbr_pcs_9_10');
         $table->addColumn('map_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
-        $table->addColumn('code', Types::STRING, ['length' => 8]);
-        $table->addColumn('code_cnt', Types::SMALLINT);
-        $table->addColumn('ICD9_01', Types::STRING, ['length' => 5]);
-        $table->addColumn('ICD9_02', Types::STRING, ['length' => 5]);
-        $table->addColumn('ICD9_03', Types::STRING, ['length' => 5]);
-        $table->addColumn('ICD9_04', Types::STRING, ['length' => 5]);
-        $table->addColumn('ICD9_05', Types::STRING, ['length' => 5]);
-        $table->addColumn('ICD9_06', Types::STRING, ['length' => 5]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('revision', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('code', Types::STRING, ['notnull' => false, 'length' => 8]);
+        $table->addColumn('code_cnt', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('ICD9_01', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('ICD9_02', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('ICD9_03', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('ICD9_04', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('ICD9_05', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('ICD9_06', Types::STRING, ['notnull' => false, 'length' => 5]);
+        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

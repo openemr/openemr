@@ -49,7 +49,7 @@ final class Version20260000010007 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('street_line_2', Types::TEXT, ['length' => 255]);
+        $table->addColumn('street_line_2', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('postal_code', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -82,8 +82,8 @@ final class Version20260000010007 extends AbstractMigration
             'default' => null,
             'comment' => 'Employment end date for patient',
         ]);
-        $table->addColumn('occupation', Types::TEXT, ['comment' => 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH']);
-        $table->addColumn('industry', Types::TEXT, ['length' => 65535, 'comment' => 'Employment Industry fk to list_options.option_id where list_id=IndustryODH']);
+        $table->addColumn('occupation', Types::TEXT, ['notnull' => false, 'comment' => 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH']);
+        $table->addColumn('industry', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Employment Industry fk to list_options.option_id where list_id=IndustryODH']);
         $table->addColumn('created_by', Types::INTEGER, [
             'notnull' => false,
             'default' => null,

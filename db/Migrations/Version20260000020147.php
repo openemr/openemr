@@ -46,7 +46,7 @@ final class Version20260000020147 extends AbstractMigration
         ]);
         $table->addColumn('ep_pid', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('ep_encounter', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ep_code_text', Types::TEXT);
+        $table->addColumn('ep_code_text', Types::TEXT, ['notnull' => false]);
         $table->addColumn('ep_facility_id', Types::STRING, [
             'length' => 255,
             'notnull' => false,

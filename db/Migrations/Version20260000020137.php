@@ -34,8 +34,8 @@ final class Version20260000020137 extends AbstractMigration
         $table = new Table('product_warehouse');
         $table->addColumn('pw_drug_id', Types::INTEGER);
         $table->addColumn('pw_warehouse', Types::STRING, ['length' => 31]);
-        $table->addColumn('pw_min_level', Types::FLOAT, ['default' => 0]);
-        $table->addColumn('pw_max_level', Types::FLOAT, ['default' => 0]);
+        $table->addColumn('pw_min_level', Types::FLOAT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('pw_max_level', Types::FLOAT, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('pw_drug_id', 'pw_warehouse')

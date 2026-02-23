@@ -45,7 +45,7 @@ final class Version20260000010064 extends AbstractMigration
         ]);
         $table->addColumn('password', Types::TEXT);
         $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('info', Types::TEXT);
+        $table->addColumn('info', Types::TEXT, ['notnull' => false]);
         $table->addColumn('source', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('fname', Types::STRING, [
             'length' => 255,
@@ -166,7 +166,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('country_code', Types::STRING, ['length' => 255, 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
+        $table->addColumn('country_code', Types::STRING, ['notnull' => false, 'length' => 255, 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
         $table->addColumn('street2', Types::STRING, [
             'length' => 60,
             'notnull' => false,
@@ -192,7 +192,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('country_code2', Types::STRING, ['length' => 255, 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
+        $table->addColumn('country_code2', Types::STRING, ['notnull' => false, 'length' => 255, 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
         $table->addColumn('phone', Types::STRING, [
             'length' => 30,
             'notnull' => false,
@@ -218,7 +218,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('cal_ui', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('taxonomy', Types::STRING, ['length' => 30, 'default' => '207Q00000X']);
         $table->addColumn('calendar', Types::SMALLINT, ['default' => 0, 'comment' => '1 = appears in calendar']);
@@ -250,7 +250,7 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('patient_menu_role', Types::STRING, ['length' => 50, 'default' => 'standard']);
         $table->addColumn('portal_user', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('supervisor_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('billing_facility', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('billing_facility', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);

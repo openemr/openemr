@@ -34,19 +34,19 @@ final class Version20260000020178 extends AbstractMigration
         $table = new Table('form_eye_ros');
         $table->addColumn('id', Types::BIGINT, ['comment' => 'Links to forms.form_id']);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ROSGENERAL', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSHEENT', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSCV', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSPULM', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSGI', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSGU', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSDERM', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSNEURO', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSPSYCH', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSMUSCULO', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSIMMUNO', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSENDOCRINE', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ROSCOMMENTS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ROSGENERAL', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSHEENT', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSCV', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSPULM', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSGI', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSGU', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSDERM', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSNEURO', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSPSYCH', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSMUSCULO', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSIMMUNO', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSENDOCRINE', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ROSCOMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

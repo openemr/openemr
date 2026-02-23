@@ -33,10 +33,10 @@ final class Version20260000020083 extends AbstractMigration
     {
         $table = new Table('patient_access_onsite');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('pid', Types::BIGINT);
-        $table->addColumn('portal_username', Types::STRING, ['length' => 100]);
-        $table->addColumn('portal_pwd', Types::STRING, ['length' => 255]);
-        $table->addColumn('portal_pwd_status', Types::SMALLINT, ['default' => 1, 'comment' => '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself']);
+        $table->addColumn('pid', Types::BIGINT, ['notnull' => false]);
+        $table->addColumn('portal_username', Types::STRING, ['notnull' => false, 'length' => 100]);
+        $table->addColumn('portal_pwd', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('portal_pwd_status', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself']);
         $table->addColumn('portal_login_username', Types::STRING, [
             'length' => 100,
             'notnull' => false,

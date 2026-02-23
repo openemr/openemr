@@ -94,7 +94,7 @@ final class Version20260000010060 extends AbstractMigration
         $table->addColumn('per_refill', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('filled_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('medication', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('active', Types::INTEGER, ['default' => 1]);
         $table->addColumn('datetime', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, [
@@ -114,14 +114,14 @@ final class Version20260000010060 extends AbstractMigration
         ]);
         $table->addColumn('erx_source', Types::SMALLINT, ['default' => 0, 'comment' => '0-OpenEMR 1-External']);
         $table->addColumn('erx_uploaded', Types::SMALLINT, ['default' => 0, 'comment' => '0-Pending NewCrop upload 1-Uploaded to NewCrop']);
-        $table->addColumn('drug_info_erx', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('drug_info_erx', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 20,
             'notnull' => false,
             'default' => null,
         ]);
         $table->addColumn('end_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('indication', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('indication', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('prn', Types::STRING, [
             'length' => 30,
             'notnull' => false,
@@ -142,8 +142,8 @@ final class Version20260000010060 extends AbstractMigration
             'comment' => 'option_id in list_options.list_id=medication-request-intent',
         ]);
         $table->addColumn('request_intent_title', Types::STRING, ['length' => 255, 'comment' => 'title in list_options.list_id=medication-request-intent']);
-        $table->addColumn('drug_dosage_instructions', Types::TEXT, ['comment' => 'Medication dosage instructions']);
-        $table->addColumn('diagnosis', Types::TEXT, ['length' => 65535, 'comment' => 'Diagnosis or reason for the prescription']);
+        $table->addColumn('drug_dosage_instructions', Types::TEXT, ['notnull' => false, 'comment' => 'Medication dosage instructions']);
+        $table->addColumn('diagnosis', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Diagnosis or reason for the prescription']);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

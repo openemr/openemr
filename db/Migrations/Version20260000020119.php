@@ -35,7 +35,7 @@ final class Version20260000020119 extends AbstractMigration
         $table->addOption('comment', 'contains all data from layout-based transactions');
         $table->addColumn('form_id', Types::BIGINT, ['comment' => 'references transactions.id']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
-        $table->addColumn('field_value', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('field_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('form_id', 'field_id')

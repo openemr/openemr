@@ -69,16 +69,16 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ODCONJ', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ODCORNEA', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('OSCORNEA', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ODAC', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('OSAC', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ODLENS', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('OSLENS', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('ODIRIS', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('OSIRIS', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('PUPIL_NORMAL', Types::STRING, ['length' => 2, 'default' => 1]);
+        $table->addColumn('ODCONJ', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ODCORNEA', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('OSCORNEA', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ODAC', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('OSAC', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ODLENS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('OSLENS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('ODIRIS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('OSIRIS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('PUPIL_NORMAL', Types::STRING, ['notnull' => false, 'length' => 2, 'default' => 1]);
         $table->addColumn('ODPUPILSIZE1', Types::STRING, [
             'length' => 25,
             'notnull' => false,
@@ -149,7 +149,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('PUPIL_COMMENTS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('PUPIL_COMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ODKTHICKNESS', Types::STRING, [
             'length' => 25,
             'notnull' => false,
@@ -170,7 +170,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ANTSEG_COMMENTS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ANTSEG_COMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 

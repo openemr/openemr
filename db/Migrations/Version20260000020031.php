@@ -61,14 +61,14 @@ final class Version20260000020031 extends AbstractMigration
         $table->addColumn('distributor_id', Types::BIGINT, ['default' => 0, 'comment' => 'references users.id']);
         $table->addColumn('notes', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('bill_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('pricelevel', Types::STRING, ['length' => 31, 'default' => '']);
-        $table->addColumn('selector', Types::STRING, [
+        $table->addColumn('pricelevel', Types::STRING, ['notnull' => false, 'length' => 31, 'default' => '']);
+        $table->addColumn('selector', Types::STRING, ['notnull' => false, 
             'length' => 255,
             'default' => '',
             'comment' => 'references drug_templates.selector',
         ]);
         $table->addColumn('trans_type', Types::SMALLINT, ['default' => 1, 'comment' => '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment']);
-        $table->addColumn('chargecat', Types::STRING, ['length' => 31, 'default' => '']);
+        $table->addColumn('chargecat', Types::STRING, ['notnull' => false, 'length' => 31, 'default' => '']);
         $table->addColumn('pharmacy_supply_type', Types::STRING, [
             'length' => 50,
             'notnull' => false,

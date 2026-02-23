@@ -36,7 +36,7 @@ final class Version20260000020007 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('user_id', Types::BIGINT, ['comment' => 'The Id of the user who approves or denies']);
         $table->addColumn('approval_status', Types::SMALLINT, ['comment' => '1-Pending,2-Approved,3-Denied,4-Appointment directly updated to calendar table,5-Cancelled appointment']);
-        $table->addColumn('comments', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('comments', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_time', Types::DATETIME_MUTABLE);
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
         $table->addColumn('ip_address', Types::STRING, ['length' => 100]);

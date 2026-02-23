@@ -62,12 +62,12 @@ final class Version20260000020077 extends AbstractMigration
         $table->addColumn('authorizing_signator', Types::STRING, ['length' => 50]);
         $table->addColumn('review_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('denial_reason', Types::STRING, ['length' => 255]);
-        $table->addColumn('authorized_signature', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('patient_signature', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('full_document', Types::BLOB);
+        $table->addColumn('authorized_signature', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('patient_signature', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('full_document', Types::BLOB, ['notnull' => false]);
         $table->addColumn('file_name', Types::STRING, ['length' => 255]);
         $table->addColumn('file_path', Types::STRING, ['length' => 255]);
-        $table->addColumn('template_data', Types::TEXT);
+        $table->addColumn('template_data', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

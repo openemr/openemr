@@ -52,7 +52,7 @@ final class Version20260000020115 extends AbstractMigration
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
         $table->addColumn('global_amount', Types::DECIMAL, ['precision' => 12, 'scale' => 2]);
         $table->addColumn('payment_type', Types::STRING, ['length' => 50]);
-        $table->addColumn('description', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('description', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('adjustment_code', Types::STRING, ['length' => 50]);
         $table->addColumn('post_to_date', Types::DATE_MUTABLE);
         $table->addColumn('patient_id', Types::BIGINT);

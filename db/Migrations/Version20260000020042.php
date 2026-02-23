@@ -34,10 +34,10 @@ final class Version20260000020042 extends AbstractMigration
         $table = new Table('fee_schedule');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('insurance_company_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('plan', Types::STRING, ['length' => 20, 'default' => '']);
-        $table->addColumn('code', Types::STRING, ['length' => 10, 'default' => '']);
-        $table->addColumn('modifier', Types::STRING, ['length' => 2, 'default' => '']);
-        $table->addColumn('type', Types::STRING, ['length' => 20, 'default' => '']);
+        $table->addColumn('plan', Types::STRING, ['notnull' => false, 'length' => 20, 'default' => '']);
+        $table->addColumn('code', Types::STRING, ['notnull' => false, 'length' => 10, 'default' => '']);
+        $table->addColumn('modifier', Types::STRING, ['notnull' => false, 'length' => 2, 'default' => '']);
+        $table->addColumn('type', Types::STRING, ['notnull' => false, 'length' => 20, 'default' => '']);
         $table->addColumn('fee', Types::DECIMAL, [
             'precision' => 12,
             'scale' => 2,

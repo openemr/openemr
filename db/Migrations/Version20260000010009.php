@@ -47,8 +47,8 @@ final class Version20260000010009 extends AbstractMigration
         ]);
         $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('dictation', Types::TEXT);
-        $table->addColumn('additional_notes', Types::TEXT);
+        $table->addColumn('dictation', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('additional_notes', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

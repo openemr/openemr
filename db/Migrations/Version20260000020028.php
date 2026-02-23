@@ -74,7 +74,7 @@ final class Version20260000020028 extends AbstractMigration
             'default' => null,
             'comment' => '0-Yes 1-No',
         ]);
-        $table->addColumn('dlm_upload_type', Types::SMALLINT, ['default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
+        $table->addColumn('dlm_upload_type', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('dlm_document_id')

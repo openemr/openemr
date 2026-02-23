@@ -162,7 +162,7 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('info', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('info', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('weno_id', Types::STRING, [
             'length' => 10,
             'notnull' => false,

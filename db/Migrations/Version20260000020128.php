@@ -72,7 +72,7 @@ final class Version20260000020128 extends AbstractMigration
             'default' => '',
             'comment' => 'no,yes,high,low',
         ]);
-        $table->addColumn('comments', Types::TEXT, ['length' => 65535, 'comment' => 'comments from the lab']);
+        $table->addColumn('comments', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'comments from the lab']);
         $table->addColumn('document_id', Types::BIGINT, ['default' => 0, 'comment' => 'references documents.id if this result is a document']);
         $table->addColumn('result_status', Types::STRING, [
             'length' => 31,

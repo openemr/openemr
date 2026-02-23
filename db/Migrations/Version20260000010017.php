@@ -36,8 +36,8 @@ final class Version20260000010017 extends AbstractMigration
         $table->addColumn('section_value', Types::STRING, ['length' => 150, 'default' => 'system']);
         $table->addColumn('allow', Types::INTEGER, ['default' => 0]);
         $table->addColumn('enabled', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('return_value', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('return_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('updated_date', Types::INTEGER, ['default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

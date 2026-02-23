@@ -43,7 +43,7 @@ final class Version20260000010052 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pn_value', Types::TEXT);
+        $table->addColumn('pn_value', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('pn_id')

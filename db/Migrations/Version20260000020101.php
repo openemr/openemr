@@ -35,7 +35,7 @@ final class Version20260000020101 extends AbstractMigration
         $table->addColumn('uuid', Types::BINARY, ['length' => 16, 'default' => '']);
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('number_scripts', Types::BIGINT, ['default' => 1]);
+        $table->addColumn('number_scripts', Types::BIGINT, ['notnull' => false, 'default' => 1]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('uuid')

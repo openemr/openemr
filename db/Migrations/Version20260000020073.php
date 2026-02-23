@@ -51,7 +51,7 @@ final class Version20260000020073 extends AbstractMigration
             'default' => null,
             'comment' => 'users.id the user that last modified this record',
         ]);
-        $table->addColumn('date_modified', Types::DATETIME_MUTABLE, ['comment' => 'Datetime the record was last modified']);
+        $table->addColumn('date_modified', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'Datetime the record was last modified']);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, [
             'notnull' => false,
             'default' => null,

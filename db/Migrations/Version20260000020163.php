@@ -33,19 +33,19 @@ final class Version20260000020163 extends AbstractMigration
     {
         $table = new Table('codes_history');
         $table->addColumn('log_id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('code', Types::STRING, ['length' => 25]);
-        $table->addColumn('modifier', Types::STRING, ['length' => 12]);
-        $table->addColumn('active', Types::SMALLINT);
-        $table->addColumn('diagnosis_reporting', Types::SMALLINT);
-        $table->addColumn('financial_reporting', Types::SMALLINT);
-        $table->addColumn('category', Types::STRING, ['length' => 255]);
-        $table->addColumn('code_type_name', Types::STRING, ['length' => 255]);
-        $table->addColumn('code_text', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('code_text_short', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('prices', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('action_type', Types::STRING, ['length' => 25]);
-        $table->addColumn('update_by', Types::STRING, ['length' => 255]);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('code', Types::STRING, ['notnull' => false, 'length' => 25]);
+        $table->addColumn('modifier', Types::STRING, ['notnull' => false, 'length' => 12]);
+        $table->addColumn('active', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('diagnosis_reporting', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('financial_reporting', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('category', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('code_type_name', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('code_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('code_text_short', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('prices', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('action_type', Types::STRING, ['notnull' => false, 'length' => 25]);
+        $table->addColumn('update_by', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('log_id')

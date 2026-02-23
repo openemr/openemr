@@ -212,7 +212,7 @@ final class Version20260000020160 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('COMMENTS', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('COMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addUniqueIndex(['id'], 'id');
         $table->addUniqueIndex(['FORM_ID', 'ENCOUNTER', 'PID', 'RX_NUMBER'], 'FORM_ID');

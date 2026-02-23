@@ -41,7 +41,7 @@ final class Version20260000020002 extends AbstractMigration
             'comment' => 'Amendment status accepted/rejected/null',
         ]);
         $table->addColumn('pid', Types::BIGINT, ['comment' => 'Patient ID from patient_data']);
-        $table->addColumn('amendment_desc', Types::TEXT, ['length' => 65535, 'comment' => 'Amendment Details']);
+        $table->addColumn('amendment_desc', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Amendment Details']);
         $table->addColumn('created_by', Types::INTEGER, ['comment' => 'references users.id for session owner']);
         $table->addColumn('modified_by', Types::INTEGER, ['notnull' => false, 'comment' => 'references users.id for session owner']);
         $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'created time']);

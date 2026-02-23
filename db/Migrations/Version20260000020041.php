@@ -41,7 +41,7 @@ final class Version20260000020041 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
-        $table->addColumn('field_value', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('field_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE);
         $table->addPrimaryKeyConstraint(

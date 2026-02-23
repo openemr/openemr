@@ -38,8 +38,8 @@ final class Version20260000020140 extends AbstractMigration
             'default' => 'No',
             'values' => ['Yes', 'No'],
         ]);
-        $table->addColumn('checksum', Types::TEXT);
-        $table->addColumn('checksum_api', Types::TEXT);
+        $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('checksum_api', Types::TEXT, ['notnull' => false]);
         $table->addColumn('version', Types::SMALLINT, ['default' => 0, 'comment' => '0 for mycrypt and 1 for openssl']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

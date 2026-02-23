@@ -47,7 +47,7 @@ final class Version20260000010061 extends AbstractMigration
         $table->addColumn('sql_run', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('unpackaged', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('priority', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('priority', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('category', Types::STRING, [
             'length' => 255,
             'notnull' => false,

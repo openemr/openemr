@@ -34,7 +34,7 @@ final class Version20260000010051 extends AbstractMigration
         $table = new Table('onotes');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('body', Types::TEXT);
+        $table->addColumn('body', Types::TEXT, ['notnull' => false]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,
             'notnull' => false,

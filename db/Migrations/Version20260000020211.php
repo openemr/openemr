@@ -46,6 +46,7 @@ final class Version20260000020211 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('value_type', Types::ENUM, [
+            'notnull' => false,
             'default' => 'coded',
             'values' => ['coded', 'text', 'boolean'],
         ]);
@@ -67,15 +68,15 @@ final class Version20260000020211 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to preference_value_sets.answer_display',
         ]);
-        $table->addColumn('value_text', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('value_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('value_boolean', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE);
-        $table->addColumn('status', Types::STRING, [
+        $table->addColumn('status', Types::STRING, ['notnull' => false, 
             'length' => 20,
             'default' => 'final',
             'comment' => 'valid options are final,amended,preliminary',
         ]);
-        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

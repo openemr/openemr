@@ -106,21 +106,21 @@ final class Version20260000020020 extends AbstractMigration
             'default' => null,
             'comment' => 'Should be encrypted in application',
         ]);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => '1=active, 0=inactive']);
+        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '1=active, 0=inactive']);
         $table->addColumn('inactive_reason', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
         $table->addColumn('inactive_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_date', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

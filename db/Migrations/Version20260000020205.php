@@ -42,11 +42,11 @@ final class Version20260000020205 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('source_value', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('source_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('last_updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE);
-        $table->addColumn('last_updated_at', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('last_updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

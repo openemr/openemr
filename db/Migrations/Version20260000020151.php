@@ -69,11 +69,11 @@ final class Version20260000020151 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ob_value', Types::STRING, ['length' => 255]);
-        $table->addColumn('ob_unit', Types::STRING, ['length' => 255]);
-        $table->addColumn('description', Types::STRING, ['length' => 255]);
-        $table->addColumn('code_type', Types::STRING, ['length' => 255]);
-        $table->addColumn('table_code', Types::STRING, ['length' => 255]);
+        $table->addColumn('ob_value', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('ob_unit', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('description', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('code_type', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('table_code', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('ob_code', Types::STRING, [
             'length' => 64,
             'notnull' => false,
@@ -104,7 +104,7 @@ final class Version20260000020151 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ob_reason_text', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('ob_reason_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ob_documentationof_table', Types::STRING, [
             'length' => 255,
             'notnull' => false,

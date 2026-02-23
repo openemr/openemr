@@ -54,7 +54,7 @@ final class Version20260000010004 extends AbstractMigration
         ]);
         $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('encounter', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('code_text', Types::TEXT);
+        $table->addColumn('code_text', Types::TEXT, ['notnull' => false]);
         $table->addColumn('billed', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('payer_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
@@ -100,13 +100,13 @@ final class Version20260000010004 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pricelevel', Types::STRING, ['length' => 31, 'default' => '']);
+        $table->addColumn('pricelevel', Types::STRING, ['notnull' => false, 'length' => 31, 'default' => '']);
         $table->addColumn('revenue_code', Types::STRING, [
             'length' => 6,
             'default' => '',
             'comment' => 'Item revenue code',
         ]);
-        $table->addColumn('chargecat', Types::STRING, [
+        $table->addColumn('chargecat', Types::STRING, ['notnull' => false, 
             'length' => 31,
             'default' => '',
             'comment' => 'Charge category or customer',

@@ -35,21 +35,21 @@ final class Version20260000020208 extends AbstractMigration
         $table->addOption('comment', 'Stores members of a care team for a patient');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('care_team_id', Types::INTEGER);
-        $table->addColumn('user_id', Types::BIGINT, ['comment' => 'fk to users.id represents a provider or staff member']);
-        $table->addColumn('contact_id', Types::BIGINT, ['comment' => 'fk to contact.id which represents a contact person not in users or facility table']);
+        $table->addColumn('user_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id represents a provider or staff member']);
+        $table->addColumn('contact_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to contact.id which represents a contact person not in users or facility table']);
         $table->addColumn('role', Types::STRING, ['length' => 50, 'comment' => 'fk to list_options.option_id WHERE list_id=care_team_roles']);
-        $table->addColumn('facility_id', Types::BIGINT, ['comment' => 'fk to facility.id represents an organization or location']);
+        $table->addColumn('facility_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to facility.id represents an organization or location']);
         $table->addColumn('provider_since', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addColumn('status', Types::STRING, [
+        $table->addColumn('status', Types::STRING, ['notnull' => false, 
             'length' => 100,
             'default' => 'active',
             'comment' => 'fk to list_options.option_id where list_id=Care_Team_Status',
         ]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
-        $table->addColumn('date_updated', Types::DATETIME_MUTABLE);
-        $table->addColumn('created_by', Types::BIGINT, ['comment' => 'fk to users.id and is the user that added this team member']);
-        $table->addColumn('updated_by', Types::BIGINT, ['comment' => 'fk to users.id and is the user that last updated this team member']);
-        $table->addColumn('note', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('date_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id and is the user that added this team member']);
+        $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id and is the user that last updated this team member']);
+        $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -40,7 +40,7 @@ final class Version20260000020081 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('require_audit', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('require_audit', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
         $table->addColumn('pending_action', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -56,12 +56,12 @@ final class Version20260000020081 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('narrative', Types::TEXT);
-        $table->addColumn('table_action', Types::TEXT);
-        $table->addColumn('table_args', Types::TEXT);
+        $table->addColumn('narrative', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('table_action', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('table_args', Types::TEXT, ['notnull' => false]);
         $table->addColumn('action_user', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('action_taken_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('checksum', Types::TEXT);
+        $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

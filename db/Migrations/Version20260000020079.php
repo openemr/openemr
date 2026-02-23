@@ -35,7 +35,7 @@ final class Version20260000020079 extends AbstractMigration
         $table->addOption('comment', 'Portal messages');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('username', Types::STRING, ['length' => 64]);
-        $table->addColumn('message', Types::TEXT);
+        $table->addColumn('message', Types::TEXT, ['notnull' => false]);
         $table->addColumn('ip', Types::STRING, ['length' => 15]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
         $table->addColumn('sender_id', Types::STRING, [

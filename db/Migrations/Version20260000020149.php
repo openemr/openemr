@@ -57,8 +57,8 @@ final class Version20260000020149 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('codetext', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('description', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('codetext', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('description', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 30,
             'notnull' => false,
@@ -69,14 +69,14 @@ final class Version20260000020149 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('note_related_to', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('note_related_to', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date_end', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('reason_code', Types::STRING, [
             'length' => 31,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('reason_description', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('reason_description', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('reason_date_low', Types::DATETIME_MUTABLE, [
             'notnull' => false,
             'default' => null,

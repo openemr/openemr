@@ -55,12 +55,12 @@ final class Version20260000010049 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('udi_data', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('udi_data', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('begdate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('enddate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('returndate', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('occurrence', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('classification', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('occurrence', Types::INTEGER, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('classification', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('referredby', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -77,7 +77,7 @@ final class Version20260000010049 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('comments', Types::TEXT);
+        $table->addColumn('comments', Types::TEXT, ['notnull' => false]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,

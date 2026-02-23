@@ -43,11 +43,11 @@ final class Version20260000020188 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('scope', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('persist_login', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('persist_login', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('code', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('session_cache', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('code', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('session_cache', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('grant_type', Types::STRING, [
             'length' => 32,
             'notnull' => false,

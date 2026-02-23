@@ -36,7 +36,7 @@ final class Version20260000020021 extends AbstractMigration
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('target_table', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('target_id', Types::BIGINT);
-        $table->addColumn('active', Types::BOOLEAN);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('role', Types::STRING, [
             'length' => 63,
             'notnull' => false,
@@ -47,21 +47,21 @@ final class Version20260000020021 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('contact_priority', Types::INTEGER, ['default' => 1, 'comment' => '1=highest priority']);
-        $table->addColumn('is_primary_contact', Types::BOOLEAN);
-        $table->addColumn('is_emergency_contact', Types::BOOLEAN);
-        $table->addColumn('can_make_medical_decisions', Types::BOOLEAN);
-        $table->addColumn('can_receive_medical_info', Types::BOOLEAN);
+        $table->addColumn('contact_priority', Types::INTEGER, ['notnull' => false, 'default' => 1, 'comment' => '1=highest priority']);
+        $table->addColumn('is_primary_contact', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('is_emergency_contact', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('can_make_medical_decisions', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('can_receive_medical_info', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('start_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('end_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('notes', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_date', Types::DATETIME_MUTABLE);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

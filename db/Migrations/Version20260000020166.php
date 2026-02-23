@@ -36,8 +36,8 @@ final class Version20260000020166 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('group_patient_status', Types::INTEGER);
         $table->addColumn('group_patient_start', Types::DATE_MUTABLE);
-        $table->addColumn('group_patient_end', Types::DATE_MUTABLE);
-        $table->addColumn('group_patient_comment', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('group_patient_end', Types::DATE_MUTABLE, ['notnull' => false]);
+        $table->addColumn('group_patient_comment', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('group_id', 'pid')

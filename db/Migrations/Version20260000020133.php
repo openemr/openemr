@@ -49,7 +49,7 @@ final class Version20260000020133 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('description', Types::TEXT);
+        $table->addColumn('description', Types::TEXT, ['notnull' => false]);
         $table->addColumn('patient_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

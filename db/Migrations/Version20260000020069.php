@@ -52,8 +52,8 @@ final class Version20260000020069 extends AbstractMigration
         ]);
         $table->addColumn('directory', Types::STRING, ['length' => 255]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('sql_run', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('type', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('sql_run', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('type', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('sql_version', Types::STRING, ['length' => 150]);
         $table->addColumn('acl_version', Types::STRING, ['length' => 150]);
         $table->addPrimaryKeyConstraint(

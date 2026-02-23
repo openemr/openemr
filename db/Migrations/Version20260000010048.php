@@ -39,7 +39,7 @@ final class Version20260000010048 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('lang_is_rtl', Types::SMALLINT, ['default' => 0, 'comment' => 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.']);
+        $table->addColumn('lang_is_rtl', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.']);
 
         $table->addUniqueIndex(['lang_id'], 'lang_id');
 

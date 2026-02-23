@@ -34,8 +34,8 @@ final class Version20260000020169 extends AbstractMigration
         $table = new Table('form_groups_encounter');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('reason', Types::TEXT);
-        $table->addColumn('facility', Types::TEXT);
+        $table->addColumn('reason', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('facility', Types::TEXT, ['notnull' => false]);
         $table->addColumn('facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('group_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('encounter', Types::BIGINT, ['notnull' => false, 'default' => null]);
@@ -45,14 +45,14 @@ final class Version20260000020169 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('billing_note', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('billing_note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pc_catid', Types::INTEGER, ['default' => 5, 'comment' => 'event category from openemr_postcalendar_categories']);
         $table->addColumn('last_level_billed', Types::INTEGER, ['default' => 0, 'comment' => '0=none, 1=ins1, 2=ins2, etc']);
         $table->addColumn('last_level_closed', Types::INTEGER, ['default' => 0, 'comment' => '0=none, 1=ins1, 2=ins2, etc']);
         $table->addColumn('last_stmt_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('stmt_count', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('provider_id', Types::INTEGER, ['default' => 0, 'comment' => 'default and main provider for this visit']);
-        $table->addColumn('supervisor_id', Types::INTEGER, ['default' => 0, 'comment' => 'supervising provider, if any, for this visit']);
+        $table->addColumn('provider_id', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => 'default and main provider for this visit']);
+        $table->addColumn('supervisor_id', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => 'supervising provider, if any, for this visit']);
         $table->addColumn('invoice_refno', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('referral_source', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('billing_facility', Types::INTEGER, ['default' => 0]);
@@ -62,7 +62,7 @@ final class Version20260000020169 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('counselors', Types::STRING, ['length' => 255]);
+        $table->addColumn('counselors', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('appt_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

@@ -33,15 +33,15 @@ final class Version20260000020036 extends AbstractMigration
     {
         $table = new Table('email_queue');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('sender', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('recipient', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('subject', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('body', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('sender', Types::STRING, ['notnull' => false, 'length' => 255, 'default' => '']);
+        $table->addColumn('recipient', Types::STRING, ['notnull' => false, 'length' => 255, 'default' => '']);
+        $table->addColumn('subject', Types::STRING, ['notnull' => false, 'length' => 255, 'default' => '']);
+        $table->addColumn('body', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('datetime_queued', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('sent', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('sent', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('datetime_sent', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('error', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('error_message', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('error', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('error_message', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('datetime_error', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('template_name', Types::STRING, [
             'length' => 255,

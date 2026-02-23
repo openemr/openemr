@@ -40,7 +40,7 @@ final class Version20260000020145 extends AbstractMigration
         ]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('encounter', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ccda_data', Types::TEXT);
+        $table->addColumn('ccda_data', Types::TEXT, ['notnull' => false]);
         $table->addColumn('time', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -60,7 +60,7 @@ final class Version20260000020145 extends AbstractMigration
         $table->addColumn('transfer', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('emr_transfer', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('encrypted', Types::SMALLINT, ['default' => 0, 'comment' => '0->No,1->Yes']);
-        $table->addColumn('transaction_id', Types::BIGINT, ['comment' => 'fk to transaction referral record']);
+        $table->addColumn('transaction_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to transaction referral record']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

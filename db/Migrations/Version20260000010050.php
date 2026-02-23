@@ -54,17 +54,17 @@ final class Version20260000010050 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('comments', Types::TEXT);
-        $table->addColumn('user_notes', Types::TEXT);
+        $table->addColumn('comments', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('user_notes', Types::TEXT, ['notnull' => false]);
         $table->addColumn('patient_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('success', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('checksum', Types::TEXT);
+        $table->addColumn('success', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
         $table->addColumn('crt_user', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('log_from', Types::STRING, ['length' => 20, 'default' => 'open-emr']);
+        $table->addColumn('log_from', Types::STRING, ['notnull' => false, 'length' => 20, 'default' => 'open-emr']);
         $table->addColumn('menu_item_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('ccda_doc_id', Types::INTEGER, [
             'notnull' => false,

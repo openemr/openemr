@@ -106,7 +106,7 @@ final class Version20260000020129 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('volume_unit', Types::STRING, ['length' => 32, 'default' => 'mL']);
+        $table->addColumn('volume_unit', Types::STRING, ['notnull' => false, 'length' => 32, 'default' => 'mL']);
         $table->addColumn('condition_code', Types::STRING, [
             'length' => 32,
             'notnull' => false,
@@ -118,12 +118,12 @@ final class Version20260000020129 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('comments', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE);
-        $table->addColumn('updated_at', Types::DATETIME_MUTABLE);
+        $table->addColumn('comments', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('procedure_specimen_id')

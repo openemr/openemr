@@ -33,8 +33,8 @@ final class Version20260000010041 extends AbstractMigration
     {
         $table = new Table('groups');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('name', Types::TEXT);
-        $table->addColumn('user', Types::TEXT);
+        $table->addColumn('name', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('user', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

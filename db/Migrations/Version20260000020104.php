@@ -46,11 +46,11 @@ final class Version20260000020104 extends AbstractMigration
         $table->addColumn('password_history3', Types::STRING, ['length' => 255]);
         $table->addColumn('password_history4', Types::STRING, ['length' => 255]);
         $table->addColumn('last_challenge_response', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('login_work_area', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('total_login_fail_counter', Types::BIGINT, ['default' => 0]);
-        $table->addColumn('login_fail_counter', Types::INTEGER, ['default' => 0]);
+        $table->addColumn('login_work_area', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('total_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('login_fail_counter', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('last_login_fail', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('auto_block_emailed', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('auto_block_emailed', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

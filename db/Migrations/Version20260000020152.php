@@ -44,7 +44,7 @@ final class Version20260000020152 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('instruction', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('instruction', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
         $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
         $table->addPrimaryKeyConstraint(

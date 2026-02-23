@@ -35,9 +35,9 @@ final class Version20260000020172 extends AbstractMigration
         $table->addColumn('i_UID', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('msg_type', Types::STRING, ['length' => 50]);
         $table->addColumn('msg_status', Types::STRING, ['length' => 10]);
-        $table->addColumn('i_description', Types::STRING, ['length' => 255]);
-        $table->addColumn('i_html', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('i_blob', Types::TEXT);
+        $table->addColumn('i_description', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('i_html', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('i_blob', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('i_UID')

@@ -33,7 +33,7 @@ final class Version20260000020204 extends AbstractMigration
     {
         $table = new Table('recent_patients');
         $table->addColumn('user_id', Types::STRING, ['length' => 40]);
-        $table->addColumn('patients', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('patients', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('user_id')

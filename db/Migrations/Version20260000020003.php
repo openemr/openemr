@@ -33,7 +33,7 @@ final class Version20260000020003 extends AbstractMigration
     {
         $table = new Table('amendments_history');
         $table->addColumn('amendment_id', Types::INTEGER, ['autoincrement' => true, 'comment' => 'Amendment ID']);
-        $table->addColumn('amendment_note', Types::TEXT, ['length' => 65535, 'comment' => 'Amendment requested from']);
+        $table->addColumn('amendment_note', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Amendment requested from']);
         $table->addColumn('amendment_status', Types::STRING, [
             'length' => 50,
             'notnull' => false,

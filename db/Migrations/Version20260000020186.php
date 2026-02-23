@@ -94,6 +94,7 @@ final class Version20260000020186 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('response_status', Types::ENUM, [
+            'notnull' => false,
             'default' => 'A',
             'values' => ['A', 'D'],
         ]);

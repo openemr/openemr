@@ -45,13 +45,13 @@ final class Version20260000020127 extends AbstractMigration
         ]);
         $table->addColumn('procedure_order_seq', Types::INTEGER, ['default' => 1, 'comment' => 'references procedure_order_code.procedure_order_seq']);
         $table->addColumn('date_collected', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('date_collected_tz', Types::STRING, [
+        $table->addColumn('date_collected_tz', Types::STRING, ['notnull' => false, 
             'length' => 5,
             'default' => '',
             'comment' => '+-hhmm offset from UTC',
         ]);
         $table->addColumn('date_report', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('date_report_tz', Types::STRING, [
+        $table->addColumn('date_report_tz', Types::STRING, ['notnull' => false, 
             'length' => 5,
             'default' => '',
             'comment' => '+-hhmm offset from UTC',
@@ -68,7 +68,7 @@ final class Version20260000020127 extends AbstractMigration
             'default' => 'received',
             'comment' => 'pending review status: received,reviewed',
         ]);
-        $table->addColumn('report_notes', Types::TEXT, ['length' => 65535, 'comment' => 'notes from the lab']);
+        $table->addColumn('report_notes', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'notes from the lab']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('procedure_report_id')

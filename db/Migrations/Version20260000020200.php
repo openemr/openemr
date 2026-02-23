@@ -72,7 +72,7 @@ final class Version20260000020200 extends AbstractMigration
             'default' => null,
             'comment' => 'user id if answers are provider',
         ]);
-        $table->addColumn('create_time', Types::DATETIME_MUTABLE);
+        $table->addColumn('create_time', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('version', Types::INTEGER, ['default' => 1]);
         $table->addColumn('status', Types::STRING, [
@@ -81,9 +81,9 @@ final class Version20260000020200 extends AbstractMigration
             'default' => null,
             'comment' => 'form current status. completed,active,incomplete',
         ]);
-        $table->addColumn('questionnaire', Types::TEXT, ['comment' => 'the subject questionnaire json']);
-        $table->addColumn('questionnaire_response', Types::TEXT, ['comment' => 'questionnaire response json']);
-        $table->addColumn('form_response', Types::TEXT, ['comment' => 'lform answers array json']);
+        $table->addColumn('questionnaire', Types::TEXT, ['notnull' => false, 'comment' => 'the subject questionnaire json']);
+        $table->addColumn('questionnaire_response', Types::TEXT, ['notnull' => false, 'comment' => 'questionnaire response json']);
+        $table->addColumn('form_response', Types::TEXT, ['notnull' => false, 'comment' => 'lform answers array json']);
         $table->addColumn('form_score', Types::INTEGER, [
             'notnull' => false,
             'default' => null,

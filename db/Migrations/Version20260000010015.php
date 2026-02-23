@@ -39,7 +39,7 @@ final class Version20260000010015 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
+        $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -50,8 +50,8 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('bps', Types::STRING, [
             'length' => 40,
             'notnull' => false,
@@ -62,17 +62,17 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('weight', Types::DECIMAL, [
+        $table->addColumn('weight', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
         ]);
-        $table->addColumn('height', Types::DECIMAL, [
+        $table->addColumn('height', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
         ]);
-        $table->addColumn('temperature', Types::DECIMAL, [
+        $table->addColumn('temperature', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
@@ -82,12 +82,12 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pulse', Types::DECIMAL, [
+        $table->addColumn('pulse', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
         ]);
-        $table->addColumn('respiration', Types::DECIMAL, [
+        $table->addColumn('respiration', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
@@ -97,7 +97,7 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('BMI', Types::DECIMAL, [
+        $table->addColumn('BMI', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.0,
@@ -107,22 +107,22 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('waist_circ', Types::DECIMAL, [
+        $table->addColumn('waist_circ', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
         ]);
-        $table->addColumn('head_circ', Types::DECIMAL, [
+        $table->addColumn('head_circ', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
         ]);
-        $table->addColumn('oxygen_saturation', Types::DECIMAL, [
+        $table->addColumn('oxygen_saturation', Types::DECIMAL, ['notnull' => false, 
             'precision' => 6,
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('oxygen_flow_rate', Types::DECIMAL, [
+        $table->addColumn('oxygen_flow_rate', Types::DECIMAL, ['notnull' => false, 
             'precision' => 12,
             'scale' => 6,
             'default' => 0.00,
@@ -132,22 +132,22 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ped_weight_height', Types::DECIMAL, [
+        $table->addColumn('ped_weight_height', Types::DECIMAL, ['notnull' => false, 
             'precision' => 6,
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('ped_bmi', Types::DECIMAL, [
+        $table->addColumn('ped_bmi', Types::DECIMAL, ['notnull' => false, 
             'precision' => 6,
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('ped_head_circ', Types::DECIMAL, [
+        $table->addColumn('ped_head_circ', Types::DECIMAL, ['notnull' => false, 
             'precision' => 6,
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('inhaled_oxygen_concentration', Types::DECIMAL, [
+        $table->addColumn('inhaled_oxygen_concentration', Types::DECIMAL, ['notnull' => false, 
             'precision' => 6,
             'scale' => 2,
             'default' => 0.00,

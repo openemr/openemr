@@ -102,7 +102,7 @@ final class Version20260000010011 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('replacement_claim', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('replacement_claim', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('icn_resubmission_number', Types::STRING, [
             'length' => 35,
             'notnull' => false,

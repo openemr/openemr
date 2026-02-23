@@ -582,7 +582,7 @@ final class Version20260000010012 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('additional_notes', Types::TEXT);
+        $table->addColumn('additional_notes', Types::TEXT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

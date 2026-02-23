@@ -36,8 +36,8 @@ final class Version20260000020189 extends AbstractMigration
         $table->addColumn('x12_partner_id', Types::INTEGER);
         $table->addColumn('x12_filename', Types::STRING, ['length' => 255]);
         $table->addColumn('status', Types::STRING, ['length' => 255]);
-        $table->addColumn('claims', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('messages', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('claims', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('messages', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(

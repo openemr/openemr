@@ -44,7 +44,7 @@ final class Version20260000020033 extends AbstractMigration
         $table->addColumn('reorder_point', Types::FLOAT, ['default' => 0.0]);
         $table->addColumn('max_level', Types::FLOAT, ['default' => 0.0]);
         $table->addColumn('last_notify', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addColumn('reactions', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('reactions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('form', Types::STRING, ['length' => 31, 'default' => 0]);
         $table->addColumn('size', Types::STRING, ['length' => 25, 'default' => '']);
         $table->addColumn('unit', Types::STRING, ['length' => 31, 'default' => 0]);
@@ -56,7 +56,7 @@ final class Version20260000020033 extends AbstractMigration
             'comment' => 'may reference a related codes.code',
         ]);
         $table->addColumn('cyp_factor', Types::FLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => '0 = inactive, 1 = active']);
+        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
         $table->addColumn('allow_combining', Types::SMALLINT, ['default' => 0, 'comment' => '1 = allow filling an order from multiple lots']);
         $table->addColumn('allow_multiple', Types::SMALLINT, ['default' => 1, 'comment' => '1 = allow multiple lots at one warehouse']);
         $table->addColumn('drug_code', Types::STRING, ['length' => 25, 'notnull' => false]);

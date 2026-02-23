@@ -66,7 +66,7 @@ final class Version20260000020191 extends AbstractMigration
             'default' => null,
             'comment' => 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
         ]);
-        $table->addColumn('reason_description', Types::TEXT, ['length' => 65535, 'comment' => 'Human readable text description of the reason_code column']);
+        $table->addColumn('reason_description', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Human readable text description of the reason_code column']);
         $table->addColumn('reason_status', Types::STRING, [
             'length' => 31,
             'notnull' => false,

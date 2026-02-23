@@ -52,14 +52,14 @@ final class Version20260000020202 extends AbstractMigration
             'default' => null,
             'comment' => 'Max 10 numeric. Default 6',
         ]);
-        $table->addColumn('onetime_token', Types::TEXT, ['length' => 255]);
-        $table->addColumn('redirect_url', Types::TEXT, ['length' => 255]);
+        $table->addColumn('onetime_token', Types::TEXT, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('redirect_url', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('expires', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('date_created', Types::DATETIME_MUTABLE);
+        $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_accessed', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('scope', Types::TEXT, ['length' => 255, 'comment' => 'context scope for this token']);
-        $table->addColumn('profile', Types::TEXT, ['length' => 255, 'comment' => 'profile of scope for this token']);
-        $table->addColumn('onetime_actions', Types::TEXT, ['length' => 65535, 'comment' => 'JSON array of actions that can be performed with this token']);
+        $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 255, 'comment' => 'context scope for this token']);
+        $table->addColumn('profile', Types::TEXT, ['notnull' => false, 'length' => 255, 'comment' => 'profile of scope for this token']);
+        $table->addColumn('onetime_actions', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON array of actions that can be performed with this token']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

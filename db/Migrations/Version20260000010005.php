@@ -33,8 +33,8 @@ final class Version20260000010005 extends AbstractMigration
     {
         $table = new Table('codes');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('code_text', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('code_text_short', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('code_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('code_text_short', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('code', Types::STRING, ['length' => 25, 'default' => '']);
         $table->addColumn('code_type', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('modifier', Types::STRING, ['length' => 12, 'default' => '']);
@@ -49,9 +49,9 @@ final class Version20260000010005 extends AbstractMigration
         $table->addColumn('related_code', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('taxrates', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('cyp_factor', Types::FLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
-        $table->addColumn('active', Types::SMALLINT, ['default' => 1, 'comment' => '0 = inactive, 1 = active']);
-        $table->addColumn('reportable', Types::SMALLINT, ['default' => 0, 'comment' => '0 = non-reportable, 1 = reportable']);
-        $table->addColumn('financial_reporting', Types::SMALLINT, ['default' => 0, 'comment' => '0 = negative, 1 = considered important code in financial reporting']);
+        $table->addColumn('active', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
+        $table->addColumn('reportable', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => '0 = non-reportable, 1 = reportable']);
+        $table->addColumn('financial_reporting', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => '0 = negative, 1 = considered important code in financial reporting']);
         $table->addColumn('revenue_code', Types::STRING, [
             'length' => 6,
             'default' => '',

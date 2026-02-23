@@ -43,6 +43,7 @@ final class Version20260000020035 extends AbstractMigration
         $table->addColumn('copay', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('deductible', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('deductiblemet', Types::ENUM, [
+            'notnull' => false,
             'default' => 'Y',
             'values' => ['Y', 'N'],
         ]);

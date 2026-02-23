@@ -53,7 +53,7 @@ final class Version20260000020124 extends AbstractMigration
             'default' => '',
             'comment' => 'pending,routed,complete,canceled',
         ]);
-        $table->addColumn('patient_instructions', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('patient_instructions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('activity', Types::SMALLINT, ['default' => 1, 'comment' => '0 if deleted']);
         $table->addColumn('control_id', Types::STRING, [
             'length' => 255,
@@ -92,11 +92,12 @@ final class Version20260000020124 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('history_order', Types::ENUM, [
+            'notnull' => false,
             'default' => '0',
             'values' => ['0', '1'],
             'comment' => 'references order is added for history purpose only.',
         ]);
-        $table->addColumn('order_diagnosis', Types::STRING, [
+        $table->addColumn('order_diagnosis', Types::STRING, ['notnull' => false, 
             'length' => 255,
             'default' => '',
             'comment' => 'primary order diagnosis',

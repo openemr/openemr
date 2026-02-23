@@ -33,13 +33,13 @@ final class Version20260000020170 extends AbstractMigration
     {
         $table = new Table('form_group_attendance');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('date', Types::DATE_MUTABLE);
-        $table->addColumn('group_id', Types::INTEGER);
-        $table->addColumn('user', Types::STRING, ['length' => 255]);
-        $table->addColumn('groupname', Types::STRING, ['length' => 255]);
-        $table->addColumn('authorized', Types::SMALLINT);
-        $table->addColumn('encounter_id', Types::INTEGER);
-        $table->addColumn('activity', Types::SMALLINT);
+        $table->addColumn('date', Types::DATE_MUTABLE, ['notnull' => false]);
+        $table->addColumn('group_id', Types::INTEGER, ['notnull' => false]);
+        $table->addColumn('user', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('groupname', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('encounter_id', Types::INTEGER, ['notnull' => false]);
+        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

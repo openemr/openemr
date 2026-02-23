@@ -39,7 +39,7 @@ final class Version20260000020102 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pid', Types::BIGINT);
-        $table->addColumn('success', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('success', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('action_name', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -60,7 +60,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('audit_data', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('audit_data', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('map_uuid', Types::BINARY, [
             'length' => 16,
@@ -72,7 +72,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('reverted', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('reverted', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revert_action_name', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -83,7 +83,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('revert_audit_data', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('revert_audit_data', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('revert_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

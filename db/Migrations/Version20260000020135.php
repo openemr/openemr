@@ -46,14 +46,14 @@ final class Version20260000020135 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('cl_list_item_long', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('cl_list_item_long', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('cl_list_item_level', Types::INTEGER, [
             'notnull' => false,
             'default' => null,
             'comment' => 'Flow level for List Designation',
         ]);
         $table->addColumn('cl_order', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('cl_deleted', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('cl_deleted', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('cl_creator', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

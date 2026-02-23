@@ -34,14 +34,14 @@ final class Version20260000020206 extends AbstractMigration
         $table = new Table('track_events');
         $table->addOption('comment', 'Telemetry Event Data');
         $table->addColumn('id', Types::INTEGER, ['unsigned' => true, 'autoincrement' => true]);
-        $table->addColumn('event_type', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('event_type', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('event_label', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('event_url', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('event_target', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('event_url', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('event_target', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('first_event', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_event', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('label_count', Types::INTEGER, ['unsigned' => true, 'default' => 1]);

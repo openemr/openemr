@@ -34,7 +34,7 @@ final class Version20260000010014 extends AbstractMigration
         $table = new Table('form_soap');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
+        $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('user', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -45,12 +45,12 @@ final class Version20260000010014 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('activity', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('subjective', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('objective', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('assessment', Types::TEXT, ['length' => 65535]);
-        $table->addColumn('plan', Types::TEXT, ['length' => 65535]);
+        $table->addColumn('authorized', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('activity', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('subjective', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('objective', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('assessment', Types::TEXT, ['notnull' => false, 'length' => 65535]);
+        $table->addColumn('plan', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

@@ -38,7 +38,7 @@ final class Version20260000020067 extends AbstractMigration
             'default' => null,
             'comment' => 'FK Reference to lists.id',
         ]);
-        $table->addColumn('drug_dosage_instructions', Types::TEXT, [
+        $table->addColumn('drug_dosage_instructions', Types::TEXT, ['notnull' => false, 
             'comment' => 'Free text dosage instructions for taking the drug',
         ]);
         $table->addColumn('usage_category', Types::STRING, [
