@@ -67,6 +67,13 @@ while ($frow = sqlFetchArray($fres)) {
         $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
     } else if (isset($_POST["form_$field_id"]) || $field_id == "pubpid") {
         $value = get_layout_form_value($frow);
+        $validation = $frow['validation'] ?? '';
+        if ($validation === 'email' && $value !== '') {
+            if (!filter_var($value, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {
+                $fieldTitle = $frow['title'] ?? '';
+                $alertmsg = xl('Invalid email address') . ': ' . (is_string($fieldTitle) ? $fieldTitle : '');
+            }
+        }
         $newdata[$tblname][$colname] = $value;
     }
 }

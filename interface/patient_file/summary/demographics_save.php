@@ -182,7 +182,15 @@ while ($frow = sqlFetchArray($fres)) {
             ]);
         }
     } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
-        $newdata[$table][$colname] = get_layout_form_value($frow);
+        $value = get_layout_form_value($frow);
+        $validation = $frow['validation'] ?? '';
+        if ($validation === 'email' && $value !== '') {
+            if (!filter_var($value, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {
+                $fieldTitle = $frow['title'] ?? '';
+                die(xlt('Invalid email address') . ': ' . text(is_string($fieldTitle) ? $fieldTitle : ''));
+            }
+        }
+        $newdata[$table][$colname] = $value;
     }
 }
 
