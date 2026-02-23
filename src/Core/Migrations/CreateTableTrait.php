@@ -21,6 +21,8 @@ trait CreateTableTrait
 {
     private function createTable(Table $table): void
     {
+        $table->addOption('charset', 'utf8mb4');
+        $table->addOption('collation', 'utf8mb4_general_ci');
         $platform = $this->connection->getDatabasePlatform();
         foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->addSql($sql);
