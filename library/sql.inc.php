@@ -548,6 +548,8 @@ function getPrivDB()
     return get_db();
 }
 /**
+ * @deprecated Use the standard DB connections instead.
+ *
  * mechanism to use "super user" for SQL queries related to password operations
  *
  * @param string $sql
@@ -571,10 +573,12 @@ function privStatement($sql, $params = null)
 
     return $recordset;
 }
+
 /**
- *
  * Wrapper for privStatement that just returns the first row of a query or FALSE
  * if there were no results.
+ *
+ * @deprecated Use the standard DB connections instead.
  *
  * @param string $sql
  * @param array|null $params
@@ -583,16 +587,7 @@ function privStatement($sql, $params = null)
 function privQuery($sql, $params = null)
 {
     $recordset = privStatement($sql, $params);
-    if ($recordset->EOF) {
-        return false;
-    }
-
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
+    return QueryUtils::fetchArrayFromResultSet($recordset);
 }
 
 
