@@ -120,7 +120,7 @@ $(function () {
 
                     <input type='hidden' name='mode' value="disclosure" />
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Date'); ?>:</label>
                         <?php
                         if (!empty($editlid)) {
@@ -138,7 +138,7 @@ $(function () {
                         } ?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Type of Disclosure'); ?>:</label>
                         <?php
                         if (!empty($editlid)) {
@@ -150,7 +150,7 @@ $(function () {
                         } ?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Recipient of the Disclosure'); ?>:</label>
                         <?php
                         if (!empty($editlid)) {
@@ -162,7 +162,7 @@ $(function () {
                         }?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Description of the Disclosure'); ?>:</label>
                         <?php if (!empty($editlid)) { ?>
                             <textarea class="form-control" name="desc_disc" wrap="auto" rows="4" cols="30"><?php echo text($description); ?></textarea>

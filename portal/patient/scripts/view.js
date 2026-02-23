@@ -21,10 +21,10 @@ var view = {
 		if (page.totalPages > 1) {
 			if (top) {
 				html += `<span aria-label="Page navigation">
-                    <span class="pagination float-left m-0 mb-1">`;
+                    <span class="pagination float-start m-0 mb-1">`;
 			} else {
 				html += `<span aria-label="Page navigation">
-                    <span class="pagination float-right">`;
+                    <span class="pagination float-end">`;
 			}
 
 			let first = 1;
@@ -66,7 +66,7 @@ var view = {
             </span>`;
 		};
 
-		return `<span class="table-active-filter float-right">
+		return `<span class="table-active-filter float-end">
             ${generateActiveCheckbox()}
     </span>`;
 	},

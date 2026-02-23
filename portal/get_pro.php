@@ -23,8 +23,8 @@ use OpenEMR\Easipro\Easipro;
 $records = Easipro::assessmentsForPatient($pid);
 
 if (!empty($records)) { ?>
-<div class="font-weight-bold m-1" onclick="$('.assessment-row').toggleClass('d-none');" role="button">
-    <i class="font-weight-bold fa fa-eye mr-1"></i><?php echo xlt("Assessments") ?>
+<div class="fw-bold m-1" onclick="$('.assessment-row').toggleClass('d-none');" role="button">
+    <i class="fw-bold fa fa-eye me-1"></i><?php echo xlt("Assessments") ?>
 </div>
 <div class="table-responsive">
     <table class="table table-sm table-striped">
@@ -55,5 +55,5 @@ if (!empty($records)) { ?>
 } else {
     echo xlt("No Assessment to Display.");
 }
-        echo "<div class='form-row mx-2' id='ContentTitle'></div>";
+        echo "<div class='row gx-2 mx-2' id='ContentTitle'></div>";
         echo "<div class='container-lg' id='Content'></div>" ?>

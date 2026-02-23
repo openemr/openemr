@@ -18,8 +18,8 @@
         color: #007bff;
     }
 
-    .form_relations .form-group {
-        margin-bottom: 0.3rem;
+    .form_relations .mb-3 {
+        margin-bottom: 0.3rem !important;
     }
 
     .form_relations .label_custom {
@@ -37,7 +37,7 @@
         border-radius: 0.25rem;
     }
 
-    .form_relations .text-danger.font-weight-bold {
+    .form_relations .text-danger.fw-bold {
         animation: pulse 1s infinite;
     }
 
@@ -55,10 +55,10 @@
 
 <div class="col-12">
     {# Person Name Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'First Name:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -72,8 +72,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'Middle Name:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -87,8 +87,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'Last Name:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -104,10 +104,10 @@
     </div>
 
     {# Person Information Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-md-6">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'Gender:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -121,8 +121,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'Birth Date:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -138,9 +138,9 @@
     </div>
 
     {# Basic Relationship Information Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-md-6">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="label_custom">{{ 'Relationship: '|xlt }} <span class="text-danger">*</span></label>
                 {{ generateFormField({
                     'data_type': widget_constants.listWithAddButton,
@@ -153,7 +153,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="label_custom">{{ 'Role: '|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.listWithAddButton,
@@ -169,10 +169,10 @@
     </div>
 
     {# Priority and Dates Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     {{ 'Contact Priority:'|xlt }}
                 </label>
                 {{ generateFormField({
@@ -186,8 +186,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">{{ 'Relationship Start Date:'|xlt }}</label>
+            <div class="mb-3">
+                <label class="label_custom me-1">{{ 'Relationship Start Date:'|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.textDate,
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][start_date]',
@@ -197,8 +197,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">{{ 'Relationship End Date:'|xlt }}</label>
+            <div class="mb-3">
+                <label class="label_custom me-1">{{ 'Relationship End Date:'|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.textDate,
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][end_date]',
@@ -210,10 +210,10 @@
     </div>
 
     {# Checkboxes Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-md-2">
             <div class="mb-2">
-                <label class="label_custom mr-1">{{ 'Contact Permissions: '|xlt }}</label>
+                <label class="label_custom me-1">{{ 'Contact Permissions: '|xlt }}</label>
             </div>
         </div>
         <div class="col-md-2">
@@ -270,7 +270,7 @@
         </div>
     </div>
     {# Telecoms Section #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             {% set telecom_table_id = uniqid("table_edit_telecoms_") %}
             {% set telecoms_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][telecoms]' %}
@@ -290,7 +290,7 @@
     </div>
 
     {# Addresses Section #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             {% set address_table_id = uniqid("table_edit_addresses_") %}
             {% set addresses_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][addresses]' %}
@@ -312,9 +312,9 @@
 
 
     {# Notes Section #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
-            <div class="form-group mb-2 mt-3">
+            <div class="mb-3 mb-2 mt-3">
                 <label class="label_custom">{{ 'Notes: '|xlt }}</label>
                 <textarea class="form-control form_relations_notes"
                           name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][notes]"
@@ -334,7 +334,7 @@
     {% if relatedPerson.can_receive_medical_info or relatedPerson.can_make_medical_decisions %}
     <div class="alert alert-warning mb-2" role="alert">
         <div class="d-flex align-items-start">
-            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+            <i class="fas fa-exclamation-triangle mt-1 me-2"></i>
             <div>
                 <strong>{{ 'HIPAA Notice'|xlt }}</strong><br>
                 <small>
@@ -369,12 +369,12 @@
 
                     // Visual warning at 950 characters
                     if (this.value.length > 950) {
-                        countSpan.classList.add('text-danger', 'font-weight-bold');
+                        countSpan.classList.add('text-danger', 'fw-bold');
                     } else if (this.value.length > 900) {
-                        countSpan.classList.add('text-warning', 'font-weight-bold');
+                        countSpan.classList.add('text-warning', 'fw-bold');
                         countSpan.classList.remove('text-danger');
                     } else {
-                        countSpan.classList.remove('text-danger', 'text-warning', 'font-weight-bold');
+                        countSpan.classList.remove('text-danger', 'text-warning', 'fw-bold');
                     }
                 });
             }
@@ -407,7 +407,7 @@
                     warningDiv.setAttribute('role', 'alert');
                     warningDiv.innerHTML = `
                         <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+                            <i class="fas fa-exclamation-triangle mt-1 me-2"></i>
                             <div>
                                 <strong>${window.xl('HIPAA Notice')}</strong><br>
                                 <small>

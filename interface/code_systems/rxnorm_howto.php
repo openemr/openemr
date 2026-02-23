@@ -33,9 +33,9 @@ use OpenEMR\Core\Header;
     <p>
         <?php echo xlt("Steps to install the RxNorm database"); ?>:
         <ol>
-            <li><?php echo xlt("The first step is to open an account with the Unified Medical Language System web site"); ?> <a class='font-weight-bold' href="https://utslogin.nlm.nih.gov/cas/login" target="_blank" rel="noopener"><?php echo xlt("here"); ?></a>
+            <li><?php echo xlt("The first step is to open an account with the Unified Medical Language System web site"); ?> <a class='fw-bold' href="https://utslogin.nlm.nih.gov/cas/login" target="_blank" rel="noopener"><?php echo xlt("here"); ?></a>
             </li>
-            <li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <a class='font-weight-bold' href="https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a>
+            <li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <a class='fw-bold' href="https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a>
             </li>
             <li><?php echo xlt("Place the downloaded RxNorm database zip file into the following directory"); ?>: contrib/rxnorm.
             </li>

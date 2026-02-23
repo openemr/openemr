@@ -119,10 +119,10 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
             <input type="hidden" name="mode" value="new">
             <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
             <input type="hidden" name="active" value="<?php echo attr($active); ?>">
-            <div class="form-group">
+            <div class="mb-3">
                 <textarea name="note" class="form-control mb-1" rows="3" placeholder="<?php echo xla("Enter new office note here. Text only."); ?>" required="required"></textarea>
                 <button type="submit" class="btn btn-primary btn-save"><?php echo xlt("Add New Note"); ?></button>
-                <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary float-right"><?php echo xlt("Back"); ?></a>
+                <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary float-end"><?php echo xlt("Back"); ?></a>
             </div>
         </form>
     </div>
@@ -160,15 +160,15 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <input type="checkbox" <?php echo ($note['activity'] == 1) ? 'checked' : ''; ?> onchange="toggleActivity(<?php echo attr($note['id']); ?>, this.checked);">
                         </form>
                     </td>
-                    <td class="text-left">
+                    <td class="text-start">
                         <?php echo text(DateFormatterUtils::oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s'))) . " (" . text($note['user']) . ")"; ?>
                     </td>
-                    <td class="text-left"><?php echo nl2br(text($note['body'])); ?></td>
+                    <td class="text-start"><?php echo nl2br(text($note['body'])); ?></td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editNoteModal<?php echo attr($note['id']); ?>">
+                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editNoteModal<?php echo attr($note['id']); ?>">
                             <i class="fa fa-pencil"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteNoteModal<?php echo attr($note['id']); ?>">
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteNoteModal<?php echo attr($note['id']); ?>">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -180,7 +180,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo text('Edit Note'); ?></h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -190,13 +190,13 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                                     <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
                                     <input type="hidden" name="active" value="<?php echo attr($active); ?>">
                                     <input type="hidden" name="note_id" value="<?php echo attr($note['id']); ?>">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <textarea name="note" class="form-control" rows="15" required="required"><?php echo text($note['body']); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary"><?php echo xlt("Save changes"); ?></button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo xlt("Close"); ?></button>
                                 </div>
                             </form>
                         </div>
@@ -209,7 +209,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo xlt("Delete Note"); ?></h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -223,7 +223,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-danger"><?php echo xlt("Delete"); ?></button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Cancel"); ?></button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo xlt("Cancel"); ?></button>
                                 </div>
                             </form>
                         </div>

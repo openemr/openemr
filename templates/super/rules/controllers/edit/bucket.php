@@ -46,7 +46,7 @@ echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
 <input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($criteria->item); ?>" />
 
 <!-- completed -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-field="fld_completed"><?php echo xlt('Completed?'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_completed" id="">
@@ -58,7 +58,7 @@ echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
 </p>
 
 <!-- frequency -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">

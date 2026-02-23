@@ -27,12 +27,12 @@
 {#                        <button class="btn btn-secondary d-flex align-items-center gap-2">#}
 {#                            <i class="fa fa-chart-line"></i> {{ "View Trends"|xlt }}#}
 {#                        </button>#}
-                        <button class="btn btn-secondary d-flex align-items-center gap-2 mr-2 btn-form-close">
-                            <i class="fa fa-times pr-2"></i> {{ "Close Form"|xlt }}
+                        <button class="btn btn-secondary d-flex align-items-center gap-2 me-2 btn-form-close">
+                            <i class="fa fa-times pe-2"></i> {{ "Close Form"|xlt }}
                         </button>
                         <a href="{{ webroot }}/interface/forms/observation/new.php?form_id={{ formId|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
                            class="btn btn-primary d-flex align-items-center gap-2">
-                            <i class="fa fa-plus pr-2"></i> {{ "Add New Observation"|xlt }}
+                            <i class="fa fa-plus pe-2"></i> {{ "Add New Observation"|xlt }}
                         </a>
 
                     </div>
@@ -45,7 +45,7 @@
 {#                <div class="filters-content">#}
 {#                    <div class="row align-items-end">#}
 {#                        <div class="col-md-4">#}
-{#                            <div class="form-group">#}
+{#                            <div class="mb-3">#}
 {#                                <label class="form-label">{{ "Search Observations"|xlt }}</label>#}
 {#                                <input type="text" class="form-control" id="search-input"#}
 {#                                       value="{{ searchCriteria.searchTerm|default('')|attr }}"#}
@@ -53,14 +53,14 @@
 {#                            </div>#}
 {#                        </div>#}
 {#                        <div class="col-md-3">#}
-{#                            <div class="form-group">#}
+{#                            <div class="mb-3">#}
 {#                                <label class="form-label">{{ "Type"|xlt }}</label>#}
 {#                                {{ selectList('type-filter', 'Observation_Types', searchCriteria.obType|default(''), 'Select Type'|xla, {empty_name: 'Select Type'|xlt}) }}#}
 {#                            </div>#}
 {#                        </div>#}
                         {# Date Filtering is stubbed out if we can do it #}
 {#                        <div class="col-md-3">#}
-{#                            <div class="form-group">#}
+{#                            <div class="mb-3">#}
 {#                                <label class="form-label">{{ "Date Range"|xlt }}</label>#}
 {#                                <select class="form-control" id="date-filter">#}
 {#                                    <option value="today">{{ "Today"|xlt }}</option>#}
@@ -71,12 +71,12 @@
 {#                            </div>#}
 {#                        </div>#}
 {#                        <div class="col-md-2">#}
-{#                            <div class="form-group d-flex">#}
-{#                                <button class="btn btn-secondary d-flex align-items-center mr-1">#}
-{#                                    <i class="fa fa-search mr-1"></i> {{ "Search"|xlt }}#}
+{#                            <div class="mb-3 d-flex">#}
+{#                                <button class="btn btn-secondary d-flex align-items-center me-1">#}
+{#                                    <i class="fa fa-search me-1"></i> {{ "Search"|xlt }}#}
 {#                                </button>#}
-{#                                <button class="btn btn-secondary d-flex align-items-center mr-1">#}
-{#                                    <i class="fa fa-refresh mr-1"></i> {{ "Reset"|xlt }}#}
+{#                                <button class="btn btn-secondary d-flex align-items-center me-1">#}
+{#                                    <i class="fa fa-refresh me-1"></i> {{ "Reset"|xlt }}#}
 {#                                </button>#}
 {#                            </div>#}
 {#                        </div>#}
@@ -96,7 +96,7 @@
                 <div class="observations-header bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
                     <div class="observations-title h5 mb-0 d-flex align-items-center gap-2">
                         {{ "Observations for this Encounter"|xlt }}
-                        <span class="ml-2 observation-count badge bg-primary">{{ observations|length }}</span>
+                        <span class="ms-2 observation-count badge bg-primary">{{ observations|length }}</span>
                     </div>
                 </div>
 
@@ -115,11 +115,11 @@
                                             {% endif %}
                                         </div>
                                         <div class="observation-meta d-flex flex-wrap gap-3 text-muted small">
-                                            <span class="mr-1">
+                                            <span class="me-1">
                                                 <strong>{{ "Observation Date"|xlt }}:</strong>
                                                 {{ observation.date|oeFormatDateTime }}
                                             </span>
-                                            <span class="mr-1">
+                                            <span class="me-1">
                                                 <strong>{{ "Type"|xlt }}:</strong>
                                                 {% if observation.ob_type_display %}
                                                     {{ observation.ob_type_display|text }}
@@ -127,12 +127,12 @@
                                                     {{ "Unknown"|xlt }}
                                                 {% endif %}
                                             </span>
-                                            <span class="mr-1">
+                                            <span class="me-1">
                                                 <strong>{{ "Status"|xlt }}:</strong>
                                                 {{ observation.ob_status_display|text }}
                                             </span>
                                             {% if observation.ob_reason_code %}
-                                                <span class="mr-1">
+                                                <span class="me-1">
                                                     <strong>{{ "Reason Code"|xlt }}:</strong>
                                                     {{ observation.ob_reason_code|text }}
                                                     {% if observation.ob_reason_text %}
@@ -141,7 +141,7 @@
                                                 </span>
                                             {% endif %}
                                             {% if observation.ob_reason_status %}
-                                                <span class="mr-1">
+                                                <span class="me-1">
                                                     <strong>{{ "Reason Status"|xlt }}:</strong>
                                                     {{ observation.ob_reason_status_display|text }}
                                                 </span>
@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="observation-actions d-flex gap-2">
                                         <a href="{{ webroot }}/interface/forms/observation/new.php?id={{ observation.id|attr_url }}&form_id={{ observation.form_id|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
-                                           class="btn btn-sm btn-outline-success mr-1">
+                                           class="btn btn-sm btn-outline-success me-1">
                                             <i class="fa fa-edit"></i> {{ "Edit"|xlt }}
                                         </a>
                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -305,12 +305,12 @@
                             {#                        <button class="btn btn-secondary d-flex align-items-center gap-2">#}
                             {#                            <i class="fa fa-chart-line"></i> {{ "View Trends"|xlt }}#}
                             {#                        </button>#}
-                            <button class="btn btn-secondary d-flex ml-auto mr-2 btn-form-close">
-                                <i class="fa fa-times pr-2"></i> {{ "Close Form"|xlt }}
+                            <button class="btn btn-secondary d-flex ms-auto me-2 btn-form-close">
+                                <i class="fa fa-times pe-2"></i> {{ "Close Form"|xlt }}
                             </button>
                             <a href="{{ webroot }}/interface/forms/observation/new.php?form_id={{ formId|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
                                class="btn btn-primary d-flex gap-2">
-                                <i class="fa fa-plus pr-2"></i> {{ "Add New Observation"|xlt }}
+                                <i class="fa fa-plus pe-2"></i> {{ "Add New Observation"|xlt }}
                             </a>
 
                         </div>

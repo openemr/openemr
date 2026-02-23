@@ -1,7 +1,7 @@
 <div class="col-sm">
     <fieldset>
         <legend>{{ "Reason for Visit"|xlt }}</legend>
-        <div class="form-row mx-3 h-100">
+        <div class="row gx-2 mx-3 h-100">
             <textarea name="reason" id="reason" class="form-control" cols="80" rows="4">{%
                     if viewmode
                         %}{{ encounter.reason|default("")|text }}{%

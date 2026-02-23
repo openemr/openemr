@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block card_header_actions %}
-    <button type="button" class="btn btn-primary btn-sm js-toggle-edit" data-target="#{{ type|attr }}-edit">
+    <button type="button" class="btn btn-primary btn-sm js-toggle-edit" data-bs-target="#{{ type|attr }}-edit">
         <i class="fa fa-plus"></i> {{ "Add / Edit"|xlt }}
     </button>
 {% endblock %}
@@ -80,14 +80,14 @@
                             </td>
                             <td>
                                 {% if pref.value_display %}
-                                    <span class="badge badge-info">{{ pref.value_display|text }}</span>
+                                    <span class="badge bg-info text-dark">{{ pref.value_display|text }}</span>
                                 {% elseif pref.value_code_display %}
-                                    <span class="badge badge-info">{{ pref.value_code_display|text }}</span>
+                                    <span class="badge bg-info text-dark">{{ pref.value_code_display|text }}</span>
                                 {% elseif pref.value_type == 'boolean' %}
                                     {% if pref.value_boolean in ['1', 1, true] %}
-                                        <span class="badge badge-success"><i class="fa fa-check"></i> {{ "Yes"|xlt }}</span>
+                                        <span class="badge bg-success"><i class="fa fa-check"></i> {{ "Yes"|xlt }}</span>
                                     {% else %}
-                                        <span class="badge badge-secondary"><i class="fa fa-times"></i> {{ "No"|xlt }}</span>
+                                        <span class="badge bg-secondary"><i class="fa fa-times"></i> {{ "No"|xlt }}</span>
                                     {% endif %}
                                 {% elseif pref.value_text %}
                                     {{ pref.value_text|text }}
@@ -98,19 +98,19 @@
                             <td>
                                 {% set st = pref.status|default('') %}
                                 {% if st == 'final' %}
-                                    <span class="badge badge-success">{{ "Final"|xlt }}</span>
+                                    <span class="badge bg-success">{{ "Final"|xlt }}</span>
                                 {% elseif st == 'preliminary' %}
-                                    <span class="badge badge-warning">{{ "Preliminary"|xlt }}</span>
+                                    <span class="badge bg-warning text-dark">{{ "Preliminary"|xlt }}</span>
                                 {% elseif st == 'amended' %}
-                                    <span class="badge badge-info">{{ "Amended"|xlt }}</span>
+                                    <span class="badge bg-info text-dark">{{ "Amended"|xlt }}</span>
                                 {% elseif st == 'entered-in-error' %}
-                                    <span class="badge badge-danger">{{ "Error"|xlt }}</span>
+                                    <span class="badge bg-danger">{{ "Error"|xlt }}</span>
                                 {% else %}
-                                    <span class="badge badge-secondary">{{ st|text }}</span>
+                                    <span class="badge bg-secondary">{{ st|text }}</span>
                                 {% endif %}
                             </td>
                             {% if auth and can_write %}
-                                <td class="float-right">
+                                <td class="float-end">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <button type="button"
                                                 class="btn btn-outline-primary btn-sm js-edit-row"
@@ -147,8 +147,8 @@
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" id="{{ type|attr }}-id">
 
-                <div class="form-row">
-                    <div class="form-group col-md-6">
+                <div class="row g-2">
+                    <div class="mb-3 col-md-6">
                         <label for="{{ type|attr }}-observation_code">
                             {{ type == 'care_experience' ? "Preference Category"|xlt : "Preference Type"|xlt }}
                             <span class="text-danger">*</span>
@@ -165,12 +165,12 @@
                         <small class="form-text text-muted">{{ "LOINC-coded list for FHIR compliance"|xlt }}</small>
                     </div>
 
-                    <div class="form-group col-md-3">
+                    <div class="mb-3 col-md-3">
                         <label for="{{ type|attr }}-effective_datetime">{{ "Date Recorded"|xlt }} <span class="text-danger">*</span></label>
                         <input type="text" class="form-control datepicker" name="effective_datetime" id="{{ type|attr }}-effective_datetime" value="{{ current_datetime|attr }}" required>
                     </div>
 
-                    <div class="form-group col-md-3">
+                    <div class="mb-3 col-md-3">
                         <label for="{{ type|attr }}-status">{{ "Status"|xlt }}</label>
                         <select class="form-control" name="status" id="{{ type|attr }}-status">
                             <option value="final">{{ "Final"|xlt }}</option>
@@ -180,7 +180,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>{{ "Response Type"|xlt }} <span class="text-danger">*</span></label>
                     <div class="form-check">
                         <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-coded" value="coded" checked>
@@ -197,7 +197,7 @@
                 </div>
 
                 <div id="{{ type|attr }}-codedValueSection">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ type|attr }}-value_code">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
                         <select class="form-control" name="value_code" id="{{ type|attr }}-value_code">
                             <option value="">{{ "Select preference first..."|xlt }}</option>
@@ -208,14 +208,14 @@
                 </div>
 
                 <div id="{{ type|attr }}-textValueSection" style="display:none;">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ type|attr }}-value_text">{{ "Patient's Preference (Free Text)"|xlt }} <span class="text-danger">*</span></label>
                         <textarea class="form-control" name="value_text" id="{{ type|attr }}-value_text" rows="3"></textarea>
                     </div>
                 </div>
 
                 <div id="{{ type|attr }}-booleanValueSection" style="display:none;">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ type|attr }}-value_boolean">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
                         <select class="form-control" name="value_boolean" id="{{ type|attr }}-value_boolean">
                             <option value="1">{{ "Yes"|xlt }}</option>
@@ -224,12 +224,12 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="{{ type|attr }}-note">{{ "Additional Notes"|xlt }}</label>
                     <textarea class="form-control" name="note" id="{{ type|attr }}-note" rows="3"></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {{ "Save Preference"|xlt }}</button>
                     <button type="button" class="btn btn-secondary btn-sm js-cancel-edit"><i class="fa fa-undo"></i> {{ "Cancel"|xlt }}</button>
                 </div>
