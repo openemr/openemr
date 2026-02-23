@@ -4,7 +4,7 @@
  * Edit insurance.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>

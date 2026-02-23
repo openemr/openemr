@@ -7,7 +7,7 @@
  * writing modules that can be installed and used in OpenEMR.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>

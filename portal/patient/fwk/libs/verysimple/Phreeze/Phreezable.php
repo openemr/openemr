@@ -252,7 +252,7 @@ abstract class Phreezable
         $src_cls = $src::class;
 
         foreach (get_object_vars($this) as $key => $val) {
-            if (!str_starts_with($key, "_")) {
+            if (!str_starts_with((string) $key, "_")) {
                 if (property_exists($src_cls, $key)) {
                     $this->$key = $src->$key;
                     $this->IsPartiallyLoaded(true);

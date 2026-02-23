@@ -25,7 +25,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Organization Service
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786@gmail.com>
  * @author             Stephen Nielson <stephen@nielson.org>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>

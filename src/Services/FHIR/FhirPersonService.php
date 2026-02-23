@@ -3,7 +3,7 @@
 /**
  * FHIR Person Service.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>

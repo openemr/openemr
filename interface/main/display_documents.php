@@ -5,7 +5,7 @@
  * Only Lab documents for now.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Hema Bandaru <hemab@drcloudemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Harshal Lele <harshallele97@gmail.com>

@@ -3,7 +3,7 @@
 /**
  * FhirValueSetRestController.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Jones (Analog Informatics Corporation) <robert@analoginfo.com>, <robert@justjones.org>
  * @copyright Copyright (c) 2023 Analog Informatics Corporation <https://analoginfo.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

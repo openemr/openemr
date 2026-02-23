@@ -159,3 +159,17 @@ UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = '
 #IfRow2D list_options list_id ethrace option_id declne_to_specfy
 UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'ethrace' AND `option_id` = 'declne_to_specfy';
 #EndIf
+
+--
+-- Rename the misspelled 'interpretter' column to 'interpreter' in patient_data,
+-- and update the layout_options field_id to match.
+-- See: https://github.com/openemr/openemr/issues/10351
+--
+
+#IfColumn patient_data interpretter
+ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter';
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id interpretter
+UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
+#EndIf

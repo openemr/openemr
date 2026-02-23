@@ -5,7 +5,7 @@
  * in the portal_patient_report.php file.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>

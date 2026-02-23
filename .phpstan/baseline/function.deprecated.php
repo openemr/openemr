@@ -8,12 +8,6 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/chart_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collect_codetypes\\(\\)\\:
 use CodeTypesService\\:\\:collectCodeTypes\\(\\)$#',
     'count' => 2,
@@ -75,12 +69,6 @@ $ignoreErrors[] = [
 Use DrugSalesService\\:\\:sellDrug instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -335,46 +323,16 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/logview/logview.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/onotes/office_comments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -485,34 +443,10 @@ Use EmployerService\\-\\>updateEmployerData\\(\\) instead\\.$#',
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_fragment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:getUserSetting$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/stats_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/transaction/transactions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function oeFormatTime\\(\\)\\:
@@ -527,64 +461,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function oeFormatTime\\(\\)\\:
 use DateFormatterUtils\\:\\:oeFormatTime\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/reports/background_services.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/chart_location_activity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/charts_checked_out.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collect_codetypes\\(\\)\\:
 use CodeTypesService\\:\\:collectCodeTypes\\(\\)$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/clinical_reports.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/reports/clinical_reports.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/cqm.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/direct_message_log.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function getFormByEncounter\\(\\)\\:
@@ -593,40 +479,16 @@ Use FormService\\:\\:getFormByEncounter\\(\\) instead$#',
     'path' => __DIR__ . '/../../interface/reports/encounters_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/reports/ip_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function oeFormatTime\\(\\)\\:
 use DateFormatterUtils\\:\\:oeFormatTime\\(\\)$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/patient_flow_board_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/reports/payment_processing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collect_codetypes\\(\\)\\:
 use CodeTypesService\\:\\:collectCodeTypes\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/report_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function removeUserSetting\\(\\)\\:
@@ -663,12 +525,6 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/user_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -742,18 +598,6 @@ use LayoutsUtils\\:\\:isOption$#',
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
@@ -793,12 +637,6 @@ use EmployerService\\-\\>getMostRecentEmployerData\\(\\)$#',
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerLog.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function checkUserSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:checkUserSetting$#',
     'count' => 1,
@@ -808,18 +646,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Easipro/Easipro.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserSetting\\(\\)\\:
@@ -898,12 +724,6 @@ $ignoreErrors[] = [
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function oeFormatDateTime\\(\\)\\:
-use DateFormatterUtils\\:\\:oeFormatDateTime\\(\\)$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../templates/super/rules/controllers/log/view.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -217,7 +217,18 @@ class SentinelUtil
         }
 
         // Create a new Predis client instance
-        return new Client($sentinelParameters, $options);
+        $client = new Client($sentinelParameters, $options);
+
+        // Explicitly connect to force sentinel master resolution before the client is used.
+        // This is required for compatibility with predis >= 3.4.0, which refactored the
+        // handshake process and now calls getParameters() on the aggregate connection earlier
+        // in the command execution lifecycle. Without this, SentinelReplication::getParameters()
+        // is called before a connection is established and returns an array instead of a
+        // ParametersInterface object, causing a fatal error.
+        // See: https://github.com/predis/predis/releases/tag/v3.4.0
+        $client->connect();
+
+        return $client;
     }
 
     public function configure(int $ttl): \SessionHandlerInterface {

@@ -4,7 +4,7 @@
  * Connectivity information for the ClaimRev module.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -23,7 +23,7 @@ class ConnectivityInfo
     public string $client_scope;
     public string $client_secret;
     public string $api_server;
-    public string $hasToken;
+    public bool $hasToken;
     public string $defaultAccount;
 
     public function __construct()
@@ -42,13 +42,13 @@ class ConnectivityInfo
 
         try {
             $api = ClaimRevApi::makeFromGlobals();
-            $this->hasToken = $api->canConnect() ? 'Yes' : 'No';
+            $this->hasToken = $api->canConnect();
             $this->defaultAccount = json_encode($api->getDefaultAccount(), JSON_THROW_ON_ERROR);
         } catch (ClaimRevAuthenticationException) {
-            $this->hasToken = 'No';
+            $this->hasToken = false;
             $this->defaultAccount = '';
         } catch (ClaimRevApiException) {
-            $this->hasToken = 'Yes';
+            $this->hasToken = true;
             $this->defaultAccount = '';
         }
     }

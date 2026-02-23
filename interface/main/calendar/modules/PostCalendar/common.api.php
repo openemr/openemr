@@ -211,9 +211,9 @@ function postcalendar_getDate($format = 'Ymd')
         $Date = (int) "$jumpyear$jumpmonth$jumpday";
     }
 
-    $y = substr($Date, 0, 4);
-    $m = substr($Date, 4, 2);
-    $d = substr($Date, 6, 2);
+    $y = substr((string) $Date, 0, 4);
+    $m = substr((string) $Date, 4, 2);
+    $d = substr((string) $Date, 6, 2);
     OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }

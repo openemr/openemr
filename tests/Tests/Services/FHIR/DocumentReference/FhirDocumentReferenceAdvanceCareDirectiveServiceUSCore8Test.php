@@ -23,7 +23,7 @@
  * - Calls PatientAdvanceDirectiveService for data retrieval
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc <snielson@discoverandchange.com>

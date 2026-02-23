@@ -4,7 +4,7 @@
  * Report to view the background services.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,6 +15,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Background Services", xl("Background Services"));
@@ -145,13 +146,13 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo ($row['running'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
-          <td align='center'><?php echo text(oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
+          <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
         <?php } ?>
 
         <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
-          <td align='center'><?php echo text(oeFormatDateTime($row['next_run'], "global", true)); ?></td>
+          <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['next_run'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>

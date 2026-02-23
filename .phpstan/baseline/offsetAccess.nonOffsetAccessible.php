@@ -1397,7 +1397,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'interpretter\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'interpreter\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
@@ -48018,6 +48018,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_title\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_website\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
