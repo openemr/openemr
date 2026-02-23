@@ -504,7 +504,7 @@ function sqlClose()
 * Do not use.
 *
 * @deprecated
-* @return connection
+* @return ADODB_mysqli_log
 */
 function get_db()
 {
@@ -540,93 +540,12 @@ function sqlRollbackTrans(): void
 }
 
 /**
- * For the 3 functions below:
- *
- * To support an optional higher level of security, queries that access password
- * related information use these functions instead of the standard functions
- * provided by sql.inc.php.
- *
- * By default, the privQuery and privStatement calls pass-through to
- * the existing ADODB instance initialized by sql.inc.php.
- *
- * If an additional configuration file is created (secure_sqlconf.php) and saved
- * in the sites/<sitename> directory (e.g. sites/default).  The MySQL login
- * information defined in that file as $secure_* will be used to create an ADODB
- * instance specifically for querying privileged information.
- *
- * By configuring a server in this way, the default MySQL user can be denied access
- * to sensitive tables (currently only "users_secure" would qualify).  Thus
- * the likelihood of unintended modification can be reduced (e.g. through SQL Injection).
- *
- * Details on how to set this up are included in Documentation/privileged_db/priv_db_HOWTO
- *
- * The trade off for this additional security is extra complexity in configuration and
- * maintenance of the database, hence it is not enabled at install time and must be
- * done manually.
- *
+ * @deprecated Use the standard DB connections instead.
+ * @return ADODB_mysqli_log
  */
 function getPrivDB()
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
-    if (!isset($GLOBALS['PRIV_DB'])) {
-        $secure_config = $GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
-        if (file_exists($secure_config)) {
-            require_once($secure_config);
-            /**
-             * Variables set by secure_sqlconf.php
-             *
-             * @var string $secure_host
-             * @var string $secure_port
-             * @var string $secure_login
-             * @var string $secure_pass
-             * @var string $secure_dbase
-             */
-            $GLOBALS['PRIV_DB'] = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
-            // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
-            // which is needed to import data in the Administration->Other->External Data Loads feature.
-            // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
-            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
-            // Set mysql to use ssl, if applicable.
-            // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-            // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-                if (defined('MYSQLI_CLIENT_SSL')) {
-                    if (
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-                    ) {
-                        // with client side certificate/key
-                        $GLOBALS['PRIV_DB']->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                        $GLOBALS['PRIV_DB']->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                        $GLOBALS['PRIV_DB']->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    } else {
-                        // without client side certificate/key
-                        $GLOBALS['PRIV_DB']->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    }
-                    $GLOBALS['PRIV_DB']->clientFlags = MYSQLI_CLIENT_SSL;
-                }
-            }
-            // $port variable is from main sqlconf.php (global scope)
-            global $port;
-            $GLOBALS['PRIV_DB']->port = $port;
-            if (DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState()) {
-                $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
-            } else {
-                $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
-            }
-            // set up associations in adodb calls
-            $GLOBALS['PRIV_DB']->SetFetchMode(ADODB_FETCH_ASSOC);
-            // debug hook for ssl stuff
-            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
-                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS['PRIV_DB']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
-            }
-        } else {
-            $GLOBALS['PRIV_DB'] = $GLOBALS['adodb']['db'];
-        }
-    }
-
-    return $GLOBALS['PRIV_DB'];
+    return get_db();
 }
 /**
  * mechanism to use "super user" for SQL queries related to password operations
