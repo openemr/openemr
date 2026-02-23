@@ -42,7 +42,7 @@ if (empty($group)) {
 
 // $encounter is already in scope from globals.php / load_form.php.
 // Guard against missing encounter (the scenario that caused #10844):
-if (empty($encounter)) {
+if (!isset($encounter) || (int) $encounter === 0) { // @phpstan-ignore cast.int ($encounter comes from global scope)
     formHeader(xlt('Error'));
     echo '<div class="alert alert-danger">' .
         xlt('No active encounter. Please select or create an encounter first.') .
