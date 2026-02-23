@@ -6,17 +6,17 @@
  *
  * Originally culled from /interface/patient_file/summary and adapted...
  *
- * @packageOpenEMR
- * @linkhttp://www.open-emr.org
- * @authorRod Roark <rod@sunsetsystems.com>
- * @authorRay Magauran <magauran@MedFetch.com>
- * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
- * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /*

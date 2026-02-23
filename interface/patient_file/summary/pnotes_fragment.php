@@ -4,7 +4,7 @@
  * Display patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -91,7 +92,7 @@ if (isset($_GET['docUpdateId'])) {
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";
                 echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
-                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
+                echo "<td class='text'>" . text(DateFormatterUtils::oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
                 echo "  <td class='text'><b>";
                 echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                 echo "</b></td>\n";

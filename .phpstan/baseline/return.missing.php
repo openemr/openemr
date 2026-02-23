@@ -67,6 +67,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function DateFormatRead\\(\\) should return string but return statement is missing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_tag\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
@@ -127,13 +132,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return special but return statement is missing\\.$#',
+    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) should return string\\|false\\|null but return statement is missing\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:encoding\\(\\) should return nothing but return statement is missing\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [

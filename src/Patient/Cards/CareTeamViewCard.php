@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR Care Team
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>

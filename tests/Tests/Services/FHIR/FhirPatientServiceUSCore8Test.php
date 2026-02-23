@@ -7,7 +7,7 @@
  * http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>

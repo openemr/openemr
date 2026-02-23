@@ -7,7 +7,7 @@
  * US Core StructureDefinition requirements and constraints
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Claude.AI Assistant
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>

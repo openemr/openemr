@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_numeric\\(\\) with prepared will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with int will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/ListAuthorizations.php',
@@ -75,11 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with mysqli\\|false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with VARIANT will always evaluate to false\\.$#',

@@ -8,7 +8,7 @@
  * TODO: adunsulag maybe we can rename this to be SearchFieldQueryConverter  I wonder if that will make more sense to people
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

@@ -5,7 +5,7 @@
  * for uploading site-specific image files.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>

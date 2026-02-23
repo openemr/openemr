@@ -1252,41 +1252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$api_server has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$clientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_authority has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_scope has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_secret has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$defaultAccount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$hasToken has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$industryCode has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
@@ -15012,77 +14977,77 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BeginsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BeginsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseAnd has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BitwiseAnd has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseOr has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BitwiseOr has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_EndsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_EndsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_Equals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_Equals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_GreaterThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_GreaterThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_In has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_In has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsNotEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsNotLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_LessThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_LessThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_NotEquals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_NotEquals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
@@ -23567,7 +23532,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientReporter\\:\\:\\$Interpretter has no type specified\\.$#',
+    'message' => '#^Property PatientReporter\\:\\:\\$Interpreter has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];

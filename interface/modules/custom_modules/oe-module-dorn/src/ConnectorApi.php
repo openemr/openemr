@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\Dorn;
 use DateTime;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevAuthenticationException;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -335,13 +336,14 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev()
+    public static function canConnectToClaimRev(): bool
     {
-        $token = ClaimRevApi::GetAccessToken();
-        if ($token == "") {
-            return "No";
+        try {
+            ClaimRevApi::makeFromGlobals();
+            return true;
+        } catch (ClaimRevAuthenticationException) {
+            return false;
         }
-        return "Yes";
     }
 
     public static function getAccessToken()

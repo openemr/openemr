@@ -6,7 +6,7 @@
  * The functions of this class support the billing process like the script billing_process.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -52,7 +52,7 @@ if (isset($_POST["mode"])) {
         $Modifier = $DeletePaymentDistributionIdArray[4];
         $Codetype = $DeletePaymentDistributionIdArray[5];
         //delete and log that action
-        row_modify(
+        payment_row_modify(
             "ar_activity",
             "deleted = NOW()",
             "session_id = '" . add_escape_custom($payment_id) . "' AND " .

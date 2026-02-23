@@ -6,7 +6,7 @@
  * Called from many different pages.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -47,9 +47,10 @@ $transaction = $_REQUEST['transaction'] ?? '';
 
 $info_msg = "";
 
-// Delete rows, with logging, for the specified table using the
-// specified WHERE clause.
-//
+/**
+ * Delete rows, with logging, for the specified table using the
+ * specified WHERE clause.
+ */
 function deleter_row_delete(string $table, string $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -84,9 +85,10 @@ function deleter_row_delete(string $table, string $where): void
     }
 }
 
-// Deactivate rows, with logging, for the specified table using the
-// specified SET and WHERE clauses.
-//
+/**
+ * Deactivate rows, with logging, for the specified table using the
+ * specified SET and WHERE clauses.
+ */
 function deleter_row_modify(string $table, string $set, string $where): void
 {
     $session = SessionWrapperFactory::getInstance()->getWrapper();

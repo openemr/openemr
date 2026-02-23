@@ -6,7 +6,7 @@
  * This event handles the filtering of forms that are loaded for an encounter.  This event is triggered
  * in the view_form.php, load_form.php, and forms.php files for encounter forms.
  *
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Sophisticated Acquisitions <sophisticated.acquisitions@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

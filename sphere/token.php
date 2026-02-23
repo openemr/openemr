@@ -6,7 +6,7 @@
  * Collect a token for Sphere.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>

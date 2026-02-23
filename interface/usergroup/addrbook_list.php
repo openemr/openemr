@@ -5,7 +5,7 @@
  * Available from Administration->Addr Book in the concurrent layout.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    tony@mi-squared.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>

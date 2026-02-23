@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -144,9 +145,9 @@ $actionName = $_POST['form_action_name'] ?? null;
             </tr>
             <tr>
                 <td class='col-form-label'><?php echo xlt('From'); ?>:</td>
-                <td><input type='text' name='form_from_date' id="form_from_date" class='datepicker form-control' size='10' value='<?php echo attr(oeFormatDateTime($from_date)); ?>' /></td>
+                <td><input type='text' name='form_from_date' id="form_from_date" class='datepicker form-control' size='10' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($from_date)); ?>' /></td>
                 <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>:</td>
-                <td><input type='text' name='form_to_date' id="form_to_date" class='datepicker form-control' size='10' value='<?php echo attr(oeFormatDateTime($to_date)); ?>'></td>
+                <td><input type='text' name='form_to_date' id="form_to_date" class='datepicker form-control' size='10' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($to_date)); ?>'></td>
             </tr>
 
             <tr>
@@ -228,7 +229,7 @@ if (!empty($_POST['form_refresh'])) {
         ?>
 
         <tr valign='top' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
-            <td class="detail">&nbsp;<?php echo text(oeFormatDateTime($auditEntry['date'])); ?></td>
+            <td class="detail">&nbsp;<?php echo text(DateFormatterUtils::oeFormatDateTime($auditEntry['date'])); ?></td>
             <td class="detail">&nbsp;<?php echo text($auditEntry['service']); ?></td>
             <td class="detail">&nbsp;<?php echo text($auditEntry['front_label']); ?></td>
             <td class="detail">&nbsp;<?php echo text($auditEntry['ticket']); ?></td>
@@ -244,10 +245,10 @@ if (!empty($_POST['form_refresh'])) {
                     if (!empty($auditEntry['reverted'])) {
                         // Charge has already been reverted
                         if ($auditEntry['revert_action_name'] == 'void') {
-                            echo xlt("This charge was reversed via void on following date") . ": " . text(oeFormatDateTime($auditEntry['revert_date'])) . "<br>" .
+                            echo xlt("This charge was reversed via void on following date") . ": " . text(DateFormatterUtils::oeFormatDateTime($auditEntry['revert_date'])) . "<br>" .
                                 xlt("The transaction_id for the void was") . ": " . text($auditEntry['revert_transaction_id']);
                         } else { // $auditEntry['revert_action_name'] == 'credit'
-                            echo xlt("This charge was reversed via credit on following date") . ": " . text(oeFormatDateTime($auditEntry['revert_date'])) . "<br>" .
+                            echo xlt("This charge was reversed via credit on following date") . ": " . text(DateFormatterUtils::oeFormatDateTime($auditEntry['revert_date'])) . "<br>" .
                                 xlt("The Transaction ID for the credit was") . ": " . text($auditEntry['revert_transaction_id']);
                         }
                     }

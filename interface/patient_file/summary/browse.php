@@ -4,7 +4,7 @@
  * Patient selector for insurance gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>

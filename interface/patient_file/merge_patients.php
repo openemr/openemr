@@ -6,7 +6,7 @@
  *
  * @category  Patient_Data
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
@@ -119,8 +119,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * @param [type] $colname    the column used for the query.
          * @param [type] $source_pid the source patient id.
          * @param [type] $target_pid the target patient id.
-         *
-         * @return voidd
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {

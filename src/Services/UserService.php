@@ -4,7 +4,7 @@
  * UserService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>

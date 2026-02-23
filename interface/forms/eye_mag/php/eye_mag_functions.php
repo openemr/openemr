@@ -200,7 +200,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO. DRAW_PRIORS_$zone and IMPPLAN to do.
  * @param string $visit_date. Future functionality to limit result set. UTC DATE Formatted
  * @param string $pid value = patient id
- * @return outputs the ZONE specific HTML for a prior record + "priors_select" widget for the desired zone
+ * @return string|false the ZONE specific HTML for a prior record + "priors_select" widget for the desired zone
  */
 function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0')
 {
@@ -410,12 +410,12 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmer I'); ?></td>
                     <td><input disabled type="text" name="PRIOR_ODSCHIRMER1" id="PRIOR_ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
-                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHIRMER1" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirmer II'); ?></td>
                     <td><input disabled type="text" name="PRIOR_ODSCHIRMER2" id="PRIOR_ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
-                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHIRMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT{{tear breakup time}}'); ?></td>
@@ -2937,7 +2937,7 @@ function show_PMSFH_report($PMSFH): void
  *
  *  @param string $zone options EXT,ANTSEG,RETINA,NEURO
  *  @param string $provider_id
- *  @return QP text: when called directly outputs the ZONE QP lists for this provider
+ *  @return string|false|null the ZONE QP lists for this provider
  */
 function display_QP($zone, $provider_id)
 {
@@ -3363,10 +3363,10 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
         $result['ODGONIO'] = $objQuery['ODGONIO'];
         $result['OSGONIO'] = $objQuery['OSGONIO'];
-        $result['ODSHRIMER1'] = $objQuery['ODSHIRMER1'];
-        $result['OSSHRIMER1'] = $objQuery['OSSHIRMER1'];
-        $result['ODSHRIMER2'] = $objQuery['ODSHIRMER2'];
-        $result['OSSHRIMER2'] = $objQuery['OSSHIRMER2'];
+        $result['ODSCHIRMER1'] = $objQuery['ODSCHIRMER1'];
+        $result['OSSCHIRMER1'] = $objQuery['OSSCHIRMER1'];
+        $result['ODSCHIRMER2'] = $objQuery['ODSCHIRMER2'];
+        $result['OSSCHIRMER2'] = $objQuery['OSSCHIRMER2'];
         $result['ODTBUT'] = $objQuery['ODTBUT'];
         $result['OSTBUT'] = $objQuery['OSTBUT'];
         $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
@@ -4230,7 +4230,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
- *  @return outputs directly to screen
+ *  @return string|false the header HTML
  */
 function report_header($pid, $direction = 'shell')
 {
@@ -4328,7 +4328,7 @@ function report_header($pid, $direction = 'shell')
  *      as active and as Diagnostic codes.  The terms "ptosis right eyelid" are sent to the
  *      standard openEMR code search engine.
  *  @param string $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
- *  @return outputs directly to screen
+ *  @return mixed the codes found
  */
 function start_your_engines($FIELDS)
 {
@@ -4713,7 +4713,7 @@ function start_your_engines($FIELDS)
  *
  *  @param string $term, text to search for in the coding tables.
  *  @param string $field, location where to search. In fact any text that refines the search can be contained here.
- *  @return outputs array of $codes matching the $term & $field
+ *  @return array<array<string, mixed>> array of $codes matching the $term & $field
  */
 function coding_carburetor($term, $field)
 {

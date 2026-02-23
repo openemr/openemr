@@ -4,7 +4,7 @@
  * The functions of this class support the billing process like the script billing_process.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -53,7 +53,10 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 $Processed = 0;
-function era_callback(&$out): void
+/**
+ * @param array $out
+ */
+function era_payments_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     ++$eracount;
@@ -119,15 +122,15 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     if (!is_string($tmp_name)) {
         $alertmsg .= xl("Invalid file upload") . " ";
     } else {
-    // Handle .zip extension if present.  Probably won't work on Windows.
+        // Handle .zip extension if present.  Probably won't work on Windows.
         if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
             rename($tmp_name, "$tmp_name.zip");
             exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
             unlink("$tmp_name.zip");
         }
-        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_payments_callback');
 
-    // Ensure the ERA directory exists
+        // Ensure the ERA directory exists
         $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
         if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
             $alertmsg .= xl("Cannot create ERA directory") . " ";

@@ -17,12 +17,12 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // TODO: look at moving all of the date functions into the DateFormatterUtils class.
 
-function oeFormatMoney($amount, $symbol = false)
+function oeFormatMoney($amount, $symbol = false): string
 {
     return FormatMoney::getFormattedMoney($amount, $symbol);
 }
 
-function oeFormatShortDate($date = 'today', $showYear = true)
+function oeFormatShortDate($date = 'today', bool $showYear = true)
 {
     return DateFormatterUtils::oeFormatShortDate($date, $showYear);
 }
@@ -34,11 +34,11 @@ function oeFormatShortDate($date = 'today', $showYear = true)
  * 1 - Time format 12 hr
  * @param $time
  * @param $format
- * @param $seconds
+ * @param bool $seconds
  * @return string
  *@deprecated use DateFormatterUtils::oeFormatTime()
  */
-function oeFormatTime($time, $format = "global", $seconds = false)
+function oeFormatTime($time, $format = "global", bool $seconds = false): string
 {
     return DateFormatterUtils::oeFormatTime($time, $format, $seconds);
 }
@@ -47,9 +47,9 @@ function oeFormatTime($time, $format = "global", $seconds = false)
  * Returns the complete formatted datetime string according the global date and time format
  * @deprecated use DateFormatterUtils::oeFormatDateTime()
  * @param $datetime
- * @return string
+ * @param bool $seconds
  */
-function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
+function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false): string
 {
     return DateFormatterUtils::oeFormatDateTime($datetime, $formatTime, $seconds);
 }
@@ -82,13 +82,20 @@ function oeTimestampFormatDateTime($timestamp)
     return $newDate;
 }
 
-// Format short date from time.
+/**
+ * Format short date from time.
+ * @return string
+ */
 function oeFormatSDFT($time)
 {
     return oeFormatShortDate(date('Y-m-d', $time));
 }
 
-// Format the body of a patient note.
+/**
+ * Format the body of a patient note.
+ * @param string $note
+ * @return string
+ */
 function oeFormatPatientNote($note)
 {
     $i = 0;
@@ -113,8 +120,11 @@ function oeFormatClientID($id)
 
     return $id;
 }
-//----------------------------------------------------
-// note this function is implemented in the javascript side in the js/xl/formatting.js file
+/**
+ * note this function is implemented in the javascript side in the js/xl/formatting.js file
+ * @param string $mode
+ * @return string
+ */
 function DateFormatRead($mode = 'legacy')
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.

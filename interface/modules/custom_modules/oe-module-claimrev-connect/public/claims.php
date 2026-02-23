@@ -4,7 +4,7 @@
  * Claims search page
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -17,7 +17,7 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
-use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 
 $tab = "claims";
 $errorMessage = null;

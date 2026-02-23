@@ -4,7 +4,7 @@
  * Provides manual administration of codes
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>

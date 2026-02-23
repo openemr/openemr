@@ -10663,7 +10663,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 11,
+    'count' => 12,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
@@ -17610,11 +17610,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$q_uuid might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$newDate might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$records might not be defined\\.$#',

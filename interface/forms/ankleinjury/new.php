@@ -4,7 +4,7 @@
  * ankleinjury new.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    cfapress <cfapress>
  * @author    Robert Down <robertdown@live.com>

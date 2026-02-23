@@ -4,7 +4,7 @@
  * AMC Tracking.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Tracking", xl("Automated Measure Calculations (AMC) Tracking"));
@@ -201,7 +202,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                         <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, "global", true)); ?>' class='datepicker form-control' />
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($begin_date, "global", true)); ?>' class='datepicker form-control' />
                       </td>
                  </tr>
 
@@ -210,7 +211,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                             <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, "global", true)); ?>' class='datepicker form-control' />
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, "global", true)); ?>' class='datepicker form-control' />
                         </td>
                 </tr>
 
@@ -366,7 +367,7 @@ if (!empty($_POST['form_refresh'])) {
         echo "<tr bgcolor='" . attr($bgcolor ?? '') . "'>";
         echo "<td>" . text($result['lname'] . "," . $result['fname']) . "</td>";
         echo "<td>" . text($result['pid']) . "</td>";
-        echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";
+        echo "<td>" . text(DateFormatterUtils::oeFormatDateTime($result['date'], "global", true)) . "</td>";
         if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
             echo "<td>" . text($result['id']) . "</td>";
         } else { //$rule == "provide_rec_pat_amc"

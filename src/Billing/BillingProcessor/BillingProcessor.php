@@ -24,7 +24,7 @@
  * class and not be mixed with others.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@growlingflea.com>

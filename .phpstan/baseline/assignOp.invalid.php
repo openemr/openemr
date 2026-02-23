@@ -467,7 +467,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and prepared\\|string results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between string and list\\<string\\|null\\>\\|string\\|null results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
@@ -712,11 +712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -734,11 +729,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
@@ -918,7 +908,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
@@ -965,11 +955,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-\\=" between mixed and 12 results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_full.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between float\\|int and mixed results in an error\\.$#',
@@ -1177,7 +1162,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\+\\=" between mixed and float\\|int\\|string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
@@ -2123,11 +2108,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and mixed results in an error\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-\\=" between mixed and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\+\\=" between mixed and string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\-\\=" between mixed and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];

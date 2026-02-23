@@ -7,7 +7,7 @@
  * report period.  Note to be seen means that the provider/billing facility had to have had some kind of encounter with the patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

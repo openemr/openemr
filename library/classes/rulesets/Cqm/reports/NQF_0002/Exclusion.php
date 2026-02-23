@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0002_Exclusion implements CqmFilterIF

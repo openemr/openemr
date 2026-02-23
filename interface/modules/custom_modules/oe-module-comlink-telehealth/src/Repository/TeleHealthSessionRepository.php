@@ -4,7 +4,7 @@
  * Retrieves, creates, and updates database telehealth session records that track a provider/patient session relationship
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

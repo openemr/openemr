@@ -567,11 +567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_labworks.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function Sex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function custom_labworks_Add\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_labworks.php',
@@ -585,11 +580,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getMeasureNumber\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_registry_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function Sex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getCombinePatients\\(\\) has no return type specified\\.$#',
@@ -3907,51 +3897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getAccessToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getDefaultAccount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getEligibilityResult\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getFileForDownload\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:getReportFiles\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:searchClaims\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:searchDownloadableFiles\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:uploadClaimFile\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevApi\\:\\:uploadEligibility\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevModuleSetup\\:\\:couldSftpServiceCauseIssues\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevModuleSetup.php',
@@ -3995,16 +3940,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimRevRteService\\:\\:createEligibilityFromAppointment\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevRteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearch\\:\\:search\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimUpload\\:\\:sendWaitingFiles\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimsPage\\:\\:searchClaims\\(\\) has no return type specified\\.$#',
@@ -4092,24 +4027,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EraPage\\:\\:downloadEra\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EraPage\\:\\:searchEras\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EraSearch\\:\\:downloadEra\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraSearch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EraSearch\\:\\:search\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EraSearch.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\GlobalConfig\\:\\:getAutoSendFiles\\(\\) has no return type specified\\.$#',
@@ -4150,16 +4070,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\PrintProperty\\:\\:printValidation\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ReportDownload\\:\\:download835\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ReportDownload\\:\\:getWaitingFiles\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ReportDownload.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ValueMapping\\:\\:mapPayerResponsibility\\(\\) has no return type specified\\.$#',
@@ -4908,11 +4818,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\ConnectorApi\\:\\:buildHeader\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\ConnectorApi\\:\\:canConnectToClaimRev\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
 ];
@@ -8060,11 +7965,6 @@ $ignoreErrors[] = [
     'message' => '#^Function v\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkout_getListTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_layout_display_field\\(\\) has no return type specified\\.$#',
@@ -17002,11 +16902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function DateFormatRead\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formatting.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function DateTimeToYYYYMMDDHHMMSS\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formatting.inc.php',
@@ -17028,21 +16923,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oeFormatClientID\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formatting.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oeFormatMoney\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formatting.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oeFormatPatientNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formatting.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function oeFormatSDFT\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formatting.inc.php',
 ];
@@ -17155,51 +17035,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getUserNameById\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function attr_js\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function attr_url\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csvEscape\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function errorLogEscape\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function hsc_private_xl_or_warn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function js_escape\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function js_escape_protected\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function js_url\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function xmlEscape\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function addList\\(\\) has no return type specified\\.$#',
@@ -31018,21 +30853,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\DateFormatterUtils\\:\\:DateToYYYYMMDD\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\DateFormatterUtils\\:\\:getShortDateFormat\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\DateFormatterUtils\\:\\:getTimeFormat\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\DateFormatterUtils\\:\\:isNotEmptyDateTimeString\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
 ];

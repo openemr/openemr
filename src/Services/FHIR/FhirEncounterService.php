@@ -4,7 +4,7 @@
  * FhirEncounterService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>

@@ -5,7 +5,7 @@
  * AI Generated Note: Refactored to use new database schema from table.sql and support Design 1 implementation
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>

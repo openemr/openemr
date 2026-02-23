@@ -4,7 +4,7 @@
  * Date is a mustache helper trait with various helper methods for dealing with dates, date ranges, and timestamps.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>

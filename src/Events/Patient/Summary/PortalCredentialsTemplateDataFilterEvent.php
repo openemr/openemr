@@ -5,7 +5,7 @@
  * for the create_portallogin.php process.  It allows template authors to add to / modify the data that is passed to the
  * template.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) Discover and Change, Inc <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

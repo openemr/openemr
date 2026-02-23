@@ -4,7 +4,7 @@
  * List procedure orders and reports, and fetch new reports and their results.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -56,8 +56,8 @@ if (!empty($_POST['form_xmit'])) {
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
         try {
-            $result = gen_hl7_order($formid);
-            $errmsg = send_hl7_order($ppid, $result->hl7);
+            $result = default_gen_hl7_order($formid);
+            $errmsg = default_send_hl7_order($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }

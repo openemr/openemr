@@ -4,7 +4,7 @@
  * Note this may be included by CLI scripts, so don't do anything web-specific here!
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>

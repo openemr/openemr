@@ -3,7 +3,7 @@
 /**
  * FhirDeviceService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Jones (Analog Informatics Corporation) <robert@analoginfo.com>, <robert@justjones.org>
  * @copyright Copyright (c) 2023 Analog Informatics Corporation <https://analoginfo.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -119,8 +119,6 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Retrieves all of the fhir observation resources mapped to the underlying openemr data elements.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @return processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {

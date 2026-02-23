@@ -162,7 +162,7 @@ class PhoneNumberService extends BaseService
      *
      * @param array $phoneData Array with 'area_code', 'prefix', and 'number' keys
      * @return string Formatted phone number (XXX-XXX-XXXX) or empty string
-     * @deprecated Use PhoneNumber::formatLocal() instead
+     * @deprecated Use PhoneNumber::formatLocal() instead for locale-aware formatting
      */
     public static function getPhoneDisplay(array $phoneData): string
     {
@@ -205,7 +205,7 @@ class PhoneNumberService extends BaseService
      * @param string $phone The phone number to format
      * @param string $defaultRegion Default region code (default: 'US')
      * @param bool $strict If true, validates against real area codes
-     * @return string Formatted phone number (XXX-XXX-XXXX) or empty string
+     * @return string Locale-aware formatted phone number or empty string
      * @deprecated Use PhoneNumber::tryParse()->formatLocal() instead
      */
     public static function formatPhone(string $phone, string $defaultRegion = 'US', bool $strict = false): string

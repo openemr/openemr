@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
+use mysqli;
+use RuntimeException;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @deprecated New code should use existing DB tooling and not directly create
- * new connections.
+ * @deprecated New code should use existing DB tooling and not directly create new connections.
  */
 class DatabaseConnectionFactory
 {
@@ -64,6 +65,55 @@ class DatabaseConnectionFactory
         // Other paths may end up customizing this further.
 
         return $conn;
+    }
+
+    /**
+     * @throws RuntimeException if a connection could not be established
+     */
+    public static function createMysqli(
+        DatabaseConnectionOptions $config,
+        bool $persistent,
+    ): mysqli {
+        $mysqli = new mysqli();
+        $mysqli->options(MYSQLI_READ_DEFAULT_GROUP, 0);
+        $mysqli->options(MYSQLI_OPT_LOCAL_INFILE, 1);
+
+        $flags = 0;
+        if ($config->sslCaPath !== null) {
+            $flags = MYSQLI_CLIENT_SSL;
+            $mysqli->ssl_set(
+                key: $config->sslClientCert['key'] ?? null,
+                certificate: $config->sslClientCert['cert'] ?? null,
+                ca_certificate: $config->sslCaPath,
+                ca_path: null,
+                cipher_algos: null,
+            );
+        }
+
+        // TODO: Sockets support (do all paths at once)
+
+        $host = $persistent ? sprintf('p:%s', $config->host) : $config->host;
+
+        $success = $mysqli->real_connect(
+            hostname: $host,
+            username: $config->user,
+            password: $config->password,
+            database: $config->dbname,
+            port: $config->port,
+            flags: $flags,
+        );
+
+        if (!$success) {
+            throw new RuntimeException(
+                sprintf('Could not connect to the database (%s)',  $mysqli->connect_error),
+                $mysqli->connect_errno,
+            );
+        }
+
+        // This is preferred over SET NAMES since it also influences escaping
+        $mysqli->set_charset($config->charset);
+        $mysqli->query("SET sql_mode = ''");
+        return $mysqli;
     }
 
     public static function detectConnectionPersistence(

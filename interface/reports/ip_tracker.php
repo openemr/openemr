@@ -17,6 +17,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 
 if (!empty($_POST)) {
@@ -228,7 +229,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             }
                             ?>
                         </td>
-                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
+                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(DateFormatterUtils::oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
                         <td class="detail" id="autoblock-<?php echo attr($row['id']) ?>">
                             <?php
                             $autoBlocked = false;
@@ -246,7 +247,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             if ($autoBlocked) {
                                 echo xlt("Yes");
                                 if (!empty($autoBlockEnd)) {
-                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($autoBlockEnd)) . ')';
                                 }
                             } else {
                                 echo xlt("No");

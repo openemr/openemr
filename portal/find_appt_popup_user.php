@@ -5,7 +5,7 @@
  * Modified from main codebase for the patient portal.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -60,7 +60,15 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
-// Record an event into the slots array for a specified day.
+/**
+ * Record an event into the slots array for a specified day.
+ *
+ * @param int|string $catid
+ * @param int $udate
+ * @param string $starttime
+ * @param int|string $duration
+ * @param int|string $prefcatid
+ */
 function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;

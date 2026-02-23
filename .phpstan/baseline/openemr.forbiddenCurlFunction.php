@@ -53,36 +53,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_error\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_exec\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_getinfo\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_init\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_setopt\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 55,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimRevApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
 ];

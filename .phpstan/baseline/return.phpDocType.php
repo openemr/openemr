@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type voidd is incompatible with native type void\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type AmcItemizedActionData\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AMC_Unimplemented.php',
@@ -65,11 +60,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is incompatible with native type array\\.$#',
@@ -97,34 +87,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/ApiApplication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\RestControllers\\\\a is not subtype of native type Nyholm\\\\Psr7\\\\Response\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirGroupService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Validators\\\\ProcessingResult is incompatible with native type never\\.$#',
@@ -132,29 +97,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\processing is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValueSetService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|null is not subtype of native type OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/IFhirExportableResourceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\The is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/IResourceCreatableService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\The is not subtype of native type OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/IResourceUpdateableService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',

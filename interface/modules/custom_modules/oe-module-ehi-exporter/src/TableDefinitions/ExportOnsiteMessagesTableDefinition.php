@@ -10,7 +10,7 @@
  * The class retrieves messages where the patient is either the recipient, or the patient is the sender of the message.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc

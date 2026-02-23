@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0028_2014_PopulationCriteria implements CqmPopulationCrtiteriaFactory
