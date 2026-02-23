@@ -445,13 +445,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 
     if (!empty($e)) {
         $body .= $output->generateText('<div class="alert alert-danger mx-1" role="alert">');
-        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($e) . '</span>');
+        $body .= $output->generateText('<span class="text-center fw-bold">' . text($e) . '</span>');
         $body .= $output->generateText('</div><br />');
     }
 
     if (!empty($msg)) {
         $body .= $output->generateText('<div class="alert alert-success mx-1" role="alert">');
-        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $body .= $output->generateText('<span class="text-center fw-bold">' . text($msg) . '</span>');
         $body .= $output->generateText('</div><br />');
     }
 

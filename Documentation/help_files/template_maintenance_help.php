@@ -53,7 +53,7 @@
                 </ul>
             </div>
         </div>
-        <button type='button' data-toggle='collapse' data-target='#help-panel' class='btn btn-sm btn-secondary'><?php echo xlt('Dismiss'); ?></button>
+        <button type='button' data-bs-toggle='collapse' data-bs-target='#help-panel' class='btn btn-sm btn-secondary'><?php echo xlt('Dismiss'); ?></button>
     </div>
     <br />
 </div>

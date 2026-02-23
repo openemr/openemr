@@ -225,7 +225,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             <?php
                             echo text($row['ip_login_fail_counter']);
                             if ($row['ip_login_fail_counter'] > 0) {
-                                echo '<button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetCounterIp(' . attr_js($row["id"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                echo '<button type="button" class="btn btn-sm btn-danger ms-2" onclick="resetCounterIp(' . attr_js($row["id"]) . ')">' . xlt("Reset Counter") . '</button>';
                             }
                             ?>
                         </td>

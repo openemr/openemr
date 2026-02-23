@@ -212,7 +212,7 @@ if ($imauthorized && $see_auth > 1) {
         echo "<a href='$rootDir/patient_file/summary/demographics.php?set_pid=" .
         attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
-        echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
+        echo "<span class='fw-bold'>" . text($name["fname"]) . " " .
         text($name["lname"]) . "</span></a><br />" .
         "<a class=link_submit href='authorizations.php?mode=authorize" .
         "&pid=" . attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" .
@@ -225,15 +225,15 @@ if ($imauthorized && $see_auth > 1) {
         ));
         $providerLname = is_array($providerName) ? ($providerName['lname'] ?? '') : '';
 
-        echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .
+        echo "<td valign='top'><span class='fw-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .
           text($providerLname) . "</td>\n";
-        echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Billing') . ":</span><span class='text'><br />" .
+        echo "<td valign='top'><span class='fw-bold'>" . xlt('Billing') . ":</span><span class='text'><br />" .
           $patient["billing"] . "</td>\n";
-        echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Transactions') . ":</span><span class='text'><br />" .
+        echo "<td valign='top'><span class='fw-bold'>" . xlt('Transactions') . ":</span><span class='text'><br />" .
           $patient["transaction"] . "</td>\n";
-        echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Patient Notes') . ":</span><span class='text'><br />" .
+        echo "<td valign='top'><span class='fw-bold'>" . xlt('Patient Notes') . ":</span><span class='text'><br />" .
           $patient["pnotes"] . "</td>\n";
-        echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Encounter Forms') . ":</span><span class='text'><br />" .
+        echo "<td valign='top'><span class='fw-bold'>" . xlt('Encounter Forms') . ":</span><span class='text'><br />" .
           $patient["forms"] . "</td>\n";
         echo "</tr>\n";
 

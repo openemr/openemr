@@ -23,9 +23,9 @@ if ($language_direction === 'ltr') {
 }
 
 if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
-    $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {
-    $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 0) {
     $help_icon = '';
 }

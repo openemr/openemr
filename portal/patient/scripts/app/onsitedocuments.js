@@ -521,10 +521,16 @@ var page = {
                 }
             });
             $('.navCollapse .dropdown-menu>a').on('click', function () {
-                $('.navbar-collapse').collapse('hide');
+                document.querySelectorAll('.navbar-collapse').forEach(function (el) {
+                    var collapse = bootstrap.Collapse.getInstance(el);
+                    if (collapse) collapse.hide();
+                });
             });
             $('.navCollapse li.nav-item>a').on('click', function () {
-                $('.navbar-collapse').collapse('hide');
+                document.querySelectorAll('.navbar-collapse').forEach(function (el) {
+                    var collapse = bootstrap.Collapse.getInstance(el);
+                    if (collapse) collapse.hide();
+                });
             });
             if (page.version === 'Legacy' && isPortal && !page.isLocked) {
                 alert(page.onsiteDocument.get('docType') + " is available for one last edit." + "\n" +

@@ -162,28 +162,28 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
     <?php } ?>
     <div class="container-fluid" id='main'>
         <div class='my-3'>
-            <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
+            <h2><i class='fa fa-envelope w-auto h-auto me-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
         </div>
         <div class="row" id="loadingRow">
             <div class="col-12">
-                <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
+                <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ms-2"></i></h3></div>
             </div>
         </div>
         <div class="row d-none" id="contentRow">
-            <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
+            <div class="col-md-2 p-0 m-0 text-start border-end bg-light text-dark">
                 <div class="sticky-top">
                     <ul class="nav nav-pills nav-stacked flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" id="navInbox" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeInbox">0</span><?php echo xlt('Inbox'); ?></a>
+                            <a class="nav-link active" id="navInbox" data-bs-toggle="pill" href="javascript:;"><span class="badge float-end" id="badgeInbox">0</span><?php echo xlt('Inbox'); ?></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="navSent" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeSent">0</span><?php echo xlt('Sent{{Mails}}'); ?></a>
+                            <a class="nav-link" id="navSent" data-bs-toggle="pill" href="javascript:;"><span class="badge float-end" id="badgeSent">0</span><?php echo xlt('Sent{{Mails}}'); ?></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="navAll" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeAll">0</span><?php echo xlt('All{{Mails}}'); ?></a>
+                            <a class="nav-link" id="navAll" data-bs-toggle="pill" href="javascript:;"><span class="badge float-end" id="badgeAll">0</span><?php echo xlt('All{{Mails}}'); ?></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="navTrash" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeTrash">0</span><?php echo xlt('Archive'); ?></a>
+                            <a class="nav-link" id="navTrash" data-bs-toggle="pill" href="javascript:;"><span class="badge float-end" id="badgeTrash">0</span><?php echo xlt('Archive'); ?></a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" data-show-dashboard><?php echo xlt('Exit Mail'); ?></a>
@@ -195,7 +195,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 <!--inbox toolbar-->
                 <div class="row" id="inboxToolbar">
                     <div class="col-12 mb-2">
-                        <button class="btn btn-primary" title="<?php echo xla("Compose Message"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
+                        <button class="btn btn-primary" title="<?php echo xla("Compose Message"); ?>" data-mode="add" data-bs-toggle="modal" data-bs-target="#modalCompose">
                             <span class="fa fa-edit fa-lg"></span> <?php echo xlt("Compose Message"); ?>
                         </button>
                         <?php
@@ -203,17 +203,17 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                             $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                         }
                         ?>
-                        <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
+                        <a class="btn btn-secondary" data-bs-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
                         </a>
-                        <div class="btn-group btn-group float-right">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
+                        <div class="btn-group btn-group float-end">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
                             <ul class="dropdown-menu dropdown-menu-right">
                                 <li>
                                     <a class="dropdown-item" href="javascript:;" id="btnReadAll"><?php echo xlt('Mark all as read'); ?></a>
                                 </li>
                                 <li class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
+                                    <a class="dropdown-item" href="" data-mode="add" data-bs-toggle="modal" data-bs-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
                                 </li>
                                 <li id="archiveMenuItem">
                                     <a class="dropdown-item" href="javascript:;" id="btnBatchDelete"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
@@ -240,9 +240,9 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                     <!--message detail-->
                     <div class="container-fluid" id="messageDetail" style="display:none;">
                         <div class="row">
-                            <div class="w-100 pl-1 mb-1 bg-light text-dark" id="detailHeader">
+                            <div class="w-100 ps-1 mb-1 bg-light text-dark" id="detailHeader">
                             </div>
-                            <div class="table-responsive row ml-1">
+                            <div class="table-responsive row ms-1">
                                 <table class="table table-hover table-striped table-bordered refresh-container pull-down">
                                     <thead><?php echo xlt('Associated Messages in thread.');?></thead>
                                     <tbody id="chainTbody"></tbody>
@@ -253,7 +253,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 </div>
                 <!--/inbox panel-->
                 <!--paging-->
-                <div class="float-right my-2" id="pagingControls">
+                <div class="float-end my-2" id="pagingControls">
                     <span class="text-muted" id="pagingInfo"></span>
                     <div class="btn-group" id="pagingButtons">
                         <button type="button" class="btn btn-secondary btn-lg" id="btnPrev"><i class="fa fa-chevron-left"></i></button>
@@ -267,7 +267,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body ">
                             <div class="col-12">
@@ -278,12 +278,12 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                                     <fieldset class="row">
                                         <div class="col-lg-6 input-group my-2">
                                             <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
-                                            <select class="form-control ml-2 to-select-forward" id="selForwardto" name="selForwardto" style="display:none;"></select>
-                                            <select class="form-control ml-2 to-select-send" id="selSendto" name="selrecip"></select>
+                                            <select class="form-control ms-2 to-select-forward" id="selForwardto" name="selForwardto" style="display:none;"></select>
+                                            <select class="form-control ms-2 to-select-send" id="selSendto" name="selrecip"></select>
                                         </div>
                                         <div class="input-group col-lg-6 my-2">
                                             <label for="title"><?php echo xlt('Subject'); ?></label>
-                                            <input type='text' list='listid' name='title' id='title' class="form-control ml-2" value="<?php echo xla('General'); ?>">
+                                            <input type='text' list='listid' name='title' id='title' class="form-control ms-2" value="<?php echo xla('General'); ?>">
                                             <datalist id='listid'>
                                                 <option label='<?php echo xlt('General'); ?>'
                                                     value='<?php echo xla('General'); ?>'></option>
@@ -313,9 +313,9 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                                     <input type='hidden' name='pid' id='hiddenPid' value='' />
                                     <div class='modal-footer'>
                                         <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                                            data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                                         <button type="submit" id="submit" name="submit"
-                                            class="btn btn-primary float-right" value="messages.php"><?php echo xlt('Send'); ?> <i
+                                            class="btn btn-primary float-end" value="messages.php"><?php echo xlt('Send'); ?> <i
                                                 class="fa fa-arrow-circle-right fa-lg"></i>
                                         </button>
                                     </div>

@@ -149,7 +149,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     $('#form-list').append(list);
 
                     // sci-qol
-                    let sci_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>SCI-QOL (" + sci_qol_forms.length + ")</div></div>"
+                    let sci_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close fw-bold'>SCI-QOL (" + sci_qol_forms.length + ")</div></div>"
                     list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                     for (let i = 0; i < sci_qol_forms.length; i++) {
                         let myform = "<li><input type='checkbox' value='" + sci_qol_forms[i].OID + "' desc='" + sci_qol_forms[i].Name + "'>" + sci_qol_forms[i].Name + "</input></li>";
@@ -160,7 +160,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     $('#form-list').append(list);
                     //
                     // tbi-qol
-                    let tbi_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>TBI-QOL (" + tbi_qol_forms.length + ")</div></div>"
+                    let tbi_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close fw-bold'>TBI-QOL (" + tbi_qol_forms.length + ")</div></div>"
                     list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                     for (let i = 0; i < tbi_qol_forms.length; i++) {
                         let myform = "<li><input type='checkbox' value='" + tbi_qol_forms[i].OID + "' desc='" + tbi_qol_forms[i].Name + "'>" + tbi_qol_forms[i].Name + "</input></li>";
@@ -322,7 +322,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             <?php } ?>
 
             <?php if (empty($records1)) { ?>
-                <h3 class="text-center font-weight-bold"><?php echo xlt('Nothing to display'); ?></h3>
+                <h3 class="text-center fw-bold"><?php echo xlt('Nothing to display'); ?></h3>
             <?php } ?>
         </div>
         <div id="ext-proc-out">

@@ -152,7 +152,7 @@ if ($batch_log && !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_
     <table>
         <tr>
             <td width='550px'>
-                <div class='float-left'>
+                <div class='float-start'>
                     <table class='text'>
                         <tr>
                             <td style='width:125px;' class='label_custom'> <?php echo xlt('Select EDI-271 file'); ?>:   </td>
