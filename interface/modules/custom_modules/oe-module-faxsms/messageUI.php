@@ -836,11 +836,11 @@ $site_id = $session->get('site_id');
                     <form class="navbar-form navbar-left" d-flex flex-wrap align-items-center gap-2" method="GET" role="search">
                         <div class="mb-3">
                             <label for="fromdate" class="mx-1 fw-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
-                            <input type="text" id="fromdate" name="fromdate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>
+                            <input type="text" id="fromdate" name="fromdate" class="form-control form-control-sm datepicker" placeholder="YYYY-MM-DD" value=''>
                         </div>
                         <div class="mb-3">
                             <label class="mx-1 fw-bolder" for="todate"><?php echo xlt('To Date') ?>:</label>
-                            <input type="text" id="todate" name="todate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>
+                            <input type="text" id="todate" name="todate" class="form-control form-control-sm datepicker" placeholder="YYYY-MM-DD" value=''>
                         </div>
                         <div class="mb-3">
                             <button type="button" class="btn btn-primary btn-search" onclick="retrieveMsgs(event,this)" title="<?php echo xla('Click to get current history.') ?>"></button>

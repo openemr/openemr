@@ -259,7 +259,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         };
     </script>
     <style>
-      .panel-body {
+      .card-body {
         word-wrap: break-word;
         overflow: hidden;
       }
