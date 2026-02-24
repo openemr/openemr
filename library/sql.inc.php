@@ -54,6 +54,7 @@ $ADODB_LASTDB = 'mysqli_log';
 // Skip database connection during static analysis
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
+    // Note: too early to use OEGlobalsBag reliably here.
     $config = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
     $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
     $database = DatabaseConnectionFactory::createAdodb($config, $persistent);
