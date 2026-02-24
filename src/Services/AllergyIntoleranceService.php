@@ -206,6 +206,12 @@ class AllergyIntoleranceService extends BaseService
             unset($search['puuid']);
         }
 
+        // override allergy_uuid with token search field for binary comparison
+        if (isset($search['allergy_uuid'])) {
+            $newSearch['allergy_uuid'] = new TokenSearchField('allergy_uuid', $search['allergy_uuid'], true);
+            unset($search['allergy_uuid']);
+        }
+
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
                 $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
