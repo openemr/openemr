@@ -2739,7 +2739,7 @@ class Display extends Base
     </div>
         <script>
             $(function () {
-                $('[data-bs-toggle="tooltip"]').tooltip();
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
             });
 
             $(function () {
@@ -3036,7 +3036,7 @@ class Setup extends Base
                                         <!-- Modal content-->
                                         <div class="modal-content">
                                             <div class="modal-header text-white fw-bold" style="background-color: #0d4867;">
-                                                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
+                                                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" style="opacity:1;box-shadow:unset !important;"></button>
                                                 <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                             </div>
                                             <div class="modal-body" style="padding: 10px 45px;">
@@ -3073,7 +3073,7 @@ class Setup extends Base
             if ($("#new_rpassword").val() !== password) return alert('<?php echo xlt('Passwords do not match'); ?>!');
             if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
             if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
-            $("#myModal").modal();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("myModal")).show();
             return false;
         }
 
@@ -3196,7 +3196,7 @@ class Setup extends Base
                     obj = JSON.parse(result);
                     $("#answer").html(obj.show);
                     $("#ihvread").addClass('nodisplay');
-                    $('#myModal').modal('toggle');
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('myModal')).toggle();
                     if (obj.success) {
                         url="https://www.medexbank.com/login/"+email;
                         window.open(url, 'clinical', 'resizable=1,scrollbars=1');

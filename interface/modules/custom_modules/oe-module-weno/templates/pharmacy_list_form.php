@@ -132,7 +132,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
                     <?php echo xlt("Optional Filters:"); ?>
                 </label>
             </div>
-            <div class="col ps-0 form-inline">
+            <div class="col ps-0" d-flex flex-wrap align-items-center gap-2">
                 <label class="ms-1 form-check-inline">
                     <input type="checkbox" class="form-check-input" name="24hr" id="24hr" onclick="fullDayChanged(this);">
                     <?php echo xlt("Open 24 Hours"); ?>

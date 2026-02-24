@@ -1139,7 +1139,7 @@ function writeITLine($it_array): void
                         <li class="nav-item"><a class="nav-link deletelist" href="#" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
                     </ul>
                     <input type="hidden" name="formaction" id="formaction" />
-                    <div class="form-inline my-2 my-lg-0 navbar-left">
+                    <div class="d-flex flex-wrap align-items-center gap-2 my-2 my-lg-0 navbar-left">
                         <select name='list_id' class="form-control select-dropdown" id="list_id">
                             <?php
                             /*
@@ -1485,7 +1485,7 @@ function writeITLine($it_array): void
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"></button>
                     </div>
                     <div class="modal-body">
                         <label for="newlistname" class="control-label"><?php echo xlt('List Name'); ?></label>

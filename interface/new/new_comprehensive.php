@@ -378,7 +378,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
                       method='post'
                       onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
-                    <!--  Was: class='form-inline' -->
+                    <!--  Was: class='d-flex flex-wrap align-items-center gap-2' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
@@ -598,8 +598,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             ?>
                         <div class="row p-3">
                           <div class="col-md-12 mb-2">
+                            <label class='col-form-label me-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
                             <div class="input-group">
-                              <label class='col-form-label me-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
                               <select name="i<?php echo attr($i); ?>provider" class="form-control">
                                   <option value=""><?php echo xlt('Unassigned'); ?></option>
                                   <?php
@@ -620,7 +620,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber'); ?>:</label>
-                          <div class="col-md-5 mb-2 form-inline">
+                          <div class="col-md-5 mb-2" d-flex flex-wrap align-items-center gap-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_fname' value="<?php echo attr($result3["subscriber_fname"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             <input type='entry' class='form-control' size='3' name='i<?php echo attr($i); ?>subscriber_mname' value="<?php echo attr($result3["subscriber_mname"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_lname' value="<?php echo attr($result3["subscriber_lname"] ?? ''); ?>" onchange="capitalizeMe(this);" />

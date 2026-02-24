@@ -416,7 +416,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 
     <!-- Overwrite Confirmation Modal -->
-    <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -450,7 +450,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     }
     <?php if ($showOverwriteConfirm) { ?>
     $(document).ready(function() {
-        $('#overwriteConfirmModal').modal('show');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('overwriteConfirmModal')).show();
     });
     <?php } ?>
     </script>

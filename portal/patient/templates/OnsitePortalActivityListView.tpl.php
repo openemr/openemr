@@ -97,7 +97,7 @@
 
     <!-- underscore template for the model -->
     <script type="text/template" id="onsitePortalActivityModelTemplate">
-        <form class="form-inline" onsubmit="return false;">
+        <form class="d-flex flex-wrap align-items-center gap-2" onsubmit="return false;">
             <fieldset>
                 <div class="mb-3 inline" id="idInputContainer">
                     <label class="control-label" for="id"><?php echo xlt('Id'); ?></label>
@@ -218,7 +218,7 @@
         </form>
 
         <!-- delete button is is a separate form to prevent enter key from triggering a delete -->
-        <form id="deleteOnsitePortalActivityButtonContainer" class="form-inline" onsubmit="return false;">
+        <form id="deleteOnsitePortalActivityButtonContainer" class="d-flex flex-wrap align-items-center gap-2" onsubmit="return false;">
             <fieldset>
                 <div class="mb-3">
                     <label class="control-label"></label>
@@ -238,7 +238,7 @@
 <div class="modal fade" id="onsitePortalActivityDetailDialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><a class="btn-close" data-bs-dismiss="modal">×</a>
+            <div class="modal-header"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 <h3><i class="icon-edit"></i> <?php echo xlt('Edit Onsite Portal Activity'); ?>
                     <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
                 </h3>

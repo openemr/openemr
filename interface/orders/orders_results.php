@@ -374,7 +374,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
         <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
             <table class="table table-borderless">
                 <tr>
-                    <td class='text form-inline'>
+                    <td class='text' d-flex flex-wrap align-items-center gap-2'>
                         <?php
                         if ($form_batch) {
                             $form_from_date = isset($_POST['form_from_date']) ? trim((string) $_POST['form_from_date']) : '';

@@ -897,47 +897,48 @@ $(function () {
 });
 
 $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
-    $('body').popover({
-        sanitize: false,
-        title: function () {
-            return this.innerHTML;
-        },
-        content: function () {
-            let el = this;
-            if (typeof el.dataset == 'undefined') {
-                return xl("Report Unavailable");
-            }
-            const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
-                encid: el.dataset.formenc,
-                formid: el.dataset.formid,
-                formname: el.dataset.formdir,
-                ptid: el.dataset.formpid
-            });
-            let url = "encounters_ajax.php?" + params;
-            let fetchedReport;
-            $.ajax({
-                url: url,
-                method: "GET",
-                async: false,
-                beforeSend: top.restoreSession,
-                success: function (report) {
-                    fetchedReport = report;
+    // Initialize BS5 popovers for report elements
+    document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+        new bootstrap.Popover(el, {
+            sanitize: false,
+            title: function () {
+                return el.innerHTML;
+            },
+            content: function () {
+                if (typeof el.dataset == 'undefined') {
+                    return xl("Report Unavailable");
                 }
-            });
-            return fetchedReport;
-        },
-        selector: '[data-bs-toggle="PopOverReport"]',
-        boundary: "window",
-        animation: false,
-        placement: "auto",
-        trigger: "hover focus",
-        html: true,
-        delay: {"show": 300, "hide": 30000},
-        template: '<div class="container"><div class="popover" style="max-width:fit-content;max-height:fit-content;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
+                const params = new URLSearchParams({
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                    encid: el.dataset.formenc,
+                    formid: el.dataset.formid,
+                    formname: el.dataset.formdir,
+                    ptid: el.dataset.formpid
+                });
+                let url = "encounters_ajax.php?" + params;
+                let fetchedReport;
+                $.ajax({
+                    url: url,
+                    method: "GET",
+                    async: false,
+                    beforeSend: top.restoreSession,
+                    success: function (report) {
+                        fetchedReport = report;
+                    }
+                });
+                return fetchedReport;
+            },
+            boundary: "window",
+            animation: false,
+            placement: "auto",
+            trigger: "hover focus",
+            html: true,
+            delay: {"show": 300, "hide": 30000},
+            template: '<div class="container"><div class="popover" style="max-width:fit-content;max-height:fit-content;" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
+        });
     });
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
@@ -952,7 +953,8 @@ $(function () {
             if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
                 continue;
             }
-            $(elements[i]).popover('hide');
+            let popoverInstance = bootstrap.Popover.getInstance(elements[i]);
+            if (popoverInstance) popoverInstance.hide();
         }
     });
 
@@ -960,10 +962,16 @@ $(function () {
 
         // set event listeners
         $('.popover').click(function (e) {
-            $('[data-bs-toggle="PopOverReport"]').popover('hide');
+            document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+                let popoverInstance = bootstrap.Popover.getInstance(el);
+                if (popoverInstance) popoverInstance.hide();
+            });
         }).mouseleave(function (e) {
             timeoutObj = setTimeout(function () {
-                $('[data-bs-toggle="PopOverReport"]').popover('hide');
+                document.querySelectorAll('[data-bs-toggle="PopOverReport"]').forEach(function(el) {
+                    let popoverInstance = bootstrap.Popover.getInstance(el);
+                    if (popoverInstance) popoverInstance.hide();
+                });
             }, 100);
         });
     });

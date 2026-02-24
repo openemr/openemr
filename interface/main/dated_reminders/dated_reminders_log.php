@@ -267,7 +267,7 @@ if ($_GET) {
             $('#show_hide').prop('title', elementTitle);
         });
         $(function () {
-            $('[data-bs-toggle="tooltip"]').tooltip();
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
     </script>
 </body>

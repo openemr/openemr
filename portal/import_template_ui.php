@@ -285,8 +285,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
 
             $('#assigned_collapse').on('show.bs.collapse', function () {
-                $('#repository-collapse').collapse('hide');
-                $('#template-collapse').collapse('hide');
+                bootstrap.Collapse.getOrCreateInstance(document.getElementById('repository-collapse')).hide();
+                bootstrap.Collapse.getOrCreateInstance(document.getElementById('template-collapse')).hide();
                 $('#edit_form #assigned_state').val('show');
             });
             $('#assigned_collapse').on('hidden.bs.collapse', function () {
@@ -588,7 +588,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <?php include_once('./../Documentation/help_files/template_maintenance_help.php'); ?>
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
-                <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
+                <form id="edit_form" name="edit_form" class="row d-flex flex-wrap align-items-center gap-2 w-100" action="" method="get">
                     <a class='navbar-brand ms-1'><?php echo xlt('Scope'); ?></a>
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
@@ -620,7 +620,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
                     </div>
-                    <div class="row gx-2 form-inline mx-1 w-100">
+                    <div class="row gx-2 d-flex flex-wrap align-items-center gap-2 mx-1 w-100">
                         <!--<label class='fw-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
@@ -680,7 +680,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <nav class="collapse my-2 <?php echo attr($_REQUEST['upload-nav-value'] ?? '') ?>" id="upload-nav">
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
-                        <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
+                        <form id='form_upload' class='d-flex flex-wrap align-items-center gap-2 row' action='import_template.php' method='post' enctype='multipart/form-data'>
                             <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session->getSymfonySession())); ?>" />
                             <hr />
                             <div class='col'>

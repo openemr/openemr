@@ -161,7 +161,7 @@ function doWait(e){
     <div class="page-header ms-2">
         <h2><?php echo xlt('Procedure Orders and Reports'); ?></h2>
     </div>
-<form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
+<form class="d-flex flex-wrap align-items-center gap-2" method='post' action='list_reports.php' enctype='multipart/form-data'>
     <div class="container">
     <!-- This might be set by the results window: -->
     <input class="d-none row" type='text' name='form_external_refresh' value='' />

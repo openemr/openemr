@@ -933,7 +933,7 @@ if (
         // form-inline is more consistent with the fact that LBFs are not designed for
         // small devices. In particular we prefer horizontal arrangement of multiple
         // items in the same row and column.
-        echo "<form method='post' class='form-inline' " .
+        echo "<form method='post' class='d-flex flex-wrap align-items-center gap-2' " .
             "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
             "onsubmit='return validate(this)'>\n";
         ?>

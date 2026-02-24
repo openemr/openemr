@@ -180,9 +180,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo text('Edit Note'); ?></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -209,9 +207,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo xlt("Delete Note"); ?></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

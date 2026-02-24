@@ -526,12 +526,12 @@ if (!empty($row['lab_id'])) {
                     $(this).find('tbody tr input,tbody tr select').filter(function () {
                         return $(this).val();
                     }).length > 0) {
-                    $(this).collapse('show');
+                    bootstrap.Collapse.getOrCreateInstance(this).show();
                 }
             });
             // If editing an existing order, close the order options panel real estate matters!
             if ($("input[name='id']").val() > 0) {
-                $('#orderOptions').collapse();
+                bootstrap.Collapse.getOrCreateInstance(document.getElementById('orderOptions')).hide();
             }
         });
 
@@ -1065,7 +1065,7 @@ if (!empty($row['lab_id'])) {
             $(document).on('click', '.specimen-code-btn', function (e) {
                 e.preventDefault();
                 const id = this.getAttribute('data-toggle-specimen');
-                $('#' + id).collapse('toggle');
+                bootstrap.Collapse.getOrCreateInstance(document.getElementById(id)).toggle();
             });
             // Add specimen row
             $(document).on('click', '.add-specimen-row', function (e) {
@@ -1086,7 +1086,7 @@ if (!empty($row['lab_id'])) {
             });
 
             <?php if ($row['date_transmitted'] ?? '') { ?>
-            $("#summary").collapse("toggle");
+            bootstrap.Collapse.getOrCreateInstance(document.getElementById('summary')).toggle();
             <?php } ?>
         });
 
@@ -1645,7 +1645,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     </div>
                     <?php if (!empty($order_data ?? null)) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"><span class="text-dark">&times;</span></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             <p>
                                 <?php echo $order_data;
                                 unset($order_data); ?>

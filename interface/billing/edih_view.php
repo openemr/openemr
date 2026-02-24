@@ -85,16 +85,16 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                 <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Select one or more files to upload"); ?></h4>
-                                    <div class="custom-file">
-                                        <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
-                                        <input type="file" class="custom-file-input" id="uplmulti" name="fileUplMulti[]" multiple />
+                                    <div class="mb-3">
+                                        <label class="form-label" for="uplmulti"><?php echo xlt("Choose file"); ?></label>
+                                        <input type="file" class="form-control" id="uplmulti" name="fileUplMulti[]" multiple />
                                         <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
-                                        <div class="btn-group mt-3">
-                                            <button type="submit" class="btn btn-primary btn-add" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>">
-                                                <?php echo xlt("Submit"); ?>
-                                            </button>
-                                            <input type="reset" class="btn btn-secondary" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
-                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="submit" class="btn btn-primary btn-add" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>">
+                                            <?php echo xlt("Submit"); ?>
+                                        </button>
+                                        <input type="reset" class="btn btn-secondary" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
                                     </div>
                                 </form>
                             </div>
@@ -230,9 +230,9 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                                 <input type="checkbox" id="x12htm" name="x12_html" value="html" />
                                             </td>
                                             <td class='text-start'>
-                                                <div class="custom-file">
-                                                    <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
-                                                    <input id="x12file" type="file" class="custom-file-input" size=30 name="fileUplx12" />
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="x12file"><?php echo xlt("Choose file"); ?></label>
+                                                    <input id="x12file" type="file" class="form-control" name="fileUplx12" />
                                                 </div>
                                             </td>
                                             <td class='text-center'>

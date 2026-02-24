@@ -796,7 +796,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     </div>
 </div>
 
-<div class="mb-3 form-inline">
+<div class="mb-3" d-flex flex-wrap align-items-center gap-2">
     <label class="fw-bold"><?php echo xlt('Delete Pages'); ?>:</label>
     <div class="form-check form-check-inline">
         <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />
@@ -858,7 +858,7 @@ foreach ($jpgarray as $jfnamebase => $jfname) {
 </form>
 <script>
     $(function () {
-        $('[data-bs-toggle="tooltip"]').tooltip();
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
     });
 </script>
 </body>

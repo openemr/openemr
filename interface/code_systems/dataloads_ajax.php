@@ -222,11 +222,11 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
                         });
                     });
                     // Initial tooltip
-                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
-                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
-                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {

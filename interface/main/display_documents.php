@@ -151,7 +151,7 @@ $display_div = "style='display:block;'";
             <h2 class='title'><?php echo xlt('Lab Documents'); ?></h2>
             <br />
             <div id='docfilterdiv'<?php echo $display_div; ?>>
-                <div class="form-inline mb-2">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <label for='form_from_doc_date' class='label_custom mx-1'><?php echo xlt('From'); ?>:</label>
                     <input type='text' class='form-control datepicker mx-1' name='form_from_doc_date' id="form_from_doc_date" size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
                     <label for='form_to_doc_date' class='label_custom mx-1'><?php echo xlt('To{{Range}}'); ?>:</label>

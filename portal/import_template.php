@@ -697,7 +697,7 @@ function renderProfileHtml(): void
                                         '</strong>' . ' ' . xlt('in category') . ' ' .
                                         '<strong>' . text($title) . '</strong>';
                                     ?>
-                                    <form class='form form-inline bg-light text-dark py-1 ps-1 d-none'>
+                                    <form class='form d-flex flex-wrap align-items-center gap-2 bg-light text-dark py-1 ps-1 d-none'>
                                         <div class='input-group-sm'>
                                             <label class="form-check-inline d-none"><?php echo xlt('OneTime') ?>
                                                 <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ms-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
@@ -778,7 +778,7 @@ function renderProfileHtml(): void
                                     <li class='list-group-item bg-warning text-light px-1 py-1 mb-1' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>">
                                         <span class="p-1 fw-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
                                         <!-- Notice! The notify event input is patched out until I get around to it. -->
-                                        <form class='form form-inline bg-light text-dark py-1 ps-1'>
+                                        <form class='form d-flex flex-wrap align-items-center gap-2 bg-light text-dark py-1 ps-1'>
                                             <div class='input-group-sm d-none'>
                                                 <label class="form-check-inline"><?php echo xlt('OneTime') ?>
                                                     <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ms-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />

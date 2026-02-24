@@ -98,10 +98,10 @@ $focus = "document.theform.search_term.select();";
         $string_target_element = !empty($target_element) ? "?target_element=" . attr_url($target_element) . "&" : "?";
         ?>
         <?php if (!empty($allowed_codes)) { ?>
-        <form class="form-inline" method='post' name='theform'
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
         <?php } else { ?>
-        <form class="form-inline" method='post' name='theform'
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

@@ -239,17 +239,15 @@ if ($hasErrors) { ?>
     </div>
 <?php } ?>
 <script>
-    if ($.fn.popover) {
-        alert('here ...................................')
-    }
     $(function () {
-        if ($.fn.popover) {
-            $('[data-bs-toggle="popover"]').popover({
+        // Initialize BS5 popovers
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+            new bootstrap.Popover(el, {
                 trigger: 'hover',
                 placement: 'top',
                 container: 'body'
             });
-        }
+        });
     });
     function refreshDemographics() {
         top.restoreSession();

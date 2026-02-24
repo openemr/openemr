@@ -235,7 +235,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
+                            <label class="form-label"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
                             if (!empty($obj["provider_id"])) {
                                 $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
@@ -244,7 +244,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                             } ?>
                         </div>
                         <div class="mb-3">
-                            <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
+                            <label class="form-label"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
 <!-- ai generated code by google-labs-jules starts -->
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), xlt('Provider Qualifier Code'), ' ', '', '', '', null, false, '', true); ?>
 <!-- ai gen'ed code ends -->

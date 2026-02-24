@@ -254,7 +254,7 @@ if (!isset($_GET['render_group_assignments'])) {
         <div class='row'>
             <div class='col-6 col-height p-0 pb-1'>
                 <nav id='searchCriteria' class='navbar navbar-light bg-light sticky-top'>
-                    <form class="form-inline" method='post' name='theform' id='theform' action=''>
+                    <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform' id='theform' action=''>
                         <div class='row gx-2'>
                             <select name='searchby' id='searchby' class="form-control form-control-sm ms-1">
                                 <option value="Last"><?php echo xlt('Name'); ?></option>
@@ -491,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class='col-6 col-height p-0 pb-1'>
             <nav id='dispose' class='navbar navbar-light bg-light sticky-top'>
                 <div class='navbar-brand'><?php echo xlt('Patient Groups'); ?></div>
-                <form class='form-inline'id='groupsForm'>
+                <form class='d-flex flex-wrap align-items-center gap-2'id='groupsForm'>
                 <div class='btn-group'>
                     <button type='button' class='btn btn-sm btn-primary' onclick='return thisPopPatientDialog()'><?php echo xlt('Groups') ?></button>
                 </div>
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class='col-6 col-height p-0 pb-1'>
             <nav id='dispose' class='navbar navbar-light bg-light sticky-top'>
                 <div class="navbar-brand"><?php echo xlt('Profiles');  ?></div>
-                <form class='form-inline' id='profileForm'>
+                <form class='d-flex flex-wrap align-items-center gap-2' id='profileForm'>
                     <div class='btn-group'>
                         <button type="button" class='btn btn-primary btn-save btn-sm' onclick='return submitPatientGroups();'><?php echo xlt('Save');  ?></button>
                         <button type='button' class='btn btn-secondary btn-cancel btn-sm' onclick='dlgclose();'><?php echo xlt('Quit');  ?></button>

@@ -629,7 +629,7 @@ $templateService = new DocumentTemplateService();
                             <span>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
-                            <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
+                            <form id="deleteOnsiteDocumentButtonContainer" class="d-flex flex-wrap align-items-center gap-2" onsubmit="return false;">
                                 <fieldset>
                                     <div class="mb-3">
                                         <label class="col-form-label"></label>

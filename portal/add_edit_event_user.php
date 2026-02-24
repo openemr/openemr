@@ -690,7 +690,7 @@ if ($userid) {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="mb-3 form-inline col-12">
+                    <div class="mb-3 d-flex flex-wrap align-items-center gap-2 col-12">
                         <div class="input-group mb-1">
                             <label class="me-2"><?php echo xlt('Time'); ?>:</label>
                             <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />

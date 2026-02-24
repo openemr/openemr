@@ -159,14 +159,14 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             // Event handler for double-click on the trigger button
             $('#trigger-debug').dblclick(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).show();
             });
             $('#triggerButton').click(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).show();
             });
             $('#downloadLink').click(function () {
-                $('#debugModal').modal('hide');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).hide();
             });
         });
     </script>
@@ -237,9 +237,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="debugModalLabel"><?php echo xlt("Weno Debug Information"); ?></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>

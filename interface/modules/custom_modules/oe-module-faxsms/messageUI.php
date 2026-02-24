@@ -90,7 +90,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             }
 
             retrieveMsgs();
-            $('#received').tab('show');
+            bootstrap.Tab.getOrCreateInstance(document.getElementById('received')).show();
         });
 
         <?php
@@ -845,7 +845,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="nav-header-collapse">
-                    <form class="navbar-form navbar-left form-inline" method="GET" role="search">
+                    <form class="navbar-form navbar-left" d-flex flex-wrap align-items-center gap-2" method="GET" role="search">
                         <div class="mb-3">
                             <label for="fromdate" class="mx-1 fw-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
                             <input type="text" id="fromdate" name="fromdate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>

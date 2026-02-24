@@ -857,13 +857,15 @@ if (!empty($_REQUEST['go'])) { ?>
         });
         $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
-                $(".collapse").collapse('hide');
+                document.querySelectorAll(".collapse.show").forEach(el => bootstrap.Collapse.getOrCreateInstance(el).hide());
             });
         });
         $(function () {
-            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
-            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            // Initialize BS5 tooltips
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
         $(function () {
             var f = $("#smsForm");

@@ -362,9 +362,7 @@ $vendors = $boot->getVendorGlobals();
                             <?php } ?>
                         </strong>
                         <?php echo text($permissions_message ?? xlt("User permissions have been saved successfully!")); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php } ?>
                     <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
@@ -372,22 +370,18 @@ $vendors = $boot->getVendorGlobals();
                     <div class="alert alert-success text-center" role="alert">
                         <i class="fa fa-user-check"></i>
                             <?php echo xlt("You are the current primary user. You can manage all settings."); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php } else { ?>
                     <div class="alert alert-warning text-center" role="alert">
                         <i class="fa fa-user-times"></i>
                             <?php echo xlt("No primary user set. Any authorized user can manage settings."); ?>
                         <br><small><?php echo xlt("Consider setting a primary user for better security control."); ?></small>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php } ?>
                     <div class="row col mb-3">
-                        <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
+                        <label for="editingUser" class="d-flex flex-wrap align-items-center gap-2"><?php echo xlt("Editing Service Credentials for User"); ?></label>
                         <div class="ms-2" title="User to setup credentials.">
                             <select class="form-control persist" name="editingUser" id="editingUser">
                                 <option value="0"><?php echo xlt("Default (You)"); ?></option>
@@ -572,9 +566,7 @@ $vendors = $boot->getVendorGlobals();
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-success text-center" role="alert">
                             <?php echo xlt("User permissions have been saved successfully!"); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php } ?>
                     <hr>

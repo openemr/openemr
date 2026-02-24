@@ -745,9 +745,9 @@ function recursiveDelete($typeid): void
                     duration: 0
                 }
             });
-            $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip();
+            $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"});
             $('#form_procedure_type').click(function () {
-                $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"}).tooltip();
+                $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-bs-toggle": "tooltip", "data-bs-placement": "bottom"});
             });
         });
     </script>

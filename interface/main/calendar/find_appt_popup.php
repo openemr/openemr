@@ -348,7 +348,7 @@ if (isset($_REQUEST['cktime'])) {
 <body class="body_top">
 <div class="container-fluid">
     <div id="searchCriteria">
-        <form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
             <?php echo xlt('Start date:'); ?>
         <input type='text' class='datepicker input-sm form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
             <?php echo xlt('for'); ?>

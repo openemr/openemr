@@ -183,7 +183,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         function doConfirm(Message) {
             placeModal(Message);
             return new Promise(function(resolve, reject) {
-                $('#confirmDialog').modal('show');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmDialog')).show();
                 $('#confirmDialog .btn-continue').click(function() {
                     $(this).off();
                     resolve("btn-continue");
@@ -742,7 +742,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         </div>
     </div>
     <div class="container-fluid mt-1">
-        <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
+        <form class="d-flex flex-wrap align-items-center gap-2" name='update_form' method='post' action='billing_process.php'>
             <nav class="nav navbar-expand-md navbar-light bg-light px-3 py-2">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
                     <span><?php echo xlt('More Actions'); ?></span>
@@ -838,16 +838,16 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         <?php echo xlt('Re-Open') ?>
                     </button>
                     <span class="input-group">
-                        <label for="left_margin"><?php echo xlt('CMS Margins Left'); ?>:</label>
+                        <span class="input-group-text"><?php echo xlt('CMS Margins Left'); ?>:</span>
                         <input type='text' size='2' class='form-control' id='left_margin' name='left_margin' value='<?php echo attr($left_margin); ?>' title='<?php echo xla('HCFA left margin in points'); ?>' />
-                        <label for="top_margin"><?php echo xlt('Top'); ?>:</label>
+                        <span class="input-group-text"><?php echo xlt('Top'); ?>:</span>
                         <input type='text' size='2' class='form-control' id='top_margin' name='top_margin' value='<?php echo attr($top_margin); ?>' title='<?php echo xla('HCFA top margin in points'); ?>' />
                     </span>
                     <?php if ($ub04_support) { ?>
                     <span class="input-group">
-                        <label for="left_ubmargin"><?php echo xlt('UB04 Margins Left'); ?>:</label>
+                        <span class="input-group-text"><?php echo xlt('UB04 Margins Left'); ?>:</span>
                         <input type='text' size='2' class='form-control' id='left_ubmargin' name='left_ubmargin' value='<?php echo attr($left_ubmargin); ?>' title='<?php echo xla('UB04 left margin in points'); ?>' />
-                        <label for="top_ubmargin"><?php echo xlt('Top'); ?>:</label>
+                        <span class="input-group-text"><?php echo xlt('Top'); ?>:</span>
                         <input type='text' size='2' class='form-control' id='top_ubmargin' name='top_ubmargin' value='<?php echo attr($top_ubmargin); ?>' title='<?php echo xla('UB04 top margin in points'); ?>' />
                     </span>
                     <?php } ?>
@@ -1461,7 +1461,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             // jquery-ui tooltip converted to bootstrap tooltip
-            $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
+            $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>);
         });
     </script>
     <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? '') ?>" />
