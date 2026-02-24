@@ -25,21 +25,27 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $first_time = true;
 $group = 1;
 
+
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
+ * @param &$first_time
+ * @param &$group
  * @param $row
  * @param $pid
  * @return void
+ *
+ * rm added refs to  first_time and group as parameters, as PHPstan doesn't like global variables
  */
-function displayRow($row, $pid = ''): void
+function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 {
-    global $first_time, $group;
+ //   global $first_time, $group;
 
     if (empty($pid)) {
         $pid = $row['pid'];
@@ -91,19 +97,21 @@ function displayRow($row, $pid = ''): void
     }
   //  if (!empty($_POST['form_csvexport'])) {   // rm out put the line to csv file
     if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
-        $comma = ",";
-            echo csvEscape(text($group)) . (string) ',';
-            echo csvEscape(text($myscore)) . (string)($comma);
-            echo csvEscape($row['pid']) . (string) ',';
-            echo csvEscape($row['pubpid']) . (string) ',';
-            echo csvEscape(text($highlight_text)) . (string)$comma ;
-            echo csvEscape(text($ptname)) . (string) ',' ;
+
+            echo csvEscape(text(strval($group))) . ',' ;
+            echo  csvEscape(text($myscore)) . ','  ;
+            echo  csvEscape($row['pid']) . ',';
+            echo  csvEscape($row['pubpid']) .  ',';
+            echo  csvEscape(text($highlight_text)) . ',';
+            echo  csvEscape(text($ptname)) .  ',';
             // rm - format dates by users preference
-            echo csvEscape(oeFormatShortDate(substr((string) $row['DOB'], 0, 10))) . (string) ',' ;
-             echo csvEscape($row['sex']) . (string)($comma);
-            echo csvEscape($row['email']) . (string)($comma);
-            echo csvEscape(text($phones)) . (string)($comma);
-            echo csvEscape(oeFormatShortDate($row['regdate'])) . (string)($comma);
+        //    echo csvEscape(oeFormatShortDate(substr( (string) $row['DOB'], 0, 10))) . ',';
+ /** @var string $row['DOB'] */
+            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
+            echo csvEscape($row['sex']) .  ',';
+            echo csvEscape($row['email']) .  ',';
+            echo csvEscape(text($phones)) .  ',';
+            echo csvEscape(oeFormatShortDate($row['regdate'])) .  ',';
          //   echo csvEscape(text($fac_name)) . ',';
              echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
@@ -123,7 +131,7 @@ function displayRow($row, $pid = ''): void
         <?php echo text($row['pid']); ?>
     </td>
     <td>
-        <?php echo text($row['pubpid']); ?>
+        <?php  echo text($row['pubpid']); ?>
     </td>
     <td>
         <?php echo $highlight_text; ?>
@@ -144,7 +152,7 @@ function displayRow($row, $pid = ''): void
         <?php echo text($phones); ?>
     </td>
     <td>
-        <?php echo text(oeFormatShortDate($row['regdate'])); ?>
+        <?php //echo text(oeFormatShortDate($row['regdate'])); ?>
     </td>
     <td>
         <?php echo text($row['street']); ?>
@@ -210,9 +218,12 @@ if ($_POST['form_csvexport'] == "CSV" ) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
+    /** var string $today */
     $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
     $today = text($today);
-    $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
+ //   $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
+    $instance_name = OEGlobalsBag::getInstance()->get('openemr_name');
+    $filename = "duplicate_patients" . "_" . $instance_name  . "_" .  $today . ".csv" ;
     header("Content-Disposition: attachment; filename=" . $filename); //rm 'attachment' forces the download
     header("Content-Description: File Transfer");
 } else {
@@ -296,15 +307,15 @@ if ($_POST['form_csvexport'] == "CSV" ) {
             // either put out headings to the csv file or to the page
 if ($_POST['form_csvexport'] == "CSV" ) {
         // CSV column headings
-        echo csvEscape(xl('Group')) . ',';
-        echo csvEscape(xl('Score')) . ',';
-        echo csvEscape(xl('PID')) . ',';
-        echo csvEscape(xl('Public')) . ',';
-        echo csvEscape(xl('Scope')) . ',';
-        echo csvEscape(xl('Name')) . ',';
-        echo csvEscape(xl('DOB')) . ',';
-    //    echo csvEscape(xl('SSN')) . ',';
-          echo csvEscape(xl('Gender')) . ',';
+        echo csvEscape(xl('Group')) . ',' ;
+        echo csvEscape(xl('Score')) . ',' ;
+        echo csvEscape(xl('PID')) . ',' ;
+        echo csvEscape(xl('Public')) . ',' ;
+        echo csvEscape(xl('Scope')) . ',' ;
+        echo csvEscape(xl('Name')) . ',' ;
+        echo csvEscape(xl('DOB')) . ',' ;
+    //    echo csvEscape(xl('SSN')) ;
+          echo csvEscape(xl('Gender')) . ','  ;
         echo csvEscape(xl('Email')) . ',';
         echo csvEscape(xl('Telephone')) . ',';
         echo csvEscape(xl('Registered')) . ',';
@@ -390,11 +401,11 @@ while ($row1 = sqlFetchArray($res1)) {
         }
     }
                     // Only display this group if there are actual matches (prevents orphans)
-    if (count($matches) > 0) {
-                        displayRow($row1);
+    if (count($matches) > 0) { //rm add first_time and group as parameters - instead of using globals
+                        displayRow($first_time, $group, $row1);
                         $displayed[$row1['pid']] = true;
         foreach ($matches as $row2) {
-                            displayRow($row2, $row1['pid']);
+                            displayRow($first_time, $group,$row2, $row1['pid']);
                             $displayed[$row2['pid']] = true;
         }
     }
