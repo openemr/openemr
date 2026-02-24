@@ -5,7 +5,7 @@
  * This supports specifying related codes to determine the service codes to be used.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2021 Rod Roark <rod@sunsetsystems.com>

@@ -3,7 +3,7 @@
  * OpenEMR v5.0.2
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com> (complete rework 7/1/2020)
  * @copyright Copyright (c) 2016 Victor Kofia <victor.kofia@gmail.com>

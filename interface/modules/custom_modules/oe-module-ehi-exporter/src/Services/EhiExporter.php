@@ -4,7 +4,7 @@
  * Main class for EhiExporter for exporting data from the db
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -755,6 +755,8 @@ class EhiExporter
 
     private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)
     {
+        $tasks = [];
+        $currentDocumentSize = 0;
         $task = new EhiExportJobTask();
         $task->ehi_export_job_id = $job->getId();
         $task->ehiExportJob = $job;

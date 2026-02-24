@@ -35,7 +35,7 @@
  * </pre>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -106,8 +106,13 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Get a list item's title, translated if appropriate.
-//
+/**
+ * Get a list item's title, translated if appropriate.
+ *
+ * @param string $list
+ * @param string $option
+ * @return string
+ */
 function checkout_getListTitle($list, $option)
 {
     $row = sqlQuery(
@@ -470,11 +475,13 @@ function invoiceChecksum($pid, $encounter)
     return (0 + $row1['checksum']) ^ (0 + $row2['checksum']) ^ (0 + $row3['checksum']) ^ (0 + $row4['checksum']);
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
 function ippf_generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;

@@ -4,7 +4,7 @@
  * Clinical reports.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -21,6 +21,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Clinical Reports", xl("Clinical Reports"));
@@ -223,8 +224,8 @@ $communication = trim($_POST["communication"] ?? '');
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->
-<div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
-      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
+<div id="report_parameters_daterange"> <?php echo text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)) .
+      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div id="report_parameters">
@@ -237,13 +238,13 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td class='col-form-label' width="100"><?php echo xlt('Facility'); ?>: </td>
                         <td width="250"> <?php dropdown_facility($facility, 'facility', false); ?> </td>
                         <td class='col-form-label' width="100"><?php echo xlt('From'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, "global", true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Patient ID'); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
                         <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, "global", true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Age Range'); ?>:</td>
@@ -782,7 +783,7 @@ if (!empty($_POST['form_refresh'])) {
                 <td colspan='10'><strong><?php echo xlt('Diagnosis Name');?></strong></td>
                 </tr>
                 <tr class='bg-white'>
-                <td><?php echo text(oeFormatDateTime($row['lists_date'], "global", true)); ?>&nbsp;</td>
+                <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['lists_date'], "global", true)); ?>&nbsp;</td>
                 <td><?php echo text($row['lists_diagnosis']); ?>&nbsp;</td>
                                 <td colspan='10'><?php echo text($row['lists_title']); ?>&nbsp;</td>
                 </tr>
@@ -1013,7 +1014,7 @@ if (!empty($_POST['form_refresh'])) {
                         <td colspan="7"><strong><?php echo xlt('Notes');?></strong></td>
                     </tr>
                     <tr class='bg-white'>
-                        <td><?php echo text(oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
+                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
                         <td><?php echo text($row['cvx_code']); ?>&nbsp;</td>
                         <td><?php echo text($row['imm_code_short']) . " (" . text($row['imm_code']) . ")"; ?>&nbsp;</td>
                         <td>

@@ -6,7 +6,7 @@
 *
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Eldho Chacko <eldho@zhservices.com>
 * @author    Paul Simon K <paul@zhservices.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -60,8 +60,8 @@ if (isset($_POST["mode"])) {
         //dispatch this payment is being deleted trigger refund process
         $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
     //delete and log that action
-        row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
-        row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
+        payment_row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
+        payment_row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
         $Message = 'Delete';
     //------------------
         $_POST["mode"] = "SearchPayment";

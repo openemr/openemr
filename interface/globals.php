@@ -4,7 +4,7 @@
  * Default values for optional variables that are allowed to be set by callers.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -363,7 +363,7 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
  * different variables and reporting/debugging functionality. Should be used in
  * development only, not for production
  *
- * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
+ * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
     $dotenv = Dotenv::createImmutable($webserver_root);

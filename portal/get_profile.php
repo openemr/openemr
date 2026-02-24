@@ -19,7 +19,7 @@
  * @package OpenEMR
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @author  Tyler Wrenn <tyler@tylerwrenn.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  */
 

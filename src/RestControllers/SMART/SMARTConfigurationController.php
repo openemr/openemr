@@ -6,7 +6,7 @@
  * @see http://hl7.org/fhir/smart-app-launch/conformance/index.html
  *
  * @package OpenEMR\RestControllers\SMART
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

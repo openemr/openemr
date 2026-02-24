@@ -34,7 +34,7 @@
  * </pre>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -131,9 +131,13 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
     echo " </tr>\n";
 }
 
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
 function normal_generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge

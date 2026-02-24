@@ -4,7 +4,7 @@
  * ereq_form.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,7 +20,15 @@ use Mpdf\Mpdf;
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
-function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
+/**
+ * @param int|string $pid
+ * @param int|string $encounter
+ * @param int|string $form_id
+ * @param string|null $reqStr
+ * @param bool $doDoc
+ * @param string|null $gbl_lab
+ */
+function labcorp_ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true, $gbl_lab = null): void
 {
 
     $styleSheet =  <<<STYLES
@@ -777,5 +785,5 @@ STYLES;
     }
 }
 if ($_REQUEST['debug']) {
-    ereqForm($pid, $encounter, $form_id);
+    labcorp_ereqForm($pid, $encounter, $form_id);
 }

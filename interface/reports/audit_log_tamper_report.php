@@ -4,7 +4,7 @@
  * Audit Log Tamper Report.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Anil N <aniln@ensoftek.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
@@ -20,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -141,12 +142,12 @@ $sortby = $_GET['sortby'] ?? null;
 <tr><td>
 <span class="text"><?php echo xlt('Start Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 'global', true)); ?>" title="<?php echo xla('Start date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($start_date, 'global', true)); ?>" title="<?php echo xla('Start date'); ?>" />
 </td>
 <td>
 <span class="text"><?php echo xlt('End Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 'global', true)); ?>" title="<?php echo xla('End date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, 'global', true)); ?>" title="<?php echo xla('End date'); ?>" />
 </td>
 
 <td>
@@ -328,7 +329,7 @@ $check_sum = isset($_GET['check_sum']);
      <TR class="oneresult">
           <TD class="text tamperColor"><?php echo text($logType); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["id"]); ?></TD>
-          <TD class="text tamperColor"><?php echo text(oeFormatDateTime($iter["date"], "global", true)); ?></TD>
+          <TD class="text tamperColor"><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], "global", true)); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
                 <?php // Using mb_convert_encoding to change binary stuff (uuid) to just be '?' characters ?>

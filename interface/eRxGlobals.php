@@ -4,7 +4,7 @@
  * interface/eRxGlobals.php Functions for retrieving Ensora eRx global configurations.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

@@ -4,7 +4,7 @@
  * interface/billing/customize_log.php - starting point for customization of billing log
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Stephen Waite <stephen.waite@cmsvt.com>

@@ -8,7 +8,7 @@
  * Regenerate with: composer generate-phpstan-types
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -57,7 +57,7 @@ namespace OpenEMR\Common\Database;
  *   race: string,
  *   ethnicity: string,
  *   religion: string,
- *   interpretter: string,
+ *   interpreter: string,
  *   interpreter_needed: ?string,
  *   migrantseasonal: string,
  *   family_size: string,

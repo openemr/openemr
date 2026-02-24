@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * Copyright (C) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 use OpenEMR\Common\Session\SessionUtil;

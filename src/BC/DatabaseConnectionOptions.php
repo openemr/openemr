@@ -170,7 +170,11 @@ final readonly class DatabaseConnectionOptions
     {
         $sqlconfPath = $siteDir . '/' . $configFile;
         if (!file_exists($sqlconfPath)) {
-            throw new RuntimeException("sqlconf.php not found at: $sqlconfPath");
+            throw new RuntimeException(sprintf(
+                '%s not found in %s. Is the site configured?',
+                $configFile,
+                $siteDir,
+            ));
         }
 
         $loader = static function (string $path): array {

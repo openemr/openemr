@@ -1,10 +1,10 @@
 <?php
 
 /**
- * ClaimRev API client
+ * ClaimRev API client using PSR-18 HTTP client.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -14,28 +14,33 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Modules\ClaimRevConnector\Exception\ClaimRevApiException;
-use OpenEMR\Modules\ClaimRevConnector\UploadEdiFileContentModel;
-use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
+use Psr\Http\Message\ResponseInterface;
+use SensitiveParameter;
 
-class ClaimRevApi
+/**
+ * API client for interacting with the ClaimRev clearinghouse service.
+ */
+readonly class ClaimRevApi
 {
-    public static function canConnectToClaimRev(): string
-    {
-        try {
-            ClaimRevApi::GetAccessToken();
-            return "Yes";
-        } catch (ClaimRevApiException) {
-            return "No";
-        }
+    public function __construct(
+        private ClientInterface $client,
+        #[SensitiveParameter] private string $accessToken,
+    ) {
     }
+
     /**
-     * @throws ClaimRevApiException
+     * Create a ClaimRevApi instance using global configuration.
+     *
+     * Acquires an OAuth access token and returns a configured client.
+     *
+     * @throws ClaimRevAuthenticationException if token acquisition fails
+     * @throws ModuleNotConfiguredException if required settings are missing
      */
-    public static function getAccessToken()
+    public static function makeFromGlobals(): self
     {
         $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
@@ -43,441 +48,274 @@ class ClaimRevApi
         $authority = $globalsConfig->getClientAuthority();
         $clientId = $globalsConfig->getClientId();
         $scope = $globalsConfig->getClientScope();
-        $client_secret = $globalsConfig->getClientSecret();
-        $api_server = $globalsConfig->getApiServer();
+        $clientSecret = $globalsConfig->getClientSecret();
+        $apiServer = $globalsConfig->getApiServer();
 
-        $headers = [
-           'content-type: application/x-www-form-urlencoded'
-        ];
-
-        $payload = "client_id=" . $clientId . "&scope=" . $scope . "&client_secret=" . $client_secret . "&grant_type=client_credentials";
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $authority);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to connect to ClaimRev authentication service: ' . $error);
+        if (!is_string($clientId) || $clientId === '') {
+            throw new ModuleNotConfiguredException('ClaimRev client ID is not configured');
         }
-        curl_close($ch);
-
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response from ClaimRev authentication service');
+        if (!is_string($clientSecret) || $clientSecret === '') {
+            throw new ClaimRevAuthenticationException('ClaimRev client secret could not be decrypted');
         }
 
-        if (!property_exists($data, 'access_token')) {
-            (new SystemLogger())->error('ClaimRev: Missing access_token in ' . __FUNCTION__);
-            throw new ClaimRevApiException('ClaimRev authentication failed: no access token returned');
-        }
-        return $data->access_token;
-    }
+        $token = self::acquireAccessToken($authority, $clientId, $scope, $clientSecret);
 
-    public static function uploadClaimFile($ediContents, $fileName, $token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
+        $client = new Client([
+            'base_uri' => $apiServer,
+            'headers' => [
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+            ],
+        ]);
 
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $url = $api_server . "/api/InputFile/v1";
-
-        $model = new UploadEdiFileContentModel("", $ediContents, $fileName);
-        $payload = json_encode($model, JSON_UNESCAPED_SLASHES);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to upload claim file: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to upload claim file: HTTP ' . $httpcode, $httpcode);
-        }
-
-        $data = json_decode((string) $result);
-        if (!is_object($data)) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when uploading claim file');
-        }
-
-        if (property_exists($data, 'isError') && $data->isError) {
-            $errorMsg = property_exists($data, 'errorMessage') && is_string($data->errorMessage)
-                ? $data->errorMessage
-                : 'Unknown error';
-            (new SystemLogger())->error('ClaimRev: API error in ' . __FUNCTION__, ['error' => $errorMsg]);
-            throw new ClaimRevApiException('ClaimRev API error: ' . $errorMsg);
-        }
-
-        return true;
-    }
-
-    public static function getReportFiles($reportType, $token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $params = ['ediType' => $reportType];
-
-        $endpoint = $api_server . "/api/EdiResponseFile/v1/GetReport";
-        $url = $endpoint . '?' . http_build_query($params);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to get report files: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to get report files: HTTP ' . $httpcode, $httpcode);
-        }
-
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when getting report files');
-        }
-
-        return $data;
-    }
-
-    public static function getDefaultAccount($token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-
-        $url = $api_server . "/api/UserProfile/v1/GetDefaultAccount";
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to get default account: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to get default account: HTTP ' . $httpcode, $httpcode);
-        }
-
-        return $result;
-    }
-
-    public static function searchClaims($claimSearch, $token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $url = $api_server . "/api/ClaimView/v1/SearchClaims";
-
-        $payload = json_encode($claimSearch, JSON_UNESCAPED_SLASHES);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to search claims: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to search claims: HTTP ' . $httpcode, $httpcode);
-        }
-
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when searching claims');
-        }
-
-        return $data;
-    }
-
-    public static function searchDownloadableFiles($downloadSearch, $token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $url = $api_server . "/FileManagement/SearchOutboundClientFiles";
-
-        $payload = json_encode($downloadSearch, JSON_UNESCAPED_SLASHES);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to search downloadable files: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to search downloadable files: HTTP ' . $httpcode, $httpcode);
-        }
-
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when searching downloadable files');
-        }
-
-        return $data;
+        return new self($client, $token);
     }
 
     /**
-     * @throws ClaimRevApiException
+     * Acquire an OAuth access token from the ClaimRev authority.
+     *
+     * @throws ClaimRevAuthenticationException if token acquisition fails
      */
-    public static function getFileForDownload($objectId, $token)
-    {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $endpoint = $api_server . "/FileManagement/GetFileForDownload";
-        $params = ['id' => $objectId];
-        $url = $endpoint . '?' . http_build_query($params);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to download file: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to download file: HTTP ' . $httpcode, $httpcode);
+    private static function acquireAccessToken(
+        string $authority,
+        string $clientId,
+        string $scope,
+        #[SensitiveParameter] string $clientSecret,
+    ): string {
+        $client = new Client();
+        try {
+            $response = $client->request('POST', $authority, [
+                'form_params' => [
+                    'client_id' => $clientId,
+                    'scope' => $scope,
+                    'client_secret' => $clientSecret,
+                    'grant_type' => 'client_credentials',
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            throw new ClaimRevAuthenticationException(
+                'Failed to acquire ClaimRev access token: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
 
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when downloading file');
+        $data = self::parseResponse($response);
+        if (!isset($data['access_token']) || !is_string($data['access_token'])) {
+            throw new ClaimRevAuthenticationException(
+                'ClaimRev token response missing access_token'
+            );
         }
 
-        return $data;
+        return $data['access_token'];
     }
 
-    public static function getEligibilityResult($originatingSystemId, $token)
+    /**
+     * Test connectivity by checking if authentication succeeds.
+     */
+    public function canConnect(): bool
     {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
-
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
-
-        $endpoint = $api_server . "/api/Eligibility/v1/GetEligibilityRequest";
-        $params = ['originatingSystemId' => $originatingSystemId];
-        $url = $endpoint . '?' . http_build_query($params);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to get eligibility result: ' . $error);
-        }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to get eligibility result: HTTP ' . $httpcode, $httpcode);
-        }
-
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when getting eligibility result');
-        }
-
-        return $data;
+        return $this->accessToken !== '';
     }
 
-    public static function uploadEligibility($eligibility, $token)
+    /**
+     * Get the default account information.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function getDefaultAccount(): array
     {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-        $globalsConfig = $bootstrap->getGlobalConfig();
-        $api_server = $globalsConfig->getApiServer();
+        return $this->get('/api/UserProfile/v1/GetDefaultAccount');
+    }
 
-        $content = 'content-type: application/json';
-        $bearer = 'authorization: Bearer ' . $token;
-        $headers = [
-            $content,
-            $bearer
-         ];
+    /**
+     * Upload an EDI claim file to ClaimRev.
+     *
+     * @throws ClaimRevApiException on API error
+     */
+    public function uploadClaimFile(string $ediContents, string $fileName): void
+    {
+        $model = new UploadEdiFileContentModel('', $ediContents, $fileName);
+        $response = $this->post('/api/InputFile/v1', $model);
 
-
-        $url = $api_server . "/api/SharpRevenue/v1/RunSharpRevenue";
-        $payload = json_encode($eligibility, JSON_UNESCAPED_SLASHES);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            (new SystemLogger())->error('ClaimRev: cURL error in ' . __FUNCTION__, ['error' => $error]);
-            throw new ClaimRevApiException('Failed to upload eligibility: ' . $error);
+        if (isset($response['isError']) && $response['isError']) {
+            throw new ClaimRevApiException(
+                'ClaimRev reported an error uploading file',
+                200,
+                json_encode($response, JSON_THROW_ON_ERROR),
+                '/api/InputFile/v1'
+            );
         }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+    }
 
-        if ($httpcode != 200) {
-            (new SystemLogger())->error('ClaimRev: HTTP error in ' . __FUNCTION__, ['httpcode' => $httpcode]);
-            throw new ClaimRevApiException('Failed to upload eligibility: HTTP ' . $httpcode, $httpcode);
+    /**
+     * Get report files of a specific type.
+     *
+     * @return list<array<string, mixed>>
+     * @throws ClaimRevApiException on API error
+     */
+    public function getReportFiles(string $reportType): array
+    {
+        $result = $this->get('/api/EdiResponseFile/v1/GetReport', ['ediType' => $reportType]);
+        /** @var list<array<string, mixed>> */
+        return array_values($result);
+    }
+
+    /**
+     * Search for claims.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function searchClaims(object $claimSearch): array
+    {
+        return $this->post('/api/ClaimView/v1/SearchClaims', $claimSearch);
+    }
+
+    /**
+     * Search for downloadable files (ERA/835 files).
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function searchDownloadableFiles(object $downloadSearch): array
+    {
+        return $this->post('/FileManagement/SearchOutboundClientFiles', $downloadSearch);
+    }
+
+    /**
+     * Get a file for download by object ID.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function getFileForDownload(string $objectId): array
+    {
+        return $this->get('/FileManagement/GetFileForDownload', ['id' => $objectId]);
+    }
+
+    /**
+     * Get eligibility result by originating system ID.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function getEligibilityResult(string $originatingSystemId): array
+    {
+        return $this->get('/api/Eligibility/v1/GetEligibilityRequest', [
+            'originatingSystemId' => $originatingSystemId,
+        ]);
+    }
+
+    /**
+     * Upload an eligibility request.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    public function uploadEligibility(object $eligibility): array
+    {
+        return $this->post('/api/SharpRevenue/v1/RunSharpRevenue', $eligibility);
+    }
+
+    /**
+     * Perform a GET request.
+     *
+     * @param array<string, string> $query
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    private function get(string $path, array $query = []): array
+    {
+        try {
+            $response = $this->client->request('GET', $path, [
+                'query' => $query,
+                'headers' => $this->getAuthHeaders(),
+            ]);
+        } catch (GuzzleException $e) {
+            throw new ClaimRevApiException(
+                'ClaimRev API request failed: ' . $e->getMessage(),
+                0,
+                '',
+                $path,
+                $e
+            );
         }
 
-        $data = json_decode((string) $result);
-        if ($data === null) {
-            (new SystemLogger())->error('ClaimRev: Invalid JSON response in ' . __FUNCTION__);
-            throw new ClaimRevApiException('Invalid JSON response when uploading eligibility');
+        $statusCode = $response->getStatusCode();
+        if ($statusCode !== 200) {
+            throw new ClaimRevApiException(
+                "ClaimRev API returned HTTP {$statusCode}",
+                $statusCode,
+                (string) $response->getBody(),
+                $path
+            );
         }
 
-        return $data;
+        return self::parseResponse($response);
+    }
+
+    /**
+     * Perform a POST request.
+     *
+     * @return array<string, mixed>
+     * @throws ClaimRevApiException on API error
+     */
+    private function post(string $path, object $payload): array
+    {
+        try {
+            $response = $this->client->request('POST', $path, [
+                'json' => $payload,
+                'headers' => $this->getAuthHeaders(),
+            ]);
+        } catch (GuzzleException $e) {
+            throw new ClaimRevApiException(
+                'ClaimRev API request failed: ' . $e->getMessage(),
+                0,
+                '',
+                $path,
+                $e
+            );
+        }
+
+        $statusCode = $response->getStatusCode();
+        if ($statusCode !== 200) {
+            throw new ClaimRevApiException(
+                "ClaimRev API returned HTTP {$statusCode}",
+                $statusCode,
+                (string) $response->getBody(),
+                $path
+            );
+        }
+
+        return self::parseResponse($response);
+    }
+
+    /**
+     * Get authorization headers for API requests.
+     *
+     * @return array<string, string>
+     */
+    private function getAuthHeaders(): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . $this->accessToken,
+        ];
+    }
+
+    /**
+     * Parse a JSON response.
+     *
+     * @return array<string, mixed>
+     */
+    private static function parseResponse(ResponseInterface $response): array
+    {
+        $json = (string) $response->getBody();
+        if ($json === '') {
+            return [];
+        }
+        /** @var array<string, mixed> */
+        return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
     }
 }

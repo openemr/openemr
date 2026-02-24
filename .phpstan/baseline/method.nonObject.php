@@ -63,7 +63,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -1162,12 +1162,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method MoveNext\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method MoveNext\\(\\) on ADORecordSet\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method RecordCount\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method RecordCount\\(\\) on ADORecordSet\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
@@ -4917,43 +4917,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method ExecuteNoLog\\(\\) on ADOConnection\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method ExecuteNoLog\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method PConnect\\(\\) on ADOConnection\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method SetFetchMode\\(\\) on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method SetFetchMode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method connect\\(\\) on ADOConnection\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAssoc\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setConnectionParameter\\(\\) on ADOConnection\\|false\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
@@ -11100,6 +11070,31 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',

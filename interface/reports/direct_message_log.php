@@ -4,7 +4,7 @@
  * Report to view the Direct Message log.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Direct Message Log", xl("Direct Message Log"));
@@ -163,7 +164,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'>&nbsp;</td>
     <?php } ?>
 
-    <td align='center'><?php echo text(oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
+    <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
     <td align='center'><?php echo text($row['sender']); ?></td>
     <td align='center'><?php echo text($row['recipient']); ?></td>
 

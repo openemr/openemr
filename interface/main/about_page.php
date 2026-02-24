@@ -7,7 +7,7 @@
  * If it have been entered in Globals along with the Manual and On Line Support Links
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>

@@ -6,7 +6,7 @@
  * see sl_eob_process.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Terry Hill <terry@lillysystems.com>
@@ -308,7 +308,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
         if ($ALLOW_DELETE && !$debug) {
             if (!empty($_POST['form_del']) && is_array($_POST['form_del'])) {
                 foreach ($_POST['form_del'] as $arseq => $dummy) {
-                    row_modify(
+                    payment_row_modify(
                         "ar_activity",
                         "deleted = NOW()",
                         "pid = '" . add_escape_custom($patient_id) .
@@ -707,7 +707,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal'], true)); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal']) ?: '0.00'); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>

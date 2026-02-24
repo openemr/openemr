@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 function find_or_create_constant($constant)

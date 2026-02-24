@@ -4,7 +4,7 @@
 * forms.php
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -651,6 +651,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
         'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
         'menuArray' => $menu->getMenuData(),
+        'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
+        'pid' => (int) $pid,
     ]);
     ?>
 

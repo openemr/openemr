@@ -4,7 +4,7 @@
  * report.php displays the misc_billing_form in the encounter view
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2007 Bo Huynh

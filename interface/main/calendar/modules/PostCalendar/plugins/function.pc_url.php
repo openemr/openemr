@@ -51,7 +51,7 @@ function smarty_function_pc_url($args): void
     }
 
     $template_view = pnVarCleanFromInput('tplview');
-    $viewtype = strtolower(pnVarCleanFromInput('viewtype'));
+    $viewtype = strtolower((string) pnVarCleanFromInput('viewtype'));
     // pnVarCleanFromInput('pc_username'); //(CHEMED) replaced by the code below
     //(CHEMED) Facility filtering
     $pc_username = $_SESSION['pc_username'];

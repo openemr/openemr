@@ -547,7 +547,7 @@ class ParseERA
         }
 
         $out['check_count'] = $check_count;
-        era_callback_check($out);
+        eob_process_era_callback_check($out);
 
         if ($segid != 'IEA') {
             return 'Premature end of ERA file';

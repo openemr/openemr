@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Test cases for the OpenEMR Api Test Client
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

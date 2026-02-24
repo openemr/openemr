@@ -17,6 +17,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between array\\<array\\<string, mixed\\>\\> and null will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and \'0\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -24,11 +29,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int\\<0, max\\>\\|false and true will always evaluate to true\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between outputs and null will always evaluate to true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [

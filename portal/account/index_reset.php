@@ -4,7 +4,7 @@
  * Credential Changes
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2021 Jerry Padgett <sjpadgett@gmail.com>

@@ -4,7 +4,7 @@
  * display.php  Is responsible for display a CCR/CCD/CCDA document previewed from the documents folder.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ajil P.M <ajilpm@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>

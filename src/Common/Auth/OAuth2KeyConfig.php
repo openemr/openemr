@@ -4,7 +4,7 @@
  * Oauth2KeyConfig is responsible for configuring, generating, and returning oauth2 keys that are used by the OpenEMR system.
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -238,6 +238,10 @@ class OAuth2KeyConfig
         }
 
         // Successfully created encryption/public/private keys and passphrase, so store them and log success
+        $certDir = dirname($this->privateKey);
+        if (!is_dir($certDir)) {
+            mkdir($certDir, 0750, true);
+        }
         file_put_contents($this->privateKey, $privkey);
         chmod($this->privateKey, 0640);
         file_put_contents($this->publicKey, $pubkey);

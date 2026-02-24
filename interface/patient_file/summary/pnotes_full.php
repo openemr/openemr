@@ -4,7 +4,7 @@
  * Display, enter, modify and manage patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,6 +23,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -519,7 +520,7 @@ function restoreSession() {
                                 echo getListItemTitle("message_status", $iter['message_status']);
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
-                                echo text(oeFormatDateTime($iter['update_date']));
+                                echo text(DateFormatterUtils::oeFormatDateTime($iter['update_date']));
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
                                 $updateBy = $userService->getUser($iter['update_by']);

@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method Execute\\(\\) on an unknown class connection\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcherInterface\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/search_payments.php',
@@ -167,11 +162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:default_action\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method C_AbstractClickmap\\:\\:getImage\\(\\) has invalid return type The\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -187,54 +177,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:report_action\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:view_action\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property C_AbstractClickmap\\:\\:\\$template_dir has unknown class template_dir as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function coding_carburetor\\(\\) has invalid return type outputs\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function display_PRIOR_section\\(\\) has invalid return type outputs\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function display_QP\\(\\) has invalid return type QP\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function report_header\\(\\) has invalid return type outputs\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_your_engines\\(\\) has invalid return type outputs\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class outputs\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset 0 on an unknown class outputs\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',
@@ -330,36 +275,6 @@ $ignoreErrors[] = [
     'message' => '#^Function pnGetBaseURL\\(\\) has invalid return type base\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarCleanFromInput\\(\\) has invalid return type prepared\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForDisplay\\(\\) has invalid return type prepared\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForOS\\(\\) has invalid return type prepared\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepForStore\\(\\) has invalid return type prepared\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnVarPrepHTMLDisplay\\(\\) has invalid return type prepared\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) has invalid return type name\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnModURL\\(\\) has invalid return type absolute\\.$#',
@@ -1052,11 +967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function updateRows\\(\\) has invalid return type voidd\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Caught class MpdfException not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
@@ -1102,11 +1012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method Execute\\(\\) on an unknown class connection\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function listingCDRReminderLog\\(\\) has invalid return type sqlret\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -1115,11 +1020,6 @@ $ignoreErrors[] = [
     'message' => '#^Function create_crt\\(\\) has invalid return type data\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_read_blob\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getImmunizationList\\(\\) has invalid return type recordset\\.$#',
@@ -1192,19 +1092,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function get_db\\(\\) has invalid return type connection\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sqlQ\\(\\) has invalid return type recordset\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function collectAndOrganizeExpandSetting\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getUserSetting\\(\\) has invalid return type Effective\\.$#',
@@ -1312,26 +1202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/_global_config.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function convert_html_to_text\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fix_newlines\\(\\) has invalid return type the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:__construct\\(\\) has invalid return type nothing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) has invalid return type special\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) has invalid return type Processed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -1347,17 +1217,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:encoding\\(\\) has invalid return type nothing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:output\\(\\) has invalid return type CSV\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) has invalid return type nothing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
@@ -1947,24 +1807,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method MetaPrimaryKeys\\(\\) on an unknown class connection\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\IsAcceptedFileFilterEvent\\:\\:getAcceptedList\\(\\) has invalid return type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$acceptedList of method OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\IsAcceptedFileFilterEvent\\:\\:setAcceptedList\\(\\) has invalid type OpenEMR\\\\Events\\\\Core\\\\Sanitize\\\\This\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:getFormat\\(\\) has invalid return type OpenEMR\\\\Events\\\\PatientDocuments\\\\html\\.$#',
@@ -2252,16 +2097,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FacilityRestController\\:\\:patch\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FacilityRestController\\:\\:post\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:patch\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
@@ -2327,21 +2162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDiagnosticReportService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDocumentReferenceService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirGroupService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirGroupService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method getAll\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\MedicationService\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
@@ -2352,34 +2172,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirObservationService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirProcedureService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirProcedureService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\:\\:parseOpenEMRRecord\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirProvenanceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValueSetService\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\processing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValueSetService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\IResourceCreatableService\\:\\:insert\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/IResourceCreatableService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\IResourceUpdateableService\\:\\:update\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/IResourceUpdateableService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method getValues\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\ISearchField\\.$#',
