@@ -624,7 +624,7 @@ class Gacl {
             $this->debug_text("get_cache(): on ID: $cache_id");
 
             if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
-                return unserialize($this->Cache_Lite->get($cache_id) );
+                return unserialize($this->Cache_Lite->get($cache_id), ['allowed_classes' => false]);
             }
         }
 
