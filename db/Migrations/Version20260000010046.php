@@ -33,7 +33,11 @@ final class Version20260000010046 extends AbstractMigration
     {
         $table = new Table('lang_constants');
         $table->addColumn('cons_id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('constant_name', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
+        $table->addColumn('constant_name', Types::TEXT, [
+            'notnull' => false,
+            'length' => 16777215,
+            'platformOptions' => ['collation' => 'utf8mb4_bin'],
+        ]);
 
         $table->addIndex(['constant_name'], 'constant_name', [], ['lengths' => [100]]);
         $table->addUniqueIndex(['cons_id'], 'cons_id');
