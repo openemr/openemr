@@ -101,7 +101,8 @@ function safe_href($url): string
         return attr($url);
     }
 
-    // Disallowed scheme — return safe fallback
+    // Disallowed scheme — log and return safe fallback
+    error_log("safe_href(): blocked disallowed URL scheme '" . errorLogEscape($scheme) . "'");
     return '#';
 }
 
