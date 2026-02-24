@@ -684,11 +684,11 @@ $globalsStyle = $globalsBag->get('style', []);
 $globalsStyle['BGCOLOR2'] = "#dddddd";
 $globalsStyle['BGCOLOR1'] = "#cccccc";
 $globalsBag->set('style', $globalsStyle);
-$logocode = "<img class='img-responsive' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif' />";
+$logocode = "<img class='img-fluid' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif' />";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
-$tinylogocode1 = "<img class='img-responsive d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
-$tinylogocode2 = "<img class='img-responsive d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
+$tinylogocode1 = "<img class='img-fluid d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='img-fluid d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 $globalsBag->set('logocode', $logocode);
 $globalsBag->set('tinylogocode1', $tinylogocode1);
 $globalsBag->set('tinylogocode2', $tinylogocode2);
