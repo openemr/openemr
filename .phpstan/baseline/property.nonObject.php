@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCR.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_db on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
