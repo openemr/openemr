@@ -26,11 +26,10 @@ if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
     require_once("$include_root/procedure_tools/quest/QuestResultClient.php");
 }
 require_once("./receive_hl7_results.inc.php");
-require_once("./gen_hl7_order.inc.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderGeneratorFactory;
 use OpenEMR\Core\Header;
 
 // Check authorization.
@@ -55,9 +54,11 @@ if (!empty($_POST['form_xmit'])) {
         $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
+        $generator = Hl7OrderGeneratorFactory::create('default', (string) realpath(__DIR__ . '/..'));
         try {
-            $result = default_gen_hl7_order($formid);
-            $errmsg = default_send_hl7_order($ppid, $result->hl7);
+            $orderId = (int) (is_numeric($formid) ? $formid : 0);
+            $result = $generator->generate($orderId);
+            $errmsg = $generator->send($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }
