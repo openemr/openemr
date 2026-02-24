@@ -28,6 +28,7 @@ if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
 require_once("./receive_hl7_results.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Orders\DefaultHl7ResultParser;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderGeneratorFactory;
 use OpenEMR\Core\Header;
@@ -245,7 +246,9 @@ function doWait(e){
     }
     // Attempt to post any incoming results.
     if (!empty($_REQUEST['form_process_labs']) || (!empty($info['orphaned_order']) && $info['orphaned_order'] == "R")) {
-        $errmsg = poll_hl7_results($info, $processing_lab);
+        $parser = new DefaultHl7ResultParser();
+        $labId = is_numeric($processing_lab) ? (int) $processing_lab : 0;
+        $errmsg = $parser->pollResults($info, $labId);
     }
     // echo "<!--\n";  // debugging
     // print_r($info); // debugging
