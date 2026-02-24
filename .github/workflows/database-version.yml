@@ -1,9 +1,13 @@
 # Ensures v_database is aligned between version.php and sql/database.sql
+# and that database.sql schema changes include corresponding upgrade SQL.
 #
 # The v_database value must be:
 # 1. Declared in version.php as: $v_database = NNN;
 # 2. Declared in sql/database.sql header as: -- v_database: NNN
 # 3. Both values must match
+#
+# Additionally, if database.sql has schema changes and v_database was bumped,
+# at least one upgrade SQL file should also be modified.
 #
 # This prevents database migrations from being silently skipped on upgrades.
 name: Database Version Check
@@ -33,6 +37,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer
@@ -99,4 +105,97 @@ jobs:
           echo '## ✅ v_database is aligned'
           echo
           printf 'Both `version.php` and `sql/database.sql` declare v_database = %s\n' "$php_version"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Check for missing upgrade SQL
+      run: |
+        base_ref="origin/${{ github.base_ref }}"
+
+        # Check if database.sql was modified in this PR
+        if ! git diff --name-only "$base_ref"...HEAD | grep -q '^sql/database.sql$'; then
+          echo '::notice::database.sql was not modified — skipping upgrade SQL check.'
+          exit 0
+        fi
+
+        # Check if changes to database.sql include schema-affecting statements
+        # (CREATE TABLE, ALTER TABLE, column definitions, INSERT for schema-config tables)
+        schema_diff=$(git diff "$base_ref"...HEAD -- sql/database.sql | grep '^[+-]' | grep -v '^[+-]\{3\}' || true)
+
+        # Look for structural DDL patterns in the diff
+        has_schema_changes=false
+        if echo "$schema_diff" | grep -qiE '^\+.*(CREATE TABLE|ALTER TABLE|DROP TABLE|ADD COLUMN|DROP COLUMN|MODIFY COLUMN|CHANGE COLUMN)'; then
+          has_schema_changes=true
+        fi
+
+        if [[ "$has_schema_changes" != "true" ]]; then
+          echo '::notice::No schema-affecting DDL changes in database.sql — skipping upgrade SQL check.'
+          exit 0
+        fi
+
+        # database.sql has schema changes — check if v_database was bumped
+        base_v_database=$(git show "$base_ref":version.php | grep -oP '\$v_database\s*=\s*\K[0-9]+' || echo "0")
+        head_v_database=$(grep -oP '\$v_database\s*=\s*\K[0-9]+' version.php || echo "0")
+
+        if [[ "$base_v_database" == "$head_v_database" ]]; then
+          {
+            echo '## ⚠️ database.sql has schema changes but v_database was not bumped'
+            echo
+            echo 'This PR modifies `sql/database.sql` with schema-affecting changes'
+            echo "(CREATE TABLE, ALTER TABLE, etc.) but \`\$v_database\` was not incremented."
+            echo
+            echo '### Why this matters'
+            echo
+            echo 'Existing installations rely on `$v_database` to determine which upgrade'
+            echo 'scripts to run. Without a version bump, the upgrade system will not know'
+            echo 'that new migration steps are needed.'
+            echo
+            echo '### How to fix'
+            echo
+            printf 'Increment `$v_database` from **%s** to **%s** in both:\n' "$base_v_database" "$((base_v_database + 1))"
+            echo
+            echo '- `version.php`'
+            echo '- `sql/database.sql` header comment'
+            echo
+            echo 'And add the corresponding upgrade SQL to the appropriate'
+            echo '`sql/*-to-*_upgrade.sql` file.'
+            echo
+            echo '_If this change is intentionally a fresh-install-only fix (e.g., correcting_'
+            echo '_defaults that were already handled in a prior upgrade), you can ignore this warning._'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        # v_database was bumped — check for upgrade SQL
+        upgrade_files=$(git diff --name-only "$base_ref"...HEAD | grep -E '^sql/.*-to-.*_upgrade\.sql$' || true)
+        patch_file=$(git diff --name-only "$base_ref"...HEAD | grep -E '^sql/patch\.sql$' || true)
+
+        if [[ -z "$upgrade_files" && -z "$patch_file" ]]; then
+          {
+            echo '## ⚠️ v_database bumped but no upgrade SQL found'
+            echo
+            printf 'This PR bumps `$v_database` from **%s** to **%s** and modifies\n' "$base_v_database" "$head_v_database"
+            echo '`sql/database.sql` with schema changes, but no upgrade SQL file was modified.'
+            echo
+            echo '### How to fix'
+            echo
+            echo 'Add the corresponding migration statements to the appropriate upgrade file:'
+            echo
+            echo '```'
+            echo 'sql/8_0_0-to-8_0_1_upgrade.sql  (or the current version range)'
+            echo '```'
+            echo
+            echo 'Use the `#IfMissingColumn`, `#IfNotTable`, or similar conditional'
+            echo 'constructs to make the migration idempotent.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        {
+          echo '## ✅ Upgrade SQL is present'
+          echo
+          printf 'v_database bumped from %s → %s with upgrade SQL in:\n' "$base_v_database" "$head_v_database"
+          echo
+          for f in $upgrade_files $patch_file; do
+            echo "- \`$f\`"
+          done
         } >> "$GITHUB_STEP_SUMMARY"
