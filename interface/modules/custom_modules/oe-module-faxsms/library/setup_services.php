@@ -329,16 +329,16 @@ $vendors = $boot->getVendorGlobals();
                 <?php } ?>
             <?php } ?>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?></button>
             <?php }
             if (!empty($vendors['oefax_enable_fax'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax"); ?></button>
             <?php }
             if (!empty($vendors['oe_enable_voice'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?></button>
             <?php }
             if (!empty($vendors['oe_enable_email'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email"); ?></button>
             <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
                 <label for="dialog"><?php echo xlt("Use Dialog"); ?></label>
