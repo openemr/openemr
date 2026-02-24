@@ -2272,12 +2272,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function get_db\\(\\) should return connection but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function privStatement\\(\\) should return ADORecordSet but returns mixed\\.$#',
+    'message' => '#^Function get_db\\(\\) should return ADODB_mysqli_log but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];

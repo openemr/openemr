@@ -324,10 +324,28 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/main_screen.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/main_screen.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/pwd_expires_alert.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -510,6 +528,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/mfa_totp.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/usergroup/mfa_totp.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/mfa_totp.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
     'count' => 1,
@@ -520,6 +550,12 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/user_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -609,9 +645,33 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/account/index_reset.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/account/index_reset.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../portal/get_patient_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/get_patient_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/get_patient_info.php',
 ];
 $ignoreErrors[] = [
@@ -631,6 +691,30 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:checkUserSetting$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
@@ -708,6 +792,12 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:getUserSetting$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
+Use the standard DB connections instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
