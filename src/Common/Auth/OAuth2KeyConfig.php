@@ -238,6 +238,10 @@ class OAuth2KeyConfig
         }
 
         // Successfully created encryption/public/private keys and passphrase, so store them and log success
+        $certDir = dirname($this->privateKey);
+        if (!is_dir($certDir)) {
+            mkdir($certDir, 0750, true);
+        }
         file_put_contents($this->privateKey, $privkey);
         chmod($this->privateKey, 0640);
         file_put_contents($this->publicKey, $pubkey);
