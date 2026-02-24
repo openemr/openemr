@@ -1501,7 +1501,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     }
                                     ?>
                                 </select>
-                                <input type='hidden' class="input-sm" name="form_account" value="<?php echo attr($account); ?>">
+                                <input type='hidden' class="form-control form-control-sm" name="form_account" value="<?php echo attr($account); ?>">
                             </div>
                             <div class="clearfix"></div>
                         </div>

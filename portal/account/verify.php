@@ -289,7 +289,7 @@ if ($globalsBag->get('language_menu_login')) {
                         </div>
                     </div>
                 </div>
-                <button type="submit" id="verifyBtn" class="btn btn-primary pull-right mb-5" type="button" disabled="disabled"><?php echo xlt('Verify Email') ?></button>
+                <button type="submit" id="verifyBtn" class="btn btn-primary float-end mb-5" type="button" disabled="disabled"><?php echo xlt('Verify Email') ?></button>
             </div>
         </form>
     </div>
