@@ -66,7 +66,7 @@ if (isset($_POST['mode'])) {
     if ($_POST['mode'] == 'export') {
         $sql = BillingReport::returnOFXSql();
         $billings = QueryUtils::fetchRecords($sql);
-        if (empty($billings)) {
+        if ($billings === []) {
             echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";

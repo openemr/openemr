@@ -1042,7 +1042,7 @@ class Prescription extends ORDataObject
             "SELECT * FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
             [$this->provider->id]
         );
-        if (!empty($records)) {
+        if ($records !== []) {
             $row = $records[0];
             $string = $row['name'] . "\n"
                     . $row['street'] . "\n"
@@ -1090,7 +1090,7 @@ class Prescription extends ORDataObject
             [$this->provider->id]
         );
 
-        if (!empty($records)) {
+        if ($records !== []) {
             $row = $records[0];
             $rfn = $row['name'];
 
