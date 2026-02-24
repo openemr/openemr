@@ -1592,14 +1592,18 @@ if ($layout_id) {
         if ($group_id != $prevgroup) {
             if ($firstgroup == false) {
                 echo "</tbody></table></div>\n";
-                echo "<div id='" . attr($group_id) . "' class='group'>";
+                ?>
+                <div id='<?php echo attr($group_id); ?>' class='group'>
+                <?php
             } else {
                 // making first group flag useful for maintaining top fixed nav bar.
-                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:80px'>";
+                ?>
+                <div id='<?php echo attr($group_id); ?>' class='group' style='padding-top:80px'>
+                <?php
             }
-
-            // echo "<div id='" . $group_id . "' class='group'>";
-            echo "<div class='text bold layouts_title'>";
+            ?>
+            <div class='text bold layouts_title'>
+            <?php
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
@@ -1671,9 +1675,9 @@ if ($layout_id) {
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
                 <?php // if not english and showing layout label translations, then show translation header for description
-                if ($GLOBALS['translate_layout'] && $language_choice > 1) {
-                    echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
-                } ?>
+                if ($GLOBALS['translate_layout'] && $language_choice > 1) { ?>
+                    <th><?php echo xlt('Translation'); ?><span class='help' title='<?php echo xla('The translation of description in current language'); ?>'>&nbsp;(?)</span></th>
+                <?php } ?>
           <th><?php echo xlt('Code(s)'); ?></th>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
