@@ -589,6 +589,7 @@ class CryptoGen implements CryptoInterface
      *
      * @codeCoverageIgnore
      *
+     * @param int<1, max> $length
      * @return string
      */
     protected function getRandomBytes(int $length): string
