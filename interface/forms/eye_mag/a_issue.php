@@ -1400,7 +1400,7 @@ foreach (explode(',', $given) as $item) {
         });
     });
 
-    $('[title]').tooltip();
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 
 </script>
 </body>

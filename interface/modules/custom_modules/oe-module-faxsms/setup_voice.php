@@ -55,7 +55,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             var messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
                             var messageText = data;
                             var alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable"><button type="button" ' +
-                                'class="btn-close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
+                                'class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' + messageText + '</div>';
                             if (messageAlert && messageText) {
                                 // inject the alert to .messages div in our form
                                 $('#setup-form').find('.messages').html(alertBox);

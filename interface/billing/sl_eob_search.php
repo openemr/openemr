@@ -669,7 +669,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 // Show spinner for search operations only
                 if (buttonName === 'form_search' ||
                     clickedButton.attr('id') === 'btn-inv-search') {
-                    $('#searchSpinnerModal').modal('show');
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('searchSpinnerModal')).show();
                 }
             });
         });
@@ -1352,7 +1352,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     }
     ?>
     $(function () {
-        $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"}).tooltip();
+        $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
     });
 </script>
 <?php

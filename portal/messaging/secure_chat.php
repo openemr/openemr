@@ -406,7 +406,8 @@ $msgApp = new ChatController();
             };
 
             $scope.openModal = function (e) {
-                var mi = $('#popeditor').modal({backdrop: "static"});
+                var mi = bootstrap.Modal.getOrCreateInstance(document.getElementById('popeditor'), {backdrop: "static"});
+                mi.show();
                 $scope.editmsg();
             };
 
