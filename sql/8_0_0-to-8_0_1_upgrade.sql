@@ -173,3 +173,16 @@ ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT 
 #IfRow2D layout_options form_id DEM field_id interpretter
 UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
 #EndIf
+
+--
+-- Hide deprecated care_team_* layout fields on fresh installs.
+-- The 7.0.3-to-7.0.4 upgrade already handles this for upgraded systems via
+-- #IfCareTeamsV1MigrationNeeded, but database.sql still had uor=1.
+-- This catches any systems that were fresh-installed after the migration
+-- was introduced but before database.sql was corrected.
+-- See: https://github.com/openemr/openemr/issues/10848
+--
+
+#IfRow3D layout_options form_id DEM field_id care_team_provider uor 1
+UPDATE `layout_options` SET `uor` = 0 WHERE `form_id` = 'DEM' AND `field_id` IN ('care_team_provider', 'care_team_status', 'care_team_facility') AND `uor` = 1;
+#EndIf
