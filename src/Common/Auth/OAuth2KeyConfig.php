@@ -189,7 +189,7 @@ class OAuth2KeyConfig
         $this->deleteKeys();
 
         // Generate encryption key
-        $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
+        $this->oaEncryptionKey = random_bytes(32);
         if (empty($this->oaEncryptionKey)) {
             // if empty, then log and force exit
             EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 encryption key generation");

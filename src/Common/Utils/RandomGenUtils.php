@@ -15,22 +15,12 @@ namespace OpenEMR\Common\Utils;
 class RandomGenUtils
 {
     /**
-     * Produce random bytes (uses random_bytes with error checking)
-     *
-     * @param int $length Length of the random bytes to produce
-     * @return string Random bytes as a string
+     * @deprecated Use random_bytes() directly
      */
+    #[\Deprecated('Use random_bytes() directly')]
     public static function produceRandomBytes(int $length): string
     {
-        try {
-            return random_bytes($length);
-        } catch (\Error $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
-        } catch (\Throwable $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
-            return '';
-        }
+        return random_bytes($length);
     }
 
     /**

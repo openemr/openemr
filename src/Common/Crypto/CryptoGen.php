@@ -33,7 +33,6 @@
 namespace OpenEMR\Common\Crypto;
 
 use Exception;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 class CryptoGen implements CryptoInterface
 {
@@ -594,7 +593,7 @@ class CryptoGen implements CryptoInterface
      */
     protected function getRandomBytes(int $length): string
     {
-        return RandomGenUtils::produceRandomBytes($length);
+        return random_bytes($length);
     }
 
     /**
