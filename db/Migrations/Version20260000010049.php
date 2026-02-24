@@ -59,7 +59,7 @@ final class Version20260000010049 extends AbstractMigration
         $table->addColumn('begdate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('enddate', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('returndate', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('occurrence', Types::INTEGER, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('occurrence', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => "Reference to list_options option_id='occurrence'"]);
         $table->addColumn('classification', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('referredby', Types::STRING, [
             'length' => 255,

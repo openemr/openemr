@@ -36,7 +36,7 @@ final class Version20260000020021 extends AbstractMigration
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('target_table', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('target_id', Types::BIGINT);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addColumn('role', Types::STRING, [
             'length' => 63,
             'notnull' => false,

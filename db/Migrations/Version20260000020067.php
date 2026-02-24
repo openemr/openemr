@@ -61,6 +61,37 @@ final class Version20260000020067 extends AbstractMigration
             'length' => 255,
             'comment' => 'title in list_options.list_id=medication-request-intent',
         ]);
+        $table->addColumn('medication_adherence_information_source', Types::STRING, [
+            'length' => 50,
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'fk to list_options.option_id where list_id=medication_adherence_information_source to indicate who provided the medication adherence information',
+        ]);
+        $table->addColumn('medication_adherence', Types::STRING, [
+            'length' => 50,
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen',
+        ]);
+        $table->addColumn('medication_adherence_date_asserted', Types::DATETIME_MUTABLE, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'Date when the medication adherence information was asserted',
+        ]);
+        $table->addColumn('prescription_id', Types::BIGINT, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'fk to prescriptions.prescription_id to link medication to prescription record',
+        ]);
+        $table->addColumn('is_primary_record', Types::BOOLEAN, [
+            'default' => 1,
+            'comment' => 'Indicates if this medication is a primary record(1) or a reported record(0)',
+        ]);
+        $table->addColumn('reporting_source_record_id', Types::BIGINT, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by',
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
