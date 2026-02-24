@@ -254,12 +254,12 @@ rules:
   # where unescaped output leads to XSS.
 
   # Detect unescaped Twig output in href attributes.
-  # Safe patterns use |e or |attr_url filters.
+  # Safe patterns use |e, |attr_url, or |safe_href filters.
 - id: openemr-twig-unescaped-output-in-href
   pattern: href="{{ $VAR }}"
   message: >-
     Unescaped Twig variable in href attribute. Autoescape is disabled in OpenEMR.
-    Use |e('html_attr') or |attr_url to prevent XSS.
+    Use |safe_href for full URLs, |attr_url for query parameters, or |e('html_attr') to prevent XSS.
   languages: [generic]
   severity: ERROR
   paths:
@@ -284,7 +284,7 @@ rules:
   pattern: action="{{ $VAR }}"
   message: >-
     Unescaped Twig variable in action attribute. Autoescape is disabled in OpenEMR.
-    Use |e('html_attr') or |attr_url to prevent XSS.
+    Use |safe_href for full URLs, |attr_url for query parameters, or |e('html_attr') to prevent XSS.
   languages: [generic]
   severity: ERROR
   paths:

@@ -68,7 +68,7 @@
                         {% elseif telecom.system == 'phone' or telecom.system == 'mobile' %}
                             <a href="tel:{{ telecom.value|attr }}">{{ telecom.value|text }}</a>
                         {% elseif telecom.system == 'url' %}
-                            <a href="{{ telecom.value|attr }}" target="_blank">{{ telecom.value|text }}</a>
+                            <a href="{{ telecom.value|safe_href }}" target="_blank">{{ telecom.value|text }}</a>
                         {% else %}
                             {{ telecom.value|text }}
                         {% endif %}

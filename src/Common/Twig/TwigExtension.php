@@ -273,6 +273,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('js_escape', js_escape(...)),
             new TwigFilter('attr_js', attr_js(...)),
             new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('safe_href', safe_href(...)),
             new TwigFilter('js_url', js_url(...)),
             new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
             new TwigFilter('xl', xl(...)),

@@ -59,6 +59,53 @@ function attr_url($text): string
 }
 
 /**
+ * Validate URL scheme against an allowlist and escape for use in href/action attributes.
+ *
+ * Prevents javascript:, data:, vbscript:, blob:, and other dangerous URL schemes
+ * from being rendered in HTML link attributes. Allows http, https, mailto, tel,
+ * ftp, ftps, and relative URLs. Returns '#' for any disallowed scheme.
+ *
+ * Use this filter instead of |attr when the full URL comes from a variable,
+ * e.g. href="{{ userUrl|safe_href }}". For URL query-string parameters,
+ * continue using |attr_url.
+ *
+ * @param string $url The URL to validate and escape
+ * @return string The escaped URL, or '#' if the scheme is disallowed
+ */
+function safe_href($url): string
+{
+    $url = trim($url ?? '');
+
+    // Empty string or fragment-only references are safe
+    if ($url === '' || $url[0] === '#') {
+        return attr($url);
+    }
+
+    // Relative URLs (path-only or query-only) are safe
+    if ($url[0] === '/' || $url[0] === '?') {
+        return attr($url);
+    }
+
+    // Determine the URL scheme
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+
+    // No explicit scheme means a relative URL — safe
+    if ($scheme === null || $scheme === false) {
+        return attr($url);
+    }
+
+    // Allowlist of safe URL schemes
+    $allowedSchemes = ['http', 'https', 'mailto', 'tel', 'ftp', 'ftps'];
+
+    if (in_array(strtolower($scheme), $allowedSchemes, true)) {
+        return attr($url);
+    }
+
+    // Disallowed scheme — return safe fallback
+    return '#';
+}
+
+/**
  * Escape js and url encode a url item.
  *
  * @param string $text
