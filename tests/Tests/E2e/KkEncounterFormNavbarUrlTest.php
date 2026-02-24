@@ -98,16 +98,14 @@ class KkEncounterFormNavbarUrlTest extends PantherTestCase
                 );
                 // The encounter value must not be 0 (the stale-session scenario)
                 $this->assertDoesNotMatchRegularExpression(
-                    '/encounter=0[^0-9]/',
+                    '/encounter=0(?:[^0-9]|$)/',
                     $onclickStr,
                     "Form link has encounter=0 (stale session bug): {$onclickStr}"
                 );
             }
-        } catch (\Throwable $e) {
+        } finally {
             $this->client->quit();
-            throw $e;
         }
-        $this->client->quit();
     }
 
     private function initClient(): void
