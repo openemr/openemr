@@ -240,7 +240,9 @@ function sendFileToServer(formData,status,progress_bar,success_function)
 			if(progress_bar) {
 				status.setProgress(100);
 			}
-			eval(success_function+"("+data+")");
+			if (typeof window[success_function] === 'function') {
+				window[success_function](typeof data === 'string' ? JSON.parse(data) : data);
+			}
 		}
 	});
 	if(progress_bar) {
