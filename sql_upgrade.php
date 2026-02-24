@@ -301,7 +301,7 @@ header('Content-type: text/html; charset=utf-8');
             </div>
         </div>
         <div class="col-md-10 mx-auto">
-            <form class="form-inline col-sm-6 mx-auto" method='post' action='sql_upgrade.php'>
+            <form class="d-flex flex-wrap align-items-center col-sm-6 mx-auto" method='post' action='sql_upgrade.php'>
                 <div class="mb-3 mb-1">
                     <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
                     <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">

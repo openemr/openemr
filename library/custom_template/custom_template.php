@@ -268,7 +268,7 @@ if ($isNN) {
               <div class="col-md-12">
                 <?php if (!$isNN) { ?>
                 <div id="searchCriteria">
-                    <div class="select-box form-inline mb-1">
+                    <div class="select-box d-flex flex-wrap align-items-center mb-1">
                         <label for="contextId"><?php echo xlt('Context') . ':'; ?></label>
                         <select id="contextSearch" name="contextId" class="form-control form-control-sm w-50">
                             <option value=""></option>
