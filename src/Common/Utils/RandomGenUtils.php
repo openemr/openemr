@@ -24,7 +24,7 @@ class RandomGenUtils
     }
 
     /**
-     * Produce random string (uses random_int with error checking)
+     * Produce random string using random_int
      *
      * @param int $length Length of the random string to produce
      * @param string $alphabet Alphabet to use for generating the random string
@@ -34,18 +34,10 @@ class RandomGenUtils
     {
         $str = '';
         $alphamax = strlen($alphabet) - 1;
-        try {
-            for ($i = 0; $i < $length; ++$i) {
-                $str .= $alphabet[random_int(0, $alphamax)];
-            }
-            return $str;
-        } catch (\Error $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
-        } catch (\Throwable $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
-            return '';
+        for ($i = 0; $i < $length; ++$i) {
+            $str .= $alphabet[random_int(0, $alphamax)];
         }
+        return $str;
     }
 
     /**
