@@ -3,26 +3,38 @@
 ## Project Structure
 
 ```
-/src/              - Modern PSR-4 code (OpenEMR\ namespace)
-/library/          - Legacy procedural PHP code
+/src/              - Modern PSR-4 code (OpenEMR\ namespace) - 1,867 PHP files
+  /Services/       - 60+ services (BaseService pattern), 35+ FHIR services
+  /RestControllers/- REST API controllers (standard + FHIR + auth)
+  /Events/         - 81 event classes in 24 categories (Symfony EventDispatcher)
+  /Validators/     - Input validation (ProcessingResult pattern)
+  /FHIR/           - FHIR R4 resource definitions (918 files, auto-generated)
+  /Common/         - Shared utilities (Database, Auth, Logging, Twig, UUID)
+  /Core/           - Kernel, HTTP kernel, OEGlobalsBag
+  /ClinicalDecisionRules/ - Existing CDS rule engine
+/library/          - Legacy procedural PHP code (do not extend, only maintain)
 /interface/        - Web UI controllers and templates
-/templates/        - Smarty/Twig templates
-/tests/            - Test suite (unit, e2e, api, services)
+  /modules/custom_modules/ - Custom module directory (8 production modules)
+/templates/        - Twig 3.x (modern) and Smarty 4.5 (legacy) templates
+/tests/            - Test suite (unit, e2e, api, services, isolated) - 270 files
 /sql/              - Database schema and migrations
+/apis/routes/      - REST route definitions (standard, FHIR R4, portal)
 /public/           - Static assets
 /docker/           - Docker configurations
-/modules/          - Custom and third-party modules
+/modules/          - Legacy module directory
 ```
 
 ## Technology Stack
 
-- **PHP:** 8.2+ required
-- **Backend:** Laminas MVC, Symfony components
+- **PHP:** 8.2+ required (tested through 8.6)
+- **Backend:** Laminas MVC, Symfony EventDispatcher, ADODB
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
-- **Build:** Gulp 4, SASS
-- **Database:** MySQL via ADODB wrapper
-- **Testing:** PHPUnit 11, Jest 29
+- **Build:** Gulp 4, SASS, Node 22+
+- **Database:** MySQL/MariaDB via ADODB wrapper + QueryUtils
+- **Testing:** PHPUnit 11, Jest 29, Symfony Panther (E2E)
+- **API:** REST + FHIR R4 (US Core 8.0), OAuth2/SMART on FHIR v2.2.0
+- **CI:** 27 GitHub Actions workflows
 
 ## Local Development
 
@@ -96,8 +108,8 @@ These run on the host (requires local PHP/Node):
 composer code-quality
 
 # Individual checks (composer scripts handle memory limits)
-composer phpstan          # Static analysis
-composer phpcs            # PHP code style check
+composer phpstan          # Static analysis (Level 10, strictest)
+composer phpcs            # PHP code style check (PSR-12)
 composer phpcbf           # PHP code style auto-fix
 composer rector-check     # Code modernization (dry-run)
 
@@ -106,6 +118,23 @@ npm run lint:js           # ESLint check
 npm run lint:js-fix       # ESLint auto-fix
 npm run stylelint         # CSS/SCSS lint
 ```
+
+### PHPStan Custom Rules (Must Follow)
+
+PHPStan runs at **Level 10** with 12 custom rules. Code that violates these
+rules will fail CI:
+
+| Forbidden | Use Instead |
+|-----------|-------------|
+| `$GLOBALS['key']` | `OEGlobalsBag::getInstance()` |
+| Legacy `sql.inc.php` functions | `QueryUtils`, `DatabaseQueryTrait` |
+| `curl_*` functions | `GuzzleHttp\Client` or `oeHttp` |
+| `error_log()` | `SystemLogger` |
+| `call_user_func()` | Modern PHP syntax `$fn()` |
+| `laminas-db` classes | ADODB or Doctrine |
+| `global` keyword | Dependency injection |
+| `empty()` construct | `=== null`, `=== ''`, `count() === 0` |
+| `@covers` in tests | Remove annotation |
 
 ## Build Commands
 
@@ -119,7 +148,7 @@ npm run gulp-build   # Build only (no watch)
 
 - **Indentation:** 4 spaces
 - **Line endings:** LF (Unix)
-- **No strict_types:** Project doesn't use `declare(strict_types=1)`
+- **No strict_types:** Project doesn't use `declare(strict_types=1)` - do not add it
 - **Namespaces:** PSR-4 with `OpenEMR\` prefix for `/src/`
 - New code goes in `/src/`, legacy helpers in `/library/`
 
@@ -138,9 +167,21 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `fix(calendar): correct date parsing for recurring events`
 - `chore(deps): bump monolog/monolog to 3.10.0`
 
-## Service Layer Pattern
+## Architecture
 
-New services should extend `BaseService`:
+### Request Flow (API)
+
+```
+HTTP Request -> dispatch.php -> ApiApplication
+  -> OAuth2 Authorization (Bearer/SMART/Client Credentials)
+    -> Route Matching (apis/routes/_rest_routes*.inc.php)
+      -> RestController -> Service (extends BaseService)
+        -> Database (QueryUtils/ADODB) -> ProcessingResult response
+```
+
+### Service Layer Pattern
+
+All data access flows through services extending `BaseService`:
 
 ```php
 namespace OpenEMR\Services;
@@ -153,8 +194,117 @@ class ExampleService extends BaseService
     {
         parent::__construct(self::TABLE_NAME);
     }
+
+    // Key inherited capabilities:
+    // - search() returns ProcessingResult with FHIR search support
+    // - getEventDispatcher() for event publishing
+    // - selectHelper() for SQL select queries
+    // - buildInsertColumns() / buildUpdateColumns() for writes
+    // - getFields() / getSelectFields() for column discovery
+    // - UUID management for FHIR interoperability
 }
 ```
+
+**Key services:** PatientService, EncounterService, AppointmentService,
+ConditionService, PrescriptionService, AllergyIntoleranceService,
+InsuranceService, ClinicalNotesService, ObservationLabService,
+DecisionSupportInterventionService (60+ total)
+
+### ProcessingResult Pattern
+
+All service methods return `ProcessingResult`:
+
+```php
+$result = new ProcessingResult();
+$result->addData($record);              // Success data
+$result->setValidationMessages($errors); // Validation errors
+$result->addInternalError($message);     // System errors
+// Check: $result->isValid(), $result->hasData(), $result->hasErrors()
+```
+
+### Event System (81 Events, 24 Categories)
+
+Events are dispatched via Symfony EventDispatcher accessed through:
+
+```php
+$dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+$dispatcher->dispatch($event, EventClass::EVENT_HANDLE);
+```
+
+**Key event categories:**
+- **Patient:** BeforeCreated, Created, BeforeUpdated, Updated, UpdatedAux
+- **Encounter:** FormsListRender, LoadFormFilter, Button, Menu events
+- **Appointments:** Set, Render, DialogClose, Filter, CalendarFilter
+- **Services:** save.pre, save.post, delete.pre, delete.post (via ServiceEventTrait)
+- **REST API:** restConfig.route_map.create, restapi.service.get, api.scope.get-supported-scopes
+- **Documents:** Create, Store, Retrieve, CCDA events
+- **UI:** html.head.script.filter, oemrui.page.header.render, main tabs rendering
+- **Messaging:** SendNotification, SendSms
+- **Filters:** AbstractBoundFilterEvent for modifying queries
+
+### Custom Module System
+
+Modules live in `/interface/modules/custom_modules/` with this structure:
+
+```
+oe-module-my-feature/
+  openemr.bootstrap.php     # Required entry point
+  moduleConfig.php          # Pre-install config
+  src/Bootstrap.php         # Class-based bootstrap (recommended)
+  src/                      # PSR-4 source under OpenEMR\Modules\MyFeature\
+  templates/                # Twig templates
+  public/                   # Static assets
+  table.sql                 # Schema creation
+  cleanup.sql               # Uninstall cleanup
+  info.txt                  # Module metadata
+```
+
+**Bootstrap pattern:**
+```php
+// openemr.bootstrap.php
+$classLoader->registerNamespaceIfNotExists(
+    'OpenEMR\\Modules\\MyFeature\\',
+    __DIR__ . DIRECTORY_SEPARATOR . 'src'
+);
+$bootstrap = new \OpenEMR\Modules\MyFeature\Bootstrap($eventDispatcher);
+$bootstrap->subscribeToEvents();
+```
+
+**8 production modules exist:** claimrev-connect, comlink-telehealth,
+dashboard-context, dorn, ehi-exporter, faxsms, prior-authorizations, weno.
+
+Modules that fail 3 times are auto-disabled (safety mechanism).
+
+### REST & FHIR API
+
+Three API surfaces:
+- **Standard REST:** `/apis/{site}/api/` - OpenEMR-native endpoints (20+)
+- **FHIR R4:** `/apis/{site}/fhir/` - 30+ FHIR resources (US Core 8.0)
+- **Patient Portal:** `/apis/{site}/portal/` - Patient-facing (experimental)
+
+**Authentication:** OAuth 2.0 with PKCE, SMART on FHIR v2.2.0, Client Credentials (JWKS)
+
+**Scope model:** `<context>/<Resource>.<permissions>[?<query>]`
+
+**Route extension via events:**
+```php
+$eventDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, function($event) {
+    $event->addToRouteMap(['/ai/insight/:id' => ['GET' => ...]]);
+});
+```
+
+### Database Layer
+
+- **QueryUtils** - Static helpers: `fetchRecords()`, `listTableFields()`, `escapeTableName()`
+- **DatabaseQueryTrait** - Trait for classes needing DB access
+- **UuidRegistry** - Maps internal IDs to UUIDs for FHIR interoperability
+- **Migrations** - SQL-based version upgrades in `/sql/`
+
+### Existing Agent-Adjacent Infrastructure
+
+- **DecisionSupportInterventionService** - Existing CDS framework supporting Evidence-based and Predictive DSI types
+- **BackgroundTaskManager** (`src/Telemetry/`) - Manages recurring background tasks via `background_services` table
+- **ClinicalDecisionRules** (`src/ClinicalDecisionRules/`) - Rule-based clinical decision support with AMC integration
 
 ## File Headers
 
@@ -177,8 +327,12 @@ Preserve existing authors/copyrights when editing files.
 ## Common Gotchas
 
 - Multiple template engines: check extension (.twig, .html, .php)
-- Event system uses Symfony EventDispatcher
+- Event system uses Symfony EventDispatcher (access via `OEGlobalsBag`, never `$GLOBALS`)
 - Pre-commit hooks available via `.pre-commit-config.yaml`
+- PHPStan Level 10 with custom rules - `empty()`, `$GLOBALS`, `curl_*` are all forbidden
+- No `declare(strict_types=1)` - this is a project-wide decision, do not add it
+- Legacy code in `/library/` is maintained but not extended - new code goes in `/src/`
+- Modules auto-disable after 3 failures
 
 ## Key Documentation
 
@@ -186,3 +340,5 @@ Preserve existing authors/copyrights when editing files.
 - `API_README.md` - REST API docs
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
+- `pre-search.md` - Codebase orientation and key file reference
+- `AGENT_PLANNING_REPORT.md` - Agent architecture analysis and proposals
