@@ -152,7 +152,7 @@
         {% endif %}
         <div class="mb-3 mt-3">
             <label>{{'Currently Active'|xlt}}</label>
-            <input class="input-sm" type="checkbox" name="active" value="1"{% if prescription.get_active() > 0 %} checked{% endif %} />
+            <input class="form-check-input" type="checkbox" name="active" value="1"{% if prescription.get_active() > 0 %} checked{% endif %} />
         </div>
 
         <div class="mb-3 mt-3">
@@ -161,7 +161,7 @@
         </div>
         <div class="mb-3 mt-3">
             <label>{{'Provider'|xlt}}</label>
-            <select class="input sm form-control" name="provider_id">
+            <select class="form-select form-select-sm" name="provider_id">
                 {% for providerId, providerName in prescription.provider.utility_provider_array() %}
                     <option value="{{ providerId|attr }}" {% if providerId == prescription.provider.get_id() %} selected="selected" {% endif %}>{{ providerName|text }}</option>
                 {% endfor %}
@@ -185,7 +185,7 @@
                     <input type="radio" class="form-check-input" name="rxcui_select" {% if RXCUI_AVAILABLE is empty %}disabled{% else %} checked{% endif %}  />{{'Use RxCUI'|xlt}}
                 </label>
             </div>
-            <select class="input-sm form-control" type="input" name="drug" id="drug"></select>
+            <select class="form-select form-select-sm" type="input" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({{'Search Web API'|xlt}})
             </a>
@@ -194,7 +194,7 @@
         {% if DRUG_ARRAY_VALUES is not empty %}
         <div class="mb-3 mt-3">
             <label>&nbsp; {{'in-house'|xlt}}</label>
-            <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
+            <select class="form-select form-select-sm" name="drug_id" onchange="drugselected(this)">
                 {% for key,drug in DRUG_ARRAY_VALUES %}
                     <option value="{{ drug|attr }}"
                         {% if drug == prescription.get_drug_id() %} selected="selected" {% endif %}>{{ DRUG_ARRAY_OUTPUT[key]|text }}</option>
@@ -205,7 +205,7 @@
         {% endif %}
         <div class="mb-3 mt-3">
             <label>{{'Quantity'|xlt}}</label>
-            <input class="input-sm form-control" type="text" name="quantity" id="quantity" size="10" maxlength="31"
+            <input class="form-control form-control-sm" type="text" name="quantity" id="quantity" size="10" maxlength="31"
                 value="{{prescription.quantity|attr}}" onchange="quantityChanged()" />
         </div>
 
@@ -214,10 +214,10 @@
                 <label>{{'Medicine Units'|xlt}}</label>
             </div>
             <div class="col">
-                <input class="input-sm form-control" type="text" name="size" id="size" size="11" maxlength="10" value="{{prescription.size|attr}}"/>
+                <input class="form-control form-control-sm" type="text" name="size" id="size" size="11" maxlength="10" value="{{prescription.size|attr}}"/>
             </div>
             <div class="col">
-                <select class="input-sm form-control" name="unit" id="unit">
+                <select class="form-select form-select-sm" name="unit" id="unit">
                     {% for value,label in prescription.unit_array %}
                     <option value="{{ value|attr }}" {% if prescription.unit == value %} selected="selected" {% endif %}>
                         {{ label|text }}
@@ -231,19 +231,19 @@
                 <label>{{'Directions'|xlt}}</label>
             </div>
             {% if SIMPLIFIED_PRESCRIPTIONS and not prescription.form and not prescription.route and not prescription.interval %}
-                <input class="input-sm form-control" type="text" name="dosage" id="dosage" size="30" maxlength="100" value="{{prescription.dosage|attr}}" />
+                <input class="form-control form-control-sm" type="text" name="dosage" id="dosage" size="30" maxlength="100" value="{{prescription.dosage|attr}}" />
                 <input type="hidden" name="form" id="form" value="0" />
                 <input type="hidden" name="route" id="route" value="0" />
                 <input type="hidden" name="interval" id="interval" value="0" />
             {% else %}
                 <div class="col">
-                    <input class="input-sm form-control" type="text" name="dosage" id="dosage" size="2" maxlength="10" value="{{prescription.dosage|attr}}"/>
+                    <input class="form-control form-control-sm" type="text" name="dosage" id="dosage" size="2" maxlength="10" value="{{prescription.dosage|attr}}"/>
                 </div>
                 <div class="col">
                     {{ 'in'|xlt}}
                 </div>
                 <div class="col">
-                    <select class="input-sm form-control" name="form" id="form">
+                    <select class="form-select form-select-sm" name="form" id="form">
                         {% for value,label in prescription.form_array %}
                             <option value="{{ value|attr }}" {% if prescription.form == value %} selected="selected" {% endif %}>
                                 {{ label|text }}
@@ -252,7 +252,7 @@
                     </select>
                 </div>
                 <div class="col">
-                    <select class="input-sm form-control" name="route" id="route">
+                    <select class="form-select form-select-sm" name="route" id="route">
                         {% for value,label in prescription.route_array %}
                             <option value="{{ value|attr }}" {% if prescription.route == value %} selected="selected" {% endif %}>
                                 {{ label|text }}
@@ -261,7 +261,7 @@
                     </select>
                 </div>
                 <div class="col">
-                    <select class="input-sm form-control" name="interval" id="interval">
+                    <select class="form-select form-select-sm" name="interval" id="interval">
                         {% for value,label in prescription.interval_array %}
                             <option value="{{ value|attr }}" {% if prescription.interval == value %} selected="selected" {% endif %}>
                                 {{ label|text }}
@@ -291,7 +291,7 @@
                     &nbsp; &nbsp; # {{ 'of tablets'|xlt}}:
                 </div>
                 <div class="col">
-                    <input class="input-sm form-control" type="text" id="per_refill" name="per_refill" size="2" maxlength="9" value="{{prescription.per_refill|attr}}" />
+                    <input class="form-control form-control-sm" type="text" id="per_refill" name="per_refill" size="2" maxlength="9" value="{{prescription.per_refill|attr}}" />
                 </div>
             {% endif %}
         </div>
@@ -351,13 +351,13 @@
                 </div>
                 <div class="col">
                     {% for value,label in prescription.medication_array %}
-                        <input class="input-sm"
+                        <input class="form-check-input"
                                type="radio" name="medication" value="{{ value|attr }}"
                             {% if prescription.medication == value %} checked="checked" {% endif %}> {{ label|text }}
                     {% endfor %}
                 </div>
                 <div class="col">
-                    <select name="substitute" class="input-sm form-control">
+                    <select name="substitute" class="form-select form-select-sm">
                         {% for value,label in prescription.substitute_array %}
                             <option value="{{ value|attr }}" {% if prescription.substitute == value %} selected="selected" {% endif %}>
                                 {{ label|text }}

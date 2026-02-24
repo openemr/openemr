@@ -65,7 +65,7 @@ if ($_GET) {
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover" id="logTable">
-                            <thead class="thead-light">
+                            <thead class="table-light">
                                 <tr>
                                     <th>' . xlt('ID') . '</th>
                                     <th>' . xlt('Sent Date') . '</th>

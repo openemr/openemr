@@ -1568,7 +1568,7 @@ function myChangeCheck() {
 
 <div id="tips" class="container tips">
   <section class="card bg-light p-3">
-  <header class="card-heading">
+  <header class="card-header">
    <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
   <div class="card-body">
