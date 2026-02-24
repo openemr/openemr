@@ -255,7 +255,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
         };
     </script>
     <style>
-      .panel-body {
+      .card-body {
         word-wrap: break-word;
         overflow: hidden;
       }

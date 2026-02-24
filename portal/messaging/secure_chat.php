@@ -280,9 +280,9 @@ $msgApp = new ChatController();
 
             $scope.replaceShortcodes = function (message) {
                 var msg = '';
-                msg = message.toString().replace(/(\[img])(.*)(\[\/img])/, "<img class='img-responsive' src='$2' />");
+                msg = message.toString().replace(/(\[img])(.*)(\[\/img])/, "<img class='img-fluid' src='$2' />");
                 msg = msg.toString().replace(/(\[url])(.*)(\[\/url])/, "<a href='$2'>$2</a>");
-                msg = message.toString().replace("<img ", "<img class='img-responsive' ");
+                msg = message.toString().replace("<img ", "<img class='img-fluid' ");
                 return msg;
             };
 

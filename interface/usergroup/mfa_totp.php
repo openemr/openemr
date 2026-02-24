@@ -183,7 +183,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                             </p>
                                         <?php } ?>
                                             <br />
-                                            <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
+                                            <img src="<?php echo attr($qr); ?>" class="img-fluid d-block mx-auto" style="height:200px !Important"/>
                                             <br />
                                             <p><?php echo xlt("Or paste in the following code into your authenticator app"); ?></p>
                                             <p><?php echo $mfaAuth->getSecret(); ?></p>

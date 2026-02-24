@@ -350,9 +350,9 @@ if (isset($_REQUEST['cktime'])) {
     <div id="searchCriteria">
         <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
             <?php echo xlt('Start date:'); ?>
-        <input type='text' class='datepicker input-sm form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
+        <input type='text' class='datepicker form-control form-control-sm' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
             <?php echo xlt('for'); ?>
-        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
+        <input type='text' class="form-control form-control-sm" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
             <?php echo xlt('days'); ?>&nbsp;
         <button type='submit' class='btn btn-primary btn-search'><?php echo xla('Search'); ?></button>
         </form>

@@ -216,7 +216,7 @@ if (isset($_POST["mode"])) {
                             <tr class="text" bgcolor='<?php echo attr($bgcolor); ?>' id="trCharges<?php echo attr($CountIndex); ?>">
                                 <td class="text-start">
                                     <input name="HiddenIns<?php echo attr($CountIndex); ?>" id="HiddenIns<?php echo attr($CountIndex); ?>" value="<?php echo attr($Ins); ?>" type="hidden"/>
-                                    <?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', 'oe-payment-select form-input-sm', 'ActionOnInsPat("' . $CountIndex . '")');?>
+                                    <?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', 'oe-payment-select form-select-sm', 'ActionOnInsPat("' . $CountIndex . '")');?>
                                 </td>
                                 <td>
                                     <?php echo text($ServiceDate); ?>

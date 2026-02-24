@@ -111,7 +111,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Feeling down, depressed, or hopeless'); ?></span>
-                        <select class="input-sm my-1" name="hopeless_score" onchange="update_score(1, my_form.hopeless_score.value);">
+                        <select class="form-select form-select-sm my-1" name="hopeless_score" onchange="update_score(1, my_form.hopeless_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -134,7 +134,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Trouble falling or staying asleep, or sleeping too much'); ?></span>
-                        <select class="input-sm my-1" name="sleep_score" onchange="update_score(2, my_form.sleep_score.value);">
+                        <select class="form-select form-select-sm my-1" name="sleep_score" onchange="update_score(2, my_form.sleep_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -157,7 +157,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Feeling tired or having little energy'); ?></span>
-                        <select class="input-sm my-1" name="fatigue_score" onchange="update_score(3, my_form.fatigue_score.value);">
+                        <select class="form-select form-select-sm my-1" name="fatigue_score" onchange="update_score(3, my_form.fatigue_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -180,7 +180,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Poor appetite or overeating'); ?></span>
-                        <select class="input-sm my-1" name="appetite_score" onchange="update_score(4, my_form.appetite_score.value);">
+                        <select class="form-select form-select-sm my-1" name="appetite_score" onchange="update_score(4, my_form.appetite_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -203,7 +203,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Feeling bad about yourself - or that you are a failure or have let yourself or your family down'); ?></span>
-                        <select class="input-sm my-1" name="failure_score" onchange="update_score(5, my_form.failure_score.value);">
+                        <select class="form-select form-select-sm my-1" name="failure_score" onchange="update_score(5, my_form.failure_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -226,7 +226,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Trouble concentrating on things, such as reading an article or watching videos'); ?></span>
-                        <select class="input-sm my-1" name="focus_score" onchange="update_score(6, my_form.focus_score.value);">
+                        <select class="form-select form-select-sm my-1" name="focus_score" onchange="update_score(6, my_form.focus_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -249,7 +249,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Moving or speaking slowly noted by others or fidgety or restless more than usual'); ?></span>
-                        <select class="input-sm my-1" name="psychomotor_score" onchange="update_score(7, my_form.psychomotor_score.value);">
+                        <select class="form-select form-select-sm my-1" name="psychomotor_score" onchange="update_score(7, my_form.psychomotor_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
@@ -272,7 +272,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                 <tr>
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Thoughts that you would be better off dead, or of hurting yourself'); ?></span>
-                        <select class="input-sm my-1" name="suicide_score" onchange="update_score(8, my_form.suicide_score.value);">
+                        <select class="form-select form-select-sm my-1" name="suicide_score" onchange="update_score(8, my_form.suicide_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>

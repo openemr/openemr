@@ -291,7 +291,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '                  <div class="mb-3">';
                 echo '                      <div class="col-sm-6 offset-sm-3">';
                 echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-                echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
+                echo '                          <input type="text" name="totp" class="form-control form-control-lg" id="totp" maxlength="12" required>';
                 echo '                          <input type="hidden" name="form_response" value="true" />';
                 generate_html_middle();
                 echo '                  </div>';
