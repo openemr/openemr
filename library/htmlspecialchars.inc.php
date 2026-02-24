@@ -98,9 +98,10 @@ function csvEscape($text): string
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
-    $text = preg_replace('/^[\-@]+/', '', (string) $text);
+    // 4. Also remove leading tab and carriage return characters (formula injection vectors)
+    $text = preg_replace('/^[\-@\t\r]+/', '', (string) $text);
 
-    // 4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
+    // 5. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
     return '"' . $text . '"';
 }
 
