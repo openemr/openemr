@@ -311,7 +311,7 @@
                     <input type="hidden" id="emailInput" name="email" value="{{ emailRegistration|attr }}" />
                     <div class="alert alert-success" role="alert">{{ "Your email has been verified. Click Next."|xlt }}</div>
                 </div>
-                <button class="btn btn-primary nextBtn pull-right" type="button">{{ 'Next'|xlt }}</button>
+                <button class="btn btn-primary nextBtn float-end" type="button">{{ 'Next'|xlt }}</button>
             </div>
         </form>
         <form id="profileForm" role="form" action="account/account.php" method="post">
@@ -320,7 +320,7 @@
                 <div class="bg-body-tertiary rounded-3 p-4">
                     <iframe class="embedded-content" src="patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
                 </div>
-                <button class="btn btn-primary pull-right" type="button" id="profileNext">{{ 'Next'|xlt }}</button>
+                <button class="btn btn-primary float-end" type="button" id="profileNext">{{ 'Next'|xlt }}</button>
             </div>
         </form>
         <form id="insuranceForm" role="form" action="" method="post">
@@ -368,8 +368,8 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary prevBtn btn-sm pull-left" type="button">{{ 'Previous'|xlt }}</button>
-                <button class="btn btn-primary nextBtn btn-sm pull-right" type="button">{{ 'Next'|xlt }}</button>
+                <button class="btn btn-primary prevBtn btn-sm float-start" type="button">{{ 'Previous'|xlt }}</button>
+                <button class="btn btn-primary nextBtn btn-sm float-end" type="button">{{ 'Next'|xlt }}</button>
             </div>
         </form>
         <!-- End Insurance. Next what we've been striving towards..the end-->
