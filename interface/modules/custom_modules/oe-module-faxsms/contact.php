@@ -174,7 +174,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     const messageType = isError ? 'danger' : 'success';
                     const messageText = jsonData;
                     const alertBox = `<div class="alert alert-${messageType} alert-dismissable">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                             ${messageText}
                           </div>`;
 
@@ -188,7 +188,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
                 function showErrorMessage(message) {
                     const alertBox = `<div class="alert alert-danger alert-dismissable">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                             ${message}
                           </div>`;
                     $('#contact-form').find('.messages').html(alertBox);

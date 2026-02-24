@@ -1408,7 +1408,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
         });
     });
 
-    $('[title]').tooltip();
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 
 </script>
 </body>

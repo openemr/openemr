@@ -1157,7 +1157,7 @@ function myLocalJS(SessionInterface $session): void
                 refreshMe();
             });
 
-            $('[data-bs-toggle="tooltip"]').tooltip();
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>

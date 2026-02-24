@@ -421,7 +421,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-        <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
+        <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='d-flex flex-wrap align-items-center gap-2'
         onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0; ?>,event,'DEM',constraints)">
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='mode' value='save' />

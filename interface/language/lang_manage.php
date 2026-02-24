@@ -188,7 +188,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
 }
 ?>
 
-<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+<form class="d-flex flex-wrap align-items-center gap-2" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">

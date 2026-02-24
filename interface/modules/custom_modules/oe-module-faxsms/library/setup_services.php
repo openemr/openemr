@@ -377,8 +377,8 @@ $vendors = $boot->getVendorGlobals();
                             <?php } else { ?>
                                 <i class="fa fa-check-circle"></i>
                             <?php } ?>
-                            <div class="row col form-group">
-                                <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
+                            <div class="row col mb-3">
+                                <label for="editingUser" class="d-flex flex-wrap align-items-center gap-2"><?php echo xlt("Editing Service Credentials for User"); ?></label>
                                 <div class="ms-2" title="User to setup credentials.">
                                     <select class="form-control persist" name="editingUser" id="editingUser">
                                         <option value="0"><?php echo xlt("Default (You)"); ?></option>
@@ -552,9 +552,7 @@ $vendors = $boot->getVendorGlobals();
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-success text-center" role="alert">
                             <?php echo xlt("User permissions have been saved successfully!"); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php } ?>
                     <hr>

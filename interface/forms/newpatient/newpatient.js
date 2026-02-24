@@ -113,7 +113,7 @@ window.NewPatientForm = function(window) {
             //     "title": xl('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'),
             //     "data-toggle": "tooltip",
             //     "data-placement": "bottom"
-            // }).tooltip();
+            // });
         });
     }
 
@@ -124,13 +124,13 @@ window.NewPatientForm = function(window) {
             "data-bs-toggle": "tooltip",
             "data-bs-placement": "bottom",
             "trigger": "click"
-        }).tooltip();
+        });
 
         $('#onset-tooltip').attr({
             "title": xl('Hospital date needed for successful billing of hospital encounters'),
             "data-bs-toggle": "tooltip",
             "data-bs-placement": "bottom"
-        }).tooltip();
+        });
     };
 
     const setupEventListeners = function() {
