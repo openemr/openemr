@@ -34,7 +34,7 @@ $rows = $specimen_by_seq[$seq];
             <div class="card-body p-2">
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
-                        <thead class="thead-light">
+                        <thead class="table-light">
                         <tr>
                             <th><?php echo xlt('Identifier'); ?></th>
                             <th><?php echo xlt('Accession'); ?></th>
