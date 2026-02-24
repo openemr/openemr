@@ -199,7 +199,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('tribal_affiliations', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('sex_identified', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Patient reported current sex']);
-        $table->addColumn('pronoun', Types::TEXT);
+        $table->addColumn('pronoun', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addIndex(['lname', 'fname'], 'idx_patient_name');
         $table->addIndex(['DOB'], 'idx_patient_dob');
