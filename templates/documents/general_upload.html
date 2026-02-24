@@ -78,7 +78,7 @@
         </div>
     </div>
     <!-- Section for document template download -->
-    <form class="form-inline" method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+    <form class="d-flex flex-wrap align-items-center" method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
         <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
         <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
         <div class='mb-3 col-sm-4'>
