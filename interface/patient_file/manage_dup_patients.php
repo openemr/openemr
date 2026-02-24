@@ -98,24 +98,39 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 
     if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
             echo csvEscape(text(strval($group))) . ',' ;
- /** @var string $myscore *
-            echo  csvEscape(text($myscore)) . ','  ;
-/*  @var string $pat_pid */
+ /** @var string $myscore */
+          echo  csvEscape(text($myscore)) . ','  ;
+/**  @var string $pat_pid */
             $pat_pid = $row['pid'];
             echo  csvEscape($pat_pid) . ',';
-            echo  csvEscape($row['pubpid']) .  ',';
-            echo  csvEscape(text($highlight_text)) . ',';
+/** @var string $pubpid */
+            $pubpid = $row['pubpid'];
+            echo csvEscape($pubpid) . ',';
+            echo  csvEscape(text($highlight_text))  . ',';
             echo  csvEscape(text($ptname)) .  ',';
             // rm - format dates by users preference
-            $date_ob = $row['DOB'];
-/** @var string $date_ob */
-             echo csvEscape(oeFormatShortDate(substr($date_ob, 0, 10))) . ',';
-            echo csvEscape($row['sex']) .  ',';
-            echo csvEscape ($row['email']) .  ',';
+ /** @var string $date_str */
+            $date_str = $row['DOB'];
+            $date_str = oeFormatShortDate(substr($date_str, 0, 10));
+/** @var string $date_str */
+           echo csvEscape($date_str) . ',' ;
+   //        echo csvEscape(oeFormatShortDate(substr($date_ob, 0, 10))) . ',';
+/** @var string $sex */
+            $sex = $row['sex'];
+            echo csvEscape($sex) .  ',';
+/** @var string $email_addr */
+            $email_addr = $row['email'];
+            echo csvEscape ($email_addr) .  ',';
             echo csvEscape(text($phones)) .  ',';
-            echo csvEscape(oeFormatShortDate($row['regdate'])) .  ',';
+             /** @var string $date_str */
+            $date_str = $row['regdate'];
+            $date_str = oeFormatShortDate(substr($date_str, 0, 10));
+/** @var string $date_str */
+           echo csvEscape($date_str) . ',' ;
          //   echo csvEscape(text($fac_name)) . ',';
-             echo csvEscape($row['street']) . "\n";
+/** @var string $street_name */
+            $street_name = $row['street'];
+             echo csvEscape($street_name) . "\n";
     } else {  // rm otherwise output the line to the html page
         echo "<tr class='$highlight_class'>";
         ?>
