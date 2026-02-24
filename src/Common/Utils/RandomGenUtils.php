@@ -17,7 +17,6 @@ class RandomGenUtils
     /**
      * @deprecated Use random_bytes() directly
      */
-    #[\Deprecated('Use random_bytes() directly')]
     public static function produceRandomBytes(int $length): string
     {
         return random_bytes($length);
