@@ -22,7 +22,7 @@
                                 {% if item.onclick is defined %}
                                     {% set onclick = item.onclick %}
                                 {% else %}
-                                    {% set formURL = (item.href is defined) ? item.href : rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode %}
+                                    {% set formURL = (item.href is defined) ? item.href : rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode ~ "&pid=" ~ pid ~ "&encounter=" ~ encounter %}
                                     {% set onclick = "openNewForm(" ~ formURL|attr_js ~ "," ~ display|xlFormTitle|attr_js ~ ")" %}
                                 {% endif %}
                                 <a href="#" class="dropdown-item" onclick="{{ onclick }}">{{ display|xlFormTitle|text }}</a>
