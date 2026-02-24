@@ -31,7 +31,11 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * Return the compounded major, minor, patch and tag versions as a string
+     * Return the compounded major, minor, patch and tag versions as a string.
+     *
+     * Reads the software version from version.php globals (set via globals.php)
+     * instead of the database, so the displayed version always matches the
+     * running code without requiring a database migration.
      *
      * @var $includeTag bool Include the tag
      * @var $includeRealpatch bool Include the realpatch
@@ -39,11 +43,10 @@ class VersionService extends BaseService implements VersionServiceInterface
      */
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
-        $v = $this->fetch();
-        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
-            $string .= " (" . $v['v_realpatch'] . ")";
+        $string = "{$GLOBALS['v_major']}.{$GLOBALS['v_minor']}.{$GLOBALS['v_patch']}";
+        $string = ($includeTag == true) ? $string . "{$GLOBALS['v_tag']}" : $string;
+        if ($includeRealpatch && (!empty($GLOBALS['v_realpatch']))) {
+            $string .= " (" . $GLOBALS['v_realpatch'] . ")";
         }
         return $string;
     }
