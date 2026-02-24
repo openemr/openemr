@@ -48,14 +48,7 @@ class RandomGenUtils
      */
     public static function createUniqueToken(int $length = 40): string
     {
-        $new_token = self::produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-        if (empty($new_token)) {
-            error_log('OpenEMR Error: OpenEMR is not working because unable to create a random unique token.');
-            die("OpenEMR Error: OpenEMR is not working because unable to create a random unique token.");
-        }
-
-        return $new_token;
+        return self::produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     }
 
     /**
@@ -73,12 +66,6 @@ class RandomGenUtils
         $max_tries = 1000; // Maximum number of tries to generate a valid password
         for ($i = 0; $i < $max_tries; $i++) {
             $the_password = self::produceRandomString(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%");
-            if (empty($the_password)) {
-                // Something is seriously wrong with the random generator
-                $error_message = "OpenEMR Error: OpenEMR is not working because unable to create a random unique token.";
-                error_log($error_message);
-                die($error_message);
-            }
             if (
                 preg_match('/[A-Z]/', $the_password) &&
                 preg_match('/[a-z]/', $the_password) &&
