@@ -128,7 +128,7 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Select Encounter"); ?>&nbsp;
-                    (<span data-bind="text:encounterArray().length"></span>)<span class="caret"></span></button>
+                    (<span data-bind="text:encounterArray().length"></span>)</button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
                     <li class="d-inline-flex">
@@ -188,8 +188,7 @@ switch ($search_any_type) {
                     aria-expanded="true">
                     <?php echo xlt("Portal"); ?>&nbsp;
                     <span class="badge bg-danger" data-bind="text: portalAlerts()"></span>
-                    <span class="caret"></span>
-                </button>
+                                    </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="portalMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
@@ -222,8 +221,7 @@ switch ($search_any_type) {
                     aria-expanded="true">
                     <?php echo xlt("Services"); ?>&nbsp;
                     <span class="badge bg-danger" data-bind="text: serviceAlerts()"></span>
-                    <span class="caret"></span>
-                </button>
+                                    </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="servicesMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewFaxCount">

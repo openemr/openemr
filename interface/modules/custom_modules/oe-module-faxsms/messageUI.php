@@ -861,8 +861,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <?php if ($clientApp->verifyAcl('patients', 'appt')) { ?>
                         <div class="nav-item dropdown ms-auto">
                             <button class="btn btn-lg btn-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                                <?php echo xlt('Account Actions'); ?><span class="caret"></span>
-                            </button>
+                                <?php echo xlt('Account Actions'); ?>                            </button>
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                                 <?php if ($serviceType == 'sms') { ?>
