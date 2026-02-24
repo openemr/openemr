@@ -37,7 +37,7 @@ final class Version20260000010006 extends AbstractMigration
         $table->addColumn('msg_id', Types::STRING, ['length' => 127]);
         $table->addColumn('sender', Types::STRING, ['length' => 255]);
         $table->addColumn('recipient', Types::STRING, ['length' => 255]);
-        $table->addColumn('create_ts', Types::DATETIME_MUTABLE);
+        $table->addColumn('create_ts', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('status', Types::STRING, ['fixed' => true, 'length' => 1, 'comment' => 'Q=queued,D=dispatched,R=received,F=failed']);
         $table->addColumn('status_info', Types::STRING, [
             'length' => 511,

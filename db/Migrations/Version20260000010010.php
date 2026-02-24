@@ -90,7 +90,7 @@ final class Version20260000010010 extends AbstractMigration
         $table->addColumn('referring_provider_id', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => 'referring provider, if any, for this visit']);
         $table->addColumn('date_end', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('in_collection', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('last_update', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_update', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('ordering_provider_id', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => 'referring provider, if any, for this visit']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

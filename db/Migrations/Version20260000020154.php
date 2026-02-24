@@ -63,7 +63,7 @@ final class Version20260000020154 extends AbstractMigration
         ]);
         $table->addColumn('imo_vis_date_published', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('imo_vis_date_presented', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('imo_date_observation', Types::DATETIME_MUTABLE);
+        $table->addColumn('imo_date_observation', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('imo_id')

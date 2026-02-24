@@ -36,7 +36,7 @@ final class Version20260000020173 extends AbstractMigration
         $table->addColumn('msg_pid', Types::INTEGER);
         $table->addColumn('msg_pc_eid', Types::STRING, ['length' => 11]);
         $table->addColumn('campaign_uid', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('msg_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('msg_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('msg_type', Types::STRING, ['length' => 50]);
         $table->addColumn('msg_reply', Types::STRING, [
             'length' => 50,

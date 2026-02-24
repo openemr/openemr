@@ -36,7 +36,7 @@ final class Version20260000010068 extends AbstractMigration
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('clinical_note_id', Types::BIGINT, ['comment' => 'Foreign key to form_clinical_notes.id']);
         $table->addColumn('document_id', Types::BIGINT, ['comment' => 'Foreign key to documents.id']);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['comment' => 'When the link was created']);
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['comment' => 'When the link was created', 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::STRING, [
             'length' => 255,
             'notnull' => false,

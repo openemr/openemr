@@ -55,7 +55,7 @@ final class Version20260000020027 extends AbstractMigration
         ]);
         $table->addColumn('dld_master_docid', Types::INTEGER, ['unsigned' => true]);
         $table->addColumn('dld_signed', Types::SMALLINT, ['unsigned' => true, 'comment' => '0-Not Signed or Cannot Sign(Layout),1-Signed,2-Ready to sign,3-Denied(Pat Regi),4-Patient Upload,10-Save(Layout)']);
-        $table->addColumn('dld_signed_time', Types::DATETIME_MUTABLE);
+        $table->addColumn('dld_signed_time', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('dld_filepath', Types::STRING, [
             'length' => 75,
             'notnull' => false,

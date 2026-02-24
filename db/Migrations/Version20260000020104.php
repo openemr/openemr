@@ -40,7 +40,7 @@ final class Version20260000020104 extends AbstractMigration
         ]);
         $table->addColumn('password', Types::STRING, ['length' => 255]);
         $table->addColumn('last_update_password', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('last_update', Types::DATETIME_MUTABLE);
+        $table->addColumn('last_update', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('password_history1', Types::STRING, ['length' => 255]);
         $table->addColumn('password_history2', Types::STRING, ['length' => 255]);
         $table->addColumn('password_history3', Types::STRING, ['length' => 255]);

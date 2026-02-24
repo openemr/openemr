@@ -51,6 +51,7 @@ final class Version20260000010067 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
+        $table->addColumn('LOCKEDDATE', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('LOCKEDBY', Types::STRING, [
             'length' => 50,
             'notnull' => false,

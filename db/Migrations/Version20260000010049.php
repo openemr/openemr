@@ -116,7 +116,7 @@ final class Version20260000010049 extends AbstractMigration
             'values' => ['0', '1'],
             'comment' => '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
         ]);
-        $table->addColumn('modifydate', Types::DATETIME_MUTABLE);
+        $table->addColumn('modifydate', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('severity_al', Types::STRING, [
             'length' => 50,
             'notnull' => false,

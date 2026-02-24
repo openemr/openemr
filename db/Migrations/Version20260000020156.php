@@ -33,7 +33,7 @@ final class Version20260000020156 extends AbstractMigration
     {
         $table = new Table('form_eye_mag_dispense');
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('encounter', Types::BIGINT, ['notnull' => false]);
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user', Types::STRING, [

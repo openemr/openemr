@@ -36,7 +36,7 @@ final class Version20260000010002 extends AbstractMigration
         $table->addColumn('title', Types::STRING, ['length' => 127, 'comment' => 'name for reports']);
         $table->addColumn('active', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('running', Types::BOOLEAN, ['default' => -1, 'comment' => 'True indicates managed service is busy. Skip this interval']);
-        $table->addColumn('next_run', Types::DATETIME_MUTABLE);
+        $table->addColumn('next_run', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('execute_interval', Types::INTEGER, ['default' => 0, 'comment' => 'minimum number of minutes between function calls,0=manual mode']);
         $table->addColumn('function', Types::STRING, ['length' => 127, 'comment' => 'name of background service function']);
         $table->addColumn('require_once', Types::STRING, [

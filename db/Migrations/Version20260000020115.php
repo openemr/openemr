@@ -48,7 +48,7 @@ final class Version20260000020115 extends AbstractMigration
             'scale' => 2,
             'default' => 0,
         ]);
-        $table->addColumn('created_time', Types::DATETIME_MUTABLE);
+        $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
         $table->addColumn('global_amount', Types::DECIMAL, ['precision' => 12, 'scale' => 2]);
         $table->addColumn('payment_type', Types::STRING, ['length' => 50]);

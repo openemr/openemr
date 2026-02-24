@@ -87,7 +87,7 @@ final class Version20260000020174 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('status', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('MedEx_lastupdated', Types::DATETIME_MUTABLE);
+        $table->addColumn('MedEx_lastupdated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
 
         $table->addUniqueIndex(['ME_username'], 'ME_username');
 

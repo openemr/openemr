@@ -39,7 +39,7 @@ final class Version20260000020164 extends AbstractMigration
         $table->addColumn('dbname', Types::STRING, ['length' => 255]);
         $table->addColumn('host', Types::STRING, ['length' => 255, 'default' => 'localhost']);
         $table->addColumn('port', Types::SMALLINT, ['default' => 3306]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE);
+        $table->addColumn('date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

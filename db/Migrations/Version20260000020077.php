@@ -53,7 +53,7 @@ final class Version20260000020077 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('create_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('create_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('doc_type', Types::STRING, ['length' => 255]);
         $table->addColumn('patient_signed_status', Types::SMALLINT, ['unsigned' => true]);
         $table->addColumn('patient_signed_time', Types::DATETIME_MUTABLE, ['notnull' => false]);
