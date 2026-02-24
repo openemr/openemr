@@ -573,7 +573,7 @@ $vendors = $boot->getVendorGlobals();
                     <!-- User Permissions Table Section -->
                     <div class="table-responsive">
                         <table class="table table-striped table-hover table-sm">
-                            <thead class="thead-dark">
+                            <thead class="table-dark">
                             <tr>
                                 <th><?php echo xlt("User"); ?></th>
                                 <th><?php echo xlt("Username"); ?></th>

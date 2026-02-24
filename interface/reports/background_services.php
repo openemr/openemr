@@ -85,7 +85,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
   <th align='center'>
     <?php echo xlt('Service Name'); ?>
   </th>

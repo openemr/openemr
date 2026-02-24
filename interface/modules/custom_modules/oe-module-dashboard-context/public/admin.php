@@ -232,7 +232,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                 </div>
                 <div class="table-responsive">
                     <table id="usersTable" class="table table-striped table-hover">
-                        <thead class="thead-light">
+                        <thead class="table-light">
                         <tr>
                             <th style="width:30px;"><input type="checkbox" id="selectAllUsers"></th>
                             <th><?php echo xlt('User'); ?></th>
@@ -256,7 +256,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
-                        <thead class="thead-light">
+                        <thead class="table-light">
                         <tr>
                             <th><?php echo xlt('Role Type'); ?></th>
                             <th><?php echo xlt('Default Context'); ?></th>

@@ -153,7 +153,7 @@ if (!empty($_POST['form_refresh'])) {
 
 
 <table width='98%' id='mymaintable' class='table table-striped mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
 <tr>
 <th class='bold'><?php echo xlt('Category'); ?></th>
 <th class='bold'><?php echo xlt('Type'); ?></th>

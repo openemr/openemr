@@ -170,7 +170,7 @@ function goPid(pid) {
                       <div class="drHide">' .
                           '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary  btn-sm btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-primary btn-sm btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                       </div>
-                      <div class="pre-scrollable mt-3">
+                      <div class="overflow-auto mt-3" style="max-height:350px">
                       <fieldset>
                       <legend>' . xla('Dated Reminders') . '</legend>
                       <table class="table-sm">

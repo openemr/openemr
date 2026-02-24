@@ -164,7 +164,7 @@ function get_history_codes($pid)
         </div>
         <div id="tips" class="d-none">
             <section class="card bg-warning">
-                <header class="card-heading card-heading-sm">
+                <header class="card-header card-header-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
                 <div class="card-body">

@@ -1585,7 +1585,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     </div>
                 </fieldset>
                 <fieldset class="container-xl card clearfix">
-                    <legend class="card-heading collapsed lfont1" data-bs-toggle="collapse" data-bs-target="#summary" role="button">
+                    <legend class="card-header collapsed lfont1" data-bs-toggle="collapse" data-bs-target="#summary" role="button">
                         <i class="fa fa-plus me-2"></i><?php echo xlt("Order Documents and Logs"); ?>
                         <i class="wait fa fa-cog fa-spin ms-2 d-none"></i>
                     </legend>
@@ -1777,7 +1777,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             ?>
                             <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo attr($i) ?>">
                                 <?php if ($i < 1) { ?>
-                                    <thead class="thead-dark">
+                                    <thead class="table-dark">
                                     <tr>
                                         <th>&nbsp;</th>
                                         <th class="quest">&nbsp;</th>

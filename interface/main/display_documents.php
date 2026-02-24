@@ -200,7 +200,7 @@ $display_div = "style='display:block;'";
 
         <div class="table-responsive">
             <table class="table table-bordered">
-                <thead class='thead-light'>
+                <thead class='table-light'>
                     <tr class='text fw-bold text-start'>
                         <th width="10%"><?php echo xlt('Date'); ?></th>
                         <th class="linkcell" width="20%"><?php echo xlt('Name'); ?></th>

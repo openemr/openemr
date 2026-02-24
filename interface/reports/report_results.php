@@ -156,7 +156,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
   <th class='text-center'>
     <?php echo xlt('Title'); ?>
   </th>

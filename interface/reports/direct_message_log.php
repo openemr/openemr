@@ -104,7 +104,7 @@ $logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lo
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
 
   <th align='center'>
     <?php echo xlt('ID'); ?>
