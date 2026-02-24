@@ -499,8 +499,9 @@ if (isset($this_message['pid'])) {
     </div><!--end of container div-->
   <script>
     $(function () {
-        $('#link-tooltip').tooltip({title: "<?php echo xla('This message need not necessarily be linked to a patient'); ?>"});
-        $('#select-tooltip').tooltip({title: "<?php echo xla('If the checkbox is checked then each individual of a group receiving this message will have to sign off by clicking the Set As Completed button'); ?>"});
+        // Initialize BS5 tooltips
+        new bootstrap.Tooltip(document.getElementById('link-tooltip'), {title: "<?php echo xla('This message need not necessarily be linked to a patient'); ?>"});
+        new bootstrap.Tooltip(document.getElementById('select-tooltip'), {title: "<?php echo xla('If the checkbox is checked then each individual of a group receiving this message will have to sign off by clicking the Set As Completed button'); ?>"});
     });
   </script>
 </body>

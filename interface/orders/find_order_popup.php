@@ -132,7 +132,7 @@ if (isset($_GET['typeid'])) {
 <body>
 <div class="container">
     <div class="row">
-        <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
         if (isset($_GET['formid'])) {
             echo '&formid=' . attr_url($_GET['formid']);
         }

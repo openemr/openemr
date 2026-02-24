@@ -64,7 +64,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title"><?php echo xlt('About Portal Dashboard') ?></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div>
