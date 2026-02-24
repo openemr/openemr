@@ -202,7 +202,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
         <div id="report_results">
             <table class='table'>
 
-                <thead class='thead-light'>
+                <thead class='table-light'>
                 <th><?php echo xlt('IP String'); ?></th>
                 <th><?php echo xlt('Total Failed Logins'); ?></th>
                 <th><?php echo xlt('Applicable Failed Logins'); ?></th>

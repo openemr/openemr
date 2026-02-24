@@ -18,12 +18,12 @@
                     <label>{{'Dispense Quantity'|xlt}}</label>
                 </div>
                 <div class="col-3">
-                    <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{{DISP_QUANTITY|attr}}" />
+                    <input class="form-control form-control-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{{DISP_QUANTITY|attr}}" />
                     {{ "units"|xlt }}
                 </div>
                 <div class="col-5">
                     <label>{{'Fee'|xlt}}</label>
-                    {{GBL_CURRENCY_SYMBOL|text}}<input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{{DISP_FEE|attr}}" />
+                    {{GBL_CURRENCY_SYMBOL|text}}<input class="form-control form-control-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{{DISP_FEE|attr}}" />
                 </div>
             </div>
             <div class="mb-3 row mt-3">

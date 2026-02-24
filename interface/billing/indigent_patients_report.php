@@ -152,7 +152,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <div id="report_results">
 <table class='table'>
 
- <thead class="thead-light">
+ <thead class="table-light">
   <th>
    &nbsp;<?php echo xlt('Patient'); ?>
   </th>

@@ -326,7 +326,7 @@ if ($showit == 'ext') {
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Clinical Field</th>
                                         <th>Shorthand* Field</th>
                                         <th>Example Shorthand**</th>
@@ -596,7 +596,7 @@ if ($showit == 'ext') {
                             <p>The following terms will be expanded from their shorthand to full expression in the EMR fields:</p>
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Enter this:</th><th>Get this:</th>
                                     </tr>
                                     <tr><td>inf</td><td>inferior</td></tr>
@@ -694,7 +694,7 @@ if ($showit == 'ext') {
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Clinical Field</th>
                                         <th>Shorthand* Field</th>
                                         <th>Example Shorthand**</th>
@@ -946,7 +946,7 @@ if ($showit == 'ext') {
                             The following terms will be expanded from their shorthand to full expression in the EMR fields:
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                        <tr class="thead-dark">
+                                        <tr class="table-dark">
                                             <th>Enter this:</th>
                                             <th>Get this:</th>
                                         </tr>
@@ -1044,7 +1044,7 @@ if ($showit == 'ext') {
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Clinical Field</th>
                                         <th>Shorthand* Field</th>
                                         <th>Example Shorthand**</th>
@@ -1218,7 +1218,7 @@ if ($showit == 'ext') {
                             <p>The following terms will be expanded from their shorthand to full expression in the EMR fields:</p>
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Enter this:</th>
                                         <th>Get this:</th>
                                     </tr>
@@ -1436,7 +1436,7 @@ if ($showit == 'ext') {
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Clinical Field</th>
                                         <th>Shorthand* Field</th>
                                         <th>Example Shorthand**</th>
@@ -1501,7 +1501,7 @@ if ($showit == 'ext') {
 
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <tr class="thead-dark">
+                                    <tr class="table-dark">
                                         <th>Strabismus</th>
                                         <th>Enter this:</th>
                                         <th>Get this:</th>
