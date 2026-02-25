@@ -37,16 +37,23 @@ class VersionService extends BaseService implements VersionServiceInterface
      * instead of the database, so the displayed version always matches the
      * running code without requiring a database migration.
      *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
+     * @param bool $includeTag Include the tag
+     * @param bool $includeRealpatch Include the realpatch
+     * @return string Dot separated major, minor, patch version string (tag at end, if included)
      */
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
-        $string = "{$GLOBALS['v_major']}.{$GLOBALS['v_minor']}.{$GLOBALS['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$GLOBALS['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($GLOBALS['v_realpatch']))) {
-            $string .= " (" . $GLOBALS['v_realpatch'] . ")";
+        $globals = \OpenEMR\Core\OEGlobalsBag::getInstance();
+        $major = (string) $globals->get('v_major', '0');
+        $minor = (string) $globals->get('v_minor', '0');
+        $patch = (string) $globals->get('v_patch', '0');
+        $tag = (string) $globals->get('v_tag', '');
+        $realpatch = (string) $globals->get('v_realpatch', '');
+
+        $string = "{$major}.{$minor}.{$patch}";
+        $string = ($includeTag == true) ? $string . $tag : $string;
+        if ($includeRealpatch && $realpatch !== '') {
+            $string .= " (" . $realpatch . ")";
         }
         return $string;
     }
