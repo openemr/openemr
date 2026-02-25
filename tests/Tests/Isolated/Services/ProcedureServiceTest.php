@@ -30,6 +30,7 @@ use ReflectionClass;
 
 class ProcedureServiceTest extends TestCase
 {
+    /** @var ReflectionClass<ProcedureService> */
     private ReflectionClass $reflectionClass;
 
     protected function setUp(): void
@@ -54,10 +55,12 @@ class ProcedureServiceTest extends TestCase
         $params = $method->getParameters();
         $this->assertCount(1, $params, 'insert() must accept exactly 1 parameter');
         $this->assertSame('data', $params[0]->getName());
-        $this->assertSame('array', $params[0]->getType()->getName());
+        $paramType = $params[0]->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame('array', $paramType->getName());
 
         $returnType = $method->getReturnType();
-        $this->assertNotNull($returnType, 'insert() must declare a return type');
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType, 'insert() must declare a return type');
         $this->assertSame(ProcessingResult::class, $returnType->getName());
     }
 
@@ -79,13 +82,17 @@ class ProcedureServiceTest extends TestCase
         $this->assertCount(2, $params, 'update() must accept exactly 2 parameters');
 
         $this->assertSame('uuid', $params[0]->getName());
-        $this->assertSame('string', $params[0]->getType()->getName());
+        $uuidType = $params[0]->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $uuidType);
+        $this->assertSame('string', $uuidType->getName());
 
         $this->assertSame('data', $params[1]->getName());
-        $this->assertSame('array', $params[1]->getType()->getName());
+        $dataType = $params[1]->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $dataType);
+        $this->assertSame('array', $dataType->getName());
 
         $returnType = $method->getReturnType();
-        $this->assertNotNull($returnType, 'update() must declare a return type');
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType, 'update() must declare a return type');
         $this->assertSame(ProcessingResult::class, $returnType->getName());
     }
 
@@ -101,7 +108,7 @@ class ProcedureServiceTest extends TestCase
         $this->assertTrue($property->isReadOnly(), 'procedureOrderValidator must be readonly');
 
         $type = $property->getType();
-        $this->assertNotNull($type, 'procedureOrderValidator must be typed');
+        $this->assertInstanceOf(\ReflectionNamedType::class, $type, 'procedureOrderValidator must be typed');
         $this->assertSame(ProcedureOrderValidator::class, $type->getName());
     }
 }

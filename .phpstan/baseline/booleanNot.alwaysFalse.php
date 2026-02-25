@@ -123,8 +123,13 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/sql.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Negated boolean expression is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sqlconf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
