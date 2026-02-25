@@ -105,25 +105,18 @@ $info_msg = "";
             "send_fac_id = ?, recv_app_id = ?, recv_fac_id = ?, DorP = ?, " .
             "direction = ?, protocol = ?, remote_host = ?, login = ?, " .
             "password = ?, orders_path = ?, results_path = ?, notes = ?, active = ?";
-        $params = [
-            $org_name,
-            trim($_POST['form_name'] ?? ''),
-            trim($_POST['form_npi'] ?? ''),
-            trim($_POST['form_send_app_id'] ?? ''),
-            trim($_POST['form_send_fac_id'] ?? ''),
-            trim($_POST['form_recv_app_id'] ?? ''),
-            trim($_POST['form_recv_fac_id'] ?? ''),
-            trim($_POST['form_DorP'] ?? ''),
-            trim($_POST['form_direction'] ?? ''),
-            trim($_POST['form_protocol'] ?? ''),
-            trim($_POST['form_remote_host'] ?? ''),
-            trim($_POST['form_login'] ?? ''),
-            trim($_POST['form_password'] ?? ''),
-            trim($_POST['form_orders_path'] ?? ''),
-            trim($_POST['form_results_path'] ?? ''),
-            trim($_POST['form_notes'] ?? ''),
-            (($_POST['form_active'] ?? '') == 'on') ? '1' : '0',
+        $params = [$org_name];
+        $postFields = [
+            'form_name', 'form_npi', 'form_send_app_id', 'form_send_fac_id',
+            'form_recv_app_id', 'form_recv_fac_id', 'form_DorP', 'form_direction',
+            'form_protocol', 'form_remote_host', 'form_login', 'form_password',
+            'form_orders_path', 'form_results_path', 'form_notes',
         ];
+        foreach ($postFields as $field) {
+            $val = $_POST[$field] ?? '';
+            $params[] = is_string($val) ? trim($val) : '';
+        }
+        $params[] = (($_POST['form_active'] ?? '') == 'on') ? '1' : '0';
 
         if ($ppid) {
             $params[] = $ppid;
