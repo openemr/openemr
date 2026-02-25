@@ -6,7 +6,11 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Ivan Googla <ivan.jo.dev@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2024 Ivan Googla
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -384,5 +388,57 @@ class PrescriptionService extends BaseService
     public function getOne($uuid, $puuidBind = null)
     {
         return $this->getAll(['_id' => $uuid], $puuidBind);
+    }
+
+    /**
+     * Inserts a new prescription record.
+     *
+     * @param array<string, mixed> $data The prescription data.
+     * @return ProcessingResult containing the new prescription id and uuid.
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<mixed> $binds */
+        $binds = $query['bind'];
+
+        $sql = " INSERT INTO " . self::PRESCRIPTION_TABLE . " SET " . $setClause;
+        $results = QueryUtils::sqlInsert($sql, $binds);
+
+        if ($results) {
+            $processingResult->addData([
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Soft-deletes a prescription record by setting active = 0.
+     *
+     * @param int|string $id The prescription id.
+     * @return ProcessingResult with deletion status.
+     */
+    public function delete(int|string $id): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        $sql = "UPDATE " . self::PRESCRIPTION_TABLE
+             . " SET active = 0, date_modified = NOW() WHERE id = ?";
+        QueryUtils::sqlStatementThrowException($sql, [$id]);
+
+        $processingResult->addData(['message' => 'record deleted']);
+        return $processingResult;
     }
 }

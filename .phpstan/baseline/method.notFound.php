@@ -547,6 +547,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:insertBefore\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
@@ -897,9 +902,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomAuthCodeGrant.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method League\\\\OAuth2\\\\Server\\\\Repositories\\\\UserRepositoryInterface\\:\\:getCustomUserEntityByUserCredentials\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
@@ -915,6 +930,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/UserRepository.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method GuzzleHttp\\\\Exception\\\\GuzzleException\\:\\:getResponse\\(\\)\\.$#',
@@ -937,6 +957,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\IFhirExportableResourceService\\:\\:setServiceLocator\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
@@ -957,6 +997,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/TelemetryListener.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
@@ -970,6 +1015,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNode\\:\\:getElementsByTagName\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:C14N\\(\\)\\.$#',
@@ -997,12 +1047,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ContactService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDiagnosticReport\\:\\:setDate\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportLaboratoryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:setModifier\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
@@ -1012,12 +1097,52 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
 ];
@@ -1027,9 +1152,49 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirGoalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
@@ -1037,14 +1202,129 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirProvenanceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireResponseService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirRelatedPersonService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:hasCodeValue\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirValueSetService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:addProcessingError\\(\\)\\.$#',
@@ -1100,6 +1380,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Particle\\\\Validator\\\\Chain\\:\\:listOption\\(\\)\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
@@ -1290,6 +1575,16 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getChildren\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationPatientServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
