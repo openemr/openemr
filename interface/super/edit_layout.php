@@ -424,7 +424,7 @@ if ($layout_id !== '' && !isset($layouts[$layout_id])) {
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
-$lbfonly = str_starts_with($layout_id, 'LBF') ? "" : "style='display:none;'";
+$lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;'";
 
 // Handle the Form actions
 

@@ -1644,8 +1644,9 @@ class BillingUtilities
             $billset = substr($billset, 2);
             $sqlBindArray = $sqlBindBillset;
             array_push($sqlBindArray, $encounter_id, $patient_id);
-            sqlStatement("UPDATE billing SET $billset WHERE " .
-                "encounter = ? AND pid= ? AND activity = 1", $sqlBindArray);
+            $sql = "UPDATE billing SET " . $billset . " WHERE " .
+                "encounter = ? AND pid= ? AND activity = 1";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         $claimset .= ", submitted_claim = ?";
@@ -1700,10 +1701,10 @@ class BillingUtilities
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
-            sqlStatement("UPDATE claims SET $claimset WHERE " .
+            $sql = "UPDATE claims SET " . $claimset . " WHERE " .
                 "patient_id = ? AND encounter_id = ? AND " .
-                // "payer_id = '" . $row['payer_id'] . "' AND " .
-                "version = ?", $sqlBindArray);
+                "version = ?";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         // Whenever a claim is marked billed, update A/R accordingly.
