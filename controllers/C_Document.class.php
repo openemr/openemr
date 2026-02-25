@@ -997,9 +997,9 @@ class C_Document extends Controller
         if (is_numeric($new_patient_id) && is_numeric($document_id)) {
             $d = new Document($document_id);
             $sql = "SELECT pid from patient_data where pid = ?";
-            $result = $d->_db->Execute($sql, [$new_patient_id]);
+            $result = QueryUtils::querySingleRow($sql, [$new_patient_id]);
 
-            if (!$result || $result->EOF) {
+            if ($result === false) {
                 //patient id does not exist
                 $messages .= sprintf("%s '%s' %s\n", xl('Document could not be moved to patient id'), $new_patient_id, xl('because that id does not exist.'));
             } else {
