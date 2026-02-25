@@ -52,10 +52,17 @@ class FhirServiceRequestRestController
         responses: [
             new OA\Response(
                 response: "200",
-                description: "Standard response",
+                description: "Standard Response",
                 content: new OA\MediaType(
                     mediaType: "application/json",
                     schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
                         example: [
                             "id" => "95e9d3fb-fe7b-448a-aa60-d40b11b486a5",
                             "meta" => [
@@ -76,6 +83,20 @@ class FhirServiceRequestRestController
                                     ],
                                 ],
                             ],
+                            "code" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://loinc.org",
+                                        "code" => "24356-8",
+                                        "display" => "Urinalysis complete",
+                                    ],
+                                ],
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf",
+                                "type" => "Patient",
+                            ],
+                            "authoredOn" => "2025-03-26T00:00:00+00:00",
                         ]
                     )
                 )
@@ -113,6 +134,13 @@ class FhirServiceRequestRestController
                 name: "_id",
                 in: "query",
                 description: "The uuid for the ServiceRequest resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
@@ -155,13 +183,20 @@ class FhirServiceRequestRestController
         responses: [
             new OA\Response(
                 response: "200",
-                description: "Standard response",
+                description: "Standard Response",
                 content: new OA\MediaType(
                     mediaType: "application/json",
                     schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
                         example: [
                             "meta" => [
-                                "lastUpdated" => "2025-03-26T17:20:14+00:00",
+                                "lastUpdated" => "2025-09-30T09:13:51",
                             ],
                             "resourceType" => "Bundle",
                             "type" => "collection",
