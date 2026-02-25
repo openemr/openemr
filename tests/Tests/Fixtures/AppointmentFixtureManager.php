@@ -22,7 +22,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class AppointmentFixtureManager
 {
-    const FIXTURE_TITLE_PREFIX = "test-fixture";
+    const FIXTURE_PREFIX = "test-fixture";
 
     /**
      * @var FixtureManager
@@ -55,22 +55,30 @@ class AppointmentFixtureManager
      */
     public function installDependencies(): array
     {
-        $this->patientFixtureManager->installPatientFixtures();
-        $this->facilityFixtureManager->installFacilityFixtures();
-        $this->hasInstalledDependencies = true;
+        if (!$this->hasInstalledDependencies) {
+            $this->patientFixtureManager->installPatientFixtures();
+            $this->facilityFixtureManager->installFacilityFixtures();
+            $this->hasInstalledDependencies = true;
+        }
 
         // Get the first test patient's pid
         $patientRow = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
-            [self::FIXTURE_TITLE_PREFIX . "%"]
+            [self::FIXTURE_PREFIX . "%"]
         );
+        if ($patientRow === false || !isset($patientRow['pid'])) {
+            throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
+        }
         $pid = intval($patientRow['pid']);
 
         // Get the first test facility's id
         $facilityRow = sqlQuery(
             "SELECT id FROM facility WHERE name LIKE ? LIMIT 1",
-            [self::FIXTURE_TITLE_PREFIX . "%"]
+            [self::FIXTURE_PREFIX . "%"]
         );
+        if ($facilityRow === false || !isset($facilityRow['id'])) {
+            throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
+        }
         $facilityId = intval($facilityRow['id']);
 
         return ['pid' => $pid, 'facility_id' => $facilityId];
@@ -86,9 +94,9 @@ class AppointmentFixtureManager
     {
         return [
             'pc_catid' => 5, // office_visit — always exists in default install
-            'pc_title' => self::FIXTURE_TITLE_PREFIX . '-Office Visit',
+            'pc_title' => self::FIXTURE_PREFIX . '-Office Visit',
             'pc_duration' => 900, // 15 minutes in seconds
-            'pc_hometext' => self::FIXTURE_TITLE_PREFIX . ' Routine checkup notes',
+            'pc_hometext' => self::FIXTURE_PREFIX . ' Routine checkup notes',
             'pc_apptstatus' => '-', // None — always exists in default install
             'pc_eventDate' => date('Y-m-d'),
             'pc_startTime' => '10:00',
@@ -107,9 +115,9 @@ class AppointmentFixtureManager
     {
         return [
             'pc_catid' => 10, // new_patient — always exists in default install
-            'pc_title' => self::FIXTURE_TITLE_PREFIX . '-New Patient Visit',
+            'pc_title' => self::FIXTURE_PREFIX . '-New Patient Visit',
             'pc_duration' => 1800, // 30 minutes in seconds
-            'pc_hometext' => self::FIXTURE_TITLE_PREFIX . ' New patient intake',
+            'pc_hometext' => self::FIXTURE_PREFIX . ' New patient intake',
             'pc_apptstatus' => '^', // Pending — always exists in default install
             'pc_eventDate' => date('Y-m-d', strtotime('+1 day')),
             'pc_startTime' => '14:30',
@@ -123,7 +131,7 @@ class AppointmentFixtureManager
      */
     public function removeFixtures(): void
     {
-        $bindVariable = self::FIXTURE_TITLE_PREFIX . "%";
+        $bindVariable = self::FIXTURE_PREFIX . "%";
 
         // Remove test appointments by title
         try {
