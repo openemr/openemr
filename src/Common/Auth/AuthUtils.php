@@ -632,13 +632,6 @@ class AuthUtils
         if ($create && ($userInfo === false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
             $ldapDummyPassword = true;
             $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newPwd)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($newPwd);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
         }
 
         // Ensure new password is not blank
@@ -988,12 +981,6 @@ class AuthUtils
         if (self::useActiveDirectory($username)) {
             // rehash for LDAP
             $newRandomDummyPassword = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newRandomDummyPassword)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($password);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
             $phash = $this->authHashAuth->passwordHash($newRandomDummyPassword);
             $this->clearFromMemory($newRandomDummyPassword);
         } else {

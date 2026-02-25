@@ -15,26 +15,15 @@ namespace OpenEMR\Common\Utils;
 class RandomGenUtils
 {
     /**
-     * Produce random bytes (uses random_bytes with error checking)
-     *
-     * @param int $length Length of the random bytes to produce
-     * @return string Random bytes as a string
+     * @deprecated Use random_bytes() directly
      */
     public static function produceRandomBytes(int $length): string
     {
-        try {
-            return random_bytes($length);
-        } catch (\Error $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
-        } catch (\Throwable $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
-            return '';
-        }
+        return random_bytes($length);
     }
 
     /**
-     * Produce random string (uses random_int with error checking)
+     * Produce random string using random_int
      *
      * @param int $length Length of the random string to produce
      * @param string $alphabet Alphabet to use for generating the random string
@@ -44,18 +33,10 @@ class RandomGenUtils
     {
         $str = '';
         $alphamax = strlen($alphabet) - 1;
-        try {
-            for ($i = 0; $i < $length; ++$i) {
-                $str .= $alphabet[random_int(0, $alphamax)];
-            }
-            return $str;
-        } catch (\Error $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
-        } catch (\Throwable $e) {
-            error_log('OpenEMR Error: Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
-            return '';
+        for ($i = 0; $i < $length; ++$i) {
+            $str .= $alphabet[random_int(0, $alphamax)];
         }
+        return $str;
     }
 
     /**
@@ -66,14 +47,7 @@ class RandomGenUtils
      */
     public static function createUniqueToken(int $length = 40): string
     {
-        $new_token = self::produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-        if (empty($new_token)) {
-            error_log('OpenEMR Error: OpenEMR is not working because unable to create a random unique token.');
-            die("OpenEMR Error: OpenEMR is not working because unable to create a random unique token.");
-        }
-
-        return $new_token;
+        return self::produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     }
 
     /**
@@ -91,12 +65,6 @@ class RandomGenUtils
         $max_tries = 1000; // Maximum number of tries to generate a valid password
         for ($i = 0; $i < $max_tries; $i++) {
             $the_password = self::produceRandomString(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%");
-            if (empty($the_password)) {
-                // Something is seriously wrong with the random generator
-                $error_message = "OpenEMR Error: OpenEMR is not working because unable to create a random unique token.";
-                error_log($error_message);
-                die($error_message);
-            }
             if (
                 preg_match('/[A-Z]/', $the_password) &&
                 preg_match('/[a-z]/', $the_password) &&
