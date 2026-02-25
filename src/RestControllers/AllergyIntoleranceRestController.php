@@ -18,12 +18,15 @@ use OpenEMR\RestControllers\RestControllerHelper;
 
 #[OA\Schema(
     schema: "api_allergy_request",
+    description: "Schema for the allergy request",
+    required: ["title", "begdate"],
     properties: [
         new OA\Property(property: "title", description: "The title of allergy.", type: "string"),
-        new OA\Property(property: "begdate", description: "The begin date of allergy.", type: "string"),
+        new OA\Property(property: "begdate", description: "The beginning date of allergy.", type: "string"),
         new OA\Property(property: "enddate", description: "The end date of allergy.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of allergy.", type: "string"),
-    ]
+        new OA\Property(property: "diagnosis", description: "The diagnosis of allergy. In format `<codetype>:<code>`", type: "string"),
+    ],
+    example: ["title" => "Iodine", "begdate" => "2010-10-13", "enddate" => null]
 )]
 class AllergyIntoleranceRestController
 {

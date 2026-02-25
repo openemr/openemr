@@ -301,14 +301,6 @@ use OpenApi\Attributes as OA;
         )
     )
 )]
-#[OA\Response(
-    response: "fhir",
-    description: "FHIR Response",
-    content: new OA\MediaType(
-        mediaType: "application/json",
-        schema: new OA\Schema(type: "object")
-    )
-)]
 class OpenApiDefinitions
 {
     // This class serves only as a container for OpenAPI attributes.

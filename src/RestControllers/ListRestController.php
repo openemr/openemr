@@ -18,31 +18,39 @@ use OpenEMR\RestControllers\RestControllerHelper;
 
 #[OA\Schema(
     schema: "api_dental_issue_request",
+    description: "Schema for the dental_issue request",
+    required: ["title", "begdate"],
     properties: [
         new OA\Property(property: "title", description: "The title of dental issue.", type: "string"),
-        new OA\Property(property: "begdate", description: "The start date of dental issue.", type: "string"),
+        new OA\Property(property: "begdate", description: "The beginning date of dental issue.", type: "string"),
         new OA\Property(property: "enddate", description: "The end date of dental issue.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of dental issue.", type: "string"),
-    ]
+        new OA\Property(property: "diagnosis", description: "The diagnosis of dental issue. In format `<codetype>:<code>`", type: "string"),
+    ],
+    example: ["title" => "Halitosis", "begdate" => "2015-03-17", "enddate" => null]
 )]
 #[OA\Schema(
     schema: "api_medication_request",
+    description: "Schema for the medication request",
+    required: ["title", "begdate"],
     properties: [
         new OA\Property(property: "title", description: "The title of medication.", type: "string"),
-        new OA\Property(property: "begdate", description: "The start date of medication.", type: "string"),
+        new OA\Property(property: "begdate", description: "The beginning date of medication.", type: "string"),
         new OA\Property(property: "enddate", description: "The end date of medication.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of medication.", type: "string"),
-    ]
+        new OA\Property(property: "diagnosis", description: "The diagnosis of medication. In format `<codetype>:<code>`", type: "string"),
+    ],
+    example: ["title" => "Norvasc", "begdate" => "2013-04-13", "enddate" => null]
 )]
 #[OA\Schema(
     schema: "api_surgery_request",
+    description: "Schema for the surgery request",
+    required: ["title", "begdate"],
     properties: [
         new OA\Property(property: "title", description: "The title of surgery.", type: "string"),
-        new OA\Property(property: "begdate", description: "The start date of surgery.", type: "string"),
+        new OA\Property(property: "begdate", description: "The beginning date of surgery.", type: "string"),
         new OA\Property(property: "enddate", description: "The end date of surgery.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of surgery.", type: "string"),
-        new OA\Property(property: "comments", description: "Comments about the surgery.", type: "string"),
-    ]
+        new OA\Property(property: "diagnosis", description: "The diagnosis of surgery. In format `<codetype>:<code>`", type: "string"),
+    ],
+    example: ["title" => "Blepharoplasty", "begdate" => "2013-10-14", "enddate" => null, "diagnosis" => "CPT4:15823-50"]
 )]
 class ListRestController
 {
