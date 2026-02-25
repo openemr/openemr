@@ -57,7 +57,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   if: false  # Disabled until SQLite support is implemented
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v6
   #     - uses: shivammathur/setup-php@v2
   #       with:
   #         php-version: '8.4'
@@ -72,7 +72,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   if: false  # Disabled until PostgreSQL support is implemented
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v6
   #     - uses: shivammathur/setup-php@v2
   #       with:
   #         php-version: '8.4'
