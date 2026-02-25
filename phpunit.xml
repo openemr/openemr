@@ -54,5 +54,9 @@ This file configures the kind that requires initialization.
       <file>tests/Tests/E2e/EmailSendTest.php</file>
       <file>tests/Tests/E2e/FaxSmsEmailTest.php</file>
     </testsuite>
+    <testsuite name="bootstrap5">
+      <file>tests/Tests/E2e/Bootstrap5SmokeTest.php</file>
+      <file>tests/Tests/E2e/Bootstrap5ComponentTest.php</file>
+    </testsuite>
   </testsuites>
 </phpunit>
