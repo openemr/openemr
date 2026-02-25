@@ -18,12 +18,15 @@ use OpenEMR\RestControllers\RestControllerHelper;
 
 #[OA\Schema(
     schema: "api_medical_problem_request",
+    description: "Schema for the medical_problem request",
+    required: ["title", "begdate"],
     properties: [
-        new OA\Property(property: "title", description: "The title of the medical problem.", type: "string"),
-        new OA\Property(property: "begdate", description: "The begin date of medical problem.", type: "string"),
+        new OA\Property(property: "title", description: "The title of medical problem.", type: "string"),
+        new OA\Property(property: "begdate", description: "The beginning date of medical problem.", type: "string"),
         new OA\Property(property: "enddate", description: "The end date of medical problem.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of medical problem.", type: "string"),
-    ]
+        new OA\Property(property: "diagnosis", description: "The diagnosis of medical problem. In format `<codetype>:<code>`", type: "string"),
+    ],
+    example: ["title" => "Dermatochalasis", "begdate" => "2010-10-13", "enddate" => null, "diagnosis" => "ICD10:H02.839"]
 )]
 class ConditionRestController
 {

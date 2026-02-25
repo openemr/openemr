@@ -18,6 +18,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 
 #[OA\Schema(
     schema: "api_message_request",
+    description: "Schema for the message request",
     required: ["body", "groupname", "from", "to", "title", "message_status"],
     properties: [
         new OA\Property(property: "body", description: "The body of message.", type: "string"),

@@ -20,6 +20,7 @@ use OpenEMR\Services\InsuranceCompanyService;
 
 #[OA\Schema(
     schema: "api_insurance_company_request",
+    description: "Schema for the insurance_company request",
     required: ["name"],
     properties: [
         new OA\Property(property: "name", description: "The name of insurance company.", type: "string"),

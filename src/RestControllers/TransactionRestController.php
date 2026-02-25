@@ -21,6 +21,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 #[OA\Schema(
     schema: "api_transaction_request",
+    description: "Schema for the transaction request",
     required: ["message", "groupname", "title"],
     properties: [
         new OA\Property(property: "message", description: "The message of the transaction.", type: "string"),
@@ -33,10 +34,9 @@ use OpenEMR\Validators\ProcessingResult;
         new OA\Property(property: "includeVitals", description: "Are vitals included (0,1)", type: "string"),
         new OA\Property(property: "referralDate", description: "The date of the referral", type: "string"),
         new OA\Property(property: "authorization", description: "The authorization for the referral", type: "string"),
-        new OA\Property(property: "visits", description: "Number of allowed visits for the referral", type: "string"),
+        new OA\Property(property: "visits", description: "The number of visits for the referral", type: "string"),
         new OA\Property(property: "validFrom", description: "The date the referral is valid from", type: "string"),
         new OA\Property(property: "validThrough", description: "The date the referral is valid through", type: "string"),
-        new OA\Property(property: "body", description: "The body/reason of the transaction", type: "string"),
     ],
     example: [
         "message" => "Message",
